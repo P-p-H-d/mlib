@@ -153,9 +153,20 @@ static void test_uint(void)
 
   rbtree_uint_init(tree3);
   rbtree_uint_push(tree3, 5);
+  assert(rbtree_uint_size(tree3) == 1);
+  assert(*rbtree_uint_cmin(tree3) == 5);
+  assert(*rbtree_uint_cmax(tree3) == 5);
   rbtree_uint_move(tree3, tree);
   rbtree_uint_clear(tree3);
 
+  rbtree_uint_init(tree3);
+  rbtree_uint_push(tree3, 5);
+  assert(rbtree_uint_size(tree3) == 1);
+  rbtree_uint_it(it, tree3);
+  rbtree_uint_remove(tree3, it);
+  assert(rbtree_uint_size(tree3) == 0);
+  rbtree_uint_clear(tree3);
+  
   rbtree_uint_init_move(tree, tree2);
   rbtree_uint_init_move(tree2, tree);
   assert (rbtree_uint_empty_p(tree2));
