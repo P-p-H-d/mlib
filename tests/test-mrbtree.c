@@ -161,10 +161,56 @@ static void test_uint(void)
 
   rbtree_uint_init(tree3);
   rbtree_uint_push(tree3, 5);
-  assert(rbtree_uint_size(tree3) == 1);
+  rbtree_uint_push(tree3, 3);
+  rbtree_uint_push(tree3, 7);
+  rbtree_uint_push(tree3, 2);
+  assert(rbtree_uint_size(tree3) == 4);
   rbtree_uint_it(it, tree3);
   rbtree_uint_remove(tree3, it);
+  assert(rbtree_uint_size(tree3) == 3);
+  assert(*rbtree_uint_cref(it) == 3);
+  rbtree_uint_remove(tree3, it);
+  assert(rbtree_uint_size(tree3) == 2);
+  assert(*rbtree_uint_cref(it) == 5);
+  rbtree_uint_remove(tree3, it);
+  assert(rbtree_uint_size(tree3) == 1);
+  assert(*rbtree_uint_cref(it) == 7);
+  rbtree_uint_remove(tree3, it);
   assert(rbtree_uint_size(tree3) == 0);
+
+  rbtree_uint_push(tree3, 1);
+  rbtree_uint_push(tree3, 0);
+  rbtree_uint_push(tree3, 5);
+  rbtree_uint_push(tree3, 3);
+  rbtree_uint_push(tree3, 7);
+  rbtree_uint_push(tree3, 2);
+  rbtree_uint_push(tree3, 8);
+  rbtree_uint_push(tree3, 9);
+  rbtree_uint_push(tree3, 10);
+  rbtree_uint_it(it, tree3);
+  assert(*rbtree_uint_cref(it) == 0);
+  rbtree_uint_next(it);
+  assert(*rbtree_uint_cref(it) == 1);
+  rbtree_uint_next(it);
+  assert(*rbtree_uint_cref(it) == 2);
+  rbtree_uint_next(it);
+  assert(*rbtree_uint_cref(it) == 3);
+  rbtree_uint_previous(it);
+  assert(*rbtree_uint_cref(it) == 2);
+  rbtree_uint_next(it);
+  assert(*rbtree_uint_cref(it) == 3);
+  rbtree_uint_remove(tree3, it);
+  assert(*rbtree_uint_cref(it) == 5);
+  rbtree_uint_previous(it);
+  assert(*rbtree_uint_cref(it) == 2);
+  rbtree_uint_remove(tree3, it);
+  assert(*rbtree_uint_cref(it) == 5);
+  rbtree_uint_remove(tree3, it);
+  assert(*rbtree_uint_cref(it) == 7);
+  rbtree_uint_next(it);
+  rbtree_uint_remove(tree3, it);
+  assert(*rbtree_uint_cref(it) == 9);
+  
   rbtree_uint_clear(tree3);
   
   rbtree_uint_init_move(tree, tree2);
