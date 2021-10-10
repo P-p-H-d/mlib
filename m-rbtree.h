@@ -69,7 +69,7 @@
   ((M_LIB_ERROR(ARGUMENT_OF_RBTREE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* OPLIST definition of a rbtree
-   NOTE: IT_REF is not exported so that the contained appears as not modifiable
+   NOTE: IT_REF is not exported so that the container appears as not modifiable
    by algorithm.*/
 #define M_RBTR33_OPLIST_P3(name, oplist)                                      \
   (INIT(M_C(name, _init)),                                                    \
@@ -94,6 +94,7 @@
    IT_LAST_P(M_C(name,_last_p)),                                              \
    IT_EQUAL_P(M_C(name,_it_equal_p)),                                         \
    IT_NEXT(M_C(name,_next)),                                                  \
+   IT_PREVIOUS(M_C(name,_previous)),                                          \
    IT_CREF(M_C(name,_cref)),                                                  \
    CLEAN(M_C(name,_clean)),                                                   \
    PUSH(M_C(name,_push)),                                                     \
