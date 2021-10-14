@@ -130,8 +130,23 @@ void test(int select_test, int index,
     if (!c1.empty()) {
       // To rework for dict
       index = index % c1.size();
+#ifndef HAVE_GET_KEY_THROUGH_FIND
       M_CALL_SET(M_GET_OPLIST CONT_OPL, b0, *M_CALL_GET_KEY(CONT_OPL, c0, index));
       b1 = c1[index];
+#else
+      BASE_TYPE *p = M_CALL_GET_KEY(CONT_OPL, c0, index);
+      if (p!= NULL) {
+        M_CALL_SET(M_GET_OPLIST CONT_OPL, b0, *p);
+        auto i = c1.find(index);
+        assert(i != c1.end());
+        b1 = *i;
+      } else {
+        auto i = c1.find(index);
+        assert(i == c1.end());
+        TYPE_SET_INT(b0, 0);
+        CLASS_SET_INT(b1, 0);
+      }
+#endif
     }
     break;
 #endif
@@ -153,8 +168,18 @@ void test(int select_test, int index,
     if (!c1.empty()) {
       index = index % c1.size();
       p0 = M_CALL_ERASE_KEY(CONT_OPL, c0, index);
+#ifndef HAVE_GET_KEY_THROUGH_FIND
       c1.erase(c1.begin() + index);
       p1 = true;
+#else
+      auto i = c1.find(index);
+      if (i != c1.end()) {
+        c1.erase(i);
+        p1 = true;
+      } else {
+        p1 = false;
+      }
+#endif
     }
     break;
 #endif
@@ -206,10 +231,21 @@ void test(int select_test, int index,
     // To rework for dict
     index = (1 + (c1.size() < 1000000)) * (index % ( c1.size() + 1) );
     M_CALL_SET(M_GET_OPLIST CONT_OPL, b0, *M_CALL_GET_SET_KEY(CONT_OPL, c0, index));
+#ifndef HAVE_GET_KEY_THROUGH_FIND
     if ((size_t) index >= c1.size() ) {
       c1.resize(index+1);
     }
     b1 = c1[index];
+#else
+    {
+      auto i = c1.find(index);
+      if (i == c1.end()) {
+        c1.insert(index);
+        i = c1.find(index);
+      }
+      b1 = *i;
+    }
+#endif
     break;
 #endif
 
@@ -217,15 +253,23 @@ void test(int select_test, int index,
   case 15:
     M_CALL_IT_FIRST(CONT_OPL, it0, c0);
     it1 = c1.begin();
-    while (it1 != c1.end()) {
-      assert( !M_CALL_IT_END_P(CONT_OPL, it0));
+    while (!M_CALL_IT_END_P(CONT_OPL, it0)) {
       M_CALL_SET(M_GET_OPLIST CONT_OPL, b0, *M_CALL_IT_CREF(CONT_OPL, it0));
+#ifndef DONT_HAVE_SEQUENCE_IT
+      assert(it1 != c1.end());
       b1 = *it1;
+      it1++;
+#else
+      it1 = c1.find(b0);
+      assert(it1 != c1.end());
+      b1 = *it1;
+#endif
       CMP_BASE(b0, b1);
       M_CALL_IT_NEXT(CONT_OPL, it0);
-      it1++;
     }
-    assert(M_CALL_IT_END_P(CONT_OPL, it0));
+#ifndef DONT_HAVE_SEQUENCE_IT
+    assert(it1 == c1.end());
+#endif
     break;
 #endif
 
