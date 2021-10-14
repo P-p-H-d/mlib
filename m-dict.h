@@ -1097,7 +1097,9 @@
 #define M_D1CT_SET_OPLIST_FAILURE(name, oplist)                               \
   ((M_LIB_ERROR(ARGUMENT_OF_DICT_SET_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
-/* Define the oplist of a set */
+/* Define the oplist of a set
+   Note: IT_REF is not exported so that the contained appears as not modifiable
+*/
 #define M_D1CT_SET_OPLIST_P3(name, oplist)                                    \
   (INIT(M_C(name, _init)),                                                    \
    INIT_SET(M_C(name, _init_set)),                                            \
@@ -1128,7 +1130,6 @@
    IT_END_P(M_C(name,_end_p)),                                                \
    IT_LAST_P(M_C(name,_last_p)),                                              \
    IT_NEXT(M_C(name,_next)),                                                  \
-   IT_REF(M_C(name,_ref)),                                                    \
    IT_CREF(M_C(name,_cref))                                                   \
    ,OPLIST(oplist)                                                            \
    ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),)               \
