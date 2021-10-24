@@ -269,6 +269,9 @@ m_str1ng_fit2size (string_t v, size_t size_alloc)
   // Note: this function may be called in context where the contract
   // is not fullfilled.
   const size_t old_alloc = string_capacity(v);
+  // This line enables the compiler to completly remove this function
+  // for very short constant strings.
+  M_ASSUME(old_alloc >= sizeof (string_heap_ct) - 1);
   if (M_UNLIKELY (size_alloc > old_alloc)) {
     size_t alloc = size_alloc + size_alloc / 2;
     if (M_UNLIKELY (alloc <= old_alloc)) {
