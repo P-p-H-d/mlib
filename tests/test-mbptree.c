@@ -187,7 +187,7 @@ static void test2(void)
   assert (k == -2);
   r = btree_pop_at(NULL, b, 0);
   assert (r == false);
-  btree_clean(b);
+  btree_reset(b);
   assert (btree_size(b) == 0);
   assert (btree_empty_p(b));
   btree_clear(b);

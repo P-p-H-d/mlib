@@ -2992,9 +2992,9 @@ from 'ref' and clear 'ref'.
 Set the Red Black Tree 'rbtree' by stealing as resource as possible
 from 'ref' and clear 'ref'.
 
-##### void name\_clean(name\_t rbtree)
+##### void name\_reset(name\_t rbtree)
 
-Clean the Red Black Tree 'rbtree'. 'rbtree' remains initialized but empty.
+Reset the Red Black Tree 'rbtree' (It remains initialized but empty).
 
 ##### size\_t name\_size(const name\_t rbtree)
 
@@ -3316,9 +3316,9 @@ from 'ref' and clear 'ref'.
 Set the B+Tree 'tree' by stealing as resource as possible
 from 'ref' and clear 'ref'.
 
-##### void name\_clean(name\_t tree)
+##### void name\_reset(name\_t tree)
 
-Clean the B+Tree 'tree'. 'tree' remains initialized but empty.
+Reset the B+Tree 'tree' (It remains initialized but empty).
 
 ##### size\_t name\_size(const name\_t tree)
 

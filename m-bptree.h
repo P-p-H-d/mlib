@@ -175,7 +175,7 @@
    IT_NEXT(M_C(name,_next)),                                                  \
    IT_REF(M_C(name,_ref)),                                                    \
    IT_CREF(M_C(name,_cref)),                                                  \
-   CLEAN(M_C(name,_clean)),                                                   \
+   CLEAN(M_C(name,_reset)),                                                   \
    PUSH(M_C(name,_push)),                                                     \
    GET_MIN(M_C(name,_min)),                                                   \
    GET_MAX(M_C(name,_max)),                                                   \
@@ -227,7 +227,7 @@
    IT_EQUAL_P(M_C(name,_it_equal_p)),                                         \
    IT_NEXT(M_C(name,_next)),                                                  \
    IT_CREF(M_C(name,_cref)),                                                  \
-   CLEAN(M_C(name,_clean)),                                                   \
+   CLEAN(M_C(name,_reset)),                                                   \
    GET_MIN(M_C(name,_min)),                                                   \
    GET_MAX(M_C(name,_max)),                                                   \
    KEY_TYPE(M_C(name, _key_ct)),                                              \
@@ -432,7 +432,7 @@
     return num;                                                               \
   }                                                                           \
                                                                               \
-  static inline void M_C(name, _clean)(tree_t b)                              \
+  static inline void M_C(name, _reset)(tree_t b)                              \
   {                                                                           \
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
     node_t next, n = b->root;                                                 \
@@ -475,10 +475,15 @@
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
   }                                                                           \
                                                                               \
+  static inline void M_ATTR_DEPRECATED M_C(name, _clean)(tree_t b)            \
+  {                                                                           \
+    M_C(name, _reset)(b);                                                     \
+  }                                                                           \
+                                                                              \
   static inline void M_C(name, _clear)(tree_t b)                              \
   {                                                                           \
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
-    M_C(name, _clean)(b);                                                     \
+    M_C(name, _reset)(b);                                                     \
     /* Once the tree is clean, only the root remains */                       \
     M_CALL_DEL(key_oplist, b->root);                                          \
     b->root = NULL;                                                           \
@@ -1307,7 +1312,7 @@
   {                                                                           \
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, t1);                            \
     M_ASSERT (str != NULL);                                                   \
-    M_C(name,_clean)(t1);                                                     \
+    M_C(name,_reset)(t1);                                                     \
     bool success = false;                                                     \
     int c = *str++;                                                           \
     if (M_UNLIKELY (c != '[')) goto exit;                                     \
@@ -1349,7 +1354,7 @@
   {                                                                           \
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, t1);                            \
     M_ASSERT (file != NULL);                                                  \
-    M_C(name,_clean)(t1);                                                     \
+    M_C(name,_reset)(t1);                                                     \
     int c = fgetc(file);                                                      \
     if (M_UNLIKELY (c != '[')) return false;                                  \
     c = fgetc(file);                                                          \
@@ -1435,7 +1440,7 @@
     m_serial_return_code_t ret;                                               \
     size_t estimated_size = 0;                                                \
     key_t key;                                                                \
-    M_C(name,_clean)(t1);                                                     \
+    M_C(name,_reset)(t1);                                                     \
     M_IF(isMap)(                                                              \
                 value_t value;                                                \
                 ret = f->m_interface->read_map_start(local, f, &estimated_size); \

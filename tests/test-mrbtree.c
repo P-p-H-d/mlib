@@ -266,7 +266,7 @@ static void test_uint(void)
 
   rbtree_uint_init (tree);
   assert(rbtree_uint_empty_p(tree));
-  rbtree_uint_clean(tree2);
+  rbtree_uint_reset(tree2);
   rbtree_uint_push(tree2, 17421);
   assert(rbtree_uint_size(tree2) == 1);
   rbtree_uint_swap(tree, tree2);

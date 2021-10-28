@@ -97,7 +97,7 @@
    IT_PREVIOUS(M_C(name,_previous)),                                          \
    IT_CREF(M_C(name,_cref)),                                                  \
    IT_REMOVE(M_C(name,_remove)),                                              \
-   CLEAN(M_C(name,_clean)),                                                   \
+   CLEAN(M_C(name,_reset)),                                                   \
    PUSH(M_C(name,_push)),                                                     \
    GET_MIN(M_C(name,_min)),                                                   \
    GET_MAX(M_C(name,_max)),                                                   \
@@ -250,7 +250,7 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clean)(tree_t tree)                                              \
+  M_C(name, _reset)(tree_t tree)                                              \
   {                                                                           \
     M_RBTR33_CONTRACT(tree);                                                  \
     node_t *stack[M_RBTR33_MAX_STACK];                                        \
@@ -294,11 +294,17 @@ typedef enum {
     tree->size = 0;                                                           \
    }                                                                          \
                                                                               \
+  static inline void M_ATTR_DEPRECATED                                        \
+  M_C(name, _clean)(tree_t tree)                                              \
+  {                                                                           \
+    M_C(name,_reset)(tree);                                                   \
+  }                                                                           \
+                                                                              \
   static inline void                                                          \
   M_C(name, _clear)(tree_t tree)                                              \
   {                                                                           \
     /* Nothing more than clean the tree as everything is cleared */           \
-    M_C(name, _clean)(tree);                                                  \
+    M_C(name, _reset)(tree);                                                  \
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -1063,7 +1069,7 @@ typedef enum {
   {                                                                           \
     M_RBTR33_CONTRACT(rbtree);                                                \
     M_ASSERT (str != NULL);                                                   \
-    M_C(name,_clean)(rbtree);                                                 \
+    M_C(name,_reset)(rbtree);                                                 \
     bool success = false;                                                     \
     int c = *str++;                                                           \
     if (M_UNLIKELY (c != '[')) goto exit;                                     \
@@ -1094,7 +1100,7 @@ typedef enum {
   {                                                                           \
     M_RBTR33_CONTRACT(rbtree);                                                \
     M_ASSERT (file != NULL);                                                  \
-    M_C(name,_clean)(rbtree);                                                 \
+    M_C(name,_reset)(rbtree);                                                 \
     int c = fgetc(file);                                                      \
     if (M_UNLIKELY (c != '[')) return false;                                  \
     c = fgetc(file);                                                          \
@@ -1150,7 +1156,7 @@ typedef enum {
     m_serial_return_code_t ret;                                               \
     size_t estimated_size = 0;                                                \
     type key;                                                                 \
-    M_C(name,_clean)(t1);                                                     \
+    M_C(name,_reset)(t1);                                                     \
     ret = f->m_interface->read_array_start(local, f, &estimated_size);        \
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;                 \
     M_CALL_INIT(oplist, key);                                                 \
