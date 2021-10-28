@@ -124,7 +124,7 @@ static void test_uint(void)
   list_uint_it(u2, v2);   //v2 is the first el
   assert (*list_uint_cref(u2) == 997);
 
-  list_uint_clean(v);
+  list_uint_reset(v);
   assert (list_uint_empty_p(v) == true);
   assert (list_uint_empty_p(v2) == false);
   assert (list_uint_size(v2) == 998);
@@ -182,7 +182,7 @@ static void test_uint(void)
   assert(list_uint_equal_p(v,v2));
   assert(list_uint_equal_p(v,v));
 
-  list_uint_clean(v);
+  list_uint_reset(v);
   list_uint_push_back (v2, 14562398);
   list_uint_it(u, v2);
   s2 = list_uint_size(v2);
@@ -207,8 +207,8 @@ static void test_uint(void)
   assert (x == 1478963);
   assert (s == *list_uint_back(v));
 
-  list_uint_clean(v);
-  list_uint_clean(v2);
+  list_uint_reset(v);
+  list_uint_reset(v2);
   for(unsigned int i = 0; i < 10; i++)
     list_uint_push_back (v, i);
   list_uint_it (u, v);
@@ -290,7 +290,7 @@ static void test_mpz(void)
   assert (list_mpz_equal_p (v, list2));
   list_mpz_clear(list2);
 
-  list_mpz_clean(v);
+  list_mpz_reset(v);
   list_mpz_init(list2);
   M_LET(str, STRING_OPLIST) {
     list_mpz_get_str(str, v, false);
@@ -598,8 +598,8 @@ static void test_dual_it1(void)
   list2_double_next(it2);
   assert(*list2_double_cref(it2) == 1.0);
   
-  list2_double_clean(list);
-  list2_double_clean(list2);
+  list2_double_reset(list);
+  list2_double_reset(list2);
   for(double i = 0; i < 10; i++)
     list2_double_push_back (list, i);
   list2_double_it (it, list);

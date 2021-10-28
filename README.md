@@ -998,10 +998,9 @@ Clear the list 'list (aka destructor), calling the CLEAR method of all the
 objects of the list and freeing memory.
 The list can't be used anymore, except with a constructor.
 
-##### void name\_clean(name\_t list)
+##### void name\_reset(name\_t list)
 
-Clean the list (the list becomes empty).
-It is like CLEAR but the list remains initialized and empty.
+Reset the list (the list becomes empty but remains initialized and empty).
 
 ##### type *name\_back(const name\_t list)
 
@@ -1319,9 +1318,9 @@ After-wise 'ref' is cleared and can no longer be used.
 
 Clear the list 'list (aka destructor). The list can't be used anymore, except with a constructor.
 
-##### void name\_clean(name\_t list)
+##### void name\_reset(name\_t list)
 
-Clean the list (the list becomes empty). The list remains initialized but is empty.
+Clean the list (the list becomes empty but remains initialized but is empty).
 
 ##### type *name\_back(const name\_t list)
 

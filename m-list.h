@@ -124,7 +124,7 @@
    IT_CREF(M_C(name,_cref)),                                                  \
    IT_INSERT(M_C(name, _insert)),                                             \
    IT_REMOVE(M_C(name,_remove)),                                              \
-   CLEAN(M_C(name,_clean)),                                                   \
+   CLEAN(M_C(name,_reset)),                                                   \
    PUSH(M_C(name,_push_back)),                                                \
    POP(M_C(name,_pop_back)),                                                  \
    PUSH_MOVE(M_C(name,_push_move)),                                           \
@@ -242,7 +242,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clean)(list_t v)                                                 \
+  M_C(name, _reset)(list_t v)                                                 \
   {                                                                           \
     M_L1ST_CONTRACT(v);                                                       \
     struct M_C(name, _s) *it = *v;                                            \
@@ -256,10 +256,16 @@
     M_L1ST_CONTRACT(v);                                                       \
   }                                                                           \
                                                                               \
+  static inline void M_ATTR_DEPRECATED                                        \
+  M_C(name, _clean)(list_t v)                                                 \
+  {                                                                           \
+    M_C(name, _reset)(v);                                                     \
+  }                                                                           \
+                                                                              \
   static inline void                                                          \
   M_C(name, _clear)(list_t v)                                                 \
   {                                                                           \
-    M_C(name, _clean)(v);                                                     \
+    M_C(name, _reset)(v);                                                     \
   }                                                                           \
                                                                               \
   static inline type  *                                                       \
@@ -724,7 +730,7 @@
   M_C(name, _parse_str)(list_t list, const char str[], const char **endp)     \
   {                                                                           \
     M_ASSERT (str != NULL && list != NULL);                                   \
-    M_C(name,_clean)(list);                                                   \
+    M_C(name,_reset)(list);                                                   \
     bool success = false;                                                     \
     int c = *str++;                                                           \
     if (M_UNLIKELY (c != '[')) goto exit;                                     \
@@ -755,7 +761,7 @@
   M_C(name, _in_str)(list_t list, FILE *file)                                 \
   {                                                                           \
     M_ASSERT (file != NULL && list != NULL);                                  \
-    M_C(name,_clean)(list);                                                   \
+    M_C(name,_reset)(list);                                                   \
     int c = fgetc(file);                                                      \
     if (M_UNLIKELY (c != '[')) return false;                                  \
     c = fgetc(file);                                                          \
@@ -810,7 +816,7 @@
     m_serial_return_code_t ret;                                               \
     m_serial_local_t local;                                                   \
     size_t estimated_size = 0;                                                \
-    M_C(name,_clean)(list);                                                   \
+    M_C(name,_reset)(list);                                                   \
     ret = f->m_interface->read_array_start(local, f, &estimated_size);        \
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;                 \
     type item;                                                                \
@@ -953,7 +959,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clean)(list_t v)                                                 \
+  M_C(name, _reset)(list_t v)                                                 \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     struct M_C(name, _s) *it = v->back;                                       \
@@ -968,10 +974,16 @@
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
   }                                                                           \
                                                                               \
+  static inline void M_ATTR_DEPRECATED                                        \
+  M_C(name, _clean)(list_t v)                                                 \
+  {                                                                           \
+    M_C(name, _reset)(v);                                                     \
+  }                                                                           \
+                                                                              \
   static inline void                                                          \
   M_C(name, _clear)(list_t v)                                                 \
   {                                                                           \
-    M_C(name, _clean)(v);                                                     \
+    M_C(name, _reset)(v);                                                     \
   }                                                                           \
                                                                               \
   static inline type *                                                        \
@@ -1307,7 +1319,7 @@
     struct M_C(name, _s) *it_org;                                             \
     struct M_C(name, _s) **update_list;                                       \
     if (M_UNLIKELY (list == org)) return;                                     \
-    M_C(name, _clean)(list);                                                  \
+    M_C(name, _reset)(list);                                                  \
     update_list = &list->back;                                                \
     it_org = org->back;                                                       \
     while (it_org != NULL) {                                                  \
