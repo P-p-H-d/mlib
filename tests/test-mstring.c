@@ -50,7 +50,7 @@ static void test_utf8_basic(void)
       assert (m_str1ng_utf8_length(buf) == 1);
       assert (m_str1ng_utf8_valid_str_p(buf) == true);
       /* Higher level access */
-      string_clean(s);
+      string_reset(s);
       string_push_u(s, i);
       assert(string_utf8_p(s) == true);
       assert(string_length_u(s) == 1); 
@@ -59,13 +59,13 @@ static void test_utf8_basic(void)
   
   /* Reject out of range value */
   for (string_unicode_t i = 0x110000; i < 0x1fffff; i++) {
-    string_clean(s);
+    string_reset(s);
     string_push_u(s, i);
     assert(string_utf8_p(s) == false);
   }
   /* Test rejection of surrogate halves */
   for (string_unicode_t i = 0xd800; i <= 0xdfff; i++) {
-    string_clean(s);
+    string_reset(s);
     string_push_u(s, i);
     assert(string_utf8_p(s) == false);
   }
@@ -108,7 +108,7 @@ static void test_utf8_it(void)
     assert(tab2[i] == *string_cref(it2));
   }
   assert (i == 19);
-  string_clean(s);
+  string_reset(s);
   for(i = 0 ; i < 19; i++)
     string_push_u(s, tab2[i]);
   assert (string_equal_str_p(s, "H€llo René Chaînôr¬"));
@@ -137,17 +137,17 @@ static void test0(void)
   assert (string_get_char(s1, 1) == 'E');
   string_set_char(s1, 1, 'e');
 
-  string_clean(s1);
+  string_reset(s1);
   assert (string_size(s1) == 0);
   assert (string_empty_p(s1) == true);
   assert (strcmp(string_get_cstr(s1), "") == 0);
 
   string_set_strn(s1, "Hello, world!", 14);
   assert (strcmp(string_get_cstr(s1), "Hello, world!") == 0);
-  string_clean(s1);
+  string_reset(s1);
   string_set_strn(s1, "Hello, world!", 5);
   assert (strcmp(string_get_cstr(s1), "Hello") == 0);
-  string_clean(s1);
+  string_reset(s1);
   
   string_set_str (s1, "Hello");
   string_set_str (s2, "Hello, world!");
@@ -158,7 +158,7 @@ static void test0(void)
   assert (string_size(s1) == 22);
   assert (strcmp(string_get_cstr(s1), "Hello beautiful world!") == 0);
 
-  string_clean(s1);
+  string_reset(s1);
   string_set_n (s2, s1, 0, 5);
   assert(string_empty_p(s2));
   
@@ -624,7 +624,7 @@ static void test0(void)
   h = string_search_pbrk(s1, "oO");
   assert(h==4);
 
-  string_clean(s1);
+  string_reset(s1);
   string_reserve(s1, 0);
   string_cat_printf(s1, "%d little %s.", 42, "suns");
   string_set_str(s2, "42 little suns.");
@@ -654,7 +654,7 @@ static void test_bounded1(void)
   assert (string16_cmp_str(s, "Hello") == 0);
   assert (string16_get_char(s, 1) == 'e');
   assert (strcmp(string16_get_cstr(s), "Hello") == 0);
-  string16_clean(s);
+  string16_reset(s);
   assert (string16_empty_p(s));
   assert (string16_size(s) == 0);
   string16_set_str(s, "Hello, world! How do you do?");
@@ -683,7 +683,7 @@ static void test_bounded1(void)
   
   string16_set_strn(s, "Hello, world! How do you do?", 15);
   string16_init_set(d, s);
-  string16_clean(s);
+  string16_reset(s);
   assert (string16_equal_str_p(d, "Hello, world! H"));
   
   string16_clear(d);

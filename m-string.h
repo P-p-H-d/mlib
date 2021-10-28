@@ -222,12 +222,18 @@ string_clear_get_str(string_t v)
 
 /* Make the string empty */
 static inline void
-string_clean(string_t v)
+string_reset(string_t v)
 {
   M_STR1NG_CONTRACT (v);
   m_str1ng_set_size(v, 0);
   m_str1ng_get_cstr(v)[0] = 0;
   M_STR1NG_CONTRACT (v);
+}
+
+static inline void M_ATTR_DEPRECATED
+string_clean(string_t v)
+{
+  string_reset(v);
 }
 
 /* Return the selected character of the string */
@@ -1337,7 +1343,7 @@ string_in_str(string_t v, FILE *f)
   M_ASSERT (f != NULL);
   int c = fgetc(f);
   if (c != '"') return false;
-  string_clean(v);
+  string_reset(v);
   c = fgetc(f);
   while (c != '"' && c != EOF) {
     if (M_UNLIKELY (c == '\\')) {
@@ -1389,7 +1395,7 @@ string_parse_str(string_t v, const char str[], const char **endptr)
   bool success = false;
   int c = *str++;
   if (c != '"') goto exit;
-  string_clean(v);
+  string_reset(v);
   c = *str++;
   while (c != '"' && c != 0) {
     if (M_UNLIKELY (c == '\\')) {
@@ -1734,7 +1740,7 @@ string_utf8_p(string_t str)
                                       const string_t str)                     \
   {                                                                           \
     bool init_done = false;                                                   \
-    string_clean (dst);                                                       \
+    string_reset (dst);                                                       \
     for M_EACH(item, cont, oplist) {                                          \
         if (init_done) {                                                      \
           string_cat(dst, str);                                               \
@@ -1823,7 +1829,7 @@ namespace m_lib {
   (INIT(string_init),INIT_SET(string_init_set), SET(string_set),              \
    INIT_WITH(M_STRING_INIT_WITH),                                             \
    INIT_MOVE(string_init_move), MOVE(string_move),                            \
-   SWAP(string_swap), CLEAN(string_clean),                                    \
+   SWAP(string_swap), CLEAN(string_reset),                                    \
    EMPTY_P(string_empty_p),                                                   \
    CLEAR(string_clear), HASH(string_hash), EQUAL(string_equal_p),             \
    CMP(string_cmp), TYPE(string_t),                                           \
@@ -1887,7 +1893,7 @@ namespace m_lib {
 
 /* Set a string to a set strings (or const char * if C1)) */
 #define string_sets(a, ...)                                                   \
-  (string_clean(a), M_MAP2_C(string_cat, a, __VA_ARGS__) )
+  (string_reset(a), M_MAP2_C(string_cat, a, __VA_ARGS__) )
 
 /* Macro encapsulation for C11 */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
@@ -2039,10 +2045,16 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clean)(bounded_t s)                                              \
+  M_C(name, _reset)(bounded_t s)                                              \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     s->s[0] = 0;                                                              \
+  }                                                                           \
+                                                                              \
+  static inline void M_ATTR_DEPRECATED                                        \
+  M_C(name, _clean)(bounded_t s)                                              \
+  {                                                                           \
+    M_C(name, _reset)(s);                                                     \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \

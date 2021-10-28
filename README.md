@@ -5212,9 +5212,9 @@ representing a C string, giving back ownership of this array to the caller.
 This array will have to be freed. It can return NULL if no array
 was allocated by the string.
 
-##### void string\_clean(string\_t str)
+##### void string\_reset(string\_t str)
 
-Set the string 'str' to an empty string.
+Reset the string 'str' to an empty string.
 
 ##### size\_t string\_size(const string\_t str)
 
