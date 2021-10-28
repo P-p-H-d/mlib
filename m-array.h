@@ -106,7 +106,7 @@
    ,IT_CREF(M_C(name,_cref))                                                  \
    ,M_IF_METHOD(INIT_SET, oplist)(IT_INSERT(M_C(name,_insert)) ,)             \
    ,M_IF_AT_LEAST_METHOD(SET,INIT_MOVE,oplist)(IT_REMOVE(M_C(name,_remove)),) \
-   ,CLEAN(M_C(name,_clean))                                                   \
+   ,CLEAN(M_C(name,_reset))                                                   \
    ,KEY_TYPE(size_t)                                                          \
    ,VALUE_TYPE(M_C(name, _subtype_ct))                                        \
    ,KEY_OPLIST(M_DEFAULT_OPLIST)                                              \
@@ -198,7 +198,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clean)(array_t v)                                                \
+  M_C(name, _reset)(array_t v)                                                \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
     for(size_t i = 0; i < v->size; i++)                                       \
@@ -207,11 +207,17 @@
     M_ARRA4_CONTRACT(v);                                                      \
   }                                                                           \
                                                                               \
+  static inline void M_ATTR_DEPRECATED                                                         \
+  M_C(name, _clean)(array_t v)                                                \
+  {                                                                           \
+    M_C(name, _reset)(v);                                               \
+  }                                                                           \
+                                                                        \
   static inline void                                                          \
   M_C(name, _clear)(array_t v)                                                \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
-    M_C(name, _clean)(v);                                                     \
+    M_C(name, _reset)(v);                                                     \
     M_CALL_FREE(oplist, v->ptr);                                              \
     /* This is so reusing the object implies an assertion failure */          \
     v->alloc = 1;                                                             \
@@ -933,7 +939,7 @@
   {                                                                           \
     M_ARRA4_CONTRACT(array);                                                  \
     M_ASSERT (str != NULL);                                                   \
-    M_C(name,_clean)(array);                                                  \
+    M_C(name,_reset)(array);                                                  \
     bool success = false;                                                     \
     int c = *str++;                                                           \
     if (M_UNLIKELY (c != '[')) goto exit;                                     \
@@ -965,7 +971,7 @@
   {                                                                           \
     M_ARRA4_CONTRACT(array);                                                  \
     M_ASSERT (file != NULL);                                                  \
-    M_C(name,_clean)(array);                                                  \
+    M_C(name,_reset)(array);                                                  \
     int c = fgetc(file);                                                      \
     if (M_UNLIKELY (c != '[')) return false;                                  \
     c = fgetc(file);                                                          \
@@ -1016,7 +1022,7 @@
     m_serial_return_code_t ret;                                               \
     m_serial_local_t local;                                                   \
     size_t estimated_size = 0;                                                \
-    M_C(name,_clean)(array);                                                  \
+    M_C(name,_reset)(array);                                                  \
     ret = f->m_interface->read_array_start(local, f, &estimated_size);        \
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) {                           \
        return ret;                                                            \

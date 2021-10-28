@@ -1636,9 +1636,9 @@ After-wise 'ref' is cleared.
 
 Clear the array 'array (aka destructor).
 
-##### void name\_clean(name\_t array)
+##### void name\_reset(name\_t array)
 
-Clean the array (the array becomes empty but remains initialized).
+Reset the array (the array becomes empty but remains initialized).
 
 ##### type *name\_push\_raw(name\_t array)
 

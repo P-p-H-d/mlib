@@ -162,12 +162,12 @@ static void test_uint(void)
   array_uint_set (v2, v);
   assert(array_uint_size(v2) == 1005);
 
-  array_uint_clean(v);
+  array_uint_reset(v);
   assert (array_uint_capacity(v) > 0);
   array_uint_reserve(v, 0);
   assert (array_uint_capacity(v) == 0);
 
-  array_uint_clean(v2);
+  array_uint_reset(v2);
   array_uint_splice(v, v2);
   assert (array_uint_size(v) == 0);
   assert (array_uint_size(v2) == 0);
@@ -244,7 +244,7 @@ static void test_mpz(void)
   assert (array_mpz_equal_p (array1, array2));
   fclose(f);
 
-  array_mpz_clean(array1);
+  array_mpz_reset(array1);
 
   M_LET(str, STRING_OPLIST) {
     array_mpz_get_str(str, array1, false);
@@ -353,7 +353,7 @@ static void test_d(void)
   size_t h = array_uint_hash(a2);
   assert (h != 0);
 
-  array_uint_clean(a1);
+  array_uint_reset(a1);
   array_uint_it(it, a1);
   assert (array_uint_end_p (it));
   assert (array_uint_last_p (it));
