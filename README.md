@@ -3536,9 +3536,9 @@ from 'ref' and clear 'ref'.
 Set the Priority Queue 'queue' by stealing as resource as possible
 from 'ref' and clear 'ref'.
 
-##### void name\_clean(name\_t queue)
+##### void name\_reset(name\_t queue)
 
-Clean the Priority Queue 'queue'. 'queue' remains initialized but empty.
+Reset the Priority Queue 'queue' (It remains initialized but empty).
 
 ##### size\_t name\_size(const name\_t queue)
 
@@ -3716,9 +3716,9 @@ Clear the buffer and destroy all its allocation.
 This function is not thread safe and doesn't perform any synchronization:
 all threads shall have stopped using the buffer.
 
-##### void name\_clean(buffer\_t buffer)
+##### void name\_reset(buffer\_t buffer)
 
-Clean the buffer making it empty but remain initialized.
+Reset the buffer, making it empty but initialized.
 This function is thread safe if the buffer was built thread safe.
 
 ##### bool name\_empty\_p(const buffer\_t buffer)
@@ -4247,11 +4247,11 @@ the shared pointer loses its ownership of the object and
 it destroys it if no longer any other shared pointers own the object.
 This function is thread safe.
 
-##### void name\_clean(shared\_t shared)
+##### void name\_reset(shared\_t shared)
 
-'shared' loses ownership of its object and destroy it
+'shared' loses ownership of its object and destroys it
 if no longer any other shared pointers own it.
-Then it makes the shared pointer 'shared' references NULL
+Then it makes the shared pointer 'shared' references no object (NULL)
 (it doesn't reference its object any-longer and loses its ownership of it).
 This function is thread safe.
 

@@ -375,7 +375,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
  }                                                                            \
                                                                               \
  static inline void                                                           \
- M_C(name, _clean)(buffer_t v)                                                \
+ M_C(name, _reset)(buffer_t v)                                                \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
    if (!M_BUFF3R_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {                  \
@@ -395,6 +395,12 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
      m_mutex_unlock(v->mutexPush);                                            \
    }                                                                          \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
+ }                                                                            \
+                                                                              \
+ static inline void M_ATTR_DEPRECATED                                         \
+ M_C(name, _clean)(buffer_t v)                                                \
+ {                                                                            \
+   M_C(name,_reset)(v);                                                       \
  }                                                                            \
                                                                               \
  static inline void                                                           \
@@ -1268,7 +1274,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
    ,NAME(name)                                                                \
    ,TYPE(M_C(name,_ct))                                                       \
    ,SUBTYPE(M_C(name, _subtype_ct))                                           \
-   ,CLEAN(M_C(name,_clean))                                                   \
+   ,CLEAN(M_C(name,_reset))                                                   \
    ,PUSH(M_C(name,_push))                                                     \
    ,POP(M_C(name,_pop))                                                       \
    ,OPLIST(oplist)                                                            \

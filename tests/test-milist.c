@@ -135,6 +135,9 @@ static void test(void)
   assert (ilist_tname_size (list) == 2);
   assert (ilist_tname_cref(it1) == &x3);
   assert (ilist_tname_previous_obj(list, &x3) == &x1);
+
+  ilist_tname_reset(list);
+  assert (ilist_tname_empty_p(list));
   
   ilist_tname_clear(list);
 }

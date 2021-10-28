@@ -275,7 +275,7 @@ static void test_it(void)
   int_pqueue_swap(p, q);
   assert(int_pqueue_size(p) == 20);
   assert(int_pqueue_size(q) == 21);
-  int_pqueue_clean(q);
+  int_pqueue_reset(q);
   assert(!int_pqueue_equal_p(p, q));
   assert(int_pqueue_empty_p(q));
   assert(!int_pqueue_empty_p(p));

@@ -125,7 +125,7 @@ static void test_global(void)
   assert (!buffer_uint_full_p(g_buff));
   assert (buffer_uint_size(g_buff) == 0);
 
-  buffer_uint_clean(g_buff);
+  buffer_uint_reset(g_buff);
   assert (buffer_uint_empty_p(g_buff));
   assert (!buffer_uint_full_p(g_buff));
   assert (buffer_uint_size(g_buff) == 0);
@@ -145,7 +145,7 @@ static void test_global(void)
   assert (buffer_uint_size(g_buff) == 10);
   assert (buffer_uint_push_blocking(g_buff, 15, false) == false);
   
-  buffer_uint_clean(g_buff);
+  buffer_uint_reset(g_buff);
   assert (buffer_uint_empty_p(g_buff));
   assert (!buffer_uint_full_p(g_buff));
   assert (buffer_uint_size(g_buff) == 0);
@@ -260,7 +260,7 @@ static void test_no_thread(void)
 
   b = buffer_llong_push(buff, c);
   assert (b == true);
-  buffer_llong_clean(buff);
+  buffer_llong_reset(buff);
   assert (buffer_llong_empty_p(buff) == true);
   
   buffer_llong_clear(buff);

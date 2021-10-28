@@ -99,7 +99,7 @@ typedef struct m_ilist_head_s {
    MOVE(M_C(name, _move)),                                                    \
    NAME(name),                                                                \
    TYPE(M_C(name,_ct)),                                                       \
-   CLEAN(M_C(name,_clean)),                                                   \
+   CLEAN(M_C(name,_reset)),                                                   \
    SUBTYPE(M_C(name,_subtype_ct)),                                            \
    EMPTY_P(M_C(name,_empty_p)),                                               \
    IT_TYPE(M_C(name,_it_ct)),                                                 \
@@ -196,7 +196,7 @@ typedef struct m_ilist_head_s {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clean)(list_t list)                                              \
+  M_C(name, _reset)(list_t list)                                              \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
     for(struct m_ilist_head_s *it = list->name.next, *next ;                  \
@@ -217,11 +217,17 @@ typedef struct m_ilist_head_s {
     M_IL1ST_CONTRACT(name, list);                                             \
   }                                                                           \
                                                                               \
+  static inline void M_ATTR_DEPRECATED                                        \
+  M_C(name, _clean)(list_t list)                                              \
+  {                                                                           \
+    M_C(name,_reset)(list);                                                   \
+  }                                                                           \
+                                                                              \
   static inline void                                                          \
   M_C(name, _clear)(list_t list)                                              \
   {                                                                           \
     /* Nothing to do more than clean the list itself */                       \
-    M_C(name, _clean)(list);                                                  \
+    M_C(name, _reset)(list);                                                  \
     /* For safety purpose (create invalid represenation of object) */         \
     list->name.next = NULL;                                                   \
     list->name.prev = NULL;                                                   \

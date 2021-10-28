@@ -112,7 +112,7 @@ M_BEGIN_PROTECTED_CODE
   INIT_SET(M_C(name, _init_set)),                                             \
   SET(M_C(name, _set))                                                        \
   INIT_MOVE(M_C(name, _init_move)),                                           \
-  CLEAN(M_C(name, _clean)),                                                   \
+  CLEAN(M_C(name, _reset)),                                                   \
   MOVE(M_C(name, _move)),                                                     \
   SWAP(M_C(name, _swap))                                                      \
   ,NAME(name)                                                                 \
@@ -271,10 +271,16 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clean)(shared_t dest)                                            \
+  M_C(name, _reset)(shared_t dest)                                            \
   {                                                                           \
     /* NOTE: Clear will also set dest to NULL */                              \
     M_C(name, _clear)(dest);                                                  \
+  }                                                                           \
+                                                                              \
+  static inline void M_ATTR_DEPRECATED                                        \
+  M_C(name, _clean)(shared_t dest)                                            \
+  {                                                                           \
+    M_C(name, _reset)(dest);                                                  \
   }                                                                           \
                                                                               \
   static inline void                                                          \

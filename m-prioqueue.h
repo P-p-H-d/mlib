@@ -83,7 +83,7 @@
    ,NAME(name)                                                                \
    ,TYPE(M_C(name,_ct))                                                       \
    ,SUBTYPE(M_C(name, _subtype_ct))                                           \
-   ,CLEAN(M_C(name,_clean))                                                   \
+   ,CLEAN(M_C(name,_reset))                                                   \
    ,PUSH(M_C(name,_push))                                                     \
    ,POP(M_C(name,_pop))                                                       \
    ,OPLIST(oplist)                                                            \
@@ -186,9 +186,15 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
+  M_C(name, _reset)(prioqueue_t p)                                            \
+  {                                                                           \
+    M_C(name, _array_reset)(p->array);                                        \
+  }                                                                           \
+                                                                              \
+  static inline void M_ATTR_DEPRECATED                                        \
   M_C(name, _clean)(prioqueue_t p)                                            \
   {                                                                           \
-    M_C(name, _array_clean)(p->array);                                        \
+    M_C(name,_reset)(p);                                                      \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
