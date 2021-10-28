@@ -62,5 +62,5 @@ void increment(dict_t d, uint64_t key)
 extern void clean(dict_t d);
 void clean(dict_t d)
 {
-  dict_clean(d);
+  dict_reset(d);
 }

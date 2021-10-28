@@ -91,7 +91,7 @@ M_BEGIN_PROTECTED_CODE
   INIT_SET(API_4(M_C(name, _init_set))),                                      \
   SET(M_C(name, _set) M_IPTR),                                                \
   CLEAR(M_C(name, _clear)),                                                   \
-  CLEAN(M_C(name, _clean) M_IPTR),                                            \
+  CLEAN(M_C(name, _reset) M_IPTR),                                            \
   NAME(name),                                                                 \
   TYPE(M_C(name, _ct)),                                                       \
   OPLIST(oplist),                                                             \
@@ -213,10 +213,16 @@ M_BEGIN_PROTECTED_CODE
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clean)(shared_t *shared)                                         \
+  M_C(name, _reset)(shared_t *shared)                                         \
   {                                                                           \
     M_C(name, _clear)(*shared);                                               \
     *shared = NULL;                                                           \
+  }                                                                           \
+                                                                              \
+  static inline void M_ATTR_DEPRECATED                                        \
+  M_C(name, _clean)(shared_t *shared)                                         \
+  {                                                                           \
+    M_C(name, _reset)(shared);                                                \
   }                                                                           \
                                                                               \
   static inline void                                                          \

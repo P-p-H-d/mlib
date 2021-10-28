@@ -235,7 +235,7 @@ static void test_out_str_fill(void)
   assert (ret == M_SERIAL_OK_DONE);
   const char *end = m_serial_str_json_read_clear(in);
   assert (*end == '\n');
-  string_clean(f);
+  string_reset(f);
 
   m_serial_str_json_write_init(out, f);
   ret = my2_out_serial(out, el2);

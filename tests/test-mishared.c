@@ -66,7 +66,7 @@ static void test_single(void)
 
     p1 = ishared1_init(NULL);
     ishared1_set(&p1, p2);
-    ishared1_clean(&p2);
+    ishared1_reset(&p2);
     assert(p2 == NULL);
     ishared_test(p1);
     ishared1_clear(p1);
