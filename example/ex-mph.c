@@ -124,7 +124,7 @@ CreateMinimalPerfectHash2(array_seed_t seed, array_value_t value,
            enought. */
         for(bool cont = true; cont ; ) {
           cont = false;
-          array_seed_clean(slots);
+          array_seed_reset(slots);
           for M_EACH(it, *b, array_cstr_t) {
               size_t s = hash(d, *it) % size;
               if (*array_value_get(value, s) != 0 || array_seed_contain_p(slots, s)){

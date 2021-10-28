@@ -328,7 +328,7 @@ static void test_array(void)
     assert(*array_int_get(l, 100) == 17);
     assert(*array_int_get(tmp, 100) == 17 * 17);
 
-    array_int_clean(tmp);
+    array_int_reset(tmp);
 #define FT(d,x) ((d) = (x) + 1)
     ALGO_TRANSFORM(tmp, array_int_t, l, array_int_t, FT);
     assert(array_int_size(tmp) == 101);
@@ -337,7 +337,7 @@ static void test_array(void)
       assert(*array_int_get(tmp, (size_t) i) == i + 1);
     }
     
-    array_int_clean(tmp);
+    array_int_reset(tmp);
 #define FT2(d,x,a) ((d) = (x) + (a))
     ALGO_TRANSFORM(tmp, array_int_t, l, array_int_t, FT2, 17);
     assert(array_int_size(tmp) == 101);
@@ -395,7 +395,7 @@ static void test_array(void)
     assert (array_int_end_p (it2));
   }
 
-  array_int_clean(l);
+  array_int_reset(l);
   assert (algo_array_min(l) == NULL);
   assert (algo_array_max(l) == NULL);
   algo_array_minmax(&min, &max, l);
@@ -565,7 +565,7 @@ static void test_extract(void)
   ALGO_REDUCE( (dst_l, M_OPEXTEND(M_STANDARD_OPLIST, SET(my_set), TYPE(unsigned long long))), a, array_int_t, my_sum);
   assert (dst_l == 100*99/2-10*11/2);
 
-  array_int_clean(a);
+  array_int_reset(a);
   for(int i = 1; i < 10; i++)
     array_int_push_back(a, i);
   ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), product);
