@@ -104,27 +104,27 @@ static void check_swap(void)
   pair_str_clear(p2);
 }
 
-static void check_clean(void)
+static void check_reset(void)
 {
   single_str_t p1;
   single_str_init (p1);
 
   string_set_str(p1->vala, "Hello");
-  single_str_clean(p1);
+  single_str_reset(p1);
   assert(string_equal_str_p (p1->vala, ""));
 
   single_str_clear(p1);
 
   M_LET(r, rtuple_t) {
     string_set_str(r->name, "Hello");
-    rtuple_clean(r);
+    rtuple_reset(r);
     assert(string_equal_str_p (r->name, ""));    
   }
   
   M_LET( (r, ("Hello"), 4), TUPLE_OPLIST(pair2_str, STRING_OPLIST, M_DEFAULT_OPLIST) )  {
     assert(string_equal_str_p (r->str, "Hello"));
     assert(r->value == 4);
-    pair2_str_clean(r);
+    pair2_str_reset(r);
     assert(string_equal_str_p (r->str, ""));
   }
 
@@ -133,7 +133,7 @@ static void check_clean(void)
   M_LET( (q, r), TUPLE_OPLIST(pair2_str, STRING_OPLIST, M_DEFAULT_OPLIST) ) {
     assert(string_equal_str_p (q->str, "Goldy"));
     assert(q->value == 46);
-    pair2_str_clean(q);
+    pair2_str_reset(q);
     assert(string_equal_str_p (q->str, ""));
   }
 
@@ -142,7 +142,7 @@ static void check_clean(void)
   M_LET((r, s, 460), TUPLE_OPLIST(pair2_str, STRING_OPLIST) )  {
     assert(string_equal_str_p (r->str, "Goldy McDuck"));
     assert(r->value == 460);
-    pair2_str_clean(r);
+    pair2_str_reset(r);
     assert(string_equal_str_p (r->str, ""));
   }
 
@@ -151,14 +151,14 @@ static void check_clean(void)
   //  another level to emplace the string_t
   M_LET( (r, (("Two emplace"))), TUPLE_OPLIST(single_str, STRING_OPLIST) ) {
     assert(string_equal_str_p (r->vala, "Two emplace"));
-    single_str_clean(r);
+    single_str_reset(r);
     assert(string_equal_str_p (r->vala, ""));
   }
 
   M_LET( (s, ("Goldy McDuck") ), STRING_OPLIST) 
   M_LET( (r, (s)), TUPLE_OPLIST(single_str, STRING_OPLIST) ) {
     assert(string_equal_str_p (r->vala, "Goldy McDuck"));
-    single_str_clean(r);
+    single_str_reset(r);
     assert(string_equal_str_p (r->vala, ""));
   }
 
@@ -285,7 +285,7 @@ int main(void)
   test1();
   check_io();
   check_swap();
-  check_clean();
+  check_reset();
   check_chaining_tuple();
   test_double();
   exit(0);

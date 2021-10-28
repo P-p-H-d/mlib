@@ -223,7 +223,7 @@ static void test_init(void)
     assert (dict_str_size (d1) == 100);
     dict_str_move (d2, d3);
     assert (dict_str_size (d2) == 100);
-    dict_str_clean (d2);
+    dict_str_reset (d2);
     assert (dict_str_size (d2) == 0);
 
     assert (dict_str_size (d1) == 100);
@@ -425,7 +425,7 @@ static void test_init_oa(void)
     assert (dict_oa_int_size (d1) == 100);
     dict_oa_int_move (d2, d3);
     assert (dict_oa_int_size (d2) == 100);
-    dict_oa_int_clean (d2);
+    dict_oa_int_reset (d2);
     assert (dict_oa_int_size (d2) == 0);
 
     //assert (dict_oa_int_hash (d2) != 0);

@@ -550,7 +550,7 @@
     char variantTypeBuf[M_USE_IDENTIFIER_ALLOC+1];                            \
     int  c = *str++;                                                          \
     unsigned int i = 0;                                                       \
-    M_C(name, _clean)(el);                                                    \
+    M_C(name, _reset)(el);                                                    \
     if (c != '@') goto exit;                                                  \
     /* First read the name of the type */                                     \
     c = *str++;                                                               \
@@ -610,7 +610,7 @@
     M_VAR1ANT_CONTRACT(name, el);                                             \
      M_ASSERT (f != NULL);                                                    \
     char variantTypeBuf[M_USE_IDENTIFIER_ALLOC+1];                            \
-    M_C(name, _clean)(el);                                                    \
+    M_C(name, _reset)(el);                                                    \
     if (fgetc(f) != '@') return false;                                        \
     /* First read the name of the type */                                     \
     bool b = true;                                                            \
@@ -689,7 +689,7 @@
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
     int id = -1;                                                              \
-    M_C(name, _clean)(el);                                                    \
+    M_C(name, _reset)(el);                                                    \
     ret = f->m_interface->read_variant_start(local, f, field_name, field_max, &id); \
     if (ret != M_SERIAL_OK_CONTINUE) return ret;                              \
     M_ASSERT (id >= 0 && id < field_max);                                     \
@@ -712,13 +712,17 @@
 
 /* Define the CLEAN function */
 #define M_VAR1ANT_DEFINE_CLEAN_FUNC(name, ...)                                \
-  static inline void M_C(name, _clean)(M_C(name,_ct) my)                      \
+  static inline void M_C(name, _reset)(M_C(name,_ct) my)                      \
   {                                                                           \
     M_VAR1ANT_CONTRACT(name, my);                                             \
     M_C(name, _clear)(my);                                                    \
     M_C(name, _init)(my);                                                     \
   }                                                                           \
-
+  static inline void M_ATTR_DEPRECATED                                        \
+  M_C(name, _clean)(M_C(name,_ct) my)                                         \
+  {                                                                           \
+    M_C(name, _reset)(my);                                                    \
+  }
 
 /* deferred evaluation of the oplist */
 #define M_VAR1ANT_OPLIST_P1(arg) M_VAR1ANT_OPLIST_P2 arg
@@ -737,7 +741,7 @@
    INIT_SET(M_C(name, _init_set)),                                            \
    SET(M_C(name,_set)),                                                       \
    CLEAR(M_C(name, _clear)),                                                  \
-   CLEAN(M_C(name, _clean)),                                                  \
+   CLEAN(M_C(name, _reset)),                                                  \
    NAME(name),                                                                \
    TYPE(M_C(name,_ct)),                                                       \
    EMPTY_P(M_C(name,_empty_p)),                                               \

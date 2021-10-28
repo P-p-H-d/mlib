@@ -90,7 +90,7 @@ static void test_pair(void)
   assert(f != NULL);
   assert (*f == 42.0);
 
-  pair_clean(p);
+  pair_reset(p);
   assert (pair_empty_p(p));
   assert (!pair_key_p(p));
   assert (!pair_value_p(p));
@@ -126,7 +126,7 @@ static void test_pair(void)
   assert(i != NULL);
   assert (*i == 42);
   
-  pair_clean(p);
+  pair_reset(p);
   assert (pair_empty_p(p));
 
   pair_clear(p2);
@@ -140,8 +140,8 @@ static void test_pair(void)
   f = pair_get_value(p2);
   assert(f != NULL);
   assert (*f == 435.0);
-  pair_clean(p);
-  pair_clean(p2);
+  pair_reset(p);
+  pair_reset(p2);
   pair_set(p2, p);
   assert (pair_empty_p(p2));
 

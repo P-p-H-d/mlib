@@ -411,14 +411,20 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name,_clean)(dict_t map)                                                \
+  M_C(name,_reset)(dict_t map)                                                \
   {                                                                           \
-    M_C(name, _array_list_pair_clean)(map->table);                            \
+    M_C(name, _array_list_pair_reset)(map->table);                            \
     M_C(name, _array_list_pair_resize)(map->table, M_D1CT_INITIAL_SIZE);      \
     map->lower_limit = M_D1CT_LOWER_BOUND(M_D1CT_INITIAL_SIZE);               \
     map->upper_limit = M_D1CT_UPPER_BOUND(M_D1CT_INITIAL_SIZE);               \
     map->used = 0;                                                            \
     M_D1CT_CONTRACT(name, map);                                               \
+  }                                                                           \
+                                                                              \
+  static inline void M_ATTR_DEPRECATED                                        \
+  M_C(name,_clean)(dict_t map)                                                \
+  {                                                                           \
+    M_C(name, _reset)(map);                                                   \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
@@ -811,7 +817,7 @@
   M_C(name, _parse_str)(dict_t dict, const char str[], const char **endp)     \
   {                                                                           \
     M_ASSERT (str != NULL);                                                   \
-    M_C(name, _clean)(dict);                                                  \
+    M_C(name, _reset)(dict);                                                  \
     bool success = false;                                                     \
     int c = *str++;                                                           \
     if (M_UNLIKELY (c != '{')) goto exit;                                     \
@@ -853,7 +859,7 @@
   M_C(name, _in_str)(dict_t dict, FILE *file)                                 \
   {                                                                           \
     M_ASSERT (file != NULL);                                                  \
-    M_C(name, _clean)(dict);                                                  \
+    M_C(name, _reset)(dict);                                                  \
     int c = fgetc(file);                                                      \
     if (M_UNLIKELY (c != '{')) return false;                                  \
     c = fgetc(file);                                                          \
@@ -943,7 +949,7 @@
     m_serial_return_code_t ret;                                               \
     size_t estimated_size = 0;                                                \
     key_type key;                                                             \
-    M_C(name,_clean)(t1);                                                     \
+    M_C(name,_reset)(t1);                                                     \
     M_IF(isSet)(                                                              \
                 ret = f->m_interface->read_array_start(local, f, &estimated_size); \
                 if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;     \
@@ -988,7 +994,7 @@
       const it_deref_t *item = M_C(name, _cref)(it);                          \
       M_C(name, _push)(d1, *item);                                            \
     }                                                                         \
-    M_C(name, _clean)(d2);                                                    \
+    M_C(name, _reset)(d2);                                                    \
   }                                                                           \
   ,                                                                           \
   M_IF_METHOD(ADD, value_oplist)(                                             \
@@ -1008,7 +1014,7 @@
         M_CALL_ADD(value_oplist, *ptr, *ptr, item->value);                    \
       }                                                                       \
     }                                                                         \
-    M_C(name, _clean)(d2);                                                    \
+    M_C(name, _reset)(d2);                                                    \
   }                                                                           \
   , /* NO UPDATE */) )                                                        \
                                                                               \
@@ -1051,7 +1057,7 @@
    INIT_MOVE(M_C(name, _init_move)),                                          \
    MOVE(M_C(name, _move)),                                                    \
    SWAP(M_C(name, _swap)),                                                    \
-   CLEAN(M_C(name, _clean)),                                                  \
+   CLEAN(M_C(name, _reset)),                                                  \
    NAME(name),                                                                \
    TYPE(M_C(name, _ct)),                                                      \
    SUBTYPE(M_C(name, _subtype_ct)),                                           \
@@ -1109,7 +1115,7 @@
    INIT_MOVE(M_C(name, _init_move)),                                          \
    MOVE(M_C(name, _move)),                                                    \
    SWAP(M_C(name, _swap)),                                                    \
-   CLEAN(M_C(name, _clean)),                                                  \
+   CLEAN(M_C(name, _reset)),                                                  \
    NAME(name),                                                                \
    TYPE(M_C(name, _ct)),                                                      \
    SUBTYPE(M_C(name, _subtype_ct)),                                           \
@@ -1781,7 +1787,7 @@ enum m_d1ct_oa_element_e {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clean)(dict_t d)                                                 \
+  M_C(name, _reset)(dict_t d)                                                 \
   {                                                                           \
     M_D1CT_OA_CONTRACT(d);                                                    \
     for(size_t i = 0; i <= d->mask; i++) {                                    \
@@ -1802,6 +1808,12 @@ enum m_d1ct_oa_element_e {
       M_CALL_OOR_SET(key_oplist, d->data[i].key, M_D1CT_OA_EMPTY);            \
     }                                                                         \
     M_D1CT_OA_CONTRACT(d);                                                    \
+  }                                                                           \
+                                                                              \
+  static inline void M_ATTR_DEPRECATED                                        \
+  M_C(name, _clean)(dict_t d)                                                 \
+  {                                                                           \
+    M_C(name, _reset)(d);                                                     \
   }                                                                           \
                                                                               \
   static inline void                                                          \

@@ -2428,9 +2428,9 @@ from 'ref' and clear 'ref'.
 Set the dictionary 'dict'  by stealing as resource as possible
 from 'ref' and clear 'ref'.
 
-##### void name\_clean(name\_t dict)
+##### void name\_reset(name\_t dict)
 
-Clean the dictionary 'dict'. 'dict' remains initialized.
+Reset the dictionary 'dict'. 'dict' becomes empty but remains initialized.
 
 ##### size\_t name\_size(const name\_t dict)
 
@@ -2643,6 +2643,10 @@ This method is created only if all Oplist of the tuple define MOVE method.
 
 Clear the tuple 'tuple (aka destructor).
 
+##### void name\_reset(name\_t tuple)
+
+Reset the tuple 'tuple' (applying the _reset method to all fields of the tuple).
+
 ##### const type1 *name\_cget\_at\_element1(const name\_t tuple)
 
 Return a constant pointer to the element 'element1' of the tuple.
@@ -2820,9 +2824,9 @@ This method is created only if all Oplist of the variant define MOVE method.
 
 Clear the variant 'variant (aka destructor).
 
-##### void name\_clean(name\_t variant)
+##### void name\_reset(name\_t variant)
 
-Clean the variant 'variant and make it empty.
+Reset the variant 'variant and make it empty.
 
 ##### void name\_init\_elementN(name\_t variant)
 

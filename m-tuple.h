@@ -629,9 +629,13 @@ namespace m_lib {
 
 /* Define a CLEAN method by calling the CLEAN methods for all params */
 #define M_TUPL3_DEFINE_CLEAN(name, ...)                                       \
-  static inline void M_C(name, _clean)(M_C(name,_ct) el1) {                   \
+  static inline void M_C(name, _reset)(M_C(name,_ct) el1) {                   \
     M_TUPL3_CONTRACT(el1);                                                    \
     M_MAP(M_TUPL3_DEFINE_CLEAN_FUNC , __VA_ARGS__)                            \
+  }                                                                           \
+  static inline void M_ATTR_DEPRECATED                                        \
+  M_C(name, _clean)(M_C(name,_ct) el1) {                                      \
+    M_C(name, _reset)(el1);                                                   \
   }
 
 #define M_TUPL3_DEFINE_CLEAN_FUNC(a)                                          \
@@ -732,7 +736,7 @@ namespace m_lib {
    M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(INIT_MOVE(M_C(name, _init_move)),), \
    M_IF_METHOD_ALL(MOVE, __VA_ARGS__)(MOVE(M_C(name, _move)),),               \
    M_IF_METHOD_ALL(SWAP, __VA_ARGS__)(SWAP(M_C(name, _swap)),),               \
-   M_IF_METHOD_ALL(CLEAN, __VA_ARGS__)(CLEAN(M_C(name, _clean)),),            \
+   M_IF_METHOD_ALL(CLEAN, __VA_ARGS__)(CLEAN(M_C(name, _reset)),),            \
    M_IF_METHOD(NEW, M_RET_ARG1(__VA_ARGS__,))(NEW(M_DELAY2(M_GET_NEW) M_RET_ARG1(__VA_ARGS__,)),), \
    M_IF_METHOD(REALLOC, M_RET_ARG1(__VA_ARGS__,))(REALLOC(M_DELAY2(M_GET_REALLOC) M_RET_ARG1(__VA_ARGS__,)),), \
    M_IF_METHOD(DEL, M_RET_ARG1(__VA_ARGS__,))(DEL(M_DELAY2(M_GET_DEL) M_RET_ARG1(__VA_ARGS__,)),), \
