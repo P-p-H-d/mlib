@@ -94,17 +94,23 @@ bitset_init(bitset_t t)
 
 /* Clean a bitset */
 static inline void
-bitset_clean(bitset_t t)
+bitset_reset(bitset_t t)
 {
   M_B1TSET_CONTRACT(t);
   t->size = 0;
+}
+
+static inline void M_ATTR_DEPRECATED
+bitset_clean(bitset_t t)
+{
+  bitset_reset(t);
 }
 
 /* Clear a bitset (DESTRUCTOR) */
 static inline void
 bitset_clear(bitset_t t)
 {
-  bitset_clean(t);
+  bitset_reset(t);
   M_MEMORY_FREE(t->ptr);
   // This is not really needed, but is safer
   // This representation is invalid and will be detected by the contract.
@@ -629,7 +635,7 @@ bitset_in_str(bitset_t set, FILE *file)
 {
   M_B1TSET_CONTRACT (set);
   M_ASSERT(file != NULL);
-  bitset_clean(set);
+  bitset_reset(set);
   int c = fgetc(file);
   if (M_UNLIKELY (c != '[')) return false;
   c = fgetc(file);
@@ -649,7 +655,7 @@ bitset_parse_str(bitset_t set, const char str[], const char **endptr)
   M_B1TSET_CONTRACT (set);
   M_ASSERT(str != NULL);
   bool success = false;
-  bitset_clean(set);
+  bitset_reset(set);
   char c = *str++;
   if (M_UNLIKELY(c != '[')) goto exit;
   c = *str++;
@@ -841,7 +847,7 @@ bitset_popcount(const bitset_t set)
    ,IT_NEXT(bitset_next)                                                      \
    ,IT_PREVIOUS(bitset_previous)                                              \
    ,IT_CREF(bitset_cref)                                                      \
-   ,CLEAN(bitset_clean)                                                       \
+   ,CLEAN(bitset_reset)                                                       \
    ,PUSH(bitset_push_back)                                                    \
    ,POP(bitset_pop_back)                                                      \
    ,HASH(bitset_hash)                                                         \

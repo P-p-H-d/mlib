@@ -217,10 +217,12 @@ static void test_double(void)
 {
   ConcurrentDouble d;
   ConcurrentDouble_init(d);
+  ConcurrentDouble_reset(d);
   ConcurrentDouble_clear(d);
 
   ConcurrentRpDouble r;
   ConcurrentRpDouble_init(r);
+  ConcurrentRpDouble_reset(r);
   ConcurrentRpDouble_clear(r);
 }
 

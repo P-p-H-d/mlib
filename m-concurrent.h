@@ -109,7 +109,7 @@
    ,OPLIST(oplist)                                                            \
    ,M_IF_METHOD(EMPTY_P, oplist)(EMPTY_P(M_C(name,_empty_p)),)                \
    ,M_IF_METHOD(GET_SIZE, oplist)(GET_SIZE(M_C(name,_size)),)                 \
-   ,M_IF_METHOD(CLEAN, oplist)(CLEAN(M_C(name,_clean)),)                      \
+   ,M_IF_METHOD(CLEAN, oplist)(CLEAN(M_C(name,_reset)),)                      \
    ,M_IF_METHOD(KEY_TYPE, oplist)(KEY_TYPE(M_GET_KEY_TYPE oplist),)           \
    ,M_IF_METHOD(VALUE_TYPE, oplist)(VALUE_TYPE(M_GET_VALUE_TYPE oplist),)     \
    ,M_IF_METHOD(KEY_TYPE, oplist)(KEY_OPLIST(M_GET_KEY_OPLIST oplist),)       \
@@ -416,12 +416,17 @@
                                                                               \
   M_IF_METHOD(CLEAN, oplist)(                                                 \
   static inline void                                                          \
-  M_C(name, _clean)(concurrent_t out)                                         \
+  M_C(name, _reset)(concurrent_t out)                                         \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
     M_C(name, _write_lock)(out);                                              \
     M_CALL_CLEAN(oplist, out->data);                                          \
     M_C(name, _write_unlock)(out);                                            \
+  }                                                                           \
+  static inline void M_ATTR_DEPRECATED                                        \
+  M_C(name, _clean)(concurrent_t out)                                         \
+  {                                                                           \
+    M_C(name,_reset)(out);                                                    \
   }                                                                           \
   ,)                                                                          \
                                                                               \

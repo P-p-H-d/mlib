@@ -46,7 +46,7 @@ static void test1(void)
   bitset_t set2;
   bitset_init_set(set2, set);
   
-  bitset_clean(set);
+  bitset_reset(set);
   assert(bitset_size(set) == 0);
   assert(bitset_empty_p(set) == true);
 
@@ -135,7 +135,7 @@ static void test1(void)
   assert (*sp == 0);
   bitset_clear(set3);
   
-  bitset_clean(set);
+  bitset_reset(set);
   for(int i = 0; i < 200; i++)
     bitset_push_back(set, ((size_t) i*17547854547UL)&1) ;
   bitset_it_t it;
@@ -164,7 +164,7 @@ static void test1(void)
   
   bitset_reserve(set, 0);
   assert(bitset_capacity (set) > 0);
-  bitset_clean(set);
+  bitset_reset(set);
   bitset_reserve(set, 0);
   assert(bitset_capacity (set) == 0);
 
@@ -217,7 +217,7 @@ static void test1(void)
 
   assert (bitset_hash(set) != 0);
 
-  bitset_clean(set);
+  bitset_reset(set);
   bitset_it(it, set);
   assert(bitset_end_p(it));
   assert(bitset_last_p(it));

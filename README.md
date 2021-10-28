@@ -4566,9 +4566,9 @@ Clear the list 'list (aka destructor). The list can't be used anymore, except wi
 If the DEL operator is available in the oplist of the type,
 the cleared object will also be deleted.
 
-##### void name\_clean(name\_t list)
+##### void name\_reset(name\_t list)
 
-Clean the list (the list becomes empty). The list remains initialized but is empty.
+Reset the list (the list becomes empty). The list remains initialized but is empty.
 If the DEL operator is available in the oplist of the type,
 the cleared object will also be deleted.
 
@@ -4784,9 +4784,9 @@ Set the container with the value of 'src' by stealing as much resources from 'sr
 Afterwards 'src' is cleared.
 This method is only defined if the base container exports the MOVE operator.
 
-##### void name\_clean(name\_t concurrent)
+##### void name\_reset(name\_t concurrent)
 
-Clean the concurrent container.
+Reset the concurrent container.
 Afterwards the container is empty, but remains initialized.
 This method is only defined if the base container exports the CLEAN operator.
 
@@ -4975,9 +4975,9 @@ Afterwards 'ref' is cleared.
 
 Clear the bitset 'array (aka destructor).
 
-##### void bitset\_clean(bitset\_t array)
+##### void bitset\_reset(bitset\_t array)
 
-Clean the bitset (the bitset becomes empty but remains initialized).
+Reset the bitset (the bitset becomes empty but remains initialized).
 
 ##### void bitset\_push\_back(bitset\_t array, const bool value)
 
