@@ -1997,9 +1997,9 @@ After-wise 'ref' is cleared and can no longer be used.
 
 Clear the deque 'deque (aka destructor). The deque can't be used anymore, except with a constructor.
 
-##### void name\_clean(name\_t deque)
+##### void name\_reset(name\_t deque)
 
-Clean the deque (the deque becomes empty). The deque remains initialized but is empty.
+Reset the deque (the deque becomes empty but remains initialized but is empty).
 
 ##### type *name\_back(const name\_t deque)
 

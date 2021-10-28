@@ -190,7 +190,7 @@ static void test_it(void)
       assert (deque_last_p(it));
       assert (deque_end_p(it) || *deque_cref (it) == (int)(1996+i));
     }
-    deque_clean(d);
+    deque_reset(d);
     for(int i = 0; i < 4000; i++) {
       deque_push_back(d, i);
       deque_it(it, d);
@@ -202,7 +202,7 @@ static void test_it(void)
       }
       assert(z == i+1);
     }
-    deque_clean(d);
+    deque_reset(d);
     for(int i = 0; i < 4000; i++) {
       deque_push_front(d, i);
       deque_it_last(it, d);
@@ -243,7 +243,7 @@ static void test_set(void)
     assert (deque_end_p (it2));
     assert (deque_equal_p(d, e));
     assert (deque_hash(d) != 0);
-    deque_clean (e);
+    deque_reset (e);
     assert (deque_size (d) == 1997);
     assert (deque_size (e) == 0);
     deque_swap(d, e);
@@ -360,7 +360,7 @@ static void test_io(void)
     assert (deque_mpz_equal_p (d1, d2));
     fclose(f);
     
-    deque_mpz_clean(d1);
+    deque_mpz_reset(d1);
 
     deque_mpz_get_str(str, d1, false);
     assert (string_cmp_str (str, "[]") == 0);

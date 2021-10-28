@@ -202,7 +202,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clean)(deque_t d)                                                \
+  M_C(name, _reset)(deque_t d)                                                \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     node_t *min_node = NULL;                                                  \
@@ -226,11 +226,17 @@
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
+  static inline void M_ATTR_DEPRECATED                                        \
+  M_C(name, _clean)(deque_t d)                                                \
+  {                                                                           \
+    M_C(name, _reset)(d);                                                     \
+  }                                                                           \
+                                                                              \
   static inline void                                                          \
   M_C(name, _clear)(deque_t d)                                                \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
-    M_C(name, _clean)(d);                                                     \
+    M_C(name, _reset)(d);                                                     \
     /* We have registered the delete operator to clear all objects */         \
     M_C(name, _node_list_clear)(d->list);                                     \
     /* It is safer to clean some variables */                                 \
@@ -876,7 +882,7 @@
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
     M_ASSERT (str != NULL);                                                   \
-    M_C(name,_clean)(deque);                                                  \
+    M_C(name,_reset)(deque);                                                  \
     bool success = false;                                                     \
     int c = *str++;                                                           \
     if (M_UNLIKELY (c != '[')) goto exit;                                     \
@@ -908,7 +914,7 @@
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
     M_ASSERT (file != NULL);                                                  \
-    M_C(name,_clean)(deque);                                                  \
+    M_C(name,_reset)(deque);                                                  \
     int c = fgetc(file);                                                      \
     if (M_UNLIKELY (c != '[')) return false;                                  \
     c = fgetc(file);                                                          \
@@ -963,7 +969,7 @@
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
     size_t estimated_size = 0;                                                \
-    M_C(name,_clean)(deque);                                                  \
+    M_C(name,_reset)(deque);                                                  \
     ret = f->m_interface->read_array_start(local, f, &estimated_size);        \
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;                 \
     type item;                                                                \
@@ -1018,7 +1024,7 @@
    ,IT_PREVIOUS(M_C(name,_previous))                                          \
    ,IT_REF(M_C(name,_ref))                                                    \
    ,IT_CREF(M_C(name,_cref))                                                  \
-   ,CLEAN(M_C(name,_clean))                                                   \
+   ,CLEAN(M_C(name,_reset))                                                   \
    ,GET_SIZE(M_C(name, _size))                                                \
    ,PUSH(M_C(name,_push_back))                                                \
    ,POP(M_C(name,_pop_back))                                                  \
