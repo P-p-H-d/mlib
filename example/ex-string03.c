@@ -28,7 +28,7 @@ int main(void)
         M_LET(map, dict_str_t) {
             // Count the words:
             for M_EACH(w, words, vector_str_t) {
-                (*dict_str_get_at(map, *w)) ++;
+                (*dict_str_safe_get(map, *w)) ++;
             }
 
             // Print the count:

@@ -48,8 +48,8 @@ static void program_init(program_t p, string_t text) {
         int left;
         array_int_pop_back(&left, leftstack);
         int right = pc;
-        *array_int_get_at (p->bracket_map, left) = right;
-        *array_int_get_at (p->bracket_map, right) = left;
+        *array_int_safe_get (p->bracket_map, left) = right;
+        *array_int_safe_get (p->bracket_map, right) = left;
       }
 
     pc++;

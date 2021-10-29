@@ -34,7 +34,7 @@ int main(int argc, const char *argv[])
       // While it reads some word from the file
       while (string_fget_word(word, " \t\n\r\"(),=", f)) {
          // Get the reference to the array of this word in the dictionnary (or create it if needed)
-         array_size_t *array = map_pos_get_at(positions, word);
+         array_size_t *array = map_pos_safe_get(positions, word);
          // Push the new offset to this word in the associated array
          array_size_push_back(*array, (size_t)ftell(f) - string_size(word));
       }
