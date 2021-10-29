@@ -309,7 +309,7 @@ static void test_d(void)
   for(int i = 9; i < 19; i++)
     assert (*array_uint_get (a1, (size_t) i) == 18U -(unsigned int) i);
 
-  *array_uint_get_at(a1, 100) = 100;
+  *array_uint_safe_get(a1, 100) = 100;
   assert (*array_uint_back(a1) == 100);
   assert (array_uint_size(a1) == 101);
   array_uint_pop_back (NULL, a1);

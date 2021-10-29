@@ -113,7 +113,7 @@
    ,VALUE_OPLIST(oplist)                                                      \
    ,M_IF_METHOD(SET, oplist)(SET_KEY(M_C(name, _set_at)) ,)                   \
    ,GET_KEY(M_C(name, _get))                                                  \
-   ,M_IF_METHOD(INIT, oplist)(GET_SET_KEY(M_C(name, _get_at)) ,)              \
+   ,M_IF_METHOD(INIT, oplist)(GET_SET_KEY(M_C(name, _safe_get)) ,)            \
    ,M_IF_AT_LEAST_METHOD(SET,INIT_MOVE,oplist)(ERASE_KEY(M_C(name, _erase)),) \
    ,GET_SIZE(M_C(name, _size))                                                \
    ,M_IF_METHOD(INIT_SET, oplist)(PUSH(M_C(name,_push_back)) ,)               \
@@ -207,12 +207,12 @@
     M_ARRA4_CONTRACT(v);                                                      \
   }                                                                           \
                                                                               \
-  static inline void M_ATTR_DEPRECATED                                                         \
+  static inline void M_ATTR_DEPRECATED                                        \
   M_C(name, _clean)(array_t v)                                                \
   {                                                                           \
-    M_C(name, _reset)(v);                                               \
+    M_C(name, _reset)(v);                                                     \
   }                                                                           \
-                                                                        \
+                                                                              \
   static inline void                                                          \
   M_C(name, _clear)(array_t v)                                                \
   {                                                                           \
@@ -453,7 +453,7 @@
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
   static inline type *                                                        \
-  M_C(name, _get_at)(array_t v, size_t idx)                                   \
+  M_C(name, _safe_get)(array_t v, size_t idx)                                 \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
     const size_t size = idx + 1;                                              \
@@ -482,6 +482,11 @@
     M_ASSERT (idx < v->size);                                                 \
     M_ARRA4_CONTRACT(v);                                                      \
     return &v->ptr[idx];                                                      \
+  }                                                                           \
+  static inline M_ATTR_DEPRECATED type *                                      \
+  M_C(name, _get_at)(array_t v, size_t idx)                                   \
+  {                                                                           \
+    return M_C(name, _safe_get)(v, idx);                                      \
   }                                                                           \
   , /* No INIT */)                                                            \
                                                                               \

@@ -484,7 +484,7 @@
                                                                               \
   M_IF_METHOD(GET_SET_KEY, oplist)(                                           \
   static inline void                                                          \
-  M_C(name, _get_at_copy)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist const key) \
+  M_C(name, _safe_get_copy)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist const key) \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
     M_ASSERT (out_data != NULL);                                              \
@@ -493,6 +493,11 @@
     M_ASSERT (p != NULL);                                                     \
     M_CALL_SET(M_GET_VALUE_OPLIST oplist, *out_data, *p);                     \
     M_C(name, _write_unlock)(out);                                            \
+  }                                                                           \
+  static inline M_ATTR_DEPRECATED void                                        \
+  M_C(name, _get_at_copy)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist const key) \
+  {                                                                           \
+    M_C(name, _safe_get_copy)(out_data, out, key);                            \
   }                                                                           \
   ,)                                                                          \
                                                                               \

@@ -1727,7 +1727,7 @@ Return a constant pointer to the element 'i' of the array.
 The returned pointer cannot be NULL.
 This pointer remains valid until the array is modified by another method.
 
-##### type *name\_get\_at(name\_t array, size\_t i)
+##### type *name\_safe\_get(name\_t array, size\_t i)
 
 Return a pointer to the element 'i' of array 'array',
 by increasing the size of the array if needed (creating new elements with INIT).
@@ -2442,7 +2442,7 @@ Return a pointer to the value associated to the key 'key' in dictionary
 'dict' or NULL if the key is not found.
 This pointer remains valid until the array is modified by another method.
 
-##### value\_type *name\_get\_at(name\_t dict, const key\_type key)
+##### value\_type *name\_safe\_get(name\_t dict, const key\_type key)
 
 Return a pointer to the value associated to the key 'key' in dictionary
 'dict' or create a new entry for the key 'key',
@@ -3367,7 +3367,7 @@ or NULL if there is no element in the B+Tree.
 Return a pointer to the value of the tree 'tree' that is associated to 'data',
 or NULL if there is no match.
 
-##### value\_type * name\_get\_at(name\_t tree, const key\_type data)
+##### value\_type * name\_safe\_get(name\_t tree, const key\_type data)
 
 Return a pointer to the value of the tree 'tree' that is associated to 'data'.
 If the key doesn't exist yet in the tree, a new entry is created with 'key'
@@ -4818,7 +4818,7 @@ If it exists, it sets '*value' to it and returns true.
 Otherwise it returns false.
 This method is only defined if the base container exports the GET\_KEY operator.
 
-##### void name\_get\_at\_copy(value\_t *value, name\_t concurrent, key\_t key)
+##### void name\_safe\_get\_copy(value\_t *value, name\_t concurrent, key\_t key)
 
 Read the value associated to the key 'key'. 
 If it exists, it sets '*value' to it.

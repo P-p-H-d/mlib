@@ -234,7 +234,7 @@
    VALUE_TYPE(M_C(name, _value_ct)),                                          \
    SET_KEY(M_C(name, _set_at)),                                               \
    GET_KEY(M_C(name, _get)),                                                  \
-   GET_SET_KEY(M_C(name, _get_at))                                            \
+   GET_SET_KEY(M_C(name, _safe_get))                                          \
    ERASE_KEY(M_C(name, _erase)),                                              \
    KEY_OPLIST(key_oplist),                                                    \
    VALUE_OPLIST(value_oplist),                                                \
@@ -766,7 +766,7 @@
     }                                                                         \
   }                                                                           \
                                                                               \
-  static inline value_t *M_C(name, _get_at)(tree_t b, key_t const key)        \
+  static inline value_t *M_C(name, _safe_get)(tree_t b, key_t const key)      \
   {                                                                           \
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
     /* Not optimized implementation */                                        \
@@ -782,6 +782,11 @@
       ret = M_C(name, _get)(b, key);                                          \
     }                                                                         \
     return ret;                                                               \
+  }                                                                           \
+  static inline M_ATTR_DEPRECATED value_t *                                   \
+  M_C(name, _get_at)(tree_t b, key_t const key)                               \
+  {                                                                           \
+    return M_C(name, _safe_get)(b, key);                                      \
   }                                                                           \
                                                                               \
   static inline int                                                           \

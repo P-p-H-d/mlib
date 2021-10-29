@@ -565,7 +565,7 @@
   }                                                                           \
                                                                               \
   static inline value_type *                                                  \
-  M_C(name, _get_at)(dict_t map, key_type const key)                          \
+  M_C(name, _safe_get)(dict_t map, key_type const key)                        \
   {                                                                           \
     M_D1CT_CONTRACT(name, map);                                               \
                                                                               \
@@ -595,6 +595,11 @@
     }                                                                         \
     M_D1CT_CONTRACT(name, map);                                               \
     return &(*ref)->M_IF(isSet)(key, value);                                  \
+  }                                                                           \
+  static inline M_ATTR_DEPRECATED value_type *                                \
+  M_C(name, _get_at)(dict_t map, key_type const key)                          \
+  {                                                                           \
+    return M_C(name, _safe_get)(map, key);                                    \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
@@ -1074,7 +1079,7 @@
    ,VALUE_TYPE(M_C(name, _value_ct))                                          \
    ,SET_KEY(M_C(name, _set_at))                                               \
    ,GET_KEY(M_C(name, _get))                                                  \
-   ,GET_SET_KEY(M_C(name, _get_at))                                           \
+   ,GET_SET_KEY(M_C(name, _safe_get))                                         \
    ,ERASE_KEY(M_C(name, _erase))                                              \
    ,KEY_OPLIST(key_oplist)                                                    \
    ,VALUE_OPLIST(value_oplist)                                                \
@@ -1124,7 +1129,7 @@
    KEY_TYPE(M_C(name, _key_ct)),                                              \
    VALUE_TYPE(M_C(name, _key_ct)),                                            \
    GET_KEY(M_C(name, _get)),                                                  \
-   GET_SET_KEY(M_C(name, _get_at)),                                           \
+   GET_SET_KEY(M_C(name, _safe_get)),                                         \
    ERASE_KEY(M_C(name, _erase)),                                              \
    KEY_OPLIST(oplist),                                                        \
    VALUE_OPLIST(oplist),                                                      \
@@ -1522,7 +1527,7 @@ enum m_d1ct_oa_element_e {
   }                                                                           \
                                                                               \
   static inline value_type *                                                  \
-  M_C(name,_get_at)(dict_t dict, key_type const key)                          \
+  M_C(name,_safe_get)(dict_t dict, key_type const key)                        \
   {                                                                           \
     M_D1CT_OA_CONTRACT(dict);                                                 \
     /* NOTE: key can not be the representation of empty or deleted */         \
@@ -1573,6 +1578,11 @@ enum m_d1ct_oa_element_e {
     }                                                                         \
     M_D1CT_OA_CONTRACT(dict);                                                 \
     return &data[p].M_IF(isSet)(key, value);                                  \
+  }                                                                           \
+  static inline M_ATTR_DEPRECATED value_type *                                \
+  M_C(name,_get_at)(dict_t dict, key_type const key)                          \
+  {                                                                           \
+    return M_C(name,_safe_get)(dict, key);                                    \
   }                                                                           \
                                                                               \
   static inline void                                                          \

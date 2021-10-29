@@ -154,7 +154,7 @@ static void test_set(void)
       string_t *p = dict_setstr_get(set, str);
       assert (p != NULL);
       assert(string_equal_p (*p, str));
-      p = dict_setstr_get_at(set, str);
+      p = dict_setstr_safe_get(set, str);
       assert (p != NULL);
       assert(string_equal_p (*p, str));
     }
@@ -179,7 +179,7 @@ static void test_init(void)
       string_t *p = dict_str_get (d1, str1);
       assert (p != NULL);
       assert (string_equal_p(*p, str2));
-      p = dict_str_get_at (d1, str1);
+      p = dict_str_safe_get (d1, str1);
       assert (p != NULL);
       assert (string_equal_p(*p, str2));
     }
@@ -229,7 +229,7 @@ static void test_init(void)
     assert (dict_str_size (d1) == 100);
     for(int i = 100; i < 200; i++) {
       string_printf(str1, "%d", 2*i);
-      string_printf(*dict_str_get_at (d1, str1), "%d", 2*i+1);
+      string_printf(*dict_str_safe_get (d1, str1), "%d", 2*i+1);
     }
     assert (dict_str_size (d1) == 200);
     for(int i = 100; i < 200; i++) {
@@ -238,7 +238,7 @@ static void test_init(void)
       string_t *p = dict_str_get (d1, str1);
       assert (p != NULL);
       assert (string_equal_p(*p, str2));
-      p = dict_str_get_at (d1, str1);
+      p = dict_str_safe_get (d1, str1);
       assert (p != NULL);
       assert (string_equal_p(*p, str2));
     }
@@ -356,7 +356,7 @@ static void test_oa(void)
   assert(dict_oa_int_size(d) == 50);
 
   for(int i = 1 ; i < 150; i+= 3)
-    *dict_oa_int_get_at(d, i) = i*i;
+    *dict_oa_int_safe_get(d, i) = i*i;
   assert(dict_oa_int_size(d) == 100);
   for(int i = 0 ; i < 150; i++) {
     int *p = dict_oa_int_get(d, i);
@@ -506,7 +506,7 @@ test_oa_str1(void)
   dict_oa_str_set_at(dict, BOUNDED_STRING_CTE(symbol, "y"), 2);
   dict_oa_str_set_at(dict, BOUNDED_STRING_CTE(symbol, "z"), 3);
 
-  p = dict_oa_str_get_at(dict, BOUNDED_STRING_CTE(symbol, "x"));
+  p = dict_oa_str_safe_get(dict, BOUNDED_STRING_CTE(symbol, "x"));
   assert(p != NULL);
   assert(*p == 1);
     
@@ -526,7 +526,7 @@ test_oa_str2(void)
   dict_oa_bstr_set_at(dict, STRING_CTE("y"), 2);
   dict_oa_bstr_set_at(dict, STRING_CTE("z"), 3);
 
-  p = dict_oa_bstr_get_at(dict, STRING_CTE("x"));
+  p = dict_oa_bstr_safe_get(dict, STRING_CTE("x"));
   assert(p != NULL);
   assert(*p == 1);
     
