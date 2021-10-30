@@ -19,9 +19,6 @@ jobs:
     - name: make check C++
       working-directory: ./tests
       run: make clean check -j 2 CC="c++ -std=c++11"
-    - name: make check against C++ STL
-      working-directory: ./tests
-      run: make clean check-stl -j 2
 
   build_linux32:
     runs-on: ubuntu-latest
@@ -34,13 +31,16 @@ jobs:
       run: sudo apt-get install gcc-multilib g++-multilib
     - name: make check C99 (32bits)
       working-directory: ./tests
-      run: make clean check CC="gcc -m32 -std=c99 -Wno-unknown-warning-option -Werror"
+      run: make clean check -j 2 CC="gcc -m32 -std=c99 -Wno-unknown-warning-option -Werror"
     - name: make check C11 (32bits)
       working-directory: ./tests
-      run: make clean check CC="gcc -m32 -std=c11 -Wno-unknown-warning-option -Werror"
+      run: make clean check -j 2 CC="gcc -m32 -std=c11 -Wno-unknown-warning-option -Werror"
     - name: make check C++ (32 bits)
       working-directory: ./tests
-      run: make clean check CC="g++ -m32 -std=c++11 -Wno-unknown-warning-option "
+      run: make clean check -j 2 CC="g++ -m32 -std=c++11 -Wno-unknown-warning-option "
+    - name: make check against C++ STL
+      working-directory: ./tests
+      run: make clean check-stl -j 2
  
   build_linux_tcc:
     runs-on: ubuntu-latest
@@ -67,7 +67,7 @@ jobs:
     - uses: actions/checkout@v1
     - name: make check
       shell: bash
-      run: mingw32-make CC="gcc -std=c99 -D__USE_MINGW_ANSI_STDIO=1" check
+      run: mingw32-make -j 2 CC="gcc -std=c99 -D__USE_MINGW_ANSI_STDIO=1" check
 
   build_windows_msys2:
     runs-on: windows-latest
@@ -82,7 +82,7 @@ jobs:
           update: true
           install: git mingw-w64-x86_64-toolchain make
     - name: make check
-      run: make CC="gcc -std=c99 -D__USE_MINGW_ANSI_STDIO=1" check
+      run: make -j 2 CC="gcc -std=c99 -D__USE_MINGW_ANSI_STDIO=1" check
 
   build_windows_visual:
     runs-on: windows-latest
