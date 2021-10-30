@@ -4823,7 +4823,7 @@ This method is only defined if the base container exports the GET\_KEY operator.
 Read the value associated to the key 'key'. 
 If it exists, it sets '*value' to it.
 Otherwise it creates a new value and sets '*value' to it.
-This method is only defined if the base container exports the GET\_SET\_KEY operator.
+This method is only defined if the base container exports the SAFE\_GET\_KEY operator.
 
 ##### bool name\_erase(name\_t concurrent, const key\_t key)
 
