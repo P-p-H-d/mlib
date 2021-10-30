@@ -99,7 +99,7 @@ typedef struct m_ilist_head_s {
    MOVE(M_C(name, _move)),                                                    \
    NAME(name),                                                                \
    TYPE(M_C(name,_ct)),                                                       \
-   CLEAN(M_C(name,_reset)),                                                   \
+   RESET(M_C(name,_reset)),                                                   \
    SUBTYPE(M_C(name,_subtype_ct)),                                            \
    EMPTY_P(M_C(name,_empty_p)),                                               \
    IT_TYPE(M_C(name,_it_ct)),                                                 \

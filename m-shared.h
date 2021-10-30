@@ -112,7 +112,7 @@ M_BEGIN_PROTECTED_CODE
   INIT_SET(M_C(name, _init_set)),                                             \
   SET(M_C(name, _set))                                                        \
   INIT_MOVE(M_C(name, _init_move)),                                           \
-  CLEAN(M_C(name, _reset)),                                                   \
+  RESET(M_C(name, _reset)),                                                   \
   MOVE(M_C(name, _move)),                                                     \
   SWAP(M_C(name, _swap))                                                      \
   ,NAME(name)                                                                 \

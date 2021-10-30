@@ -2750,7 +2750,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_SUB_SUB(a)             ,a,
 #define M_MUL_MUL(a)             ,a,
 #define M_DIV_DIV(a)             ,a,
-#define M_CLEAN_CLEAN(a)         ,a,
+#define M_RESET_RESET(a)         ,a,
 #define M_KEY_TYPE_KEY_TYPE(a)   ,a,
 #define M_VALUE_TYPE_VALUE_TYPE(a) ,a,
 #define M_KEY_OPLIST_KEY_OPLIST(a) ,a,
@@ -2834,7 +2834,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_GET_SUB(...)       M_GET_METHOD(SUB,         M_SUB_DEFAULT,      __VA_ARGS__)
 #define M_GET_MUL(...)       M_GET_METHOD(MUL,         M_MUL_DEFAULT,      __VA_ARGS__)
 #define M_GET_DIV(...)       M_GET_METHOD(DIV,         M_DIV_DEFAULT,      __VA_ARGS__)
-#define M_GET_CLEAN(...)     M_GET_METHOD(CLEAN,       M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_RESET(...)     M_GET_METHOD(RESET,       M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_KEY_TYPE(...)  M_GET_METHOD(KEY_TYPE,    M_NO_DEF_TYPE,      __VA_ARGS__)
 #define M_GET_VALUE_TYPE(...) M_GET_METHOD(VALUE_TYPE, M_NO_DEF_TYPE,      __VA_ARGS__)
 #define M_GET_KEY_OPLIST(...) M_GET_METHOD(KEY_OPLIST, M_NO_DEF_TYPE,      __VA_ARGS__)
@@ -2908,7 +2908,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_CALL_SUB(oplist, ...) M_APPLY_API(M_GET_SUB oplist, oplist, __VA_ARGS__)
 #define M_CALL_MUL(oplist, ...) M_APPLY_API(M_GET_MUL oplist, oplist, __VA_ARGS__)
 #define M_CALL_DIV(oplist, ...) M_APPLY_API(M_GET_DIV oplist, oplist, __VA_ARGS__)
-#define M_CALL_CLEAN(oplist, ...) M_APPLY_API(M_GET_CLEAN oplist, oplist, __VA_ARGS__)
+#define M_CALL_RESET(oplist, ...) M_APPLY_API(M_GET_RESET oplist, oplist, __VA_ARGS__)
 #define M_CALL_GET_KEY(oplist, ...) M_APPLY_API(M_GET_GET_KEY oplist, oplist, __VA_ARGS__)
 #define M_CALL_SET_KEY(oplist, ...) M_APPLY_API(M_GET_SET_KEY oplist, oplist, __VA_ARGS__)
 #define M_CALL_GET_SET_KEY(oplist, ...) M_APPLY_API(M_GET_GET_SET_KEY oplist, oplist, __VA_ARGS__)
@@ -3159,7 +3159,7 @@ static inline size_t m_core_cstr_hash(const char str[])
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),         \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),      \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
-   CLEAN(M_INIT_DEFAULT),                                                     \
+   RESET(M_INIT_DEFAULT),                                                     \
    ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
    MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                               \
@@ -3172,7 +3172,7 @@ static inline size_t m_core_cstr_hash(const char str[])
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),         \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),      \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
-   CLEAN(M_INIT_DEFAULT),                                                     \
+   RESET(M_INIT_DEFAULT),                                                     \
    ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
    MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                               \
@@ -3185,7 +3185,7 @@ static inline size_t m_core_cstr_hash(const char str[])
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),         \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),      \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
-   CLEAN(M_INIT_DEFAULT),                                                     \
+   RESET(M_INIT_DEFAULT),                                                     \
    ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
    MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT)                         )

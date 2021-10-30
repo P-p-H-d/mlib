@@ -1062,7 +1062,7 @@
    INIT_MOVE(M_C(name, _init_move)),                                          \
    MOVE(M_C(name, _move)),                                                    \
    SWAP(M_C(name, _swap)),                                                    \
-   CLEAN(M_C(name, _reset)),                                                  \
+   RESET(M_C(name, _reset)),                                                  \
    NAME(name),                                                                \
    TYPE(M_C(name, _ct)),                                                      \
    SUBTYPE(M_C(name, _subtype_ct)),                                           \
@@ -1120,7 +1120,7 @@
    INIT_MOVE(M_C(name, _init_move)),                                          \
    MOVE(M_C(name, _move)),                                                    \
    SWAP(M_C(name, _swap)),                                                    \
-   CLEAN(M_C(name, _reset)),                                                  \
+   RESET(M_C(name, _reset)),                                                  \
    NAME(name),                                                                \
    TYPE(M_C(name, _ct)),                                                      \
    SUBTYPE(M_C(name, _subtype_ct)),                                           \

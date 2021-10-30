@@ -97,7 +97,7 @@
    IT_PREVIOUS(M_C(name,_previous)),                                          \
    IT_CREF(M_C(name,_cref)),                                                  \
    IT_REMOVE(M_C(name,_remove)),                                              \
-   CLEAN(M_C(name,_reset)),                                                   \
+   RESET(M_C(name,_reset)),                                                   \
    PUSH(M_C(name,_push)),                                                     \
    GET_MIN(M_C(name,_min)),                                                   \
    GET_MAX(M_C(name,_max)),                                                   \

@@ -537,7 +537,7 @@ Other documented operators are:
 * MOVE(objd, objc): Set 'objd' to the same state than 'objc' by stealing as resources as possible from 'objc' and then clear 'objc' (destructor of 'objc'). It is equivalent to calling SET(objd,objc) then CLEAR(objc) or CLEAR(objd) and then INIT\_MOVE(objd, objc). TBC if this operator is really needed as calling CLEAR then INIT\_MOVE is what do all known implementation, and is efficient. A MOVE operator shall not fail.
 * INIT\_WITH(obj, ...): Initialize the object 'obj' with the given variable set of arguments (constructor). Arguments can be of different types. It is up to the method of the objet to decide how to initialize the object based on this initialization array. This operator is used in the M\_LET macro to initialize objects with their given values.
 * SWAP(objd, objc): Swap the states of the object 'objc' and the object 'objd'.
-* CLEAN(obj): Empty the container from all its objects. Nearly like CLEAR except that the container 'obj' remains initialized (but empty).
+* RESET(obj): Reset the object to its init state (Emptying the object if it is an object).
 * EMPTY\_P(obj) --> bool: Test if the container object is empty (true) or not.
 * GET\_SIZE (container) --> size\_t: Return the number of elements in the container object.
 * HASH (obj) --> size\_t: return a hash of the object (not a secure hash but one that is usable for a hash table). Default is performing a hash of the memory representation of the object. This default implementation is invalid if the object holds pointer to other objects.
@@ -4788,7 +4788,7 @@ This method is only defined if the base container exports the MOVE operator.
 
 Reset the concurrent container.
 Afterwards the container is empty, but remains initialized.
-This method is only defined if the base container exports the CLEAN operator.
+This method is only defined if the base container exports the RESET operator.
 
 ##### void name\_clear(name\_t concurrent)
 
@@ -6303,7 +6303,7 @@ than a 'size\_t'.
 ##### M\_GET\_SUB oplist
 ##### M\_GET\_MUL oplist
 ##### M\_GET\_DIV oplist
-##### M\_GET\_CLEAN oplist
+##### M\_GET\_RESET oplist
 ##### M\_GET\_PUSH oplist
 ##### M\_GET\_POP oplist
 ##### M\_GET\_REVERSE oplist
@@ -7483,7 +7483,7 @@ and as second argument the object in the source container.
 Extract the items of the container 'containerSrc' of oplist 'oplistSrc'
 into the 'containerDest' of oplist 'oplistDest': 
      
-     CLEAN (containerDest)
+     RESET (containerDest)
      for each item in containerSrc do
               [ if func([arguments,] item) ] 
                        Push item in containerDest

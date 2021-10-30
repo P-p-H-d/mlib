@@ -118,9 +118,9 @@ void test(int select_test, int index,
     break;
 #endif
     
-#if M_TEST_METHOD_P(CLEAN, CONT_OPL)
+#if M_TEST_METHOD_P(RESET, CONT_OPL)
   case 5:
-    M_CALL_CLEAN(CONT_OPL, c0);
+    M_CALL_RESET(CONT_OPL, c0);
     c1.clear();
     break;
 #endif

@@ -1713,7 +1713,7 @@ string_utf8_p(string_t str)
     string_t tmp;                                                             \
     size_t size = string_size(str);                                           \
     string_init(tmp);                                                         \
-    M_CALL_CLEAN(oplist, cont);                                               \
+    M_CALL_RESET(oplist, cont);                                               \
     for(size_t i = 0 ; i < size; i++) {                                       \
       char c = string_get_char(str, i);                                       \
       if (c == sep) {                                                         \
@@ -1829,7 +1829,7 @@ namespace m_lib {
   (INIT(string_init),INIT_SET(string_init_set), SET(string_set),              \
    INIT_WITH(M_STRING_INIT_WITH),                                             \
    INIT_MOVE(string_init_move), MOVE(string_move),                            \
-   SWAP(string_swap), CLEAN(string_reset),                                    \
+   SWAP(string_swap), RESET(string_reset),                                    \
    EMPTY_P(string_empty_p),                                                   \
    CLEAR(string_clear), HASH(string_hash), EQUAL(string_equal_p),             \
    CMP(string_cmp), TYPE(string_t),                                           \

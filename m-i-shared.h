@@ -91,7 +91,7 @@ M_BEGIN_PROTECTED_CODE
   INIT_SET(API_4(M_C(name, _init_set))),                                      \
   SET(M_C(name, _set) M_IPTR),                                                \
   CLEAR(M_C(name, _clear)),                                                   \
-  CLEAN(M_C(name, _reset) M_IPTR),                                            \
+  RESET(M_C(name, _reset) M_IPTR),                                            \
   NAME(name),                                                                 \
   TYPE(M_C(name, _ct)),                                                       \
   OPLIST(oplist),                                                             \

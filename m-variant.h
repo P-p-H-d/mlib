@@ -111,7 +111,7 @@
   M_VAR1ANT_DEFINE_INIT_SETTER_FIELD(name, __VA_ARGS__)                       \
   M_VAR1ANT_DEFINE_SETTER_FIELD(name, __VA_ARGS__)                            \
   M_VAR1ANT_DEFINE_GETTER_FIELD(name, __VA_ARGS__)                            \
-  M_VAR1ANT_DEFINE_CLEAN_FUNC(name, __VA_ARGS__)                              \
+  M_VAR1ANT_DEFINE_RESET_FUNC(name, __VA_ARGS__)                              \
   M_VAR1ANT_IF_ALL(HASH, __VA_ARGS__)                                         \
   (M_VAR1ANT_DEFINE_HASH(name, __VA_ARGS__),)                                 \
   M_VAR1ANT_IF_ALL(EQUAL, __VA_ARGS__)                                        \
@@ -710,8 +710,8 @@
     break;                                                                    \
 
 
-/* Define the CLEAN function */
-#define M_VAR1ANT_DEFINE_CLEAN_FUNC(name, ...)                                \
+/* Define the RESET function */
+#define M_VAR1ANT_DEFINE_RESET_FUNC(name, ...)                                \
   static inline void M_C(name, _reset)(M_C(name,_ct) my)                      \
   {                                                                           \
     M_VAR1ANT_CONTRACT(name, my);                                             \
@@ -741,7 +741,7 @@
    INIT_SET(M_C(name, _init_set)),                                            \
    SET(M_C(name,_set)),                                                       \
    CLEAR(M_C(name, _clear)),                                                  \
-   CLEAN(M_C(name, _reset)),                                                  \
+   RESET(M_C(name, _reset)),                                                  \
    NAME(name),                                                                \
    TYPE(M_C(name,_ct)),                                                       \
    EMPTY_P(M_C(name,_empty_p)),                                               \

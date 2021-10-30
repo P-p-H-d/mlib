@@ -106,7 +106,7 @@
    ,IT_CREF(M_C(name,_cref))                                                  \
    ,M_IF_METHOD(INIT_SET, oplist)(IT_INSERT(M_C(name,_insert)) ,)             \
    ,M_IF_AT_LEAST_METHOD(SET,INIT_MOVE,oplist)(IT_REMOVE(M_C(name,_remove)),) \
-   ,CLEAN(M_C(name,_reset))                                                   \
+   ,RESET(M_C(name,_reset))                                                   \
    ,KEY_TYPE(size_t)                                                          \
    ,VALUE_TYPE(M_C(name, _subtype_ct))                                        \
    ,KEY_OPLIST(M_DEFAULT_OPLIST)                                              \

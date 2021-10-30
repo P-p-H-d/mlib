@@ -148,7 +148,7 @@ namespace m_lib {
   M_TUPL3_IF_ALL(INIT_MOVE, __VA_ARGS__)(M_TUPL3_DEFINE_INIT_MOVE(name, __VA_ARGS__),) \
   M_TUPL3_IF_ALL(MOVE, __VA_ARGS__)(M_TUPL3_DEFINE_MOVE(name, __VA_ARGS__),)  \
   M_TUPL3_IF_ALL(SWAP, __VA_ARGS__)(M_TUPL3_DEFINE_SWAP(name, __VA_ARGS__),)  \
-  M_TUPL3_IF_ALL(CLEAN, __VA_ARGS__)(M_TUPL3_DEFINE_CLEAN(name, __VA_ARGS__),)
+  M_TUPL3_IF_ALL(RESET, __VA_ARGS__)(M_TUPL3_DEFINE_RESET(name, __VA_ARGS__),)
 
 /* Provide order for _cmp_order */
 #define M_TUPL3_ORDER_CONVERT(name, x) M_C(name, M_C(M_TUPL3_ORDER_CONVERT_, x))
@@ -176,7 +176,7 @@ namespace m_lib {
 #define M_TUPL3_GET_IN_SERIAL(f,t,o) M_GET_IN_SERIAL o
 #define M_TUPL3_GET_PARSE_STR(f,t,o) M_GET_PARSE_STR o
 #define M_TUPL3_GET_SWAP(f,t,o)      M_GET_SWAP o
-#define M_TUPL3_GET_CLEAN(f,t,o)     M_GET_CLEAN o
+#define M_TUPL3_GET_RESET(f,t,o)     M_GET_RESET o
 
 /* Call the method associated to the given operator for the given parameter
   of the tuple t=(name, type, oplist) */
@@ -196,7 +196,7 @@ namespace m_lib {
 #define M_TUPL3_CALL_OUT_SERIAL(t, ...) M_APPLY_API(M_TUPL3_GET_OUT_SERIAL t, M_TUPL3_GET_OPLIST t, __VA_ARGS__)
 #define M_TUPL3_CALL_IN_SERIAL(t, ...)  M_APPLY_API(M_TUPL3_GET_IN_SERIAL t, M_TUPL3_GET_OPLIST t, __VA_ARGS__)
 #define M_TUPL3_CALL_SWAP(t, ...)       M_APPLY_API(M_TUPL3_GET_SWAP t,  M_TUPL3_GET_OPLIST t, __VA_ARGS__)
-#define M_TUPL3_CALL_CLEAN(t, ...)      M_APPLY_API(M_TUPL3_GET_CLEAN t, M_TUPL3_GET_OPLIST t, __VA_ARGS__)
+#define M_TUPL3_CALL_RESET(t, ...)      M_APPLY_API(M_TUPL3_GET_RESET t, M_TUPL3_GET_OPLIST t, __VA_ARGS__)
 
 
 /* Define the type of a tuple */
@@ -627,19 +627,19 @@ namespace m_lib {
   M_TUPL3_CALL_SWAP(a, el1 -> M_TUPL3_GET_FIELD a, el2 -> M_TUPL3_GET_FIELD a);
 
 
-/* Define a CLEAN method by calling the CLEAN methods for all params */
-#define M_TUPL3_DEFINE_CLEAN(name, ...)                                       \
+/* Define a RESET method by calling the RESET methods for all params */
+#define M_TUPL3_DEFINE_RESET(name, ...)                                       \
   static inline void M_C(name, _reset)(M_C(name,_ct) el1) {                   \
     M_TUPL3_CONTRACT(el1);                                                    \
-    M_MAP(M_TUPL3_DEFINE_CLEAN_FUNC , __VA_ARGS__)                            \
+    M_MAP(M_TUPL3_DEFINE_RESET_FUNC , __VA_ARGS__)                            \
   }                                                                           \
   static inline void M_ATTR_DEPRECATED                                        \
   M_C(name, _clean)(M_C(name,_ct) el1) {                                      \
     M_C(name, _reset)(el1);                                                   \
   }
 
-#define M_TUPL3_DEFINE_CLEAN_FUNC(a)                                          \
-  M_TUPL3_CALL_CLEAN(a, el1 -> M_TUPL3_GET_FIELD a);
+#define M_TUPL3_DEFINE_RESET_FUNC(a)                                          \
+  M_TUPL3_CALL_RESET(a, el1 -> M_TUPL3_GET_FIELD a);
 
 
 /* INIT_WITH macro enabling recursive INIT_WITH initialization
@@ -736,7 +736,7 @@ namespace m_lib {
    M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(INIT_MOVE(M_C(name, _init_move)),), \
    M_IF_METHOD_ALL(MOVE, __VA_ARGS__)(MOVE(M_C(name, _move)),),               \
    M_IF_METHOD_ALL(SWAP, __VA_ARGS__)(SWAP(M_C(name, _swap)),),               \
-   M_IF_METHOD_ALL(CLEAN, __VA_ARGS__)(CLEAN(M_C(name, _reset)),),            \
+   M_IF_METHOD_ALL(RESET, __VA_ARGS__)(RESET(M_C(name, _reset)),),            \
    M_IF_METHOD(NEW, M_RET_ARG1(__VA_ARGS__,))(NEW(M_DELAY2(M_GET_NEW) M_RET_ARG1(__VA_ARGS__,)),), \
    M_IF_METHOD(REALLOC, M_RET_ARG1(__VA_ARGS__,))(REALLOC(M_DELAY2(M_GET_REALLOC) M_RET_ARG1(__VA_ARGS__,)),), \
    M_IF_METHOD(DEL, M_RET_ARG1(__VA_ARGS__,))(DEL(M_DELAY2(M_GET_DEL) M_RET_ARG1(__VA_ARGS__,)),), \

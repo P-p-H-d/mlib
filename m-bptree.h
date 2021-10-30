@@ -175,7 +175,7 @@
    IT_NEXT(M_C(name,_next)),                                                  \
    IT_REF(M_C(name,_ref)),                                                    \
    IT_CREF(M_C(name,_cref)),                                                  \
-   CLEAN(M_C(name,_reset)),                                                   \
+   RESET(M_C(name,_reset)),                                                   \
    PUSH(M_C(name,_push)),                                                     \
    GET_MIN(M_C(name,_min)),                                                   \
    GET_MAX(M_C(name,_max)),                                                   \
@@ -227,7 +227,7 @@
    IT_EQUAL_P(M_C(name,_it_equal_p)),                                         \
    IT_NEXT(M_C(name,_next)),                                                  \
    IT_CREF(M_C(name,_cref)),                                                  \
-   CLEAN(M_C(name,_reset)),                                                   \
+   RESET(M_C(name,_reset)),                                                   \
    GET_MIN(M_C(name,_min)),                                                   \
    GET_MAX(M_C(name,_max)),                                                   \
    KEY_TYPE(M_C(name, _key_ct)),                                              \

@@ -690,7 +690,7 @@
   static inline void                                                          \
   M_C(name, _fill_n) (container_t l, size_t n, type_t const value)            \
   {                                                                           \
-    M_CALL_CLEAN(cont_oplist, l);                                             \
+    M_CALL_RESET(cont_oplist, l);                                             \
     for(size_t i = 0; i < n; i++) {                                           \
       M_CALL_PUSH(cont_oplist, l, value);                                     \
     }                                                                         \
@@ -718,7 +718,7 @@
   {                                                                           \
     type_t tmp;                                                               \
     M_CALL_INIT_SET(type_oplist, tmp, value);                                 \
-    M_CALL_CLEAN(cont_oplist, l);                                             \
+    M_CALL_RESET(cont_oplist, l);                                             \
     for(size_t i = 0; i < n; i++) {                                           \
       M_CALL_PUSH(cont_oplist, l, tmp);                                       \
       M_CALL_ADD(type_oplist, tmp, tmp, inc);                                 \
@@ -751,7 +751,7 @@
                         M_C(name, _transform_cb_ct) func)                     \
   {                                                                           \
     M_ASSERT(dst != src);                                                     \
-    M_CALL_CLEAN(cont_oplist, dst);                                           \
+    M_CALL_RESET(cont_oplist, dst);                                           \
     for M_EACH(item, src, cont_oplist) {                                      \
         type_t tmp;                                                           \
         M_CALL_INIT(type_oplist, tmp);                                        \
@@ -1045,7 +1045,7 @@
 
 
 #define M_ALG0_TRANSFORM(contD, contDop, contS, contSop, func) do {           \
-    M_CALL_CLEAN(contDop, contD);                                             \
+    M_CALL_RESET(contDop, contD);                                             \
     for M_EACH(_item, contS, contSop) {                                       \
         M_GET_SUBTYPE contDop _tmp;                                           \
         M_CALL_INIT(M_GET_OPLIST contDop, _tmp);                              \
@@ -1056,7 +1056,7 @@
   } while (0)
 
 #define M_ALG0_TRANSFORM_ARG(contD, contDop, contS, contSop, func, ...) do {  \
-    M_CALL_CLEAN(contDop, contD);                                             \
+    M_CALL_RESET(contDop, contD);                                             \
     for M_EACH(_item, contS, contSop) {                                       \
         M_GET_SUBTYPE contDop _tmp;                                           \
         M_CALL_INIT(M_GET_OPLIST contDop, _tmp);                              \
@@ -1069,7 +1069,7 @@
 
 #define M_ALG0_EXTRACT(contDst, contDstOplist,                                \
                       contSrc, contSrcOplist) do {                            \
-    M_CALL_CLEAN(contDstOplist, contDst);                                     \
+    M_CALL_RESET(contDstOplist, contDst);                                     \
     for M_EACH(_item, contSrc, contSrcOplist) {                               \
         M_IF_METHOD(PUSH, contDstOplist)(                                     \
           M_CALL_PUSH(contDstOplist, contDst, *_item);                        \
@@ -1083,7 +1083,7 @@
 #define M_ALG0_EXTRACT_FUNC(contDst, contDstOplist,                           \
                       contSrc, contSrcOplist,                                 \
                       condFunc) do {                                          \
-    M_CALL_CLEAN(contDstOplist, contDst);                                     \
+    M_CALL_RESET(contDstOplist, contDst);                                     \
     for M_EACH(_item, contSrc, contSrcOplist) {                               \
         if (condFunc (*_item)) {                                              \
           M_IF_METHOD(PUSH, contDstOplist)(                                   \
@@ -1099,7 +1099,7 @@
 #define M_ALG0_EXTRACT_ARG(contDst, contDstOplist,                            \
                           contSrc, contSrcOplist,                             \
                           condFunc, ...) do {                                 \
-    M_CALL_CLEAN(contDstOplist, contDst);                                     \
+    M_CALL_RESET(contDstOplist, contDst);                                     \
     for M_EACH(_item, contSrc, contSrcOplist) {                               \
         if (condFunc (__VA_ARGS__, *_item)) {                                 \
           M_IF_METHOD(PUSH, contDstOplist)(                                   \

@@ -83,7 +83,7 @@
    ,NAME(name)                                                                \
    ,TYPE(M_C(name,_ct))                                                       \
    ,SUBTYPE(M_C(name, _subtype_ct))                                           \
-   ,CLEAN(M_C(name,_reset))                                                   \
+   ,RESET(M_C(name,_reset))                                                   \
    ,PUSH(M_C(name,_push))                                                     \
    ,POP(M_C(name,_pop))                                                       \
    ,OPLIST(oplist)                                                            \

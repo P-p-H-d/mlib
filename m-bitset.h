@@ -847,7 +847,7 @@ bitset_popcount(const bitset_t set)
    ,IT_NEXT(bitset_next)                                                      \
    ,IT_PREVIOUS(bitset_previous)                                              \
    ,IT_CREF(bitset_cref)                                                      \
-   ,CLEAN(bitset_reset)                                                       \
+   ,RESET(bitset_reset)                                                       \
    ,PUSH(bitset_push_back)                                                    \
    ,POP(bitset_pop_back)                                                      \
    ,HASH(bitset_hash)                                                         \

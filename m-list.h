@@ -124,7 +124,7 @@
    IT_CREF(M_C(name,_cref)),                                                  \
    IT_INSERT(M_C(name, _insert)),                                             \
    IT_REMOVE(M_C(name,_remove)),                                              \
-   CLEAN(M_C(name,_reset)),                                                   \
+   RESET(M_C(name,_reset)),                                                   \
    PUSH(M_C(name,_push_back)),                                                \
    POP(M_C(name,_pop_back)),                                                  \
    PUSH_MOVE(M_C(name,_push_move)),                                           \
