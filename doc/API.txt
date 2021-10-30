@@ -71,4 +71,5 @@ V0.5.*: * M_INVERT is renamed into M_REVERSE to be more coherent with the REVERS
         * Make the _clean suffix for reseting the container to empty deprecated. Use new _reset suffix instead.
         * Make the _get_at suffix for always getting a value deprecated. Use new _safe_get suffix instead.
 	* Rename CLEAN operator in RESET operator.
+	* Rename GET_SET_KEY operator in SAFE_GET_KEY operator.
 	

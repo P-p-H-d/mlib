@@ -482,14 +482,14 @@
   }                                                                           \
   ,)                                                                          \
                                                                               \
-  M_IF_METHOD(GET_SET_KEY, oplist)(                                           \
+  M_IF_METHOD(SAFE_GET_KEY, oplist)(                                          \
   static inline void                                                          \
   M_C(name, _safe_get_copy)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist const key) \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
     M_ASSERT (out_data != NULL);                                              \
     M_C(name, _write_lock)(out);                                              \
-    M_GET_VALUE_TYPE oplist *p = M_CALL_GET_SET_KEY(oplist, out->data, key);  \
+    M_GET_VALUE_TYPE oplist *p = M_CALL_SAFE_GET_KEY(oplist, out->data, key); \
     M_ASSERT (p != NULL);                                                     \
     M_CALL_SET(M_GET_VALUE_OPLIST oplist, *out_data, *p);                     \
     M_C(name, _write_unlock)(out);                                            \

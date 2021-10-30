@@ -226,11 +226,11 @@ void test(int select_test, int index,
     break;
 #endif
 
-#if M_TEST_METHOD_P(GET_SET_KEY, CONT_OPL)
+#if M_TEST_METHOD_P(SAFE_GET_KEY, CONT_OPL)
   case 14:
     // To rework for dict
     index = (1 + (c1.size() < 1000000)) * (index % ( c1.size() + 1) );
-    M_CALL_SET(M_GET_OPLIST CONT_OPL, b0, *M_CALL_GET_SET_KEY(CONT_OPL, c0, index));
+    M_CALL_SET(M_GET_OPLIST CONT_OPL, b0, *M_CALL_SAFE_GET_KEY(CONT_OPL, c0, index));
 #ifndef HAVE_GET_KEY_THROUGH_FIND
     if ((size_t) index >= c1.size() ) {
       c1.resize(index+1);

@@ -234,7 +234,7 @@
    VALUE_TYPE(M_C(name, _value_ct)),                                          \
    SET_KEY(M_C(name, _set_at)),                                               \
    GET_KEY(M_C(name, _get)),                                                  \
-   GET_SET_KEY(M_C(name, _safe_get))                                          \
+   SAFE_GET_KEY(M_C(name, _safe_get))                                         \
    ERASE_KEY(M_C(name, _erase)),                                              \
    KEY_OPLIST(key_oplist),                                                    \
    VALUE_OPLIST(value_oplist),                                                \

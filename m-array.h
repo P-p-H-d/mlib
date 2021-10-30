@@ -113,7 +113,7 @@
    ,VALUE_OPLIST(oplist)                                                      \
    ,M_IF_METHOD(SET, oplist)(SET_KEY(M_C(name, _set_at)) ,)                   \
    ,GET_KEY(M_C(name, _get))                                                  \
-   ,M_IF_METHOD(INIT, oplist)(GET_SET_KEY(M_C(name, _safe_get)) ,)            \
+   ,M_IF_METHOD(INIT, oplist)(SAFE_GET_KEY(M_C(name, _safe_get)) ,)           \
    ,M_IF_AT_LEAST_METHOD(SET,INIT_MOVE,oplist)(ERASE_KEY(M_C(name, _erase)),) \
    ,GET_SIZE(M_C(name, _size))                                                \
    ,M_IF_METHOD(INIT_SET, oplist)(PUSH(M_C(name,_push_back)) ,)               \
