@@ -12,13 +12,13 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: make check C99
-      run: make clean check -j 2 CC="cc -std=c99 -Wno-unknown-warning-option -Werror"
+      run: make clean && make check -j 2 CC="cc -std=c99 -Wno-unknown-warning-option -Werror"
     - name: make check C11
       working-directory: ./tests
-      run: make clean check -j 2 CC="cc -std=c11 -Wno-unknown-warning-option -Werror"
+      run: make clean && make check -j 2 CC="cc -std=c11 -Wno-unknown-warning-option -Werror"
     - name: make check C++
       working-directory: ./tests
-      run: make clean check -j 2 CC="c++ -std=c++11"
+      run: make clean && make check -j 2 CC="c++ -std=c++11"
 
   build_linux32:
     runs-on: ubuntu-latest
@@ -31,16 +31,16 @@ jobs:
       run: sudo apt-get install gcc-multilib g++-multilib
     - name: make check C99 (32bits)
       working-directory: ./tests
-      run: make clean check -j 2 CC="gcc -m32 -std=c99 -Wno-unknown-warning-option -Werror"
+      run: make clean && make check -j 2 CC="gcc -m32 -std=c99 -Wno-unknown-warning-option -Werror"
     - name: make check C11 (32bits)
       working-directory: ./tests
-      run: make clean check -j 2 CC="gcc -m32 -std=c11 -Wno-unknown-warning-option -Werror"
+      run: make clean && make check -j 2 CC="gcc -m32 -std=c11 -Wno-unknown-warning-option -Werror"
     - name: make check C++ (32 bits)
       working-directory: ./tests
-      run: make clean check -j 2 CC="g++ -m32 -std=c++11 -Wno-unknown-warning-option "
+      run: make clean && make check -j 2 CC="g++ -m32 -std=c++11 -Wno-unknown-warning-option "
     - name: make check against C++ STL
       working-directory: ./tests
-      run: make clean check-stl -j 2
+      run: make clean && make check-stl -j 2
  
   build_linux_tcc:
     runs-on: ubuntu-latest
