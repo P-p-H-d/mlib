@@ -2099,6 +2099,14 @@ This pointer remains valid until the deque is modified by another method.
 Return a constant pointer to the element pointed by the iterator.
 This pointer remains valid until the deque is modified by another method.
 
+##### void name\_remove(name\_t deque, name\_it\_t it)
+
+Remove the element pointed by 'it' in the deque 'deque'.
+Afterwards 'it' references the next element or the end of the deque.
+'it' shall reference a valid element.
+Removing an element may unbalance the deque, which breaks the promise
+of algorithm complexity for the _get method.
+
 ##### type *name\_get(const name\_t deque, size\_t i)
 
 Return a pointer to the element i-th of the deque (from 0). 
