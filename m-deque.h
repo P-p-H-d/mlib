@@ -680,24 +680,53 @@
     node_t *n = it->node;                                                     \
     M_CALL_CLEAR(oplist, n->data[it->index]);                                 \
     if (n == d->back->node) {                                                 \
+      /* back index points to the element after the end */                    \
       M_ASSERT (d->back->index != 0);                                         \
+      M_ASSERT (it->index < d->back->index);                                  \
+      /* We cannot have a node deletion in this case */                       \
       memmove(&n->data[it->index], &n->data[it->index+1],                     \
-              sizeof(type) * (d->back->index - it->index));                   \
+              sizeof(type) * (d->back->index - it->index - 1));               \
       d->back->index --;                                                      \
+      /* The iterator points to the next element */                           \
     } else if (n == d->front->node) {                                         \
+      /* front index points to the first element */                           \
       if (M_UNLIKELY (d->front->index == n->size -1)) {                       \
-        /* TODO */                                                            \
+        /* Node 'smart' deletion (single element) */                          \
+        /* Update front iterator to point to the next object */               \
+        n = M_C(name, _node_list_next_obj)(d->list, n);                       \
+        /* We must have a next element, as we have a different back node      \
+           than the front node. */                                            \
+        M_ASSERT (n != NULL);                                                 \
+        d->front->node = n;                                                   \
+        d->front->index = 0;                                                  \
+        /* The iterator references this element */                            \
+        it->node = n;                                                         \
+        it->index = 0;                                                        \
       } else {                                                                \
         memmove(&n->data[d->front->index+1], &n->data[d->front->index],       \
                 sizeof(type) * (it->index - d->front->index));                \
         d->front->index ++;                                                   \
+        /* The iterator shall reference the next element */                   \
+        M_C(name, _next)(it);                                                 \
       }                                                                       \
     } else {                                                                  \
-      memmove(&n->data[it->index], &n->data[it->index+1],                     \
-              sizeof(type) * (it->node->size - it->index));                   \
-      /* We lose capacity of the node... */                                   \
-      n->size --;                                                             \
-      /* TODO: Case if node is empty... */                                    \
+      /* Nether front or end node */                                          \
+      if (M_UNLIKELY(n->size == 1)) {                                         \
+        /* The iterator shall reference the next element */                   \
+        M_C(name, _next)(it);                                                 \
+        /* Node deletion */                                                   \
+        M_ASSERT(d->count > 1);                                               \
+        M_C(name, _node_list_unlink)(n);                                      \
+        M_CALL_FREE(oplist, n);                                               \
+      } else {                                                                \
+        memmove(&n->data[it->index], &n->data[it->index+1],                   \
+                sizeof(type) * (it->node->size - it->index));                 \
+        /* We lose capacity of the node... */                                 \
+        n->size --;                                                           \
+        /* The iterator points to the next element                            \
+           except if it was the last one*/                                    \
+        if (M_UNLIKELY(it->index >= n->size)) M_C(name, _next)(it);           \
+      }                                                                       \
     }                                                                         \
     d->count--;                                                               \
     M_D3QU3_CONTRACT(d);                                                      \
@@ -1058,6 +1087,7 @@
    ,IT_PREVIOUS(M_C(name,_previous))                                          \
    ,IT_REF(M_C(name,_ref))                                                    \
    ,IT_CREF(M_C(name,_cref))                                                  \
+   ,IT_REMOVE(M_C(name,_remove))                                              \
    ,RESET(M_C(name,_reset))                                                   \
    ,GET_SIZE(M_C(name, _size))                                                \
    ,PUSH(M_C(name,_push_back))                                                \
