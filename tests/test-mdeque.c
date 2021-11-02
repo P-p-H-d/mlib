@@ -23,9 +23,10 @@
 #include <stdio.h>
 #include "test-obj.h"
 
-#include "m-string.h"
 #include "m-deque.h"
 
+#include "m-string.h"
+#include "m-array.h"
 #include "coverage.h"
 
 START_COVERAGE
@@ -46,6 +47,8 @@ DEQUE_DEF(deque_retcode, ReturnCode_t, M_ENUM_OPLIST(ReturnCode_t, SUCCESS))
 
 DEQUE_DEF_AS(DequeDouble, DequeDouble, DequeDoubleIt, double)
 #define M_OPL_DequeDouble() DEQUE_OPLIST(DequeDouble, M_DEFAULT_OPLIST)
+
+ARRAY_DEF(array, int)
 
 static void test_ti1(int n)
 {
@@ -442,6 +445,88 @@ static void test_double(void)
   }
 }
 
+static void test_remove(void)
+{
+  deque_t d;
+  deque_it_t it, it2;
+  array_t a;
+  array_it_t ita;
+  deque_init(d);
+  array_init(a);
+
+  deque_push_back(d, 34);
+  deque_it(it, d);
+  deque_remove(d, it);
+  assert(deque_empty_p(d));
+
+  deque_push_back(d, 34);
+  deque_push_back(d, 43);
+  deque_it(it, d);
+  deque_remove(d, it);
+  assert(deque_size(d) == 1);
+  assert(*deque_front(d) == 43);
+  assert(*deque_back(d) == 43);
+
+  for(int n = 2; n < 1000; n++) {
+    deque_reset(d);
+    array_reset(a);
+    for(int i = 0 ; i < n ; i++) {
+      deque_push_back(d, i);
+      array_push_back(a, i);
+    }
+    deque_it(it, d);
+    array_it(ita, a);
+    for(int i = 0 ; i < n ; i++) {
+      for(unsigned j = 0; j <= ((unsigned)n&3) ; j++) {
+        deque_next(it);
+        array_next(ita);
+      }
+      if (deque_end_p(it)) break;
+      assert(*deque_cref(it) == *array_cref(ita));
+      deque_remove(d, it);
+      array_remove(a, ita);
+      if (!deque_end_p(it))
+        assert(*deque_cref(it) == *array_cref(ita));
+      unsigned j = 0;
+      for(deque_it(it2, d); !deque_end_p(it2); deque_next(it2)) {
+        assert(*deque_cref(it2) == *array_get(a, j));
+        j++;
+      }
+    }
+  }
+
+  for(int n = 2; n < 1000; n++) {
+    deque_reset(d);
+    array_reset(a);
+    for(int i = 0 ; i < n ; i++) {
+      deque_push_front(d, n-1-i);
+      array_push_back(a, i);
+    }
+    deque_it(it, d);
+    array_it(ita, a);
+    for(int i = 0 ; i < n ; i++) {
+      for(unsigned j = 0; j < ((unsigned)n&3) ; j++) {
+        deque_next(it);
+        array_next(ita);
+      }
+      if (deque_end_p(it)) break;
+      assert(*deque_cref(it) == *array_cref(ita));
+      deque_remove(d, it);
+      array_remove(a, ita);
+      if (!deque_end_p(it))
+        assert(*deque_cref(it) == *array_cref(ita));
+      unsigned j = 0;
+      for(deque_it(it2, d); !deque_end_p(it2); deque_next(it2)) {
+        assert(*deque_cref(it2) == *array_get(a, j));
+        j++;
+      }
+    }
+  }
+
+  deque_clear(d);
+  array_clear(a);
+}
+
 int main(void)
 {
   test1();
@@ -457,5 +542,6 @@ int main(void)
   test_forward();
   test_backward();
   test_double();
+  test_remove();
   exit(0);
 }
