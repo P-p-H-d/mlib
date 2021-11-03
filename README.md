@@ -6378,8 +6378,11 @@ Theses new operators will have higher priority than the ones
 in the given oplist.
 
 ##### M\_TEST\_METHOD\_P(method, oplist)
+##### M\_TEST\_METHOD\_ALTER\_P(method, oplist)
 
 Test if a method is present in an oplist. Return 0 or 1.
+M\_TEST\_METHOD\_P does not work if the returned method is something within parenthesis (like OPLIST*)
+If this case is possible, you shall use the M_TEST_METHOD_ALTER_P macro (safer but slower).
 
 ##### M\_IF\_METHOD(method, oplist) 
 

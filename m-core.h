@@ -3336,10 +3336,15 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 /* Test if a method is present in an oplist.
    Return 0 (method is absent or disabled) or 1 (method is present and not disabled).
-   NOTE: Does not work if method is OPLIST, KEY_OPLIST or VALUE_OPLIST.
+   NOTE: M_TEST_METHOD_P does not work if method is something within parenthesis (like OPLIST*)
+   In this case, you shall use the M_TEST_METHOD_ALTER_P macro (safer but slower).
  */
 #define M_TEST_METHOD_P(method, oplist)                                       \
   M_BOOL(M_GET_METHOD (method, 0, M_OPFLAT oplist))
+
+#define M_TEST_METHOD_ALTER_P(method, oplist)                                 \
+  M_INV(M_EMPTY_P(M_GET_METHOD (method, , M_OPFLAT oplist)))
+
 
 /* Test if a method is disabled in an oplist.
    To disable an oplist, just put '0' in the method like this:
