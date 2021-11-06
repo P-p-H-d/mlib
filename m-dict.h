@@ -727,6 +727,13 @@
                                                                         )     \
   }                                                                           \
                                                                               \
+  M_D1CT_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t, it_deref_t)
+
+
+/* Define additional functions for dictionnary (Common for all kinds of dictionnary).
+   Do not used any specific fields of the dictionnary but the public API */
+#define M_D1CT_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t, it_deref_t) \
+                                                                              \
   M_IF_METHOD(EQUAL, value_oplist)(                                           \
   static inline bool                                                          \
   M_C(name, _equal_p)(const dict_t dict1, const dict_t dict2)                 \
@@ -756,13 +763,6 @@
     return true;                                                              \
   }                                                                           \
   , /* no value equal */ )                                                    \
-                                                                              \
-  M_D1CT_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t, it_deref_t)
-
-
-/* Define additional functions for dictionnary (Common for all kinds of dictionnary).
-   Do not used any fields of the dictionnary but the public API */
-#define M_D1CT_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t, it_deref_t) \
                                                                               \
   M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(                        \
   static inline void                                                          \
@@ -1969,34 +1969,6 @@ enum m_d1ct_oa_element_e {
     }                                                                         \
     M_D1CT_OA_CONTRACT(dict);                                                 \
   }                                                                           \
-                                                                              \
-  M_IF_METHOD(EQUAL, value_oplist)(                                           \
-  static inline bool                                                          \
-  M_C(name, _equal_p)(const dict_t dict1, const dict_t dict2)                 \
-  {                                                                           \
-    M_D1CT_OA_CONTRACT(dict1);                                                \
-    M_D1CT_OA_CONTRACT(dict2);                                                \
-    /* NOTE: Key type has mandatory equal operator */                         \
-    /* Easy case */                                                           \
-    if (M_LIKELY (dict1->count != dict2->count))                              \
-      return false;                                                           \
-    if (M_UNLIKELY (dict1->count == 0))                                       \
-      return true;                                                            \
-    /* Otherwise this is the slow path */                                     \
-    dict_it_t it;                                                             \
-    for(M_C(name, _it)(it, dict1) ;                                           \
-        !M_C(name, _end_p)(it);                                               \
-        M_C(name, _next)(it)) {                                               \
-      const it_deref_t *item = M_C(name, _cref)(it);                          \
-      value_type *ptr = M_C(name, _get)(dict2, M_IF(isSet)(*item, item->key)); \
-      if (ptr == NULL)                                                        \
-        return false;                                                         \
-      if (M_CALL_EQUAL(value_oplist, item->value, *ptr) == false)             \
-        return false;                                                         \
-    }                                                                         \
-    return true;                                                              \
-  }                                                                           \
-  , /* no value equal */ )                                                    \
                                                                               \
   M_D1CT_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t, it_deref_t)
 
