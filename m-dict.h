@@ -427,20 +427,6 @@
     M_C(name, _reset)(map);                                                   \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
-  M_C(name,_empty_p)(const dict_t map)                                        \
-  {                                                                           \
-    M_D1CT_CONTRACT(name, map);                                               \
-    return map->count == 0;                                                   \
-  }                                                                           \
-                                                                              \
-  static inline size_t                                                        \
-  M_C(name,_size)(const dict_t map)                                           \
-  {                                                                           \
-    M_D1CT_CONTRACT(name, map);                                               \
-    return map->count;                                                        \
-  }                                                                           \
-                                                                              \
   static inline value_type *                                                  \
   M_C(name, _get)(const dict_t map, key_type const key)                       \
   {                                                                           \
@@ -733,6 +719,20 @@
 /* Define additional functions for dictionnary (Common for all kinds of dictionnary).
    Do not used any specific fields of the dictionnary but the public API */
 #define M_D1CT_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t, it_deref_t) \
+                                                                              \
+  static inline bool                                                          \
+  M_C(name,_empty_p)(const dict_t map)                                        \
+  {                                                                           \
+    M_ASSERT(map != NULL);                                                    \
+    return map->count == 0;                                                   \
+  }                                                                           \
+                                                                              \
+  static inline size_t                                                        \
+  M_C(name,_size)(const dict_t map)                                           \
+  {                                                                           \
+    M_ASSERT(map != NULL);                                                    \
+    return map->count;                                                        \
+  }                                                                           \
                                                                               \
   M_IF_METHOD(EQUAL, value_oplist)(                                           \
   static inline bool                                                          \
@@ -1696,20 +1696,6 @@ enum m_d1ct_oa_element_e {
     }                                                                         \
     M_D1CT_OA_CONTRACT(dict);                                                 \
     return true;                                                              \
-  }                                                                           \
-                                                                              \
-  static inline bool                                                          \
-  M_C(name,_empty_p)(const  dict_t dict)                                      \
-  {                                                                           \
-    M_D1CT_OA_CONTRACT(dict);                                                 \
-    return dict->count == 0;                                                  \
-  }                                                                           \
-                                                                              \
-  static inline size_t                                                        \
-  M_C(name,_size)(const  dict_t dict)                                         \
-  {                                                                           \
-    M_D1CT_OA_CONTRACT(dict);                                                 \
-    return dict->count;                                                       \
   }                                                                           \
                                                                               \
   static inline void                                                          \
