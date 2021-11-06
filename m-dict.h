@@ -305,7 +305,7 @@
                                                                               \
   /* Define chained dict type */                                              \
   typedef struct M_C(name, _s) {                                              \
-    size_t used, lower_limit, upper_limit;                                    \
+    size_t count, lower_limit, upper_limit;                                   \
     M_C(name, _array_list_pair_ct) table;                                     \
   } dict_t[1];                                                                \
                                                                               \
@@ -336,7 +336,7 @@
   M_C(name, _init)(dict_t map)                                                \
   {                                                                           \
     M_ASSERT (map != NULL);                                                   \
-    map->used = 0;                                                            \
+    map->count = 0;                                                           \
     M_C(name, _array_list_pair_init)(map->table);                             \
     M_C(name, _array_list_pair_resize)(map->table, M_D1CT_INITIAL_SIZE);      \
     map->lower_limit = M_D1CT_LOWER_BOUND(M_D1CT_INITIAL_SIZE);               \
@@ -349,7 +349,7 @@
   {                                                                           \
     M_D1CT_CONTRACT(name, org);                                               \
     M_ASSERT (map != org);                                                    \
-    map->used = org->used;                                                    \
+    map->count = org->count;                                                  \
     map->lower_limit = org->lower_limit;                                      \
     map->upper_limit = org->upper_limit;                                      \
     M_C(name, _array_list_pair_init_set)(map->table, org->table);             \
@@ -361,7 +361,7 @@
   {                                                                           \
     M_D1CT_CONTRACT(name, map);                                               \
     M_D1CT_CONTRACT(name, org);                                               \
-    map->used = org->used;                                                    \
+    map->count = org->count;                                                  \
     map->lower_limit = org->lower_limit;                                      \
     map->upper_limit = org->upper_limit;                                      \
     M_C(name, _array_list_pair_set)(map->table, org->table);                  \
@@ -379,7 +379,7 @@
   M_C(name, _init_move)(dict_t map, dict_t org)                               \
   {                                                                           \
     M_D1CT_CONTRACT(name, org);                                               \
-    map->used = org->used;                                                    \
+    map->count = org->count;                                                  \
     map->lower_limit = org->lower_limit;                                      \
     map->upper_limit = org->upper_limit;                                      \
     M_C(name, _array_list_pair_init_move)(map->table, org->table);            \
@@ -391,7 +391,7 @@
   {                                                                           \
     M_D1CT_CONTRACT(name, d1);                                                \
     M_D1CT_CONTRACT(name, d2);                                                \
-    M_SWAP (size_t, d1->used, d2->used);                                      \
+    M_SWAP (size_t, d1->count, d2->count);                                    \
     M_SWAP (size_t, d1->lower_limit, d2->lower_limit);                        \
     M_SWAP (size_t, d1->upper_limit, d2->upper_limit);                        \
     M_C(name, _array_list_pair_swap)(d1->table, d2->table);                   \
@@ -417,7 +417,7 @@
     M_C(name, _array_list_pair_resize)(map->table, M_D1CT_INITIAL_SIZE);      \
     map->lower_limit = M_D1CT_LOWER_BOUND(M_D1CT_INITIAL_SIZE);               \
     map->upper_limit = M_D1CT_UPPER_BOUND(M_D1CT_INITIAL_SIZE);               \
-    map->used = 0;                                                            \
+    map->count = 0;                                                           \
     M_D1CT_CONTRACT(name, map);                                               \
   }                                                                           \
                                                                               \
@@ -431,14 +431,14 @@
   M_C(name,_empty_p)(const dict_t map)                                        \
   {                                                                           \
     M_D1CT_CONTRACT(name, map);                                               \
-    return map->used == 0;                                                    \
+    return map->count == 0;                                                   \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
   M_C(name,_size)(const dict_t map)                                           \
   {                                                                           \
     M_D1CT_CONTRACT(name, map);                                               \
-    return map->used;                                                         \
+    return map->count;                                                        \
   }                                                                           \
                                                                               \
   static inline value_type *                                                  \
@@ -558,8 +558,8 @@
                                M_IF(isStoreHash)(hash M_DEFERRED_COMMA,)      \
                                key                                            \
                                M_IF(isSet)(, M_DEFERRED_COMMA value));        \
-    map->used ++;                                                             \
-    if (M_UNLIKELY (map->used > map->upper_limit) )                           \
+    map->count ++;                                                            \
+    if (M_UNLIKELY (map->count > map->upper_limit) )                          \
       M_C3(m_d1ct_,name,_resize_up)(map);                                     \
     M_D1CT_CONTRACT(name, map);                                               \
   }                                                                           \
@@ -586,8 +586,8 @@
     pair_type *ref = M_C(name, _list_pair_push_new)(*list_ptr);               \
     M_IF(isStoreHash)(M_C(name, _pair_set_hash)(*ref, hash);,)                \
     M_C(name, _pair_set_key)(*ref, key);                                      \
-    map->used ++;                                                             \
-    if (M_UNLIKELY (map->used > map->upper_limit) ) {                         \
+    map->count ++;                                                            \
+    if (M_UNLIKELY (map->count > map->upper_limit) ) {                        \
       M_C3(m_d1ct_,name,_resize_up)(map);                                     \
       /* Even if the array is being resized, the pointer 'ref'                \
          shall still point to the same item in the bucket (it may still       \
@@ -620,12 +620,12 @@
       M_IF(isStoreHash)(if (ref->hash != hash) continue;, )                   \
       if (M_CALL_EQUAL(key_oplist, ref->key, key)) {                          \
         M_C(name, _list_pair_remove)(*list_ptr, it);                          \
-        map->used --;                                                         \
+        map->count --;                                                        \
         ret = true;                                                           \
         break;                                                                \
       }                                                                       \
     }                                                                         \
-    if (M_UNLIKELY (map->used < map->lower_limit) )                           \
+    if (M_UNLIKELY (map->count < map->lower_limit) )                          \
       M_C3(m_d1ct_,name,_resize_down)(map);                                   \
     return ret;                                                               \
   }                                                                           \
@@ -734,9 +734,9 @@
     M_ASSERT (dict1 != NULL && dict2 != NULL);                                \
     /* NOTE: Key type has mandatory equal operator */                         \
     /* First the easy cases */                                                \
-    if (M_LIKELY (dict1->used != dict2->used))                                \
+    if (M_LIKELY (dict1->count != dict2->count))                              \
       return false;                                                           \
-    if (M_UNLIKELY (dict1->used == 0))                                        \
+    if (M_UNLIKELY (dict1->count == 0))                                       \
       return true;                                                            \
     /* Otherwise this is the slow path :                                      \
        both dictionary may not have arrays with the same size, but            \
@@ -1172,9 +1172,9 @@
 
 #define M_D1CT_CONTRACT(name, map) do {                                       \
     M_ASSERT(map != NULL);                                                    \
-    M_ASSERT(map->used <= map->upper_limit);                                  \
+    M_ASSERT(map->count <= map->upper_limit);                                 \
     M_ASSERT(map->upper_limit >= M_D1CT_UPPER_BOUND(M_D1CT_INITIAL_SIZE));    \
-    M_ASSERT(map->used >= map->lower_limit);                                  \
+    M_ASSERT(map->count >= map->lower_limit);                                 \
     M_ASSERT(M_POWEROF2_P(M_C(name, _array_list_pair_size)(map->table)));     \
   } while (0)
 
