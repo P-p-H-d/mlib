@@ -2320,8 +2320,8 @@ Return the oplist of the dictionary defined by calling any DICT\_*\_DEF2 with na
 #### DICT\_SET\_DEF(name, key\_type[, key\_oplist])
 #### DICT\_SET\_DEF\_AS(name,  name\_t, name\_it\_t, key\_type[, key\_oplist])
 
-DICT\_SET\_DEF defines the set 'name##\_t' and its associated methods as "static inline" functions.
-A set is a specialized version of a dictionary with no value.
+DICT\_SET\_DEF defines the dictionary set 'name##\_t' and its associated methods as "static inline" functions.
+A dictionary set is a specialized version of a dictionary with no value (only keys).
 
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
@@ -2365,8 +2365,8 @@ are provided.
 #### DICT\_OASET\_DEF(name, key\_type[, key\_oplist])
 #### DICT\_OASET\_DEF\_AS(name,  name\_t, name\_it\_t, key\_type[, key\_oplist])
 
-DICT\_OASET\_DEF defines the set 'name##\_t' and its associated methods as "static inline" functions.
-A set is a specialized version of a dictionary with no value.
+DICT\_OASET\_DEF defines the dictionary set 'name##\_t' and its associated methods as "static inline" functions.
+A dictionary set is a specialized version of a dictionary with no value.
 The difference is that it uses an Open Addressing Hash-Table as 
 container.
 
@@ -2444,6 +2444,10 @@ Reset the dictionary 'dict'. 'dict' becomes empty but remains initialized.
 
 Return the number of elements of the dictionary.
 
+##### bool name\empty\_p(const name\_t dict)
+
+Return true if the dictionary is empty, false otherwise.
+
 ##### value\_type \*name\_get(const name\_t dict, const key\_type key)
 
 Return a pointer to the value associated to the key 'key' in dictionary
@@ -2459,15 +2463,13 @@ The returned pointer cannot be NULL.
 This method is only defined if the value type of the element defines an INIT method.
 This pointer remains valid until the array is modified by another method.
 
-##### void name\_set\_at(name\_t dict, const key\_type key, const value\_type value)
+##### void name\_set\_at(name\_t dict, const key\_type key, const value\_type value)   [for associative array]
 
 Set the value referenced by key 'key' in the dictionary 'dict' to 'value'.
-This method is only defined for associative containers (no SET).
 
-##### void name\_push(name\_t dict, const key\_type key)
+##### void name\_push(name\_t dict, const key\_type key)       [for dictionary set]
 
 Push the value referenced by key 'key' into the dictionary 'dict'.
-This method is only defined for SET.
 
 ##### void name\_erase(name\_t dict, const key\_type key)
 
@@ -2495,7 +2497,7 @@ Return true if 'it' references the last element or is no longer valid.
 Update the iterator 'it' to the next element.
 
 ##### name\_itref\_t *name\_ref(name\_it\_t it)  [for associative array]
-##### key\_type *name\_ref(name\_it\_t it)       [for set]
+##### key\_type *name\_ref(name\_it\_t it)       [for dictionary set]
 
 Return a pointer to the pair composed by the key ('key' field) and its value ('value' field) if it is not a set,
 to the key type if it is a set.
@@ -2503,7 +2505,7 @@ to the key type if it is a set.
 This pointer remains valid until the dictionary is modified by another method.
 
 ##### const name\_itref\_t *name\_cref(name\_it\_t it)  [for associative array]
-##### const key\_type *name\_cref(name\_it\_t it)       [for set]
+##### const key\_type *name\_cref(name\_it\_t it)       [for dictionary set]
 
 Return a constant pointer to the pair composed by the key ('key' field) and its value ('value' field) if it is not a set,
 to the key type if it is a set.
@@ -2541,9 +2543,9 @@ This method is only defined if the type of the element defines a EQUAL method it
 
 ##### void name\_splice(name\_t dict1, name\_t dict2)
 
-Move all items from 'dict2' into 'dict1' and 'dict2' are equal.
-If there is the same key between 'dict2' into 'dict1', then their values are added.
-Afterward 'dict2' is cleaned.
+Move all items from 'dict2' into 'dict1'.
+If there is the same key between 'dict2' into 'dict1', then their values are added (as per the ADD method of the value type).
+Afterward 'dict2' is reseted.
 This method is only defined if the value type defines an ADD method.
 
 
