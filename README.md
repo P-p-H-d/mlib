@@ -2502,8 +2502,8 @@ to the key type if it is a set.
 'key' element shall not be modified.
 This pointer remains valid until the dictionary is modified by another method.
 
-##### const name\_itref\_t *name\_ref(name\_it\_t it)  [for associative array]
-##### const key\_type *name\_ref(name\_it\_t it)       [for set]
+##### const name\_itref\_t *name\_cref(name\_it\_t it)  [for associative array]
+##### const key\_type *name\_cref(name\_it\_t it)       [for set]
 
 Return a constant pointer to the pair composed by the key ('key' field) and its value ('value' field) if it is not a set,
 to the key type if it is a set.
