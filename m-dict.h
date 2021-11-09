@@ -717,7 +717,19 @@
 
 
 /* Define additional functions for dictionnary (Common for all kinds of dictionnary).
-   Do not used any specific fields of the dictionnary but the public API */
+   Do not used any specific fields of the dictionnary but the public API
+
+   It is not possible to define the _remove method: we could easily define it
+   by performing an _erase of the key get by the _cref method. However,
+   computing the next element is way harder. We could easily compute the next
+   element of the iteration (using _next). However with the _erase method, the
+   dict may perform a resize down operation, reducing the size of the array,
+   base of the dict, by two. This operation renders the computation of the
+   'next' element impossible as the order of the elements in the dict
+   has fundamentaly changed in this case. We could detect this and restart
+   the iteration from the first element, but it wouldn't fit the contract
+   of the IT\_REMOVE operator.
+ */
 #define M_D1CT_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t, it_deref_t) \
                                                                               \
   static inline bool                                                          \
