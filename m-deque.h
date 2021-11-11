@@ -720,7 +720,7 @@
         M_CALL_FREE(oplist, n);                                               \
       } else {                                                                \
         memmove(&n->data[it->index], &n->data[it->index+1],                   \
-                sizeof(type) * (it->node->size - it->index));                 \
+                sizeof(type) * (it->node->size - it->index - 1));             \
         /* We lose capacity of the node... */                                 \
         n->size --;                                                           \
         /* The iterator points to the next element                            \
