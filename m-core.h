@@ -59,8 +59,8 @@
 
 /* Define M*LIB version */
 #define M_CORE_VERSION_MAJOR 0
-#define M_CORE_VERSION_MINOR 5
-#define M_CORE_VERSION_PATCHLEVEL 1
+#define M_CORE_VERSION_MINOR 6
+#define M_CORE_VERSION_PATCHLEVEL 0
 
 /* M_ASSUME is equivalent to M_ASSERT, but gives hints to compiler
    about how to optimize the code if NDEBUG is defined.
