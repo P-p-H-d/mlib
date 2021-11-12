@@ -3430,7 +3430,7 @@ Return true if both iterators reference the same object.
 Update the iterator 'it' to the next element.
 
 ##### name\_itref\_t *name\_ref(name\_it\_t it)
-##### const name\_itref\_t *name\_ref(name\_it\_t it)
+##### const name\_itref\_t *name\_cref(name\_it\_t it)
 
 Return a pointer to the element pointer by the iterator 'it'.
 This pointer remains valid until the B+Tree is modified by another method.
