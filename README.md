@@ -3137,7 +3137,7 @@ This method is only defined if the type of the element defines a IN\_STR method 
 Return true if both rbtree 'rbtree1' and 'rbtree2' are equal.
 This method is only defined if the type of the element defines a EQUAL method itself.
 
-##### size\_t name\_hash\_p(const name\_t rbtree)
+##### size\_t name\_hash(const name\_t rbtree)
 
 Return the hash of the tree.
 This method is only defined if the type of the element defines a HASH method itself.
@@ -3465,7 +3465,7 @@ This method is only defined if the type of the element defines a IN\_STR method 
 Return true if both trees 'tree1' and 'tree2' are equal.
 This method is only defined if the type of the element defines a EQUAL method itself.
 
-##### size\_t name\_hash\_p(const name\_t tree)
+##### size\_t name\_hash(const name\_t tree)
 
 Return the hash of the tree.
 This method is only defined if the type of the element defines a HASH method itself.
