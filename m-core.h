@@ -60,7 +60,7 @@
 /* Define M*LIB version */
 #define M_CORE_VERSION_MAJOR 0
 #define M_CORE_VERSION_MINOR 6
-#define M_CORE_VERSION_PATCHLEVEL 0
+#define M_CORE_VERSION_PATCHLEVEL 1
 
 /* M_ASSUME is equivalent to M_ASSERT, but gives hints to compiler
    about how to optimize the code if NDEBUG is defined.
@@ -1092,6 +1092,10 @@ M_BEGIN_PROTECTED_CODE
     - testedFunc is the tested keyword.
     It cannot start with a special character */
 #define M_KEYWORD_P(refFunc, testedFunc)                                      \
+  M_IF(M_PARENTHESIS_P(testedFunc))(M_KEYWORD_P1, M_KEYWORD_P2)(refFunc,testedFunc)
+#define M_KEYWORD_P1(refFunc, testedFunc)                                      \
+  0
+#define M_KEYWORD_P2(refFunc, testedFunc)                                      \
   M_COMMA_P(M_C4(M_PATTERN_, refFunc, _, testedFunc))
 /* The different special recognized patterns: */
 #define M_PATTERN_and_and ,
@@ -1110,6 +1114,7 @@ M_BEGIN_PROTECTED_CODE
 #define M_PATTERN_float_float ,
 #define M_PATTERN_double_double ,
 #define M_PATTERN_void_void ,
+#define M_PATTERN_type_type ,
 #define M_PATTERN_TYPE_TYPE ,
 #define M_PATTERN_SUBTYPE_SUBTYPE ,
 #define M_PATTERN_IT_TYPE_IT_TYPE ,
@@ -1121,6 +1126,11 @@ M_BEGIN_PROTECTED_CODE
 #define M_PATTERN_KEYVAL_KEYVAL ,
 #define M_PATTERN_KEYVAL_PTR_KEYVAL_PTR ,
 #define M_PATTERN_priority_priority ,
+#define M_PATTERN_list_list ,
+#define M_PATTERN_LIST_LIST ,
+#define M_PATTERN_queue_queue ,
+#define M_PATTERN_QUEUE_QUEUE ,
+#define M_PATTERN_INIT_WITH_INIT_WITH ,
 
 /* Necessary macros to handle recursivity,
    delaying the evaluation by one (or more) level of macro expansion.
