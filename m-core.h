@@ -1092,10 +1092,6 @@ M_BEGIN_PROTECTED_CODE
     - testedFunc is the tested keyword.
     It cannot start with a special character */
 #define M_KEYWORD_P(refFunc, testedFunc)                                      \
-  M_IF(M_PARENTHESIS_P(testedFunc))(M_KEYWORD_P1, M_KEYWORD_P2)(refFunc,testedFunc)
-#define M_KEYWORD_P1(refFunc, testedFunc)                                      \
-  0
-#define M_KEYWORD_P2(refFunc, testedFunc)                                      \
   M_COMMA_P(M_C4(M_PATTERN_, refFunc, _, testedFunc))
 /* The different special recognized patterns: */
 #define M_PATTERN_and_and ,
