@@ -100,12 +100,6 @@ bitset_reset(bitset_t t)
   t->size = 0;
 }
 
-static inline void M_ATTR_DEPRECATED
-bitset_clean(bitset_t t)
-{
-  bitset_reset(t);
-}
-
 /* Clear a bitset (DESTRUCTOR) */
 static inline void
 bitset_clear(bitset_t t)

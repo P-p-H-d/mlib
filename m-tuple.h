@@ -633,10 +633,6 @@ namespace m_lib {
     M_TUPL3_CONTRACT(el1);                                                    \
     M_MAP(M_TUPL3_DEFINE_RESET_FUNC , __VA_ARGS__)                            \
   }                                                                           \
-  static inline void M_ATTR_DEPRECATED                                        \
-  M_C(name, _clean)(M_C(name,_ct) el1) {                                      \
-    M_C(name, _reset)(el1);                                                   \
-  }
 
 #define M_TUPL3_DEFINE_RESET_FUNC(a)                                          \
   M_TUPL3_CALL_RESET(a, el1 -> M_TUPL3_GET_FIELD a);

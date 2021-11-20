@@ -256,12 +256,6 @@
     M_L1ST_CONTRACT(v);                                                       \
   }                                                                           \
                                                                               \
-  static inline void M_ATTR_DEPRECATED                                        \
-  M_C(name, _clean)(list_t v)                                                 \
-  {                                                                           \
-    M_C(name, _reset)(v);                                                     \
-  }                                                                           \
-                                                                              \
   static inline void                                                          \
   M_C(name, _clear)(list_t v)                                                 \
   {                                                                           \
@@ -972,12 +966,6 @@
     v->front = NULL;                                                          \
     v->back = NULL;                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
-  }                                                                           \
-                                                                              \
-  static inline void M_ATTR_DEPRECATED                                        \
-  M_C(name, _clean)(list_t v)                                                 \
-  {                                                                           \
-    M_C(name, _reset)(v);                                                     \
   }                                                                           \
                                                                               \
   static inline void                                                          \

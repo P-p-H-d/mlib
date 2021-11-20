@@ -475,11 +475,6 @@
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
   }                                                                           \
                                                                               \
-  static inline void M_ATTR_DEPRECATED M_C(name, _clean)(tree_t b)            \
-  {                                                                           \
-    M_C(name, _reset)(b);                                                     \
-  }                                                                           \
-                                                                              \
   static inline void M_C(name, _clear)(tree_t b)                              \
   {                                                                           \
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
@@ -782,11 +777,6 @@
       ret = M_C(name, _get)(b, key);                                          \
     }                                                                         \
     return ret;                                                               \
-  }                                                                           \
-  static inline M_ATTR_DEPRECATED value_t *                                   \
-  M_C(name, _get_at)(tree_t b, key_t const key)                               \
-  {                                                                           \
-    return M_C(name, _safe_get)(b, key);                                      \
   }                                                                           \
                                                                               \
   static inline int                                                           \

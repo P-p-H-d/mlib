@@ -277,12 +277,6 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     M_C(name, _clear)(dest);                                                  \
   }                                                                           \
                                                                               \
-  static inline void M_ATTR_DEPRECATED                                        \
-  M_C(name, _clean)(shared_t dest)                                            \
-  {                                                                           \
-    M_C(name, _reset)(dest);                                                  \
-  }                                                                           \
-                                                                              \
   static inline void                                                          \
   M_C(name, _set)(shared_t dest,                                              \
                   const shared_t shared)                                      \

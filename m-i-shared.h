@@ -219,12 +219,6 @@ M_BEGIN_PROTECTED_CODE
     *shared = NULL;                                                           \
   }                                                                           \
                                                                               \
-  static inline void M_ATTR_DEPRECATED                                        \
-  M_C(name, _clean)(shared_t *shared)                                         \
-  {                                                                           \
-    M_C(name, _reset)(shared);                                                \
-  }                                                                           \
-                                                                              \
   static inline void                                                          \
   M_C(name, _set)(shared_t *ptr, shared_t shared)                             \
   {                                                                           \

@@ -230,12 +230,6 @@ string_reset(string_t v)
   M_STR1NG_CONTRACT (v);
 }
 
-static inline void M_ATTR_DEPRECATED
-string_clean(string_t v)
-{
-  string_reset(v);
-}
-
 /* Return the selected character of the string */
 static inline char
 string_get_char(const string_t v, size_t index)
@@ -2049,12 +2043,6 @@ namespace m_lib {
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     s->s[0] = 0;                                                              \
-  }                                                                           \
-                                                                              \
-  static inline void M_ATTR_DEPRECATED                                        \
-  M_C(name, _clean)(bounded_t s)                                              \
-  {                                                                           \
-    M_C(name, _reset)(s);                                                     \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \

@@ -718,11 +718,6 @@
     M_C(name, _clear)(my);                                                    \
     M_C(name, _init)(my);                                                     \
   }                                                                           \
-  static inline void M_ATTR_DEPRECATED                                        \
-  M_C(name, _clean)(M_C(name,_ct) my)                                         \
-  {                                                                           \
-    M_C(name, _reset)(my);                                                    \
-  }
 
 /* deferred evaluation of the oplist */
 #define M_VAR1ANT_OPLIST_P1(arg) M_VAR1ANT_OPLIST_P2 arg

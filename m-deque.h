@@ -226,12 +226,6 @@
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
-  static inline void M_ATTR_DEPRECATED                                        \
-  M_C(name, _clean)(deque_t d)                                                \
-  {                                                                           \
-    M_C(name, _reset)(d);                                                     \
-  }                                                                           \
-                                                                              \
   static inline void                                                          \
   M_C(name, _clear)(deque_t d)                                                \
   {                                                                           \

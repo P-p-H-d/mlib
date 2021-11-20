@@ -423,11 +423,6 @@
     M_CALL_RESET(oplist, out->data);                                          \
     M_C(name, _write_unlock)(out);                                            \
   }                                                                           \
-  static inline void M_ATTR_DEPRECATED                                        \
-  M_C(name, _clean)(concurrent_t out)                                         \
-  {                                                                           \
-    M_C(name,_reset)(out);                                                    \
-  }                                                                           \
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(EMPTY_P, oplist)(                                               \
@@ -493,11 +488,6 @@
     M_ASSERT (p != NULL);                                                     \
     M_CALL_SET(M_GET_VALUE_OPLIST oplist, *out_data, *p);                     \
     M_C(name, _write_unlock)(out);                                            \
-  }                                                                           \
-  static inline M_ATTR_DEPRECATED void                                        \
-  M_C(name, _get_at_copy)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist const key) \
-  {                                                                           \
-    M_C(name, _safe_get_copy)(out_data, out, key);                            \
   }                                                                           \
   ,)                                                                          \
                                                                               \

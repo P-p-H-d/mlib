@@ -207,12 +207,6 @@
     M_ARRA4_CONTRACT(v);                                                      \
   }                                                                           \
                                                                               \
-  static inline void M_ATTR_DEPRECATED                                        \
-  M_C(name, _clean)(array_t v)                                                \
-  {                                                                           \
-    M_C(name, _reset)(v);                                                     \
-  }                                                                           \
-                                                                              \
   static inline void                                                          \
   M_C(name, _clear)(array_t v)                                                \
   {                                                                           \
@@ -482,11 +476,6 @@
     M_ASSERT (idx < v->size);                                                 \
     M_ARRA4_CONTRACT(v);                                                      \
     return &v->ptr[idx];                                                      \
-  }                                                                           \
-  static inline M_ATTR_DEPRECATED type *                                      \
-  M_C(name, _get_at)(array_t v, size_t idx)                                   \
-  {                                                                           \
-    return M_C(name, _safe_get)(v, idx);                                      \
   }                                                                           \
   , /* No INIT */)                                                            \
                                                                               \

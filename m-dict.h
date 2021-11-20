@@ -421,12 +421,6 @@
     M_D1CT_CONTRACT(name, map);                                               \
   }                                                                           \
                                                                               \
-  static inline void M_ATTR_DEPRECATED                                        \
-  M_C(name,_clean)(dict_t map)                                                \
-  {                                                                           \
-    M_C(name, _reset)(map);                                                   \
-  }                                                                           \
-                                                                              \
   static inline value_type *                                                  \
   M_C(name, _get)(const dict_t map, key_type const key)                       \
   {                                                                           \
@@ -581,11 +575,6 @@
     }                                                                         \
     M_D1CT_CONTRACT(name, map);                                               \
     return &(*ref)->M_IF(isSet)(key, value);                                  \
-  }                                                                           \
-  static inline M_ATTR_DEPRECATED value_type *                                \
-  M_C(name, _get_at)(dict_t map, key_type const key)                          \
-  {                                                                           \
-    return M_C(name, _safe_get)(map, key);                                    \
   }                                                                           \
                                                                               \
   static inline bool                                                          \

@@ -191,12 +191,6 @@
     M_C(name, _array_reset)(p->array);                                        \
   }                                                                           \
                                                                               \
-  static inline void M_ATTR_DEPRECATED                                        \
-  M_C(name, _clean)(prioqueue_t p)                                            \
-  {                                                                           \
-    M_C(name,_reset)(p);                                                      \
-  }                                                                           \
-                                                                              \
   static inline size_t                                                        \
   M_C(name, _i_parent)(size_t i)                                              \
   {                                                                           \

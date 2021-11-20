@@ -217,12 +217,6 @@ typedef struct m_ilist_head_s {
     M_IL1ST_CONTRACT(name, list);                                             \
   }                                                                           \
                                                                               \
-  static inline void M_ATTR_DEPRECATED                                        \
-  M_C(name, _clean)(list_t list)                                              \
-  {                                                                           \
-    M_C(name,_reset)(list);                                                   \
-  }                                                                           \
-                                                                              \
   static inline void                                                          \
   M_C(name, _clear)(list_t list)                                              \
   {                                                                           \

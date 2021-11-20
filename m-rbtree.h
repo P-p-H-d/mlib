@@ -294,12 +294,6 @@ typedef enum {
     tree->size = 0;                                                           \
    }                                                                          \
                                                                               \
-  static inline void M_ATTR_DEPRECATED                                        \
-  M_C(name, _clean)(tree_t tree)                                              \
-  {                                                                           \
-    M_C(name,_reset)(tree);                                                   \
-  }                                                                           \
-                                                                              \
   static inline void                                                          \
   M_C(name, _clear)(tree_t tree)                                              \
   {                                                                           \
