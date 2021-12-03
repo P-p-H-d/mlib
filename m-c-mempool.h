@@ -418,18 +418,18 @@ M_BEGIN_PROTECTED_CODE
     M_C(name, _lflist_ct)      free;                                          \
     M_C(name, _lflist_ct)      to_be_reclaimed;                               \
     M_C(name, _lflist_ct)      empty;                                         \
-    m_gM_CMEMP00L_list_ct       mempool_node;                                 \
+    m_cmemp00l_list_ct       mempool_node;                                    \
     struct m_gc_s            *gc_mem;                                         \
   } M_C(name, _t)[1];                                                         \
                                                                               \
   /* Garbage collect of the nodes of the mempool on sleep */                  \
   static inline void                                                          \
-  M_C3(m_cmemp00l_,name,_gc_on_sleep)(m_gc_t gc_mem, m_gM_CMEMP00L_list_ct *data, \
+  M_C3(m_cmemp00l_,name,_gc_on_sleep)(m_gc_t gc_mem, m_cmemp00l_list_ct *data, \
          m_gc_tid_t id, m_gc_ticket_ct ticket, m_gc_ticket_ct min_ticket)     \
   {                                                                           \
     /* Get back the mempool from the node */                                  \
     struct M_C(name, _s) *mempool =                                           \
-      M_TYPE_FROM_FIELD(struct M_C(name, _s), data, m_gM_CMEMP00L_list_ct, mempool_node); \
+      M_TYPE_FROM_FIELD(struct M_C(name, _s), data, m_cmemp00l_list_ct, mempool_node); \
                                                                               \
     /* Move the local nodes of the mempool to be reclaimed to the thread into the global pool */ \
     if (!M_C(name, _slist_empty_p)(mempool->thread_data[id].to_be_reclaimed)) { \
@@ -555,13 +555,13 @@ typedef atomic_ulong  m_gc_atomic_ticket_ct;
 
 /* Define the Linked List of mempools that are registered in the GC */
 struct m_gc_s;
-typedef struct m_gM_CMEMP00L_list_s {
-  struct m_gM_CMEMP00L_list_s *next;
+typedef struct m_cmemp00l_list_s {
+  struct m_cmemp00l_list_s *next;
   void (*gc_on_sleep)(struct m_gc_s *gc_mem,
-                      struct m_gM_CMEMP00L_list_s *data, m_gc_tid_t id,
+                      struct m_cmemp00l_list_s *data, m_gc_tid_t id,
                       m_gc_ticket_ct ticket, m_gc_ticket_ct min_ticket);
   void *data;
-} m_gM_CMEMP00L_list_ct;
+} m_cmemp00l_list_ct;
 
 /* Define the Garbage collector thread data */
 typedef struct m_gc_lfmp_thread_s {
@@ -576,7 +576,7 @@ typedef struct m_gc_s {
   m_gc_tid_t                 max_thread;
   m_genint_t                 thread_alloc;
   m_gc_lfmp_thread_ct       *thread_data;
-  m_gM_CMEMP00L_list_ct     *mempool_list;
+  m_cmemp00l_list_ct     *mempool_list;
 } m_gc_t[1];
 
 static inline void
@@ -662,7 +662,7 @@ m_gc_sleep(m_gc_t gc_mem, m_gc_tid_t id)
   atomic_store(&gc_mem->thread_data[id].ticket, t+1);
   const m_gc_ticket_ct min_ticket = m_cmemp00l_gc_min_ticket(gc_mem);
   /* Iterate over all registered mempools */
-  m_gM_CMEMP00L_list_ct *it = gc_mem->mempool_list;
+  m_cmemp00l_list_ct *it = gc_mem->mempool_list;
 
   while (it) {
     /* Perform a garbage collect of the mempool */
@@ -707,18 +707,18 @@ typedef struct m_vlapool_s {
   m_vlapool_lflist_ct        to_be_reclaimed;
   m_vlapool_lflist_ct        empty;
   m_vlapool_lfmp_thread_ct  *thread_data;
-  m_gM_CMEMP00L_list_ct      mvla_node;
+  m_cmemp00l_list_ct      mvla_node;
   struct m_gc_s             *gc_mem;
 } m_vlapool_t[1];
 
 /* Garbage collect of the nodes of the vla mempool on sleep */
 static inline void
-m_cmemp00l_vlapool_on_sleep(m_gc_t gc_mem, m_gM_CMEMP00L_list_ct *data,
+m_cmemp00l_vlapool_on_sleep(m_gc_t gc_mem, m_cmemp00l_list_ct *data,
                           m_gc_tid_t id, m_gc_ticket_ct ticket, m_gc_ticket_ct min_ticket)
 {
   /* Get back the mempool from the node */
   struct m_vlapool_s *vlapool =
-    M_TYPE_FROM_FIELD(struct m_vlapool_s, data, m_gM_CMEMP00L_list_ct, mvla_node);
+    M_TYPE_FROM_FIELD(struct m_vlapool_s, data, m_cmemp00l_list_ct, mvla_node);
 
   /* Move the local nodes of the vlapool to be reclaimed to the thread into the global pool */
   if (!m_vlapool_slist_empty_p(vlapool->thread_data[id].to_be_reclaimed)) {
