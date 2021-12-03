@@ -78,6 +78,12 @@ mandatory to follow under penalty of undefined behavior.
 'should' will be used to indicate a recommendation to the user.
 All pointers expect non-null argument except if indicated.
 
+A 'type' given to a macro shall be either
+an integer, a float, a boolean, a named structure,
+a pointer to such types,
+or a typedef alias of any C type.
+This is in order to than the tokens 'type variable' shall be a valid C expression.
+
 Components
 ----------
 
