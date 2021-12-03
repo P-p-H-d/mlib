@@ -71,23 +71,26 @@ it is highly recommended to properly define NDEBUG for released programs.
 M\*LIB is distributed under BSD-2 simplified license.
 
 It is strongly advised not to read the source to know how to use the library
-but rather read the examples or the tests.
+but rather read the examples.
 
 In this documentation, 'shall' will be used to indicate a user constraint that is
 mandatory to follow under penalty of undefined behavior.
 'should' will be used to indicate a recommendation to the user.
 All pointers expect non-null argument except if indicated.
 
-A 'type' given to a macro shall be either
-an integer, a float, a boolean, a named structure,
-a pointer to such types,
+A 'type' given to any macro can be either
+an integer, a float, a boolean, an enum, a named structure, a pointer to such types,
 or a typedef alias of any C type.
-This is in order to than the tokens 'type variable' shall be a valid C expression.
+However, the preprocessing concatenation between 'type' and 'variable' into
+'type variable' shall be a valid C expression.
+Therefore the 'type' cannot be a C array or a function pointer
+(you need to use a typedef as an intermediary named type).
+
 
 Components
 ----------
 
-The available containers that doesn't require the user structure to be modified are:
+The following headers define containers that don't require the user structure to be modified:
 
 * [m-array.h](#m-array): header for creating array of generic type and of variable size,
 * [m-list.h](#m-list): header for creating singly-linked list of generic type,
@@ -99,7 +102,7 @@ The available containers that doesn't require the user structure to be modified 
 * [m-variant.h](#m-variant): header for creating arbitrary variant of generic type,
 * [m-prioqueue.h](#m-prioqueue): header for creating priority queue of generic type and of variable size,
 
-The available containers of M\*LIB for thread synchronization are:
+The available containers of M\*LIB for thread synchronization are in the following headers:
 
 * [m-buffer.h](#m-buffer): header for creating fixed-size queue (or stack) of generic type (multiple producer / multiple consumer),
 * [m-snapshot](#m-snapshot): header for creating 'snapshot' buffer for sharing synchronously big data (thread safe).
@@ -107,7 +110,7 @@ The available containers of M\*LIB for thread synchronization are:
 * [m-concurrent.h](#m-concurrent): header for transforming a container into a concurrent container.
 * [m-c-mempool.h]: WIP header for creating fast concurrent memory allocation.
 
-The following containers are intrusive (You need to modify your structure to add fields needed by the container):
+The following containers are intrusive (You need to modify your structure to add fields needed by the container) and are defined in:
 
 * [m-i-list.h](#m-i-list): header for creating doubly-linked intrusive list of generic type,
 * [m-i-shared.h](#m-i-shared): header for creating intrusive shared pointer of generic type (Thread Safe),
@@ -128,7 +131,7 @@ Other headers offering other functionality are:
 
 Finally headers for compatibility with non C11 compilers:
 
-* [m-atomic.h](#m-atomic): header for ensuring compatibility between C's stdatomic.h and C++'s atomic header. Provide also an implementation over mutex if none is available.
+* [m-atomic.h](#m-atomic): header for ensuring compatibility between C's stdatomic.h and C++'s atomic header. Provide also an implementation over mutex if nothing is available.
 * [m-mutex.h](#m-mutex): header for providing a very thin layer across multiple implementation of mutex/threads (C11/PTHREAD/WIN32).
 
 Each containers define their iterators.
@@ -159,7 +162,7 @@ To generate the documentation, run:
 
 To install the headers, run:
 
-       make install PREFIX=/my/directory/where/to/install
+       make install PREFIX=/my/directory/where/to/install [DESTDIR=...]
 
 Other targets exist. Mainly for development purpose.
 
@@ -167,10 +170,10 @@ Other targets exist. Mainly for development purpose.
 How to use
 ----------
 
-To use these data structures, you include the desired header,
+To use these data structures, you first include the desired header,
 instantiate the definition of the structure and its associated methods
-by using a macro \_DEF for the needed type.
-Then you use the defined functions. Let's see a first simple example
+by using a macro \_DEF for the needed container.
+Then you use the defined types and functions. Let's see a first simple example
 that creates a list of unsigned int:
 
 ```C
@@ -191,7 +194,7 @@ that creates a list of unsigned int:
               printf("%d\n",          /* Get a reference to the underlying */
                 *list_uint_cref(it)); /* data and print it */
        }
-       list_uint_clear(list);         /* Clear all the list */
+       list_uint_clear(list);         /* Clear all the list (destroying the object list)*/
     }
 ```
 
@@ -250,14 +253,15 @@ As you can see, this is rather equivalent with the following remarks:
   - this was done for performance (it avoids copying all the data within the stack)
   - and for generality reasons (some structure may not allow copying data).
 
-Note: list\_uint\_t is internally defined as an array of structure of size 1.
+Note: M\*LIB defines its own container as an array of a structure of size 1.
 This has the following advantages:
 
 * you effectively reserve the data whenever you declare a variable,
-* you pass automatically the variable per reference for function calls,
+* you pass automatically the variable per reference for a function call,
 * you can not copy the variable by an affectation (you have to use the API instead).
 
-You can also condense the M\*LIB code by using the M\_EACH & M\_LET macros if you are not afraid of using syntactic macros:
+M\*LIB offers also the possibility to condense further your code, so that it is more high level:
+by using the M\_EACH & M\_LET macros (if you are not afraid of using syntactic macros):
 
 ```C
     #include <stdio.h>
@@ -310,12 +314,13 @@ As the mpz\_t type needs proper initialization, copy and destroy functions
 we need to tell to the container how to handle such a type.
 This is done by giving it the oplist associated to the type.
 An oplist is an associative array where the operators are associated to methods.
+
 In the example, we tell to the container to use
-the mpz\_init function for the INIT operator of the type,
-the mpz\_clear function for the CLEAR operator of the type,
-the mpz\_set function for the SET operator of the type,
-the mpz\_init\_set function for the INIT\_SET operator of the type.
-See oplist chapter for more information.
+the mpz\_init function for the INIT operator of the type (aka constructor),
+the mpz\_clear function for the CLEAR operator of the type (aka destructor),
+the mpz\_set function for the SET operator of the type (aka copy),
+the mpz\_init\_set function for the INIT\_SET operator of the type (aka copy constructor).
+See oplist chapter for more detailled information.
 
 We can also write the same example shorter:
 
@@ -380,11 +385,11 @@ Or even shorter when you're comfortable enough with the library:
 
 There are two ways a container can known what is the oplist of a type:
 
-* either the oplist is passed explicitly for each definition of container and for the LET & EACH macros,
-* or the oplist is registered globally by defining a new macro starting with the prefix M\_OPL\_ and finishing with the name of type (don't forget the parenthesis). The macros performing the definition of container and the LET & EACH will test if such macro is defined. If it is defined, it will be used. Otherwise default methods are used.
+* either the oplist is passed explicitly for each definition of container and for the M\_LET & M\_EACH macros,
+* or the oplist is registered globally by defining a new macro starting with the prefix M\_OPL\_ and finishing with the name of type (don't forget the parenthesis and the suffix \_t if needed). The macros performing the definition of container and the M\_LET & M\_EACH will test if such macro is defined. If it is defined, it will be used. Otherwise default methods are used.
 
 Here we can see that we register the mpz\_t type into the container with
-the minimum information of its interface needed.
+the minimum information of its interface needed, and another one to initialize a mpz\_t from an unsigned integer.
 
 We can also see in this example so the container ARRAY provides also
 a macro to define the oplist of the array itself. This is true for
@@ -631,7 +636,7 @@ Example:
 An operator OP can be defined, omitted or disabled:
 
 * ( OP(f) ): the function f is the method of the operator OP
-* ( ): the operator NEW OP omitted, and the default global operation for OP is used.
+* ( ): the operator OP is omitted, and the default global operation for OP is used (if it exists).
 * ( OP(0) ): the operator OP is disabled, and it can never be used.
 
 
@@ -651,8 +656,8 @@ My type is:
 * a M\*LIB container: the OPLIST of the used container,
 * other things: you need to provide a custom OPLIST to your type.
 
-Note: The precise exported methods of the Oplist depend of the version
-of the C language used. Typically, in C11 mode, the M\_DEFAULT\_OPLIST
+Note: The precise exported methods of the OPLIST depend of the version
+of the used C language. Typically, in C11 mode, the M\_DEFAULT\_OPLIST
 exports all needed methods to handle generic input/output of int/floats
 (using \_Generic) whereas it is not possible in C99 mode.
 
@@ -681,7 +686,7 @@ M\_MEMORY\_ALLOC and  M\_MEMORY\_REALLOC are supposed to return NULL in case of 
 The defaults are 'malloc', 'free', 'realloc' and 'free'.
 
 You can also override the methods NEW, DEL, REALLOC & DEL in the oplist given to a container
-so that only the container will use these memory allocation functions.
+so that only the container will use these memory allocation functions instead of the global ones.
 
 
 Out-of-memory error
