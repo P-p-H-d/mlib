@@ -574,9 +574,9 @@ typedef struct m_gc_lfmp_thread_s {
 typedef struct m_gc_s {
   m_gc_atomic_ticket_ct      ticket;
   m_gc_tid_t                 max_thread;
-  genint_t                   thread_alloc;
+  m_genint_t                 thread_alloc;
   m_gc_lfmp_thread_ct       *thread_data;
-  m_gM_CMEMP00L_list_ct      *mempool_list;
+  m_gM_CMEMP00L_list_ct     *mempool_list;
 } m_gc_t[1];
 
 static inline void
@@ -586,7 +586,7 @@ m_gc_init(m_gc_t gc_mem, size_t max_thread)
   M_ASSERT(max_thread > 0 && max_thread < INT_MAX);
 
   atomic_init(&gc_mem->ticket, 0UL);
-  genint_init(gc_mem->thread_alloc, (unsigned int) max_thread);
+  m_genint_init(gc_mem->thread_alloc, (unsigned int) max_thread);
   gc_mem->thread_data = M_MEMORY_REALLOC(m_gc_lfmp_thread_ct, NULL, max_thread);
   if (gc_mem->thread_data == NULL) {
     M_MEMORY_FULL(max_thread * sizeof(m_gc_lfmp_thread_ct));
@@ -610,7 +610,7 @@ m_gc_clear(m_gc_t gc_mem)
   }
   M_MEMORY_FREE(gc_mem->thread_data);
   gc_mem->thread_data = NULL;
-  genint_clear(gc_mem->thread_alloc);
+  m_genint_clear(gc_mem->thread_alloc);
 }
 
 static inline m_gc_tid_t
@@ -618,7 +618,7 @@ m_gc_attach_thread(m_gc_t gc_mem)
 {
   M_ASSERT(gc_mem != NULL && gc_mem->max_thread > 0);
   
-  unsigned id = genint_pop(gc_mem->thread_alloc);
+  unsigned id = m_genint_pop(gc_mem->thread_alloc);
   return M_ASSIGN_CAST(m_gc_tid_t, id);
 }
   
@@ -629,7 +629,7 @@ m_gc_detach_thread(m_gc_t gc_mem, m_gc_tid_t id)
   M_ASSERT(id < gc_mem->max_thread);
   M_ASSERT(atomic_load(&gc_mem->thread_data[id].ticket) == ULONG_MAX);
 
-  genint_push(gc_mem->thread_alloc, id);
+  m_genint_push(gc_mem->thread_alloc, id);
 }
   
 static inline void

@@ -45,42 +45,40 @@ M_BEGIN_PROTECTED_CODE
    enough.
 */
 
-// TO DO: We may want a specialization with constant N value.
-
 // Define the limb size used by genint
-typedef unsigned long long genint_limb_ct;
+typedef unsigned long long m_genint_limb_ct;
 
 /* Define a generator of unique integer (Lock Free) */
-typedef struct genint_s {
-  unsigned int n;            // size of the container
-  unsigned int max;          // number of allocated limb - 1
-  genint_limb_ct mask0;       // mask of the last limb (constant)
-  genint_limb_ct mask_master; // mask of the master limb that controls others (constant)
-  atomic_ullong master;      // master bitfield (which informs if a limb is full or not)
-  atomic_ullong *data;       // the bitfield which informs if an integer is used or not
-} genint_t[1];
+typedef struct m_genint_s {
+  unsigned int n;               // size of the container
+  unsigned int max;             // number of allocated limb - 1
+  m_genint_limb_ct mask0;       // mask of the last limb (constant)
+  m_genint_limb_ct mask_master; // mask of the master limb that controls others (constant)
+  atomic_ullong master;         // master bitfield (which informs if a limb is full or not)
+  atomic_ullong *data;          // the bitfield which informs if an integer is used or not
+} m_genint_t[1];
 
 // Define the max absolute supported value. It should be 2048 on most implementations.
-#define GENINT_MAX_ALLOC (M_GEN1NT_LIMBSIZE * (M_GEN1NT_LIMBSIZE - M_GEN1NT_ABA_CPT))
+#define M_GENINT_MAX_ALLOC (M_GEN1NT_LIMBSIZE * (M_GEN1NT_LIMBSIZE - M_GEN1NT_ABA_CPT))
 
 // Define the size of a limb in bits.
-#define M_GEN1NT_LIMBSIZE ((unsigned)(sizeof(genint_limb_ct) * CHAR_BIT))
+#define M_GEN1NT_LIMBSIZE ((unsigned)(sizeof(m_genint_limb_ct) * CHAR_BIT))
 
 // Define the contract of a genint
 #define M_GEN1NT_CONTRACT(s)                              do {                \
     M_ASSERT (s != NULL);                                                     \
-    M_ASSERT (s->n > 0 && s->n <= GENINT_MAX_ALLOC);                          \
+    M_ASSERT (s->n > 0 && s->n <= M_GENINT_MAX_ALLOC);                        \
     M_ASSERT ((s->max+1) * M_GEN1NT_LIMBSIZE >= s->n);                        \
     M_ASSERT (s->data != NULL);                                               \
   } while (0)
 
 // Define the limb one
-#define M_GEN1NT_ONE  ((genint_limb_ct)1)
+#define M_GEN1NT_ONE  ((m_genint_limb_ct)1)
 
 #define M_GEN1NT_FULL_MASK ULLONG_MAX
 
 // Value returned in case of error (not integer available).
-#define GENINT_ERROR (UINT_MAX)
+#define M_GENINT_ERROR (UINT_MAX)
 
 /* 32 bits of the master mask are kept for handling the ABA problem.
  * NOTE: May be too much. 16 bits should be more than enough. TBC
@@ -106,9 +104,9 @@ typedef struct genint_s {
  * for all threads.
  */
 static inline void
-genint_init(genint_t s, unsigned int n)
+m_genint_init(m_genint_t s, unsigned int n)
 {
-  M_ASSERT (s != NULL && n > 0 && n <= GENINT_MAX_ALLOC);
+  M_ASSERT (s != NULL && n > 0 && n <= M_GENINT_MAX_ALLOC);
   const size_t alloc = (n + M_GEN1NT_LIMBSIZE - 1) / M_GEN1NT_LIMBSIZE;
   const unsigned int index  = n % M_GEN1NT_LIMBSIZE;
   atomic_ullong *ptr = M_MEMORY_REALLOC (atomic_ullong, NULL, alloc);
@@ -121,15 +119,15 @@ genint_init(genint_t s, unsigned int n)
   s->max = (unsigned int) (alloc-1);
   s->mask0 = (index == 0) ? M_GEN1NT_FULL_MASK : ~((M_GEN1NT_ONE<<(M_GEN1NT_LIMBSIZE-index))-1);
   s->mask_master = (((M_GEN1NT_ONE << alloc) - 1) << (M_GEN1NT_LIMBSIZE-alloc)) >> M_GEN1NT_ABA_CPT;
-  atomic_init (&s->master, (genint_limb_ct)0);
+  atomic_init (&s->master, (m_genint_limb_ct)0);
   for(unsigned int i = 0; i < alloc; i++)
-    atomic_init(&s->data[i], (genint_limb_ct)0);
+    atomic_init(&s->data[i], (m_genint_limb_ct)0);
   M_GEN1NT_CONTRACT(s);
 }
 
 /* Clear an integer generator (Destructor) */
 static inline void
-genint_clear(genint_t s)
+m_genint_clear(m_genint_t s)
 {
   M_GEN1NT_CONTRACT(s);
   M_MEMORY_FREE(s->data);
@@ -138,7 +136,7 @@ genint_clear(genint_t s)
 
 /* Return the maximum integer that the generator will provide */
 static inline size_t
-genint_size(genint_t s)
+m_genint_size(m_genint_t s)
 {
   M_GEN1NT_CONTRACT(s);
   return s->n;
@@ -147,22 +145,22 @@ genint_size(genint_t s)
 /* Get an unique integer from the integer generator.
  * NOTE: For a typical case, the amortized cost is one CAS per pop. */
 static inline unsigned int
-genint_pop(genint_t s)
+m_genint_pop(m_genint_t s)
 {
   M_GEN1NT_CONTRACT(s);
   // First read master to see which limb is not full.
-  genint_limb_ct master = atomic_load(&s->master);
+  m_genint_limb_ct master = atomic_load(&s->master);
   // While master is not full
   while ((master >> M_GEN1NT_ABA_CPT) != s->mask_master) {
     // Let's get the index i of the first not full limb according to master.
     unsigned int i = m_core_clz64(~master);
     M_ASSERT (i < M_GEN1NT_LIMBSIZE);
     // Let's compute the mask of this limb representing the limb as being full
-    genint_limb_ct mask = s->mask0;
+    m_genint_limb_ct mask = s->mask0;
     mask = (i == s->max) ? mask : M_GEN1NT_FULL_MASK;
     unsigned int bit;
     // Let's load this limb,
-    genint_limb_ct next, org = atomic_load(&s->data[i]);
+    m_genint_limb_ct next, org = atomic_load(&s->data[i]);
     do {
       // If it is now full, we have been preempted by another.
       if (M_UNLIKELY (org == mask))
@@ -181,7 +179,7 @@ genint_pop(genint_t s)
     // If the limb is now full, try to update master
     if (M_UNLIKELY(next == mask)) {
       while (true) {
-        genint_limb_ct newMaster;
+        m_genint_limb_ct newMaster;
         if (next == mask) {
           newMaster = M_GEN1NT_MASTER_SET(master, i);
         } else {
@@ -201,21 +199,21 @@ genint_pop(genint_t s)
     master = atomic_load(&s->master);
   }
   M_GEN1NT_CONTRACT(s);
-  return GENINT_ERROR; // No more resource available
+  return M_GENINT_ERROR; // No more resource available
 }
 
 /* Restore a used integer in the integer generator.
  * NOTE: For a typical case, the amortized cost is one CAS per pop */
 static inline void
-genint_push(genint_t s, unsigned int n)
+m_genint_push(m_genint_t s, unsigned int n)
 {
   M_GEN1NT_CONTRACT(s);
   M_ASSERT (n < s->n);
   const unsigned int i    = n / M_GEN1NT_LIMBSIZE;
   const unsigned int bit  = M_GEN1NT_LIMBSIZE - 1 - (n % M_GEN1NT_LIMBSIZE);
-  genint_limb_ct master = atomic_load(&s->master);
+  m_genint_limb_ct master = atomic_load(&s->master);
   // Load the limb
-  genint_limb_ct next, org = atomic_load(&s->data[i]);
+  m_genint_limb_ct next, org = atomic_load(&s->data[i]);
   do {
     M_ASSERT ((org & (M_GEN1NT_ONE << bit)) != 0);
     // Reset it
@@ -223,13 +221,13 @@ genint_push(genint_t s, unsigned int n)
     //  Try to unreserve it.
   } while (!atomic_compare_exchange_weak (&s->data[i], &org, next));
   // if the limb  was marked as full by master
-  genint_limb_ct mask = s->mask0;
+  m_genint_limb_ct mask = s->mask0;
   mask = (i == s->max) ? mask : M_GEN1NT_FULL_MASK;
   if (M_UNLIKELY (next != mask)) {
     // Let's compute the mask of this limb representing the limb as being full
     // Let's try to update master to say that this limb is not full
     while (true) {
-      genint_limb_ct newMaster;
+      m_genint_limb_ct newMaster;
       if (next == mask) {
         newMaster = M_GEN1NT_MASTER_SET(master, i);
       } else {

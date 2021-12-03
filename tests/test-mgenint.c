@@ -30,30 +30,30 @@
 
 static void test(size_t n)
 {
-  genint_t s;
+  m_genint_t s;
   size_t i;
   
-  genint_init(s, (unsigned int) n);
+  m_genint_init(s, (unsigned int) n);
   for(int k = 0; k < 3; k++) {
     for(size_t j = 0; j< n ; j++) {
-      i = genint_pop(s);
+      i = m_genint_pop(s);
       assert (i == j);
     }
-    i = genint_pop(s);
-    assert (i == GENINT_ERROR);
-    assert (genint_pop(s) == GENINT_ERROR);
+    i = m_genint_pop(s);
+    assert (i == M_GENINT_ERROR);
+    assert (m_genint_pop(s) == M_GENINT_ERROR);
     
     for(size_t j = 0; j< n ; j++) {
-      genint_push(s, (unsigned int) ((j + (size_t) k) % n ));
+      m_genint_push(s, (unsigned int) ((j + (size_t) k) % n ));
     }
   }
   
-  genint_clear(s);
+  m_genint_clear(s);
 }
 
 /*******************************************************/
 
-genint_t global;
+m_genint_t global;
 atomic_bool tab_g[MAX_N];
 
 static void conso(void *p)
@@ -62,19 +62,19 @@ static void conso(void *p)
   for(int i = 0; i < 100000; i++) {
     unsigned int tab[4];
     for(int j= 0; j < 4; j++) {
-      tab[j] = genint_pop(global);
-      if (tab[j] != GENINT_ERROR) {
+      tab[j] = m_genint_pop(global);
+      if (tab[j] != M_GENINT_ERROR) {
         assert (tab[j] < n);
         assert (atomic_load(&tab_g[tab[j]]) == false);
         atomic_store(&tab_g[tab[j]], true);
       }
     }
     for(int j = 0; j < 4; j++) {
-      if (tab[j] != GENINT_ERROR) {
+      if (tab[j] != M_GENINT_ERROR) {
         assert (tab[j] < n);
         assert (atomic_load(&tab_g[tab[j]]) == true);
         atomic_store(&tab_g[tab[j]], false);
-        genint_push(global, tab[j]);
+        m_genint_push(global, tab[j]);
       }
     }
   }
@@ -84,7 +84,7 @@ static void test2(size_t n)
 {
   m_thread_t idx[4];
 
-  genint_init(global, (unsigned int) n);
+  m_genint_init(global, (unsigned int) n);
   for(int i = 0; i < MAX_N; i++)
     atomic_init(&tab_g[i], false);
   
@@ -95,7 +95,7 @@ static void test2(size_t n)
     m_thread_join(idx[i]);
   }
 
-  genint_clear(global);
+  m_genint_clear(global);
 }
 
 // In this test, the dimension of the global and the number of threads
@@ -104,10 +104,10 @@ static void conso2(void *p)
 {
   size_t n = *(size_t*)p;
   for(int i = 0; i < 1000000; i++) {
-    unsigned int j = genint_pop(global);
-    assert (j != GENINT_ERROR);
+    unsigned int j = m_genint_pop(global);
+    assert (j != M_GENINT_ERROR);
     assert (j < n);
-    genint_push(global, j);
+    m_genint_push(global, j);
   }
 }
 
@@ -116,14 +116,14 @@ static void test3(size_t n)
   m_thread_t idx[MAX_N];
   assert (n <= MAX_N);
   
-  genint_init(global, (unsigned int) n);
+  m_genint_init(global, (unsigned int) n);
   for(size_t i = 0; i < n; i++) {
     m_thread_create (idx[i], conso2, (void*)&n);
   }
   for(size_t i = 0; i < n;i++) {
     m_thread_join(idx[i]);
   }
-  genint_clear(global);
+  m_genint_clear(global);
 }
 
 int main(void)

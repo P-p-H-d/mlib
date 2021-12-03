@@ -380,7 +380,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   } M_C(name, _atype_ct);                                                     \
                                                                               \
   typedef struct M_C(name, _s) {                                              \
-    genint_t             core;                                                \
+    m_genint_t             core;                                              \
     M_C(name, _atype_ct) *buffer;                                             \
   } shared_t[1];                                                              \
                                                                               \
@@ -406,7 +406,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
       M_CALL_INIT(oplist, s->buffer[i].x);                                    \
       atomic_init (&s->buffer[i].cpt, 0U);                                    \
     }                                                                         \
-    genint_init(s->core, (unsigned int) n);                                   \
+    m_genint_init(s->core, (unsigned int) n);                                 \
     M_SHAR3D_RESOURCE_CONTRACT(s);                                            \
   }                                                                           \
                                                                               \
@@ -414,13 +414,13 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   M_C(name, _clear)(shared_t s)                                               \
   {                                                                           \
     M_SHAR3D_RESOURCE_CONTRACT(s);                                            \
-    size_t n = genint_size(s->core);                                          \
+    size_t n = m_genint_size(s->core);                                        \
     for(size_t i = 0; i < n; i++) {                                           \
       M_CALL_CLEAR(oplist, s->buffer[i].x);                                   \
     }                                                                         \
     M_CALL_FREE(oplist, s->buffer);                                           \
     s->buffer = NULL;                                                         \
-    genint_clear(s->core);                                                    \
+    m_genint_clear(s->core);                                                  \
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -428,10 +428,10 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   {                                                                           \
     M_SHAR3D_RESOURCE_CONTRACT(s);                                            \
     M_ASSERT (it != NULL);                                                    \
-    unsigned int idx = genint_pop(s->core);                                   \
+    unsigned int idx = m_genint_pop(s->core);                                 \
     it->idx = idx;                                                            \
     it->ref = s;                                                              \
-    if (M_LIKELY (idx != GENINT_ERROR)) {                                     \
+    if (M_LIKELY (idx != M_GENINT_ERROR)) {                                   \
       M_ASSERT(atomic_load(&s->buffer[idx].cpt) == 0);                        \
       atomic_store(&s->buffer[idx].cpt, 1U);                                  \
     }                                                                         \
@@ -441,13 +441,13 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   M_C(name, _end_p)(it_t it)                                                  \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
-    return it->idx == GENINT_ERROR;                                           \
+    return it->idx == M_GENINT_ERROR;                                         \
   }                                                                           \
                                                                               \
   static inline type *                                                        \
   M_C(name, _ref)(it_t it)                                                    \
   {                                                                           \
-    M_ASSERT (it != NULL && it->ref != NULL && it->idx != GENINT_ERROR);      \
+    M_ASSERT (it != NULL && it->ref != NULL && it->idx != M_GENINT_ERROR);    \
     M_SHAR3D_RESOURCE_CONTRACT(it->ref);                                      \
     return &it->ref->buffer[it->idx].x;                                       \
   }                                                                           \
@@ -455,7 +455,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   static inline type const *                                                  \
   M_C(name, _cref)(it_t it)                                                   \
   {                                                                           \
-    M_ASSERT (it != NULL && it->ref != NULL && it->idx != GENINT_ERROR);      \
+    M_ASSERT (it != NULL && it->ref != NULL && it->idx != M_GENINT_ERROR);    \
     M_SHAR3D_RESOURCE_CONTRACT(it->ref);                                      \
     return M_CONST_CAST (type, &it->ref->buffer[it->idx].x);                  \
   }                                                                           \
@@ -467,12 +467,12 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     M_ASSERT (it != NULL);                                                    \
     M_ASSERT (it->ref == s);                                                  \
     unsigned int idx = it->idx;                                               \
-    if (M_LIKELY (idx != GENINT_ERROR)) {                                     \
+    if (M_LIKELY (idx != M_GENINT_ERROR)) {                                   \
       unsigned int c = atomic_fetch_sub (&it->ref->buffer[idx].cpt, 1U);      \
       if (c == 1) {                                                           \
-        genint_push(it->ref->core, idx);                                      \
+        m_genint_push(it->ref->core, idx);                                    \
       }                                                                       \
-      it->idx = GENINT_ERROR;                                                 \
+      it->idx = M_GENINT_ERROR;                                               \
     }                                                                         \
   }                                                                           \
                                                                               \
@@ -484,7 +484,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     itd->ref = its->ref;                                                      \
     unsigned int idx = its->idx;                                              \
     itd->idx = idx;                                                           \
-    if (M_LIKELY (idx != GENINT_ERROR)) {                                     \
+    if (M_LIKELY (idx != M_GENINT_ERROR)) {                                   \
       unsigned int c = atomic_fetch_add(&itd->ref->buffer[idx].cpt, 1U);      \
       M_ASSERT (c >= 1);                                                      \
     }                                                                         \

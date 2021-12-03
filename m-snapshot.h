@@ -347,7 +347,7 @@ M_BEGIN_PROTECTED_CODE
 // 2 more buffer than the number of readers are needed
 #define M_SNAPSH0T_SPMC_EXTRA_BUFFER 2
 
-#define M_SNAPSH0T_SPMC_MAX_READER (GENINT_MAX_ALLOC-M_SNAPSH0T_SPMC_EXTRA_BUFFER)
+#define M_SNAPSH0T_SPMC_MAX_READER (M_GENINT_MAX_ALLOC-M_SNAPSH0T_SPMC_EXTRA_BUFFER)
 
 /* Internal structure to handle SPMC snapshot but return an unique index in the buffer array.
    - lastNext: last published written index + next flag (format M_SNAPSH0T_SPMC_INT_FLAG)
@@ -361,7 +361,7 @@ typedef struct m_snapshot_mrsw_s {
   unsigned int currentWrite;
   size_t       n_reader;
   atomic_uint *cptTab;
-  genint_t     freeList;
+  m_genint_t     freeList;
 } m_snapshot_mrsw_ct[1];
 
 // can't check currentWrite due to potential data race on it
@@ -391,17 +391,17 @@ m_snapsh0t_mrsw_init(m_snapshot_mrsw_ct s, size_t n)
   s->cptTab = ptr;
   for(size_t i = 0; i < n; i++)
     atomic_init(&s->cptTab[i], 0U);
-  genint_init (s->freeList, (unsigned int) n);
+  m_genint_init (s->freeList, (unsigned int) n);
 
   // Get a free buffer and set it as available for readers
-  unsigned int w = genint_pop(s->freeList);
-  M_ASSERT (w != GENINT_ERROR);
+  unsigned int w = m_genint_pop(s->freeList);
+  M_ASSERT (w != M_GENINT_ERROR);
   atomic_store(&s->cptTab[w], 1U);
   atomic_init(&s->lastNext, M_SNAPSH0T_SPMC_INT_FLAG(w, true));
 
   // Get working buffer
-  s->currentWrite = genint_pop(s->freeList);
-  M_ASSERT (s->currentWrite != GENINT_ERROR);
+  s->currentWrite = m_genint_pop(s->freeList);
+  M_ASSERT (s->currentWrite != M_GENINT_ERROR);
   atomic_store(&s->cptTab[s->currentWrite], 1U);
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
 }
@@ -412,7 +412,7 @@ m_snapsh0t_mrsw_clear(m_snapshot_mrsw_ct s)
 {
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
   M_MEMORY_FREE (s->cptTab);
-  genint_clear(s->freeList);
+  m_genint_clear(s->freeList);
   s->cptTab = NULL;
   s->n_reader = 0;
 }
@@ -462,8 +462,8 @@ m_snapsh0t_mrsw_write_idx(m_snapshot_mrsw_ct s, unsigned int idx)
     if (c != 1) {
       // If someone else keeps a ref on the buffer, we can't reuse it
       // get another free one.
-      idx = genint_pop(s->freeList);
-      M_ASSERT(idx != GENINT_ERROR);
+      idx = m_genint_pop(s->freeList);
+      M_ASSERT(idx != M_GENINT_ERROR);
     } else {
       // No other thread keep track of this buffer.
       // Reuse it.
@@ -491,8 +491,8 @@ m_snapsh0t_mrsw_write_start(m_snapshot_mrsw_ct s)
 {
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
   // Get a new buffer.
-  unsigned int idx = genint_pop(s->freeList);
-  M_ASSERT (idx != GENINT_ERROR);
+  unsigned int idx = m_genint_pop(s->freeList);
+  M_ASSERT (idx != M_GENINT_ERROR);
   M_ASSERT (idx < s->n_reader + M_SNAPSH0T_SPMC_EXTRA_BUFFER);
   M_ASSERT (atomic_load(&s->cptTab[idx]) == 0);
   atomic_store(&s->cptTab[idx], 1U);
@@ -517,7 +517,7 @@ m_snapsh0t_mrsw_write_end(m_snapshot_mrsw_ct s, unsigned int idx)
   unsigned int c = atomic_fetch_sub(&s->cptTab[idx], 1U);
   M_ASSERT (c != 0 && c <= s->n_reader + 1);
   if (c == 1) {
-    genint_push(s->freeList, idx);
+    m_genint_push(s->freeList, idx);
   }
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
 }
@@ -558,7 +558,7 @@ m_snapsh0t_mrsw_read_start(m_snapshot_mrsw_ct s)
     c = atomic_fetch_sub(&s->cptTab[idx], 1U);
     M_ASSERT (c != 0 && c <= s->n_reader + 1);
     if (c == 1) {
-      genint_push(s->freeList, idx);
+      m_genint_push(s->freeList, idx);
     }
   }
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
@@ -577,7 +577,7 @@ m_snapsh0t_mrsw_read_end(m_snapshot_mrsw_ct s, unsigned int idx)
   if (c == 1) {
     // Buffer no longer used by any reader thread.
     // Push back index in free list
-    genint_push(s->freeList, idx);
+    m_genint_push(s->freeList, idx);
   }
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
 }
@@ -730,7 +730,7 @@ m_snapsh0t_mrsw_read_end(m_snapshot_mrsw_ct s, unsigned int idx)
   {                                                                           \
     M_C(name, _mrsw_init)(snap->core, nReader + nWriter -1 );                 \
     unsigned int idx = snap->core->core->currentWrite;                        \
-    snap->core->core->currentWrite = GENINT_ERROR;                            \
+    snap->core->core->currentWrite = M_GENINT_ERROR;                          \
     m_snapsh0t_mrsw_write_end(snap->core->core, idx);                         \
   }                                                                           \
                                                                               \
