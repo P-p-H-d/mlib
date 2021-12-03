@@ -4043,25 +4043,25 @@ This header is for created snapshots.
 
 A snapshot is a mechanism enabling a reader thread and a writer thread,
  **working at different speeds**, to exchange messages in a fast, reliable and thread safe way
-(the message is always passed automatically from a thread point of view) without waiting
+(the message is always passed atomatically from a thread point of view) without waiting
 for synchronization.
-The consumer thread has only access to the latest published data of 
-the producer thread.
-This is implemented in a fast way as the writer directly writes the message in the buffer
+The consumer thread always accesses to the latest published data of the producer thread.
+
+It is implemented in a fast way as the writer directly writes the message in the buffer
 that will be passed to the reader (avoiding copy of the buffer) and a simple exchange
 of index is sufficient to handle the switch.
 
-This container is designed to be used for easy synchronization inter-threads 
-(and the variable should be a global shared one).
+This container is designed to be used for easy synchronization inter-threads.
 
 This is linked to [shared atomic register](https://en.wikipedia.org/wiki/Shared_register) in the literature 
 and [snapshot](https://en.wikipedia.org/wiki/Shared_snapshot_objects) names vector of such registers
 where each element of the vector can be updated separately. They can be classified according to the
 number of producers/consumers:
-SPSC (Single Producer, Single Consumer),
-MPSC (Multiple Producer, Single Consumer),
-SPMC (Single Producer, Multiple Consumer),
-MPMC (Multiple Producer, Multiple Consumer),
+
+* SPSC (Single Producer, Single Consumer),
+* MPSC (Multiple Producer, Single Consumer),
+* SPMC (Single Producer, Multiple Consumer),
+* MPMC (Multiple Producer, Multiple Consumer),
 
 The provided containers by the library are designed to handle huge
 structure efficiently and as such deal with the memory reclamation needed to handle them.
@@ -4071,15 +4071,16 @@ to do even in the case of MPMC.
 
 
 #### SNAPSHOT\_SPSC\_DEF(name, type[, oplist])
+#### SNAPSHOT\_SPSC\_DEF\_AS(name, name\_t, type[, oplist])
 
-Define the snapshot 'name##\_t' and its associated methods as "static inline" functions.
+Define the snapshot 'name ## \_t' (or 'name\_t') and its associated methods as "static inline" functions.
 Only a single reader thread and a single writer thread are supported.
 It is a SPSC atomic shared register.
 In practice, it is implemented using a triple buffer (lock-free).
 
 It shall be done once per type and per compilation unit. Not all functions are thread safe.
 
-The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
+The oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
 or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
@@ -4100,14 +4101,14 @@ Example:
         }
 
 
-#### SNAPSHOT\_SPSC\_DEF\_AS(name, name\_t, type[, oplist])
+SNAPSHOT\_SPSC\_DEF\_AS is the same as SNAPSHOT\_SPSC\_DEF except the name of the type name\_t is provided.
 
-Same as SNAPSHOT\_SPSC\_DEF except the name of the type name\_t
-is provided.
 
 #### Created methods
 
-The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro that is used to identify the type.
+The following methods are automatically and properly created by the previous macros.
+In the following methods, name stands for the name given to the macro that is used to identify the type.
+snapshot\_t refers to either 'name ## \_t' or 'name\_t'
 
 ##### void name\_init(snapshot\_t snapshot)
 
@@ -4165,8 +4166,7 @@ This function is thread-safe and performs atomic operation on the snapshot.
 
 ##### bool name\_updated\_p(snapshot\_t snap)
 
-Return true if the buffer has updated data compared to the last time
-it was read.
+Return true if a new publication is available since the last time it was read.
 This function is thread-safe and performs atomic operation on the snapshot.
 
 ##### type *name\_get\_write\_buffer(snapshot\_t snap)
@@ -4177,7 +4177,7 @@ This function is thread-safe and performs atomic operation on the snapshot.
 
 ##### type *name\_get\_read\_buffer(snapshot\_t snap)
 
-Return a pointer to the active published data of the snapshot 'snap'.
+Return a pointer to the last already read published data of the snapshot 'snap'.
 It is the same as the last return from name\_read.
 It doesn't perform any switch of the data that has to be read.
 This function is thread-safe and performs atomic operation on the snapshot.
