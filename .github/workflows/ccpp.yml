@@ -11,6 +11,8 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
+    - name: CPU Information
+      run:  lscpu || echo "CPU information not available"
     - name: make check C99
       run: make clean && make check -j 2 CC="cc -std=c99 -Wno-unknown-warning-option -Werror"
     - name: make check C11
@@ -29,6 +31,8 @@ jobs:
       run: sudo apt-get update
     - name: install multilib
       run: sudo apt-get install gcc-multilib g++-multilib
+    - name: CPU Information
+      run:  lscpu || echo "CPU information not available"
     - name: make check C99 (32bits)
       working-directory: ./tests
       run: make clean && make check -j 2 CC="gcc -m32 -std=c99 -Wno-unknown-warning-option -Werror"
@@ -47,6 +51,8 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
+    - name: CPU Information
+      run:  lscpu || echo "CPU information not available"
     - name: Clone TCC
       shell: bash
       run:  git clone https://repo.or.cz/tinycc.git
