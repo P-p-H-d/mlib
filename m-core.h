@@ -34,7 +34,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-/* By default, always use stdio. Can be turned off in specific environement if needed
+/* By default, always use stdio. Can be turned off in specific environment if needed
    by defining M_USE_STDIO to 0 */
 #ifndef M_USE_STDIO
 # define M_USE_STDIO 1
@@ -43,7 +43,7 @@
 # include <stdio.h>
 #endif
 
-/* By default, always use stdarg. Can be turned off in specific environement if needed
+/* By default, always use stdarg. Can be turned off in specific environment if needed
    by defining M_USE_STDARG to 0 */
 #ifndef M_USE_STDARG
 # define M_USE_STDARG 1

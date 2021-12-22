@@ -103,7 +103,7 @@ typedef enum string_fgets_e {
 static inline bool
 m_str1ng_stack_p(const string_t s)
 {
-  // Function can be called when contract is not fullfilled
+  // Function can be called when contract is not fulfilled
   return (s->ptr == NULL);
 }
 
@@ -111,7 +111,7 @@ m_str1ng_stack_p(const string_t s)
 static inline void
 m_str1ng_set_size(string_t s, size_t size)
 {
-  // Function can be called when contract is not fullfilled
+  // Function can be called when contract is not fulfilled
   if (m_str1ng_stack_p(s)) {
     M_ASSERT (size < sizeof (string_heap_ct) - 1);
     // The size of the string is stored as the last char of the buffer.
@@ -124,7 +124,7 @@ m_str1ng_set_size(string_t s, size_t size)
 static inline size_t
 string_size(const string_t s)
 {
-  // Function can be called when contract is not fullfilled
+  // Function can be called when contract is not fulfilled
   // Reading both values before calling the '?' operator allows compiler to generate branchless code
   const size_t s_stack = (size_t) s->u.stack.buffer[sizeof (string_heap_ct) - 1];
   const size_t s_heap  = s->u.heap.size;
@@ -135,7 +135,7 @@ string_size(const string_t s)
 static inline size_t
 string_capacity(const string_t s)
 {
-  // Function can be called when contract is not fullfilled
+  // Function can be called when contract is not fulfilled
   // Reading both values before calling the '?' operator allows compiler to generate branchless code
   const size_t c_stack = sizeof (string_heap_ct) - 1;
   const size_t c_heap  = s->u.heap.alloc;
@@ -146,7 +146,7 @@ string_capacity(const string_t s)
 static inline char*
 m_str1ng_get_cstr(string_t v)
 {
-  // Function can be called when contract is not fullfilled
+  // Function can be called when contract is not fulfilled
   char *const ptr_stack = &v->u.stack.buffer[0];
   char *const ptr_heap  = v->ptr;
   return m_str1ng_stack_p(v) ?  ptr_stack : ptr_heap;
@@ -156,7 +156,7 @@ m_str1ng_get_cstr(string_t v)
 static inline const char*
 string_get_cstr(const string_t v)
 {
-  // Function cannot be called when contract is not fullfilled
+  // Function cannot be called when contract is not fulfilled
   // but it is called by contract (so no contract check to avoid infinite recursion).
   const char *const ptr_stack = &v->u.stack.buffer[0];
   const char *const ptr_heap  = v->ptr;
@@ -267,7 +267,7 @@ m_str1ng_fit2size (string_t v, size_t size_alloc)
 {
   M_ASSERT_INDEX (0, size_alloc);
   // Note: this function may be called in context where the contract
-  // is not fullfilled.
+  // is not fulfilled.
   const size_t old_alloc = string_capacity(v);
   // This line enables the compiler to completly remove this function
   // for very short constant strings.
@@ -810,14 +810,14 @@ m_str1ng_replace_all_str_1ge2 (string_t v, const char str1[], size_t str1len, co
 
   // Go through all the characters of the string
   while (*src != 0) {
-    // Get a new occurence of str1 in the v string.
+    // Get a new occurrence of str1 in the v string.
     char *occ = strstr(src, str1);
     if (occ == NULL) {
-      // No new occurence
+      // No new occurrence
       break;
     }
     M_ASSERT(occ >= src);
-    // Copy the data until the new occurence
+    // Copy the data until the new occurrence
     if (src != dst) {
       memmove(dst, src, (size_t) (occ - src));
     }
@@ -885,7 +885,7 @@ m_str1ng_replace_all_str_1lo2 (string_t v, const char str1[], size_t str1len, co
       break;
     }
     M_ASSERT(occ + str1len - 1 <= src);
-    // Copy the data until the new occurence
+    // Copy the data until the new occurrence
     dst -= (src - (occ + str1len - 1));
     memmove(dst, occ+str1len, (size_t) (src - (occ + str1len - 1)));
     // Copy the replaced string
