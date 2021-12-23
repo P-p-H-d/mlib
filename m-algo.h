@@ -505,7 +505,7 @@
  */
 #define M_ALG0_FIND_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   /* It supposes that the container is not sorted */                          \
-  /* Find the next occurence from it (included) of data */                    \
+  /* Find the next occurrence from it (included) of data */                    \
   static inline void                                                          \
   M_C(name, _find_again) (it_t it, type_t const data)                         \
   {                                                                           \
@@ -516,7 +516,7 @@
     }                                                                         \
   }                                                                           \
                                                                               \
-  /* Find the first occurence of data */                                      \
+  /* Find the first occurrence of data */                                      \
   static inline void                                                          \
   M_C(name, _find) (it_t it, container_t const l, type_t const data)          \
   {                                                                           \
@@ -533,7 +533,7 @@
     return !M_CALL_IT_END_P(cont_oplist, it);                                 \
   }                                                                           \
                                                                               \
-  /* Find the last occurence of data in the container */                      \
+  /* Find the last occurrence of data in the container */                      \
   /* For the definition of _find_last, if the methods                         \
      PREVIOUS & IT_LAST are defined, then search backwards */                 \
   M_IF_METHOD2(PREVIOUS, IT_LAST, cont_oplist)                                \
@@ -550,7 +550,7 @@
      }                                                                        \
    }                                                                          \
    ,                                                                          \
-   /* Otherwise search forward, but don't stop on the first occurence */      \
+   /* Otherwise search forward, but don't stop on the first occurrence */      \
    static inline void                                                         \
    M_C(name, _find_last) (it_t it, container_t const l, type_t const data)    \
    {                                                                          \
@@ -566,7 +566,7 @@
    }                                                                          \
    ) /* End of alternative of _find_last */                                   \
                                                                               \
-  /* Count the number of occurence of data in the container */                \
+  /* Count the number of occurrence of data in the container */                \
   static inline size_t                                                        \
   M_C(name, _count) (container_t const l, type_t const data)                  \
   {                                                                           \
@@ -613,7 +613,7 @@
  */
 #define M_ALG0_FIND_IF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, test_t, eq_t, call_test, call_eq) \
                                                                               \
-  /* Find the next occurence that matches the condition */                    \
+  /* Find the next occurrence that matches the condition */                    \
   static inline void                                                          \
   M_C3(name, _find_again_, suffix) (it_t it, test_t func)                     \
   {                                                                           \
@@ -624,7 +624,7 @@
     }                                                                         \
   }                                                                           \
                                                                               \
-  /* Find the first occurence that matches the condition */                   \
+  /* Find the first occurrence that matches the condition */                   \
   static inline void                                                          \
   M_C3(name, _find_, suffix) (it_t it, container_t l, test_t func)            \
   {                                                                           \
@@ -632,7 +632,7 @@
     M_C3(name, _find_again_, suffix)(it, func);                               \
   }                                                                           \
                                                                               \
-  /* Count the number of occurence that matches the condition */              \
+  /* Count the number of occurrence that matches the condition */              \
   static inline size_t                                                        \
   M_C3(name, _count_, suffix) (container_t const l, test_t func)              \
   {                                                                           \
@@ -685,7 +685,7 @@
     }                                                                         \
   }                                                                           \
                                                                               \
-  /* Fill the container with exactly 'n' occurence of 'value' */              \
+  /* Fill the container with exactly 'n' occurrence of 'value' */              \
   M_IF_METHOD(PUSH, cont_oplist)(                                             \
   static inline void                                                          \
   M_C(name, _fill_n) (container_t l, size_t n, type_t const value)            \

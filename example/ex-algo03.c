@@ -3,7 +3,7 @@
 #include "m-algo.h"
 #include "m-string.h"
 
-/* Define a dictionnary (or hash_map or undordered_map)
+/* Define a dictionnary (or hash_map or unordered_map)
  * from a string_t to int */
 DICT_DEF2(dict, string_t, int)
 /* Register the oplist of this dictionnary globally */

@@ -270,7 +270,7 @@
 
 
 
-/* Define the structure of a chained dictionnary for all kind of dictionnaries
+/* Define the structure of a chained dictionnary for all kind of dictionaries
  * name: prefix of the container,
  * key_type: type of the key
  * key_oplist: oplist of the key
@@ -450,7 +450,7 @@
   static inline void                                                          \
   M_C3(m_d1ct_,name,_resize_up)(dict_t map)                                   \
   {                                                                           \
-    /* NOTE: Contract may not be fullfilled here */                           \
+    /* NOTE: Contract may not be fulfilled here */                           \
     size_t old_size = M_C(name, _array_list_pair_size)(map->table);           \
     size_t new_size = old_size * 2;                                           \
     if (M_UNLIKELY (new_size <= old_size)) {                                  \
@@ -490,7 +490,7 @@
   static inline void                                                          \
   M_C3(m_d1ct_,name,_resize_down)(dict_t map)                                 \
   {                                                                           \
-    /* NOTE: Contract may not be fullfilled here */                           \
+    /* NOTE: Contract may not be fulfilled here */                           \
     size_t old_size = M_C(name, _array_list_pair_size)(map->table);           \
     M_ASSERT ((old_size % 2) == 0);                                           \
     size_t new_size = old_size / 2;                                           \
@@ -748,7 +748,7 @@
       return true;                                                            \
     /* Otherwise this is the slow path :                                      \
        both dictionary may not have arrays with the same size, but            \
-       still the dictionnaries shall be equal as they contain the same        \
+       still the dictionaries shall be equal as they contain the same        \
        items. */                                                              \
     dict_it_t it;                                                             \
     for(M_C(name, _it)(it, dict1) ;                                           \
@@ -1025,7 +1025,7 @@
   , /* NO UPDATE */) )                                                        \
                                                                               \
   /* HASH method for dictionnary itself seems hard to implement:              \
-     we have to handle the case where two dictionnaries are structuraly       \
+     we have to handle the case where two dictionaries are structuraly       \
      different, but functionnaly identical (seems they have the same          \
      members, but put in a different order).                                  \
      We cannot iterator over the dictionary to compute a hash, as the         \
