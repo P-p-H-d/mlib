@@ -351,6 +351,20 @@ bench-ctl0:
 	@./bench-ctl.exe 40
 	@./bench-ctl.exe 50
 
+# STC shall point to the source directory (not where the headers are)
+bench-stc:
+	@if test -n "$${STC}" ; then $(MAKE) bench-stc0 ; else echo "Nothing to be done for STC." ; fi
+
+bench-stc0:
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I $${STC}/include bench-stc.c common.c -o bench-stc.exe
+	@./bench-stc.exe 10
+	@./bench-stc.exe 20
+	@./bench-stc.exe 30
+	@./bench-stc.exe 40
+	@./bench-stc.exe 41
+	@./bench-stc.exe 50
+
+
 ############################################################################
 
 bench-mlib-json: bench-mlib
