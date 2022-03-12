@@ -8038,7 +8038,7 @@ See [m-core.h](#m-core)
 
 All files of M\*LIB are distributed under the following license.
 
-Copyright (c) 2017-2021, Patrick Pelissier
+Copyright (c) 2017-2022, Patrick Pelissier
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
