@@ -125,14 +125,15 @@ pair_ulong_copy(pair_ulong *self) {
 #define T pair_ulong
 #include <ctl/unordered_map.h>
 
-// It seems broken: it doesn't output the expected result.
 static void
 test_dict(size_t  n)
 {
   umap_pair_ulong dict = umap_pair_ulong_init(pair_ulong_hash, pair_ulong_equal);
   
   for (size_t i = 0; i < n; i++) {
-    umap_pair_ulong_insert(&dict, (pair_ulong) { rand_get(), rand_get() });
+    unsigned long value = rand_get();
+    unsigned long key = rand_get();
+    umap_pair_ulong_insert(&dict, (pair_ulong) { key, value });
   }
   rand_init();
   unsigned int s = 0;
