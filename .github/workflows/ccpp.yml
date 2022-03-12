@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: CPU Information
-      run:  lscpu || echo "CPU information not available"
+      run:  lscpu || sysctl -a|grep cpu || echo "CPU information not available"
     - name: make check C99
       run: make clean && make check -j 2 CC="cc -std=c99 -Wno-unknown-warning-option -Werror"
     - name: make check C11
