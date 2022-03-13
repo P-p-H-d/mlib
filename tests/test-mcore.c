@@ -758,6 +758,15 @@ static void test_properties(void)
   assert( M_GET_PROPERTY (OP_PROP(), IT_TYPE ) == 2);
   assert( M_KEYWORD_P( M_GET_PROPERTY (OP_PROP(), INIT_WITH ), priority));
 }
+
+static void test_generic_api(void)
+{
+  assert( M_HEAD(17, 0) == 17);
+  assert( M_TAIL(18, 19) == 19);
+  assert( M_HEAD_2(18, 17, 0) == 17);
+  assert( M_TAIL_2(18, 17, 8) == 8);
+}
+
 int main(void)
 {
   test_cat();
@@ -783,5 +792,6 @@ int main(void)
   test_str_hash();
   test_M_CSTR();
   test_properties();
+  test_generic_api();
   exit(0);
 }
