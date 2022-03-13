@@ -55,12 +55,8 @@ static void test_deque(size_t n)
     }
     unsigned int s = 0;
     deque_uint_it_t it1, it2;
-    deque_uint_it(it1, a1);
-    deque_uint_it(it2, a2);
-    while (!deque_uint_end_p(it1)) {
+    for(deque_uint_it(it1, a1), deque_uint_it(it2, a2) ; !deque_uint_end_p(it1) ; deque_uint_next(it1), deque_uint_next(it2)) {
       s += *deque_uint_cref(it1 ) * *deque_uint_cref(it2 );
-      deque_uint_next(it1);
-      deque_uint_next(it2);
     }
     g_result = s;
   }
@@ -876,8 +872,8 @@ bench_vector_string_init(size_t n)
 {
     vector_string_init(vstring);
     for(size_t i = 0; i < n; i++)
-    {
-        M_LET( (s, "%zu", i, i, i, i), string_t) {
+      {
+        M_LET( (s, "%zu", i), string_t) {
             vector_string_push_back(vstring, s);
         }
     }
@@ -901,8 +897,8 @@ static void
 bench_vector_string_bin_run(size_t n)
 {
     if (vector_string_size(vstring) != n) {
-        printf("Size are different!\n");
-        abort();
+      fprintf(stderr, "ERROR: Size are different (%zu vs %zu)!\n", n, vector_string_size(vstring));
+      abort();
     }
 
     FILE *f = fopen("tmp-serial.dat", "wb");
@@ -920,8 +916,8 @@ bench_vector_string_bin_run(size_t n)
     fclose(f);
 
     if (vector_string_size(vstring2) != n) {
-        printf("Size are different!\n");
-        abort();
+      fprintf(stderr, "ERROR: Size are different (%zu vs %zu)!\n", n, vector_string_size(vstring2));
+      abort();
     }
 }
 
@@ -929,8 +925,8 @@ static void
 bench_vector_string_json_run(size_t n)
 {
     if (vector_string_size(vstring) != n) {
-        printf("Size are different!\n");
-        abort();
+      fprintf(stderr, "ERROR: Size are different (%zu vs %zu)!\n", n, vector_string_size(vstring));
+      abort();
     }
 
     FILE *f = fopen("tmp-serial.json", "wt");
@@ -948,8 +944,8 @@ bench_vector_string_json_run(size_t n)
     fclose(f);
 
     if (vector_string_size(vstring2) != n) {
-        printf("Size are different!\n");
-        abort();
+      fprintf(stderr, "ERROR: Size are different (%zu vs %zu)!\n", n, vector_string_size(vstring2));
+      abort();
     }
 }
 
@@ -957,8 +953,8 @@ static void
 bench_vector_string_clear(void)
 {
     if (!vector_string_equal_p(vstring, vstring2)) {
-        printf("Array are different!\n");
-        abort();
+      fprintf(stderr, "ERROR: Array are different after deserialization!\n");
+      abort();
     }
     vector_string_clear(vstring);
     vector_string_clear(vstring2);
@@ -986,8 +982,8 @@ static void
 bench_vector_ulong_bin_run(size_t n)
 {
     if (vector_ulong_size(vulong) != n) {
-        printf("Size are different!\n");
-        abort();
+      fprintf(stderr, "ERROR: Size are different!\n");
+      abort();
     }
 
     FILE *f = fopen("tmp-serial.dat", "wb");
@@ -1005,8 +1001,8 @@ bench_vector_ulong_bin_run(size_t n)
     fclose(f);
 
     if (vector_ulong_size(vulong2) != n) {
-        printf("Size are different!\n");
-        abort();
+      fprintf(stderr, "ERROR: Size are different!\n");
+      abort();
     }
 }
 
@@ -1014,8 +1010,8 @@ static void
 bench_vector_ulong_json_run(size_t n)
 {
     if (vector_ulong_size(vulong) != n) {
-        printf("Size are different!\n");
-        abort();
+      fprintf(stderr, "ERROR: Size are different!\n");
+      abort();
     }
 
     FILE *f = fopen("tmp-serial.json", "wt");
@@ -1033,8 +1029,8 @@ bench_vector_ulong_json_run(size_t n)
     fclose(f);
 
     if (vector_ulong_size(vulong2) != n) {
-        printf("Size are different!\n");
-        abort();
+      fprintf(stderr, "ERROR: Size are different!\n");
+      abort();
     }
 }
 
@@ -1042,8 +1038,8 @@ static void
 bench_vector_ulong_clear(void)
 {
     if (!vector_ulong_equal_p(vulong, vulong2)) {
-        printf("Array are different!\n");
-        abort();
+      fprintf(stderr, "ERROR: Array are different after deserialization!\n");
+      abort();
     }
     vector_ulong_clear(vulong);
     vector_ulong_clear(vulong2);
@@ -1085,6 +1081,6 @@ const config_func_t table[] = {
 
 int main(int argc, const char *argv[])
 {
-  test("M-LIB", numberof(table), table, argc, argv);
+  test("M*LIB", numberof(table), table, argc, argv);
   exit(0);
 }
