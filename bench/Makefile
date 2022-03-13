@@ -39,7 +39,7 @@ pgo:
 
 #########################################################################
 
-container: bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-cmc bench-sparsepp bench-densehashmap bench-collectionc bench-tommyds bench-flathashmap bench-emilib bench-hopscotchmap bench-uthash bench-qlibc bench-libsrt bench-nedtries bench-rigtorp-hashmap bench-ctl
+container: bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-cmc bench-sparsepp bench-densehashmap bench-collectionc bench-tommyds bench-flathashmap bench-emilib bench-hopscotchmap bench-uthash bench-qlibc bench-libsrt bench-nedtries bench-rigtorp-hashmap bench-ctl bench-stc bench-pottery
 	@echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
 queue: bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost bench-rigtorp-mpmc-queue
@@ -364,6 +364,17 @@ bench-stc0:
 	@./bench-stc.exe 41
 	@./bench-stc.exe 50
 
+# POTTERY shall point to the source directory (not where the headers are)
+bench-pottery:
+	@if test -n "$${POTTERY}" ; then $(MAKE) bench-pottery0 ; else echo "Nothing to be done for POTTERY." ; fi
+
+bench-pottery0:
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -DPOTTERY_AVAILABLE=1 -I $${POTTERY}/include bench-pottery.c common.c -o bench-pottery.exe
+	@./bench-pottery.exe 10
+	@./bench-pottery.exe 20
+	@./bench-pottery.exe 30
+	@./bench-pottery.exe 40
+	@./bench-pottery.exe 50
 
 ############################################################################
 
