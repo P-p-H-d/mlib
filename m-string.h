@@ -99,6 +99,10 @@ typedef enum string_fgets_e {
    but it should be enough for most of "small" strings as most
    of the strings are less than 14 characters.
    Moreover it generates quite efficient code.
+   NOTE: We set the pointer to NULL (instead of storing a pointer to
+   the stack buffer for example) for stack based allocation so that
+   the string structure remains trivially movable (which is an important
+   property to have).
  */
 static inline bool
 m_str1ng_stack_p(const string_t s)
