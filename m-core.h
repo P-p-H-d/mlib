@@ -3006,6 +3006,89 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_OPLAPI_EXTRACT_API_7(...)  __VA_ARGS__
 
 
+/* Generic API transformation.
+ * The API itself is described in the operator mapping with the method name.
+ *
+ * Usage in oplist:
+ *  operator ( API( method, returncode, args...) )
+ * * method is the method name
+ * * returncode is the transformation to perform of the return code. It can be:
+ *   - NONE: no transformation
+ *   - VOID: cast to void
+ *   - EQ(val)/NEQ(val)/LT(val)/GT(val)/LE(val)/GE(val): compare return code to val
+ *   - ARG[1-9]: set the associated argument number of the operator to the return code
+ * * args are the list of the arguments of the function. It can be:
+ *   - a constant
+ *   - a variable name (probable global)
+ *   - ARG[1-9] : the associated argument number of the operator
+ *   - ARGPTR[1-9] : the pointer of the associated argument number of the operator
+ *   - OPLIST: the oplist
+ */
+
+/* Needed duplicate of M_RET_ARG2 as we call it within a M_RET_ARG2
+ * FIXME: Can M_HEAD_2 be used instead? */
+#define M_RETI_ARG2_BIS(_1, _2, ...) _2
+#define M_RET_ARG2_BIS(...) M_RETI_ARG2_BIS(__VA_ARGS__,)
+
+/* Reorder the arglist 'arglist' according to the order 'orderlist'
+ * Inject also '&' if the address of the argument is requested in orderlist
+ * Inject also default value if requested in orderlist
+ * Inject also the oplist of requested in orderlist
+ */
+#define M_REORDER_ARGLIST(arglist, orderlist)                                 \
+    M_MAP2_C( M_REORDER_ARGLIST_FUNC, arglist, M_OPFLAT orderlist)
+#define M_REORDER_ARGLIST_FUNC(arglist, order)                                \
+    M_RET_ARG2_BIS( M_C(M_REORDER_ARGLIST_FUNC_, order) (arglist), order, )
+
+/* The first ARG starts from the second index as the first index is the oplist */
+#define M_REORDER_ARGLIST_FUNC_OPLIST(arglist) , M_RET_ARG1  arglist ,
+
+#define M_REORDER_ARGLIST_FUNC_ARG1(arglist)  , M_RET_ARG2  arglist ,
+#define M_REORDER_ARGLIST_FUNC_ARG2(arglist)  , M_RET_ARG3  arglist ,
+#define M_REORDER_ARGLIST_FUNC_ARG3(arglist)  , M_RET_ARG4  arglist ,
+#define M_REORDER_ARGLIST_FUNC_ARG4(arglist)  , M_RET_ARG5  arglist ,
+#define M_REORDER_ARGLIST_FUNC_ARG5(arglist)  , M_RET_ARG6  arglist ,
+#define M_REORDER_ARGLIST_FUNC_ARG6(arglist)  , M_RET_ARG7  arglist ,
+#define M_REORDER_ARGLIST_FUNC_ARG7(arglist)  , M_RET_ARG8  arglist ,
+#define M_REORDER_ARGLIST_FUNC_ARG8(arglist)  , M_RET_ARG9  arglist ,
+#define M_REORDER_ARGLIST_FUNC_ARG9(arglist)  , M_RET_ARG10  arglist ,
+
+#define M_REORDER_ARGLIST_FUNC_ARGPTR1(arglist)  , & M_RET_ARG2  arglist ,
+#define M_REORDER_ARGLIST_FUNC_ARGPTR2(arglist)  , & M_RET_ARG3  arglist ,
+#define M_REORDER_ARGLIST_FUNC_ARGPTR3(arglist)  , & M_RET_ARG4  arglist ,
+#define M_REORDER_ARGLIST_FUNC_ARGPTR4(arglist)  , & M_RET_ARG5  arglist ,
+#define M_REORDER_ARGLIST_FUNC_ARGPTR5(arglist)  , & M_RET_ARG6  arglist ,
+#define M_REORDER_ARGLIST_FUNC_ARGPTR6(arglist)  , & M_RET_ARG7  arglist ,
+#define M_REORDER_ARGLIST_FUNC_ARGPTR7(arglist)  , & M_RET_ARG8  arglist ,
+#define M_REORDER_ARGLIST_FUNC_ARGPTR8(arglist)  , & M_RET_ARG9  arglist ,
+#define M_REORDER_ARGLIST_FUNC_ARGPTR9(arglist)  , & M_RET_ARG10  arglist ,
+
+/* Perform the API translation of the return code depending
+   on the given keyword (NONE, EQ, NEQ, ...).) */
+#define M_REORDER_RET_NONE(...)     /* Nothing */
+#define M_REORDER_RET_VOID(...)     (void)
+#define M_REORDER_RET_EQ(value)     value == M_EAT
+#define M_REORDER_RET_NEQ(value)    value != M_EAT
+#define M_REORDER_RET_LT(value)     value >  M_EAT
+#define M_REORDER_RET_LE(value)     value >= M_EAT
+#define M_REORDER_RET_GT(value)     value <  M_EAT
+#define M_REORDER_RET_GE(value)     value <= M_EAT
+#define M_REORDER_RET_ARG1(...)     M_RET_ARG1(__VA_ARGS__) =
+#define M_REORDER_RET_ARG2(...)     M_RET_ARG2(__VA_ARGS__) =
+#define M_REORDER_RET_ARG3(...)     M_RET_ARG3(__VA_ARGS__) =
+#define M_REORDER_RET_ARG4(...)     M_RET_ARG4(__VA_ARGS__) =
+#define M_REORDER_RET_ARG5(...)     M_RET_ARG5(__VA_ARGS__) =
+#define M_REORDER_RET_ARG6(...)     M_RET_ARG6(__VA_ARGS__) =
+#define M_REORDER_RET_ARG7(...)     M_RET_ARG7(__VA_ARGS__) =
+#define M_REORDER_RET_ARG8(...)     M_RET_ARG8(__VA_ARGS__) =
+#define M_REORDER_RET_ARG9(...)     M_RET_ARG9(__VA_ARGS__) =
+
+/* Integrate the generic API in the API transformation framework */
+#define M_OPLAPI(method, oplist, ...) , ( M_C( M_REORDER_RET_, M_HEAD_2 method)(__VA_ARGS__, ) M_DELAY2(M_HEAD method)( M_REORDER_ARGLIST( (oplist, __VA_ARGS__), ( M_TAIL_2 method ) ) ) )
+#define M_OPLAPI_INDIRECT_API(...)    M_OPLAPI
+#define M_OPLAPI_EXTRACT_API(...)     __VA_ARGS__
+
+
 /* Define the no default function that generates a compiler error
    if the method is expanded. 
 */

@@ -759,12 +759,50 @@ static void test_properties(void)
   assert( M_KEYWORD_P( M_GET_PROPERTY (OP_PROP(), INIT_WITH ), priority));
 }
 
+static int init3(int *p, int a, int b)
+{
+  *p = b;
+  return a;
+}
+
+static int cmp1(int a, int b)
+{
+  return a < b ? -1 : a > b;
+}
+
+static int cmp2(int *a, int *b)
+{
+  return *a < *b ? -1 : *a > *b;
+}
+
 static void test_generic_api(void)
 {
   assert( M_HEAD(17, 0) == 17);
   assert( M_TAIL(18, 19) == 19);
   assert( M_HEAD_2(18, 17, 0) == 17);
   assert( M_TAIL_2(18, 17, 8) == 8);
+
+#define GO1 (INIT(API( (init3, ARG1, ARGPTR2, 17, 43) )))
+#define GO2 (INIT(API( (init3, NONE, ARGPTR2, 0, ARG1) )))
+#define GO3 (EQUAL(API( (cmp2, EQ(0), ARGPTR1, ARGPTR2) )))
+#define GO4 (EQUAL(API( (cmp1, EQ(0), ARG1, ARG2) )))
+
+  int x = 0, y = 0;
+  M_CALL_INIT(GO1, x, y);
+  assert(x == 17);
+  assert(y == 43);
+
+  x = 89;
+  M_CALL_INIT(GO2, x, y);
+  assert( y == 89);
+  assert( x == 89);
+
+  x = y = 78;
+  bool b = M_CALL_EQUAL(GO3, x, y);
+  assert(b);
+  x = 77;
+  b = M_CALL_EQUAL(GO4, x, y);
+  assert(!b);
 }
 
 int main(void)
