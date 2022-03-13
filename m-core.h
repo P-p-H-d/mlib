@@ -361,7 +361,7 @@ M_BEGIN_PROTECTED_CODE
 
 
 /* Test at compile time if the given condition is true.
-   The error is classidied as error
+   The error is classified as error
    with an optional message detailling the error.
    NOTE: Use bitfield to be compatible with most compilers
    (so that it properly displays 'error' on the command line
@@ -1665,7 +1665,7 @@ M_BEGIN_PROTECTED_CODE
 #define M_FILTER(f, extra, ...)                                               \
   M_MAP2( M_FILTER_00, (f, extra), __VA_ARGS__)
 
-/* Filter the elements of the list so that only the elements
+/* Filter the elements of the list so that only the elements (separated by commas)
    that match the function f are returned.
    f takes as argument (extra, item) and shall return 0 or 1. */
 #define M_FILTER_C(f, extra, ...)                                             \
@@ -2943,6 +2943,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_CALL_OOR_EQUAL(oplist, ...) M_APPLY_API(M_GET_OOR_EQUAL oplist, oplist, __VA_ARGS__)
 //#define M_CALL_LIMITS(oplist, ...) M_APPLY_API(M_GET_LIMITS oplist, oplist, __VA_ARGS__)
 //#define M_CALL_PROPERTIES(oplist, ...) M_APPLY_API(M_GET_PROPERTIES oplist, oplist, __VA_ARGS__)
+
 
 /* API transformation support:
    transform the call to the method into the supported API by the method.
