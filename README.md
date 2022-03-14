@@ -838,12 +838,14 @@ For the macro-preprocessing part, other libraries also exist. For example:
 * [OrderPP](https://github.com/rofl0r/order-pp)
 * [metalang99](https://github.com/Hirrolot/metalang99)
 
-For the string library, there is for example:
+For the string part, there is the following libraries for example:
 
-* [The Better String Library](http://bstring.sourceforge.net/) with a page that lists a lot of other string libraries.
-* [VSTR](http://www.and.org/vstr/) with a [page](http://www.and.org/vstr/comparison) that lists a lot of other string libraries.
+* [POTTERY STRING](https://github.com/ludocode/pottery/tree/develop/util/pottery/string)
 * [SDS](https://github.com/antirez/sds)
 * [STC - C99 Standard Container library](https://github.com/tylov/C99Containers)
+* [STR -yet another string library for C language](https://github.com/maxim2266/str)
+* [The Better String Library](http://bstring.sourceforge.net/) with a page that lists a lot of other string libraries.
+* [VSTR](http://www.and.org/vstr/) with a [page](http://www.and.org/vstr/comparison) that lists a lot of other string libraries.
 
 
 API Documentation
