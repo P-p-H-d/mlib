@@ -1457,11 +1457,11 @@ string_in_serial(string_t v, m_serial_read_t serial)
 
 /* State of the UTF8 decoding machine state */
 typedef enum {
-  M_STRING_UTF8_STARTING = 0,
-  M_STRING_UTF8_DECODING_1 = 8,
-  M_STRING_UTF8_DECODING_2 = 16,
-  M_STRING_UTF8_DOCODING_3 = 24,
-  M_STRING_UTF8_ERROR = 32
+  M_STR1NG_UTF8_STARTING = 0,
+  M_STR1NG_UTF8_DECODING_1 = 8,
+  M_STR1NG_UTF8_DECODING_2 = 16,
+  M_STR1NG_UTF8_DOCODING_3 = 24,
+  M_STR1NG_UTF8_ERROR = 32
 } m_str1ng_utf8_state_e;
 
 /* An unicode value */
@@ -1490,7 +1490,7 @@ typedef unsigned int string_unicode_t;
  */
 
 /* The use of a string enables the compiler/linker to factorize it. */
-#define M_STRING_UTF8_STATE_TAB                                               \
+#define M_STR1NG_UTF8_STATE_TAB                                               \
   "\000\040\010\020\030\040\040\040"                                          \
   "\040\000\040\040\040\040\040\040"                                          \
   "\040\010\040\040\040\040\040\040"                                          \
@@ -1508,10 +1508,10 @@ m_str1ng_utf8_decode(char c, m_str1ng_utf8_state_e *state,
                     string_unicode_t *unicode)
 {
   const unsigned int type = m_core_clz32((unsigned char)~c) - (unsigned) (sizeof(uint32_t) - 1) * CHAR_BIT;
-  const string_unicode_t mask1 = (UINT_MAX - (string_unicode_t)(*state != M_STRING_UTF8_STARTING) + 1);
+  const string_unicode_t mask1 = (UINT_MAX - (string_unicode_t)(*state != M_STR1NG_UTF8_STARTING) + 1);
   const string_unicode_t mask2 = (0xFFU >> type);
   *unicode = ((*unicode << 6) & mask1) | ((unsigned int) c & mask2);
-  *state = (m_str1ng_utf8_state_e) M_STRING_UTF8_STATE_TAB[(unsigned int) *state + type];
+  *state = (m_str1ng_utf8_state_e) M_STR1NG_UTF8_STATE_TAB[(unsigned int) *state + type];
 }
 
 /* Check if the given array of characters is a valid UTF8 stream */
@@ -1519,12 +1519,12 @@ m_str1ng_utf8_decode(char c, m_str1ng_utf8_state_e *state,
 static inline bool
 m_str1ng_utf8_valid_str_p(const char str[])
 {
-  m_str1ng_utf8_state_e s = M_STRING_UTF8_STARTING;
+  m_str1ng_utf8_state_e s = M_STR1NG_UTF8_STARTING;
   string_unicode_t u = 0;
   while (*str) {
     m_str1ng_utf8_decode(*str, &s, &u);
-    if ((s == M_STRING_UTF8_ERROR)
-        ||(s == M_STRING_UTF8_STARTING
+    if ((s == M_STR1NG_UTF8_ERROR)
+        ||(s == M_STR1NG_UTF8_STARTING
            &&(u > 0x10FFFF /* out of range */
               ||(u >= 0xD800 && u <= 0xDFFF) /* surrogate halves */)))
       return false;
@@ -1540,12 +1540,12 @@ static inline size_t
 m_str1ng_utf8_length(const char str[])
 {
   size_t size = 0;
-  m_str1ng_utf8_state_e s = M_STRING_UTF8_STARTING;
+  m_str1ng_utf8_state_e s = M_STR1NG_UTF8_STARTING;
   string_unicode_t u = 0;
   while (*str) {
     m_str1ng_utf8_decode(*str, &s, &u);
-    if (M_UNLIKELY (s == M_STRING_UTF8_ERROR)) return SIZE_MAX;
-    size += (s == M_STRING_UTF8_STARTING);
+    if (M_UNLIKELY (s == M_STR1NG_UTF8_ERROR)) return SIZE_MAX;
+    size += (s == M_STR1NG_UTF8_STARTING);
     str++;
   }
   return size;
@@ -1628,15 +1628,15 @@ string_end_p (string_it_t it)
   M_ASSERT (it != NULL);
   if (M_UNLIKELY (*it->ptr == 0))
     return true;
-  m_str1ng_utf8_state_e state =  M_STRING_UTF8_STARTING;
+  m_str1ng_utf8_state_e state =  M_STR1NG_UTF8_STARTING;
   string_unicode_t u = 0;
   const char *str = it->ptr;
   do {
     m_str1ng_utf8_decode(*str, &state, &u);
     str++;
-  } while (state != M_STRING_UTF8_STARTING && state != M_STRING_UTF8_ERROR && *str != 0);
+  } while (state != M_STR1NG_UTF8_STARTING && state != M_STR1NG_UTF8_ERROR && *str != 0);
   it->next_ptr = str;
-  it->u = M_UNLIKELY (state == M_STRING_UTF8_ERROR) ? STRING_UNICODE_ERROR : u;
+  it->u = M_UNLIKELY (state == M_STR1NG_UTF8_ERROR) ? STRING_UNICODE_ERROR : u;
   return false;
 }
 
@@ -1805,10 +1805,10 @@ namespace m_lib {
    In C11 mode, it uses the fact that string_init_set is overloaded to handle both
    C string and string. */
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)
-#define M_STRING_INIT_WITH(v, ...)                                            \
+#define M_STR1NG_INIT_WITH(v, ...)                                            \
   M_IF_NARGS_EQ1(__VA_ARGS__)(string_init_set, string_init_printf)(v, __VA_ARGS__)
 #else
-#define M_STRING_INIT_WITH(v, ...)                                            \
+#define M_STR1NG_INIT_WITH(v, ...)                                            \
   M_IF_NARGS_EQ1(__VA_ARGS__)(string_init_set_str, string_init_printf)(v, __VA_ARGS__)
 #endif
 
@@ -1825,7 +1825,7 @@ namespace m_lib {
 /* Define the OPLIST of a STRING */
 #define STRING_OPLIST                                                         \
   (INIT(string_init),INIT_SET(string_init_set), SET(string_set),              \
-   INIT_WITH(M_STRING_INIT_WITH),                                             \
+   INIT_WITH(M_STR1NG_INIT_WITH),                                             \
    INIT_MOVE(string_init_move), MOVE(string_move),                            \
    SWAP(string_swap), RESET(string_reset),                                    \
    EMPTY_P(string_empty_p),                                                   \
@@ -1851,7 +1851,11 @@ namespace m_lib {
 #define M_OPL_string_t() STRING_OPLIST
 
 
-/* Macro encapsulation to give a default value of 0 for start offset */
+/***********************************************************************/
+/*                                                                     */
+/*  Macro encapsulation to give a default value of 0 for start offset  */
+/*                                                                     */
+/***********************************************************************/
 
 /* Search for a character in a string (string, character[, start=0]) */
 #define string_search_char(v, ...)                                            \
@@ -1899,13 +1903,13 @@ namespace m_lib {
 /* Select either the string function or the str function depending on
    the b operade to the function.
    func1 is the string function / func2 is the str function. */
-# define M_STRING_SELECT2(func1,func2,a,b)                                    \
+# define M_STR1NG_SELECT2(func1,func2,a,b)                                    \
   _Generic((b)+0,                                                             \
            char*: func2,                                                      \
            const char *: func2,                                               \
            default : func1                                                    \
            )(a,b)
-# define M_STRING_SELECT3(func1,func2,a,b,c)                                  \
+# define M_STR1NG_SELECT3(func1,func2,a,b,c)                                  \
   _Generic((b)+0,                                                             \
            char*: func2,                                                      \
            const char *: func2,                                               \
@@ -1913,30 +1917,36 @@ namespace m_lib {
            )(a,b,c)
 
 /* Init & Set the string a to the string (or C string) b (constructor) */
-#define string_init_set(a,b) M_STRING_SELECT2(string_init_set, string_init_set_str, a, b)
+#define string_init_set(a,b) M_STR1NG_SELECT2(string_init_set, string_init_set_str, a, b)
 
 /* Set the string a to the string (or C string) b */
-#define string_set(a,b) M_STRING_SELECT2(string_set, string_set_str, a, b)
+#define string_set(a,b) M_STR1NG_SELECT2(string_set, string_set_str, a, b)
 
 /* Concatene the string (or C string) b to the string a */
-#define string_cat(a,b) M_STRING_SELECT2(string_cat, string_cat_str, a, b)
+#define string_cat(a,b) M_STR1NG_SELECT2(string_cat, string_cat_str, a, b)
 
 /* Compare the string a to the string (or C string) b and return the sort order */
-#define string_cmp(a,b) M_STRING_SELECT2(string_cmp, string_cmp_str, a, b)
+#define string_cmp(a,b) M_STR1NG_SELECT2(string_cmp, string_cmp_str, a, b)
 
 /* Compare for equality the string a to the string (or C string) b */
-#define string_equal_p(a,b) M_STRING_SELECT2(string_equal_p, string_equal_str_p, a, b)
+#define string_equal_p(a,b) M_STR1NG_SELECT2(string_equal_p, string_equal_str_p, a, b)
 
 /* strcoll the string a to the string (or C string) b */
-#define string_strcoll(a,b) M_STRING_SELECT2(string_strcoll, string_strcoll_str, a, b)
+#define string_strcoll(a,b) M_STR1NG_SELECT2(string_strcoll, string_strcoll_str, a, b)
 
 #undef string_search
 /* Search for a string in a string (or C string) (string, string[, start=0]) */
 #define string_search(v, ...)                                                 \
-  M_APPLY(M_STRING_SELECT3, string_search, string_search_str,                 \
+  M_APPLY(M_STR1NG_SELECT3, string_search, string_search_str,                 \
           v, M_IF_DEFAULT1(0, __VA_ARGS__))
+#endif
 
-/**************** Override m-core default macros to add support of string_t ******/
+
+/***********************************************************************/
+/*                                                                     */
+/*    Override m-core default macros to integrate string_t in core     */
+/*                                                                     */
+/***********************************************************************/
 
 /* Internal Macro: Provide GET_STR method to default type */
 #undef M_GET_STR_METHOD_FOR_DEFAULT_TYPE
@@ -1956,8 +1966,6 @@ namespace m_lib {
           , string_ptr: string_get_cstr( M_AS_TYPE(string_ptr, x))            \
           , string_srcptr: string_get_cstr(M_AS_TYPE(string_srcptr,x))        \
           , default: x )
-
-#endif
 
 /* Internal Macro: Provide GET_STR method to enum type */
 #undef M_GET_STR_METHOD_FOR_ENUM_TYPE
