@@ -166,15 +166,12 @@ test_dict(size_t  n)
 
 /********************************************************************************************/
 
-#if 0
-
-//ERROR in pottery: cannot create two instances of the Open Hash Map (duplicate types).
 typedef struct {
   char a[256];
 } char_array_t;
 static inline void char_init (char_array_t *a) { a->a[0] = 0; }
 static inline void char_set (char_array_t *a, const char_array_t b) { strcpy(a->a, b.a); }
-static inline bool char_equal_p (const char_array_t *a, const char_array_t *b) { return strcmp(a->a,b->a)==0; }
+static inline bool char_equal_p (const char_array_t a, const char_array_t b) { return strcmp(a.a,b.a)==0; }
 static inline void char_clear (char_array_t *a) { (void)a; }
 static inline size_t char_hash(const char_array_t *a) {
   size_t hash = 0;
@@ -202,29 +199,32 @@ typedef struct bars_s {
 static void
 test_dict_big(size_t  n)
 {
-  cmap_achar dict = cmap_achar_init();
+  map_achar_t dict;
+  map_achar_init(&dict);
 
   for (size_t i = 0; i < n; i++) {
     char_array_t s1, s2;
     sprintf(s1.a, "%u", rand_get());
     sprintf(s2.a, "%u", rand_get());
-    cmap_achar_put(&dict, s1, s2);
+    bars_t * kyle = pottery_null;
+    map_achar_emplace_key(&dict, s1, &kyle, pottery_null);
+    char_set(&kyle->key, s1);
+    char_set(&kyle->value, s2);
   }
   rand_init();
   unsigned int s = 0;
   for (size_t i = 0; i < n; i++) {
     char_array_t s1;
     sprintf(s1.a, "%u", rand_get());
-    const cmap_achar_value*val = cmap_achar_get(&dict, s1);
-    if (val != NULL)
+    bars_t *kyle = map_achar_find(&dict, s1);
+    if (kyle != NULL)
       s ++;
   }
   g_result = s;
 
-  cmap_achar_drop(&dict);
+  map_achar_destroy(&dict);
 }
 
-#endif
 /********************************************************************************************/
 
 #define POTTERY_VECTOR_PREFIX vec_float
@@ -258,7 +258,7 @@ const config_func_t table[] = {
   { 20,   "Array", 100000000, 0, test_array, 0},
   { 30,  "Rbtree", 1000000, 0, test_rbtree, 0},
   { 40,    "dict", 1000000, 0, test_dict, 0},
-  //{ 41, "dictBig", 1000000, 0, test_dict_big, 0},
+  { 41, "dictBig", 1000000, 0, test_dict_big, 0},
   { 50,    "Sort",10000000, 0, test_sort, 0},
 };
 

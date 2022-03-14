@@ -374,6 +374,7 @@ bench-pottery0:
 	@./bench-pottery.exe 20
 	@./bench-pottery.exe 30
 	@./bench-pottery.exe 40
+	@./bench-pottery.exe 41
 	@./bench-pottery.exe 50
 
 ############################################################################
