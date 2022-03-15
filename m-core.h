@@ -52,6 +52,11 @@
 # include <stdarg.h>
 #endif
 
+/* By default, define also the small name API (without the m_ prefix) */
+#ifndef M_USE_SMALL_NAME
+# define M_USE_SMALL_NAME 1
+#endif
+
 
 /***************************************************************/
 /************************ Compiler Macro ***********************/
@@ -3757,7 +3762,7 @@ m_core_backoff_clear(m_core_backoff_ct backoff)
 /************************************************************/
 
 /* Forward declaration of string_t defined in m-string.h */
-struct string_s;
+struct m_string_s;
 
 /* Serialization Return code:
  * - OK & done (object is fully parsed),
@@ -3842,7 +3847,7 @@ typedef struct m_serial_read_interface_s {
   m_serial_return_code_t (*read_boolean)(m_serial_read_t,bool *);
   m_serial_return_code_t (*read_integer)(m_serial_read_t, long long *, const size_t size_of_type);
   m_serial_return_code_t (*read_float)(m_serial_read_t, long double *, const size_t size_of_type);
-  m_serial_return_code_t (*read_string)(m_serial_read_t, struct string_s *); 
+  m_serial_return_code_t (*read_string)(m_serial_read_t, struct m_string_s *);
   m_serial_return_code_t (*read_array_start)(m_serial_local_t, m_serial_read_t, size_t *);
   m_serial_return_code_t (*read_array_next)(m_serial_local_t, m_serial_read_t);
   m_serial_return_code_t (*read_map_start)(m_serial_local_t, m_serial_read_t, size_t *);

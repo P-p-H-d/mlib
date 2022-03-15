@@ -7931,6 +7931,14 @@ and the va\_args functions be defined (=1) or not (=0).
 
 Default value: 1 (true)
 
+### M\_USE\_SMALL\_NAME
+
+This macro indicates if the small names (without the m\_ prefix)
+have to be defined or not. Historically, only the small name API
+existed, so in order to keep API compatibility, the default is true.
+
+Default value: 1
+
 ### M\_USE\_CSTR\_ALLOC
 
 Define the allocation size of the temporary strings created by M\_CSTR
