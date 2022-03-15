@@ -1982,13 +1982,13 @@ namespace m_lib {
 /* Define a bounded (fixed) string of exactly 'max_size' characters
  * (excluding the final nul char).
  */
-#define M_BOUNDED_STRING_DEF(name, max_size)                                    \
+#define M_BOUNDED_STRING_DEF(name, max_size)                                  \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_BOUNDED_STR1NG_DEF_P2(name, max_size, M_C(name, _t) )                     \
   M_END_PROTECTED_CODE
 
 /* Define the OPLIST of a BOUNDED_STRING */
-#define M_BOUNDED_STRING_OPLIST(name)                                           \
+#define M_BOUNDED_STRING_OPLIST(name)                                         \
   (INIT(M_C(name,_init)),                                                     \
    INIT_SET(M_C(name,_init_set)),                                             \
    SET(M_C(name,_set)),                                                       \
@@ -2360,7 +2360,7 @@ namespace m_lib {
 /* Use of Compound Literals to init a constant string.
    See above */
 #ifndef __cplusplus
-#define M_BOUNDED_STRING_CTE(name, string)                                      \
+#define M_BOUNDED_STRING_CTE(name, string)                                    \
   ((const struct M_C(name, _s) *)((M_C(name, _array_t)){string}))
 #else
 namespace m_lib {
@@ -2374,7 +2374,7 @@ namespace m_lib {
       }
     };
 }
-#define M_BOUNDED_STRING_CTE(name, string)                                      \
+#define M_BOUNDED_STRING_CTE(name, string)                                    \
   ((const struct M_C(name, _s) *)(m_lib::m_bounded_string<sizeof (M_C(name, _t))>(string).s))
 #endif
 
