@@ -1703,7 +1703,7 @@ m_string_utf8_p(m_string_t str)
 
 /* Define the split & the join functions 
    in case of usage with the algorithm module */
-#define M_STRING_SPLIT(name, oplist, type_oplist)                             \
+#define M_STR1NG_SPLIT(name, oplist, type_oplist)                             \
   static inline void M_C(name, _split)(M_GET_TYPE oplist cont,                \
                                    const m_string_t str, const char sep)      \
   {                                                                           \
@@ -1834,7 +1834,7 @@ namespace m_lib {
    PARSE_STR(m_string_parse_str), GET_STR(m_string_get_str),                  \
    OUT_STR(m_string_out_str), IN_STR(m_string_in_str),                        \
    OUT_SERIAL(m_string_out_serial), IN_SERIAL(m_string_in_serial),            \
-   EXT_ALGO(M_STRING_SPLIT),                                                  \
+   EXT_ALGO(M_STR1NG_SPLIT),                                                  \
    OOR_EQUAL(m_string_oor_equal_p), OOR_SET(m_string_oor_set)                 \
    ,SUBTYPE(m_string_unicode_t)                                               \
    ,IT_TYPE(m_string_it_t)                                                    \
@@ -2498,6 +2498,8 @@ namespace m_lib {
 #define M_OPL_string_t M_OPL_m_string_t
 #define string_sets m_string_sets
 #define string_cats m_string_cats
+#define string_init_printf m_string_init_printf
+#define string_init_vprintf m_string_init_vprintf
 
 #define BOUNDED_STRING_DEF M_BOUNDED_STRING_DEF
 #define BOUNDED_STRING_OPLIST M_BOUNDED_STRING_OPLIST
