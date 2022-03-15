@@ -80,7 +80,7 @@ ILIST_DEF(tmpstr, tmp_str_t, DEFAULT_OPLIST)
 #include "m-string.h"
 void f(void)
 {
-  M_LET(x, M_STRING_OPLIST) {
+  M_LET(x, M_M_STRING_OPLIST) {
   }
 }
 
