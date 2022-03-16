@@ -615,7 +615,7 @@ Example:
         #define M_OPL_mpz_t() M_CLASSIC_OPLIST(mpz)
 
 Within an OPLIST, you can also specify the needed low-level transformation to perform for the method.
-This is called API type.
+This is called API adaptation.
 Assuming that the method to call is called 'method' and the first argument of the operator is 'output',
 then the following transformation are applied:
 
@@ -631,6 +631,44 @@ then the following transformation are applied:
 Example:
 
         (INIT(API_0(mpz_init)), SET(API_0(mpz_set)), INIT_SET(API_0(mpz_init_set)), CLEAR(API_0(mpz_clear)))
+
+
+There were the predefined transformation rules.
+You can also describe the exact transformation to perform for calling the method:
+this is called generic API transformation.
+With this, you can add constant values to parameter of the method,
+reorder the parameters, pass then by pointers or change the return value.
+
+The API transformation is described in the operator mapping with the method name.
+Usage in oplist:
+
+    , operator ( API( method, returncode, args...) ) ,
+
+* method is the method name (as like any other oplist)
+* returncode is the transformation to perform of the return code.
+It can be
+NONE (no transformation),
+VOID (cast to void),
+EQ(val)/NEQ(val)/LT(val)/GT(val)/LE(val)/GE(val) (compare the return code to the given value)
+ARG[1-9] (set the associated argument number of the operator to the return code)
+* args are the list of the arguments of the function. It can be:
+a constant,
+a variable name (probable global),
+ARG[1-9] (the associated argument number of the operator),
+ARGPTR[1-9] (the pointer of the associated argument number of the operator),
+OPLIST (the oplist)
+
+Example:
+
+     , EQUAL( API(mpz_cmp, EQ(0), ARG1, ARG2) ) , 
+
+This will transform a return value of 0 by the mpz\_cmp method into true for the EQUAL operator.
+
+Another Example:
+
+     , OUT_STR( API(mpz_out_str, VOID, ARG1, 10, ARG2) ) , 
+
+This will serialize the mpz\_t value in base 10 using the mpz\_out\_str method.
 
 
 An operator OP can be defined, omitted or disabled:
