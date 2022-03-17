@@ -68,6 +68,10 @@ int main(void)
               }
             }
         }
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+      // Print all the array in one step. Need to be done in C11 only
+      M_PRINT("The array is equal to ", (array, my_array_t), "\n");
+#endif
     } /* All variables are automatically cleared beyond this point */
 }
 
