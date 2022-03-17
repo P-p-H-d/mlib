@@ -8,11 +8,33 @@
 #include "m-dict.h"
 #include "m-array.h"
 
+// GMP doesn't provide a fast hash function.
+static inline size_t
+mpz_hash(const mpz_t z)
+{
+  mp_size_t  n = z->_mp_size;
+  mp_limb_t *p = z->_mp_d;
+  M_HASH_DECL(hash);
+
+  if (n <= 0) {
+    M_HASH_UP (hash, 0x7F5C1458);
+    if (n == 0) {
+      return M_HASH_FINAL (hash);
+    }
+    n = -n;
+  }
+  while (n-- > 0) {
+    M_HASH_UP (hash, *p++);
+  }
+  return M_HASH_FINAL (hash);
+}
+
 /* Define the OPLIST of a mpz_t and register it globally */
 #define M_OPL_mpz_t()                                                   \
   (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), \
    EQUAL( API( mpz_cmp, EQ(0), ARG1, ARG2)),                            \
    CMP(mpz_cmp),                                                        \
+   HASH(mpz_hash),                                                      \
    OUT_STR( API( mpz_out_str, VOID, ARG1, 10, ARG2)),                   \
    IN_STR( API( mpz_inp_str, GT(0), ARG1, ARG2, 10)),                   \
    TYPE(mpz_t) )
