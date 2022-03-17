@@ -3084,9 +3084,9 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_REORDER_RET_ARG9(...)     M_RET_ARG9(__VA_ARGS__) =
 
 /* Integrate the generic API in the API transformation framework */
-#define M_OPLAPI(method, oplist, ...) , ( M_C( M_REORDER_RET_, M_HEAD_2 method)(__VA_ARGS__, ) M_DELAY2(M_HEAD method)( M_REORDER_ARGLIST( (oplist, __VA_ARGS__), ( M_TAIL_2 method ) ) ) )
+#define M_OPLAPI(method, oplist, ...) , ( M_C( M_REORDER_RET_, M_DELAY2(M_HEAD_2 method))(__VA_ARGS__, ) M_DELAY2(M_HEAD method)( M_REORDER_ARGLIST( (oplist, __VA_ARGS__), ( M_TAIL_2 method ) ) ) )
 #define M_OPLAPI_INDIRECT_API(...)    M_OPLAPI
-#define M_OPLAPI_EXTRACT_API(...)     __VA_ARGS__
+#define M_OPLAPI_EXTRACT_API(...)     ( __VA_ARGS__ )
 
 
 /* Define the no default function that generates a compiler error
