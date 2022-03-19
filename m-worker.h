@@ -129,11 +129,11 @@ typedef struct m_work3r_order_s {
 # define M_WORK3R_CPP_SET(x, y) ((x) = (y))
 # define M_WORK3R_CPP_CLEAR(x) ((&(x))->~m_work3r_order_ct())
 # define M_WORK3R_CPP_INIT_MOVE(x,y) (new (&(x)) m_work3r_order_ct(y), ((&(y))->~m_work3r_order_ct()))
-# define WORKER_OPLIST                                                        \
+# define M_WORK3R_OPLIST                                                        \
       (INIT(M_WORK3R_CPP_INIT), INIT_SET(M_WORK3R_CPP_INIT_SET),              \
       SET(M_WORK3R_CPP_SET), CLEAR(M_WORK3R_CPP_CLEAR), INIT_MOVE(M_WORK3R_CPP_INIT_MOVE) )
 #else
-# define WORKER_OPLIST M_POD_OPLIST
+# define M_WORK3R_OPLIST M_POD_OPLIST
 #endif
 
 /* Definition of a worker (implemented by a thread) */
@@ -143,7 +143,7 @@ typedef struct m_work3r_thread_s {
 
 /* Definition of the queue that will record the work orders */
 BUFFER_DEF(m_work3r_queue, m_work3r_order_ct, 0,
-           BUFFER_QUEUE|BUFFER_UNBLOCKING_PUSH|BUFFER_BLOCKING_POP|BUFFER_THREAD_SAFE|BUFFER_DEFERRED_POP, WORKER_OPLIST)
+           BUFFER_QUEUE|BUFFER_UNBLOCKING_PUSH|BUFFER_BLOCKING_POP|BUFFER_THREAD_SAFE|BUFFER_DEFERRED_POP, M_WORK3R_OPLIST)
 
 /* Definition the global pool of workers */
 typedef struct worker_s {
