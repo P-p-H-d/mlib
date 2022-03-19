@@ -129,7 +129,7 @@ typedef struct m_work3r_order_s {
 # define M_WORK3R_CPP_SET(x, y) ((x) = (y))
 # define M_WORK3R_CPP_CLEAR(x) ((&(x))->~m_work3r_order_ct())
 # define M_WORK3R_CPP_INIT_MOVE(x,y) (new (&(x)) m_work3r_order_ct(y), ((&(y))->~m_work3r_order_ct()))
-# define M_WORK3R_OPLIST                                                        \
+# define M_WORK3R_OPLIST                                                      \
       (INIT(M_WORK3R_CPP_INIT), INIT_SET(M_WORK3R_CPP_INIT_SET),              \
       SET(M_WORK3R_CPP_SET), CLEAR(M_WORK3R_CPP_CLEAR), INIT_MOVE(M_WORK3R_CPP_INIT_MOVE) )
 #else
