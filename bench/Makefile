@@ -430,6 +430,9 @@ bench-string-step4:
 	@if test -n "$${GLIB}" ; then $(MAKE) bench-string-step5 BENCH_DEF="$(BENCH_DEF) -DBENCH_CAN_USE_GLIB $$(pkg-config --cflags --libs glib-2.0)" ; else $(MAKE) bench-string-step5 BENCH_DEF="$(BENCH_DEF)"; fi
 
 bench-string-step5:
+	@if test -n "$${POTTERY}" ; then $(MAKE) bench-string-step6 BENCH_DEF="$(BENCH_DEF) -DBENCH_CAN_USE_POTTERY -I$${POTTERY}/include -I$${POTTERY}/util/ $${POTTERY}/util/pottery/string/string.c" ; else $(MAKE) bench-string-step6 BENCH_DEF="$(BENCH_DEF)"; fi
+
+bench-string-step6:
 	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -DBENCH_CAN_USE_STL -DBENCH_CAN_USE_MSTARLIB bench-string.cpp common.c $(BENCH_DEF) -o bench-string.exe 
 	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -DBENCH_CAN_USE_STL -DBENCH_CAN_USE_MSTARLIB bench-string-2.cpp common.c $(BENCH_DEF) -o bench-string-2.exe 
 	@./bench-string.exe
@@ -437,6 +440,7 @@ bench-string-step5:
 	@./bench-string-2.exe  2000000 1
 	@./bench-string-2.exe  2000000 2
 	@./bench-string-2.exe  2000000 4
+	@./bench-string-2.exe  2000000 5
 
 bench-string-pgo:
 	$(MAKE) bench-string XCFLAGS="-fprofile-generate=pgo"

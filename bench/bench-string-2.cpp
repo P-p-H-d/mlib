@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 
+#define M_USE_SMALL_NAME 0
 #include "common.h"
 
 #include "m-string.h"
@@ -41,6 +42,10 @@ extern "C" {
 #include "bstrlib.h"
 #include "bstrwrap.h"
 #include "bstraux.h"
+#endif
+
+#if defined(BENCH_CAN_USE_POTTERY)
+#include "pottery/string/string.h"
 #endif
 
 /*
@@ -104,27 +109,28 @@ size_t bench_stl(unsigned n)
 
 size_t bench_mlib(unsigned n)
 {
-  string_t *tab = (string_t*) malloc (n * sizeof (string_t));
+  m_string_t *tab = (m_string_t*) malloc (n * sizeof (m_string_t));
   assert (tab != 0);
   // P1
   for(unsigned i = 0; i < n; i++) {
-    string_init(tab[i]);
-    string_printf(tab[i], "%u", rand_get());
+    m_string_init(tab[i]);
+    m_string_printf(tab[i], "%u", rand_get());
   }
   // P2
-  string_t str;
-  string_init(str);
+  m_string_t str;
+  m_string_init(str);
   for(unsigned i = 0; i < n; i++) {
-    string_cat(str, tab[permutation_tab[i]]);
+    m_string_cat(str, tab[permutation_tab[i]]);
   }
   // P3
-  string_replace_all_str(str, "1234", "WELL");
-  string_replace_all_str(str, "56789", "DONE");
-  size_t length = string_size(str);
+  m_string_replace_all_str(str, "1234", "WELL");
+  m_string_replace_all_str(str, "56789", "DONE");
+  size_t length = m_string_size(str);
+
   // Clean
-  string_clear(str);
+  m_string_clear(str);
   for(unsigned i = 0; i < n; i++) {
-    string_clear(tab[i]);
+    m_string_clear(tab[i]);
   }
   free(tab);
   return length;
@@ -217,6 +223,57 @@ size_t bench_sds(unsigned n)
 }
 #endif
 
+#if defined(BENCH_CAN_USE_POTTERY)
+
+size_t pottery_find_cstr(string_t *b, size_t index, const char *pattern)
+{
+  // I cannot find such function in the API
+  const char *s = string_cstr(b);
+  const char *r = strstr(&s[index], pattern);
+  return r == NULL ? SIZE_MAX : r - s;
+}
+
+void pottery_replace_all_str(string_t *str, const char *s, const char *d)
+{
+  size_t i = 0;
+  while (true) {
+    i = pottery_find_cstr(str, i, s);
+    if (i==SIZE_MAX) return;
+    string_remove(str, i, strlen(s));
+    string_insert_cstr(str, i, d);
+  }
+}
+
+size_t bench_pottery(unsigned n)
+{
+  string_t *tab = (string_t*) malloc (n * sizeof (string_t));
+  assert (tab != 0);
+  // P1
+  for(unsigned i = 0; i < n; i++) {
+    string_init(&tab[i]);
+    string_append_format(&tab[i], "%u", rand_get());
+  }
+  // P2
+  string_t str;
+  string_init(&str);
+  for(unsigned i = 0; i < n; i++) {
+    string_append_string(&str, &tab[permutation_tab[i]]);
+  }
+  // P3
+  
+  pottery_replace_all_str(&str, "1234", "WELL");
+  pottery_replace_all_str(&str, "56789", "DONE");
+  size_t length = string_length(&str);
+
+  // Clean
+  string_clear(&str);
+  for(unsigned i = 0; i < n; i++) {
+    string_clear(&tab[i]);
+  }
+  free(tab);
+  return length;
+}
+#endif
 
 int main(int argc, const char *argv[])
 {
@@ -246,6 +303,12 @@ int main(int argc, const char *argv[])
   case 4:
     length = bench_bstrlib(n);
     name = "BSTRLIB";
+    break;
+#endif
+#if defined(BENCH_CAN_USE_POTTERY)
+  case 5:
+    length = bench_pottery(n);
+    name = "POTTERY";
     break;
 #endif
   default:

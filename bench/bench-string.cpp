@@ -35,7 +35,7 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* Update of integrating M*LIB, LIBSRT, SDS & GLIB
+/* Update of integrating M*LIB, LIBSRT, SDS, GLIB & POTTERY
    Copyright (c) 2018-2022 Patrick Pelissier
  */
 
@@ -53,6 +53,7 @@
 #include <limits.h>
 
 #define NDEBUG
+#define M_USE_SMALL_NAME 0
 #include "common.h"
 
 #ifdef BENCH_CAN_USE_MSTARLIB
@@ -81,6 +82,10 @@ extern "C" {
 
 #if defined(BENCH_CAN_USE_GLIB)
 #include "gmodule.h"
+#endif
+
+#if defined(BENCH_CAN_USE_POTTERY)
+#include "pottery/string/string.h"
 #endif
 
 /* Time of a test */
@@ -433,11 +438,11 @@ int testSRT_concat (int count) {
 int testMLIB_emptyCtor (int count) {
   int i, c = 0;
   for (c=i=0; i < count; i++) {
-    string_t b;
-    string_init(b);
+    m_string_t b;
+    m_string_init(b);
     BARRIER(&b);
-    c += string_size(b) ^i;
-    string_clear(b);
+    c += m_string_size(b) ^i;
+    m_string_clear(b);
   }
   return c;
 }
@@ -445,11 +450,11 @@ int testMLIB_emptyCtor (int count) {
 int testMLIB_nonemptyCtor (int count) {
   int i, c = 0;
   for (c=i=0; i < count; i++) {
-    string_t b;
-    string_init_set_str(b, TESTSTRING1);
+    m_string_t b;
+    m_string_init_set_str(b, TESTSTRING1);
     BARRIER(&b);
-    c += string_size(b) ^i;
-    string_clear(b);
+    c += m_string_size(b) ^i;
+    m_string_clear(b);
   }
   return c;
 }
@@ -457,93 +462,93 @@ int testMLIB_nonemptyCtor (int count) {
 int testMLIB_smallnonemptyCtor (int count) {
   int i, c = 0;
   for (c=i=0; i < count; i++) {
-    string_t b;
-    string_init_set_str(b, SMALLTESTSTRING1);
+    m_string_t b;
+    m_string_init_set_str(b, SMALLTESTSTRING1);
     BARRIER(&b);
-    c += string_size(b) ^i;
-    string_clear(b);
+    c += m_string_size(b) ^i;
+    m_string_clear(b);
   }
   return c;
 }
 
 int testMLIB_cstrAssignment (int count) {
   int i, c = 0;
-  string_t b;
-  string_init(b);
+  m_string_t b;
+  m_string_init(b);
   for (c=i=0; i < count; i++) {
-    string_set_str(b, TESTSTRING1);
+    m_string_set_str(b, TESTSTRING1);
     BARRIER(&b);
-    c += string_size(b) ^i;
+    c += m_string_size(b) ^i;
   }
-  string_clear(b);
+  m_string_clear(b);
   return c;
 }
 
 int testMLIB_extraction (int count) {
   int i, c = 0;
 
-  string_t b;
-  string_init_set_str(b, TESTSTRING1);
+  m_string_t b;
+  m_string_init_set_str(b, TESTSTRING1);
   
   for (c=i=0; i < count; i++) {
-    c += string_get_char(b, (i & 7));
-    c += string_get_char(b, (i & 7) ^ 8);
-    c += string_get_char(b, (i & 7) ^ 4) ^i;
+    c += m_string_get_char(b, (i & 7));
+    c += m_string_get_char(b, (i & 7) ^ 8);
+    c += m_string_get_char(b, (i & 7) ^ 4) ^i;
     BARRIER(&b);
   }
-  string_clear(b);
+  m_string_clear(b);
   return c;
 }
 
 int testMLIB_scan (int count) {
   int i, c = 0;
-  string_t b;
-  string_init_set_str(b, "Dot. 123. Some more data.");
+  m_string_t b;
+  m_string_init_set_str(b, "Dot. 123. Some more data.");
 
   for (c=i=0; i < count; i++) {
-    c += string_search_char (b, '.');
-    c += string_search_str (b, "123");
-    c += string_search_pbrk (b, "sm") ^i;
+    c += m_string_search_char (b, '.');
+    c += m_string_search_str (b, "123");
+    c += m_string_search_pbrk (b, "sm") ^i;
     BARRIER(&b);
   }
-  string_clear(b);
+  m_string_clear(b);
   return c;
 }
 
 int testMLIB_concat (int count) {
   int i, j, c = 0;
-  string_t a, accum;
-  string_init_set_str(a, TESTSTRING1);
-  string_init (accum);
+  m_string_t a, accum;
+  m_string_init_set_str(a, TESTSTRING1);
+  m_string_init (accum);
 
   for (j=0; j < count; j++) {
-    string_set_str(accum, "");
+    m_string_set_str(accum, "");
     for (i=0; i < 250; i++) {
-      string_cat(accum, a);
-      string_cat_str(accum, "!!");
+      m_string_cat(accum, a);
+      m_string_cat_str(accum, "!!");
       BARRIER(&accum);
-      c += string_size(accum) ^i;
+      c += m_string_size(accum) ^i;
     }
   }
-  string_clear(a);
-  string_clear(accum);
+  m_string_clear(a);
+  m_string_clear(accum);
   return c;
 }
 
 int testMLIB_replace (int count) {
   int j, c = 0;
-  string_t a;
-  string_init_set_str(a, TESTSTRING1);
+  m_string_t a;
+  m_string_init_set_str(a, TESTSTRING1);
   
   for (j=0; j < count; j++) {
-    string_replace_at(a, 11, 4, "XXXXXX");
-    string_replace_at(a, 23, 2, "XXXXXX");
-    string_replace_at(a, 4, 8, "XX");
+    m_string_replace_at(a, 11, 4, "XXXXXX");
+    m_string_replace_at(a, 23, 2, "XXXXXX");
+    m_string_replace_at(a, 4, 8, "XX");
     BARRIER(&a);
-    c += string_size(a) ^j;
+    c += m_string_size(a) ^j;
   }
   
-  string_clear(a);
+  m_string_clear(a);
   return c;
 }
 #endif
@@ -774,6 +779,118 @@ int testGLIB_concat (int count) {
 //int testGLIB_replace (int count): not available
 #endif
 
+#ifdef BENCH_CAN_USE_POTTERY
+int testPOTTERY_emptyCtor (int count) {
+  int i, c = 0;
+  for (c=i=0; i < count; i++) {
+    string_t b;
+    string_init(&b);
+    BARRIER(&b);
+    c += string_length(&b) ^i;
+    string_clear(&b);
+  }
+  return c;
+}
+
+int testPOTTERY_nonemptyCtor (int count) {
+  int i, c = 0;
+  for (c=i=0; i < count; i++) {
+    string_t b;
+    string_init_cstr(&b, TESTSTRING1);
+    BARRIER(&b);
+    c += string_length(&b) ^i;
+    string_clear(&b);
+  }
+  return c;
+}
+
+int testPOTTERY_smallnonemptyCtor (int count) {
+  int i, c = 0;
+  for (c=i=0; i < count; i++) {
+    string_t b;
+    string_init_cstr(&b, SMALLTESTSTRING1);
+    BARRIER(&b);
+    c += string_length(&b) ^i;
+    string_clear(&b);
+  }
+  return c;
+}
+
+int testPOTTERY_cstrAssignment (int count) {
+  int i, c = 0;
+  string_t b;
+  string_init(&b);
+  for (c=i=0; i < count; i++) {
+    string_set_cstr(&b, TESTSTRING1);
+    BARRIER(&b);
+    c += string_length(&b) ^i;
+  }
+  string_clear(&b);
+  return c;
+}
+
+int testPOTTERY_extraction (int count) {
+  int i, c = 0;
+
+  string_t b;
+  string_init_cstr(&b, TESTSTRING1);
+  
+  for (c=i=0; i < count; i++) {
+    c += string_cstr(&b)[(i & 7)];
+    c += string_cstr(&b)[(i & 7) ^ 8];
+    c += string_cstr(&b)[(i & 7) ^ 4] ^i;
+    BARRIER(&b);
+  }
+  string_clear(&b);
+  return c;
+}
+
+size_t pottery_find_cstr(string_t *b, const char *pattern)
+{
+  // I cannot find such function in the API
+  const char *s = string_cstr(b);
+  const char *r = strstr(s, pattern);
+  return r == NULL ? SIZE_MAX : r - s;
+}
+
+int testPOTTERY_scan (int count) {
+  int i, c = 0;
+  string_t b;
+  string_init_cstr(&b, "Dot. 123. Some more data.");
+
+  for (c=i=0; i < count; i++) {
+    c += string_find_char (&b, 0, '.');
+    c += pottery_find_cstr (&b, "123");
+    c += string_find_chars_cstr (&b, 0, "sm") ^i;
+    BARRIER(&b);
+  }
+  string_clear(&b);
+  return c;
+}
+
+int testPOTTERY_concat (int count) {
+  int i, j, c = 0;
+  string_t a, accum;
+  string_init_cstr(&a, TESTSTRING1);
+  string_init (&accum);
+
+  for (j=0; j < count; j++) {
+    string_set_cstr(&accum, "");
+    for (i=0; i < 250; i++) {
+      string_append_string(&accum, &a);
+      string_append_cstr(&accum, "!!");
+      BARRIER(&accum);
+      c += string_length(&accum) ^i;
+    }
+  }
+  string_clear(&a);
+  string_clear(&accum);
+  return c;
+}
+
+// No replace function available
+#endif
+
 
 #define NTESTS 8
 struct flags {
@@ -996,6 +1113,37 @@ int benchTest (const struct flags * runflags) {
   if (runflags->runtest[6]) {
     c += timeTest (cps, testGLIB_concat, 10);
     print ("GLIB", "concatenation", cps * 250);
+  }
+#endif
+
+#ifdef BENCH_CAN_USE_POTTERY
+  if (runflags->runtest[0]) {
+    c += timeTest (cps, testPOTTERY_emptyCtor, 100000);
+    print ("POTTERY", "empty constructor", cps);
+  }
+  if (runflags->runtest[1]) {
+    c += timeTest (cps, testPOTTERY_nonemptyCtor, 100000);
+    print ("POTTERY", "non-empty constructor", cps);
+  }
+  if (runflags->runtest[2]) {
+    c += timeTest (cps, testPOTTERY_smallnonemptyCtor, 100000);
+    print ("POTTERY", "small non-empty constructor", cps);
+  }
+  if (runflags->runtest[3]) {
+    c += timeTest (cps, testPOTTERY_cstrAssignment, 100000);
+    print ("POTTERY", "Char * assignment", cps);
+  }
+  if (runflags->runtest[4]) {
+    c += timeTest (cps, testPOTTERY_extraction, 100000);
+    print ("POTTERY", "char extraction", cps);
+  }
+  if (runflags->runtest[5]) {
+    c += timeTest (cps, testPOTTERY_scan, 100000);
+    print ("POTTERY", "scan", cps);
+  }
+  if (runflags->runtest[6]) {
+    c += timeTest (cps, testPOTTERY_concat, 10);
+    print ("POTTERY", "concatenation", cps * 250);
   }
 #endif
 
