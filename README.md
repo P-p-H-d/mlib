@@ -7076,6 +7076,21 @@ If the initialization fails, the program aborts.
 
 Wait indefinitely for the thread 'thread' to exit.
 
+#### m\_once\_t
+
+A type representing a helper structure for m_once_call.
+An object of type m\_once\_t shall be initialized at declaration level with M\_ONCE\_INIT\_VALUE
+
+#### M\_ONCE\_INIT\_VALUE
+
+Initial value to set an object of type m\_once\_t when declaring it.
+
+#### void m\_once\_call(m\_once\_t obj, void (*func)(void))
+
+Executes the function pointer func exactly once,
+even if called concurrently, from several threads,
+provided that they share the same object obj.
+
 
 ### M-WORKER
 

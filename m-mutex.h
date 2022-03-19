@@ -152,14 +152,14 @@ static inline bool m_thread_sleep(unsigned long long usec)
   return retval == 0;
 }
 
-// Internal type, not exported.
-typedef once_flag                     m_once_ct[1];
+// a helper structure for m_once_call
+typedef once_flag                     m_once_t[1];
 
-// Initial value for m_once_ct
-#define M_ONCEI_INIT_VALUE            { ONCE_FLAG_INIT }
+// Initial value for m_once_t
+#define M_ONCE_INIT_VALUE            { ONCE_FLAG_INIT }
 
 // Call the function exactly once
-static inline void m_oncei_call(m_once_ct o, void (*func)(void))
+static inline void m_once_call(m_once_t o, void (*func)(void))
 {
   call_once(o,func);
 }
@@ -315,10 +315,9 @@ static inline bool m_thread_sleep(unsigned long long usec)
 }
 
 
-// Internal type, not exported.
-typedef INIT_ONCE                     m_once_ct[1];
-#define M_ONCEI_INIT_VALUE            { INIT_ONCE_STATIC_INIT }
-static inline BOOL CALLBACK m_oncei_callback( PINIT_ONCE InitOnce, PVOID Parameter, PVOID *lpContext)
+typedef INIT_ONCE                     m_once_t[1];
+#define M_ONCE_INIT_VALUE            { INIT_ONCE_STATIC_INIT }
+static inline BOOL CALLBACK m_once_callback( PINIT_ONCE InitOnce, PVOID Parameter, PVOID *lpContext)
 {
     void (*func)(void);
     (void) InitOnce;
@@ -327,9 +326,9 @@ static inline BOOL CALLBACK m_oncei_callback( PINIT_ONCE InitOnce, PVOID Paramet
     (*func)();
     return TRUE;
 }
-static inline void m_oncei_call(m_once_ct o, void (*func)(void))
+static inline void m_once_call(m_once_t o, void (*func)(void))
 {
-  InitOnceExecuteOnce(o, m_oncei_callback, (void*)(intptr_t)func, NULL);
+  InitOnceExecuteOnce(o, m_once_callback, (void*)(intptr_t)func, NULL);
 }
 
 #if defined(_MSC_VER)
@@ -474,10 +473,9 @@ static inline bool m_thread_sleep(unsigned long long usec)
   return retval == 0;
 }
 
-// Internal type, not exported.
-typedef pthread_once_t                m_once_ct[1];
-#define M_ONCEI_INIT_VALUE            { PTHREAD_ONCE_INIT }
-static inline void m_oncei_call(m_once_ct o, void (*func)(void))
+typedef pthread_once_t                m_once_t[1];
+#define M_ONCE_INIT_VALUE            { PTHREAD_ONCE_INIT }
+static inline void m_once_call(m_once_t o, void (*func)(void))
 {
   pthread_once(o,func);
 }
@@ -511,9 +509,9 @@ M_END_PROTECTED_CODE
   static void M_C(m_mutex_init_, name)(void) {                                \
     m_mutex_init(name);                                                       \
   }                                                                           \
-  m_once_ct M_C(m_once_, name) = M_ONCEI_INIT_VALUE
+  m_once_t M_C(m_once_, name) = M_ONCE_INIT_VALUE
 # define M_LOCKI_BY_ONCE(name)                                                \
-  (m_oncei_call(M_C(m_once_, name), M_C(m_mutex_init_, name)),                \
+  (m_once_call(M_C(m_once_, name), M_C(m_mutex_init_, name)),                 \
    m_mutex_lock(name), (void) 0 )
 # define M_LOCK(name)                                                         \
   M_LOCKI_DO(name, M_C(local_cont_, __LINE__), M_LOCKI_BY_ONCE, m_mutex_unlock)
