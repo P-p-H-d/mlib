@@ -63,7 +63,7 @@ static void test1(void)
   int result = fib(39);
   assert (result == 63245986);
   worker_clear(w_g);
-  assert (atomic_load(&resetFunc_called) == true || workeri_get_cpu_count() == 1);
+  assert (atomic_load(&resetFunc_called) == true || m_work3r_get_cpu_count() == 1);
 }
 
 static void test1bis(void)
@@ -73,7 +73,7 @@ static void test1bis(void)
   int result = fib(4);
   assert (result == 3);
   worker_clear(w_g);
-  assert (atomic_load(&resetFunc_called) == true || workeri_get_cpu_count() == 1);
+  assert (atomic_load(&resetFunc_called) == true || m_work3r_get_cpu_count() == 1);
 }
 
 #if defined(__GNUC__) && (!defined(__clang__) || (defined(WORKER_USE_CLANG_BLOCK) && WORKER_USE_CLANG_BLOCK) || (defined(WORKER_USE_CPP_FUNCTION) && WORKER_USE_CPP_FUNCTION))

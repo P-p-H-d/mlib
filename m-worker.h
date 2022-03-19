@@ -96,7 +96,7 @@
 M_BEGIN_PROTECTED_CODE
 
 /* Definition of a work order */
-typedef struct work_order_s {
+typedef struct m_work3r_order_s {
   struct worker_sync_s *block;    // Reference to the shared Synchronization block
   void * data;                    // The work order data
   void (*func) (void *data);      // The work order function (for GCC)
@@ -106,7 +106,7 @@ typedef struct work_order_s {
 #if M_USE_WORKER_CPP_FUNCTION
   std::function<void(void*)> function; // The work order function (for C++)
 #endif
-} worker_order_ct;
+} m_work3r_order_ct;
 
 /* Define the macros needed to initialize an order.
  * * MACRO to be used to send an empty order to stop the thread
@@ -120,15 +120,15 @@ typedef struct work_order_s {
 # define M_WORK3R_EXTRA_ORDER
 #endif
 
-/* As in C++, it uses std::function, M_POD_OPLIST
+/* As it is C++, it uses std::function, M_POD_OPLIST
    is not sufficient for initialization of the structure.
    So let's use C++ constructor, destructor and copy constructor */
 #if M_USE_WORKER_CPP_FUNCTION
-# define M_WORK3R_CPP_INIT(x) (new (&(x)) worker_order_ct())
-# define M_WORK3R_CPP_INIT_SET(x, y) (new (&(x)) worker_order_ct(y))
+# define M_WORK3R_CPP_INIT(x) (new (&(x)) m_work3r_order_ct())
+# define M_WORK3R_CPP_INIT_SET(x, y) (new (&(x)) m_work3r_order_ct(y))
 # define M_WORK3R_CPP_SET(x, y) ((x) = (y))
-# define M_WORK3R_CPP_CLEAR(x) ((&(x))->~worker_order_ct())
-# define M_WORK3R_CPP_INIT_MOVE(x,y) (new (&(x)) worker_order_ct(y), ((&(y))->~worker_order_ct()))
+# define M_WORK3R_CPP_CLEAR(x) ((&(x))->~m_work3r_order_ct())
+# define M_WORK3R_CPP_INIT_MOVE(x,y) (new (&(x)) m_work3r_order_ct(y), ((&(y))->~m_work3r_order_ct()))
 # define WORKER_OPLIST                                                        \
       (INIT(M_WORK3R_CPP_INIT), INIT_SET(M_WORK3R_CPP_INIT_SET),              \
       SET(M_WORK3R_CPP_SET), CLEAR(M_WORK3R_CPP_CLEAR), INIT_MOVE(M_WORK3R_CPP_INIT_MOVE) )
@@ -137,21 +137,21 @@ typedef struct work_order_s {
 #endif
 
 /* Definition of a worker (implemented by a thread) */
-typedef struct worker_thread_s {
+typedef struct m_work3r_thread_s {
   m_thread_t id;
-} worker_thread_ct;
+} m_work3r_thread_ct;
 
 /* Definition of the queue that will record the work orders */
-BUFFER_DEF_AS(worker_queue, m_worker_queue_ct, worker_order_ct, 0, 
+BUFFER_DEF(m_work3r_queue, m_work3r_order_ct, 0,
            BUFFER_QUEUE|BUFFER_UNBLOCKING_PUSH|BUFFER_BLOCKING_POP|BUFFER_THREAD_SAFE|BUFFER_DEFERRED_POP, WORKER_OPLIST)
 
 /* Definition the global pool of workers */
 typedef struct worker_s {
   /* The work order queue */
-  m_worker_queue_ct queue_g;
+  m_work3r_queue_t queue_g;
 
   /* The table of available workers */
-  worker_thread_ct *worker;
+  m_work3r_thread_ct *worker;
 
   /* Number of workers in the table */
   unsigned int numWorker_g;
@@ -176,7 +176,7 @@ typedef struct worker_sync_s {
 
 /* Return the number of CPU of the system */
 static inline int
-workeri_get_cpu_count(void)
+m_work3r_get_cpu_count(void)
 {
 #if defined(_WIN32)
   SYSTEM_INFO sysinfo;
@@ -207,7 +207,7 @@ workeri_get_cpu_count(void)
 
 /* Execute the registered work order **synchronously** */
 static inline void
-workeri_exec(worker_order_ct *w)
+m_work3r_exec(m_work3r_order_ct *w)
 {
   M_ASSERT (w!= NULL && w->block != NULL);
   M_WORK3R_DEBUG ("Starting thread with data %p\n", w->data);
@@ -231,28 +231,28 @@ workeri_exec(worker_order_ct *w)
 
 /* The worker thread main loop*/
 static inline void
-workeri_thread(void *arg)
+m_work3r_thread(void *arg)
 {
   // Get back the given argument
   struct worker_s *g = M_ASSIGN_CAST(struct worker_s *, arg);
   while (true) {
-    worker_order_ct w;
+    m_work3r_order_ct w;
     // If needed, reset the global state of the worker
     if (g->resetFunc_g != NULL) {
       g->resetFunc_g();
     }
     // Waiting for data
-    M_WORK3R_DEBUG ("Waiting for data (queue: %lu / %lu)\n", worker_queue_size(g->queue_g), worker_queue_capacity(g->queue_g));
-    worker_queue_pop(&w, g->queue_g);
+    M_WORK3R_DEBUG ("Waiting for data (queue: %lu / %lu)\n", m_work3r_queue_size(g->queue_g), m_work3r_queue_capacity(g->queue_g));
+    m_work3r_queue_pop(&w, g->queue_g);
     // We received a work order 
     // Note: that the work order is still present in the queue
     // preventing further work order to be pushed in the queue until it finishes doing the work
     // If a stop request is received, terminate the thread 
     if (w.block == NULL) break;
     // Execute the work order
-    workeri_exec(&w);
+    m_work3r_exec(&w);
     // Consumme fully the work order in the queue
-    worker_queue_pop_release(g->queue_g);
+    m_work3r_queue_pop_release(g->queue_g);
     // Signal that a worker has finished.
     m_mutex_lock(g->lock);
     m_cond_broadcast(g->a_thread_ends);
@@ -277,18 +277,18 @@ worker_init(worker_t g, int numWorker, unsigned int extraQueue, void (*resetFunc
   M_ASSERT (numWorker >= -1);
   // Auto compute number of workers if the argument is 0
   if (numWorker <= 0)
-    numWorker = (1 + (numWorker == -1))*workeri_get_cpu_count()-1;
+    numWorker = (1 + (numWorker == -1))*m_work3r_get_cpu_count()-1;
   M_WORK3R_DEBUG ("Starting queue with: %d\n", numWorker + extraQueue);
   // Initialization
   // numWorker can still be 0 if it is a single core cpu (no worker available)
   M_ASSERT(numWorker >= 0);
   size_t numWorker_st = (size_t) numWorker;
-  g->worker = M_MEMORY_REALLOC(worker_thread_ct, NULL, numWorker_st);
+  g->worker = M_MEMORY_REALLOC(m_work3r_thread_ct, NULL, numWorker_st);
   if (g->worker == NULL) {
-    M_MEMORY_FULL(sizeof (worker_thread_ct) * numWorker_st);
+    M_MEMORY_FULL(sizeof (m_work3r_thread_ct) * numWorker_st);
     return;
   }
-  worker_queue_init(g->queue_g, numWorker_st + extraQueue);
+  m_work3r_queue_init(g->queue_g, numWorker_st + extraQueue);
   g->numWorker_g = (unsigned int) numWorker_st;
   g->resetFunc_g = resetFunc;
   g->clearFunc_g = clearFunc;
@@ -297,10 +297,11 @@ worker_init(worker_t g, int numWorker, unsigned int extraQueue, void (*resetFunc
   
   // Create & start the workers
   for(size_t i = 0; i < numWorker_st; i++) {
-    m_thread_create(g->worker[i].id, workeri_thread, M_ASSIGN_CAST(void*, g));
+    m_thread_create(g->worker[i].id, m_work3r_thread, M_ASSIGN_CAST(void*, g));
   }
 }
 /* Initialization of the worker module (constructor)
+   Provide default values for the arguments.
    Input:
    @numWorker: number of worker to create (0=autodetect, -1=2*autodetect)
    @extraQueue: number of extra work order we can get if all workers are full
@@ -313,14 +314,14 @@ worker_init(worker_t g, int numWorker, unsigned int extraQueue, void (*resetFunc
 static inline void
 worker_clear(worker_t g)
 {
-  M_ASSERT (worker_queue_empty_p (g->queue_g));
+  M_ASSERT (m_work3r_queue_empty_p (g->queue_g));
   // Push the terminate order on the queue
   for(unsigned int i = 0; i < g->numWorker_g; i++) {
-    worker_order_ct w = M_WORK3R_EMPTY_ORDER;
+    m_work3r_order_ct w = M_WORK3R_EMPTY_ORDER;
     // Normaly all worker threads shall be waiting at this
     // stage, so all push won't block as the queue is empty.
     // But for robustness, let's wait.
-    worker_queue_push_blocking (g->queue_g, w, true);
+    m_work3r_queue_push_blocking (g->queue_g, w, true);
   }
   // Wait for thread terminanison
   for(unsigned int i = 0; i < g->numWorker_g; i++) {
@@ -330,7 +331,7 @@ worker_clear(worker_t g)
   M_MEMORY_FREE(g->worker);
   m_mutex_clear(g->lock);
   m_cond_clear(g->a_thread_ends);
-  worker_queue_clear(g->queue_g);
+  m_work3r_queue_clear(g->queue_g);
 }
 
 /* Start a new collaboration between workers of pool 'g'
@@ -351,9 +352,9 @@ worker_start(worker_sync_t block, worker_t g)
 static inline void
 worker_spawn(worker_sync_t block, void (*func)(void *data), void *data)
 {
-  const worker_order_ct w = {  block, data, func M_WORK3R_EXTRA_ORDER };
-  if (M_UNLIKELY (!worker_queue_full_p(block->worker->queue_g))
-      && worker_queue_push (block->worker->queue_g, w) == true) {
+  const m_work3r_order_ct w = {  block, data, func M_WORK3R_EXTRA_ORDER };
+  if (M_UNLIKELY (!m_work3r_queue_full_p(block->worker->queue_g))
+      && m_work3r_queue_push (block->worker->queue_g, w) == true) {
     M_WORK3R_DEBUG ("Sending data to thread: %p (block: %d / %d)\n", data, block->num_spawn, block->num_terminated_spawn);
     atomic_fetch_add (&block->num_spawn, 1);
     return;
@@ -369,9 +370,9 @@ worker_spawn(worker_sync_t block, void (*func)(void *data), void *data)
 static inline void
 worker_spawn_block(worker_sync_t block, void (^func)(void *data), void *data)
 {
-  const worker_order_ct w = {  block, data, NULL, func };
-  if (M_UNLIKELY (!worker_queue_full_p(block->worker->queue_g))
-      && worker_queue_push (block->worker->queue_g, w) == true) {
+  const m_work3r_order_ct w = {  block, data, NULL, func };
+  if (M_UNLIKELY (!m_work3r_queue_full_p(block->worker->queue_g))
+      && m_work3r_queue_push (block->worker->queue_g, w) == true) {
     M_WORK3R_DEBUG ("Sending data to thread as block: %p (block: %d / %d)\n", data, block->num_spawn, block->num_terminated_spawn);
     atomic_fetch_add (&block->num_spawn, 1);
     return;
@@ -388,9 +389,9 @@ worker_spawn_block(worker_sync_t block, void (^func)(void *data), void *data)
 static inline void
 worker_spawn_function(worker_sync_t block, std::function<void(void *data)> func, void *data)
 {
-  const worker_order_ct w = {  block, data, NULL, func };
-  if (M_UNLIKELY (!worker_queue_full_p(block->worker->queue_g))
-      && worker_queue_push (block->worker->queue_g, w) == true) {
+  const m_work3r_order_ct w = {  block, data, NULL, func };
+  if (M_UNLIKELY (!m_work3r_queue_full_p(block->worker->queue_g))
+      && m_work3r_queue_push (block->worker->queue_g, w) == true) {
     M_WORK3R_DEBUG ("Sending data to thread as block: %p (block: %d / %d)\n", data, block->num_spawn, block->num_terminated_spawn);
     atomic_fetch_add (&block->num_spawn, 1);
     return;
@@ -430,10 +431,10 @@ worker_sync(worker_sync_t block)
 static inline void
 worker_flush(worker_t g)
 {
-  worker_order_ct w;
-  while (worker_queue_pop_blocking (&w, g->queue_g, false) == true) {
-    workeri_exec(&w);
-    worker_queue_pop_release(g->queue_g);
+  m_work3r_order_ct w;
+  while (m_work3r_queue_pop_blocking (&w, g->queue_g, false) == true) {
+    m_work3r_exec(&w);
+    m_work3r_queue_pop_release(g->queue_g);
   }
 }
 
@@ -469,9 +470,9 @@ worker_count(worker_t g)
   worker_spawn ((_block), M_WORK3R_SPAWN_SUBFUNC_NAME,  &M_WORK3R_SPAWN_DATA_NAME)
 #endif
 
-#define M_WORK3R_SPAWN_STRUCT_NAME   M_C(worker_data_s_, __LINE__)
-#define M_WORK3R_SPAWN_DATA_NAME     M_C(worker_data_, __LINE__)
-#define M_WORK3R_SPAWN_SUBFUNC_NAME  M_C(worker_subfunc_, __LINE__)
+#define M_WORK3R_SPAWN_STRUCT_NAME   M_C(m_work3r_data_s_, __LINE__)
+#define M_WORK3R_SPAWN_DATA_NAME     M_C(m_work3r_data_, __LINE__)
+#define M_WORK3R_SPAWN_SUBFUNC_NAME  M_C(m_work3r_subfunc_, __LINE__)
 #define M_WORK3R_DEF_DATA(_input, _output)                                    \
   struct M_WORK3R_SPAWN_STRUCT_NAME {                                         \
     M_WORK3R_DEF_DATA_INPUT _input                                            \
