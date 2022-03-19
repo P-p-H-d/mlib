@@ -122,10 +122,10 @@
 #define M_RBTR33_MAX_STACK (2*CHAR_BIT*sizeof (size_t))
 
 /* Encapsulation of the color of the nodes. */
-#define M_RBTR33_SET_RED(x)   ((x)->color =  RBTREE_RED)
-#define M_RBTR33_SET_BLACK(x) ((x)->color =  RBTREE_BLACK)
-#define M_RBTR33_IS_RED(x)    ((x)->color == RBTREE_RED)
-#define M_RBTR33_IS_BLACK(x)  ((x)->color == RBTREE_BLACK)
+#define M_RBTR33_SET_RED(x)   ((x)->color =  M_RBTR33_RED)
+#define M_RBTR33_SET_BLACK(x) ((x)->color =  M_RBTR33_BLACK)
+#define M_RBTR33_IS_RED(x)    ((x)->color == M_RBTR33_RED)
+#define M_RBTR33_IS_BLACK(x)  ((x)->color == M_RBTR33_BLACK)
 #define M_RBTR33_COPY_COLOR(x,y) ((x)->color = (y)->color)
 #define M_RBTR33_GET_COLOR(x) (true ? (x)->color : (x)->color)
 #define M_RBTR33_SET_COLOR(x, c) ((x)->color = (c))
@@ -134,8 +134,8 @@
 
 // Color of a node of a Red/Black tree
 typedef enum {
-  RBTREE_BLACK = 0, RBTREE_RED
-} rbtreei_color_e;
+  M_RBTR33_BLACK = 0, M_RBTR33_RED
+} m_rbtr33_color_e;
 
 // General contact of a Read/Black tree
 #define M_RBTR33_CONTRACT(tree) do {                                          \
@@ -182,7 +182,7 @@ typedef enum {
   typedef struct M_C(name, _node_s) {                                         \
     struct M_C(name, _node_s) *child[2];                                      \
     type data;                                                                \
-    rbtreei_color_e color;                                                    \
+    m_rbtr33_color_e color;                                                   \
   } node_t;                                                                   \
                                                                               \
   /* Define the Red/Black tree */                                             \
@@ -831,7 +831,7 @@ typedef enum {
     unsigned int cpt_n = cpt;                                                 \
     node_t *v = n;     /* the replacement node */                             \
     node_t *u;         /* the deleted node */                                 \
-    rbtreei_color_e v_color = M_RBTR33_GET_COLOR(v);                          \
+    m_rbtr33_color_e v_color = M_RBTR33_GET_COLOR(v);                         \
     /* Classical removal of a node from a binary tree */                      \
     if (v->child[0] != NULL && v->child[1] != NULL) {                         \
       /* node has 2 child. */                                                 \
@@ -877,7 +877,7 @@ typedef enum {
     }                                                                         \
                                                                               \
     /* Rebalance from child to root */                                        \
-    if (v_color == RBTREE_BLACK                                               \
+    if (v_color == M_RBTR33_BLACK                                             \
         && M_C3(m_rbtr33_,name,_black_p)(u)) {                                \
       /* tab[0] is NULL, tab[1] is root, u is double black */                 \
       node_t *p = u, *s;                                                      \
@@ -918,7 +918,7 @@ typedef enum {
           /* at least one child of 's' is red */                              \
           /* perform rotation(s) */                                           \
           bool childIsRight =  !M_C3(m_rbtr33_,name,_black_p)(s->child[1]);   \
-          rbtreei_color_e p_color = M_RBTR33_GET_COLOR (p);                   \
+          m_rbtr33_color_e p_color = M_RBTR33_GET_COLOR (p);                  \
           if (childIsRight != nbChild) {                                      \
             /* left-left or right-right case */                               \
             p = M_C3(m_rbtr33_,name,_rotate) (p, tab[cpt-1], childIsRight);   \
