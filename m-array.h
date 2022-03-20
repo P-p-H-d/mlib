@@ -892,11 +892,11 @@
                                                                               \
   M_IF_METHOD(GET_STR, oplist)(                                               \
   static inline void                                                          \
-  M_C(name, _get_str)(string_t str, array_t const array,                      \
+  M_C(name, _get_str)(m_string_t str, array_t const array,                    \
                       bool append)                                            \
   {                                                                           \
     M_ARRA4_CONTRACT(array);                                                  \
-    (append ? string_cat_str : string_set_str) (str, "[");                    \
+    (append ? m_string_cat_str : m_string_set_str) (str, "[");                \
     it_t it;                                                                  \
     for (M_C(name, _it)(it, array) ;                                          \
          !M_C(name, _end_p)(it);                                              \
@@ -904,9 +904,9 @@
       type const *item = M_C(name, _cref)(it);                                \
       M_CALL_GET_STR(oplist, str, *item, true);                               \
       if (!M_C(name, _last_p)(it))                                            \
-        string_push_back (str, M_GET_SEPARATOR oplist);                       \
+        m_string_push_back (str, M_GET_SEPARATOR oplist);                     \
     }                                                                         \
-    string_push_back (str, ']');                                              \
+    m_string_push_back (str, ']');                                            \
   }                                                                           \
   , /* no GET_STR */ )                                                        \
                                                                               \

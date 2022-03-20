@@ -2168,9 +2168,9 @@ M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ldouble, long double, "%Lf")
 
 #endif
 
-/* Transform a C variable into a string_t (needs m-string.h) */
+/* Transform a C variable into a m_string_t (needs m-string.h) */
 #define M_GET_STRING_ARG(str, x, append)                                      \
-  (append ? string_cat_printf : string_printf) (str, M_PRINTF_FORMAT(x), M_CORE_PRINTF_ARG(x))
+  (append ? m_string_cat_printf : m_string_printf) (str, M_PRINTF_FORMAT(x), M_CORE_PRINTF_ARG(x))
 
 /* No use of GET_STR if no inclusion of m-string */
 #define M_GET_STR_METHOD_FOR_DEFAULT_TYPE /* */
@@ -3389,7 +3389,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_ENUM_IN_SERIAL(oplist, var, serial)                                 \
   ( var = (M_GET_TYPE oplist)(true ? m_core_in_serial_enum(serial) : 0), (serial)->tmp.r)
 #define M_ENUM_GET_STR(str, var, append)                                      \
-  ((append ? string_cat_printf : string_printf) (str, "%lld", (long long) (var) ))
+  ((append ? m_string_cat_printf : m_string_printf) (str, "%lld", (long long) (var) ))
 #define M_ENUM_PARSE(oplist, var, str, endptr)                                \
   ( var = (M_GET_TYPE oplist) (true ? m_core_parse1_enum(str) : 0), m_core_parse2_enum(str, endptr))
 
@@ -3858,7 +3858,7 @@ m_core_backoff_clear(m_core_backoff_ct backoff)
 /********************** Serialization ***********************/
 /************************************************************/
 
-/* Forward declaration of string_t defined in m-string.h */
+/* Forward declaration of m_string_t defined in m-string.h */
 struct m_string_s;
 
 /* Serialization Return code:

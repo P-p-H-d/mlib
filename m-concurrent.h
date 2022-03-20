@@ -555,7 +555,7 @@
                                                                               \
   M_IF_METHOD(GET_STR, oplist)(                                               \
   static inline void                                                          \
-  M_C(name, _get_str)(string_t str, concurrent_t const out, bool a)           \
+  M_C(name, _get_str)(m_string_t str, concurrent_t const out, bool a)         \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
     M_C(name, _read_lock)(out);                                               \

@@ -517,19 +517,19 @@
 
 /* Define the GET_STR function */
 #define M_VAR1ANT_DEFINE_GET_STR(name, ...)                                   \
-  static inline void M_C(name, _get_str)(string_t str,                        \
+  static inline void M_C(name, _get_str)(m_string_t str,                      \
                                          M_C(name,_ct) const el,              \
                                          bool append) {                       \
     M_VAR1ANT_CONTRACT(name, el);                                             \
     M_ASSERT (str != NULL);                                                   \
-    void (*func)(string_t, const char *);                                     \
-    func = append ? string_cat_str : string_set_str;                          \
+    void (*func)(m_string_t, const char *);                                   \
+    func = append ? m_string_cat_str : m_string_set_str;                      \
     switch (el->type) {                                                       \
     case M_C(name, _EMPTY): func(str, "@EMPTY@"); break;                      \
       M_MAP2(M_VAR1ANT_DEFINE_GET_STR_FUNC , name, __VA_ARGS__)               \
     default: M_ASSERT(false); break;                                          \
     }                                                                         \
-    string_push_back (str, '@');                                              \
+    m_string_push_back (str, '@');                                            \
   }
 
 #define M_VAR1ANT_DEFINE_GET_STR_FUNC(name, a)                                \

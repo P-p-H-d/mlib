@@ -441,19 +441,19 @@ namespace m_lib {
 
 /* Define a GET_STR method by calling the GET_STR methods for all params */
 #define M_TUPL3_DEFINE_GET_STR(name, ...)                                     \
-  static inline void M_C(name, _get_str)(string_t str,                        \
+  static inline void M_C(name, _get_str)(m_string_t str,                      \
                                          M_C(name,_ct) const el,              \
                                          bool append) {                       \
     bool comma = false;                                                       \
     M_TUPL3_CONTRACT(el);                                                     \
     M_ASSERT (str != NULL);                                                   \
-    (append ? string_cat_str : string_set_str) (str, "(");                    \
+    (append ? m_string_cat_str : m_string_set_str) (str, "(");                \
     M_MAP(M_TUPL3_DEFINE_GET_STR_FUNC , __VA_ARGS__)                          \
-    string_push_back (str, ')');                                              \
+    m_string_push_back (str, ')');                                            \
   }
 
 #define M_TUPL3_DEFINE_GET_STR_FUNC(a)                                        \
-  if (comma) string_push_back (str, ',');                                     \
+  if (comma) m_string_push_back (str, ',');                                   \
   comma = true;                                                               \
   M_TUPL3_CALL_GET_STR(a, str, el -> M_TUPL3_GET_FIELD a, true);              \
 
@@ -639,7 +639,7 @@ namespace m_lib {
 
 
 /* INIT_WITH macro enabling recursive INIT_WITH initialization
-    tuple = { int, string_t, array<string_t> }
+    tuple = { int, m_string_t, array<m_string_t> }
   USAGE:
     M_LET( (x, 2, ("John"), ( ("Bear"), ("Rabbit") )), tuple_t)
 

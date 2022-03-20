@@ -767,27 +767,27 @@
                                                                               \
   M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(                        \
   static inline void                                                          \
-  M_C(name, _get_str)(string_t str, const dict_t dict, const bool append)     \
+  M_C(name, _get_str)(m_string_t str, const dict_t dict, const bool append)   \
   {                                                                           \
-    (append ? string_cat_str : string_set_str) (str, "{");                    \
+    (append ? m_string_cat_str : m_string_set_str) (str, "{");                \
     dict_it_t it;                                                             \
     bool print_comma = false;                                                 \
     for (M_C(name, _it)(it, dict) ;                                           \
          !M_C(name, _end_p)(it);                                              \
          M_C(name, _next)(it)){                                               \
       if (print_comma)                                                        \
-        string_push_back (str, ',');                                          \
+        m_string_push_back (str, ',');                                        \
       const it_deref_t *item = M_C(name, _cref)(it);                          \
       M_IF(isSet)(                                                            \
                   M_CALL_GET_STR(key_oplist, str, *item, true);               \
                   ,                                                           \
                   M_CALL_GET_STR(key_oplist, str, item->key, true);           \
-                  string_push_back (str, ':');                                \
+                  m_string_push_back (str, ':');                              \
                   M_CALL_GET_STR(value_oplist, str, item->value, true);       \
                   )                                                           \
       print_comma = true;                                                     \
     }                                                                         \
-    string_push_back (str, '}');                                              \
+    m_string_push_back (str, '}');                                            \
   }                                                                           \
   , /* no GET_STR */ )                                                        \
                                                                               \

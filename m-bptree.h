@@ -1246,11 +1246,11 @@
   , /* NO HASH METHOD */ )                                                    \
                                                                               \
   M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(                        \
-  static inline void M_C(name, _get_str)(string_t str,                        \
+  static inline void M_C(name, _get_str)(m_string_t str,                      \
                                          const tree_t t1, bool append) {      \
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, t1);                            \
     M_ASSERT(str != NULL);                                                    \
-    (append ? string_cat_str : string_set_str) (str, "[");                    \
+    (append ? m_string_cat_str : m_string_set_str) (str, "[");                \
     /* NOTE: The print is really naive, and not really efficient */           \
     bool commaToPrint = false;                                                \
     it_t it;                                                                  \
@@ -1258,18 +1258,18 @@
          !M_C(name, _end_p)(it);                                              \
          M_C(name, _next)(it)) {                                              \
       if (commaToPrint)                                                       \
-        string_push_back (str, M_GET_SEPARATOR key_oplist);                   \
+        m_string_push_back (str, M_GET_SEPARATOR key_oplist);                 \
       commaToPrint = true;                                                    \
       subtype_t const *ref1 = M_C(name, _cref)(it);                           \
       M_IF(isMap)(                                                            \
                   M_CALL_GET_STR(key_oplist, str, *ref1->key_ptr, true);      \
-                  string_cat_str(str, ":");                                   \
+                  m_string_cat_str(str, ":");                                 \
                   M_CALL_GET_STR(value_oplist,str, *ref1->value_ptr, true)    \
                   ,                                                           \
                   M_CALL_GET_STR(key_oplist, str, *ref1, true);               \
                                                                         );    \
     }                                                                         \
-    string_push_back (str, ']');                                              \
+    m_string_push_back (str, ']');                                            \
   }                                                                           \
   , /* NO GET_STR */ )                                                        \
                                                                               \

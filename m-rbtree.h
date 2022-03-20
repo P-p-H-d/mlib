@@ -1014,24 +1014,24 @@ typedef enum {
   , /* NO HASH METHOD */ )                                                    \
                                                                               \
   M_IF_METHOD(GET_STR, oplist)(                                               \
-  static inline void M_C(name, _get_str)(string_t str,                        \
+  static inline void M_C(name, _get_str)(m_string_t str,                      \
                                          tree_t const t1, bool append) {      \
     M_RBTR33_CONTRACT(t1);                                                    \
     M_ASSERT(str != NULL);                                                    \
-    (append ? string_cat_str : string_set_str) (str, "[");                    \
+    (append ? m_string_cat_str : m_string_set_str) (str, "[");                \
     /* NOTE: The print is really naive, and not really efficient */           \
     bool commaToPrint = false;                                                \
     it_t it1;                                                                 \
     M_C(name, _it)(it1, t1);                                                  \
     while (!M_C(name, _end_p)(it1)) {                                         \
       if (commaToPrint)                                                       \
-        string_push_back (str, M_GET_SEPARATOR oplist);                       \
+        m_string_push_back (str, M_GET_SEPARATOR oplist);                     \
       commaToPrint = true;                                                    \
       type const *ref1 = M_C(name, _cref)(it1);                               \
       M_CALL_GET_STR(oplist, str, *ref1, true);                               \
       M_C(name, _next)(it1);                                                  \
     }                                                                         \
-    string_push_back (str, ']');                                              \
+    m_string_push_back (str, ']');                                            \
   }                                                                           \
   , /* NO GET_STR */ )                                                        \
                                                                               \

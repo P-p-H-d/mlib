@@ -867,20 +867,20 @@ M_END_PROTECTED_CODE
 
 M_BEGIN_PROTECTED_CODE
 
-/* Output to a string_t 'str' the formatted text representation of the bitset 'set'
+/* Output to a m_string_t 'str' the formatted text representation of the bitset 'set'
    or append it to the strinf (append=true) */
 static inline void
-bitset_get_str(string_t str, const bitset_t set, bool append)
+bitset_get_str(m_string_t str, const bitset_t set, bool append)
 {
   M_B1TSET_CONTRACT (set);
   M_ASSERT(str != NULL);
-  (append ? string_cat_str : string_set_str) (str, "[");
+  (append ? m_string_cat_str : m_string_set_str) (str, "[");
   for(size_t i = 0; i < set->size; i++) {
     const bool b = bitset_get (set, i);
     const char c = b ? '1' : '0';
-    string_push_back (str, c);
+    m_string_push_back (str, c);
   }
-  string_push_back (str, ']');
+  m_string_push_back (str, ']');
 }
 
 M_END_PROTECTED_CODE
