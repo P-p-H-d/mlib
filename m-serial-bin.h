@@ -32,12 +32,17 @@
 
 M_BEGIN_PROTECTED_CODE
 
+
+/********************************************************************************/
+/************************** FILE / WRITE / BIN    *******************************/
+/********************************************************************************/
+
 /* Internal service:
  * Write size_t in the stream in a compact form to reduce consumption
  * (and I/O bandwidth)
  */
 static inline bool
-m_serial_bin_write_size(FILE *f, const size_t size)
+m_ser1al_bin_write_size(FILE *f, const size_t size)
 {
   bool b;
   if (M_LIKELY(size < 253))
@@ -84,7 +89,7 @@ m_serial_bin_write_size(FILE *f, const size_t size)
  * (and I/O bandwidth)
  */
 static inline bool
-m_serial_bin_read_size(FILE *f, size_t *size)
+m_ser1al_bin_read_size(FILE *f, size_t *size)
 {
   int c;
   c = fgetc(f);
@@ -107,7 +112,7 @@ m_serial_bin_read_size(FILE *f, size_t *size)
 /* Write the boolean 'data' into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline m_serial_return_code_t
-m_serial_bin_write_boolean(m_serial_write_t serial, const bool data)
+m_ser1al_bin_write_boolean(m_serial_write_t serial, const bool data)
 {
   FILE *f = (FILE *)serial->data[0].p;
   size_t n = fwrite (M_ASSIGN_CAST(const void*, &data), sizeof (bool), 1, f);
@@ -117,7 +122,7 @@ m_serial_bin_write_boolean(m_serial_write_t serial, const bool data)
 /* Write the integer 'data' of 'size_of_type' bytes into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline m_serial_return_code_t
-m_serial_bin_write_integer(m_serial_write_t serial,const long long data, const size_t size_of_type)
+m_ser1al_bin_write_integer(m_serial_write_t serial,const long long data, const size_t size_of_type)
 {
   int8_t   i8;
   int16_t i16;
@@ -153,7 +158,7 @@ m_serial_bin_write_integer(m_serial_write_t serial,const long long data, const s
 /* Write the float 'data' of 'size_of_type' bytes into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline m_serial_return_code_t
-m_serial_bin_write_float(m_serial_write_t serial, const long double data, const size_t size_of_type)
+m_ser1al_bin_write_float(m_serial_write_t serial, const long double data, const size_t size_of_type)
 {
   float   f1;
   double  f2;
@@ -179,13 +184,13 @@ m_serial_bin_write_float(m_serial_write_t serial, const long double data, const 
 /* Write the null-terminated string 'data'into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline m_serial_return_code_t
-m_serial_bin_write_string(m_serial_write_t serial, const char data[], size_t length)
+m_ser1al_bin_write_string(m_serial_write_t serial, const char data[], size_t length)
 {
   M_ASSERT_SLOW(length == strlen(data) );
   FILE *f = (FILE *)serial->data[0].p;
   M_ASSERT(f != NULL && data != NULL);
   // Write first the number of (non null) characters
-  if (m_serial_bin_write_size(f, length) != true) return m_core_serial_fail();
+  if (m_ser1al_bin_write_size(f, length) != true) return m_core_serial_fail();
   // Write the characters (excluding the final null char)
   // NOTE: fwrite supports length == 0.
   size_t n = fwrite (M_ASSIGN_CAST(const void*, data), 1, length, f);
@@ -199,7 +204,7 @@ m_serial_bin_write_string(m_serial_write_t serial, const char data[], size_t len
    (local is an unique serialization object of the array).
    Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline m_serial_return_code_t
-m_serial_bin_write_array_start(m_serial_local_t local, m_serial_write_t serial, const size_t number_of_elements)
+m_ser1al_bin_write_array_start(m_serial_local_t local, m_serial_write_t serial, const size_t number_of_elements)
 {
   FILE *f = (FILE *)serial->data[0].p;
   size_t n = fwrite (M_ASSIGN_CAST(const void*, &number_of_elements), sizeof number_of_elements, 1, f);
@@ -210,7 +215,7 @@ m_serial_bin_write_array_start(m_serial_local_t local, m_serial_write_t serial, 
 /* Write an array separator between elements of an array into the serial stream 'serial' if needed.
    Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline  m_serial_return_code_t
-m_serial_bin_write_array_next(m_serial_local_t local, m_serial_write_t serial)
+m_ser1al_bin_write_array_next(m_serial_local_t local, m_serial_write_t serial)
 {
   FILE *f = (FILE *)serial->data[0].p;
   // Need separator if we don't know the real size 
@@ -226,7 +231,7 @@ m_serial_bin_write_array_next(m_serial_local_t local, m_serial_write_t serial)
 /* End the writing of an array into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline   m_serial_return_code_t
-m_serial_bin_write_array_end(m_serial_local_t local, m_serial_write_t serial)
+m_ser1al_bin_write_array_end(m_serial_local_t local, m_serial_write_t serial)
 {
   FILE *f = (FILE *)serial->data[0].p;
   // Need mark if we don't know the real size 
@@ -242,7 +247,7 @@ m_serial_bin_write_array_end(m_serial_local_t local, m_serial_write_t serial)
 /* Write a value separator between element of the same pair of a map into the serial stream 'serial' if needed.
    Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline   m_serial_return_code_t
-m_serial_bin_write_map_value(m_serial_local_t local, m_serial_write_t serial)
+m_ser1al_bin_write_map_value(m_serial_local_t local, m_serial_write_t serial)
 {
   (void) local; // argument not used
   (void) serial;
@@ -254,7 +259,7 @@ m_serial_bin_write_map_value(m_serial_local_t local, m_serial_write_t serial)
    (local is an unique serialization object of the tuple).
    Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline   m_serial_return_code_t
-m_serial_bin_write_tuple_start(m_serial_local_t local, m_serial_write_t serial)
+m_ser1al_bin_write_tuple_start(m_serial_local_t local, m_serial_write_t serial)
 {
   (void) local; // argument not used
   (void) serial;
@@ -264,7 +269,7 @@ m_serial_bin_write_tuple_start(m_serial_local_t local, m_serial_write_t serial)
 /* Start writing the field named field_name[index] of a tuple into the serial stream 'serial'.
    Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline   m_serial_return_code_t
-m_serial_bin_write_tuple_id(m_serial_local_t local, m_serial_write_t serial, const char *const field_name[], const int max, const int index)
+m_ser1al_bin_write_tuple_id(m_serial_local_t local, m_serial_write_t serial, const char *const field_name[], const int max, const int index)
 {
   (void) local; // argument not used
   (void) serial;
@@ -277,7 +282,7 @@ m_serial_bin_write_tuple_id(m_serial_local_t local, m_serial_write_t serial, con
 /* End the write of a tuple into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline   m_serial_return_code_t
-m_serial_bin_write_tuple_end(m_serial_local_t local, m_serial_write_t serial)
+m_ser1al_bin_write_tuple_end(m_serial_local_t local, m_serial_write_t serial)
 {
   (void) local; // argument not used
   (void) serial;
@@ -290,7 +295,7 @@ m_serial_bin_write_tuple_end(m_serial_local_t local, m_serial_write_t serial)
    Otherwise, the field 'field_name[index]' will be filled.
      Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline   m_serial_return_code_t
-m_serial_bin_write_variant_start(m_serial_local_t local, m_serial_write_t serial, const char *const field_name[], const int max, const int index)
+m_ser1al_bin_write_variant_start(m_serial_local_t local, m_serial_write_t serial, const char *const field_name[], const int max, const int index)
 {
   (void) field_name;
   (void) max;
@@ -303,7 +308,7 @@ m_serial_bin_write_variant_start(m_serial_local_t local, m_serial_write_t serial
 /* End Writing a variant into the serial stream 'serial'. 
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline   m_serial_return_code_t
-m_serial_bin_write_variant_end(m_serial_local_t local, m_serial_write_t serial)
+m_ser1al_bin_write_variant_end(m_serial_local_t local, m_serial_write_t serial)
 {
   (void) local; // argument not used
   (void) serial;
@@ -311,28 +316,28 @@ m_serial_bin_write_variant_end(m_serial_local_t local, m_serial_write_t serial)
 }
 
 /* The exported interface. */
-static const m_serial_write_interface_t m_serial_write_bin_interface = {
-  m_serial_bin_write_boolean,
-  m_serial_bin_write_integer,
-  m_serial_bin_write_float,
-  m_serial_bin_write_string, 
-  m_serial_bin_write_array_start,
-  m_serial_bin_write_array_next,
-  m_serial_bin_write_array_end,
-  m_serial_bin_write_array_start,
-  m_serial_bin_write_map_value,
-  m_serial_bin_write_array_next,
-  m_serial_bin_write_array_end,
-  m_serial_bin_write_tuple_start,
-  m_serial_bin_write_tuple_id,
-  m_serial_bin_write_tuple_end,
-  m_serial_bin_write_variant_start,
-  m_serial_bin_write_variant_end
+static const m_serial_write_interface_t m_ser1al_bin_write_interface = {
+  m_ser1al_bin_write_boolean,
+  m_ser1al_bin_write_integer,
+  m_ser1al_bin_write_float,
+  m_ser1al_bin_write_string,
+  m_ser1al_bin_write_array_start,
+  m_ser1al_bin_write_array_next,
+  m_ser1al_bin_write_array_end,
+  m_ser1al_bin_write_array_start,
+  m_ser1al_bin_write_map_value,
+  m_ser1al_bin_write_array_next,
+  m_ser1al_bin_write_array_end,
+  m_ser1al_bin_write_tuple_start,
+  m_ser1al_bin_write_tuple_id,
+  m_ser1al_bin_write_tuple_end,
+  m_ser1al_bin_write_variant_start,
+  m_ser1al_bin_write_variant_end
 };
 
 static inline void m_serial_bin_write_init(m_serial_write_t serial, FILE *f)
 {
-  serial->m_interface = &m_serial_write_bin_interface;
+  serial->m_interface = &m_ser1al_bin_write_interface;
   serial->data[0].p = M_ASSIGN_CAST(void*, f);
 }
 
@@ -344,16 +349,22 @@ static inline void m_serial_bin_write_clear(m_serial_write_t serial)
 
 /* Define a synonym of m_serial_read_t to the BIN serializer with its proper OPLIST */
 typedef m_serial_write_t m_serial_bin_write_t;
+
 #define M_OPL_m_serial_bin_write_t()                                          \
   (INIT_WITH(m_serial_bin_write_init), CLEAR(m_serial_bin_write_clear),       \
   TYPE(m_serial_bin_write_t), PROPERTIES(( LET_AS_INIT_WITH(1) )) )
 
 
+
+/********************************************************************************/
+/************************** FILE / READ  / BIN    *******************************/
+/********************************************************************************/
+
 /* Read from the stream 'serial' a boolean.
    Set '*b' with the boolean value if succeeds 
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline  m_serial_return_code_t
-m_serial_bin_read_boolean(m_serial_read_t serial, bool *b){
+m_ser1al_bin_read_boolean(m_serial_read_t serial, bool *b){
   FILE *f = (FILE*) serial->data[0].p;
   size_t n = fread (M_ASSIGN_CAST(void*, b), sizeof (bool), 1, f);
   return n == 1 ? M_SERIAL_OK_DONE : m_core_serial_fail();
@@ -363,7 +374,7 @@ m_serial_bin_read_boolean(m_serial_read_t serial, bool *b){
    Set '*i' with the integer value if succeeds 
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline  m_serial_return_code_t
-m_serial_bin_read_integer(m_serial_read_t serial, long long *i, const size_t size_of_type){
+m_ser1al_bin_read_integer(m_serial_read_t serial, long long *i, const size_t size_of_type){
   int8_t   i8;
   int16_t i16;
   int32_t i32;
@@ -398,7 +409,7 @@ m_serial_bin_read_integer(m_serial_read_t serial, long long *i, const size_t siz
    Set '*r' with the boolean value if succeeds 
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline  m_serial_return_code_t
-m_serial_bin_read_float(m_serial_read_t serial, long double *r, const size_t size_of_type){
+m_ser1al_bin_read_float(m_serial_read_t serial, long double *r, const size_t size_of_type){
   float   f1;
   double  f2;
   long double f3;
@@ -423,12 +434,12 @@ m_serial_bin_read_float(m_serial_read_t serial, long double *r, const size_t siz
    Set 's' with the string if succeeds 
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline  m_serial_return_code_t
-m_serial_bin_read_string(m_serial_read_t serial, struct string_s *s){
+m_ser1al_bin_read_string(m_serial_read_t serial, struct string_s *s){
   FILE *f = (FILE*) serial->data[0].p;
   M_ASSERT(f != NULL && s != NULL);
   // First read the number of non null characters
   size_t length;
-  if (m_serial_bin_read_size(f, &length) != true) return m_core_serial_fail();
+  if (m_ser1al_bin_read_size(f, &length) != true) return m_core_serial_fail();
   // Use of internal string interface to dimension the string
   char *p = m_str1ng_fit2size(s, length + 1);
   m_str1ng_set_size(s, length);
@@ -448,7 +459,7 @@ m_serial_bin_read_string(m_serial_read_t serial, struct string_s *s){
    M_SERIAL_OK_DONE if it succeeds and the array ends (the array is empty),
    M_SERIAL_FAIL otherwise */
 static inline  m_serial_return_code_t
-m_serial_bin_read_array_start(m_serial_local_t local, m_serial_read_t serial, size_t *num)
+m_ser1al_bin_read_array_start(m_serial_local_t local, m_serial_read_t serial, size_t *num)
 {
   FILE *f = (FILE*) serial->data[0].p;
   size_t n = fread (M_ASSIGN_CAST(void*, num), sizeof *num, 1, f);
@@ -472,7 +483,7 @@ m_serial_bin_read_array_start(m_serial_local_t local, m_serial_read_t serial, si
    M_SERIAL_OK_DONE if it succeeds and the array ends,
    M_SERIAL_FAIL otherwise */
 static inline  m_serial_return_code_t
-m_serial_bin_read_array_next(m_serial_local_t local, m_serial_read_t serial)
+m_ser1al_bin_read_array_next(m_serial_local_t local, m_serial_read_t serial)
 {
   FILE *f = (FILE*) serial->data[0].p;
   if (local->data[0].b) {
@@ -494,7 +505,7 @@ m_serial_bin_read_array_next(m_serial_local_t local, m_serial_read_t serial)
    Return M_SERIAL_OK_CONTINUE if it succeeds and the map continue,
    M_SERIAL_FAIL otherwise */
 static inline  m_serial_return_code_t
-m_serial_bin_read_map_value(m_serial_local_t local, m_serial_read_t serial)
+m_ser1al_bin_read_map_value(m_serial_local_t local, m_serial_read_t serial)
 {
   (void) local; // argument not used
   (void) serial;
@@ -505,7 +516,7 @@ m_serial_bin_read_map_value(m_serial_local_t local, m_serial_read_t serial)
    Return M_SERIAL_OK_CONTINUE if it succeeds and the tuple continues,
    M_SERIAL_FAIL otherwise */
 static inline  m_serial_return_code_t
-m_serial_bin_read_tuple_start(m_serial_local_t local, m_serial_read_t serial)
+m_ser1al_bin_read_tuple_start(m_serial_local_t local, m_serial_read_t serial)
 {
   (void) serial;
   local->data[1].i = 0;
@@ -519,7 +530,7 @@ m_serial_bin_read_tuple_start(m_serial_local_t local, m_serial_read_t serial)
    Return M_SERIAL_OK_DONE if it succeeds and the tuple ends,
    M_SERIAL_FAIL otherwise */
 static inline  m_serial_return_code_t
-m_serial_bin_read_tuple_id(m_serial_local_t local, m_serial_read_t serial, const char *const field_name [], const int max, int *id)
+m_ser1al_bin_read_tuple_id(m_serial_local_t local, m_serial_read_t serial, const char *const field_name [], const int max, int *id)
 {
   (void) serial;
   (void) field_name;
@@ -536,7 +547,7 @@ m_serial_bin_read_tuple_id(m_serial_local_t local, m_serial_read_t serial, const
    Return M_SERIAL_OK_DONE if it succeeds and the variant ends(variant is empty),
    M_SERIAL_FAIL otherwise */
 static inline  m_serial_return_code_t
-m_serial_bin_read_variant_start(m_serial_local_t local, m_serial_read_t serial, const char *const field_name[], const int max, int*id)
+m_ser1al_bin_read_variant_start(m_serial_local_t local, m_serial_read_t serial, const char *const field_name[], const int max, int*id)
 {
   (void) field_name;
   (void) max;
@@ -550,32 +561,32 @@ m_serial_bin_read_variant_start(m_serial_local_t local, m_serial_read_t serial, 
    Return M_SERIAL_OK_DONE if it succeeds and the variant ends,
    M_SERIAL_FAIL otherwise */
 static inline  m_serial_return_code_t
-m_serial_bin_read_variant_end(m_serial_local_t local, m_serial_read_t serial)
+m_ser1al_bin_read_variant_end(m_serial_local_t local, m_serial_read_t serial)
 {
   (void) local; // argument not used
   (void) serial;
   return M_SERIAL_OK_DONE;
 }
 
-static const m_serial_read_interface_t m_serial_bin_read_interface = {
-  m_serial_bin_read_boolean,
-  m_serial_bin_read_integer,
-  m_serial_bin_read_float,
-  m_serial_bin_read_string,
-  m_serial_bin_read_array_start,
-  m_serial_bin_read_array_next,
-  m_serial_bin_read_array_start,
-  m_serial_bin_read_map_value,
-  m_serial_bin_read_array_next,
-  m_serial_bin_read_tuple_start,
-  m_serial_bin_read_tuple_id,
-  m_serial_bin_read_variant_start,
-  m_serial_bin_read_variant_end
+static const m_serial_read_interface_t m_ser1al_bin_read_interface = {
+  m_ser1al_bin_read_boolean,
+  m_ser1al_bin_read_integer,
+  m_ser1al_bin_read_float,
+  m_ser1al_bin_read_string,
+  m_ser1al_bin_read_array_start,
+  m_ser1al_bin_read_array_next,
+  m_ser1al_bin_read_array_start,
+  m_ser1al_bin_read_map_value,
+  m_ser1al_bin_read_array_next,
+  m_ser1al_bin_read_tuple_start,
+  m_ser1al_bin_read_tuple_id,
+  m_ser1al_bin_read_variant_start,
+  m_ser1al_bin_read_variant_end
 };
 
 static inline void m_serial_bin_read_init(m_serial_read_t serial, FILE *f)
 {
-  serial->m_interface = &m_serial_bin_read_interface;
+  serial->m_interface = &m_ser1al_bin_read_interface;
   serial->data[0].p = M_ASSIGN_CAST(void*, f);
 }
 
