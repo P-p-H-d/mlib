@@ -155,7 +155,7 @@ static void test_global(void)
 static void test_mrsw_int1(void)
 {
   // Test of internal interface.
-  m_snapshot_mrsw_ct idx;
+  m_snapsh0t_mrsw_ct idx;
   m_snapsh0t_mrsw_init(idx, 1);
 
   assert (m_snapsh0t_mrsw_get_write_idx(idx) == 1);
@@ -186,7 +186,7 @@ static void test_mrsw_int1(void)
 static void test_mrsw_int2(void)
 {
   // Test of internal interface
-  m_snapshot_mrsw_ct idx;
+  m_snapsh0t_mrsw_ct idx;
   m_snapsh0t_mrsw_init(idx, 2);
 
   assert (m_snapsh0t_mrsw_get_write_idx(idx) == 1);
