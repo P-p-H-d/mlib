@@ -7183,6 +7183,9 @@ to be terminated.
 
 Return the number of workers of the pool.
 
+#### void worker\_flush(worker\_t worker)
+
+Flush any work order in the queue by the current thread until none remains.
 
 #### WORKER\_SPAWN(syncBlock, input, core, output)
 
