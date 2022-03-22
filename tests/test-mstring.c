@@ -611,7 +611,7 @@ static void test0(void)
   string_set_str (s1, "");
   assert (string_capacity(s1) > 0);
   string_reserve (s1, 0);
-  assert (string_capacity(s1) == sizeof (m_string_heap_ct) - 1);
+  assert (string_capacity(s1) == sizeof (m_str1ng_heap_ct) - 1);
   
   string_set_str(s1, "HELLO XXX!");
   string_replace_at(s1, 6, 3, "World");

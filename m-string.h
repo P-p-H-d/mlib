@@ -40,23 +40,32 @@ M_BEGIN_PROTECTED_CODE
     M_ASSERT_SLOW (m_string_size(v) == strlen(m_string_get_cstr(v)));         \
     M_ASSERT (m_string_get_cstr(v)[m_string_size(v)] == 0);                   \
     M_ASSERT (m_string_size(v) < m_string_capacity(v));                       \
-    M_ASSERT (m_string_capacity(v) < sizeof (m_string_heap_ct) || !m_str1ng_stack_p(v)); \
+    M_ASSERT (m_string_capacity(v) < sizeof (m_str1ng_heap_ct) || !m_str1ng_stack_p(v)); \
   } while(0)
 
 // string if it is heap allocated
-typedef struct m_string_heap_s {
+typedef struct m_str1ng_heap_s {
   size_t size;
   size_t alloc;
-} m_string_heap_ct;
+} m_str1ng_heap_ct;
 // string if it is stack allocated
-typedef struct m_string_stack_s {
-  char buffer[sizeof (m_string_heap_ct)];
-} m_string_stack_ct;
+typedef struct m_str1ng_stack_s {
+  char buffer[sizeof (m_str1ng_heap_ct)];
+} m_str1ng_stack_ct;
 // both cases of string are possible
-typedef union m_string_union_u {
-  m_string_heap_ct heap;
-  m_string_stack_ct stack;
-} m_string_union_ct;
+typedef union m_str1ng_union_u {
+  m_str1ng_heap_ct heap;
+  m_str1ng_stack_ct stack;
+} m_str1ng_union_ct;
+
+/* State of the UTF8 decoding machine state */
+typedef enum {
+  M_STR1NG_UTF8_STARTING = 0,
+  M_STR1NG_UTF8_DECODING_1 = 8,
+  M_STR1NG_UTF8_DECODING_2 = 16,
+  M_STR1NG_UTF8_DOCODING_3 = 24,
+  M_STR1NG_UTF8_ERROR = 32
+} m_str1ng_utf8_state_e;
 
 /****************************** EXTERNAL *******************************/
 
@@ -69,11 +78,9 @@ typedef union m_string_union_u {
 /* Index returned in case of error instead of the position within the string */
 #define M_STRING_FAILURE ((size_t)-1)
 
-/* This is the main structure of this module. */
-
-// Dynamic string
+/* This is the main structure of this module, representing a dynamic string */
 typedef struct m_string_s {
-  m_string_union_ct u;
+  m_str1ng_union_ct u;
   char *ptr;
 } m_string_t[1];
 
@@ -91,6 +98,19 @@ typedef const struct m_string_s *m_string_srcptr;
 typedef enum m_string_fgets_e {
   M_STRING_READ_LINE = 0, M_STRING_READ_PURE_LINE = 1, M_STRING_READ_FILE = 2
 } m_string_fgets_t;
+
+/* An unicode value */
+typedef unsigned int m_string_unicode_t;
+
+/* Error in case of decoding */
+#define M_STRING_UNICODE_ERROR (UINT_MAX)
+
+/* Iterator on a string over UTF8 encoded characters */
+typedef struct m_string_it_s {
+  m_string_unicode_t u;
+  const char *ptr;
+  const char *next_ptr;
+} m_string_it_t[1];
 
 /* Internal method to test if the string is stack based or heap based
    We test if the ptr field points to the heap allocated buffer or not.
@@ -117,9 +137,9 @@ m_str1ng_set_size(m_string_t s, size_t size)
 {
   // Function can be called when contract is not fulfilled
   if (m_str1ng_stack_p(s)) {
-    M_ASSERT (size < sizeof (m_string_heap_ct) - 1);
+    M_ASSERT (size < sizeof (m_str1ng_heap_ct) - 1);
     // The size of the string is stored as the last char of the buffer.
-    s->u.stack.buffer[sizeof (m_string_heap_ct) - 1] = (char) size;
+    s->u.stack.buffer[sizeof (m_str1ng_heap_ct) - 1] = (char) size;
   } else
     s->u.heap.size = size;
 }
@@ -130,7 +150,7 @@ m_string_size(const m_string_t s)
 {
   // Function can be called when contract is not fulfilled
   // Reading both values before calling the '?' operator allows compiler to generate branchless code
-  const size_t s_stack = (size_t) s->u.stack.buffer[sizeof (m_string_heap_ct) - 1];
+  const size_t s_stack = (size_t) s->u.stack.buffer[sizeof (m_str1ng_heap_ct) - 1];
   const size_t s_heap  = s->u.heap.size;
   return m_str1ng_stack_p(s) ?  s_stack : s_heap;
 }
@@ -141,7 +161,7 @@ m_string_capacity(const m_string_t s)
 {
   // Function can be called when contract is not fulfilled
   // Reading both values before calling the '?' operator allows compiler to generate branchless code
-  const size_t c_stack = sizeof (m_string_heap_ct) - 1;
+  const size_t c_stack = sizeof (m_str1ng_heap_ct) - 1;
   const size_t c_heap  = s->u.heap.alloc;
   return m_str1ng_stack_p(s) ?  c_stack : c_heap;
 }
@@ -189,7 +209,7 @@ m_string_clear(m_string_t v)
   }
   /* This is not needed but is safer to make
      the string invalid so that it can be detected. */
-  v->u.stack.buffer[sizeof (m_string_heap_ct) - 1] = CHAR_MAX;
+  v->u.stack.buffer[sizeof (m_str1ng_heap_ct) - 1] = CHAR_MAX;
 }
 
 /* NOTE: Internaly used by M_STRING_DECL_INIT */
@@ -220,7 +240,7 @@ m_string_clear_get_str(m_string_t v)
     p = ptr;
   }
   v->ptr = NULL;
-  v->u.stack.buffer[sizeof (m_string_heap_ct) - 1] = CHAR_MAX;
+  v->u.stack.buffer[sizeof (m_str1ng_heap_ct) - 1] = CHAR_MAX;
   return p;
 }
 
@@ -275,7 +295,7 @@ m_str1ng_fit2size (m_string_t v, size_t size_alloc)
   const size_t old_alloc = m_string_capacity(v);
   // This line enables the compiler to completly remove this function
   // for very short constant strings.
-  M_ASSUME(old_alloc >= sizeof (m_string_heap_ct) - 1);
+  M_ASSUME(old_alloc >= sizeof (m_str1ng_heap_ct) - 1);
   if (M_UNLIKELY (size_alloc > old_alloc)) {
     size_t alloc = size_alloc + size_alloc / 2;
     if (M_UNLIKELY (alloc <= old_alloc)) {
@@ -295,7 +315,7 @@ m_str1ng_fit2size (m_string_t v, size_t size_alloc)
     M_ASSERT(ptr != &v->u.stack.buffer[0]);
     if (m_str1ng_stack_p(v)) {
       /* Copy the stack allocation into the new heap allocation */
-      const size_t size = (size_t) v->u.stack.buffer[sizeof (m_string_heap_ct) - 1] + 1U;
+      const size_t size = (size_t) v->u.stack.buffer[sizeof (m_str1ng_heap_ct) - 1] + 1U;
       M_ASSERT( size <= alloc);
       M_ASSERT( size <= sizeof (v->u.stack.buffer)-1);
       memcpy(ptr, &v->u.stack.buffer[0], size);
@@ -319,7 +339,7 @@ m_string_reserve(m_string_t v, size_t alloc)
     alloc = size+1;
   }
   M_ASSERT (alloc > 0);
-  if (alloc < sizeof (m_string_heap_ct)) {
+  if (alloc < sizeof (m_str1ng_heap_ct)) {
     // Allocation can fit in the stack space
     if (!m_str1ng_stack_p(v)) {
       /* Transform Heap Allocate to Stack Allocate */
@@ -1455,21 +1475,6 @@ m_string_in_serial(m_string_t v, m_serial_read_t serial)
   return serial->m_interface->read_string(serial, v);
 }
 
-/* State of the UTF8 decoding machine state */
-typedef enum {
-  M_STR1NG_UTF8_STARTING = 0,
-  M_STR1NG_UTF8_DECODING_1 = 8,
-  M_STR1NG_UTF8_DECODING_2 = 16,
-  M_STR1NG_UTF8_DOCODING_3 = 24,
-  M_STR1NG_UTF8_ERROR = 32
-} m_str1ng_utf8_state_e;
-
-/* An unicode value */
-typedef unsigned int m_string_unicode_t;
-
-/* Error in case of decoding */
-#define M_STRING_UNICODE_ERROR (UINT_MAX)
-
 /* UTF8 character classification:
  * 
  * 0*       --> type 1 byte  A
@@ -1579,13 +1584,6 @@ m_str1ng_utf8_encode(char buffer[5], m_string_unicode_t u)
     return 4;
   }
 }
-
-/* Iterator on a string over UTF8 encoded characters */
-typedef struct m_string_it_s {
-  m_string_unicode_t u;
-  const char *ptr;
-  const char *next_ptr;
-} m_string_it_t[1];
 
 /* Start iteration over the UTF8 encoded unicode value */
 static inline void
