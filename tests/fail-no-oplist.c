@@ -109,7 +109,7 @@ void f(void)
 #include "m-array.h"
 
 ARRAY_DEF(array, int)
-ALGO_DEF(array, M_ARRAY_OPLIST(array))
+ALGO_DEF(array, M_M_ARRAY_OPLIST(array))
 
 #elif TEST == 12
 
@@ -173,7 +173,7 @@ QUEUE_SPSC_DEF(buffer, int, BUFFER_QUEUE, DEFAULT_OPLIST)
 #include "m-concurrent.h"
 
 ARRAY_DEF(array, int)
-CONCURRENT_DEF(lock_array, array_t, M_ARRAY_OPLIST(array))
+CONCURRENT_DEF(lock_array, array_t, M_M_ARRAY_OPLIST(array))
 
 #elif TEST == 22
 

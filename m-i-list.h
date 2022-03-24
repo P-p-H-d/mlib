@@ -38,7 +38,7 @@
       ...
      } tmp_str_t;
 */
-#define ILIST_INTERFACE(name, type)                                           \
+#define M_ILIST_INTERFACE(name, type)                                         \
   struct m_il1st_head_s name
 
 
@@ -46,8 +46,8 @@
    The type needs to have ILIST_INTERFACE().
    USAGE:
      ILIST_DEF(name, type [, oplist_of_the_type]) */
-#define ILIST_DEF(name, ...)                                                  \
-  ILIST_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
+#define M_ILIST_DEF(name, ...)                                                \
+  M_ILIST_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
 
 
 /* Define a doubly-linked intrusive list of a given type
@@ -55,7 +55,7 @@
    The type needs to have ILIST_INTERFACE().
    USAGE:
      ILIST_DEF_AS(name, name_t, it_t, type [, oplist_of_the_type]) */
-#define ILIST_DEF_AS(name, name_t, it_t, ...)                                 \
+#define M_ILIST_DEF_AS(name, name_t, it_t, ...)                               \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_IL1ST_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
                 ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t ), \
@@ -66,7 +66,7 @@
 /* Define the oplist of a doubly-linked instrusive list of type.
    USAGE:
      ILIST_OPLIST(name [, oplist_of_the_type]) */
-#define ILIST_OPLIST(...)                                                     \
+#define M_ILIST_OPLIST(...)                                                   \
   M_IL1ST_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                               \
                 ((__VA_ARGS__, M_DEFAULT_OPLIST),                             \
                  (__VA_ARGS__ )))
@@ -657,5 +657,12 @@ typedef struct m_il1st_head_s {
   /* Used of internal macro from m-list */                                    \
   M_L1ST_ITBASE_DEF(name, type, oplist, list_t, it_t)
 
+
+#if M_USE_SMALL_NAME
+#define ILIST_INTERFACE M_ILIST_INTERFACE
+#define ILIST_DEF M_ILIST_DEF
+#define ILIST_DEF_AS M_ILIST_DEF_AS
+#define ILIST_OPLIST M_ILIST_OPLIST
+#endif
 
 #endif

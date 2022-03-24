@@ -39,15 +39,15 @@
      mempool_uint_clear(m); // Give back memory to system
    NOTE: Can not use m-list since it may be expanded from LIST_DEF
 */
-#define MEMPOOL_DEF(name, type)                                               \
-  MEMPOOL_DEF_AS(name, M_C(name,_t), type)
+#define M_MEMPOOL_DEF(name, type)                                             \
+  M_MEMPOOL_DEF_AS(name, M_C(name,_t), type)
 
 
 /* Fast Fixed Size thread unsafe allocator based on memory region.
    USAGE:
      MEMPOOL_DEF_AS(memppol_uint, name_t, unsigned int)
 */
-#define MEMPOOL_DEF_AS(name, name_t, type)                                    \
+#define M_MEMPOOL_DEF_AS(name, name_t, type)                                  \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_M3MPOOL_DEF_P2(name, type, name_t )                                       \
   M_END_PROTECTED_CODE
@@ -175,5 +175,10 @@
     M_ASSERT((mempool)->current_segment != NULL);                             \
     M_ASSERT((mempool)->current_segment->count <= M_USE_MEMPOOL_MAX_PER_SEGMENT(type)); \
   } while (0)
+
+#if M_USE_SMALL_NAME
+#define MEMPOOL_DEF M_MEMPOOL_DEF
+#define MEMPOOL_DEF_AS M_MEMPOOL_DEF_AS
+#endif
 
 #endif

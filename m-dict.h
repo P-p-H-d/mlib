@@ -36,8 +36,8 @@
    OR
      DICT_DEF2(name, key_type, value_type)
 */
-#define DICT_DEF2(name, key_type, ...)                                        \
-  DICT_DEF2_AS(name, M_C(name,_t), M_C(name,_it_t), M_C(name,_itref_t), key_type, __VA_ARGS__)
+#define M_DICT_DEF2(name, key_type, ...)                                      \
+  M_DICT_DEF2_AS(name, M_C(name,_t), M_C(name,_it_t), M_C(name,_itref_t), key_type, __VA_ARGS__)
 
 
 /* Define a dictionary associating the key key_type to the value value_type and its associated functions.
@@ -47,7 +47,7 @@
    OR
      DICT_DEF2_AS(name, name_t, it_t, itref_t, key_type, value_type)
 */
-#define DICT_DEF2_AS(name, name_t, it_t, itref_t, key_type, ...)              \
+#define M_DICT_DEF2_AS(name, name_t, it_t, itref_t, key_type, ...)            \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_D1CT_DEF2_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
                 ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t, itref_t ), \
@@ -63,8 +63,8 @@
    OR
      DICT_STOREHASH_DEF2(name, key_type[, key_oplist], value_type[, value_oplist])
 */
-#define DICT_STOREHASH_DEF2(name, key_type, ...)                              \
-  DICT_STOREHASH_DEF2_AS(name, M_C(name,_t), M_C(name,_it_t), M_C(name,_itref_t), key_type, __VA_ARGS__)
+#define M_DICT_STOREHASH_DEF2(name, key_type, ...)                            \
+  M_DICT_STOREHASH_DEF2_AS(name, M_C(name,_t), M_C(name,_it_t), M_C(name,_itref_t), key_type, __VA_ARGS__)
 
 
 /* Define a dictionary asssociating the key key_type to the value value_type and its associated functions.
@@ -76,7 +76,7 @@
    OR
      DICT_STOREHASH_DEF2_AS(name, name_t, it_t, itref_t, key_type[, key_oplist], value_type[, value_oplist])
 */
-#define DICT_STOREHASH_DEF2_AS(name, name_t, it_t, itref_t, key_type, ...)    \
+#define M_DICT_STOREHASH_DEF2_AS(name, name_t, it_t, itref_t, key_type, ...)  \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_D1CT_SHASH_DEF2_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
                       ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t, itref_t ), \
@@ -92,8 +92,8 @@
    OR
      DICT_OA_DEF2(name, key_type, value_type)
 */
-#define DICT_OA_DEF2(name, key_type, ...)                                     \
-  DICT_OA_DEF2_AS(name, M_C(name,_t), M_C(name,_it_t), M_C(name,_itref_t), key_type, __VA_ARGS__)
+#define M_DICT_OA_DEF2(name, key_type, ...)                                   \
+  M_DICT_OA_DEF2_AS(name, M_C(name,_t), M_C(name,_it_t), M_C(name,_itref_t), key_type, __VA_ARGS__)
 
 
 /* Define a dictionary associating the key key_type to the value value_type
@@ -105,7 +105,7 @@
    OR
      DICT_OA_DEF2_AS(name, name_t, it_t, itref_t, key_type, value_type)
 */
-#define DICT_OA_DEF2_AS(name, name_t, it_t, itref_t, key_type, ...)           \
+#define M_DICT_OA_DEF2_AS(name, name_t, it_t, itref_t, key_type, ...)         \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_D1CT_OA_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
                   ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t, itref_t ), \
@@ -117,8 +117,8 @@
    The set is unordered.
    USAGE: DICT_SET_DEF(name, key_type[, key_oplist])
 */
-#define DICT_SET_DEF(name, ...)                                               \
-  DICT_SET_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
+#define M_DICT_SET_DEF(name, ...)                                             \
+  M_DICT_SET_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
 
 
 /* Define a set of the key key_type and its associated functions.
@@ -126,7 +126,7 @@
    The set is unordered.
    USAGE: DICT_SET_DEF_AS(name, name_t, it_t, key_type[, key_oplist])
 */
-#define DICT_SET_DEF_AS(name, name_t, it_t,  ...)                             \
+#define M_DICT_SET_DEF_AS(name, name_t, it_t,  ...)                           \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_D1CT_SET_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                               \
                    ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t, M_C(name, _itref_ct) ), \
@@ -139,8 +139,8 @@
    The set is unordered.
    USAGE: DICT_OASET_DEF(name, key_type[, key_oplist])
 */
-#define DICT_OASET_DEF(name, ...)                                             \
-  DICT_OASET_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
+#define M_DICT_OASET_DEF(name, ...)                                           \
+  M_DICT_OASET_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
 
 
 /* Define a set of the key key_type 
@@ -149,7 +149,7 @@
    The set is unordered.
    USAGE: DICT_OASET_DEF_AS(name, name_t, it_t, key_type[, key_oplist])
 */
-#define DICT_OASET_DEF_AS(name, name_t, it_t, ...)                            \
+#define M_DICT_OASET_DEF_AS(name, name_t, it_t, ...)                          \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_D1CT_OASET_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t, M_C(name, _itref_ct) ), \
@@ -163,7 +163,7 @@
    OR
      DICT_OPLIST(name)
 */
-#define DICT_OPLIST(...)                                                      \
+#define M_DICT_OPLIST(...)                                                    \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
   (M_D1CT_OPLIST_P1((__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST )),      \
    M_D1CT_OPLIST_P1((__VA_ARGS__ )))
@@ -171,7 +171,7 @@
 
 /* Define the oplist of a dictionnary (DICT_SET_DEF).
    USAGE: DICT_SET_OPLIST(name[, oplist of the key type]) */
-#define DICT_SET_OPLIST(...)                                                  \
+#define M_DICT_SET_OPLIST(...)                                                \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
   (M_D1CT_SET_OPLIST_P1((__VA_ARGS__, M_DEFAULT_OPLIST)),                     \
    M_D1CT_SET_OPLIST_P1((__VA_ARGS__ )))
@@ -1959,5 +1959,19 @@ enum m_d1ct_oa_element_e {
                                                                               \
   M_D1CT_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t, it_deref_t)
 
+#if M_USE_SMALL_NAME
+#define DICT_DEF2 M_DICT_DEF2
+#define DICT_DEF2_AS M_DICT_DEF2_AS
+#define DICT_STOREHASH_DEF2 M_DICT_STOREHASH_DEF2
+#define DICT_STOREHASH_DEF2_AS M_DICT_STOREHASH_DEF2_AS
+#define DICT_OA_DEF2 M_DICT_OA_DEF2
+#define DICT_OA_DEF2_AS M_DICT_OA_DEF2_AS
+#define DICT_SET_DEF M_DICT_SET_DEF
+#define DICT_SET_DEF_AS M_DICT_SET_DEF_AS
+#define DICT_OASET_DEF M_DICT_OASET_DEF
+#define DICT_OASET_DEF_AS M_DICT_OASET_DEF_AS
+#define DICT_OPLIST M_DICT_OPLIST
+#define DICT_SET_OPLIST M_DICT_SET_OPLIST
+#endif
 
 #endif

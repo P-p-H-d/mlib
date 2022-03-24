@@ -34,7 +34,7 @@ M_BEGIN_PROTECTED_CODE
 /* Minimum number of nodes per group of nodes */
 #define M_CMEMP00L_MIN_NODE_PER_GROUP 16
 
-#define C_MEMPOOL_DEF(name, type_t)                                           \
+#define M_C_MEMPOOL_DEF(name, type_t)                                         \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_CMEMP00L_DEF_SINGLY_LIST(name, type_t)                                    \
   M_CMEMP00L_DEF_LF_QUEUE(name, type_t)                                       \
@@ -827,5 +827,9 @@ m_vlapool_del(m_vlapool_t mem, void *d, m_gc_tid_t id)
 }
 
 M_END_PROTECTED_CODE
+
+#if M_USE_SMALL_NAME
+#define C_MEMPOOL_DEF M_C_MEMPOOL_DEF
+#endif
 
 #endif

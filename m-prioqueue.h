@@ -32,14 +32,14 @@
 
 /* Define a prioqueue of a given type and its associated functions.
    USAGE: PRIOQUEUE_DEF(name, type [, oplist_of_the_type]) */
-#define PRIOQUEUE_DEF(name, ...)                                              \
-  PRIOQUEUE_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
+#define M_PRIOQUEUE_DEF(name, ...)                                            \
+  M_PRIOQUEUE_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
 
 
 /* Define a prioqueue of a given type and its associated functions.
   as the name name_t with an iterator named it_t
    USAGE: PRIOQUEUE_DEF_AS(name, name_t, it_t, type [, oplist_of_the_type]) */
-#define PRIOQUEUE_DEF_AS(name, name_t, it_t, ...)                             \
+#define M_PRIOQUEUE_DEF_AS(name, name_t, it_t, ...)                           \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_PR1OQUEUE_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t ), \
@@ -49,7 +49,7 @@
 
 /* Define the oplist of a prioqueue of type.
    USAGE: PRIOQUEUE_OPLIST(name[, oplist of the type]) */
-#define PRIOQUEUE_OPLIST(...)                                                 \
+#define M_PRIOQUEUE_OPLIST(...)                                               \
   M_PR1OQUEUE_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
                        ((__VA_ARGS__, M_DEFAULT_OPLIST),                      \
                         (__VA_ARGS__ )))
@@ -432,5 +432,10 @@
 
 
 // TODO: set all & remove all function
+#if M_USE_SMALL_NAME
+#define PRIOQUEUE_DEF M_PRIOQUEUE_DEF
+#define PRIOQUEUE_DEF_AS M_PRIOQUEUE_DEF_AS
+#define PRIOQUEUE_OPLIST M_PRIOQUEUE_OPLIST
+#endif
 
 #endif

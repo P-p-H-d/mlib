@@ -32,8 +32,8 @@
  * USAGE:
  *    FUNC_OBJ_ITF_DEF(name, retcode type, type of param1, type of param 2, ...)
  */
-#define FUNC_OBJ_ITF_DEF(name, ...)                                           \
-  FUNC_OBJ_ITF_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
+#define M_FUNC_OBJ_ITF_DEF(name, ...)                                         \
+  M_FUNC_OBJ_ITF_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
 
 
 /* Define a function object interface of name 'name'
@@ -41,7 +41,7 @@
  * USAGE:
  *    FUNC_OBJ_ITF_DEF_AS(name, name_t, retcode type, type of param1, type of param 2, ...)
  */
-#define FUNC_OBJ_ITF_DEF_AS(name, name_t, ...)                                \
+#define M_FUNC_OBJ_ITF_DEF_AS(name, name_t, ...)                              \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_IF_NARGS_EQ1(__VA_ARGS__)(M_FUNC0BJ_ITF_NO_PARAM_DEF, M_FUNC0BJ_ITF_PARAM_DEF)(name, name_t, __VA_ARGS__) \
   M_END_PROTECTED_CODE
@@ -65,8 +65,8 @@
  * USAGE/EXAMPLE:
  *   FUNC_OBJ_INS_DEF(name, base_name, (param1, ...), { return param1 * self->member1 }, (member1, int), ...)
  */
-#define FUNC_OBJ_INS_DEF(name, base_name, param_list, ...)                    \
-  FUNC_OBJ_INS_DEF_AS(name, M_C(name,_t), base_name, param_list, __VA_ARGS__)
+#define M_FUNC_OBJ_INS_DEF(name, base_name, param_list, ...)                  \
+  M_FUNC_OBJ_INS_DEF_AS(name, M_C(name,_t), base_name, param_list, __VA_ARGS__)
 
 
 /* Define a function object instance of name 'name' based on the interface 'base_name'
@@ -76,7 +76,7 @@
  * USAGE/EXAMPLE:
  *   FUNC_OBJ_INS_DEF_AS(name, name_t, base_name, (param1, ...), { return param1 * self->member1 }, (member1, int), ...)
  */
-#define FUNC_OBJ_INS_DEF_AS(name, name_t, base_name, param_list, ...)         \
+#define M_FUNC_OBJ_INS_DEF_AS(name, name_t, base_name, param_list, ...)       \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_IF_NARGS_EQ1(__VA_ARGS__)(M_FUNC0BJ_INS_NO_ATTR_DEF, M_FUNC0BJ_INS_ATTR_DEF)(name, name_t, base_name, param_list, __VA_ARGS__) \
   M_END_PROTECTED_CODE
@@ -86,7 +86,7 @@
  * USAGE:
  *  FUNC_OBJ_INS_OPLIST(name, oplist of the attr1, ...)
  */
-#define FUNC_OBJ_INS_OPLIST(...)                                              \
+#define M_FUNC_OBJ_INS_OPLIST(...)                                            \
   M_IF_NARGS_EQ1(__VA_ARGS__)(M_FUNC0BJ_INS_NO_ATTR_OPLIST, M_FUNC0BJ_INS_ATTR_OPLIST_P1)( __VA_ARGS__)
 
 
@@ -395,5 +395,12 @@
 #define M_FUNC0BJ_CONTROL_OPLIST(name, a)                                     \
   M_CHECK_COMPATIBLE_OPLIST(name, M_RET_ARG1 a, M_RET_ARG2 a, M_RET_ARG3 a)
 
+#if M_USE_SMALL_NAME
+#define FUNC_OBJ_ITF_DEF M_FUNC_OBJ_ITF_DEF
+#define FUNC_OBJ_ITF_DEF_AS M_FUNC_OBJ_ITF_DEF_AS
+#define FUNC_OBJ_INS_DEF M_FUNC_OBJ_INS_DEF
+#define FUNC_OBJ_INS_DEF_AS M_FUNC_OBJ_INS_DEF_AS
+#define FUNC_OBJ_INS_OPLIST M_FUNC_OBJ_INS_OPLIST
+#endif
 
 #endif

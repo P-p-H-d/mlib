@@ -32,15 +32,15 @@
 /* Define the tuple type and functions.
    USAGE:
    TUPLE_DEF2(name, [(field1, type1[, oplist1]), (field2, type2[, oplist2]), ...] ) */
-#define TUPLE_DEF2(name, ...)                                                 \
-  TUPLE_DEF2_AS(name, M_C(name,_t), __VA_ARGS__)
+#define M_TUPLE_DEF2(name, ...)                                               \
+  M_TUPLE_DEF2_AS(name, M_C(name,_t), __VA_ARGS__)
 
 
 /* Define the tuple type and functions
    as the given name.
    USAGE:
    TUPLE_DEF2_AS(name, name_t, [(field1, type1[, oplist1]), (field2, type2[, oplist2]), ...] ) */
-#define TUPLE_DEF2_AS(name, name_t, ...)                                      \
+#define M_TUPLE_DEF2_AS(name, name_t, ...)                                    \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_TUPL3_DEF2_P1( (name, name_t M_TUPL3_INJECT_GLOBAL(__VA_ARGS__)) )        \
   M_END_PROTECTED_CODE
@@ -48,7 +48,7 @@
 
 /* Define the oplist of a tuple.
    USAGE: TUPLE_OPLIST(name[, oplist of the first type, ...]) */
-#define TUPLE_OPLIST(...)                                                     \
+#define M_TUPLE_OPLIST(...)                                                   \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
   (M_TUPL3_OPLIST_P1((__VA_ARGS__, M_DEFAULT_OPLIST )),                       \
    M_TUPL3_OPLIST_P1((__VA_ARGS__ )))
@@ -60,7 +60,7 @@
    (shall be constexpr, but only supported in C++14).
 */
 #ifndef __cplusplus
-#define TUPLE_ORDER(name, ...)                                                \
+#define M_TUPLE_ORDER(name, ...)                                              \
   ( (const int[]) {M_MAP2_C(M_TUPL3_ORDER_CONVERT, name, __VA_ARGS__), 0})
 #else
 #include <initializer_list>
@@ -76,7 +76,7 @@ namespace m_lib {
     }
   };
 }
-#define TUPLE_ORDER(name, ...)                                                \
+#define M_TUPLE_ORDER(name, ...)                                              \
   (m_lib::m_tupl3_integer_va<M_NARGS(__VA_ARGS__,0)>({M_MAP2_C(M_TUPL3_ORDER_CONVERT, name, __VA_ARGS__), 0}).data)
 #endif
 
@@ -738,5 +738,11 @@ namespace m_lib {
    M_IF_METHOD(DEL, M_RET_ARG1(__VA_ARGS__,))(DEL(M_DELAY2(M_GET_DEL) M_RET_ARG1(__VA_ARGS__,)),), \
    )
 
+#if M_USE_SMALL_NAME
+#define TUPLE_DEF2 M_TUPLE_DEF2
+#define TUPLE_DEF2_AS M_TUPLE_DEF2_AS
+#define TUPLE_OPLIST M_TUPLE_OPLIST
+#define TUPLE_ORDER M_TUPLE_ORDER
+#endif
 
 #endif

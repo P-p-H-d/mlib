@@ -33,7 +33,7 @@ M_BEGIN_PROTECTED_CODE
 
 /* Define the oplist of a shared pointer.
    USAGE: SHARED_OPLIST(name [, oplist_of_the_type]) */
-#define SHARED_PTR_OPLIST(...)                                                \
+#define M_SHARED_PTR_OPLIST(...)                                              \
   M_SHAR3D_PTR_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
                         ((__VA_ARGS__, M_DEFAULT_OPLIST ),                    \
                          (__VA_ARGS__ )))
@@ -41,14 +41,14 @@ M_BEGIN_PROTECTED_CODE
 
 /* Define shared pointer and its function.
    USAGE: SHARED_PTR_DEF(name, type, [, oplist]) */
-#define SHARED_PTR_DEF(name, ...)                                             \
-  SHARED_PTR_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
+#define M_SHARED_PTR_DEF(name, ...)                                           \
+  M_SHARED_PTR_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
 
 
 /* Define shared pointer and its function
    as the given name name_t
    USAGE: SHARED_PTR_DEF_AS(name, name_t, type, [, oplist]) */
-#define SHARED_PTR_DEF_AS(name, name_t, ...)                                  \
+#define M_SHARED_PTR_DEF_AS(name, name_t, ...)                                \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_SHAR3D_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_SHAR3D_ATOMIC_OPLIST, name_t ), \
@@ -58,14 +58,14 @@ M_BEGIN_PROTECTED_CODE
 
 /* Define relaxed shared pointer and its function (thread unsafe).
    USAGE: SHARED_PTR_RELAXED_DEF(name, type, [, oplist]) */
-#define SHARED_PTR_RELAXED_DEF(name, ...)                                     \
-  SHARED_PTR_RELAXED_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
+#define M_SHARED_PTR_RELAXED_DEF(name, ...)                                   \
+  M_SHARED_PTR_RELAXED_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
 
 
 /* Define relaxed shared pointer and its function (thread unsafe)
    as the given name name_t
    USAGE: SHARED_PTR_RELAXED_DEF(name, type, [, oplist]) */
-#define SHARED_PTR_RELAXED_DEF_AS(name, name_t, ...)                          \
+#define M_SHARED_PTR_RELAXED_DEF_AS(name, name_t, ...)                        \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_SHAR3D_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_SHAR3D_INTEGER_OPLIST, name_t ), \
@@ -76,15 +76,15 @@ M_BEGIN_PROTECTED_CODE
 /* Define shared resource and its function.
    This is a bounded pool of resource shared by multiple owners.
    USAGE: SHARED_RESOURCE_DEF(name, type, [, oplist]) */
-#define SHARED_RESOURCE_DEF(name, ...)                                        \
-  SHARED_RESOURCE_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
+#define M_SHARED_RESOURCE_DEF(name, ...)                                      \
+  M_SHARED_RESOURCE_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
 
 
 /* Define shared resource and its function
    as the given name named_t and the iterator it_t
    This is a bounded pool of resource shared by multiple owners.
    USAGE: SHARED_RESOURCE_DEF_AS(name, name_t, it_t, type, [, oplist]) */
-#define SHARED_RESOURCE_DEF_AS(name, name_t, it_t, ...)                       \
+#define M_SHARED_RESOURCE_DEF_AS(name, name_t, it_t, ...)                     \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_SHAR3D_RESOURCE_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
                           ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t ), \
@@ -491,5 +491,15 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   }                                                                           \
 
 M_END_PROTECTED_CODE
+
+#if M_USE_SMALL_NAME
+#define SHARED_PTR_OPLIST M_SHARED_PTR_OPLIST
+#define SHARED_PTR_DEF M_SHARED_PTR_DEF
+#define SHARED_PTR_DEF_AS M_SHARED_PTR_DEF_AS
+#define SHARED_PTR_RELAXED_DEF M_SHARED_PTR_RELAXED_DEF
+#define SHARED_PTR_RELAXED_DEF_AS M_SHARED_PTR_RELAXED_DEF_AS
+#define SHARED_RESOURCE_DEF M_SHARED_RESOURCE_DEF
+#define SHARED_RESOURCE_DEF_AS M_SHARED_RESOURCE_DEF_AS
+#endif
 
 #endif

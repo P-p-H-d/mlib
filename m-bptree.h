@@ -34,8 +34,8 @@
    OR
    BPTREE_DEF2(name, N, key_t, value_t)
 */
-#define BPTREE_DEF2(name, N, key_type, ...)                                   \
-  BPTREE_DEF2_AS(name, M_C(name,_t), M_C(name,_it_t), M_C(name, _itref_t), N, key_type, __VA_ARGS__)
+#define M_BPTREE_DEF2(name, N, key_type, ...)                                 \
+  M_BPTREE_DEF2_AS(name, M_C(name,_t), M_C(name,_it_t), M_C(name, _itref_t), N, key_type, __VA_ARGS__)
 
 
 /* Define a B+tree of size 'N' that maps a 'key' to a 'value'
@@ -45,7 +45,7 @@
    OR
    BPTREE_DEF2_AS(name, name_t, it_t, itref_t, N, key_t, value_t)
 */
-#define BPTREE_DEF2_AS(name, name_t, it_t, itref_t, N, key_type, ...)         \
+#define M_BPTREE_DEF2_AS(name, name_t, it_t, itref_t, N, key_type, ...)       \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_BPTR33_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                 \
                  ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 0, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, itref_t ), \
@@ -56,14 +56,14 @@
 /* Define a B+tree of a given type, of size N.
    with its associated functions
    USAGE: BPTREE_DEF(name, N, type, [, oplist_of_the_type]) */
-#define BPTREE_DEF(name, N, ...)                                              \
-  BPTREE_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), N, __VA_ARGS__)
+#define M_BPTREE_DEF(name, N, ...)                                            \
+  M_BPTREE_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), N, __VA_ARGS__)
 
 
 /* Define a B+tree of a given type, of size N.
    as the given name name_t with its associated functions
    USAGE: BPTREE_DEF_AS(name, name_t, it_t, N, type, [, oplist_of_the_type]) */
-#define BPTREE_DEF_AS(name, name_t, it_t, N, ...)                             \
+#define M_BPTREE_DEF_AS(name, name_t, it_t, N, ...)                           \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_BPTR33_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                 \
                  ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, 0, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, M_C(name, _itref_ct)  ), \
@@ -79,8 +79,8 @@
    OR
    BPTREE_MULTI_DEF2(name, N, key_t, value_t)
 */
-#define BPTREE_MULTI_DEF2(name, N, key_type, ...)                             \
-  BPTREE_MULTI_DEF2_AS(name, M_C(name,_t), M_C(name,_it_t), M_C(name,_itref_t), N, key_type, __VA_ARGS__)
+#define M_BPTREE_MULTI_DEF2(name, N, key_type, ...)                           \
+  M_BPTREE_MULTI_DEF2_AS(name, M_C(name,_t), M_C(name,_it_t), M_C(name,_itref_t), N, key_type, __VA_ARGS__)
 
 
 /* Define a B+tree of size 'N' that maps a 'key' to a 'value',
@@ -91,7 +91,7 @@
    OR
    BPTREE_MULTI_DEF2_AS(name, name_t, it_t, itref_t, N, key_t, value_t)
 */
-#define BPTREE_MULTI_DEF2_AS(name, name_t, it_t, itref_t, N, key_type, ...)   \
+#define M_BPTREE_MULTI_DEF2_AS(name, name_t, it_t, itref_t, N, key_type, ...) \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_BPTR33_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                 \
                  ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 1, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, itref_t ), \
@@ -103,15 +103,15 @@
    allowing multiple equal keys to exist,
    with its associated functions
    USAGE: BPTREE_MULTI_DEF(name, N, type, [, oplist_of_the_type]) */
-#define BPTREE_MULTI_DEF(name, N, ...)                                        \
-  BPTREE_MULTI_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), N, __VA_ARGS__)
+#define M_BPTREE_MULTI_DEF(name, N, ...)                                      \
+  M_BPTREE_MULTI_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), N, __VA_ARGS__)
 
 
 /* Define a B+tree of a given type, of size N.
    allowing multiple equal keys to exist,
    as the given name name_t with its associated functions
    USAGE: BPTREE_MULTI_DEF_AS(name, name_t, it_t, N, type, [, oplist_of_the_type]) */
-#define BPTREE_MULTI_DEF_AS(name, name_t, it_t, N, ...)                       \
+#define M_BPTREE_MULTI_DEF_AS(name, name_t, it_t, N, ...)                     \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_BPTR33_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                 \
                  ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, 1, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, M_C(name, _itref_ct)  ), \
@@ -121,7 +121,7 @@
 
 /* Define the oplist of a B+TREE used as a set of type (from BPTREE_DEF).
    USAGE: BPTREE_OPLIST(name [, oplist_of_the_type]) */
-#define BPTREE_OPLIST(...)                                                    \
+#define M_BPTREE_OPLIST(...)                                                  \
   M_BPTR33_KEY_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
                         ((__VA_ARGS__, M_DEFAULT_OPLIST ),                    \
                          (__VA_ARGS__ )))
@@ -132,7 +132,7 @@
    NOTE: IT_REF is not exported so that the contained appears as not modifiable
    by algorithm.
 */
-#define BPTREE_OPLIST2(...)                                                   \
+#define M_BPTREE_OPLIST2(...)                                                 \
   M_BPTR33_OPLIST2_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
                      ((__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST ),     \
                       (__VA_ARGS__ )))
@@ -1467,6 +1467,19 @@
       return ret;                                                             \
   }                                                                           \
   , /* no in_serial */ )                                                      \
-                                                                              \
+
+
+#if M_USE_SMALL_NAME
+#define BPTREE_DEF2 M_BPTREE_DEF2
+#define BPTREE_DEF2_AS M_BPTREE_DEF2_AS
+#define BPTREE_DEF M_BPTREE_DEF
+#define BPTREE_DEF_AS M_BPTREE_DEF_AS
+#define BPTREE_MULTI_DEF2 M_BPTREE_MULTI_DEF2
+#define BPTREE_MULTI_DEF2_AS M_BPTREE_MULTI_DEF2_AS
+#define BPTREE_MULTI_DEF M_BPTREE_MULTI_DEF
+#define BPTREE_MULTI_DEF_AS M_BPTREE_MULTI_DEF_AS
+#define BPTREE_OPLIST M_BPTREE_OPLIST
+#define BPTREE_OPLIST2 M_BPTREE_OPLIST2
+#endif
 
 #endif

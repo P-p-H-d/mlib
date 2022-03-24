@@ -33,15 +33,15 @@
 /* Define the variant type and functions.
    USAGE:
      VARIANT_DEF2(name, [(field1, type1, oplist1), (field2, type2, oplist2), ...] ) */
-#define VARIANT_DEF2(name, ...)                                               \
-  VARIANT_DEF2_AS(name, M_C(name,_t), __VA_ARGS__)
+#define M_VARIANT_DEF2(name, ...)                                             \
+  M_VARIANT_DEF2_AS(name, M_C(name,_t), __VA_ARGS__)
 
 
 /* Define the variant type and functions
   as the given name_t
    USAGE:
      VARIANT_DEF2_AS(name, name_t, [(field1, type1, oplist1), (field2, type2, oplist2), ...] ) */
-#define VARIANT_DEF2_AS(name, name_t, ...)                                    \
+#define M_VARIANT_DEF2_AS(name, name_t, ...)                                  \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_VAR1ANT_DEF2_P1( (name, name_t M_VAR1ANT_INJECT_GLOBAL(__VA_ARGS__)) )    \
   M_END_PROTECTED_CODE
@@ -49,7 +49,7 @@
 
 /* Define the oplist of a variant.
    USAGE: VARIANT_OPLIST(name[, oplist of the first type, ...]) */
-#define VARIANT_OPLIST(...)                                                   \
+#define M_VARIANT_OPLIST(...)                                                 \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
   (M_VAR1ANT_OPLIST_P1((__VA_ARGS__, M_DEFAULT_OPLIST)),                      \
    M_VAR1ANT_OPLIST_P1((__VA_ARGS__ )))
@@ -770,5 +770,11 @@
   M_APPLY(M_VAR1ANT_TEST_METHOD2_P2, M_PAIR_1 method, M_PAIR_2 method, M_OPFLAT trio)
 #define M_VAR1ANT_IF_ALL2(method1, method2,  ...)                             \
   M_IF(M_REDUCE2(M_VAR1ANT_TEST_METHOD2_P, M_AND, (method1, method2), __VA_ARGS__))
+
+#if M_USE_SMALL_NAME
+#define VARIANT_DEF2 M_VARIANT_DEF2
+#define VARIANT_DEF2_AS M_VARIANT_DEF2_AS
+#define VARIANT_OPLIST M_VARIANT_OPLIST
+#endif
 
 #endif

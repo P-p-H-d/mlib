@@ -31,7 +31,7 @@
    which oplist is 'contOp', as static inline functions.
    USAGE:
    ALGO_DEF(algogName, containerOplist|type if oplist has been registered) */
-#define ALGO_DEF(name, cont_oplist)                                           \
+#define M_ALGO_DEF(name, cont_oplist)                                         \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_ALG0_DEF_P1(name, M_GLOBAL_OPLIST(cont_oplist))                           \
   M_END_PROTECTED_CODE
@@ -40,7 +40,7 @@
 /* Map a function (or a macro) to all elements of a container.
    USAGE:
    ALGO_FOR_EACH(container, containerOplist, function[, extra arguments of function]) */
-#define ALGO_FOR_EACH(container, cont_oplist, ...)                            \
+#define M_ALGO_FOR_EACH(container, cont_oplist, ...)                          \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
   (M_ALG0_FOR_EACH(container, M_GLOBAL_OPLIST(cont_oplist), __VA_ARGS__),     \
    M_ALG0_FOR_EACH_ARG(container, M_GLOBAL_OPLIST(cont_oplist), __VA_ARGS__ ))
@@ -51,7 +51,7 @@
    USAGE:
    ALGO_TRANSFORM(contDst, contDOplist, contSrc, contSrcOplist,
                   function[, extra arguments of function]) */
-#define ALGO_TRANSFORM(contD, contDop, contS, contSop, ...)                   \
+#define M_ALGO_TRANSFORM(contD, contDop, contS, contSop, ...)                 \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
   (M_ALG0_TRANSFORM(contD, M_GLOBAL_OPLIST(contDop), contS, M_GLOBAL_OPLIST(contSop), __VA_ARGS__), \
    M_ALG0_TRANSFORM_ARG(contD, M_GLOBAL_OPLIST(contDop), contS, M_GLOBAL_OPLIST(contSop), __VA_ARGS__ ))
@@ -61,7 +61,7 @@
    USAGE:
    ALGO_EXTRACT(contDst, contDstOplist, contSrc, contSrcOplist
                [, function [, extra arguments of function]])  */
-#define ALGO_EXTRACT(contD, contDop, contS, ...)                              \
+#define M_ALGO_EXTRACT(contD, contDop, contS, ...)                            \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
   (M_ALG0_EXTRACT(contD, M_GLOBAL_OPLIST(contDop), M_GLOBAL_OPLIST(contS),  __VA_ARGS__), \
    M_IF_NARGS_EQ2(__VA_ARGS__)                                                \
@@ -73,7 +73,7 @@
    USAGE:
    ALGO_REDUCE(dstVar, container, contOplist, reduceFunc
                [, mapFunc[, extraParameters of map function]]) */
-#define ALGO_REDUCE(dest, cont, contOp, ...)                                  \
+#define M_ALGO_REDUCE(dest, cont, contOp, ...)                                \
   M_IF(M_PARENTHESIS_P(dest))                                                 \
   (M_ALG0_REDUCE_DISPATCH(M_PAIR_1 dest, M_GLOBAL_OPLIST(M_PAIR_2 dest), M_GLOBAL_TYPE(M_PAIR_2 dest),cont, M_GLOBAL_OPLIST(contOp), __VA_ARGS__), \
    M_ALG0_REDUCE_DISPATCH(dest, M_GET_OPLIST M_GLOBAL_OPLIST(contOp), M_GET_SUBTYPE M_GLOBAL_OPLIST(contOp), cont, contOp, __VA_ARGS__)) \
@@ -84,7 +84,7 @@
    USAGE:
    ALGO_INSERT_AT(containerDst, containerDstOPLIST|containerDstType, containerDstIterator, containerSrc, containerSrcOPLIST|containerSrcType)
  */
-#define ALGO_INSERT_AT(contDst, contDstOp, position, contSrc, contSrcOp)      \
+#define M_ALGO_INSERT_AT(contDst, contDstOp, position, contSrc, contSrcOp)    \
   M_ALG0_INSERT_AT(contDst, M_GLOBAL_OPLIST(contDstOp), position, contSrc, M_GLOBAL_OPLIST(contSrcOp) )
 
 
@@ -1199,5 +1199,15 @@
                        *M_CALL_IT_CREF(contSrcOp, _itSrc));                   \
     }                                                                         \
   } while (0)
+
+
+#if M_USE_SMALL_NAME
+#define ALGO_DEF M_ALGO_DEF
+#define ALGO_FOR_EACH M_ALGO_FOR_EACH
+#define ALGO_TRANSFORM M_ALGO_TRANSFORM
+#define ALGO_EXTRACT M_ALGO_EXTRACT
+#define ALGO_REDUCE M_ALGO_REDUCE
+#define ALGO_INSERT_AT M_ALGO_INSERT_AT
+#endif
 
 #endif

@@ -29,14 +29,14 @@
 
 /* Define a singly linked list of a given type.
    USAGE: LIST_DEF(name, type [, oplist_of_the_type]) */
-#define LIST_DEF(name, ...)                                                   \
-  LIST_DEF_AS(name, M_C(name, _t), M_C(name, _it_t), __VA_ARGS__)
+#define M_LIST_DEF(name, ...)                                                 \
+  M_LIST_DEF_AS(name, M_C(name, _t), M_C(name, _it_t), __VA_ARGS__)
 
 
 /* Define a singly linked list of a given type
    as the provided type name_t with the iterator named it_t
    USAGE: LIST_DEF_AS(name, name_t, it_t, type [, oplist_of_the_type]) */
-#define LIST_DEF_AS(name, name_t, it_t, ...)                                  \
+#define M_LIST_DEF_AS(name, name_t, it_t, ...)                                \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_L1ST_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                   \
                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t ), \
@@ -46,14 +46,14 @@
 
 /* Define a singly linked list of a given type allowing both push.
    USAGE: LIST_DUAL_PUSH_DEF_AS(name, name_t, type [, oplist_of_the_type]) */
-#define LIST_DUAL_PUSH_DEF(name, ...)                                         \
-  LIST_DUAL_PUSH_DEF_AS(name, M_C(name,_t), M_C(name, _it_t), __VA_ARGS__)
+#define M_LIST_DUAL_PUSH_DEF(name, ...)                                       \
+  M_LIST_DUAL_PUSH_DEF_AS(name, M_C(name,_t), M_C(name, _it_t), __VA_ARGS__)
 
 
 /* Define a singly linked list of a given type allowing both push.
    as the provided type name_t with the iterator named it_t
    USAGE: LIST_DUAL_PUSH_DEF(name, type [, oplist_of_the_type]) */
-#define LIST_DUAL_PUSH_DEF_AS(name, name_t, it_t, ...)                        \
+#define M_LIST_DUAL_PUSH_DEF_AS(name, name_t, it_t, ...)                      \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_L1ST_DUAL_PUSH_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
                          ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t ), \
@@ -63,7 +63,7 @@
 
 /* Define the oplist of a list of the given type.
    USAGE: LIST_OPLIST(name [, oplist_of_the_type]) */
-#define LIST_OPLIST(...)                                                      \
+#define M_LIST_OPLIST(...)                                                    \
   M_L1ST_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
                   ((__VA_ARGS__, M_DEFAULT_OPLIST ),                          \
                    (__VA_ARGS__ )))
@@ -72,7 +72,7 @@
   USAGE:
     list_t global_variable = LIST_INIT_VALUE();
  */
-#define LIST_INIT_VALUE()                                                     \
+#define M_LIST_INIT_VALUE()                                                   \
   { NULL }
 
 
@@ -80,7 +80,7 @@
   USAGE:
     list_t global_variable = LIST_DUAL_PUSH_INIT_VALUE();
  */
-#define LIST_DUAL_PUSH_INIT_VALUE()                                           \
+#define M_LIST_DUAL_PUSH_INIT_VALUE()                                         \
   { { NULL, NULL } }
 
 
@@ -1463,5 +1463,15 @@
     list->back = previous;                                                    \
     M_L1ST_DUAL_PUSH_CONTRACT(list);                                          \
   }                                                                           \
+
+#if M_USE_SMALL_NAME
+#define LIST_DEF M_LIST_DEF
+#define LIST_DEF_AS M_LIST_DEF_AS
+#define LIST_DUAL_PUSH_DEF M_LIST_DUAL_PUSH_DEF
+#define LIST_DUAL_PUSH_DEF_AS M_LIST_DUAL_PUSH_DEF_AS
+#define LIST_OPLIST M_LIST_OPLIST
+#define LIST_INIT_VALUE M_LIST_INIT_VALUE
+#define LIST_DUAL_PUSH_INIT_VALUE M_LIST_DUAL_PUSH_INIT_VALUE
+#endif
 
 #endif

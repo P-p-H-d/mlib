@@ -33,14 +33,14 @@ M_BEGIN_PROTECTED_CODE
 
 /* Define a Single Producer Single Consummer snapshot and its functions
    USAGE: SNAPSHOT_SPSC_DEF(name, type[, oplist]) */
-#define SNAPSHOT_SPSC_DEF(name, ...)                                          \
-  SNAPSHOT_SPSC_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
+#define M_SNAPSHOT_SPSC_DEF(name, ...)                                        \
+  M_SNAPSHOT_SPSC_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
 
 
 /* Define a Single Producer Single Consummer snapshot and its functions
    as the given name name_t
    USAGE: SNAPSHOT_SPSC_DEF_AS(name, name_t, type[, oplist]) */
-#define SNAPSHOT_SPSC_DEF_AS(name, name_t, ...)                               \
+#define M_SNAPSHOT_SPSC_DEF_AS(name, name_t, ...)                             \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_SNAPSH0T_SPSC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
                         ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t ), \
@@ -50,14 +50,14 @@ M_BEGIN_PROTECTED_CODE
 
 /* Define a Single Producer Multiple Consummer snapshot and its functions
    USAGE: SNAPSHOT_SPMC_DEF(name, type[, oplist]) */
-#define SNAPSHOT_SPMC_DEF(name, ...)                                          \
-  SNAPSHOT_SPMC_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
+#define M_SNAPSHOT_SPMC_DEF(name, ...)                                        \
+  M_SNAPSHOT_SPMC_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
 
 
 /* Define a Single Producer Multiple Consummer snapshot and its functions
    as the given name name_t
    USAGE: SNAPSHOT_SPMC_DEF_AS(name, type[, oplist]) */
-#define SNAPSHOT_SPMC_DEF_AS(name, name_t, ...)                               \
+#define M_SNAPSHOT_SPMC_DEF_AS(name, name_t, ...)                             \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_SNAPSH0T_SPMC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
                         ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t ), \
@@ -67,14 +67,14 @@ M_BEGIN_PROTECTED_CODE
 
 /* Define a Multiple Producer Multiple Consummer snapshot and its functions
    USAGE: SNAPSHOT_MPMC_DEF(name, type[, oplist]) */
-#define SNAPSHOT_MPMC_DEF(name, ...)                                          \
-  SNAPSHOT_MPMC_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
+#define M_SNAPSHOT_MPMC_DEF(name, ...)                                        \
+  M_SNAPSHOT_MPMC_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
 
 
 /* Define a Multiple Producer Multiple Consummer snapshot and its functions
    as the given name name_t
    USAGE: SNAPSHOT_MPMC_DEF_AS(name, name_t, type[, oplist]) */
-#define SNAPSHOT_MPMC_DEF_AS(name, name_t, ...)                               \
+#define M_SNAPSHOT_MPMC_DEF_AS(name, name_t, ...)                             \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_SNAPSH0T_MPMC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
                         ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t ), \
@@ -84,7 +84,7 @@ M_BEGIN_PROTECTED_CODE
 
 /* Define the oplist of a snapshot (SPSC, SPMC or MPMC).
    USAGE: SNAPSHOT_OPLIST(name[, oplist]) */
-#define SNAPSHOT_OPLIST(...)                                                  \
+#define M_SNAPSHOT_OPLIST(...)                                                \
   M_SNAPSH0T_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
                       ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
                        (__VA_ARGS__ )))
@@ -777,5 +777,15 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
 //FIXME: Evaluate the needs for the methods _set_, _init_set.
 
 M_END_PROTECTED_CODE
+
+#if M_USE_SMALL_NAME
+#define SNAPSHOT_SPSC_DEF M_SNAPSHOT_SPSC_DEF
+#define SNAPSHOT_SPSC_DEF_AS M_SNAPSHOT_SPSC_DEF_AS
+#define SNAPSHOT_SPMC_DEF M_SNAPSHOT_SPMC_DEF
+#define SNAPSHOT_SPMC_DEF_AS M_SNAPSHOT_SPMC_DEF_AS
+#define SNAPSHOT_MPMC_DEF M_SNAPSHOT_MPMC_DEF
+#define SNAPSHOT_MPMC_DEF_AS M_SNAPSHOT_MPMC_DEF_AS
+#define SNAPSHOT_OPLIST M_SNAPSHOT_OPLIST
+#endif
 
 #endif

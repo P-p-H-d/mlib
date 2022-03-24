@@ -29,14 +29,14 @@
 
 /* Define a deque of a given type and its associated functions.
    USAGE: DEQUE_DEF(name, type [, oplist_of_the_type]) */
-#define DEQUE_DEF(name, ...)                                                  \
-  DEQUE_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
+#define M_DEQUE_DEF(name, ...)                                                \
+  M_DEQUE_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
 
 
 /* Define a deque of a given type and its associated functions.
    as the provided type name_t with the iterator named it_t.
    USAGE: DEQUE_DEF(name, name_t, it_t, type [, oplist_of_the_type]) */
-#define DEQUE_DEF_AS(name, name_t, it_t, ...)                                 \
+#define M_DEQUE_DEF_AS(name, name_t, it_t, ...)                               \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_D3QU3_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
                 ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t, M_C(name, _node_ct) ), \
@@ -46,7 +46,7 @@
 
 /* Define the oplist of a deque of a type.
    USAGE: DEQUE_OPLIST(name[, oplist of the type]) */
-#define DEQUE_OPLIST(...)                                                     \
+#define M_DEQUE_OPLIST(...)                                                   \
   M_D3QU3_OPLIST_P1 (M_IF_NARGS_EQ1(__VA_ARGS__)                              \
                     ((__VA_ARGS__, M_DEFAULT_OPLIST),                         \
                      (__VA_ARGS__ )))
@@ -1099,5 +1099,11 @@
    ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)              \
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                          \
    )
+
+#if M_USE_SMALL_NAME
+#define DEQUE_DEF M_DEQUE_DEF
+#define DEQUE_DEF_AS M_DEQUE_DEF_AS
+#define DEQUE_OPLIST M_DEQUE_OPLIST
+#endif
 
 #endif

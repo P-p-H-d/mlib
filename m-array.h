@@ -29,14 +29,14 @@
 
 /* Define a dynamic array of the given type and its associated functions.
    USAGE: ARRAY_DEF(name, type [, oplist_of_the_type]) */
-#define ARRAY_DEF(name, ...)                                                  \
-  ARRAY_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
+#define M_ARRAY_DEF(name, ...)                                                \
+  M_ARRAY_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
 
 
 /* Define a dynamic array of the given type and its associated functions
   as the provided type name_t with the iterator named it_t
    USAGE: ARRAY_DEF_AS(name, name_t, it_t, type [, oplist_of_the_type]) */
-#define ARRAY_DEF_AS(name, name_t, it_t, ...)                                 \
+#define M_ARRAY_DEF_AS(name, name_t, it_t, ...)                               \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_ARRA4_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
              ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t ), \
@@ -47,7 +47,7 @@
 /* Define the oplist of a dynamic array given its name and its oplist.
    If no oplist is given it is assumed to be M_DEFAULT_OPLIST
    USAGE: ARRAY_OPLIST(name[, oplist of the type]) */
-#define ARRAY_OPLIST(...)                                                     \
+#define M_ARRAY_OPLIST(...)                                                   \
   M_ARRA4_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                               \
                    ((__VA_ARGS__, M_DEFAULT_OPLIST),                          \
                     (__VA_ARGS__ )))
@@ -57,7 +57,7 @@
   USAGE:
     array_t global_variable = ARRAY_INIT_VALUE();
  */
-#define ARRAY_INIT_VALUE()                                                    \
+#define M_ARRAY_INIT_VALUE()                                                  \
   { { 0, 0, NULL } }
 
 /********************************************************************************/
@@ -1094,5 +1094,12 @@
       a1->size = newSize;                                                     \
     }                                                                         \
   }                                                                           \
+
+#if M_USE_SMALL_NAME
+#define ARRAY_DEF M_ARRAY_DEF
+#define ARRAY_DEF_AS M_ARRAY_DEF_AS
+#define ARRAY_OPLIST M_ARRAY_OPLIST
+#define ARRAY_INIT_VALUE M_ARRAY_INIT_VALUE
+#endif
 
 #endif

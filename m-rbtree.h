@@ -29,14 +29,14 @@
 
 /* Define a Red/Black binary tree of a given type.
    USAGE: RBTREE_DEF(name, type [, oplist_of_the_type]) */
-#define RBTREE_DEF(name, ...)                                                 \
-  RBTREE_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
+#define M_RBTREE_DEF(name, ...)                                               \
+  M_RBTREE_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
 
 
 /* Define a Red/Black binary tree of a given type
    as the name name_t and the iterator it_t.
    USAGE: RBTREE_DEF_AS(name, name_t, it_t, type [, oplist_of_the_type]) */
-#define RBTREE_DEF_AS(name, name_t, it_t, ...)                                \
+#define M_RBTREE_DEF_AS(name, name_t, it_t, ...)                              \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_RBTR33_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                 \
               ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, M_C(name, _node_ct), it_t ), \
@@ -46,7 +46,7 @@
 
 /* Define the oplist of a rbtree of type.
    USAGE: RBTREE_OPLIST(name [, oplist_of_the_type]) */
-#define RBTREE_OPLIST(...)                                                    \
+#define M_RBTREE_OPLIST(...)                                                  \
   M_RBTR33_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
                  ((__VA_ARGS__, M_DEFAULT_OPLIST),                            \
                   (__VA_ARGS__ )))
@@ -1167,6 +1167,10 @@ typedef enum {
                                                                               \
 
 // TODO: specialized _sort shall do nothing, but shall check the requested order. How ?
-
+#if M_USE_SMALL_NAME
+#define RBTREE_DEF M_RBTREE_DEF
+#define RBTREE_DEF_AS M_RBTREE_DEF_AS
+#define RBTREE_OPLIST M_RBTREE_OPLIST
+#endif
 
 #endif

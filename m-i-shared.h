@@ -32,7 +32,7 @@ M_BEGIN_PROTECTED_CODE
 
 /* Define the oplist of a intrusive shared pointer.
    USAGE: ISHARED_OPLIST(name [, oplist_of_the_type]) */
-#define ISHARED_PTR_OPLIST(...)                                               \
+#define M_ISHARED_PTR_OPLIST(...)                                             \
   M_ISHAR3D_PTR_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
                          ((__VA_ARGS__, M_DEFAULT_OPLIST),                    \
                           (__VA_ARGS__ )))
@@ -42,29 +42,29 @@ M_BEGIN_PROTECTED_CODE
    name: name of the intrusive shared pointer.
    type: name of the type of the structure (aka. struct test_s) - not used currently.
    NOTE: There can be only one interface of this kind in a type! */
-#define ISHARED_PTR_INTERFACE(name, type)                                     \
+#define M_ISHARED_PTR_INTERFACE(name, type)                                   \
   atomic_int M_C(name, _cpt)
 
 
 /* Value of the interface field for static intialization (Uses C99 designated element). */
-#define ISHARED_PTR_STATIC_DESIGNATED_INIT(name, type)                        \
+#define M_ISHARED_PTR_STATIC_DESIGNATED_INIT(name, type)                      \
   .M_C(name, _cpt) = ATOMIC_VAR_INIT(0)
 
 /* Value of the interface field for static intialization (Uses C89 designated element). */
-#define ISHARED_PTR_STATIC_INIT(name, type)                                   \
+#define M_ISHARED_PTR_STATIC_INIT(name, type)                                 \
   ATOMIC_VAR_INIT(0)
 
 
 /* Define the intrusive shared pointer type and its static inline functions.
    USAGE: ISHARED_PTR_DEF(name, type, [, oplist]) */
-#define ISHARED_PTR_DEF(name, ...)                                            \
-  ISHARED_PTR_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
+#define M_ISHARED_PTR_DEF(name, ...)                                          \
+  M_ISHARED_PTR_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
 
 
 /* Define the intrusive shared pointer type and its static inline functions
   as the name name_t
    USAGE: ISHARED_PTR_DEF_AS(name, name_t, type, [, oplist]) */
-#define ISHARED_PTR_DEF_AS(name, name_t, ...)                                 \
+#define M_ISHARED_PTR_DEF_AS(name, name_t, ...)                               \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_ISHAR3D_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
                       ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t ), \
@@ -231,5 +231,14 @@ M_BEGIN_PROTECTED_CODE
                                                                               \
 
 M_END_PROTECTED_CODE
+
+#if M_USE_SMALL_NAME
+#define ISHARED_PTR_OPLIST M_ISHARED_PTR_OPLIST
+#define ISHARED_PTR_INTERFACE M_ISHARED_PTR_INTERFACE
+#define ISHARED_PTR_STATIC_DESIGNATED_INIT M_ISHARED_PTR_STATIC_DESIGNATED_INIT
+#define ISHARED_PTR_STATIC_INIT M_ISHARED_PTR_STATIC_INIT
+#define ISHARED_PTR_DEF M_ISHARED_PTR_DEF
+#define ISHARED_PTR_DEF_AS M_ISHARED_PTR_DEF_AS
+#endif
 
 #endif
