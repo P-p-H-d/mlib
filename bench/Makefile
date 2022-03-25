@@ -276,7 +276,7 @@ bench-libsrt:
 	@if test -n "$${LIBSRT}" ; then $(MAKE) bench-libsrt0 ; else echo "Nothing to be done for LIBSRT." ; fi
 
 bench-libsrt0:
-	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${LIBSRT}/include/libsrt" bench-libsrt.c common.c -o bench-libsrt.exe $${LIBSRT}/lib/libsrt.a 
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${LIBSRT}/src" bench-libsrt.c common.c -o bench-libsrt.exe $${LIBSRT}/src/.libs/libsrt.a 
 	@./bench-libsrt.exe 20
 	@./bench-libsrt.exe 50
 
@@ -415,12 +415,12 @@ bench-maxdict:
 ############################################################################
 
 # BSTRLIB shall point to the BSTRLIB sources
-# LIBSRT shall point to the LIBSRT install directory
+# LIBSRT shall point to the LIBSRT sources
 bench-string:
 	@if test -n "$${BSTRLIB}" ; then $(MAKE) bench-string-step1 BENCH_DEF="-DBENCH_CAN_USE_BSTRLIB -I ${BSTRLIB} $${BSTRLIB}/obj/bstrlib.o $${BSTRLIB}/obj/bstraux.o $${BSTRLIB}/obj/bstrwrap.o" ; else $(MAKE) bench-string-step1 ; fi
 
 bench-string-step1:
-	@if test -n "$${LIBSRT}" ; then $(MAKE) bench-string-step2 BENCH_DEF="$(BENCH_DEF) -DBENCH_CAN_USE_LIBSRT -I$${LIBSRT}/include/libsrt $${LIBSRT}/lib/libsrt.a" ; else $(MAKE) bench-string-step2 BENCH_DEF="$(BENCH_DEF)"; fi
+	@if test -n "$${LIBSRT}" ; then $(MAKE) bench-string-step2 BENCH_DEF="$(BENCH_DEF) -DBENCH_CAN_USE_LIBSRT -I$${LIBSRT}/src $${LIBSRT}/src/.libs/libsrt.a" ; else $(MAKE) bench-string-step2 BENCH_DEF="$(BENCH_DEF)"; fi
 
 #NOTE: Need to build by hand sds.o since it is not build by default and sds.c is not compatible with C++
 bench-string-step2:
