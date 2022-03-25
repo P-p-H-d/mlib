@@ -48,11 +48,12 @@
  *
  */
 
+#define NDEBUG
+
 #include <stdio.h>
 #include <time.h>
 #include <limits.h>
 
-#define NDEBUG
 #define M_USE_SMALL_NAME 0
 #include "common.h"
 
