@@ -5348,6 +5348,11 @@ in the remaining array of characters of 'ref'.
 'offset' shall be within the range of index of the string 'ref'.
 'ref' and 'v' cannot be the same string.
 
+##### void string\_set\_si (string\_t v1, const int n)
+##### void string\_set\_ui (string\_t v1, const unsigned n)
+
+Set the string 'v1' to the character represenation of the integer 'n'.
+
 ##### void string\_init\_set(string\_t v1, const string\_t v2)
 
 Initialize 'v1' to the value of the string 'v2'.
@@ -8070,6 +8075,12 @@ Default value: 8 elements.
 Define the seed to inject to the hash computation of an object.
 
 Default value: 0 (predictable hash)
+
+### M\_USE\_FAST\_STRING\_CONV
+
+Use fast integer conversion algorithms instead of using the clib.
+
+Default value: 1 (because it also generates smaller code).
 
 ### M\_MEMORY\_ALLOC
 
