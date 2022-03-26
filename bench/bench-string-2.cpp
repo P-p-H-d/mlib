@@ -116,7 +116,7 @@ size_t bench_mlib(unsigned n)
   // P1
   for(unsigned i = 0; i < n; i++) {
     m_string_init(tab[i]);
-    m_string_printf(tab[i], "%u", rand_get());
+    m_string_set_ui(tab[i], rand_get());
   }
   // P2
   m_string_t str;
