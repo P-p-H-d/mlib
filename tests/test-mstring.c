@@ -640,6 +640,34 @@ static void test0(void)
   string_clear(s1);
 }
 
+static void test_int(void)
+{
+  string_t s;
+  char buffer[21];
+  
+  string_init(s);
+
+  for(unsigned i = 0; i <= 10000; i++) {
+    sprintf(buffer, "%u", i);
+    string_set_ui(s, i);
+    assert(string_equal_str_p(s, buffer));
+  }
+  string_set_ui(s, 4294967295U);
+  assert(string_equal_str_p(s, "4294967295"));
+
+  for(int i = -10000; i <= 10000; i++) {
+    sprintf(buffer, "%d", i);
+    string_set_si(s, i);
+    assert(string_equal_str_p(s, buffer));
+  }
+  string_set_si(s, 2147483647);
+  assert(string_equal_str_p(s, "2147483647"));
+  string_set_si(s, -2147483648);
+  assert(string_equal_str_p(s, "-2147483648"));
+  
+  string_clear(s);
+}
+
 static void test_bounded1(void)
 {
   string16_t s, d;
@@ -848,6 +876,7 @@ int main(void)
   test_parse_standard_c_type();
   test_utf8_basic();
   test_utf8_it();
+  test_int();
   test_bounded1();
   test_bounded_io();
   test_bounded_M_LET();

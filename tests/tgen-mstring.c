@@ -25,5 +25,10 @@
 
 size_t fsize(const char str[])
 {
-  return stringi_utf8_length(str);
+  return m_str1ng_utf8_length(str);
+}
+
+void convert(string_t s, unsigned n)
+{
+  m_string_set_ui(s, n);
 }
