@@ -75,6 +75,13 @@ typedef enum {
 /*                                                                     */
 /***********************************************************************/
 
+// The default behavior of M*LIB is to use the C library
+// and not rewrite the algorithms. However, the fast code
+// generates also smaller code, so we'll use it.
+#ifndef M_USE_FAST_STRING_CONV
+#define M_USE_FAST_STRING_CONV 1
+#endif
+
 /* Index returned in case of error instead of the position within the string */
 #define M_STRING_FAILURE ((size_t)-1)
 
@@ -954,6 +961,73 @@ m_string_replace_all (m_string_t v, const m_string_t str1, const m_string_t str2
   }
 }
 
+// Define the fast integer to string conversions if requested
+// or if no support for stdarg.
+#if M_USE_FAST_STRING_CONV == 1 || M_USE_STDARG == 0
+static inline void
+m_string_set_ui(m_string_t v, unsigned int n)
+{
+  M_STR1NG_CONTRACT (v);
+  // Compute the maximum number of characters needed for the buffer.
+#if UINT_MAX == 4294967295U
+  const size_t max_size = 10+1;
+#elif UINT_MAX <= 18446744073709551615UL
+  const size_t max_size = 20+1;
+#else
+# error Unexpected UINT_MAX value.
+#endif
+  char buffer[max_size];
+  m_str1ng_fit2size(v, max_size);
+  unsigned i = 0, j = 0;
+  do {
+    // 0123456789 are mandatory in this order as characters, as per C standard.
+    buffer[i++] = (char) ('0' + (n % 10U));
+    n /= 10U;
+  } while (n != 0);
+  M_ASSERT_INDEX(i, max_size);
+  char *d = m_str1ng_get_cstr(v);
+  while (i > 0) {
+    d[j++] = buffer[--i];
+  }
+  d[j] = 0;
+  m_str1ng_set_size(v, j);
+  M_STR1NG_CONTRACT (v);
+}
+
+static inline void
+m_string_set_si(m_string_t v, int n)
+{
+  M_STR1NG_CONTRACT (v);
+  // Compute the maximum number of characters needed for the buffer.
+#if INT_MAX == 2147483647
+  const size_t max_size = 1+10+1;
+#elif INT_MAX <= 9223372036854775807LL
+  const size_t max_size = 1+20+1;
+#else
+# error Unexpected INT_MAX value.
+#endif
+  char buffer[max_size];
+  m_str1ng_fit2size(v, max_size);
+  unsigned i = 0, j = 0;
+  bool neg = n < 0;
+  unsigned n0 = neg ? -(unsigned) n : (unsigned) n;
+  do {
+    // 0123456789 are mandatory in this order as characters, as per C standard.
+    buffer[i++] = (char) ('0' + (n0 % 10U));
+    n0 /= 10U;
+  } while (n0 != 0);
+  M_ASSERT_INDEX(i, max_size);
+  char *d = m_str1ng_get_cstr(v);
+  if (neg) d[j++] = '-';
+  while (i > 0) {
+    d[j++] = buffer[--i];
+  }
+  d[j] = 0;
+  m_str1ng_set_size(v, j);
+  M_STR1NG_CONTRACT (v);
+}
+#endif
+
 #if M_USE_STDARG
 
 /* Format in the string the given printf format */
@@ -1035,6 +1109,19 @@ m_string_cat_printf (m_string_t v, const char format[], ...)
   M_STR1NG_CONTRACT (v);
   return size;
 }
+
+#if M_USE_FAST_STRING_CONV == 0
+static inline void
+m_string_set_ui(m_string_t v, unsigned int n)
+{
+  m_string_printf(v, "%u", n);
+}
+static inline void
+m_string_set_si(m_string_t v, int n)
+{
+  m_string_printf(v, "%d", n);
+}
+#endif
 
 #endif // Have stdarg
 
@@ -2488,6 +2575,8 @@ namespace m_lib {
 #define string_push_u m_string_push_u
 #define string_length_u m_string_length_u
 #define string_utf8_p m_string_utf8_p
+#define string_set_ui m_string_set_ui
+#define string_set_si m_string_set_si
 
 #define STRING_CTE M_STRING_CTE
 #define STRING_DECL_INIT M_STRING_DECL_INIT
