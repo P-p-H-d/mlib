@@ -320,7 +320,7 @@ the mpz\_init function for the INIT operator of the type (aka constructor),
 the mpz\_clear function for the CLEAR operator of the type (aka destructor),
 the mpz\_set function for the SET operator of the type (aka copy),
 the mpz\_init\_set function for the INIT\_SET operator of the type (aka copy constructor).
-See oplist chapter for more detailled information.
+See oplist chapter for more detailed information.
 
 We can also write the same example shorter:
 
@@ -546,7 +546,7 @@ Other documented operators are:
 * INC\_ALLOC(size\_t s) -> size\_t: Define the growing policy of an array (or equivalent structure). It returns a new allocation size based on the old allocation size ('s'). Default policy is to get the maximum between '2*s' and 16. NOTE: It doesn't check for overflow: if the returned value is lower than the old one, the user shall raise an overflow error.
 * INIT\_MOVE(objd, objc): Initialize 'objd' to the same state than 'objc' by stealing as much resources as possible from 'objc', and then clear 'objc' (constructor of objd + destructor of objc). It is semantically equivalent to calling INIT\_SET(objd,objc) then CLEAR(objc) but is usually way faster. By default, all objects are assumed to be **trivially movable** (i.e. using memcpy to move an object is safe). Most C objects (even complex structure) are trivially movable. A notable exception are intrusive objects. If an object is not trivially movable, it shall provide an INIT\_MOVE method or disable the INIT\_MOVE method entirely (NOTE: Some containers always assume that the objects are trivially movable). An INIT\_MOVE operator shall not fail. Moved objects shall use the same memory allocator.
 * MOVE(objd, objc): Set 'objd' to the same state than 'objc' by stealing as resources as possible from 'objc' and then clear 'objc' (destructor of 'objc'). It is equivalent to calling SET(objd,objc) then CLEAR(objc) or CLEAR(objd) and then INIT\_MOVE(objd, objc). TBC if this operator is really needed as calling CLEAR then INIT\_MOVE is what do all known implementation, and is efficient. A MOVE operator shall not fail. Moved objects shall use the same memory allocator.
-* INIT\_WITH(obj, ...): Initialize the object 'obj' with the given variable set of arguments (constructor). Arguments can be of different types. It is up to the method of the objet to decide how to initialize the object based on this initialization array. This operator is used in the M\_LET macro to initialize objects with their given values.
+* INIT\_WITH(obj, ...): Initialize the object 'obj' with the given variable set of arguments (constructor). Arguments can be of different types. It is up to the method of the object to decide how to initialize the object based on this initialization array. This operator is used in the M\_LET macro to initialize objects with their given values.
 * SWAP(objd, objc): Swap the states of the object 'objc' and the object 'objd'.  The objects shall use the same allocator.
 * RESET(obj): Reset the object to its init state (Emptying the object if it is an object).
 * EMPTY\_P(obj) --> bool: Test if the container object is empty (true) or not.
@@ -565,7 +565,7 @@ Other documented operators are:
 * PUSH(obj, subobj) : Push 'subobj' (of type SUBTYPE() ) into the container 'obj'. How and where it is pushed is container dependent.
 * POP(&subobj, obj) : Pop an object from the container 'obj' and save it in the object '*subobj' (of type SUBTYPE()) if subobj is not NULL (giving back the ownership of the sub object to the caller). Which object is popped is container dependent. The container shall have at least one object.
 * PUSH\_MOVE(obj, &subobj) : Push and move the object '*subobj' (of type SUBTYPE()) into the container 'obj' (subobj destructor). How it is pushed is container dependent. '*subobj' is cleared afterward and shall not be used anymore.
-* POP\_MOVE(&subobj, obj) : Pop an object from the container'obj' and **init & move** it in the unitialized object '*subobj' (*subobj constructor). Which object is popped is container dependent. '*subobj' shall be uninitialized. The container shall have at least one object.
+* POP\_MOVE(&subobj, obj) : Pop an object from the container'obj' and **init & move** it in the uninitialized object '*subobj' (*subobj constructor). Which object is popped is container dependent. '*subobj' shall be uninitialized. The container shall have at least one object.
 * IT\_TYPE() --> type: Return the type of the iterator object of this container.
 * IT\_FIRST(it\_obj, obj): Set the iterator it\_obj to the first sub-element of the container 'obj'. What is the first element is container dependent (it may be front or back, or something else). However, iterating from FIRST to LAST (included) or END (excluded) through IT\_NEXT ensures going through all elements of the container. If there is no sub-element in the container, it references an end of the container.
 * IT\_LAST(it\_obj, obj): Set the iterator it\_obj to the last sub-element of the container 'obj'.  What is the last element is container dependent (it may be front or back, or something else). However, iterating from LAST to FIRST (included) or END (excluded) through IT\_PREVIOUS ensures going through all elements of the container. If there is no sub-element in the container, it references an end of the container.
@@ -772,7 +772,7 @@ The list of errors it can generate:
 * M\_LIB\_NOT\_AN\_OPLIST: something has been given (directly or indirectly) and it doesn't reduce as a proper oplist. You need to give an oplist for this definition.
 * M\_LIB\_ERROR(ARGUMENT\_OF\_\*\_OPLIST\_IS\_NOT\_AN\_OPLIST, name, oplist): sub error of the previous error one, identifying the root cause. The error is in the oplist construction of the given macro. You need to give an oplist for this oplist construction.
 * M\_LIB\_MISSING\_METHOD: a required operator doesn't define any method in the given oplist. You need to complete the oplist with the missing method.
-* M\_LIB\_TYPE\_MISTMACH: the given oplist and the type do not match each other. You need to give the right oplist for this type.
+* M\_LIB\_TYPE\_MISMATCH: the given oplist and the type do not match each other. You need to give the right oplist for this type.
 * M\_LIB\_NOT\_A\_DEFAULT\_TYPE: The oplist M\_DEFAULT\_OPLIST (directly or indirectly) has been used with the given type, but the given type is not a default type. You need to give the right oplist for this type.
 
 You should focus mainly on the first reported error/warning
@@ -2338,7 +2338,7 @@ Example:
 	static inline bool oor_equal_p(unsigned k, unsigned char n) {
 	  return k == (unsigned)(-n-1);
 	}
-	// Define an Out Of Range setnction
+	// Define an Out Of Range function
 	static inline void oor_set(unsigned *k, unsigned char n) {
 	  *k = (unsigned)(-n-1);
 	}
@@ -2597,7 +2597,7 @@ This method is only defined if the type of the element defines a EQUAL method it
 
 Move all items from 'dict2' into 'dict1'.
 If there is the same key between 'dict2' into 'dict1', then their values are added (as per the ADD method of the value type).
-Afterward 'dict2' is reseted.
+Afterward 'dict2' is reset.
 This method is only defined if the value type defines an ADD method.
 
 
@@ -2728,7 +2728,7 @@ There is as many methods as there are elements.
 
 Compare 'tuple1' to 'tuple2' using lexicographic order of the fields defining the CMP method.
 This method is created only if at least one Oplist of the tuple define CMP method.
-You can disable the use of a field for the comparaison of the tuple
+You can disable the use of a field for the comparison of the tuple
 by disabling the CMP operator of such field ( with CMP(0) in its oplist )
 
 ##### int name\_cmp\_order(const name\_t tuple1, const name\_t tuple2, const int order[])
@@ -2992,7 +2992,7 @@ The created methods will use the operators to init, set and clear the contained 
 
 Some methods may return a modifiable pointer to the found element
 (for example, _get). In this case, the user shall not modify the
-key ordre of the element, as there is no reordering of the tree
+key order of the element, as there is no reordering of the tree
 in this case.
 
 Example:
@@ -4084,7 +4084,7 @@ This header is for created snapshots.
 
 A snapshot is a mechanism enabling a reader thread and a writer thread,
  **working at different speeds**, to exchange messages in a fast, reliable and thread safe way
-(the message is always passed atomatically from a thread point of view) without waiting
+(the message is always passed atomically from a thread point of view) without waiting
 for synchronization.
 The consumer thread always accesses to the latest published data of the producer thread.
 
@@ -5199,21 +5199,21 @@ Return a hash value of 'array'.
 
 ##### void bitset\_and(bitset\_t dst, const bitset\_t src)
 
-Perform a bitwise AND operation in 'dst' between 'dst' and 'src'
+Perform a bit-wise AND operation in 'dst' between 'dst' and 'src'
 (effectively performing an intersection of the sets).
 
 ##### void bitset\_or(bitset\_t dst, const bitset\_t src)
 
-Perform a bitwise OR operation in 'dst' between 'dst' and 'src'
+Perform a bit-wise OR operation in 'dst' between 'dst' and 'src'
 (effectively performing an union of the sets).
 
 ##### void bitset\_xor(bitset\_t dst, const bitset\_t src)
 
-Perform a bitwise XOR operation in 'dst' between dst and src.
+Perform a bit-wise XOR operation in 'dst' between dst and src.
 
 ##### void bitset\_not(bitset\_t dst)
 
-Perform a bitwise NOT operation for dst.
+Perform a bit-wise NOT operation for dst.
 
 ##### size\_t bitset\_clz(const bitset\_t src)
 
@@ -5351,7 +5351,7 @@ in the remaining array of characters of 'ref'.
 ##### void string\_set\_si (string\_t v1, const int n)
 ##### void string\_set\_ui (string\_t v1, const unsigned n)
 
-Set the string 'v1' to the character represenation of the integer 'n'.
+Set the string 'v1' to the character representation of the integer 'n'.
 
 ##### void string\_init\_set(string\_t v1, const string\_t v2)
 
@@ -6151,7 +6151,7 @@ instead only print the argument list (and so two arguments).
 
 This need to be called within a M\_APPLY macro.
 
-Experimental macro. It may dissapear or change in a broken way.
+Experimental macro. It may disappear or change in a broken way.
 
 ##### M\_DEFAULT\_ARGS(nbExpectedArg, (defaultArgumentlist), argumentList )
 
@@ -6164,7 +6164,7 @@ Example:
 The last 3 arguments have their default value as 0 (for b),
 1 (for p) and NULL (for q).
 
-Experimental macro. It may dissapear or change in a broken way.
+Experimental macro. It may disappear or change in a broken way.
 
 ##### M\_DEFERRED\_COMMA
 
@@ -6269,7 +6269,7 @@ NOTE: It is equivalent to the container\_of macro of the Linux kernel.
 
 ##### M\_CSTR(format, ...)
 
-Return a constant string constructed based on the printf-liked formated string
+Return a constant string constructed based on the printf-liked formatted string
 and its arguments.
 
 The string is constructed at run time and uses a temporary space on the stack.
@@ -6287,12 +6287,12 @@ A User modifiable macro defining the initial random seed (of type size\_t).
 It shall be define before including any header of M\*LIB,
 so that hash functions use this variable
 as their initial seed for their hash computation of an object. 
-It can be used to generate less predictable hash values at runtime, 
+It can be used to generate less predictable hash values at run-time, 
 which may protect against 
 [DOS dictionary attacks](https://events.ccc.de/congress/2011/Fahrplan/attachments/2007_28C3_Effective_DoS_on_web_application_platforms.pdf).
 It shall be unique for a running instance of M\*LIB.
-Note that using a random seed is not enough to protect efficienly againt
-such attacks. A cryptographic secure hash may be also needed.
+Note that using a random seed is not enough to protect efficiently against
+such attacks. A cryptography secure hash may be also needed.
 If it is not defined, the default is to use the value 0,
 making all hash computations predictable.
 
@@ -6541,7 +6541,7 @@ In both cases, the empty initializer INIT operator is not called.
 LIMITATION:
 An argument shall not contain any comma or it shall be put
 between parenthesis. In particular, if the argument is a compound
-litteral the full compound litteral shall be put between parenthesis
+literal the full compound literal shall be put between parenthesis
 and casted to the right type outside the parenthesis (due to the conflict
 with the INIT\_WITH detection it is needed to put something outside the
 parenthesis like a cast).
@@ -7552,7 +7552,7 @@ doesn't reallocate it.
 
 Apply the function 'func' 
 to each element of the container 'contSrc' of oplist 'contSrcOplist' 
-and store its outptut in the container 'contDst' of oplist 'contDstOplist'
+and store its output in the container 'contDst' of oplist 'contDstOplist'
 so that 'contDst = func(contSrc)'. Exact algorithm is:
      
      clean(contDst)
@@ -7686,7 +7686,7 @@ There is only one method for such type (see below).
 
 The call function of the interface object.
 It will call the particular implemented callback of the instance of this interface.
-It shall only be used by an inteface object derived from an instance.
+It shall only be used by an interface object derived from an instance.
 
 
 #### FUNC\_OBJ\_INS\_DEF(name, interface\_name, (param\_name\_1, ...), { callback\_core }, (self\_member1, self\_type1[, self\_oplist1]), ...)
@@ -8023,7 +8023,7 @@ Define the thread backend to use by m-mutex.h:
 * 2: for WINDOWS header windows.h
 * 3: for POSIX THREAD header pthread.h
 
-Default value: autodetect in function of the running system.
+Default value: auto-detect in function of the running system.
 
 ### M\_USE\_WORKER
 
@@ -8047,7 +8047,7 @@ Default value: 1 (compiled in C++), 0 (otherwise)
 ### M\_USE\_BACKOFF\_MAX\_COUNT
 
 Define the maximum iteration of the backoff exponential scheme
-for the synchronization waiting loop of multithreading code.
+for the synchronization waiting loop of multi-threading code.
 
 Default value: 6
 
@@ -8078,7 +8078,7 @@ Default value: 0 (predictable hash)
 
 ### M\_USE\_FAST\_STRING\_CONV
 
-Use fast integer conversion algorithms instead of using the clib.
+Use fast integer conversion algorithms instead of using the LIBC.
 
 Default value: 1 (because it also generates smaller code).
 
