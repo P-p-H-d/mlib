@@ -261,7 +261,7 @@ m_string_reset(m_string_t v)
   M_STR1NG_CONTRACT (v);
 }
 
-/* Return the selected character of the string */
+/* Return the selected byte-character of the string */
 static inline char
 m_string_get_char(const m_string_t v, size_t index)
 {
@@ -270,7 +270,7 @@ m_string_get_char(const m_string_t v, size_t index)
   return m_string_get_cstr(v)[index];
 }
 
-/* Set the selected character of the string */
+/* Set the selected byte-character of the string */
 static inline void
 m_string_set_char(m_string_t v, size_t index, const char c)
 {
@@ -304,11 +304,13 @@ m_str1ng_fit2size (m_string_t v, size_t size_alloc)
   // for very short constant strings.
   M_ASSUME(old_alloc >= sizeof (m_str1ng_heap_ct) - 1);
   if (M_UNLIKELY (size_alloc > old_alloc)) {
+    // Insufficient current allocation to store the new string
+    // Perform an allocation on the heap.
     size_t alloc = size_alloc + size_alloc / 2;
     if (M_UNLIKELY (alloc <= old_alloc)) {
       /* Overflow in alloc computation */
       M_MEMORY_FULL(sizeof (char) * alloc);
-      // NOTE: Return is broken...
+      // NOTE: Return is currently broken.
       abort();
       return NULL;
     }
@@ -319,14 +321,18 @@ m_str1ng_fit2size (m_string_t v, size_t size_alloc)
       abort();
       return NULL;
     }
+    // The pointer cannot be the stack buffer of the string.
+    // as it is heap allocated
     M_ASSERT(ptr != &v->u.stack.buffer[0]);
     if (m_str1ng_stack_p(v)) {
+      // The string was stack allocated.
       /* Copy the stack allocation into the new heap allocation */
       const size_t size = (size_t) v->u.stack.buffer[sizeof (m_str1ng_heap_ct) - 1] + 1U;
       M_ASSERT( size <= alloc);
       M_ASSERT( size <= sizeof (v->u.stack.buffer)-1);
       memcpy(ptr, &v->u.stack.buffer[0], size);
     }
+    // The string cannot be stack allocated anymore.
     v->ptr = ptr;
     v->u.heap.alloc = alloc;
     return ptr;
@@ -335,7 +341,8 @@ m_str1ng_fit2size (m_string_t v, size_t size_alloc)
 }
 
 /* Modify the string capacity to be able to handle at least 'alloc'
-   characters (including final nul char) */
+   characters (including final nul char).
+   It may reduce the allocation of the string if possible */
 static inline void
 m_string_reserve(m_string_t v, size_t alloc)
 {
@@ -361,6 +368,8 @@ m_string_reserve(m_string_t v, size_t alloc)
   } else {
     // Allocation cannot fit in the stack space
     // Need to allocate in heap space
+    // If the string is stack allocated, v->ptr is NULL
+    // and it will therefore perform the initial allocation
     char *ptr = M_MEMORY_REALLOC (char, v->ptr, alloc);
     if (M_UNLIKELY (ptr == NULL) ) {
       M_MEMORY_FULL(sizeof (char) * alloc);
@@ -386,6 +395,7 @@ m_string_set_str(m_string_t v, const char str[])
   M_ASSERT(str != NULL);
   size_t size = strlen(str);
   char *ptr = m_str1ng_fit2size(v, size+1);
+  // The memcpy will also copy the final null char of the string
   memcpy(ptr, str, size+1);
   m_str1ng_set_size(v, size);
   M_STR1NG_CONTRACT (v);
@@ -400,6 +410,7 @@ m_string_set_strn(m_string_t v, const char str[], size_t n)
   size_t len  = strlen(str);
   size_t size = M_MIN (len, n);
   char *ptr = m_str1ng_fit2size(v, size+1);
+  // The memcpy will not copy the final null char of the string
   memcpy(ptr, str, size);
   ptr[size] = 0;
   m_str1ng_set_size(v, size);
@@ -430,6 +441,7 @@ m_string_set_n(m_string_t v, const m_string_t ref, size_t offset, size_t length)
   M_ASSERT_INDEX (offset, m_string_size(ref) + 1);
   size_t size = M_MIN (m_string_size(ref) - offset, length);
   char *ptr = m_str1ng_fit2size(v, size+1);
+  // v may be equal to ref, so a memmove is needed instead of a memcpy
   memmove(ptr, m_string_get_cstr(ref) + offset, size);
   ptr[size] = 0;
   m_str1ng_set_size(v, size);
@@ -473,6 +485,8 @@ m_string_swap(m_string_t v1, m_string_t v2)
 {
   M_STR1NG_CONTRACT (v1);
   M_STR1NG_CONTRACT (v2);
+  // Even if it is stack based, we swap the heap representation
+  // which alias the stack based
   M_SWAP (size_t, v1->u.heap.size,  v2->u.heap.size);
   M_SWAP (size_t, v1->u.heap.alloc, v2->u.heap.alloc);
   M_SWAP (char *, v1->ptr,   v2->ptr);
@@ -490,7 +504,7 @@ m_string_move(m_string_t v1, m_string_t v2)
   m_string_init_move(v1,v2);
 }
 
-/* Push the character 'c' in the string 'v' */
+/* Push the byte-character 'c' in the string 'v' */
 static inline void
 m_string_push_back (m_string_t v, char c)
 {
@@ -1706,7 +1720,11 @@ m_string_it_set(m_string_it_t it, const m_string_it_t itsrc)
   it->u        = itsrc->u;
 }
 
-/* Test if the iterator has reached the end of the string */
+/* Test if the iterator has reached the end of the string.
+   As it is where we perform the UTF8 decoding, the user 
+   needs to call this function at least once before any other
+   function, which is normally the case as the user shall test
+   if the stream is not empty before reading it. */
 static inline bool
 m_string_end_p (m_string_it_t it)
 {
@@ -1720,7 +1738,9 @@ m_string_end_p (m_string_it_t it)
     m_str1ng_utf8_decode(*str, &state, &u);
     str++;
   } while (state != M_STR1NG_UTF8_STARTING && state != M_STR1NG_UTF8_ERROR && *str != 0);
+  // Save where the current unicode value ends in the UTF8 steam
   it->next_ptr = str;
+  // Save the decoded unicode value
   it->u = M_UNLIKELY (state == M_STR1NG_UTF8_ERROR) ? M_STRING_UNICODE_ERROR : u;
   return false;
 }
@@ -1740,6 +1760,8 @@ static inline void
 m_string_next (m_string_it_t it)
 {
   M_ASSERT (it != NULL);
+  // We already decoded the UTF8 stream
+  // Read the decoded value
   it->ptr = it->next_ptr;
 }
 
