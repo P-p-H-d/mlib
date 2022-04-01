@@ -844,7 +844,7 @@ For example:
 * [SGLIB](http://sglib.sourceforge.net/)
 * [Smart pointer for GNUC](https://github.com/Snaipe/libcsptr)
 * [STB stretchy_buffer](https://github.com/nothings/stb)
-* [STC - C99 Standard Container library](https://github.com/tylov/C99Containers)
+* [STC - Smart Template Container for C](https://github.com/tylov/STC)
 * [TommyDS](https://github.com/amadvance/tommyds)
 * [UTHASH](http://troydhanson.github.io/uthash/index.html)
 
