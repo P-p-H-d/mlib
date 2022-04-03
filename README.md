@@ -4223,7 +4223,153 @@ It is the same as the last return from name\_read.
 It doesn't perform any switch of the data that has to be read.
 This function is thread-safe and performs atomic operation on the snapshot.
 
-TODO: Document SPMC & MPMC snapshots
+
+#### SNAPSHOT\_SPMC\_DEF(name, type[, oplist])
+#### SNAPSHOT\_SPMC\_DEF\_AS(name, name\_t, type[, oplist])
+
+Define the snapshot 'name ## \_t' (or 'name\_t') and its associated methods as "static inline" functions.
+A snapshot is an atomic shared register where only the latest state is
+important and accessible: it is like a global variable of type 'type'
+but ensuring integrity and coherency of the data accross multiple threads.
+One single writer and multiple (=N) readers are supported.
+In practice, it is implemented using a 'N+2' buffer (lock-free).
+
+It shall be done once per type and per compilation unit. Not all functions are thread safe.
+
+The oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
+otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+or a globally registered oplist is used.
+The created methods will use the operators to init, set and clear the contained object.
+
+SNAPSHOT\_SPMC\_DEF\_AS is the same as SNAPSHOT\_SPMC\_DEF except the name of the type name\_t is provided.
+
+
+#### Created methods
+
+The following methods are automatically and properly created by the previous macros.
+In the following methods, name stands for the name given to the macro that is used to identify the type.
+snapshot\_t refers to either 'name ## \_t' or the provided 'name\_t'
+
+##### void name\_init(snapshot\_t snapshot, size\_t numReaders)
+
+Initialize the communication snapshot 'snapshot' with 'numReaders' reader threads.
+'numReaders' shall be less than 2046.
+This function is not thread safe.
+
+##### void name\_clear(snapshot\_t snapshot)
+
+Clear the snapshot and destroy all its allocations.
+This function is not thread safe.
+
+##### type *name\_write(snapshot\_t snap)
+
+Publish the 'in-progress' data of the snapshot 'snap so that the read
+threads can have access to the data.
+It returns the pointer to the new 'in-progress' data buffer 
+of the snapshot (which is not yet published but will be published 
+for the next call of name\_write).
+This function is thread-safe and performs atomic operation on the snapshot.
+
+##### type *name\_read\_start(snapshot\_t snap)
+
+Get access to the last published data of the snapshot 'snap'.
+It returns the pointer to the data.
+If a publication has been performed since the last call to name\_read\_start
+a new pointer to the data is returned. 
+Otherwise the previous pointer is returned.
+
+It marks the data has being reserved by the thread,
+so afterwards, using the pointer is safe until the end of the reservation.
+This function is thread-safe and performs atomic operation on the snapshot.
+
+For each call to name\_read\_start a matching call to
+name\_read\_end shall be performed by the same thread before
+any new call to name\_read\_start.
+
+##### type *name\_read\_end(snapshot\_t snap, type *old)
+
+End the reservation of the data 'old'.
+This function is thread-safe and performs atomic operation on the snapshot.
+
+##### type *name\_get\_write\_buffer(snapshot\_t snap)
+
+Return a pointer to the active 'in-progress' data of the snapshot 'snap'.
+It is the same as the last return from name\_write.
+This function is thread-safe and performs atomic operation on the snapshot.
+
+
+#### SNAPSHOT\_MPMC\_DEF(name, type[, oplist])
+#### SNAPSHOT\_MPMC\_DEF\_AS(name, name\_t, type[, oplist])
+
+Define the snapshot 'name ## \_t' (or 'name\_t') and its associated methods as "static inline" functions.
+A snapshot is an atomic shared register where only the latest state is
+important and accessible: it is like a global variable of type 'type'
+but ensuring integrity and coherency of the data accross multiple threads.
+Multiple (=M) writers and multiple (=N) readers are supported.
+In practice, it is implemented using a 'M+N+2' buffer (lock-free)
+by avoiding copying the data.
+
+It shall be done once per type and per compilation unit. Not all functions are thread safe.
+
+The oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
+otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+or a globally registered oplist is used.
+The created methods will use the operators to init, set and clear the contained object.
+
+SNAPSHOT\_MPMC\_DEF\_AS is the same as SNAPSHOT\_MPMC\_DEF except the name of the type name\_t is provided.
+
+
+#### Created methods
+
+The following methods are automatically and properly created by the previous macros.
+In the following methods, name stands for the name given to the macro that is used to identify the type.
+snapshot\_t refers to either 'name ## \_t' or the provided 'name\_t'
+
+##### void name\_init(snapshot\_t snapshot, size\_t numReaders, size\_t numWriters)
+
+Initialize the communication snapshot 'snapshot' with 'numReaders' reader threads
+and 'numWriters' writer threads.
+The sum of 'numReaders' and 'numWriters' shall be less than 2046.
+This function is not thread safe.
+
+##### void name\_clear(snapshot\_t snapshot)
+
+Clear the snapshot and destroy all its allocations.
+This function is not thread safe.
+
+##### type *name\_write\_start(snapshot\_t snap)
+
+Return the current 'in-progress' data of the snapshot 'snap
+so that the writer thread can update this data.
+This function is thread-safe and performs atomic operation on the snapshot.
+
+##### type *name\_write\_end(snapshot\_t snap, type *data)
+
+Mark the provided 'in-progress' data of the snapshot 'snap
+as available for the reader threads: this will be the new seen data.
+This function is thread-safe and performs atomic operation on the snapshot.
+
+##### type *name\_read\_start(snapshot\_t snap)
+
+Get access to the last published data of the snapshot 'snap'.
+It returns the pointer to the data.
+If a publication has been performed since the last call to name\_read\_start
+a new pointer to the data is returned. 
+Otherwise the previous pointer is returned.
+
+It marks the data has being reserved by the thread,
+so afterwards, using the pointer is safe until the end of the reservation.
+This function is thread-safe and performs atomic operation on the snapshot.
+
+For each call to name\_read\_start a matching call to
+name\_read\_end shall be performed by the same thread before
+any new call to name\_read\_start.
+
+##### type *name\_read\_end(snapshot\_t snap, type *old)
+
+End the reservation of the data 'old'.
+This function is thread-safe and performs atomic operation on the snapshot.
+
 
 
 ### M-SHARED
