@@ -5,8 +5,7 @@
 #include "m-rbtree.h"
 
 // Let's define one utility function.
-void *xmalloc(size_t n);
-void *xmalloc(size_t n)
+static void *xmalloc(size_t n)
 {
   void *p = malloc (n);
   if (!p) abort();
