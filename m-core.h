@@ -3578,19 +3578,21 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 /* If 'a' seems to be an oplist, it returns a,
    else if a symbol composed of M_OPL_##a() exists and is defined as an oplist, it returns it
-   else it returns a.
+   else it returns a (but it is likely to fail latter).
    In short, if a global oplist is defined for the argument, it returns it
    otherwise it returns the argument.
    Global oplist is limited to typedef types.
+   We need to delay the concat between M_OPL_ and a until we know it cannot be an oplist
+   as if a is an oplist the concat of M_OPL_ and an oplist will produce an illegal token.
 */
 #define M_GLOBAL_OPLIST(a)                                                    \
-  M_IF( M_OPLIST_P(a))(M_GLOBALI_ID, M_GLOBALI_OPLIST_ELSE)(a)
-#define M_GLOBALI_ID(a)                     a
+  M_IF( M_OPLIST_P(a))(M_GLOBALI_OPLIST_ID, M_GLOBALI_OPLIST_ELSE)(a)
+#define M_GLOBALI_OPLIST_ID(a)              a
 #define M_GLOBALI_OPLIST_ELSE(a)            M_GLOBALI_OPLIST_ELSE2(a, M_C(M_OPL_, a)())
 #define M_GLOBALI_OPLIST_ELSE2(a, op)       M_IF( M_OPLIST_P (op))(op, a)
 
 #define M_GLOBAL_TYPE(a)                                                      \
-  M_IF( M_OPLIST_P(a))(M_GLOBALI_TYPE_GET, M_GLOBALI_ID)(a)
+  M_IF( M_OPLIST_P(a))(M_GLOBALI_TYPE_GET, M_GLOBALI_OPLIST_ID)(a)
 #define M_GLOBALI_TYPE_GET(a)              M_GET_TYPE a
 
 /* If a symbol composed of M_OPL_##a() exists and is defined as an oplist,
@@ -3601,6 +3603,8 @@ m_core_parse2_enum (const char str[], const char **endptr)
    NOTE: It doesn't test if M_OPL_##a() is exactly an oplist (M_OPLIST_P)
    but rather than if it starts with parenthesis: this is to allow
    M_OPL_a() to expand into an invalid oplist ((M_LIB_ERRROR()))
+   NOTE: The result of this macro shall be evaluated like this:
+       M_GLOBAL_OPLIST_OR_DEF(type)()
 */
 #define M_GLOBAL_OPLIST_OR_DEF(a)                                             \
   M_IF( M_PARENTHESIS_P(a))(M_GLOBALI_OPLIST_DEFAULT1, M_GLOBALI_OPLIST_OR_DEF_ELSE)(a)
@@ -3610,26 +3614,15 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_GLOBALI_OPLIST_OR_DEF_ELSE2(a, op)  M_IF( M_PARENTHESIS_P(op))(M_C(M_OPL_, a), M_GLOBALI_OPLIST_DEFAULT2)
 
 
-/* Register simple classic C types (no qualifier) */
+/* Register simple classic C types (no qualifier)
+ * We cannot register type with qualifier (for example long long) however.
+ */
 #define M_OPL_char() M_BASIC_OPLIST
 #define M_OPL_short() M_BASIC_OPLIST
 #define M_OPL_int() M_BASIC_OPLIST
 #define M_OPL_long() M_BASIC_OPLIST
 #define M_OPL_float() M_BASIC_OPLIST
 #define M_OPL_double() M_BASIC_OPLIST
-
-/* Add as suffix for the given function the number of arguments of the calls.
-   Can be used to call different function in function of the number of arguments. */
-#define M_SUFFIX_FUNCTION_BY_NARGS(function, ...) M_C3(function, _, M_NARGS(__VA_ARGS__))
-
-/* Call different INIT_WITH method in function of the number of arguments of the call,
- * to be used in an OPLIST.
- * Shall be used with API_1 call (example INIT_WITH(API_1(M_INIT_WITH_NVAR)) )
- * Shall define a NAME base method
- * All INIT_WITH methods shall be named as name ## _init_with_ ## NARGS
- */
-#define M_INIT_WITH_NVAR(oplist, ...)                                         \
-  M_SUFFIX_FUNCTION_BY_NARGS(M_C(M_GET_NAME oplist, _init_with), __VA_ARGS__)(__VA_ARGS__)
 
 
 /************************************************************/
@@ -3780,6 +3773,25 @@ m_core_parse2_enum (const char str[], const char **endptr)
       for( (void) 0; cont; cont = false)                                      \
 
 
+
+/************************************************************/
+/******************* INIT_WITH Enhancing ********************/
+/************************************************************/
+
+/* Add as suffix for the given function the number of arguments of the calls.
+   Can be used to call different function in function of the number of arguments. */
+#define M_SUFFIX_FUNCTION_BY_NARGS(function, ...) M_C3(function, _, M_NARGS(__VA_ARGS__))
+
+/* Call different INIT_WITH method in function of the number of arguments of the call,
+ * to be used in an OPLIST.
+ * Shall be used with API_1 call (example INIT_WITH(API_1(M_INIT_WITH_NVAR)) )
+ * Shall define a NAME base method
+ * All INIT_WITH methods shall be named as name ## _init_with_ ## NARGS
+ */
+#define M_INIT_WITH_NVAR(oplist, ...)                                         \
+  M_SUFFIX_FUNCTION_BY_NARGS(M_C(M_GET_NAME oplist, _init_with), __VA_ARGS__)(__VA_ARGS__)
+
+
 /* Initialize the container 'dest' as per 'oplist' INIT operator
    and fill it with the given VA arguments with the PUSH operator.
    NOTE: If the REVERSE operator exists, it assumes a list,
@@ -3817,6 +3829,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
     (void) M_C(M_GET_NAME op, _push_raw)(d),                                  \
     M_IF(M_PARENTHESIS_P( a ))(M_CALL_INIT_WITH, M_CALL_INIT_SET)(M_GET_OPLIST op, *M_C( M_GET_NAME op , _back)(d), M_REMOVE_PARENTHESIS (a)) \
   )
+
 
 /* Initialize the container 'dest' as per 'oplist' INIT operator
    and fill it with the given VA argument
