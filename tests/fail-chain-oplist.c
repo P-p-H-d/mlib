@@ -64,14 +64,14 @@ BPTREE_DEF(bptree2, 5, bptree_t, BPTREE_OPLIST(bptree, DEFAULT_OPLIST))
 #include "m-bptree.h"
 
 BPTREE_DEF2(bptree, 4, int, int)
-BPTREE_DEF2(bptree2, 5, bptree_t, BPTREE_OPLIST2(bptree, DEFAULT_OPLIST, M_DEFAULT_OPLIST), int, M_DEFAULT_OPLIST)
+BPTREE_DEF2(bptree2, 5, bptree_t, BPTREE_OPLIST2(bptree, DEFAULT_OPLIST, M_BASIC_OPLIST), int, M_BASIC_OPLIST)
 
 #elif TEST == 6
 
 #include "m-bptree.h"
 
 BPTREE_DEF2(bptree, 4, int, int)
-BPTREE_DEF2(bptree2, 5, bptree_t, BPTREE_OPLIST2(bptree, M_DEFAULT_OPLIST, DEFAULT_OPLIST), int, M_DEFAULT_OPLIST)
+BPTREE_DEF2(bptree2, 5, bptree_t, BPTREE_OPLIST2(bptree, M_BASIC_OPLIST, DEFAULT_OPLIST), int, M_BASIC_OPLIST)
 
 #elif TEST == 7
 
@@ -86,7 +86,7 @@ BUFFER_DEF(buffer2, buffer_t, 5, BUFFER_QUEUE, BUFFER_OPLIST(buffer, DEFAULT_OPL
 #include "m-concurrent.h"
 
 ARRAY_DEF(array, int)
-CONCURRENT_DEF(array2, array_t, ARRAY_OPLIST(array, M_DEFAULT_OPLIST))
+CONCURRENT_DEF(array2, array_t, ARRAY_OPLIST(array, M_BASIC_OPLIST))
 ARRAY_DEF(array3, array2_t, CONCURRENT_OPLIST(array2, ARRAY_OPLIST(array, DEFAULT_OPLIST)))
 
 #elif TEST == 9
@@ -94,14 +94,14 @@ ARRAY_DEF(array3, array2_t, CONCURRENT_OPLIST(array2, ARRAY_OPLIST(array, DEFAUL
 #include "m-dict.h"
 
 DICT_DEF2(dict, int, int)
-DICT_DEF2(dict2, int, M_DEFAULT_OPLIST, dict_t, DICT_OPLIST(dict, DEFAULT_OPLIST, M_DEFAULT_OPLIST) )
+DICT_DEF2(dict2, int, M_BASIC_OPLIST, dict_t, DICT_OPLIST(dict, DEFAULT_OPLIST, M_BASIC_OPLIST) )
 
 #elif TEST == 10
 
 #include "m-dict.h"
 
 DICT_DEF2(dict, int, int)
-DICT_DEF2(dict2, int, M_DEFAULT_OPLIST, dict_t, DICT_OPLIST(dict, M_DEFAULT_OPLIST, DEFAULT_OPLIST) )
+DICT_DEF2(dict2, int, M_BASIC_OPLIST, dict_t, DICT_OPLIST(dict, M_BASIC_OPLIST, DEFAULT_OPLIST) )
 
 #elif TEST == 11
 
@@ -140,64 +140,64 @@ CONCURRENT_DEF(array, tmpstr_t, ISHARED_PTR_OPLIST(tmpstr, X()))
 #include "m-prioqueue.h"
 
 PRIOQUEUE_DEF(prioqueue, int)
-PRIOQUEUE_DEF(prioqueue2, prioqueue_t, PRIOQUEUE_OPLIST(prioqueue, M_DEFAULT_OPLIST()))
+PRIOQUEUE_DEF(prioqueue2, prioqueue_t, PRIOQUEUE_OPLIST(prioqueue, M_BASIC_OPLIST()))
 
 #elif TEST == 15
 
 #include "m-rbtree.h"
 
 RBTREE_DEF(rbtree, int)
-RBTREE_DEF(rbtree2, rbtree_t, RBTREE_OPLIST(rbtree, M_DEFAULT_OPLIST2))
+RBTREE_DEF(rbtree2, rbtree_t, RBTREE_OPLIST(rbtree, M_BASIC_OPLIST2))
 
 #elif TEST == 16
 
 #include "m-shared.h"
 
 SHARED_PTR_DEF(shared, int)
-SHARED_PTR_DEF(shared2, shared_t, SHARED_PTR_OPLIST(shared, M_DEFAULT_OPLISTop))
+SHARED_PTR_DEF(shared2, shared_t, SHARED_PTR_OPLIST(shared, M_BASIC_OPLISTop))
 
 #elif TEST == 17
 
 #include "m-snapshot.h"
 
 SNAPSHOT_SPSC_DEF(shared, int)
-SNAPSHOT_SPSC_DEF(shared2, shared_t, SNAPSHOT_OPLIST(shared, M_DEFAULT_OPLIST x))
+SNAPSHOT_SPSC_DEF(shared2, shared_t, SNAPSHOT_OPLIST(shared, M_BASIC_OPLIST x))
 
 #elif TEST == 18
 
 #include "m-tuple.h"
 
 TUPLE_DEF2(aggregate, (x, int), (z, float))
-TUPLE_DEF2(struct2, (a, aggregate_t, TUPLE_OPLIST(aggregate, DEFAULT_OPLIST, M_DEFAULT_OPLIST)))
+TUPLE_DEF2(struct2, (a, aggregate_t, TUPLE_OPLIST(aggregate, DEFAULT_OPLIST, M_BASIC_OPLIST)))
 
 #elif TEST == 19
 
 #include "m-tuple.h"
 
 TUPLE_DEF2(aggregate, (x, int), (z, float))
-TUPLE_DEF2(struct2, (a, aggregate_t, TUPLE_OPLIST(aggregate, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST() )))
+TUPLE_DEF2(struct2, (a, aggregate_t, TUPLE_OPLIST(aggregate, M_BASIC_OPLIST, M_BASIC_OPLIST() )))
 
 #elif TEST == 20
 
 #include "m-variant.h"
 
 VARIANT_DEF2(aggregate, (x, int), (z, float))
-VARIANT_DEF2(struct2, (a, aggregate_t, VARIANT_OPLIST(aggregate, DEFAULT_OPLIST, M_DEFAULT_OPLIST)))
+VARIANT_DEF2(struct2, (a, aggregate_t, VARIANT_OPLIST(aggregate, DEFAULT_OPLIST, M_BASIC_OPLIST)))
 
 #elif TEST == 21
 
 #include "m-variant.h"
 
 VARIANT_DEF2(aggregate, (x, int), (z, float))
-VARIANT_DEF2(struct2, (a, aggregate_t, VARIANT_OPLIST(aggregate, M_DEFAULT_OPLIST, DEFAULT_OPLIST)))
+VARIANT_DEF2(struct2, (a, aggregate_t, VARIANT_OPLIST(aggregate, M_BASIC_OPLIST, DEFAULT_OPLIST)))
 
 #elif TEST == 22
 
 #include "m-funcobj.h"
 
 FUNC_OBJ_ITF_DEF(itf, int, int)
-FUNC_OBJ_INS_DEF(ins, itf, (x), { return x * self->a + self->b; }, (a, int, M_DEFAULT_OPLIST), (b, int, M_DEFAULT_OPLIST))
-#define M_OPL_ins_t() FUNC_OBJ_INS_OPLIST(ins, M_DEFAULT_OPLIST, DEFAULT_OPLIST)
+FUNC_OBJ_INS_DEF(ins, itf, (x), { return x * self->a + self->b; }, (a, int, M_BASIC_OPLIST), (b, int, M_BASIC_OPLIST))
+#define M_OPL_ins_t() FUNC_OBJ_INS_OPLIST(ins, M_BASIC_OPLIST, DEFAULT_OPLIST)
 
 int f(void) {
   int r;
@@ -211,8 +211,8 @@ int f(void) {
 #include "m-funcobj.h"
 
 FUNC_OBJ_ITF_DEF(itf, int, int)
-FUNC_OBJ_INS_DEF(ins, itf, (x), { return x * self->a + self->b; }, (a, int, M_DEFAULT_OPLIST), (b, int, M_DEFAULT_OPLIST))
-#define M_OPL_ins_t() FUNC_OBJ_INS_OPLIST(ins, DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+FUNC_OBJ_INS_DEF(ins, itf, (x), { return x * self->a + self->b; }, (a, int, M_BASIC_OPLIST), (b, int, M_BASIC_OPLIST))
+#define M_OPL_ins_t() FUNC_OBJ_INS_OPLIST(ins, DEFAULT_OPLIST, M_BASIC_OPLIST)
 
 int f(void) {
   int r;

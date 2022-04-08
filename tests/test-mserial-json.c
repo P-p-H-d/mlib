@@ -31,18 +31,18 @@
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L  
 
 ARRAY_DEF(a2, int)
-#define M_OPL_a2_t() ARRAY_OPLIST(a2, M_DEFAULT_OPLIST)
+#define M_OPL_a2_t() ARRAY_OPLIST(a2, M_BASIC_OPLIST)
 
 ARRAY_DEF(l2, int)
-#define M_OPL_l2_t() ARRAY_OPLIST(l2, M_DEFAULT_OPLIST)
+#define M_OPL_l2_t() ARRAY_OPLIST(l2, M_BASIC_OPLIST)
 
-DICT_DEF2(d2, string_t, STRING_OPLIST, int, M_DEFAULT_OPLIST )
-#define M_OPL_d2_t() DICT_OPLIST(d2, STRING_OPLIST, M_DEFAULT_OPLIST)
+DICT_DEF2(d2, string_t, STRING_OPLIST, int, M_BASIC_OPLIST )
+#define M_OPL_d2_t() DICT_OPLIST(d2, STRING_OPLIST, M_BASIC_OPLIST)
 
 VARIANT_DEF2(v2,
              (is_int, int),
              (is_bool, bool) )
-#define M_OPL_v2_t() VARIANT_OPLIST(v2, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+#define M_OPL_v2_t() VARIANT_OPLIST(v2, M_BASIC_OPLIST, M_BASIC_OPLIST)
 
 typedef enum {
   SUCCESS = 0, NULL_PARAM, INVALID_PARAM
@@ -60,7 +60,7 @@ TUPLE_DEF2(my,
            (valh, d2_t),
            (vali, my_return_code_t)
            )
-#define M_OPL_my_t() TUPLE_OPLIST(my, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST, STRING_OPLIST, M_OPL_a2_t(), M_OPL_v2_t(), M_OPL_l2_t(), M_OPL_d2_t(), M_OPL_my_return_code_t() )
+#define M_OPL_my_t() TUPLE_OPLIST(my, M_BASIC_OPLIST, M_BASIC_OPLIST, M_BASIC_OPLIST, STRING_OPLIST, M_OPL_a2_t(), M_OPL_v2_t(), M_OPL_l2_t(), M_OPL_d2_t(), M_OPL_my_return_code_t() )
 
 TUPLE_DEF2(my2,
            (activated, bool),

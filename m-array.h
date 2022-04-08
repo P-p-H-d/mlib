@@ -45,11 +45,11 @@
 
 
 /* Define the oplist of a dynamic array given its name and its oplist.
-   If no oplist is given it is assumed to be M_DEFAULT_OPLIST
+   If no oplist is given it is assumed to be M_BASIC_OPLIST
    USAGE: ARRAY_OPLIST(name[, oplist of the type]) */
 #define M_ARRAY_OPLIST(...)                                                   \
   M_ARRA4_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                               \
-                   ((__VA_ARGS__, M_DEFAULT_OPLIST),                          \
+                   ((__VA_ARGS__, M_BASIC_OPLIST),                            \
                     (__VA_ARGS__ )))
 
 
@@ -109,7 +109,7 @@
    ,RESET(M_C(name,_reset))                                                   \
    ,KEY_TYPE(size_t)                                                          \
    ,VALUE_TYPE(M_C(name, _subtype_ct))                                        \
-   ,KEY_OPLIST(M_DEFAULT_OPLIST)                                              \
+   ,KEY_OPLIST(M_BASIC_OPLIST)                                                \
    ,VALUE_OPLIST(oplist)                                                      \
    ,M_IF_METHOD(SET, oplist)(SET_KEY(M_C(name, _set_at)) ,)                   \
    ,GET_KEY(M_C(name, _get))                                                  \

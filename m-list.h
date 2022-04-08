@@ -65,7 +65,7 @@
    USAGE: LIST_OPLIST(name [, oplist_of_the_type]) */
 #define M_LIST_OPLIST(...)                                                    \
   M_L1ST_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
-                  ((__VA_ARGS__, M_DEFAULT_OPLIST ),                          \
+                  ((__VA_ARGS__, M_BASIC_OPLIST ),                            \
                    (__VA_ARGS__ )))
 
 /* Define an init value to init global variables of type list.

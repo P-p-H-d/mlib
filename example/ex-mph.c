@@ -25,8 +25,8 @@
 /* Define the needed data structure : */
 
 // Define a dictionnary of constant string --> integer and register it.
-DICT_DEF2(dict_mph, const char *, M_CSTR_OPLIST, uint32_t, M_DEFAULT_OPLIST)
-#define M_OPL_dict_mph_t() DICT_OPLIST(dict_mph, M_CSTR_OPLIST, M_DEFAULT_OPLIST)
+DICT_DEF2(dict_mph, const char *, M_CSTR_OPLIST, uint32_t, M_BASIC_OPLIST)
+#define M_OPL_dict_mph_t() DICT_OPLIST(dict_mph, M_CSTR_OPLIST, M_BASIC_OPLIST)
 
 // Define an array of integer to store the value and register it.
 ARRAY_DEF(array_value, uint32_t) // Start from 1. 0 is 'None'

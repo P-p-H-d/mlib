@@ -48,7 +48,7 @@
    USAGE: RBTREE_OPLIST(name [, oplist_of_the_type]) */
 #define M_RBTREE_OPLIST(...)                                                  \
   M_RBTR33_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
-                 ((__VA_ARGS__, M_DEFAULT_OPLIST),                            \
+                 ((__VA_ARGS__, M_BASIC_OPLIST),                              \
                   (__VA_ARGS__ )))
 
 

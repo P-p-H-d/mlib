@@ -7,7 +7,7 @@
 
 // Let's define a tuple composed of (offset, value) and register it
 TUPLE_DEF2(symbol, (offset, long), (value, long))
-#define M_OPL_symbol_t() TUPLE_OPLIST(symbol, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+#define M_OPL_symbol_t() TUPLE_OPLIST(symbol, M_BASIC_OPLIST, M_BASIC_OPLIST)
 
 // Let's define an array of such tuple and register it
 ARRAY_DEF(array_symbol, symbol_t)

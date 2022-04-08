@@ -404,7 +404,7 @@ which reads from a text file a definition of sections:
         #include "m-string.h"
         
         TUPLE_DEF2(symbol, (offset, long), (value, long))
-        #define M_OPL_symbol_t() TUPLE_OPLIST(symbol, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+        #define M_OPL_symbol_t() TUPLE_OPLIST(symbol, M_BASIC_OPLIST, M_BASIC_OPLIST)
         
         ARRAY_DEF(array_symbol, symbol_t)
         #define M_OPL_array_symbol_t() ARRAY_OPLIST(array_symbol, M_OPL_symbol_t())
@@ -517,7 +517,7 @@ INIT, INIT\_SET & SET methods shall only fail due to ***memory errors***.
 Not all operators are needed within an oplist to handle a container.
 If some operator is missing, the associated default operator of the function is used.
 To use C integer or float types, the default constructors are perfectly fine:
-you may use M\_DEFAULT\_OPLIST to define the operator list of such types or you
+you may use M\_BASIC\_OPLIST to define the operator list of such types or you
 can just omit it.
 
 NOTE: An iterator doesn't have a constructor nor destructor methods.
@@ -682,8 +682,8 @@ An operator OP can be defined, omitted or disabled:
 
 My type is:
 
-* a C Boolean: M\_BOOL\_OPLIST (M\_DEFAULT\_OPLIST also works partially),
-* a C integer or a C float: M\_DEFAULT\_OPLIST (it can also be omitted),
+* a C Boolean: M\_BOOL\_OPLIST (M\_BASIC\_OPLIST also works partially),
+* a C integer or a C float: M\_BASIC\_OPLIST (it can also be omitted),
 * a C enumerate: M\_ENUM\_OPLIST,
 * a pointer to something (the contained do nothing on the pointed object): M\_PTR\_OPLIST,
 * a plain structure that can be init/copy/compare with memset/memcpy/memcmp: M\_POD\_OPLIST,
@@ -695,7 +695,7 @@ My type is:
 * other things: you need to provide a custom OPLIST to your type.
 
 Note: The precise exported methods of the OPLIST depend of the version
-of the used C language. Typically, in C11 mode, the M\_DEFAULT\_OPLIST
+of the used C language. Typically, in C11 mode, the M\_BASIC\_OPLIST
 exports all needed methods to handle generic input/output of int/floats
 (using \_Generic) whereas it is not possible in C99 mode.
 
@@ -773,7 +773,7 @@ The list of errors it can generate:
 * M\_LIB\_ERROR(ARGUMENT\_OF\_\*\_OPLIST\_IS\_NOT\_AN\_OPLIST, name, oplist): sub error of the previous error one, identifying the root cause. The error is in the oplist construction of the given macro. You need to give an oplist for this oplist construction.
 * M\_LIB\_MISSING\_METHOD: a required operator doesn't define any method in the given oplist. You need to complete the oplist with the missing method.
 * M\_LIB\_TYPE\_MISMATCH: the given oplist and the type do not match each other. You need to give the right oplist for this type.
-* M\_LIB\_NOT\_A\_DEFAULT\_TYPE: The oplist M\_DEFAULT\_OPLIST (directly or indirectly) has been used with the given type, but the given type is not a default type. You need to give the right oplist for this type.
+* M\_LIB\_NOT\_A\_BASIC\_TYPE: The oplist M\_BASIC\_OPLIST (directly or indirectly) has been used with the given type, but the given type is not a default type. You need to give the right oplist for this type.
 
 You should focus mainly on the first reported error/warning
 even if the link between what the compiler report and what the error is
@@ -784,7 +784,7 @@ Examples of typical errors:
 * lack of inclusion of an header,
 * overriding locally operator names by macros (like NEW, DEL, INIT, OPLIST, ...),
 * lack of ( ) or double level of ( ) around the oplist,
-* an unknown variable (example using DEFAULT\_OPLIST instead of M\_DEFAULT\_OPLIST or M\_STRING\_OPLIST instead of STRING\_OPLIST),
+* an unknown variable (example using BASIC\_OPLIST instead of M\_BASIC\_OPLIST),
 * the name given to the oplist is not the same as the one used to define the methods,
 * use of a type instead of an oplist in the OPLIST definition,
 * a missing sub oplist in the OPLIST definition.
@@ -2350,7 +2350,7 @@ Example:
 	  *k = (unsigned)(-n-1);
 	}
 	
-	DICT_OA_DEF2(dict_unsigned, unsigned, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(API_2(oor_set))), long long, M_DEFAULT_OPLIST)
+	DICT_OA_DEF2(dict_unsigned, unsigned, M_OPEXTEND(M_BASIC_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(API_2(oor_set))), long long, M_BASIC_OPLIST)
 	
 	unsigned main(void) {
 	  dict_unsigned_t a;
@@ -4947,7 +4947,7 @@ Example:
 
         /* Define a queue container (FIFO) */
         DEQUE_DEF(deque_uint, unsigned int)
-        CONCURRENT_DEF(cdeque_uint, deque_uint_t, M_OPEXTEND(DEQUE_OPLIST(deque_uint, M_DEFAULT_OPLIST), PUSH(deque_uint_push_front)))
+        CONCURRENT_DEF(cdeque_uint, deque_uint_t, M_OPEXTEND(DEQUE_OPLIST(deque_uint, M_BASIC_OPLIST), PUSH(deque_uint_push_front)))
 
         extern parray1_t x1;
         extern cdeque_uint_t x2;
@@ -6542,7 +6542,7 @@ Return the associated method to the given operator within the given oplist.
 
 Default oplist for C standard Boolean.
 
-##### M\_DEFAULT\_OPLIST
+##### M\_BASIC\_OPLIST
 
 Default oplist for C standard types (int & float)
 
@@ -6637,7 +6637,7 @@ Global registered oplists are limited to typedef types.
 ##### M\_GLOBAL\_OPLIST\_OR\_DEF(a)
 
 If 'a' is a type that has registered a global oplist, it returns the registered oplist,
-otherwise it return the default oplist M\_DEFAULT\_OPLIST.
+otherwise it return the default oplist M\_BASIC\_OPLIST.
 
 The return value shall be evaluated once again to get the oplist
 (this is needed due to technical reasons) like this:
@@ -8045,7 +8045,7 @@ Example:
                    (value, int),
                    (name, string_t)
                    )
-        #define M_OPL_my_t() TUPLE_OPLIST(my, M_DEFAULT_OPLIST, STRING_OPLIST )
+        #define M_OPL_my_t() TUPLE_OPLIST(my, M_BASIC_OPLIST, STRING_OPLIST )
         
         // Output in JSON file the structure my_t
         void output(my_t el1)

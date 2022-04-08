@@ -123,13 +123,13 @@ ALGO_DEF(array, (OPLIST(array)))
 
 #include "m-bptree.h"
 
-BPTREE_DEF2(tree, 4, int, M_DEFAULT_OPLIST, int, DEFAULT_OPLIST)
+BPTREE_DEF2(tree, 4, int, M_BASIC_OPLIST, int, DEFAULT_OPLIST)
 
 #elif TEST == 14
 
 #include "m-bptree.h"
 
-BPTREE_DEF2(tree, 4, int, DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+BPTREE_DEF2(tree, 4, int, DEFAULT_OPLIST, int, M_BASIC_OPLIST)
 
 #elif TEST == 15
 
@@ -141,7 +141,7 @@ BPTREE_DEF(tree, 4, int, DEFAULT_OPLIST)
 
 #include "m-bptree.h"
 
-BPTREE_MULTI_DEF2(tree, 4, int, DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+BPTREE_MULTI_DEF2(tree, 4, int, DEFAULT_OPLIST, int, M_BASIC_OPLIST)
 
 #elif TEST == 17
 
@@ -187,37 +187,37 @@ CONCURRENT_RP_DEF(lock_array, array_t, MARRAY_OPLIST(array))
 
 #include "m-dict.h"
 
-DICT_DEF2(array, int, M_DEFAULT_OPLIST, int, DEFAULT_OPLIST)
+DICT_DEF2(array, int, M_BASIC_OPLIST, int, DEFAULT_OPLIST)
 
 #elif TEST == 24
 
 #include "m-dict.h"
 
-DICT_DEF2(array, int, DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+DICT_DEF2(array, int, DEFAULT_OPLIST, int, M_BASIC_OPLIST)
 
 #elif TEST == 25
 
 #include "m-dict.h"
 
-DICT_STOREHASH_DEF2(array, int, DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+DICT_STOREHASH_DEF2(array, int, DEFAULT_OPLIST, int, M_BASIC_OPLIST)
 
 #elif TEST == 26
 
 #include "m-dict.h"
 
-DICT_STOREHASH_DEF2(array, int, M_DEFAULT_OPLIST, int, DEFAULT_OPLIST)
+DICT_STOREHASH_DEF2(array, int, M_BASIC_OPLIST, int, DEFAULT_OPLIST)
 
 #elif TEST == 27
 
 #include "m-dict.h"
 
-DICT_OA_DEF2(array, int, DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+DICT_OA_DEF2(array, int, DEFAULT_OPLIST, int, M_BASIC_OPLIST)
 
 #elif TEST == 28
 
 #include "m-dict.h"
 
-DICT_OA_DEF2(array, int, M_DEFAULT_OPLIST, int, DEFAULT_OPLIST)
+DICT_OA_DEF2(array, int, M_BASIC_OPLIST, int, DEFAULT_OPLIST)
 
 #elif TEST == 29
 
@@ -252,43 +252,43 @@ PRIOQUEUE_DEF(prio, int, DEFAULT_OPLIST)
 
 #include "m-rbtree.h"
 
-RBTREE_DEF(tree, int, M_DEFAULT_OPLIST() )
+RBTREE_DEF(tree, int, M_BASIC_OPLIST() )
 
 #elif TEST == 34
 
 #include "m-shared.h"
 
-SHARED_PTR_DEF(shared, int, M_DEFAULT_OPLIST2 )
+SHARED_PTR_DEF(shared, int, M_BASIC_OPLIST2 )
 
 #elif TEST == 35
 
 #include "m-shared.h"
 
-SHARED_RESOURCE_DEF(shared, int, M_DEFAULT_OPLIST3 )
+SHARED_RESOURCE_DEF(shared, int, M_BASIC_OPLIST3 )
 
 #elif TEST == 36
 
 #include "m-snapshot.h"
 
-SNAPSHOT_SPSC_DEF(snap, int, M_DEFAULT_OPLIST2 )
+SNAPSHOT_SPSC_DEF(snap, int, M_BASIC_OPLIST2 )
 
 #elif TEST == 37
 
 #include "m-snapshot.h"
 
-SNAPSHOT_SPMC_DEF(snap, int, M_DEFAULT_OPLIST2 )
+SNAPSHOT_SPMC_DEF(snap, int, M_BASIC_OPLIST2 )
 
 #elif TEST == 38
 
 #include "m-snapshot.h"
 
-SNAPSHOT_MPMC_DEF(snap, int, M_DEFAULT_OPLIST8 )
+SNAPSHOT_MPMC_DEF(snap, int, M_BASIC_OPLIST8 )
 
 #elif TEST == 39
 
 #include "m-tuple.h"
 
-TUPLE_DEF2(agregate, (x, int, M_DEFAULT_OPLIST), (y, float, DEFAULT_OPLIST) )
+TUPLE_DEF2(agregate, (x, int, M_BASIC_OPLIST), (y, float, DEFAULT_OPLIST) )
 
 #elif TEST == 40
 
@@ -300,7 +300,7 @@ TUPLE_DEF2(agregate, (x, int, DEFAULT_OPLIST), (y, float) )
 
 #include "m-variant.h"
 
-VARIANT_DEF2(agregate, (x, int, M_DEFAULT_OPLIST), (y, float, DEFAULT_OPLIST) )
+VARIANT_DEF2(agregate, (x, int, M_BASIC_OPLIST), (y, float, DEFAULT_OPLIST) )
 
 #elif TEST == 42
 
@@ -314,7 +314,7 @@ VARIANT_DEF2(agregate, (x, int, DEFAULT_OPLIST), (y, float) )
 
 FUNC_OBJ_ITF_DEF(itf, int, int)
 
-FUNC_OBJ_INS_DEF(ins, itf, (x), { return x * self->a + self->b; }, (a, int, DEFAULT_OPLIST), (b, int, M_DEFAULT_OPLIST))
+FUNC_OBJ_INS_DEF(ins, itf, (x), { return x * self->a + self->b; }, (a, int, DEFAULT_OPLIST), (b, int, M_BASIC_OPLIST))
 
 #elif TEST == 44
 
@@ -322,7 +322,7 @@ FUNC_OBJ_INS_DEF(ins, itf, (x), { return x * self->a + self->b; }, (a, int, DEFA
 
 FUNC_OBJ_ITF_DEF(itf, int, int)
 
-FUNC_OBJ_INS_DEF(ins, itf, (x), { return x * self->a + self->b; }, (a, int), (b, int, M_DEFAULT_OPLIST() ))
+FUNC_OBJ_INS_DEF(ins, itf, (x), { return x * self->a + self->b; }, (a, int), (b, int, M_BASIC_OPLIST() ))
 
 
 #else

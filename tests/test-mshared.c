@@ -35,7 +35,7 @@ SHARED_PTR_DEF(shared_mpz, testobj_t, TESTOBJ_OPLIST)
 SHARED_PTR_RELAXED_DEF(shared_relaxed_int, int)
 
 SHARED_PTR_DEF_AS(SharedDouble, SharedDouble, double)
-SHARED_PTR_RELAXED_DEF_AS(SharedDouble2, SharedDouble2, double, M_DEFAULT_OPLIST)
+SHARED_PTR_RELAXED_DEF_AS(SharedDouble2, SharedDouble2, double, M_BASIC_OPLIST)
 SHARED_RESOURCE_DEF_AS(SharedRessource, SharedRessource, SharedRessourceIt, double)
 
 static int f(const shared_int_t p)

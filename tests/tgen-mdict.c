@@ -32,8 +32,8 @@ static inline void my_oor_set(uint64_t *k, unsigned char n)
   *k = ~(uint64_t)n;
 }
 DICT_OA_DEF2(dict,
-             uint64_t, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(my_oor_equal_p), OOR_SET(my_oor_set M_IPTR)),
-             uint32_t, M_DEFAULT_OPLIST)
+             uint64_t, M_OPEXTEND(M_BASIC_OPLIST, OOR_EQUAL(my_oor_equal_p), OOR_SET(my_oor_set M_IPTR)),
+             uint32_t, M_BASIC_OPLIST)
 
 extern void set_at(dict_t d, uint64_t key, uint32_t value);
 void set_at(dict_t d, uint64_t key, uint32_t value)

@@ -39,7 +39,7 @@ ARRAY_DEF(array_min3_z, testobj_t, (CLEAR(testobj_clear)))
 ARRAY_DEF(array_ulong, uint64_t)
 
 ARRAY_DEF_AS(array_double, ArrayDouble, ArrayDoubleIt, double)
-#define M_OPL_ArrayDouble() ARRAY_OPLIST(array_double, M_DEFAULT_OPLIST)
+#define M_OPL_ArrayDouble() ARRAY_OPLIST(array_double, M_BASIC_OPLIST)
 
 ArrayDouble g_array = ARRAY_INIT_VALUE();
 

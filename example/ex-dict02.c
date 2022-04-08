@@ -1,10 +1,10 @@
 #include "m-dict.h"
 
 // Let's define a dictionary of 'unsigned int' --> 'char
-DICT_DEF2(dict_m32, unsigned int, M_DEFAULT_OPLIST, char, M_DEFAULT_OPLIST)
+DICT_DEF2(dict_m32, unsigned int, M_BASIC_OPLIST, char, M_BASIC_OPLIST)
 
 // Let's create a synonym for its oplist.
-#define M32_OPLIST DICT_OPLIST(dict_m32, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+#define M32_OPLIST DICT_OPLIST(dict_m32, M_BASIC_OPLIST, M_BASIC_OPLIST)
 
 #if 1 // Non macro version.
 

@@ -67,7 +67,7 @@ FUNC_OBJ_INS_DEF(instance22,
 
 END_COVERAGE
 
-#define M_OPL_instance22_t() FUNC_OBJ_INS_OPLIST(instance22, M_DEFAULT_OPLIST)
+#define M_OPL_instance22_t() FUNC_OBJ_INS_OPLIST(instance22, M_BASIC_OPLIST)
 
 FUNC_OBJ_ITF_DEF_AS(Interface, Interface, double, double)
 
@@ -78,7 +78,7 @@ FUNC_OBJ_INS_DEF_AS(Instance, Instance,
                     },
                     (a, double),
                     (b, double) )
-#define M_OPL_Instance() FUNC_OBJ_INS_OPLIST(Instance, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+#define M_OPL_Instance() FUNC_OBJ_INS_OPLIST(Instance, M_BASIC_OPLIST, M_BASIC_OPLIST)
 
 static void test_instance11(void)
 {

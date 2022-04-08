@@ -49,9 +49,9 @@ QUEUE_SPSC_DEF(squeue_a, testobj_t, BUFFER_QUEUE, TESTOBJ_OPLIST)
 BUFFER_DEF_AS(BufferDouble1, BufferDouble1, double, 4, BUFFER_QUEUE)
 QUEUE_MPMC_DEF_AS(BufferDouble2, BufferDouble2, double, BUFFER_QUEUE)
 QUEUE_SPSC_DEF_AS(BufferDouble3, BufferDouble3, double, BUFFER_QUEUE)
-#define M_OPL_BufferDouble1() BUFFER_OPLIST(BufferDouble1, M_DEFAULT_OPLIST)
-#define M_OPL_BufferDouble2() BUFFER_OPLIST(BufferDouble2, M_DEFAULT_OPLIST)
-#define M_OPL_BufferDouble3() BUFFER_OPLIST(BufferDouble3, M_DEFAULT_OPLIST)
+#define M_OPL_BufferDouble1() BUFFER_OPLIST(BufferDouble1, M_BASIC_OPLIST)
+#define M_OPL_BufferDouble2() BUFFER_OPLIST(BufferDouble2, M_BASIC_OPLIST)
+#define M_OPL_BufferDouble3() BUFFER_OPLIST(BufferDouble3, M_BASIC_OPLIST)
 
 buffer_uint_t g_buff;
 buffer_uint_t g_buffB;

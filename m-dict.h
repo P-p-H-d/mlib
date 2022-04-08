@@ -165,7 +165,7 @@
 */
 #define M_DICT_OPLIST(...)                                                    \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
-  (M_D1CT_OPLIST_P1((__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST )),      \
+  (M_D1CT_OPLIST_P1((__VA_ARGS__, M_BASIC_OPLIST, M_BASIC_OPLIST )),          \
    M_D1CT_OPLIST_P1((__VA_ARGS__ )))
 
 
@@ -173,7 +173,7 @@
    USAGE: DICT_SET_OPLIST(name[, oplist of the key type]) */
 #define M_DICT_SET_OPLIST(...)                                                \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
-  (M_D1CT_SET_OPLIST_P1((__VA_ARGS__, M_DEFAULT_OPLIST)),                     \
+  (M_D1CT_SET_OPLIST_P1((__VA_ARGS__, M_BASIC_OPLIST)),                       \
    M_D1CT_SET_OPLIST_P1((__VA_ARGS__ )))
 
 
@@ -237,10 +237,10 @@
   M_CHECK_COMPATIBLE_OPLIST(name, 1, key_type, key_oplist)                    \
   M_CHECK_COMPATIBLE_OPLIST(name, 2, value_type, value_oplist)                \
                                                                               \
-  TUPLE_DEF2(M_C(name, _pair), (hash, size_t, M_DEFAULT_OPLIST), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
+  TUPLE_DEF2(M_C(name, _pair), (hash, size_t, M_BASIC_OPLIST), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
                                                                               \
   M_D1CT_FUNC_DEF2_P5(name, key_type, key_oplist, value_type, value_oplist,   \
-      M_C(name, _pair_ct), TUPLE_OPLIST(M_C(name, _pair), M_DEFAULT_OPLIST, key_oplist, value_oplist), 0, 1, \
+      M_C(name, _pair_ct), TUPLE_OPLIST(M_C(name, _pair), M_BASIC_OPLIST, key_oplist, value_oplist), 0, 1, \
       dict_t, dict_it_t, it_deref_t )
 
 

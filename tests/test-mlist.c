@@ -43,10 +43,10 @@ LIST_DEF(list_string, string_t)
 #define M_OPL_list_string_t() LIST_OPLIST(list_string, STRING_OPLIST)
 
 LIST_DEF_AS(list_double, ListDouble, ListDoubleIt, double)
-#define M_OPL_ListDouble() LIST_OPLIST(list_double, M_DEFAULT_OPLIST)
+#define M_OPL_ListDouble() LIST_OPLIST(list_double, M_BASIC_OPLIST)
 
 LIST_DUAL_PUSH_DEF_AS(list_doubleDP, ListDoubleDP, ListDoubleDPIt, double)
-#define M_OPL_ListDoubleDP() LIST_OPLIST(list_doubleDP, M_DEFAULT_OPLIST)
+#define M_OPL_ListDoubleDP() LIST_OPLIST(list_doubleDP, M_BASIC_OPLIST)
 
 ListDouble   g_array1 = LIST_INIT_VALUE();
 ListDoubleDP g_array2 = LIST_DUAL_PUSH_INIT_VALUE();

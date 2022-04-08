@@ -74,7 +74,7 @@ typedef enum {
    USAGE: BUFFER_OPLIST(name[, oplist of the type]) */
 #define M_BUFFER_OPLIST(...)                                                  \
   M_BUFF3R_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
-                 ((__VA_ARGS__, M_DEFAULT_OPLIST),                            \
+                 ((__VA_ARGS__, M_BASIC_OPLIST),                              \
                   (__VA_ARGS__ )))
 
 

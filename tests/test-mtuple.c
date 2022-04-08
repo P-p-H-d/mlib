@@ -71,7 +71,7 @@ TUPLE_DEF2(rtuple,
 #define M_OPL_rtuple_t()     TUPLE_OPLIST(rtuple, M_OPL_pair_str_t(), STRING_OPLIST)
 
 TUPLE_DEF2(rtuple2, (name, string_t), (value, int))
-#define M_OPL_rtuple2_t() TUPLE_OPLIST(rtuple2, STRING_OPLIST, M_DEFAULT_OPLIST)
+#define M_OPL_rtuple2_t() TUPLE_OPLIST(rtuple2, STRING_OPLIST, M_BASIC_OPLIST)
 
 /* Chain of tuple on top of tuple to check if it works */
 TUPLE_DEF2(rtuple3, (name, string_t), (ituple2, rtuple2_t), (ituple, rtuple_t) )
@@ -82,7 +82,7 @@ TUPLE_DEF2(rtuple4, (value, rtuple3_t) )
 #define M_OPL_rtuple4_t() TUPLE_OPLIST(rtuple4, M_OPL_rtuple4_t() )
 
 TUPLE_DEF2_AS(vector, Vector, (x, double), (y, double), (z, double) )
-#define M_OPL_Vector() TUPLE_OPLIST(vector, M_DEFAULT_OPLIST )
+#define M_OPL_Vector() TUPLE_OPLIST(vector, M_BASIC_OPLIST )
 
 TUPLE_DEF2(rtuple5, (x, int, M_OPL_int()), (priority, int, M_OPEXTEND( M_OPL_int(), CMP(0), HASH(0), EQUAL(0) ) ) )
 
@@ -121,7 +121,7 @@ static void check_reset(void)
     assert(string_equal_str_p (r->name, ""));    
   }
   
-  M_LET( (r, ("Hello"), 4), TUPLE_OPLIST(pair2_str, STRING_OPLIST, M_DEFAULT_OPLIST) )  {
+  M_LET( (r, ("Hello"), 4), TUPLE_OPLIST(pair2_str, STRING_OPLIST, M_BASIC_OPLIST) )  {
     assert(string_equal_str_p (r->str, "Hello"));
     assert(r->value == 4);
     pair2_str_reset(r);
@@ -129,8 +129,8 @@ static void check_reset(void)
   }
 
   M_LET( (s, ("Goldy") ), STRING_OPLIST) 
-  M_LET( (r, s, 46), TUPLE_OPLIST(pair2_str, STRING_OPLIST, M_DEFAULT_OPLIST) )
-  M_LET( (q, r), TUPLE_OPLIST(pair2_str, STRING_OPLIST, M_DEFAULT_OPLIST) ) {
+  M_LET( (r, s, 46), TUPLE_OPLIST(pair2_str, STRING_OPLIST, M_BASIC_OPLIST) )
+  M_LET( (q, r), TUPLE_OPLIST(pair2_str, STRING_OPLIST, M_BASIC_OPLIST) ) {
     assert(string_equal_str_p (q->str, "Goldy"));
     assert(q->value == 46);
     pair2_str_reset(q);

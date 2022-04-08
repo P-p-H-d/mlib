@@ -7,7 +7,7 @@
  * from a string_t to int */
 DICT_DEF2(dict, string_t, int)
 /* Register the oplist of this dictionnary globally */
-#define M_OPL_dict_t() DICT_OPLIST(dict, STRING_OPLIST, M_DEFAULT_OPLIST)
+#define M_OPL_dict_t() DICT_OPLIST(dict, STRING_OPLIST, M_BASIC_OPLIST)
 
 /* Define an array of integer */
 ARRAY_DEF(vector_int, int)

@@ -11,7 +11,7 @@ TUPLE_DEF2(employee,
            (age, int),
            (idnum, int))
 /* Register globaly the employee_t oplist */
-#define M_OPL_employee_t() TUPLE_OPLIST(employee, STRING_OPLIST, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+#define M_OPL_employee_t() TUPLE_OPLIST(employee, STRING_OPLIST, M_BASIC_OPLIST, M_BASIC_OPLIST)
 
 /* Define an array of employee, register the oplist and define further algorithms on it */
 ARRAY_DEF(vector_employee, employee_t)

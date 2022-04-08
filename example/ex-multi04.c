@@ -10,7 +10,7 @@
    order to show/test the good chaining of the structures */
 
 TUPLE_DEF2(symbol, (type, int), (name, string_t))
-#define M_OPL_symbol_t() TUPLE_OPLIST(symbol, M_DEFAULT_OPLIST, STRING_OPLIST)
+#define M_OPL_symbol_t() TUPLE_OPLIST(symbol, M_BASIC_OPLIST, STRING_OPLIST)
 
 ARRAY_DEF(symbol_list, symbol_t)
 #define M_OPL_symbol_list_t() ARRAY_OPLIST(symbol_list, M_OPL_symbol_t())
@@ -37,11 +37,11 @@ BUFFER_DEF(trbuff, my_triple_tuple_t, 100, BUFFER_QUEUE)
 #define M_OPL_trbuff_t() BUFFER_OPLIST(trbuff, M_OPL_my_triple_tuple_t())
 
 TUPLE_DEF2(my_junction, (active, bool), (buffer, trbuff_t))
-#define M_OPL_my_junction_t() TUPLE_OPLIST(my_junction, M_DEFAULT_OPLIST, M_OPL_trbuff_t())
+#define M_OPL_my_junction_t() TUPLE_OPLIST(my_junction, M_BASIC_OPLIST, M_OPL_trbuff_t())
            
 TUPLE_DEF2(mlib_point, (x, int), (y, int))
 #define M_OPL_mlib_point_t()                                            \
-  TUPLE_OPLIST(mlib_point, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+  TUPLE_OPLIST(mlib_point, M_BASIC_OPLIST, M_BASIC_OPLIST)
 
 TUPLE_DEF2(mlib_points, (first_ref, mlib_point_ptr, M_PTR_OPLIST),
            (second_ref, mlib_point_ptr, M_PTR_OPLIST),

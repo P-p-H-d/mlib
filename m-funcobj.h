@@ -266,7 +266,7 @@
   M_MAP_C(M_FUNC0BJ_INJECT_OPLIST_A, __VA_ARGS__)
 
 /* Transform (x, type) into (x, type, oplist) if there is global registered oplist 
-   or (x, type, M_DEFAULT_OPLIST) if there is no global one,
+   or (x, type, M_BASIC_OPLIST) if there is no global one,
    or keep (x, type, oplist) if oplist was already present */
 #define M_FUNC0BJ_INJECT_OPLIST_A( duo_or_trio )                              \
   M_FUNC0BJ_INJECT_OPLIST_B duo_or_trio

@@ -28,7 +28,7 @@
 #include "coverage.h"
 
 START_COVERAGE
-BPTREE_DEF2(btree, 3, int, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+BPTREE_DEF2(btree, 3, int, M_BASIC_OPLIST, int, M_BASIC_OPLIST)
 END_COVERAGE
 
 BPTREE_DEF2(btree_my, 3, testobj_t, TESTOBJ_CMP_OPLIST, testobj_t, TESTOBJ_CMP_OPLIST)
@@ -38,17 +38,17 @@ BPTREE_DEF2(btree_int, 17, int, int)
 BPTREE_DEF(btree_intset, 13, int)
 BPTREE_DEF(btree_myset, 15, testobj_t, TESTOBJ_CMP_OPLIST)
 
-BPTREE_MULTI_DEF2(multimap, 3, int, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
-BPTREE_MULTI_DEF(multiset, 6, int, M_DEFAULT_OPLIST)
+BPTREE_MULTI_DEF2(multimap, 3, int, M_BASIC_OPLIST, int, M_BASIC_OPLIST)
+BPTREE_MULTI_DEF(multiset, 6, int, M_BASIC_OPLIST)
 
 BPTREE_DEF2_AS(MapDouble, MapDouble, MapDoubleIt, MapDoubleItRef, 4, double, double)
-#define M_OPL_MapDouble() BPTREE_OPLIST2(MapDouble, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+#define M_OPL_MapDouble() BPTREE_OPLIST2(MapDouble, M_BASIC_OPLIST, M_BASIC_OPLIST)
 BPTREE_DEF_AS(SetDouble, SetDouble, SetDoubleIt, 7, double)
-#define M_OPL_SetDouble() BPTREE_OPLIST(SetDouble, M_DEFAULT_OPLIST)
+#define M_OPL_SetDouble() BPTREE_OPLIST(SetDouble, M_BASIC_OPLIST)
 BPTREE_MULTI_DEF2_AS(MultiMapDouble, MultiMapDouble, MultiMapDoubleIt, MultiMapDoubleItRef, 8, double, double)
-#define M_OPL_MultiMapDouble() BPTREE_OPLIST2(MultiMapDouble, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+#define M_OPL_MultiMapDouble() BPTREE_OPLIST2(MultiMapDouble, M_BASIC_OPLIST, M_BASIC_OPLIST)
 BPTREE_MULTI_DEF_AS(MultiSetDouble, MultiSetDouble, MultiSetDoubleIt, 9, double)
-#define M_OPL_MultiSetDouble() BPTREE_OPLIST(MultiSetDouble, M_DEFAULT_OPLIST)
+#define M_OPL_MultiSetDouble() BPTREE_OPLIST(MultiSetDouble, M_BASIC_OPLIST)
 
 static void test1(void)
 {

@@ -439,11 +439,11 @@ static void test_oplist(void)
 #define CHECK_OPLIST(op, oplist)                \
   M_IF_METHOD(op, oplist) (true, false)
 
-  assert (CHECK_OPLIST (INIT, M_DEFAULT_OPLIST));
-  assert (CHECK_OPLIST (INIT_SET, M_DEFAULT_OPLIST));
-  assert (CHECK_OPLIST (SET, M_DEFAULT_OPLIST));
-  assert (CHECK_OPLIST (CLEAR, M_DEFAULT_OPLIST));
-  assert (!CHECK_OPLIST (CLEAR_TOOT, M_DEFAULT_OPLIST));
+  assert (CHECK_OPLIST (INIT, M_BASIC_OPLIST));
+  assert (CHECK_OPLIST (INIT_SET, M_BASIC_OPLIST));
+  assert (CHECK_OPLIST (SET, M_BASIC_OPLIST));
+  assert (CHECK_OPLIST (CLEAR, M_BASIC_OPLIST));
+  assert (!CHECK_OPLIST (CLEAR_TOOT, M_BASIC_OPLIST));
 
   assert (M_OPLIST_P(()));
   assert (M_OPLIST_P((INIT(init))));

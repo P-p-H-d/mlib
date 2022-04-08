@@ -40,7 +40,7 @@
 
 ARRAY_DEF(array, int)
 ARRAY_DEF(array2, int)
-ARRAY_DEF(array3, array_t, ARRAY_OPLIST(array2, M_DEFAULT_OPLIST))
+ARRAY_DEF(array3, array_t, ARRAY_OPLIST(array2, M_BASIC_OPLIST))
 
 #elif TEST == 2
 
@@ -48,7 +48,7 @@ ARRAY_DEF(array3, array_t, ARRAY_OPLIST(array2, M_DEFAULT_OPLIST))
 
 LIST_DEF(list, int)
 LIST_DEF(list2, int)
-LIST_DEF(list3, list_t, LIST_OPLIST(list2, M_DEFAULT_OPLIST))
+LIST_DEF(list3, list_t, LIST_OPLIST(list2, M_BASIC_OPLIST))
 
 #elif TEST == 3
 
@@ -56,7 +56,7 @@ LIST_DEF(list3, list_t, LIST_OPLIST(list2, M_DEFAULT_OPLIST))
 
 DEQUE_DEF(deque, int)
 DEQUE_DEF(deque2, int)
-DEQUE_DEF(deque3, deque_t, DEQUE_OPLIST(deque2, M_DEFAULT_OPLIST))
+DEQUE_DEF(deque3, deque_t, DEQUE_OPLIST(deque2, M_BASIC_OPLIST))
 
 #elif TEST == 4
 
@@ -64,7 +64,7 @@ DEQUE_DEF(deque3, deque_t, DEQUE_OPLIST(deque2, M_DEFAULT_OPLIST))
 
 BPTREE_DEF(bptree, 4, int)
 BPTREE_DEF(bptree2, 4, int)
-BPTREE_DEF(bptree3, 5, bptree_t, BPTREE_OPLIST(bptree2, M_DEFAULT_OPLIST))
+BPTREE_DEF(bptree3, 5, bptree_t, BPTREE_OPLIST(bptree2, M_BASIC_OPLIST))
 
 #elif TEST == 5
 
@@ -72,7 +72,7 @@ BPTREE_DEF(bptree3, 5, bptree_t, BPTREE_OPLIST(bptree2, M_DEFAULT_OPLIST))
 
 BPTREE_DEF2(bptree, 4, int, int)
 BPTREE_DEF2(bptree2, 4, int, int)
-BPTREE_DEF2(bptree3, 5, bptree_t, BPTREE_OPLIST2(bptree2, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST), int, M_DEFAULT_OPLIST)
+BPTREE_DEF2(bptree3, 5, bptree_t, BPTREE_OPLIST2(bptree2, M_BASIC_OPLIST, M_BASIC_OPLIST), int, M_BASIC_OPLIST)
 
 #elif TEST == 6
 
@@ -80,7 +80,7 @@ BPTREE_DEF2(bptree3, 5, bptree_t, BPTREE_OPLIST2(bptree2, M_DEFAULT_OPLIST, M_DE
 
 BPTREE_DEF2(bptree, 4, int, int)
 BPTREE_DEF2(bptree2, 4, int, int)
-BPTREE_DEF2(bptree3, 5, bptree_t, BPTREE_OPLIST2(bptree2, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST), int, M_DEFAULT_OPLIST)
+BPTREE_DEF2(bptree3, 5, bptree_t, BPTREE_OPLIST2(bptree2, M_BASIC_OPLIST, M_BASIC_OPLIST), int, M_BASIC_OPLIST)
 
 #elif TEST == 7
 
@@ -88,7 +88,7 @@ BPTREE_DEF2(bptree3, 5, bptree_t, BPTREE_OPLIST2(bptree2, M_DEFAULT_OPLIST, M_DE
 
 BUFFER_DEF(buffer, int, 4, BUFFER_THREAD_UNSAFE)
 BUFFER_DEF(buffer2, int, 4, BUFFER_THREAD_UNSAFE)
-BUFFER_DEF(buffer3, buffer_t, 5, BUFFER_QUEUE, BUFFER_OPLIST(buffer2, M_DEFAULT_OPLIST))
+BUFFER_DEF(buffer3, buffer_t, 5, BUFFER_QUEUE, BUFFER_OPLIST(buffer2, M_BASIC_OPLIST))
   
 #elif TEST == 8
 
@@ -97,7 +97,7 @@ BUFFER_DEF(buffer3, buffer_t, 5, BUFFER_QUEUE, BUFFER_OPLIST(buffer2, M_DEFAULT_
 
 ARRAY_DEF(array, int)
 ARRAY_DEF(array2, int)
-CONCURRENT_DEF(array3, array_t, ARRAY_OPLIST(array2, M_DEFAULT_OPLIST))
+CONCURRENT_DEF(array3, array_t, ARRAY_OPLIST(array2, M_BASIC_OPLIST))
 
 #elif TEST == 9
 
@@ -105,7 +105,7 @@ CONCURRENT_DEF(array3, array_t, ARRAY_OPLIST(array2, M_DEFAULT_OPLIST))
 
 DICT_DEF2(dict, int, int)
 DICT_DEF2(dict2, int, int)
-DICT_DEF2(dict3, int, M_DEFAULT_OPLIST, dict_t, DICT_OPLIST(dict2, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST) )
+DICT_DEF2(dict3, int, M_BASIC_OPLIST, dict_t, DICT_OPLIST(dict2, M_BASIC_OPLIST, M_BASIC_OPLIST) )
 
 #elif TEST == 10
 
@@ -113,7 +113,7 @@ DICT_DEF2(dict3, int, M_DEFAULT_OPLIST, dict_t, DICT_OPLIST(dict2, M_DEFAULT_OPL
 
 DICT_STOREHASH_DEF2(dict, int, int)
 DICT_STOREHASH_DEF2(dict2, int, int)
-DICT_STOREHASH_DEF2(dict3, int, M_DEFAULT_OPLIST, dict_t, DICT_OPLIST(dict2, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST) )
+DICT_STOREHASH_DEF2(dict3, int, M_BASIC_OPLIST, dict_t, DICT_OPLIST(dict2, M_BASIC_OPLIST, M_BASIC_OPLIST) )
 
 #elif TEST == 11
 
@@ -122,7 +122,7 @@ DICT_STOREHASH_DEF2(dict3, int, M_DEFAULT_OPLIST, dict_t, DICT_OPLIST(dict2, M_D
   
 ARRAY_DEF(array, int)
 ARRAY_DEF(array2, int)
-DICT_SET_DEF(dict, array_t, ARRAY_OPLIST(array2, M_DEFAULT_OPLIST) )
+DICT_SET_DEF(dict, array_t, ARRAY_OPLIST(array2, M_BASIC_OPLIST) )
 
 #elif TEST == 12
 
@@ -152,7 +152,7 @@ ISHARED_PTR_DEF(tmpstr, tmp_str_t, (TYPE(struct toto), CLEAR(M_NOTHING_DEFAULT))
 
 PRIOQUEUE_DEF(prioqueue, int)
 PRIOQUEUE_DEF(prioqueue2, int)
-PRIOQUEUE_DEF(prioqueue3, prioqueue_t, PRIOQUEUE_OPLIST(prioqueue2, M_DEFAULT_OPLIST ))
+PRIOQUEUE_DEF(prioqueue3, prioqueue_t, PRIOQUEUE_OPLIST(prioqueue2, M_BASIC_OPLIST ))
 
 #elif TEST == 15
 
@@ -160,7 +160,7 @@ PRIOQUEUE_DEF(prioqueue3, prioqueue_t, PRIOQUEUE_OPLIST(prioqueue2, M_DEFAULT_OP
 
 RBTREE_DEF(rbtree, int)
 RBTREE_DEF(rbtree2, int)
-RBTREE_DEF(rbtree3, rbtree_t, RBTREE_OPLIST(rbtree2, M_DEFAULT_OPLIST))
+RBTREE_DEF(rbtree3, rbtree_t, RBTREE_OPLIST(rbtree2, M_BASIC_OPLIST))
 
 #elif TEST == 16
 
@@ -168,7 +168,7 @@ RBTREE_DEF(rbtree3, rbtree_t, RBTREE_OPLIST(rbtree2, M_DEFAULT_OPLIST))
 
 SHARED_PTR_DEF(shared, int)
 SHARED_PTR_DEF(shared2, int)
-SHARED_PTR_DEF(shared3, shared_t, SHARED_PTR_OPLIST(shared2, M_DEFAULT_OPLIST))
+SHARED_PTR_DEF(shared3, shared_t, SHARED_PTR_OPLIST(shared2, M_BASIC_OPLIST))
 
 #elif TEST == 17
 
@@ -176,7 +176,7 @@ SHARED_PTR_DEF(shared3, shared_t, SHARED_PTR_OPLIST(shared2, M_DEFAULT_OPLIST))
 
 SNAPSHOT_SPSC_DEF(shared, int)
 SNAPSHOT_SPSC_DEF(shared2, int)
-SNAPSHOT_SPSC_DEF(shared3, shared_t, SNAPSHOT_OPLIST(shared2, M_DEFAULT_OPLIST))
+SNAPSHOT_SPSC_DEF(shared3, shared_t, SNAPSHOT_OPLIST(shared2, M_BASIC_OPLIST))
 
 #elif TEST == 18
 
@@ -184,7 +184,7 @@ SNAPSHOT_SPSC_DEF(shared3, shared_t, SNAPSHOT_OPLIST(shared2, M_DEFAULT_OPLIST))
 
 SNAPSHOT_SPMC_DEF(shared, int)
 SNAPSHOT_SPMC_DEF(shared2, int)
-SNAPSHOT_SPMC_DEF(shared3, shared_t, SNAPSHOT_OPLIST(shared2, M_DEFAULT_OPLIST))
+SNAPSHOT_SPMC_DEF(shared3, shared_t, SNAPSHOT_OPLIST(shared2, M_BASIC_OPLIST))
 
 #elif TEST == 19
 
@@ -192,7 +192,7 @@ SNAPSHOT_SPMC_DEF(shared3, shared_t, SNAPSHOT_OPLIST(shared2, M_DEFAULT_OPLIST))
 
 SNAPSHOT_MPMC_DEF(shared, int)
 SNAPSHOT_MPMC_DEF(shared2, int)
-SNAPSHOT_MPMC_DEF(shared3, shared_t, SNAPSHOT_OPLIST(shared2, M_DEFAULT_OPLIST))
+SNAPSHOT_MPMC_DEF(shared3, shared_t, SNAPSHOT_OPLIST(shared2, M_BASIC_OPLIST))
 
 #elif TEST == 20
 
@@ -201,8 +201,8 @@ SNAPSHOT_MPMC_DEF(shared3, shared_t, SNAPSHOT_OPLIST(shared2, M_DEFAULT_OPLIST))
 TUPLE_DEF2(aggregate, (x, int), (z, float))
 TUPLE_DEF2(aggregate2, (x, int), (z, float))
 TUPLE_DEF2(struct2,
-           (a, aggregate_t, TUPLE_OPLIST(aggregate, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)),
-           (b, aggregate_t, TUPLE_OPLIST(aggregate2, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST))
+           (a, aggregate_t, TUPLE_OPLIST(aggregate, M_BASIC_OPLIST, M_BASIC_OPLIST)),
+           (b, aggregate_t, TUPLE_OPLIST(aggregate2, M_BASIC_OPLIST, M_BASIC_OPLIST))
            )
 
 #elif TEST == 21
@@ -212,8 +212,8 @@ TUPLE_DEF2(struct2,
 TUPLE_DEF2(aggregate, (x, int), (z, float))
 TUPLE_DEF2(aggregate2, (x, int), (z, float))
 TUPLE_DEF2(struct2,
-           (a, aggregate_t, TUPLE_OPLIST(aggregate2, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)),
-           (b, aggregate_t, TUPLE_OPLIST(aggregate, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST))
+           (a, aggregate_t, TUPLE_OPLIST(aggregate2, M_BASIC_OPLIST, M_BASIC_OPLIST)),
+           (b, aggregate_t, TUPLE_OPLIST(aggregate, M_BASIC_OPLIST, M_BASIC_OPLIST))
            )
 
 #elif TEST == 22
@@ -223,8 +223,8 @@ TUPLE_DEF2(struct2,
 VARIANT_DEF2(aggregate, (x, int), (z, float))
 VARIANT_DEF2(aggregate2, (x, int), (z, float))
 VARIANT_DEF2(struct2,
-             (a, aggregate_t, VARIANT_OPLIST(aggregate, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)),
-             (b, aggregate_t, VARIANT_OPLIST(aggregate2, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST))
+             (a, aggregate_t, VARIANT_OPLIST(aggregate, M_BASIC_OPLIST, M_BASIC_OPLIST)),
+             (b, aggregate_t, VARIANT_OPLIST(aggregate2, M_BASIC_OPLIST, M_BASIC_OPLIST))
              )
 
 #elif TEST == 23
@@ -234,8 +234,8 @@ VARIANT_DEF2(struct2,
 VARIANT_DEF2(aggregate, (x, int), (z, float))
 VARIANT_DEF2(aggregate2, (x, int), (z, float))
 VARIANT_DEF2(struct2,
-             (a, aggregate_t, VARIANT_OPLIST(aggregate2, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)),
-             (b, aggregate_t, VARIANT_OPLIST(aggregate, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST))
+             (a, aggregate_t, VARIANT_OPLIST(aggregate2, M_BASIC_OPLIST, M_BASIC_OPLIST)),
+             (b, aggregate_t, VARIANT_OPLIST(aggregate, M_BASIC_OPLIST, M_BASIC_OPLIST))
              )
 
 #elif TEST == 24

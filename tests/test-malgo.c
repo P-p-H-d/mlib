@@ -48,12 +48,12 @@ DEQUE_DEF(deque_obj, testobj_t, TESTOBJ_CMP_OPLIST)
 DICT_DEF2(dict_obj, string_t, STRING_OPLIST, testobj_t, TESTOBJ_OPLIST)
 LIST_DUAL_PUSH_DEF(dlist_int, int)
 DICT_DEF2(dict_int, string_t, int)
-#define M_OPL_dict_int_t() DICT_OPLIST(dict_int, STRING_OPLIST, M_DEFAULT_OPLIST)
+#define M_OPL_dict_int_t() DICT_OPLIST(dict_int, STRING_OPLIST, M_BASIC_OPLIST)
 ARRAY_DEF(array_uint, unsigned int)
 #define M_OPL_array_uint_t() ARRAY_OPLIST(array_uint)
 
 TUPLE_DEF2(person, (age, int), (name, string_t) )
-#define M_OPL_person_t() TUPLE_OPLIST(person, M_DEFAULT_OPLIST, STRING_OPLIST)
+#define M_OPL_person_t() TUPLE_OPLIST(person, M_BASIC_OPLIST, STRING_OPLIST)
 ARRAY_DEF(array_person, person_t)
 #define M_OPL_array_person_t() ARRAY_OPLIST(array_person, M_OPL_person_t() )
 
@@ -225,32 +225,32 @@ static void test_list(void)
   
   list_int_clear(l);
 
-  M_LET( (l1, 1, 3, 5), (l2, 1, 2, 4), (l3, 1, 2, 3, 4, 5), LIST_OPLIST(list_int, M_DEFAULT_OPLIST)) {
+  M_LET( (l1, 1, 3, 5), (l2, 1, 2, 4), (l3, 1, 2, 3, 4, 5), LIST_OPLIST(list_int, M_BASIC_OPLIST)) {
     algo_list_sort_union(l1, l2);
     assert(list_int_equal_p (l1, l3));
   }
 
-  M_LET( (l1, 1, 30, 31), (l2, 2, 4, 31, 32), (l3, 1, 2, 4, 30, 31, 32), LIST_OPLIST(list_int, M_DEFAULT_OPLIST)) {
+  M_LET( (l1, 1, 30, 31), (l2, 2, 4, 31, 32), (l3, 1, 2, 4, 30, 31, 32), LIST_OPLIST(list_int, M_BASIC_OPLIST)) {
     algo_list_sort_union(l1, l2);
     assert(list_int_equal_p (l1, l3));
   }
 
-  M_LET( (l1, 4, 28, 29, 30, 34), (l2, 1, 3, 31, 32, 33), (l3, 1, 3, 4, 28, 29, 30, 31, 32, 33, 34), LIST_OPLIST(list_int, M_DEFAULT_OPLIST)) {
+  M_LET( (l1, 4, 28, 29, 30, 34), (l2, 1, 3, 31, 32, 33), (l3, 1, 3, 4, 28, 29, 30, 31, 32, 33, 34), LIST_OPLIST(list_int, M_BASIC_OPLIST)) {
     algo_list_sort_union(l1, l2);
     assert(list_int_equal_p (l1, l3));
   }
 
-  M_LET( (l1, 1, 4, 28, 29, 31, 34), (l2, 1, 3, 31, 32, 33), (l3, 1, 31), LIST_OPLIST(list_int, M_DEFAULT_OPLIST)) {
+  M_LET( (l1, 1, 4, 28, 29, 31, 34), (l2, 1, 3, 31, 32, 33), (l3, 1, 31), LIST_OPLIST(list_int, M_BASIC_OPLIST)) {
     algo_list_sort_intersect(l1, l2);
     assert(list_int_equal_p (l1, l3));
   }
 
-  M_LET( (l1, 4, 28, 29, 31, 34), (l2, 1, 3, 31, 32, 33), (l3, (31)), LIST_OPLIST(list_int, M_DEFAULT_OPLIST)) {
+  M_LET( (l1, 4, 28, 29, 31, 34), (l2, 1, 3, 31, 32, 33), (l3, (31)), LIST_OPLIST(list_int, M_BASIC_OPLIST)) {
     algo_list_sort_intersect(l1, l2);
     assert(list_int_equal_p (l1, l3));
   }
 
-  M_LET( (l1, 1, 4, 28, 29, 31, 34), (l2, 3, 32, 33), l3, LIST_OPLIST(list_int, M_DEFAULT_OPLIST)) {
+  M_LET( (l1, 1, 4, 28, 29, 31, 34), (l2, 3, 32, 33), l3, LIST_OPLIST(list_int, M_BASIC_OPLIST)) {
     algo_list_sort_intersect(l1, l2);
     assert(list_int_equal_p (l1, l3));
   }
@@ -646,25 +646,25 @@ FUNC_OBJ_INS_DEF(fo_test, algo_array_fo_test_obj,
 		 (a), {
 		   return a == self->x;
 		 }, (x, int))
-#define M_OPL_fo_test_t() FUNC_OBJ_INS_OPLIST(fo_test, M_DEFAULT_OPLIST)
+#define M_OPL_fo_test_t() FUNC_OBJ_INS_OPLIST(fo_test, M_BASIC_OPLIST)
 
 FUNC_OBJ_INS_DEF(fo_eq, algo_array_fo_eq_obj,
 		 (a, b), {
 		   return a == b && self->x != a;
 		 }, (x, int))
-#define M_OPL_fo_eq_t() FUNC_OBJ_INS_OPLIST(fo_eq, M_DEFAULT_OPLIST)
+#define M_OPL_fo_eq_t() FUNC_OBJ_INS_OPLIST(fo_eq, M_BASIC_OPLIST)
 
 FUNC_OBJ_INS_DEF(fo_cmp, algo_array_fo_cmp_obj,
 		 (a, b), {
 		   return a < b ? -self->x : a > b ? self->x : 0;
 		 }, (x, int))
-#define M_OPL_fo_cmp_t() FUNC_OBJ_INS_OPLIST(fo_cmp, M_DEFAULT_OPLIST)
+#define M_OPL_fo_cmp_t() FUNC_OBJ_INS_OPLIST(fo_cmp, M_BASIC_OPLIST)
 
 FUNC_OBJ_INS_DEF(fol_cmp, algo_list_fo_cmp_obj,
 		 (a, b), {
 		   return a < b ? -self->x : a > b ? self->x : 0;
 		 }, (x, int))
-#define M_OPL_fol_cmp_t() FUNC_OBJ_INS_OPLIST(fol_cmp, M_DEFAULT_OPLIST)
+#define M_OPL_fol_cmp_t() FUNC_OBJ_INS_OPLIST(fol_cmp, M_BASIC_OPLIST)
 
   static void test_fo(void)
 {

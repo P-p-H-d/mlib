@@ -29,13 +29,13 @@
 #include "coverage.h"
 START_COVERAGE
 VARIANT_DEF2(pair,
-             (key, int, M_DEFAULT_OPLIST),
-             (value, float, M_DEFAULT_OPLIST) )
+             (key, int, M_BASIC_OPLIST),
+             (value, float, M_BASIC_OPLIST) )
 END_COVERAGE
 
 VARIANT_DEF2(flux,
              (z, int),
-             (f, float, M_DEFAULT_OPLIST),
+             (f, float, M_BASIC_OPLIST),
              (s, string_t) )
 
 // Minimal oplist definition.
@@ -54,12 +54,12 @@ VARIANT_DEF2(rvariant,
 #define M_OPL_rvariant_t()     VARIANT_OPLIST(rvariant, M_OPL_pair_str_t(), STRING_OPLIST)
 
 VARIANT_DEF2(rvariant2, (name, string_t), (value, int))
-#define M_OPL_rvariant2_t() VARIANT_OPLIST(rvariant2, STRING_OPLIST, M_DEFAULT_OPLIST)
+#define M_OPL_rvariant2_t() VARIANT_OPLIST(rvariant2, STRING_OPLIST, M_BASIC_OPLIST)
 
 VARIANT_DEF2(rvariant3, (name, string_t), (ivariant2, rvariant2_t), (ivariant, rvariant_t) )
 
 VARIANT_DEF2_AS(vector, Vector, (x, double), (y, double) )
-#define M_OPL_Vector() VARIANT_OPLIST(vector, M_DEFAULT_OPLIST)
+#define M_OPL_Vector() VARIANT_OPLIST(vector, M_BASIC_OPLIST)
 
 static void test_pair(void)
 {
@@ -191,7 +191,7 @@ static void test_pair(void)
 VARIANT_DEF2(triple,
              (s, string_t, STRING_OPLIST),
              (z, testobj_t, (INIT(testobj_init), INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear) )),
-             (i, int, M_DEFAULT_OPLIST) )
+             (i, int, M_BASIC_OPLIST) )
 
 static void
 test_triple(void)

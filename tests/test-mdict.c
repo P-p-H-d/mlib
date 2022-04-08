@@ -34,25 +34,25 @@ static inline void update_value (int *p, const int p1, const int p2) { *p = p1 +
 #include "coverage.h"
 START_COVERAGE
 DICT_DEF2(dict_str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
-DICT_OA_DEF2(dict_oa_int, int, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int, M_OPEXTEND(M_DEFAULT_OPLIST, ADD(update_value M_IPTR)))
+DICT_OA_DEF2(dict_oa_int, int, M_OPEXTEND(M_BASIC_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int, M_OPEXTEND(M_BASIC_OPLIST, ADD(update_value M_IPTR)))
 END_COVERAGE
 
 DICT_STOREHASH_DEF2(dict_str2, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
 DICT_SET_DEF(dict_setstr, string_t, STRING_OPLIST)
-DICT_DEF2(dict_int, int, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+DICT_DEF2(dict_int, int, M_BASIC_OPLIST, int, M_BASIC_OPLIST)
 DICT_DEF2(dict_mpz, string_t, STRING_OPLIST, testobj_t, TESTOBJ_OPLIST)
 
 BOUNDED_STRING_DEF(symbol, 15)
-DICT_OA_DEF2(dict_oa_str, symbol_t, BOUNDED_STRING_OPLIST(symbol), int, M_DEFAULT_OPLIST)
+DICT_OA_DEF2(dict_oa_str, symbol_t, BOUNDED_STRING_OPLIST(symbol), int, M_BASIC_OPLIST)
 
-DICT_OA_DEF2(dict_oa_bstr, string_t, STRING_OPLIST, int, M_DEFAULT_OPLIST)
+DICT_OA_DEF2(dict_oa_bstr, string_t, STRING_OPLIST, int, M_BASIC_OPLIST)
 DICT_OASET_DEF(dict_oa_setstr, string_t, STRING_OPLIST)
 
 
-DICT_DEF2_AS(dictas_int, DictInt, DictIntIt, DictIntItRef, int, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+DICT_DEF2_AS(dictas_int, DictInt, DictIntIt, DictIntItRef, int, M_BASIC_OPLIST, int, M_BASIC_OPLIST)
 DICT_STOREHASH_DEF2_AS(dictas_str2, DictSInt, DictSIntIt, DictSIntItRef, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
 DICT_SET_DEF_AS(dictas_setstr, DictStr, DictStrIt, string_t, STRING_OPLIST)
-DICT_OA_DEF2_AS(dictas_oa_bstr, DictOAStr, DictOAStrIt, DictOAStrItRef, string_t, STRING_OPLIST, int, M_DEFAULT_OPLIST)
+DICT_OA_DEF2_AS(dictas_oa_bstr, DictOAStr, DictOAStrIt, DictOAStrItRef, string_t, STRING_OPLIST, int, M_BASIC_OPLIST)
 DICT_OASET_DEF_AS(dictas_oa_setstr, DictOASStr, DictOASStrIt, string_t, STRING_OPLIST)
 
 
@@ -374,7 +374,7 @@ static void test_oa(void)
 
 static void test_init_oa(void)
 {
-  M_LET(d1, d2, DICT_OPLIST(dict_oa_int, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)){
+  M_LET(d1, d2, DICT_OPLIST(dict_oa_int, M_BASIC_OPLIST, M_BASIC_OPLIST)){
     for(int i = 0; i < 100; i++) {
       dict_oa_int_set_at (d1, 2*i, 2*i+1);
     }
@@ -430,7 +430,7 @@ static void test_init_oa(void)
 
     //assert (dict_oa_int_hash (d2) != 0);
   }
-  M_LET( (d1, (1, 2), (2, 3), (4, 5)), (d2, (1, 3), (4, 7), (10, 14)), (r1, (1, 5), (2, 3), (4, 12), (10, 14) ), DICT_OPLIST(dict_oa_int, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)) {
+  M_LET( (d1, (1, 2), (2, 3), (4, 5)), (d2, (1, 3), (4, 7), (10, 14)), (r1, (1, 5), (2, 3), (4, 12), (10, 14) ), DICT_OPLIST(dict_oa_int, M_BASIC_OPLIST, M_BASIC_OPLIST)) {
     dict_oa_int_splice(d1, d2);
     assert(dict_oa_int_equal_p(d1, r1));
     assert(dict_oa_int_empty_p(d2));
@@ -439,7 +439,7 @@ static void test_init_oa(void)
 
 static void test_it_oa(void)
 {
-  M_LET(d1, DICT_OPLIST(dict_oa_int, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)){
+  M_LET(d1, DICT_OPLIST(dict_oa_int, M_BASIC_OPLIST, M_BASIC_OPLIST)){
 
     dict_oa_int_it_t it0;
     dict_oa_int_it(it0, d1);

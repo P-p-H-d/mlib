@@ -5,7 +5,7 @@
 
 /* Definition of an associative map string_t --> size_t */
 DICT_DEF2(dict_str, string_t, size_t)
-#define M_OPL_dict_str_t() DICT_OPLIST(dict_str, STRING_OPLIST, M_DEFAULT_OPLIST)
+#define M_OPL_dict_str_t() DICT_OPLIST(dict_str, STRING_OPLIST, M_BASIC_OPLIST)
 
 /* Definition of an array of string_t */
 ARRAY_DEF(vector_str, string_t)

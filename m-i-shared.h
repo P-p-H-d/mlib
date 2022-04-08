@@ -34,7 +34,7 @@ M_BEGIN_PROTECTED_CODE
    USAGE: ISHARED_OPLIST(name [, oplist_of_the_type]) */
 #define M_ISHARED_PTR_OPLIST(...)                                             \
   M_ISHAR3D_PTR_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
-                         ((__VA_ARGS__, M_DEFAULT_OPLIST),                    \
+                         ((__VA_ARGS__, M_BASIC_OPLIST),                      \
                           (__VA_ARGS__ )))
 
 

@@ -3118,7 +3118,7 @@ static inline size_t m_core_cstr_hash(const char str[])
                            float: 1, double:1, long double: 1,                \
                            char *:1, void*:1,                                 \
                   default: 0),                                                \
-                  M_LIB_NOT_A_DEFAULT_TYPE,                                   \
+                  M_LIB_NOT_A_BASIC_TYPE,                                     \
                   "The variable " M_AS_STR(a) " is not a basic C type (int/float), " \
                   "but the given methods use it like this. "                  \
                   "It is likely the given oplist is not right.")
@@ -3127,7 +3127,7 @@ static inline size_t m_core_cstr_hash(const char str[])
   M_STATIC_ASSERT(sizeof (a) <= M_MAX(sizeof(long long),                      \
                                       M_MAX(sizeof (long double),             \
                                             sizeof (uintmax_t))),             \
-                  M_LIB_NOT_A_DEFAULT_TYPE,                                   \
+                  M_LIB_NOT_A_BASIC_TYPE,                                     \
                   "The variable " M_AS_STR(a) " is too big to be a basic C type (int/float), " \
                   "but the given methods use it like this. "                  \
                   "It is likely the given oplist is not right.")
@@ -3291,7 +3291,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 
 # if M_USE_STDIO
 /* C11 + FILE support */
-#  define M_DEFAULT_OPLIST                                                    \
+#  define M_BASIC_OPLIST                                                      \
   (INIT(M_INIT_BASIC), INIT_SET(M_SET_BASIC), SET(M_SET_BASIC),               \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_BASIC), CMP(M_CMP_BASIC),          \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
@@ -3304,7 +3304,7 @@ static inline size_t m_core_cstr_hash(const char str[])
    PARSE_STR(M_PARSE_DEFAULT_TYPE M_IPTR), M_GET_STR_METHOD_FOR_DEFAULT_TYPE)
 # else
 /* C11 + No FILE support */
-#   define M_DEFAULT_OPLIST                                                   \
+#   define M_BASIC_OPLIST                                                     \
   (INIT(M_INIT_BASIC), INIT_SET(M_SET_BASIC), SET(M_SET_BASIC),               \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_BASIC), CMP(M_CMP_BASIC),          \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
@@ -3317,7 +3317,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 # endif
 #else
 /* C99 */
-# define M_DEFAULT_OPLIST                                                     \
+# define M_BASIC_OPLIST                                                       \
   (INIT(M_INIT_BASIC), INIT_SET(M_SET_BASIC), SET(M_SET_BASIC),               \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_BASIC), CMP(M_CMP_BASIC),          \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
@@ -3327,18 +3327,20 @@ static inline size_t m_core_cstr_hash(const char str[])
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT)                         )
 #endif
 
+/* Obsolete name */
+#define M_DEFAULT_OPLIST M_BASIC_OPLIST
 
 /* Specialized oplist for a boolean.
- * M_DEFAULT_OPLIST is nearly ok, except for ADD/SUB/MUL/DIV
+ * M_BASIC_OPLIST is nearly ok, except for ADD/SUB/MUL/DIV
  * that generates warnings with boolean.
  */
 #define M_BOOL_OPLIST                                                         \
-  M_OPEXTEND(M_DEFAULT_OPLIST, ADD(M_OR_DEFAULT), MUL(M_AND_DEFAULT),         \
+  M_OPEXTEND(M_BASIC_OPLIST, ADD(M_OR_DEFAULT), MUL(M_AND_DEFAULT),           \
               SUB(0), DIV(0))
 
 
 /* Specialized oplist for an enumerate.
- * M_DEFAULT_OPLIST is nearly ok, except if build in C++ mode.
+ * M_BASIC_OPLIST is nearly ok, except if build in C++ mode.
  * Also I/O are specialized and arithmetics are removed
  * OPLIST doesn't store an oplist but an additional parameter
  * (the initial value)
@@ -3581,7 +3583,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_GLOBALI_TYPE_GET(a)              M_GET_TYPE a
 
 /* If a symbol composed of M_OPL_##a() exists and is defined as an oplist,
-   it returns it otherwise it returns M_DEFAULT_OPLIST.
+   it returns it otherwise it returns M_BASIC_OPLIST.
    Global oplist is limited to typedef types.
    NOTE1: It first tests if the type doesn't start with a parenthesis,
    in which case concatenation cannot be used.
@@ -3592,18 +3594,18 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_GLOBAL_OPLIST_OR_DEF(a)                                             \
   M_IF( M_PARENTHESIS_P(a))(M_GLOBALI_OPLIST_DEFAULT1, M_GLOBALI_OPLIST_OR_DEF_ELSE)(a)
 #define M_GLOBALI_OPLIST_DEFAULT1(a)          M_GLOBALI_OPLIST_DEFAULT2
-#define M_GLOBALI_OPLIST_DEFAULT2()           M_DEFAULT_OPLIST
+#define M_GLOBALI_OPLIST_DEFAULT2()           M_BASIC_OPLIST
 #define M_GLOBALI_OPLIST_OR_DEF_ELSE(a)       M_GLOBALI_OPLIST_OR_DEF_ELSE2(a, M_C(M_OPL_, a)())
 #define M_GLOBALI_OPLIST_OR_DEF_ELSE2(a, op)  M_IF( M_PARENTHESIS_P(op))(M_C(M_OPL_, a), M_GLOBALI_OPLIST_DEFAULT2)
 
 
 /* Register simple classic C types (no qualifier) */
-#define M_OPL_char() M_DEFAULT_OPLIST
-#define M_OPL_short() M_DEFAULT_OPLIST
-#define M_OPL_int() M_DEFAULT_OPLIST
-#define M_OPL_long() M_DEFAULT_OPLIST
-#define M_OPL_float() M_DEFAULT_OPLIST
-#define M_OPL_double() M_DEFAULT_OPLIST
+#define M_OPL_char() M_BASIC_OPLIST
+#define M_OPL_short() M_BASIC_OPLIST
+#define M_OPL_int() M_BASIC_OPLIST
+#define M_OPL_long() M_BASIC_OPLIST
+#define M_OPL_float() M_BASIC_OPLIST
+#define M_OPL_double() M_BASIC_OPLIST
 
 /* Add as suffix for the given function the number of arguments of the calls.
    Can be used to call different function in function of the number of arguments. */

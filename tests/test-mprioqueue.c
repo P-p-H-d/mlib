@@ -38,7 +38,7 @@ static inline bool testobj_equal2_p(const testobj_t z1, const testobj_t z2)
 PRIOQUEUE_DEF(obj_pqueue, testobj_t, M_OPEXTEND(TESTOBJ_CMP_OPLIST, EQUAL(testobj_equal2_p) ))
 
 PRIOQUEUE_DEF_AS(PrioDouble, PrioDouble, PrioDoubleIt, double)
-#define M_OPL_PrioDouble() PRIOQUEUE_OPLIST(PrioDouble, M_DEFAULT_OPLIST)
+#define M_OPL_PrioDouble() PRIOQUEUE_OPLIST(PrioDouble, M_BASIC_OPLIST)
 
 static void test1(void)
 {

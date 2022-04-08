@@ -51,7 +51,7 @@
    USAGE: VARIANT_OPLIST(name[, oplist of the first type, ...]) */
 #define M_VARIANT_OPLIST(...)                                                 \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
-  (M_VAR1ANT_OPLIST_P1((__VA_ARGS__, M_DEFAULT_OPLIST)),                      \
+  (M_VAR1ANT_OPLIST_P1((__VA_ARGS__, M_BASIC_OPLIST)),                        \
    M_VAR1ANT_OPLIST_P1((__VA_ARGS__ )))
 
 
@@ -69,7 +69,7 @@
   M_MAP(M_VAR1ANT_INJECT_OPLIST_A, __VA_ARGS__)
 
 /* Transform (x, type) into (x, type, oplist) if there is global registered oplist 
-   or (x, type, M_DEFAULT_OPLIST) if there is no global one,
+   or (x, type, M_BASIC_OPLIST) if there is no global one,
    or keep (x, type, oplist) if oplist was already present */
 #define M_VAR1ANT_INJECT_OPLIST_A( duo_or_trio )                              \
   M_VAR1ANT_INJECT_OPLIST_B duo_or_trio

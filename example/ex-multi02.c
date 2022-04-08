@@ -48,7 +48,7 @@ VARIANT_DEF2(my_integer,
              (n, long long),
              (z, mpz_t))
 /* Define the oplist associated to this variant and register it */
-#define M_OPL_my_integer_t() VARIANT_OPLIST(my_integer, M_DEFAULT_OPLIST, M_OPL_mpz_t() )
+#define M_OPL_my_integer_t() VARIANT_OPLIST(my_integer, M_BASIC_OPLIST, M_OPL_mpz_t() )
 
 /* Define a dictionary of string --> integer named dict_my_t */
 DICT_DEF2(my_dict, string_t, my_integer_t)

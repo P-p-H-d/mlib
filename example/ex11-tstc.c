@@ -12,14 +12,14 @@
 
 // Define a basic structure (POD structure) using a tuple to get the default functions
 TUPLE_DEF2(Point, (x, float), (y, float))
-#define M_OPL_Point_t() TUPLE_OPLIST(Point, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+#define M_OPL_Point_t() TUPLE_OPLIST(Point, M_BASIC_OPLIST, M_BASIC_OPLIST)
 
 // NOTE: array, list, deque don't have a native find function.
 // We'll use the algorithm header to create a find function for such containers.
 
 // Define a set of int & register its oplist
 DICT_SET_DEF(cset_i, int)
-#define M_OPL_cset_i_t() DICT_SET_OPLIST(cset_i, M_DEFAULT_OPLIST)
+#define M_OPL_cset_i_t() DICT_SET_OPLIST(cset_i, M_BASIC_OPLIST)
 
 // Define an array of Point, register its oplist & include some basic algorithms
 ARRAY_DEF(cvec_p, Point_t)
@@ -28,17 +28,17 @@ ALGO_DEF(cvec_p, cvec_p_t)
 
 // Define a deque of int, including some basic algorithms
 DEQUE_DEF(cdeq_i, int)
-#define M_OPL_cdeq_i_t() DEQUE_OPLIST(cdeq_i, M_DEFAULT_OPLIST)
+#define M_OPL_cdeq_i_t() DEQUE_OPLIST(cdeq_i, M_BASIC_OPLIST)
 ALGO_DEF(cdeq_i, cdeq_i_t)
 
 // Define a backward list, including some basic algorithms
 LIST_DEF(clist_i, int)
-#define M_OPL_clist_i_t() LIST_OPLIST(clist_i, M_DEFAULT_OPLIST)
+#define M_OPL_clist_i_t() LIST_OPLIST(clist_i, M_BASIC_OPLIST)
 ALGO_DEF(clist_i, clist_i_t)
 
 // Define an unordered map of int to int
 DICT_DEF2(csmap_i, int, int)
-#define M_OPL_csmap_i_t() DICT_OPLIST(csmap_i, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+#define M_OPL_csmap_i_t() DICT_OPLIST(csmap_i, M_BASIC_OPLIST, M_BASIC_OPLIST)
 
 int main(void)
 {

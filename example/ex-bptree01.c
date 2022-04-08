@@ -5,13 +5,13 @@
 // The number 5 is the number of elements in a node of the B+TREE
 BPTREE_DEF2(map_employee_id, 5, int, string_t)
 // Register the oplist of this map globally.
-#define M_OPL_map_employee_id_t() BPTREE_OPLIST2(map_employee_id, M_DEFAULT_OPLIST, STRING_OPLIST)
+#define M_OPL_map_employee_id_t() BPTREE_OPLIST2(map_employee_id, M_BASIC_OPLIST, STRING_OPLIST)
 
 // Define a map string -> int named map_employee_name
 // The number 5 is the number of elements in a node of the B+TREE
 BPTREE_DEF2(map_employee_name, 5, string_t, int)
 // Register the oplist of this map globally.
-#define M_OPL_map_employee_name_t() BPTREE_OPLIST2(map_employee_name, STRING_OPLIST, M_DEFAULT_OPLIST)
+#define M_OPL_map_employee_name_t() BPTREE_OPLIST2(map_employee_name, STRING_OPLIST, M_BASIC_OPLIST)
 
 int main(void)
 {

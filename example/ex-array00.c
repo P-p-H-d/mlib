@@ -24,7 +24,7 @@
 /* Generate prototypes and inline functions
    for basic types.
    For integer and floats, there is no need to specify
-   an oplist. M_DEFAULT_OPLIST will be used.
+   an oplist. M_BASIC_OPLIST will be used.
  */
 ARRAY_DEF(r_bool, bool)
 
@@ -105,7 +105,7 @@ test_int(int n)
    But with an explicit oplist.
    This generates exactly the same code than r_int
 */
-ARRAY_DEF(r_int2, signed int, M_DEFAULT_OPLIST)
+ARRAY_DEF(r_int2, signed int, M_BASIC_OPLIST)
 
 static int
 test_int2(int n)
@@ -180,7 +180,7 @@ test_float(int n)
 
 
 /* Same with type double and an explicit oplist*/
-ARRAY_DEF(r_double, double, M_DEFAULT_OPLIST)
+ARRAY_DEF(r_double, double, M_BASIC_OPLIST)
 
 static int
 test_double(int n)
@@ -478,7 +478,7 @@ test_rockme2b(int n)
 /* Same with a structure type defined as a tuple.
 
    We first define a tuple. No need to specify the oplist as it uses basic C types
-   so M_DEFAULT_OPLIST is used.
+   so M_BASIC_OPLIST is used.
 
    Then we define the array, giving it the oplist definition of the tuple:
    the macro TUPLE_OPLIST is used to build it based on the tuple name,
@@ -486,7 +486,7 @@ test_rockme2b(int n)
  */
 TUPLE_DEF2(rock_you, (n, int), (other, float))
 
-ARRAY_DEF(r_rockme3, rock_you_t, TUPLE_OPLIST(rock_you, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST))
+ARRAY_DEF(r_rockme3, rock_you_t, TUPLE_OPLIST(rock_you, M_BASIC_OPLIST, M_BASIC_OPLIST))
 
 static int
 test_rockme3(int n)
@@ -520,7 +520,7 @@ test_rockme3(int n)
 /* Same with a structure type defined as a tuple using global registeration.
 
    We first define a tuple. No need to specify the oplist as it uses basic C types
-   so M_DEFAULT_OPLIST is used.
+   so M_BASIC_OPLIST is used.
 
    Then we register the oplist of rock_us_t by defining a macro based
    on M_OPL_ + type name + () which expands with the oplist of the type.
@@ -533,7 +533,7 @@ test_rockme3(int n)
  */
 TUPLE_DEF2(rock_us, (n, int), (other, float))
 
-#define M_OPL_rock_us_t() TUPLE_OPLIST(rock_us, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+#define M_OPL_rock_us_t() TUPLE_OPLIST(rock_us, M_BASIC_OPLIST, M_BASIC_OPLIST)
 
 ARRAY_DEF(r_rockme4, rock_us_t)
 

@@ -51,7 +51,7 @@ static void uint_get_str(string_t str, unsigned int u, bool append)
 
 #include "coverage.h"
 START_COVERAGE
-RBTREE_DEF(rbtree_uint, unsigned int, M_OPEXTEND(M_DEFAULT_OPLIST, IN_STR(uint_in_str M_IPTR), OUT_STR(uint_out_str), GET_STR(uint_get_str), PARSE_STR(uint_parse_str M_IPTR)) )
+RBTREE_DEF(rbtree_uint, unsigned int, M_OPEXTEND(M_BASIC_OPLIST, IN_STR(uint_in_str M_IPTR), OUT_STR(uint_out_str), GET_STR(uint_get_str), PARSE_STR(uint_parse_str M_IPTR)) )
 END_COVERAGE
 
 RBTREE_DEF(rbtree_float, float)
@@ -60,8 +60,8 @@ RBTREE_DEF(rbtree_mpz, testobj_t, TESTOBJ_OPLIST)
 #define UINT_OPLIST RBTREE_OPLIST(rbtree_uint)
 #define FLOAT_OP RBTREE_OPLIST(rbtree_float)
 
-RBTREE_DEF_AS(TreeDouble, TreeDouble, TreeDoubleIt, double, M_DEFAULT_OPLIST)
-#define M_OPL_TreeDouble() RBTREE_OPLIST(TreeDouble, M_DEFAULT_OPLIST)
+RBTREE_DEF_AS(TreeDouble, TreeDouble, TreeDoubleIt, double, M_BASIC_OPLIST)
+#define M_OPL_TreeDouble() RBTREE_OPLIST(TreeDouble, M_BASIC_OPLIST)
 
 static void test_uint(void)
 {

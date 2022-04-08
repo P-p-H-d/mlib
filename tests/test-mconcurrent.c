@@ -37,13 +37,13 @@
 #include "m-concurrent.h"
 
 TUPLE_DEF2(point, (x, int), (y, int))
-#define M_OPL_point_t() TUPLE_OPLIST(point, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+#define M_OPL_point_t() TUPLE_OPLIST(point, M_BASIC_OPLIST, M_BASIC_OPLIST)
 START_COVERAGE
 CONCURRENT_DEF(ppoint, point_t)
 END_COVERAGE
 
 VARIANT_DEF2(dimension, (x, int), (y, float))
-#define M_OPL_dimension_t() VARIANT_OPLIST(dimension, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+#define M_OPL_dimension_t() VARIANT_OPLIST(dimension, M_BASIC_OPLIST, M_BASIC_OPLIST)
 CONCURRENT_DEF(pdimension, dimension_t)
 
 ARRAY_DEF(array1, int)
@@ -68,7 +68,7 @@ PRIOQUEUE_DEF(prio1, int)
 CONCURRENT_DEF(pprio1, prio1_t, PRIOQUEUE_OPLIST(prio1))
 
 BPTREE_DEF2(bptree1, 10, int, int)
-CONCURRENT_DEF(pbtree1, bptree1_t, BPTREE_OPLIST2(bptree1, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST))
+CONCURRENT_DEF(pbtree1, bptree1_t, BPTREE_OPLIST2(bptree1, M_BASIC_OPLIST, M_BASIC_OPLIST))
 
 BPTREE_DEF(bptree2, 10, int)
 CONCURRENT_DEF(pbtree2, bptree2_t, BPTREE_OPLIST(bptree2))
@@ -110,8 +110,8 @@ static inline void int_oor_set(int *s, unsigned char n)
   *s = -n;
 }
 #define INT_OA_OPLIST                                                   \
-  M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(int_oor_equal_p), OOR_SET(API_2(int_oor_set)))
-DICT_OA_DEF2(dict3, int, INT_OA_OPLIST, int, M_DEFAULT_OPLIST)
+  M_OPEXTEND(M_BASIC_OPLIST, OOR_EQUAL(int_oor_equal_p), OOR_SET(API_2(int_oor_set)))
+DICT_OA_DEF2(dict3, int, INT_OA_OPLIST, int, M_BASIC_OPLIST)
 CONCURRENT_DEF(pdict3, dict3_t, DICT_OPLIST(dict3))
 
 /********************************/
