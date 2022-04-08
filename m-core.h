@@ -2613,6 +2613,9 @@ static inline unsigned int m_core_clz64(uint64_t limb)
 /* Implement a kind of FNV1A Hash.
    Inspired by http://www.sanmayce.com/Fastest_Hash/ Jesteress and port to 64 bits.
    See https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash
+   The buffer given as argument shall be aligned:
+   - to 8 (resp. 4) if size is greater than 8 on 64 bits (resp. 4 on 32 bits),
+   - to the power of 2 just lower or equal to its size otherwise.
    NOTE: A lot of cast. Not really type nor alignement safe.
    NOTE: Can be reduced to very few instructions if constant size argument.
    FIXME: It is trivial for an attacker to generate collision and HASH_SEED doesn't prevent it.
@@ -2628,7 +2631,9 @@ m_core_hash (const void *str, size_t length)
 
   M_ASSERT (str != NULL || length == 0);
   M_ASSERT ( (( (uintptr_t)p & (sizeof(uint32_t)-1) ) == 0) || (length <= sizeof(uint32_t)));
+  M_ASSERT ( (( (uintptr_t)p & (sizeof(uint16_t)-1) ) == 0) || (length <= sizeof(uint16_t)));
 
+  // Main loop that handles 64 bits at a time.
   while (length >= 2*sizeof(uint32_t)) {
     const uint32_t *ptr = (const uint32_t *) (uintptr_t) p;
     hash32 = (hash32 ^ (m_core_rotl32a(ptr[0], 5) ^ ptr[1])) * prime;
@@ -2661,7 +2666,10 @@ m_core_hash (const void *str, size_t length)
 
   M_ASSERT (str != NULL || length == 0);
   M_ASSERT ( (( (uintptr_t)p & (sizeof(uint64_t)-1) ) == 0) || (length <= sizeof(uint32_t)));
+  M_ASSERT ( (( (uintptr_t)p & (sizeof(uint32_t)-1) ) == 0) || (length <= sizeof(uint32_t)));
+  M_ASSERT ( (( (uintptr_t)p & (sizeof(uint16_t)-1) ) == 0) || (length <= sizeof(uint16_t)));
 
+  // Main loop that handles 128 bits at a time.
   while (length >= 2*sizeof(uint64_t)) {
     const uint64_t *ptr = (const uint64_t *) (uintptr_t) p;
     hash64 = (hash64 ^ (m_core_rotl64a(ptr[0], 5) ^ ptr[1])) * prime;
@@ -2691,7 +2699,10 @@ m_core_hash (const void *str, size_t length)
 }
 #endif
 
-/* HASH function for a C-string (to be used within oplist) */
+/* HASH function for a C-string (to be used within oplist)
+ * We cannot use m_core_hash due to the alignment constraint,
+ * and it avoids computing the size before computing the hash.
+ */
 static inline size_t m_core_cstr_hash(const char str[])
 {
   M_HASH_DECL(hash);
