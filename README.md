@@ -806,6 +806,11 @@ If there is a warning reported by the compiler in the generated code,
 then there is definitely an **error** you should fix (except if it reports
 shadowed variables), in particular cast evolving pointers.
 
+You should also turn off the macro expansion of the errors reported by
+your compiler. There are often completly useless and misleading:
+
+* For GCC, uses -ftrack-macro-expansion=0
+* For CLANG, uses -fmacro-backtrace-limit=1
 
 
 Benchmarks
@@ -875,6 +880,8 @@ For the macro-preprocessing part, other libraries also exist. For example:
 * [OrderPP](https://github.com/rofl0r/order-pp)
 * [P99](http://p99.gforge.inria.fr/p99-html/)
 * [Zlang](https://github.com/pfultz2/ZLang)
+
+You can also consult [awesome-c-preprocessor](https://github.com/Hirrolot/awesome-c-preprocessor) for a more comprehensive list of libraries.
 
 For the string part, there is the following libraries for example:
 
