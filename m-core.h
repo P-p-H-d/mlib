@@ -3106,14 +3106,32 @@ static inline size_t m_core_cstr_hash(const char str[])
 /* Test if the given variable is a basic C variable:
    int, float, enum, bool or compatible.
    NOTE: Not perfect, but catch some errors */
-#define M_CHECK_DEFAULT_TYPE(a)                                               \
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#define M_CHECK_BASIC_TYPE(a)                                                 \
+  M_STATIC_ASSERT(_Generic(a,                                                 \
+                           _Bool: 1,                                          \
+                           char: 1, unsigned char: 1, signed char: 1,         \
+                           unsigned short: 1, signed short: 1,                \
+                           unsigned int: 1, signed int: 1,                    \
+                           unsigned long: 1, signed long: 1,                  \
+                           unsigned long long: 1, signed long long:1,         \
+                           float: 1, double:1, long double: 1,                \
+                           char *:1, void*:1,                                 \
+                  default: 0),                                                \
+                  M_LIB_NOT_A_DEFAULT_TYPE,                                   \
+                  "The variable " M_AS_STR(a) " is not a basic C type (int/float), " \
+                  "but the given methods use it like this. "                  \
+                  "It is likely the given oplist is not right.")
+#else
+#define M_CHECK_BASIC_TYPE(a)                                                 \
   M_STATIC_ASSERT(sizeof (a) <= M_MAX(sizeof(long long),                      \
-                                M_MAX(sizeof (long double),                   \
-                                      sizeof (uintmax_t))),                   \
-      M_LIB_NOT_A_DEFAULT_TYPE,                                               \
-      "The given variable is too big to be a default type,"                   \
-      "but the used macro can only be used with such one."                    \
-      "It is likely the given oplist is not right.")
+                                      M_MAX(sizeof (long double),             \
+                                            sizeof (uintmax_t))),             \
+                  M_LIB_NOT_A_DEFAULT_TYPE,                                   \
+                  "The variable " M_AS_STR(a) " is too big to be a basic C type (int/float), " \
+                  "but the given methods use it like this. "                  \
+                  "It is likely the given oplist is not right.")
+#endif
 
 /* Check if both variables are of the same type.
    The test compare their size.
@@ -3173,7 +3191,7 @@ static inline size_t m_core_cstr_hash(const char str[])
    are different but compatible type.
  */
 #define M_INIT_DEFAULT(a)       ((a) = 0)
-#define M_SET_DEFAULT(a,b)      (M_CHECK_DEFAULT_TYPE(a), (a) = (b))
+#define M_SET_DEFAULT(a,b)      ((a) = (b))
 #define M_NOTHING_DEFAULT(...)  ((void)(__VA_ARGS__))
 #define M_EMPTY_DEFAULT(...)    ((void)1)
 #define M_TRUE_DEFAULT(...)     true
@@ -3191,6 +3209,13 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_OR_DEFAULT(a,b,c)     ((a) = (b) | (c))
 #define M_NO_EXT_ALGO(n,co,to)
 #define M_INC_ALLOC_DEFAULT(n)   (M_MAX(8, (n))*2)
+
+/* Define the method for basic types */
+/* Check that the type matches a C basic type and do the job */
+#define M_INIT_BASIC(a)         (M_CHECK_BASIC_TYPE(a), (a) = 0)
+#define M_SET_BASIC(a,b)        (M_CHECK_BASIC_TYPE(a), (a) = (b))
+#define M_EQUAL_BASIC(a,b)      (M_CHECK_BASIC_TYPE(a), (a) == (b))
+#define M_CMP_BASIC(a,b)        (M_CHECK_BASIC_TYPE(a), (a) < (b) ? -1 : (a) > (b))
 
 /* Define the default limits:
  * - default maximum size of the basic type in "limb"
@@ -3267,10 +3292,10 @@ static inline size_t m_core_cstr_hash(const char str[])
 # if M_USE_STDIO
 /* C11 + FILE support */
 #  define M_DEFAULT_OPLIST                                                    \
-  (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),         \
-   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),      \
+  (INIT(M_INIT_BASIC), INIT_SET(M_SET_BASIC), SET(M_SET_BASIC),               \
+   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_BASIC), CMP(M_CMP_BASIC),          \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
-   RESET(M_INIT_DEFAULT),                                                     \
+   RESET(M_INIT_BASIC),                                                       \
    ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
    MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                               \
@@ -3280,10 +3305,10 @@ static inline size_t m_core_cstr_hash(const char str[])
 # else
 /* C11 + No FILE support */
 #   define M_DEFAULT_OPLIST                                                   \
-  (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),         \
-   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),      \
+  (INIT(M_INIT_BASIC), INIT_SET(M_SET_BASIC), SET(M_SET_BASIC),               \
+   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_BASIC), CMP(M_CMP_BASIC),          \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
-   RESET(M_INIT_DEFAULT),                                                     \
+   RESET(M_INIT_BASIC),                                                       \
    ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
    MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                               \
@@ -3293,10 +3318,10 @@ static inline size_t m_core_cstr_hash(const char str[])
 #else
 /* C99 */
 # define M_DEFAULT_OPLIST                                                     \
-  (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),         \
-   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),      \
+  (INIT(M_INIT_BASIC), INIT_SET(M_SET_BASIC), SET(M_SET_BASIC),               \
+   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_BASIC), CMP(M_CMP_BASIC),          \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
-   RESET(M_INIT_DEFAULT),                                                     \
+   RESET(M_INIT_BASIC),                                                       \
    ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
    MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT)                         )
@@ -3528,8 +3553,10 @@ m_core_parse2_enum (const char str[], const char **endptr)
                                    ));                                        \
   } while (0)
 
-/* Test if the argument is a valid oplist.
-   NOTE: Incomplete test.
+/* Test if the argument is an expression that looks like an oplist:
+ * - the data are within parenthesis
+ * - there is only one level of parenthesis
+ * The detection is imperfect.
 */
 #define M_OPLIST_P(a)                                                         \
   M_AND(M_PARENTHESIS_P(a), M_INV(M_PARENTHESIS_P (M_OPFLAT a)))
