@@ -773,7 +773,7 @@ The list of errors it can generate:
 * M\_LIB\_ERROR(ARGUMENT\_OF\_\*\_OPLIST\_IS\_NOT\_AN\_OPLIST, name, oplist): sub error of the previous error one, identifying the root cause. The error is in the oplist construction of the given macro. You need to give an oplist for this oplist construction.
 * M\_LIB\_MISSING\_METHOD: a required operator doesn't define any method in the given oplist. You need to complete the oplist with the missing method.
 * M\_LIB\_TYPE\_MISMATCH: the given oplist and the type do not match each other. You need to give the right oplist for this type.
-* M\_LIB\_NOT\_A\_BASIC\_TYPE: The oplist M\_BASIC\_OPLIST (directly or indirectly) has been used with the given type, but the given type is not a default type. You need to give the right oplist for this type.
+* M\_LIB\_NOT\_A\_BASIC\_TYPE: The oplist M\_BASIC\_OPLIST (directly or indirectly) has been used with the given type, but the given type is not a basic C type (int /float). You need to give the right oplist for this type.
 
 You should focus mainly on the first reported error/warning
 even if the link between what the compiler report and what the error is
