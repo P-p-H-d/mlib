@@ -1804,30 +1804,24 @@ M_BEGIN_PROTECTED_CODE
 #define M_IF_FUNCOBJ(a)             M_IF(M_FUNCOBJ_IS_NOT_DEFINED)( ,a)
 
 
-/* Helper macro to redefine a function with a default value :
-   If there is only one variable as the __VA_ARGS__, print
-   __VA_ARGS__ then ', value', instead only __VA_ARGS__.
-   Example:
-    int f(int a, int b);
-    #define f(...) M_APPLY(f, M_IF_DEFAULT1(0, __VA_ARGS__))
-   This need to be called within a M_APPLY macro.
-*/
-#define M_IF_DEFAULT1(value, ...)                                             \
-  __VA_ARGS__ M_IF_NARGS_EQ1(__VA_ARGS__)(M_DEFERRED_COMMA value, )
-
 /* Helper macro to redefine a function with a default values:
    Give the number of expected arguments, the value list of the
    default argument, and the arguments.
    It will complete the arguments with the value of the default
    argument to complete up to 'expected' arguments.
+   USAGE:
+   M_DEFAULT_ARGS(expected_num_of_args, (list_of_default_values), given_arguments...)
    Example:
    #define f(...) f(M_DEFAULT_ARGS(4, (0, 1, NULL), __VA_ARGS__))
 */
-#define M_DEFAULT_ARGS2(expected, value, ...)                                 \
-  __VA_ARGS__ M_IF(M_NOTEQUAL(M_NARGS(__VA_ARGS__), expected))(M_DEFERRED_COMMA, ) \
-    M_REVERSE(M_KEEP_ARGS(M_SUB(expected, M_NARGS(__VA_ARGS__)), M_REVERSE value))
-#define M_DEFAULT_ARGS_EVAL(...) __VA_ARGS__
-#define M_DEFAULT_ARGS( ...) M_DEFAULT_ARGS_EVAL(M_DEFAULT_ARGS2(__VA_ARGS__))
+#define M_DEFAULTI_ARGS2(numArgs, numExpected, value, ...)                    \
+  __VA_ARGS__                                                                 \
+  M_IF(M_NOTEQUAL(numArgs, numExpected))(M_DEFERRED_COMMA, )                  \
+  M_REVERSE(M_KEEP_ARGS(M_SUB(numExpected, numArgs), M_REVERSE value, nothing))
+#define M_DEFAULTI_ARGS_EVAL(...) __VA_ARGS__
+#define M_DEFAULT_ARGS(expected, value,  ...)                                 \
+  M_DEFAULTI_ARGS_EVAL(M_DEFAULTI_ARGS2(M_NARGS(__VA_ARGS__), expected, value, __VA_ARGS__))
+
 
 /* NOTEQUAL(val1,val2) with val from [0 to 52[
    Return 1 or 0 if val1=val2
