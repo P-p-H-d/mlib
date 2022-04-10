@@ -27,25 +27,31 @@
 
 #include "m-core.h"
 
-/* Fast Fixed Size thread unsafe allocator based on memory region.
+/* Fast, fixed size, thread unsafe allocator based on memory regions.
+   No oplist is needed.
    USAGE:
-     MEMPOOL_DEF(memppol_uint, unsigned int)
+     MEMPOOL_DEF(name, type)
+   Example:
+     MEMPOOL_DEF(mempool_uint, unsigned int)
      ...
-     memppol_uint_t m;
+     mempool_uint_t m;
      mempool_uint_init(m);
      unsigned int *ptr = mempool_uint_alloc(m);
      *ptr = 17;
      mempool_uint_free(m, ptr);
      mempool_uint_clear(m); // Give back memory to system
-   NOTE: Can not use m-list since it may be expanded from LIST_DEF
+   Technically, it uses a list of memory regions, where multiple
+   allocations are performed in each region. However, it
+   can not use m-list since it may be expanded from LIST_DEF
+   (recursive dependency problem).
 */
 #define M_MEMPOOL_DEF(name, type)                                             \
   M_MEMPOOL_DEF_AS(name, M_C(name,_t), type)
 
 
-/* Fast Fixed Size thread unsafe allocator based on memory region.
+/* Fast, fixed Size, thread unsafe allocator based on memory region.
    USAGE:
-     MEMPOOL_DEF_AS(memppol_uint, name_t, unsigned int)
+     MEMPOOL_DEF_AS(name, name_t, type)
 */
 #define M_MEMPOOL_DEF_AS(name, name_t, type)                                  \
   M_BEGIN_PROTECTED_CODE                                                      \
@@ -53,9 +59,10 @@
   M_END_PROTECTED_CODE
 
 
-/* User shall be able to cutomize the size of the segment and/or
+/* User shall be able to cutomize the size of the region segment and/or
    the minimun number of elements.
-   The default is the number of elements that fits in 16KB.
+   The default is the number of elements that fits in 16KB, or 256
+   is the size of the type is too big.
 */
 #ifndef M_USE_MEMPOOL_MAX_PER_SEGMENT
 #define M_USE_MEMPOOL_MAX_PER_SEGMENT(type)                                   \
@@ -169,12 +176,13 @@
     M_M3MPOOL_CONTRACT(mem, type);                                            \
   }                                                                           \
 
-/* MEMPOOL contract */
+/* MEMPOOL contract. We only control the current segment. */
 #define M_M3MPOOL_CONTRACT(mempool, type) do {                                \
     M_ASSERT((mempool) != NULL);                                              \
     M_ASSERT((mempool)->current_segment != NULL);                             \
     M_ASSERT((mempool)->current_segment->count <= M_USE_MEMPOOL_MAX_PER_SEGMENT(type)); \
   } while (0)
+
 
 #if M_USE_SMALL_NAME
 #define MEMPOOL_DEF M_MEMPOOL_DEF
