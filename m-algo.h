@@ -39,40 +39,41 @@
 
 /* Map a function (or a macro) to all elements of a container.
    USAGE:
-   ALGO_FOR_EACH(container, containerOplist, function[, extra arguments of function]) */
+   ALGO_FOR_EACH(container, containerOplist|type_if_registered_oplist, function[, extra arguments of function]) */
 #define M_ALGO_FOR_EACH(container, cont_oplist, ...)                          \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
-  (M_ALG0_FOR_EACH(container, M_GLOBAL_OPLIST(cont_oplist), __VA_ARGS__),     \
-   M_ALG0_FOR_EACH_ARG(container, M_GLOBAL_OPLIST(cont_oplist), __VA_ARGS__ ))
-
+  (M_ALG0_FOR_EACH, M_ALG0_FOR_EACH_ARG)                                      \
+  (container, M_GLOBAL_OPLIST(cont_oplist), __VA_ARGS__)
 
 /* Map a function (or a macro) to all elements of a container
    into another container.
    USAGE:
-   ALGO_TRANSFORM(contDst, contDOplist, contSrc, contSrcOplist,
+   ALGO_TRANSFORM(contDst, contDOplist|type_if_registered_oplist, contSrc, contSrcOplist|type_if_registered_oplist,
                   function[, extra arguments of function]) */
 #define M_ALGO_TRANSFORM(contD, contDop, contS, contSop, ...)                 \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
-  (M_ALG0_TRANSFORM(contD, M_GLOBAL_OPLIST(contDop), contS, M_GLOBAL_OPLIST(contSop), __VA_ARGS__), \
-   M_ALG0_TRANSFORM_ARG(contD, M_GLOBAL_OPLIST(contDop), contS, M_GLOBAL_OPLIST(contSop), __VA_ARGS__ ))
-
+  (M_ALG0_TRANSFORM, M_ALG0_TRANSFORM_ARG)                                    \
+  (contD, M_GLOBAL_OPLIST(contDop), contS, M_GLOBAL_OPLIST(contSop), __VA_ARGS__)
 
 /* Extract a subset of a container to copy into another container.
    USAGE:
-   ALGO_EXTRACT(contDst, contDstOplist, contSrc, contSrcOplist
+   ALGO_EXTRACT(contDst, contDstOplist|type_if_registered_oplist, contSrc, contSrcOplist|type_if_registered_oplist
                [, function [, extra arguments of function]])  */
 #define M_ALGO_EXTRACT(contD, contDop, contS, ...)                            \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
-  (M_ALG0_EXTRACT(contD, M_GLOBAL_OPLIST(contDop), M_GLOBAL_OPLIST(contS),  __VA_ARGS__), \
-   M_IF_NARGS_EQ2(__VA_ARGS__)                                                \
-   (M_ALG0_EXTRACT_FUNC(contD, M_GLOBAL_OPLIST(contDop), M_GLOBAL_OPLIST(contS),  __VA_ARGS__), \
-    M_ALG0_EXTRACT_ARG(contD, M_GLOBAL_OPLIST(contDop), M_GLOBAL_OPLIST(contS), __VA_ARGS__ )))
-
+  (M_ALG0_EXTRACT,                                                            \
+   M_IF_NARGS_EQ2(__VA_ARGS__)(M_ALG0_EXTRACT_FUNC, M_ALG0_EXTRACT_ARG))      \
+  (contD, M_GLOBAL_OPLIST(contDop), M_GLOBAL_OPLIST(contS),  __VA_ARGS__)
 
 /* Perform a Reduce operation over a container.
    USAGE:
-   ALGO_REDUCE(dstVar, container, contOplist, reduceFunc
-               [, mapFunc[, extraParameters of map function]]) */
+   ALGO_REDUCE(dstVar, container, contOplist|type_if_registered_oplist, reduceFunc
+               [, mapFunc[, extraParameters of map function]])
+   or
+   ALGO_REDUCE( (dstVar, dstOplist|type_if_registered_oplist), container, contOplist|type_if_registered_oplist, reduceFunc
+               [, mapFunc[, extraParameters of map function]])
+  if the destination variable is not of the same type than the elements of the containers.
+*/
 #define M_ALGO_REDUCE(dest, cont, contOp, ...)                                \
   M_IF(M_PARENTHESIS_P(dest))                                                 \
   (M_ALG0_REDUCE_DISPATCH(M_PAIR_1 dest, M_GLOBAL_OPLIST(M_PAIR_2 dest), M_GLOBAL_TYPE(M_PAIR_2 dest),cont, M_GLOBAL_OPLIST(contOp), __VA_ARGS__), \
@@ -82,7 +83,7 @@
 /* Insert into the container 'contDst' at position 'position' all the values
    of container 'contSrc'.
    USAGE:
-   ALGO_INSERT_AT(containerDst, containerDstOPLIST|containerDstType, containerDstIterator, containerSrc, containerSrcOPLIST|containerSrcType)
+   ALGO_INSERT_AT(containerDst, containerDstOPLIST|type_if_registered_oplist, containerDstIterator, containerSrc, containerSrcOPLIST|type_if_registered_oplist)
  */
 #define M_ALGO_INSERT_AT(contDst, contDstOp, position, contSrc, contSrcOp)    \
   M_ALG0_INSERT_AT(contDst, M_GLOBAL_OPLIST(contDstOp), position, contSrc, M_GLOBAL_OPLIST(contSrcOp) )
