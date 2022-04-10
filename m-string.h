@@ -1965,36 +1965,36 @@ namespace m_lib {
 /***********************************************************************/
 
 /* Search for a character in a string (string, character[, start=0]) */
-#define m_string_search_char(v, ...)                                          \
-  M_APPLY(m_string_search_char, v, M_IF_DEFAULT1(0, __VA_ARGS__))
+#define m_string_search_char(...)                             \
+  m_string_search_char(M_DEFAULT_ARGS(3, (0), __VA_ARGS__))
 
 /* Reverse Search for a character in a string (string, character[, start=0]) */
-#define m_string_search_rchar(v, ...)                                         \
-  M_APPLY(m_string_search_rchar, v, M_IF_DEFAULT1(0, __VA_ARGS__))
+#define m_string_search_rchar(...)                              \
+  m_string_search_rchar(M_DEFAULT_ARGS(3, (0), __VA_ARGS__))
 
 /* Search for a C string in a string (string, c_string[, start=0]) */
-#define m_string_search_str(v, ...)                                           \
-  M_APPLY(m_string_search_str, v, M_IF_DEFAULT1(0, __VA_ARGS__))
+#define m_string_search_str(...)                                           \
+  m_string_search_str(M_DEFAULT_ARGS(3, (0), __VA_ARGS__))
 
 /* Search for a string in a string (string, string[, start=0]) */
-#define m_string_search(v, ...)                                               \
-  M_APPLY(m_string_search, v, M_IF_DEFAULT1(0, __VA_ARGS__))
+#define m_string_search(...)                                               \
+  m_string_search(M_DEFAULT_ARGS(3, (0), __VA_ARGS__))
 
 /* PBRK for a string in a string (string, string[, start=0]) */
-#define m_string_search_pbrk(v, ...)                                          \
-  M_APPLY(m_string_search_pbrk, v, M_IF_DEFAULT1(0, __VA_ARGS__))
+#define m_string_search_pbrk(...)                                          \
+  m_string_search_pbrk(M_DEFAULT_ARGS(3, (0), __VA_ARGS__))
 
 /* Replace a C string to another C string in a string (string, c_src_string, c_dst_string, [, start=0]) */
-#define m_string_replace_str(v, s1, ...)                                      \
-  M_APPLY(m_string_replace_str, v, s1, M_IF_DEFAULT1(0, __VA_ARGS__))
+#define m_string_replace_str(...)                               \
+  m_string_replace_str(M_DEFAULT_ARGS(4, (0), __VA_ARGS__))
 
 /* Replace a string to another string in a string (string, src_string, dst_string, [, start=0]) */
-#define m_string_replace(v, s1, ...)                                          \
-  M_APPLY(m_string_replace, v, s1, M_IF_DEFAULT1(0, __VA_ARGS__))
+#define m_string_replace(...)                                          \
+  m_string_replace(M_DEFAULT_ARGS(4, (0), __VA_ARGS__))
 
 /* Strim a string from the given set of characters (default is " \n\r\t") */
 #define m_string_strim(...)                                                   \
-  M_APPLY(m_string_strim, M_IF_DEFAULT1("  \n\r\t", __VA_ARGS__))
+  m_string_strim(M_DEFAULT_ARGS(2, ("  \n\r\t"), __VA_ARGS__))
 
 /* Concat a set strings (or const char * if C1)) into one string */
 #define m_string_cats(a, ...)                                                 \
@@ -2043,9 +2043,9 @@ namespace m_lib {
 
 #undef m_string_search
 /* Search for a string in a string (or C string) (string, string[, start=0]) */
-#define m_string_search(v, ...)                                               \
+#define m_string_search(...)                                               \
   M_APPLY(M_STR1NG_SELECT3, m_string_search, m_string_search_str,             \
-          v, M_IF_DEFAULT1(0, __VA_ARGS__))
+          M_DEFAULT_ARGS(3, (0), __VA_ARGS__) )
 #endif
 
 
