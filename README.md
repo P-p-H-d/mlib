@@ -6294,20 +6294,6 @@ Return the pre-processing token 'action\_if\_two\_arg' if 'argslist' has two arg
 Return the pre-processing token 'action' if the build is compiled in debug mode
 (i.e. NDEBUG is undefined).
 
-##### M\_IF\_DEFAULT1(default\_value, argumentlist)
-
-Helper macro to redefine a function with a default value.
-If there is only one variable as the argument list, print
-the variable of the argument list then ', value',
-instead only print the argument list (and so two arguments).
-
-       int f(int a, int b);
-       #define f(...) M_APPLY(f, M_IF_DEFAULT1(0, __VA_ARGS__))
-
-This need to be called within a M\_APPLY macro.
-
-Experimental macro. It may disappear or change in a broken way.
-
 ##### M\_DEFAULT\_ARGS(nbExpectedArg, (defaultArgumentlist), argumentList )
 
 Helper macro to redefine a function with one or more default values.
