@@ -2007,8 +2007,8 @@ namespace m_lib {
 /* Macro encapsulation for C11 */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
-/* Select either the string function or the str function depending on
-   the b operade to the function.
+/* Select either the string function or the C string function depending on
+   the b parameter of the function.
    func1 is the string function / func2 is the str function. */
 # define M_STR1NG_SELECT2(func1,func2,a,b)                                    \
   _Generic((b)+0,                                                             \
@@ -2152,8 +2152,8 @@ namespace m_lib {
   M_C(name, _clear)(bounded_t s)                                              \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
-    /* nothing to do */                                                       \
-    (void) s;                                                                 \
+    /* Make the object illegal to be able to detect use after free */         \
+    s->s[max_size] = 0x1F;                                                    \
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -2161,6 +2161,7 @@ namespace m_lib {
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     s->s[0] = 0;                                                              \
+    M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
@@ -2356,13 +2357,7 @@ namespace m_lib {
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     /* Cannot use m_core_hash: alignment not sufficent */                     \
-    M_HASH_DECL(hash);                                                        \
-    const char *str = s->s;                                                   \
-    while (*str) {                                                            \
-      size_t h = (size_t) *str++;                                             \
-      M_HASH_UP(hash, h);                                                     \
-    }                                                                         \
-    return M_HASH_FINAL(hash);                                                \
+    return m_core_cstr_hash(s->s);                                            \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
