@@ -156,6 +156,34 @@ static void test_incdec(void)
   assert(!M_KEYWORD_P(M_OVERFLOW, M_ADD(M_MAX_NB_ARGUMENT, 1)));
   assert(M_KEYWORD_P(M_OVERFLOW, M_ADD(M_MAX_NB_ARGUMENT, 2)));
   assert(M_KEYWORD_P(M_OVERFLOW, M_ADD(M_MAX_NB_ARGUMENT, 3)));
+
+  assert(M_AND(0, 0) == 0);
+  assert(M_AND(0, 1) == 0);
+  assert(M_AND(1, 0) == 0);
+  assert(M_AND(1, 1) == 1);
+
+  assert(M_OR(0, 0) == 0);
+  assert(M_OR(0, 1) == 1);
+  assert(M_OR(1, 0) == 1);
+  assert(M_OR(1, 1) == 1);
+
+  assert(M_AND3(0, 0, 0) == 0);
+  assert(M_AND3(0, 0, 1) == 0);
+  assert(M_AND3(0, 1, 0) == 0);
+  assert(M_AND3(0, 1, 1) == 0);
+  assert(M_AND3(1, 0, 0) == 0);
+  assert(M_AND3(1, 0, 1) == 0);
+  assert(M_AND3(1, 1, 0) == 0);
+  assert(M_AND3(1, 1, 1) == 1);
+
+  assert(M_OR3(0, 0, 0) == 0);
+  assert(M_OR3(0, 0, 1) == 1);
+  assert(M_OR3(0, 1, 0) == 1);
+  assert(M_OR3(0, 1, 1) == 1);
+  assert(M_OR3(1, 0, 0) == 1);
+  assert(M_OR3(1, 0, 1) == 1);
+  assert(M_OR3(1, 1, 0) == 1);
+  assert(M_OR3(1, 1, 1) == 1);
 }
 
 static void test_return(void)
