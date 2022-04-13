@@ -303,7 +303,7 @@ M_BEGIN_PROTECTED_CODE
 
 
 /* If within the M*LIB tests, perform additional (potentialy slow) checks
- * By default, it is an encapsulation of CLIB assert.
+ * By default, it is an encapsulation of CLIB assert for M*LIB own tests.
  * NOTE: Can be overiden by user if it needs to keep finer access 
  * on the assertions.
  */
@@ -365,9 +365,10 @@ M_BEGIN_PROTECTED_CODE
    with an optional message detailling the error.
    NOTE: Use bitfield to be compatible with most compilers
    (so that it properly displays 'error' on the command line
-   NOTE: Cannot use C11 Static Assert as is not usable in expression.
+   It cannot use C11 Static Assert as is not usable in expression.
    NOTE: In C++, use of lambda to encapsulate static_assert in
    an expression.
+   NOTE: For GNU compatible compilers, uses of a GNU extension.
 */
 #if defined(__cplusplus)
 # define M_STATIC_ASSERT(cond, error, msg)                                    \
@@ -876,7 +877,7 @@ M_BEGIN_PROTECTED_CODE
 #define M_RET_ARG76(...) M_RETI_ARG76(__VA_ARGS__,)
 
 /* For a pair of argument (arg0, arg1), return either the first or the second.
-   Needed in case where M_RET_ARGn cannot be used */
+   NOTE: Needed in case where M_RET_ARGn cannot be used */
 #define M_PAIR_1(a,b) a
 #define M_PAIR_2(a,b) b
 
@@ -1026,12 +1027,23 @@ M_BEGIN_PROTECTED_CODE
 #define M_INVI_1                    0
 #define M_INV(x)                    M_C(M_INVI_, x)
 
-/* Perform a AND between the boolean inputs */
+/* Perform a AND between the two boolean inputs */
 #define M_ANDI_00                   0
 #define M_ANDI_01                   0
 #define M_ANDI_10                   0
 #define M_ANDI_11                   1
 #define M_AND(x,y)                  M_C3(M_ANDI_, x, y)
+
+/* Perform a AND between the three boolean inputs */
+#define M_ANDI_000                  0
+#define M_ANDI_001                  0
+#define M_ANDI_010                  0
+#define M_ANDI_011                  0
+#define M_ANDI_100                  0
+#define M_ANDI_101                  0
+#define M_ANDI_110                  0
+#define M_ANDI_111                  1
+#define M_AND3(x,y,z)               M_C4(M_ANDI_, x, y, z)
 
 /* Perform a OR between the boolean inputs */
 #define M_ORI_00                    0
@@ -1039,6 +1051,17 @@ M_BEGIN_PROTECTED_CODE
 #define M_ORI_10                    1
 #define M_ORI_11                    1
 #define M_OR(x,y)                   M_C3(M_ORI_, x, y)
+
+/* Perform a OR between the three boolean inputs */
+#define M_ORI_000                   0
+#define M_ORI_001                   1
+#define M_ORI_010                   1
+#define M_ORI_011                   1
+#define M_ORI_100                   1
+#define M_ORI_101                   1
+#define M_ORI_110                   1
+#define M_ORI_111                   1
+#define M_OR3(x,y,z)                M_C4(M_ORI_, x, y, z)
 
 
 /* M_IF Macro : Perform an IF test at preprocessing time. 
