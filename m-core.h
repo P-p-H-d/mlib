@@ -1093,7 +1093,7 @@ M_BEGIN_PROTECTED_CODE
 #define M_EMPTYI_P_C1(...)          M_COMMA_P(M_EMPTYI_DETECT __VA_ARGS__ () )
 #define M_EMPTYI_P_C2(...)          M_COMMA_P(M_EMPTYI_DETECT __VA_ARGS__)
 #define M_EMPTYI_P_C3(...)          M_COMMA_P(__VA_ARGS__ () )
-#define M_EMPTY_P(...)              M_AND(M_EMPTYI_P_C1(__VA_ARGS__), M_INV(M_OR(M_OR(M_EMPTYI_P_C2(__VA_ARGS__), M_COMMA_P(__VA_ARGS__)),M_EMPTYI_P_C3(__VA_ARGS__))))
+#define M_EMPTY_P(...)              M_AND(M_EMPTYI_P_C1(__VA_ARGS__), M_INV(M_OR3(M_EMPTYI_P_C2(__VA_ARGS__), M_COMMA_P(__VA_ARGS__),M_EMPTYI_P_C3(__VA_ARGS__))))
 
 /* Generate a comma later in the next evaluation pass. */
 #define M_DEFERRED_COMMA            ,
@@ -1110,8 +1110,9 @@ M_BEGIN_PROTECTED_CODE
 #define M_PARENTHESISI_DETECT1(...)  ,
 #define M_PARENTHESISI_DETECT2(...)
 #define M_PARENTHESIS_P(...)                                                  \
-  M_AND(M_AND(M_COMMA_P(M_PARENTHESISI_DETECT1 __VA_ARGS__), M_INV(M_COMMA_P(__VA_ARGS__))), \
-        M_EMPTY_P(M_PARENTHESISI_DETECT2 __VA_ARGS__))
+  M_AND3(M_COMMA_P(M_PARENTHESISI_DETECT1 __VA_ARGS__),                       \
+         M_INV(M_COMMA_P(__VA_ARGS__)),                                       \
+         M_EMPTY_P(M_PARENTHESISI_DETECT2 __VA_ARGS__))
 
 
 /* Return 1 if argument type or variable or function is the keyword.
