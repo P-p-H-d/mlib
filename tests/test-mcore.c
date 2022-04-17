@@ -318,6 +318,7 @@ static void test_let(void)
   M_LET( (x, 4590) , OPL6)
     assert (x == 4590);
     
+  // Test of M_LET_IF
   int c = 0;
   M_LET_IF( assert(c++ == 0), (assert(c++ == 1), true), assert(c++ == 3)) {
     assert(c++ == 2);
@@ -379,12 +380,14 @@ static void test_if(void)
 
 static void test_test(void)
 {
+  assert(M_COMMA_P(,));
   assert(M_COMMA_P(1,2));
   assert(M_COMMA_P(1,2,aa));
   assert(!M_COMMA_P(1));
   assert(!M_COMMA_P(()));
   assert(!M_COMMA_P("aa"));
   assert(!M_COMMA_P(""));
+  assert(!M_COMMA_P((,)));
 
   assert(M_PARENTHESIS_P(()));
   assert(M_PARENTHESIS_P((aa)));
@@ -397,6 +400,17 @@ static void test_test(void)
   assert(!M_PARENTHESIS_P(,));
   assert(!M_PARENTHESIS_P((),));
   assert(!M_PARENTHESIS_P(()x));
+
+  assert(!M_KEYWORD_P(sum, sul));
+  assert(M_KEYWORD_P(sum, sum));
+  assert(M_KEYWORD_P(sum, add));
+  assert(M_KEYWORD_P(product, product));
+  assert(M_KEYWORD_P(product, mul));
+
+  assert(M_KEYWORD_P(LIST, LIST));
+  assert(M_KEYWORD_P(LIST, LIST(1,23,4) ));
+  assert(!M_KEYWORD_P(LIST, SEQ(1,23,4) ));
+
 }
 
 static void test_list(void)
