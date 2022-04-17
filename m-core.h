@@ -1014,7 +1014,7 @@ M_BEGIN_PROTECTED_CODE
    Can be chained with NARGS().
  */
 #define M_GET_AT(arglist, index)    M_GETI_AT0(M_C(M_RET_ARG, M_INC(index)), arglist)
-#define M_GETI_AT0(func, arglist)   func ( M_ID arglist , dummy )
+#define M_GETI_AT0(func, arglist)   func ( M_ID arglist , ERROR_INDEX_OUT_OF_BOUND )
 
 
 /* Convert an integer or a symbol into 0 (if 0) or 1 (if not 0).
@@ -1156,6 +1156,18 @@ M_BEGIN_PROTECTED_CODE
 #define M_PATTERN_queue_queue ,
 #define M_PATTERN_QUEUE_QUEUE ,
 #define M_PATTERN_INIT_WITH_INIT_WITH ,
+
+
+/* Extract the VA ARGS of a keyword function like.
+   Transform 'LIST( a, b, c)' into 'a, b, c' for keyword=LIST
+   It shall start with KEYWORD (M_KEYWORD_P shall return 1).
+*/
+#define M_KEYWORD_TO_VA_ARGS(keyword, list) M_C4(M_EAT_KEYWORD_, keyword, _, list)
+#define M_EAT_KEYWORD_MAP_MAP(...)          __VA_ARGS__
+#define M_EAT_KEYWORD_LIST_LIST(...)        __VA_ARGS__
+#define M_EAT_KEYWORD_SEQ_SEQ(...)          __VA_ARGS__
+#define M_EAT_KEYWORD_QUEUE_QUEUE(...)      __VA_ARGS__
+
 
 /* Necessary macros to handle recursivity,
    delaying the evaluation by one (or more) level of macro expansion.
