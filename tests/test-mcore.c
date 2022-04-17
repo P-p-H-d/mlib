@@ -411,6 +411,11 @@ static void test_test(void)
   assert(M_KEYWORD_P(LIST, LIST(1,23,4) ));
   assert(!M_KEYWORD_P(LIST, SEQ(1,23,4) ));
 
+  assert(M_KEYWORD_TO_VA_ARGS(LIST, LIST(16)) == 16);
+  assert(M_KEYWORD_TO_VA_ARGS(LIST, LIST(14)) == 14);
+  assert(M_GET_AT( ( M_KEYWORD_TO_VA_ARGS(LIST, LIST(11, 22, 33)) ), 0) == 11);
+  assert(M_GET_AT( ( M_KEYWORD_TO_VA_ARGS(LIST, LIST(11, 22, 33)) ), 1) == 22);
+  assert(M_GET_AT( ( M_KEYWORD_TO_VA_ARGS(LIST, LIST(11, 22, 33)) ), 2) == 33);
 }
 
 static void test_list(void)
