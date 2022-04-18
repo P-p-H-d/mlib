@@ -32,3 +32,8 @@ void convert(string_t s, unsigned n)
 {
   m_string_set_ui(s, n);
 }
+
+void construct(char s[], unsigned n)
+{
+  strcpy(s, M_CSTR("Hello %u worlds"));
+}
