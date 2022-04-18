@@ -1156,7 +1156,7 @@ M_BEGIN_PROTECTED_CODE
 #define M_PATTERN_queue_queue ,
 #define M_PATTERN_QUEUE_QUEUE ,
 #define M_PATTERN_INIT_WITH_INIT_WITH ,
-
+#define M_PATTERN____ ,
 
 /* Extract the VA ARGS of a keyword function like.
    Transform 'LIST( a, b, c)' into 'a, b, c' for keyword=LIST
@@ -1167,6 +1167,7 @@ M_BEGIN_PROTECTED_CODE
 #define M_EAT_KEYWORD_LIST_LIST(...)        __VA_ARGS__
 #define M_EAT_KEYWORD_SEQ_SEQ(...)          __VA_ARGS__
 #define M_EAT_KEYWORD_QUEUE_QUEUE(...)      __VA_ARGS__
+#define M_EAT_KEYWORD____(...)              __VA_ARGS__
 
 
 /* Necessary macros to handle recursivity,

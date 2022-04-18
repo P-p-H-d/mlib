@@ -406,6 +406,9 @@ static void test_test(void)
   assert(M_KEYWORD_P(sum, add));
   assert(M_KEYWORD_P(product, product));
   assert(M_KEYWORD_P(product, mul));
+  assert(!M_KEYWORD_P(product, mul2));
+  assert(M_KEYWORD_P(_, _));
+  assert(M_KEYWORD_P(_, _() ));
 
   assert(M_KEYWORD_P(LIST, LIST));
   assert(M_KEYWORD_P(LIST, LIST(1,23,4) ));
@@ -416,6 +419,7 @@ static void test_test(void)
   assert(M_GET_AT( ( M_KEYWORD_TO_VA_ARGS(LIST, LIST(11, 22, 33)) ), 0) == 11);
   assert(M_GET_AT( ( M_KEYWORD_TO_VA_ARGS(LIST, LIST(11, 22, 33)) ), 1) == 22);
   assert(M_GET_AT( ( M_KEYWORD_TO_VA_ARGS(LIST, LIST(11, 22, 33)) ), 2) == 33);
+  assert(M_KEYWORD_TO_VA_ARGS(_, _(10)) == 10);
 }
 
 static void test_list(void)
