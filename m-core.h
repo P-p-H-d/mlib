@@ -1732,7 +1732,7 @@ M_BEGIN_PROTECTED_CODE
 
 /* Concatene two arglists 'a' and 'b',
    handling the case of empty arglist
-   handling the cases where the arglists are within parenthesis.
+   handling the cases where the arguments are not arglist.
    and returning an arglist within parenthesis if it concats.
    (internal macro)
 */
@@ -2376,11 +2376,10 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 /* Use to generate a dummy alignment field for cache alignment within a structure 
    Take the name of the dummy field, and a list of the type of the fields that previously fill in the structure.
  */
-#define M_APPLY_SIZEOF(id)           sizeof (id)
 #define M_ADD_SIZE(a,b)              a + b
 #define M_CACHELINE_ALIGN(name, ...)                                          \
-  char name[M_ALIGN_FOR_CACHELINE_EXCLUSION > M_REDUCE(M_APPLY_SIZEOF, M_ADD_SIZE, __VA_ARGS__) \
-            ? M_ALIGN_FOR_CACHELINE_EXCLUSION - M_REDUCE(M_APPLY_SIZEOF, M_ADD_SIZE, __VA_ARGS__) : 1]
+  char name[M_ALIGN_FOR_CACHELINE_EXCLUSION > M_REDUCE(sizeof, M_ADD_SIZE, __VA_ARGS__) \
+            ? M_ALIGN_FOR_CACHELINE_EXCLUSION - M_REDUCE(sizeof, M_ADD_SIZE, __VA_ARGS__) : 1]
 
 
 /* C++ doesn't support flexible array within a structure.
