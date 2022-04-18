@@ -1716,16 +1716,17 @@ M_BEGIN_PROTECTED_CODE
 #define M_FILTER_00(d, item)                                                  \
   M_IF(M_PAIR_1 d(M_PAIR_2 d, item))(item, )
 
-/* Return the HEAD element of a list */
+
+/* Return the HEAD element of a VA_ARGS */
 #define M_HEAD(x, ...)      x
 
-/* Return the HEAD element of the tail of a list */
+/* Return the HEAD element of the tail of a VA_ARGS */
 #define M_HEAD_2(x, y, ...) y
 
-/* Return the tail sublist of the list (removing the HEAD) */
+/* Return the tail sublist of the VA_ARGS (removing the HEAD) */
 #define M_TAIL(x, ...)      __VA_ARGS__
 
-/* Return the tail sublist of the sublist (removing the 2 first elements) */
+/* Return the tail sublist of the sublist of the VA_ARGS (removing the 2 first elements) */
 #define M_TAIL_2(x, y, ...) __VA_ARGS__
 
 
