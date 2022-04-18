@@ -2452,6 +2452,8 @@ namespace m_lib {
    However, address sanitizer doesn't see this particular corner case,
    and raise an error.
    So let's disable this implementation if address sanitizer is enabled.
+   Encapsulating the array in a struct will generate an additionnal memcpy
+   to recopy the buffer from the stack to the stack (!)
 */
 #define M_CSTR(...)                                                           \
   M_ATTR_EXTENSION ({char m_core_tmp[M_USE_CSTR_ALLOC];                       \
