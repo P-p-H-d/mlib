@@ -1328,7 +1328,7 @@ enum m_d1ct_oa_element_e {
     M_D1CT_OA_CONTRACT(dict);                                                 \
     for(size_t i = 0; i <= dict->mask; i++) {                                 \
       if (!M_CALL_OOR_EQUAL(key_oplist, dict->data[i].key, M_D1CT_OA_EMPTY)   \
-          & !M_CALL_OOR_EQUAL(key_oplist, dict->data[i].key, M_D1CT_OA_DELETED)) { \
+          && !M_CALL_OOR_EQUAL(key_oplist, dict->data[i].key, M_D1CT_OA_DELETED)) { \
         M_CALL_CLEAR(key_oplist, dict->data[i].key);                          \
         M_CALL_CLEAR(value_oplist, dict->data[i].value);                      \
       }                                                                       \
@@ -1361,6 +1361,7 @@ enum m_d1ct_oa_element_e {
     size_t s = 1;                                                             \
     do {                                                                      \
       p = (p + M_D1CT_OA_PROBING(s)) & mask;                                  \
+      /* data[p].key may be OA_DELETED or OA_EMPTY */                         \
       if (M_CALL_EQUAL(key_oplist, data[p].key, key))                         \
         return &data[p].M_IF(isSet)(key, value);                              \
       M_ASSERT (s <= dict->mask);                                             \
@@ -1425,11 +1426,11 @@ enum m_d1ct_oa_element_e {
                                                                               \
     for(size_t i = 0 ; i < oldSize; i++) {                                    \
       if (!M_CALL_OOR_EQUAL(key_oplist, data[i].key, M_D1CT_OA_DELETED)       \
-          & !M_CALL_OOR_EQUAL(key_oplist, data[i].key, M_D1CT_OA_EMPTY)) {    \
+          && !M_CALL_OOR_EQUAL(key_oplist, data[i].key, M_D1CT_OA_EMPTY)) {   \
         size_t p = M_CALL_HASH(key_oplist, data[i].key) & mask;               \
         if (p != i) {                                                         \
           if (M_LIKELY (M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_EMPTY) \
-                      | M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_DELETED))) { \
+                      || M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_DELETED))) { \
             M_DO_INIT_MOVE(key_oplist, data[p].key, data[i].key);             \
             M_DO_INIT_MOVE(value_oplist, data[p].value, data[i].value);       \
           } else {                                                            \
@@ -1504,7 +1505,7 @@ enum m_d1ct_oa_element_e {
         }                                                                     \
         M_ASSERT (s <= dict->mask);                                           \
         if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_DELETED)      \
-            & (delPos == (size_t)-1)) {                                       \
+            && (delPos == (size_t)-1)) {                                      \
           delPos = p;                                                         \
         }                                                                     \
       } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_EMPTY) ); \
@@ -1558,7 +1559,7 @@ enum m_d1ct_oa_element_e {
         }                                                                     \
         M_ASSERT (s <= dict->mask);                                           \
         if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_DELETED)      \
-            & (delPos == (size_t)-1)) {                                       \
+            && (delPos == (size_t)-1)) {                                      \
           delPos = p;                                                         \
         }                                                                     \
       } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_EMPTY) ); \
@@ -1617,7 +1618,7 @@ enum m_d1ct_oa_element_e {
       size_t p = M_CALL_HASH(key_oplist, data[i].key) & mask;                 \
       if (p != i) {                                                           \
         if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_EMPTY)        \
-            | M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_DELETED)) { \
+            || M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_DELETED)) { \
           M_DO_INIT_MOVE(key_oplist, data[p].key, data[i].key);               \
           M_DO_INIT_MOVE(value_oplist, data[p].value, data[i].value);         \
         } else {                                                              \
@@ -1631,7 +1632,7 @@ enum m_d1ct_oa_element_e {
     /* Pass 2: scan upper entries and move them back */                       \
     for(size_t i = newSize; i < oldSize; i++) {                               \
       if (!M_CALL_OOR_EQUAL(key_oplist, data[i].key, M_D1CT_OA_DELETED)       \
-          & !M_CALL_OOR_EQUAL(key_oplist, data[i].key, M_D1CT_OA_EMPTY)) {    \
+          && !M_CALL_OOR_EQUAL(key_oplist, data[i].key, M_D1CT_OA_EMPTY)) {   \
         size_t p = M_CALL_HASH(key_oplist, data[i].key) & mask;               \
         M_ASSERT (p < i);                                                     \
         if (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_EMPTY)) {    \
@@ -1798,7 +1799,7 @@ enum m_d1ct_oa_element_e {
     M_D1CT_OA_CONTRACT(d);                                                    \
     for(size_t i = 0; i <= d->mask; i++) {                                    \
       if (!M_CALL_OOR_EQUAL(key_oplist, d->data[i].key, M_D1CT_OA_EMPTY)      \
-          & !M_CALL_OOR_EQUAL(key_oplist, d->data[i].key, M_D1CT_OA_DELETED)) { \
+          && !M_CALL_OOR_EQUAL(key_oplist, d->data[i].key, M_D1CT_OA_DELETED)) { \
         M_CALL_CLEAR(key_oplist, d->data[i].key);                             \
         M_CALL_CLEAR(value_oplist, d->data[i].value);                         \
       }                                                                       \
@@ -1831,7 +1832,7 @@ enum m_d1ct_oa_element_e {
     size_t i = 0;                                                             \
     while (i <= d->mask                                                       \
         && (M_CALL_OOR_EQUAL(key_oplist, d->data[i].key, M_D1CT_OA_EMPTY)     \
-          | M_CALL_OOR_EQUAL(key_oplist, d->data[i].key, M_D1CT_OA_DELETED))) { \
+          || M_CALL_OOR_EQUAL(key_oplist, d->data[i].key, M_D1CT_OA_DELETED))) { \
       i++;                                                                    \
     }                                                                         \
     it->index = i;                                                            \
@@ -1856,7 +1857,7 @@ enum m_d1ct_oa_element_e {
     size_t i = d->mask;                                                       \
     while (i <= d->mask                                                       \
         && (M_CALL_OOR_EQUAL(key_oplist, d->data[i].key, M_D1CT_OA_EMPTY)     \
-         |  M_CALL_OOR_EQUAL(key_oplist, d->data[i].key, M_D1CT_OA_DELETED))) { \
+         ||  M_CALL_OOR_EQUAL(key_oplist, d->data[i].key, M_D1CT_OA_DELETED))) { \
       i--;                                                                    \
     }                                                                         \
     it->index = i;                                                            \
@@ -1887,7 +1888,7 @@ enum m_d1ct_oa_element_e {
     size_t i = it->index + 1;                                                 \
     while (i <= it->dict->mask &&                                             \
            (M_CALL_OOR_EQUAL(key_oplist, it->dict->data[i].key, M_D1CT_OA_EMPTY) \
-            | M_CALL_OOR_EQUAL(key_oplist, it->dict->data[i].key, M_D1CT_OA_DELETED))) { \
+            || M_CALL_OOR_EQUAL(key_oplist, it->dict->data[i].key, M_D1CT_OA_DELETED))) { \
       i++;                                                                    \
     }                                                                         \
     it->index = i;                                                            \
@@ -1902,7 +1903,7 @@ enum m_d1ct_oa_element_e {
     size_t i = it->index - 1;                                                 \
     while (i <= it->dict->mask &&                                             \
            (M_CALL_OOR_EQUAL(key_oplist, it->dict->data[i].key, M_D1CT_OA_EMPTY) \
-            | M_CALL_OOR_EQUAL(key_oplist, it->dict->data[i].key, M_D1CT_OA_DELETED))) { \
+            || M_CALL_OOR_EQUAL(key_oplist, it->dict->data[i].key, M_D1CT_OA_DELETED))) { \
       i--;                                                                    \
     }                                                                         \
     it->index = i;                                                            \
