@@ -22,6 +22,7 @@
 */
 #include <stdint.h>
 #include "m-dict.h"
+#include "m-string.h"
 
 static inline bool my_oor_equal_p(uint64_t k, unsigned char n)
 {
@@ -63,4 +64,22 @@ extern void clean(dict_t d);
 void clean(dict_t d)
 {
   dict_reset(d);
+}
+
+extern bool testempty(uint64_t d);
+bool testempty(uint64_t d)
+{
+  if (my_oor_equal_p(d, 0) || my_oor_equal_p(d, 1))
+    return true;
+  else
+    return false;
+}
+
+extern bool testempty2(string_t d);
+bool testempty2(string_t d)
+{
+  if (string_oor_equal_p(d, 0) || string_oor_equal_p(d, 1))
+    return true;
+  else
+    return false;
 }
