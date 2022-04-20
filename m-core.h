@@ -1251,6 +1251,17 @@ M_BEGIN_PROTECTED_CODE
     M_IF_EMPTY(arguments)(action if empty, action if not empty) */
 #define M_IF_EMPTY(...)             M_IF(M_EMPTY_P(__VA_ARGS__))
 
+
+/* Concatene the two preprocessing token.
+ * Handle the case where the second argument is empty, in which case
+ * it returns the first token.
+ */
+#define M_C_EMPTY(a, b)             M_CI_EMPTY(a, b)
+#define M_CI_EMPTY(a, b)            M_IF_EMPTY(b)(M_CI_EMPTY_B, M_CI_EMPTY_CAT)(a, b)
+#define M_CI_EMPTY_B(a, b)          a
+#define M_CI_EMPTY_CAT(a, b)        a ## b
+
+
 /* Return 1 if argument is "()" or "(x)"
  * Test if () or (x) can be transformed into a comma,
  * and that there is no (toplevel) comma
@@ -3893,6 +3904,81 @@ m_core_parse2_enum (const char str[], const char **endptr)
          M_MAP2_C(M_INIT_KEY_VAI_FUNC, (dest, M_GET_SET_KEY oplist) , __VA_ARGS__))
 #define M_INIT_KEY_VAI_FUNC(d, a)                                             \
   M_PAIR_2 d (M_PAIR_1 d, M_PAIR_1 a, M_PAIR_2 a)
+
+
+/************************************************************/
+/******************* EMPLACE GENERATION  ********************/
+/************************************************************/
+
+/* Expand to the list of emplace type with their variable name
+   to use in the function declaration (start with a ,) */
+#define M_EMPLACE_LIST_TYPE_VAR(prefix, emplace_type)                         \
+  M_IF(M_PARENTHESIS_P( emplace_type ))(M_EMPLACE_LIST_TYPE_VAR_MULTI, M_EMPLACE_LIST_TYPE_VAR_SINGLE)(prefix, emplace_type)
+#define M_EMPLACE_LIST_TYPE_VAR_MULTI(prefix, emplace_type)                   \
+  M_MAP3(M_EMPLACE_LIST_TYPE_VAR_MULTI_F, prefix, M_ID emplace_type)
+#define M_EMPLACE_LIST_TYPE_VAR_MULTI_F(prefix, num, type)                    \
+  , type M_C(prefix, num)
+#define M_EMPLACE_LIST_TYPE_VAR_SINGLE(prefix, emplace_type)                  \
+  , emplace_type prefix
+
+
+/* Expand to the list of variable name based on the the declaration with
+   emplace type to use in the INIT_WITH call (start with a ,) */
+#define M_EMPLACE_LIST_VAR(prefix, emplace_type)                              \
+  M_IF(M_PARENTHESIS_P( emplace_type ))(M_EMPLACE_LIST_VAR_MULTI, M_EMPLACE_LIST_VAR_SINGLE)(prefix, emplace_type)
+#define M_EMPLACE_LIST_VAR_MULTI(prefix, emplace_type)                        \
+  , M_MAP2_C( M_C, prefix, M_SEQ(1, M_NARGS emplace_type) )
+#define M_EMPLACE_LIST_VAR_SINGLE(prefix, emplace_type)                       \
+  , prefix
+
+
+/* Call either INIT_WITH with the prefixed arguments used for emplace
+   or with the user provided init_func */
+#define M_EMPLACE_CALL_FUNC(prefix, init_func, oplist, dest, emplace_type)    \
+  M_IF(M_KEYWORD_P(INIT_WITH, init_func))                                     \
+  (                                                                           \
+   /* If INIT_FUNC==INIT_WITH, classic use of INIT_WITH operator */           \
+   M_CALL_INIT_WITH(oplist, dest M_EMPLACE_LIST_VAR(prefix, emplace_type) )   \
+   ,                                                                          \
+   /* Use the user provided init_func instead (with API transformation) */    \
+   M_APPLY_API(init_func, oplist, dest M_EMPLACE_LIST_VAR(prefix, emplace_type) ) \
+                                                                        )
+
+/* Generate one or several definitions for the EMPLACE methods
+   using the operator EMPLACE_TYPE to get the suitable user types
+   and the user provided macro to expand the function definition.
+   The user provided macro prototype is
+   macro(name, name_t, function_name, oplist, init_func, exp_emplace_type)
+   It is suitable for container with a single type of data within.
+ */
+#define M_EMPLACE_QUEUE_DEF(name, name_t, function_name, oplist, macro)       \
+  M_IF(M_TEST_METHOD_ALTER_P(EMPLACE_TYPE, oplist))                           \
+  (M_EMPLACE_QUEUE_DEF_EXPAND, M_EAT)                                         \
+  (name, name_t, function_name, oplist, macro, M_GET_EMPLACE_TYPE oplist)
+/* One EMPLACE_TYPE operator is defined ==> Perform the emplace function expansion.
+   If the emplace type starts with parenthesis, it is only one with multiple args */
+#define M_EMPLACE_QUEUE_DEF_EXPAND(name, name_t, function_name, oplist, macro, emplace_type) \
+  M_IF(M_PARENTHESIS_P(emplace_type))                                         \
+  (M_EMPLACE_QUEUE_DEF_SINGLE_EXPAND, M_EMPLACE_QUEUE_DEF_EXPAND_P2)          \
+  (name, name_t, function_name, oplist, macro, emplace_type)
+/* Test if it starts with LIST, in which case, multiple emplace methods have to be defined */
+#define M_EMPLACE_QUEUE_DEF_EXPAND_P2(name, name_t, function_name, oplist, macro, emplace_type) \
+  M_IF(M_KEYWORD_P(LIST, emplace_type))                                       \
+  (M_EMPLACE_QUEUE_DEF_LIST_EXPAND, M_EMPLACE_QUEUE_DEF_SINGLE_EXPAND)        \
+  (name, name_t, function_name, oplist, macro, emplace_type)
+/* Define & expand multiple emplace methods */
+#define M_EMPLACE_QUEUE_DEF_LIST_EXPAND(name, name_t, function_name, oplist, macro, emplace_type) \
+  M_MAP2(M_EMPLACE_QUEUE_DEF_SUFFIX, (name, name_t, function_name, oplist, macro), M_KEYWORD_TO_VA_ARGS(LIST, emplace_type))
+/* Let the arguments be expanded before calling the definition macro */
+#define M_EMPLACE_QUEUE_DEF_SUFFIX(trio, list) M_EMPLACE_QUEUE_DEF_SUFFIX2(M_ID trio, M_ID list)
+/* Let the arguments be expanded before calling the definition macro */
+#define M_EMPLACE_QUEUE_DEF_SUFFIX2(...)       M_EMPLACE_QUEUE_DEF_SUFFIX3(__VA_ARGS__)
+/* Everything is now proprely expanded. Just call the original macro (with a properly expanded emplace type) */
+#define M_EMPLACE_QUEUE_DEF_SUFFIX3(name, name_t, function_name, oplist, macro, sup_suffix, init_func, ...) \
+  macro(name, name_t, M_C_EMPTY(function_name, sup_suffix), oplist, init_func, (__VA_ARGS__) )
+/* Define & expand one emplace method by using the definition macro */
+#define M_EMPLACE_QUEUE_DEF_SINGLE_EXPAND(name, name_t, function_name, oplist, macro, emplace_type) \
+  macro(name, name_t, function_name, oplist, INIT_WITH, emplace_type)
 
 
 /************************************************************/
