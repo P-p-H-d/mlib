@@ -92,6 +92,12 @@ static inline void testobj_init_set_ui(testobj_t d, unsigned int v)
   testobj_set_ui(d, v);
 }
 
+static inline void testobj_init_set_str(testobj_t d, const char v[])
+{
+  testobj_init(d);
+  testobj_set_ui(d, (unsigned int) atoi(v) );
+}
+
 static inline unsigned int testobj_get_ui(const testobj_t z)
 {
   return z->ptr[0];
@@ -162,6 +168,7 @@ static inline void testobj_str(string_t str, const testobj_t z, bool append)
    PARSE_STR(testobj_parse_str),                                        \
    GET_STR(testobj_str),                                                \
    EQUAL(testobj_equal_p),                                              \
+   EMPLACE_TYPE( LIST( (_ui, testobj_init_set_ui, unsigned int), (_str, testobj_init_set_str, const char *), ( /*empty*/, testobj_init_set, testobj_t) ) ) \
    )
 
 #define TESTOBJ_CMP_OPLIST						\
