@@ -279,8 +279,26 @@ static void test_mpz(void)
     // NOTE: Not the same order than list...
     }
 
-  testobj_clear (z);
   array_mpz_clear(array2);
+
+  array_mpz_reset(array1);
+  /* Test of the emplace functions.
+   * 3 functions have been generated for testobj:
+   * one from unsigned int (suffix _ui)
+   * one from C string (suffix _str)
+   * one from testobj_t itself (no suffix)
+   */
+  array_mpz_emplace_back_ui(array1, 42);
+  assert(testobj_cmp_ui(*array_mpz_back(array1), 42) == 0);
+  array_mpz_emplace_back_ui(array1, 426);
+  assert(testobj_cmp_ui(*array_mpz_back(array1), 426) == 0);
+  array_mpz_emplace_back_str(array1, "458");
+  assert(testobj_cmp_ui(*array_mpz_back(array1), 458) == 0);
+  testobj_set_ui(z, 789);
+  array_mpz_emplace_back(array1, z);
+  assert(testobj_cmp_ui(*array_mpz_back(array1), 789) == 0);
+
+  testobj_clear (z);
   array_mpz_clear(array1);
 }
 
