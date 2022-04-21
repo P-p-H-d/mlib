@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include "test-obj.h"
 #include "m-array.h"
+#include "m-string.h"
 #include "coverage.h"
 
 START_COVERAGE
@@ -37,7 +38,7 @@ ARRAY_DEF(array_min2_z, testobj_t, (INIT(testobj_init), CLEAR(testobj_clear)))
 ARRAY_DEF(array_min3_z, testobj_t, (CLEAR(testobj_clear)))
 
 ARRAY_DEF(array_ulong, uint64_t)
-
+ARRAY_DEF(array_string, string_t)
 ARRAY_DEF_AS(array_double, ArrayDouble, ArrayDoubleIt, double)
 #define M_OPL_ArrayDouble() ARRAY_OPLIST(array_double, M_BASIC_OPLIST)
 
@@ -302,6 +303,18 @@ static void test_mpz(void)
   array_mpz_clear(array1);
 }
 
+static void test_str(void)
+{
+  array_string_t a;
+  array_string_init(a);
+
+  // Test of emplace with const char * ==> string_t
+  array_string_emplace_back(a, "Hello");
+  assert(string_equal_str_p(*array_string_back(a), "Hello"));
+
+  array_string_clear(a);
+}
+
 static void test_d(void)
 {
   array_uint_t a1, a2;
@@ -416,6 +429,7 @@ int main(void)
   test_uint();
   test_mpz();
   test_d();
+  test_str();
   test_double();
   exit(0);
 }
