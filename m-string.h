@@ -1952,6 +1952,7 @@ namespace m_lib {
    ,IT_EQUAL_P(m_string_it_equal_p)                                           \
    ,IT_NEXT(m_string_next)                                                    \
    ,IT_CREF(m_string_cref)                                                    \
+   ,EMPLACE_TYPE(const char*)                                                 \
    )
 
 /* Register the OPLIST as a global one */
