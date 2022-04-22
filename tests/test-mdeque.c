@@ -323,8 +323,13 @@ static void test_z(void)
     testobj_clear(z);
     deque_mpz_pop_front_move(&z, d);
     assert (testobj_cmp_ui (z, 4217) == 0);
-  }
 
+    deque_mpz_emplace_back_ui(d, 45);
+    assert(testobj_cmp_ui(*deque_mpz_back(d), 45) == 0);
+    deque_mpz_emplace_front_str(d, "450");
+    assert(testobj_cmp_ui(*deque_mpz_front(d), 450) == 0);
+    assert(testobj_cmp_ui(*deque_mpz_back(d), 45) == 0);
+  }
 }
 
 static void test_io(void)

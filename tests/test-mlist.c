@@ -325,7 +325,36 @@ static void test_mpz(void)
   }
   
   list_mpz_clear(v);
+
+  /* Test of the emplace functions.
+   * 3 functions have been generated for testobj:
+   * one from unsigned int (suffix _ui)
+   * one from C string (suffix _str)
+   * one from testobj_t itself (no suffix)
+   */
+  list_mpz_reset(list2);
+  list_mpz_emplace_back_ui(list2, 42);
+  assert(testobj_cmp_ui(*list_mpz_back(list2), 42) == 0);
+  list_mpz_emplace_back_ui(list2, 426);
+  assert(testobj_cmp_ui(*list_mpz_back(list2), 426) == 0);
+  list_mpz_emplace_back_str(list2, "458");
+  assert(testobj_cmp_ui(*list_mpz_back(list2), 458) == 0);
+  testobj_set_ui(z, 789);
+  list_mpz_emplace_back(list2, z);
+  assert(testobj_cmp_ui(*list_mpz_back(list2), 789) == 0);
+
   list_mpz_clear(list2);
+
+  list2_mpz_t listz;
+  list2_mpz_init(listz);
+
+  list2_mpz_emplace_back_ui(listz, 45);
+  assert(testobj_cmp_ui(*list2_mpz_back(listz), 45) == 0);
+  list2_mpz_emplace_front_str(listz, "450");
+  assert(testobj_cmp_ui(*list2_mpz_front(listz), 450) == 0);
+  assert(testobj_cmp_ui(*list2_mpz_back(listz), 45) == 0);
+
+  list2_mpz_clear(listz);
   
   testobj_clear (z);
   testobj_clear (x);
