@@ -1042,6 +1042,35 @@
   }                                                                           \
   , /* no IN_SERIAL & INIT */ )                                               \
                                                                               \
+  M_EMPLACE_QUEUE_DEF(name, deque_t, M_C(name, _emplace_back), oplist, M_D3QUE_EMPLACE_BACK_DEF) \
+  M_EMPLACE_QUEUE_DEF(name, deque_t, M_C(name, _emplace_front), oplist, M_D3QUE_EMPLACE_FRONT_DEF)
+
+
+/* Definition of the emplace_back function for deque */
+#define M_D3QUE_EMPLACE_BACK_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
+  static inline void                                                          \
+  function_name(name_t v                                                      \
+                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  {                                                                           \
+    M_C(name, _subtype_ct) *data = M_C(name, _push_back_raw)(v);              \
+    if (M_UNLIKELY (data == NULL) )                                           \
+      return;                                                                 \
+    M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
+  }
+
+
+/* Definition of the emplace_front function for deque */
+#define M_D3QUE_EMPLACE_FRONT_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
+  static inline void                                                          \
+  function_name(name_t v                                                      \
+                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  {                                                                           \
+    M_C(name, _subtype_ct) *data = M_C(name, _push_front_raw)(v);             \
+    if (M_UNLIKELY (data == NULL) )                                           \
+      return;                                                                 \
+    M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
+  }
+
 
 /* Deferred evaluation for the oplist definition,
    so that all arguments are evaluated before further expansion */

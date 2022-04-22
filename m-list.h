@@ -666,6 +666,8 @@
     }                                                                         \
     *list = previous;                                                         \
   }                                                                           \
+                                                                              \
+  M_EMPLACE_QUEUE_DEF(name, list_t, M_C(name, _emplace_back), oplist, M_L1ST_EMPLACE_DEF)
 
 
 /* Internal list function definition using only iterator functions 
@@ -868,6 +870,45 @@
     return M_HASH_FINAL (hash);                                               \
   }                                                                           \
   , /* no hash */ )                                                           \
+
+
+/* Definition of the emplace_back function for single list */
+#define M_L1ST_EMPLACE_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
+  static inline void                                                          \
+  function_name(name_t v                                                      \
+                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  {                                                                           \
+    M_C(name, _subtype_ct) *data = M_C(name, _push_raw)(v);                   \
+    if (M_UNLIKELY (data == NULL) )                                           \
+      return;                                                                 \
+    M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
+  }
+
+
+/* Definition of the emplace_back function for dual push list */
+#define M_L1ST_EMPLACE_BACK_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
+  static inline void                                                          \
+  function_name(name_t v                                                      \
+                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  {                                                                           \
+    M_C(name, _subtype_ct) *data = M_C(name, _push_back_raw)(v);              \
+    if (M_UNLIKELY (data == NULL) )                                           \
+      return;                                                                 \
+    M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
+  }
+
+
+/* Definition of the emplace_front function for dual push list */
+#define M_L1ST_EMPLACE_FRONT_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
+  static inline void                                                          \
+  function_name(name_t v                                                      \
+                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  {                                                                           \
+    M_C(name, _subtype_ct) *data = M_C(name, _push_front_raw)(v);             \
+    if (M_UNLIKELY (data == NULL) )                                           \
+      return;                                                                 \
+    M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
+  }
 
 
 /* Deferred evaluation for the dual-push list definition,
@@ -1463,6 +1504,9 @@
     list->back = previous;                                                    \
     M_L1ST_DUAL_PUSH_CONTRACT(list);                                          \
   }                                                                           \
+                                                                              \
+  M_EMPLACE_QUEUE_DEF(name, list_t, M_C(name, _emplace_back), oplist, M_L1ST_EMPLACE_BACK_DEF) \
+  M_EMPLACE_QUEUE_DEF(name, list_t, M_C(name, _emplace_front), oplist, M_L1ST_EMPLACE_FRONT_DEF)
 
 #if M_USE_SMALL_NAME
 #define LIST_DEF M_LIST_DEF
