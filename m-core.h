@@ -3857,7 +3857,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 
 /* Initialize the container 'dest' as per 'oplist' INIT operator
-   and fill it with the given VA arguments with the PUSH operator.
+   and fill it with the given VA_ARGS arguments with the PUSH operator.
    NOTE: If the REVERSE operator exists, it assumes a list,
    so it reverses the final order.
 */
@@ -3871,8 +3871,12 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 
 /* Initialize the container 'dest' as per 'oplist' INIT operator
-   and fill it with the given VA arguments with the _push_raw method
-   allowing INIT_WITH operator for the pushed argument.
+   and fill it with the given VA_ARGS arguments with the _push_raw method
+   allowing INIT_WITH operator for the pushed argument if the given
+   argument is between parenthesis, otherwise an INIT_SET is performed.
+   NOTE: Parenthesis detection is the best we can do to detect a special
+   argument. The argument may start with '*' or a '+' and we cannot use
+   M_KEYWORD_P with such arguments (as it cannot be concatened).
    NOTE: If the REVERSE operator exists, it assumes a list,
    so it reverses the final order.
 */
