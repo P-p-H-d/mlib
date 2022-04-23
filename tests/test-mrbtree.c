@@ -55,7 +55,7 @@ RBTREE_DEF(rbtree_uint, unsigned int, M_OPEXTEND(M_BASIC_OPLIST, IN_STR(uint_in_
 END_COVERAGE
 
 RBTREE_DEF(rbtree_float, float)
-RBTREE_DEF(rbtree_mpz, testobj_t, TESTOBJ_OPLIST)
+RBTREE_DEF(rbtree_mpz, testobj_t, TESTOBJ_CMP_OPLIST)
 
 #define UINT_OPLIST RBTREE_OPLIST(rbtree_uint)
 #define FLOAT_OP RBTREE_OPLIST(rbtree_float)
@@ -311,7 +311,7 @@ static void test_float(void)
     for(float f = -17.42f; f < 17.42f; f+=0.01f)
       rbtree_float_push (tree, f);
     bool p = false;
-    float g;
+    float g = 0.0;
     for M_EACH(item, tree, FLOAT_OP) {
         if (p) {
           assert (g < *item);
@@ -496,6 +496,31 @@ static void test_from(void)
   rbtree_uint_clear(tree);
 }
 
+static void test_z(void)
+{
+  rbtree_mpz_t v;
+  testobj_t    z;
+
+  testobj_init(z);
+  rbtree_mpz_init(v);
+
+  testobj_set_ui(z, 67);
+  rbtree_mpz_push(v, z);
+  assert(testobj_cmp_ui(*rbtree_mpz_cmax(v), 67) == 0);
+  assert(testobj_cmp_ui(*rbtree_mpz_cmin(v), 67) == 0);
+
+  rbtree_mpz_emplace_ui(v, 42);
+  assert(testobj_cmp_ui(*rbtree_mpz_cmax(v), 67) == 0);
+  assert(testobj_cmp_ui(*rbtree_mpz_cmin(v), 42) == 0);
+
+  rbtree_mpz_emplace_str(v, "422");
+  assert(testobj_cmp_ui(*rbtree_mpz_cmax(v), 422) == 0);
+  assert(testobj_cmp_ui(*rbtree_mpz_cmin(v), 42) == 0);
+
+  testobj_clear(z);
+  rbtree_mpz_clear(v);
+}
+
 int main(void)
 {
   test_uint();
@@ -504,5 +529,6 @@ int main(void)
   test_io();
   test_double();
   test_from();
+  test_z();
   exit(0);
 }
