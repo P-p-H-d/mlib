@@ -3881,7 +3881,6 @@ m_core_parse2_enum (const char str[], const char **endptr)
          M_MAP2_C(M_INIT_WITH_VAI22_FUNC, (dest, oplist) , __VA_ARGS__)       \
          M_IF_METHOD(REVERSE, oplist)(M_DEFERRED_COMMA M_GET_REVERSE oplist(dest), ) \
          )
-
 #define M_INIT_WITH_VAI22_FUNC(pair, a)                                       \
   M_INIT_WITH_VAI23_FUNC(M_PAIR_1 pair, M_PAIR_2 pair, a)
 
@@ -3891,7 +3890,9 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_INIT_WITH_VAI23_FUNC(d, op, a)                                      \
   (                                                                           \
     (void) M_C(M_GET_NAME op, _push_raw)(d),                                  \
-    M_IF(M_PARENTHESIS_P( a ))(M_CALL_INIT_WITH, M_CALL_INIT_SET)(M_GET_OPLIST op, *M_C( M_GET_NAME op , _back)(d), M_REMOVE_PARENTHESIS (a)) \
+    M_IF(M_PARENTHESIS_P(a))                                                  \
+    (M_CALL_INIT_WITH, M_CALL_INIT_SET)                                       \
+    (M_GET_OPLIST op, *M_C(M_GET_NAME op, _back)(d), M_REMOVE_PARENTHESIS(a)) \
   )
 
 
