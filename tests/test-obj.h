@@ -137,12 +137,18 @@ static inline bool testobj_equal_p(const testobj_t z1, const testobj_t z2)
 
 static inline int testobj_cmp(const testobj_t z1, const testobj_t z2)
 {
-  if (z1->n != z2->n) return z1-> n < z2->n ? -1 : 1;
-  for(unsigned int i = 0; i < z1->n; i++) {
-    if (z1->ptr[i] != z2->ptr[i])
-      return z1->ptr[i] < z2->ptr[i] ? -1 : 1;
+  int ret = 0;
+  if (z1->n != z2->n) {
+    ret = z1-> n < z2->n ? -1 : 1;
+  } else {
+    for(unsigned int i = 0; i < z1->n; i++) {
+      if (z1->ptr[i] != z2->ptr[i]) {
+        ret = z1->ptr[i] < z2->ptr[i] ? -1 : 1;
+        break;
+      }
+    }
   }
-  return 0;
+  return ret;
 }
 
 static inline int testobj_cmp_ui(const testobj_t z1, unsigned int z2)
@@ -182,7 +188,8 @@ static inline void testobj_str(string_t str, const testobj_t z, bool append)
    PARSE_STR(testobj_parse_str),                                        \
    GET_STR(testobj_str),                                                \
    EQUAL(testobj_equal_p),                                              \
-   CMP(testobj_cmp)                                                     \
+   CMP(testobj_cmp),                                                    \
+   EMPLACE_TYPE( LIST( (_ui, testobj_init_set_ui, unsigned int), (_str, testobj_init_set_str, const char *), ( /*empty*/, testobj_init_set, testobj_t) ) ) \
    )
 
 M_END_PROTECTED_CODE
