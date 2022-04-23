@@ -219,8 +219,10 @@ scan-build: clean
 
 # Relaunch the test suite with the sanitizer.
 sanitize:
-	$(MAKE) clean check XCFLAGS="-fsanitize=address,undefined,leak"
-	$(MAKE) clean check XCFLAGS="-fsanitize=thread -pie -fPIE"
+	$(MAKE) clean
+	$(MAKE) check XCFLAGS="-fsanitize=address,undefined,leak"
+	$(MAKE) clean
+	$(MAKE) check XCFLAGS="-fsanitize=thread -pie -fPIE"
 
 
 # Static analysis of the code using GCC "-fanalyzer" option
