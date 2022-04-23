@@ -1024,7 +1024,7 @@ m_string_set_si(m_string_t v, int n)
   m_str1ng_fit2size(v, max_size);
   unsigned i = 0, j = 0;
   bool neg = n < 0;
-  unsigned n0 = neg ? -(unsigned) n : (unsigned) n;
+  unsigned n0 = neg ? 0U -(unsigned) n : (unsigned) n;
   do {
     // 0123456789 are mandatory in this order as characters, as per C standard.
     buffer[i++] = (char) ('0' + (n0 % 10U));
