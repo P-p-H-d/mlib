@@ -3135,6 +3135,12 @@ Return the number of elements of the Red Black Tree.
 Push 'data' into the Red Black Tree 'rbtree' at its ordered place
 while keeping the tree balanced.
 
+##### void name\_emplace[\_suffix](name\_t rbtree, args...)
+
+Push a new element by initializing it with the provided arguments,
+at its ordered place while keeping the tree balanced.
+This method is created if the EMPLACE\_TYPE operator is provided. See emplace chapter.
+
 ##### void name\_pop(type *dest, name\_t rbtree, const type data)
 
 Pop 'data' from the Red Black Tree 'rbtree'
