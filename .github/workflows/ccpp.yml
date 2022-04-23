@@ -66,6 +66,15 @@ jobs:
       shell: bash
       run: make CC="/tmp/tcc/bin/tcc -std=c99" check
 
+  build_linux_sanitize:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: make sanitize
+      working-directory: ./tests
+      run: make sanitize -j 2
+
   build_windows_mingw:
     runs-on: windows-latest
     
