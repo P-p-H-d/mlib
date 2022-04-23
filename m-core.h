@@ -3890,13 +3890,42 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 /* We first push a raw new item, and then we get back its pointer using _back.
   _back (contrary to _push_raw) has no side effect, and so is safe to be used
-  in a macro */  
+  in a macro */
 #define M_INIT_WITH_VAI23_FUNC(d, op, a)                                      \
   (                                                                           \
     (void) M_C(M_GET_NAME op, _push_raw)(d),                                  \
     M_IF(M_PARENTHESIS_P(a))                                                  \
     (M_CALL_INIT_WITH, M_CALL_INIT_SET)                                       \
     (M_GET_OPLIST op, *M_C(M_GET_NAME op, _back)(d), M_REMOVE_PARENTHESIS(a)) \
+  )
+
+
+/* Initialize the container 'dest' as per 'oplist' INIT operator
+   and fill it with the given VA_ARGS arguments with the _emplace method
+   if the given argument is between parenthesis, otherwise an _init_set
+   is performed.
+   NOTE: Parenthesis detection is the best we can do to detect a special
+   argument. The argument may start with '*' or a '+' and we cannot use
+   M_KEYWORD_P with such arguments (as it cannot be concatened).
+   NOTE: If the REVERSE operator exists, it assumes a list,
+   so it reverses the final order.
+*/
+#define M_INIT_EMPLACE_VAI(oplist, dest, ...)                                 \
+  (void)(M_GET_INIT oplist (dest) ,                                           \
+         M_MAP2_C(M_INIT_EMPLACE_VAI2_FUNC, (dest, oplist) , __VA_ARGS__)     \
+         M_IF_METHOD(REVERSE, oplist)(M_DEFERRED_COMMA M_GET_REVERSE oplist(dest), ) \
+         )
+#define M_INIT_EMPLACE_VAI2_FUNC(pair, a)                                     \
+  M_INIT_EMPLACE_VAI3_FUNC(M_PAIR_1 pair, M_PAIR_2 pair, a)
+
+/* We first push a raw new item, and then we get back its pointer using _back.
+  _back (contrary to _push_raw) has no side effect, and so is safe to be used
+  in a macro */
+#define M_INIT_EMPLACE_VAI3_FUNC(d, op, a)                                    \
+  (                                                                           \
+    M_IF(M_PARENTHESIS_P(a))                                                  \
+    (M_C(M_GET_NAME op, _emplace)(d, M_REMOVE_PARENTHESIS_3 a),               \
+     M_CALL_PUSH(op, d, a))                                                   \
   )
 
 
