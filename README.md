@@ -1254,9 +1254,10 @@ decoded by the function.
 Generate a formatted string representation of the list 'list' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
-##### void name\_in\_str(name\_t list, FILE *file)
+##### bool name\_in\_str(name\_t list, FILE *file)
 
 Read from the file 'file' a formatted string representation of a list and set 'list' to this representation.
+It returns true if success, false otherwise.
 This method is only defined if the type of the element defines a IN\_STR & INIT method itself.
 
 ##### bool name\_equal\_p(const name\_t list1, const name\_t list2)
@@ -1601,9 +1602,10 @@ decoded by the function.
 Generate a formatted string representation of the list 'list' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
-##### void name\_in\_str(name\_t list, FILE *file)
+##### bool name\_in\_str(name\_t list, FILE *file)
 
 Read from the file 'file' a formatted string representation of a list and set 'list' to this representation.
+It returns true if success, false otherwise.
 This method is only defined if the type of the element defines a IN\_STR & INIT method itself.
 
 ##### bool name\_equal\_p(const name\_t list1, const name\_t list2)
@@ -1981,9 +1983,10 @@ decoded by the function.
 Generate a formatted string representation of the array 'array' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
-##### void name\_in\_str(name\_t array, FILE *file)
+##### bool name\_in\_str(name\_t array, FILE *file)
 
 Read from the file 'file' a formatted string representation of an array and set 'array' to this representation.
+It returns true if success, false otherwise.
 This method is only defined if the type of the element defines both IN\_STR & INIT methods itself.
 
 ##### bool name\_equal\_p(const name\_t array1, const name\_t array2)
@@ -2263,9 +2266,10 @@ decoded by the function.
 Generate a formatted string representation of the deque 'deque' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
-##### void name\_in\_str(name\_t deque, FILE *file)
+##### bool name\_in\_str(name\_t deque, FILE *file)
 
 Read from the file 'file' a formatted string representation of a deque and set 'deque' to this representation.
+It returns true if success, false otherwise.
 This method is only defined if the type of the element defines a IN\_STR method itself.
 
 ##### bool name\_equal\_p(const name\_t deque1, const name\_t deque2)
@@ -2288,9 +2292,11 @@ This method is only defined if the type of the element defines a SWAP method its
 
 ### M-DICT
 
-A [dictionary](https://en.wikipedia.org/wiki/Associative_array) (or associative array, map, symbol table) is an abstract data type
-composed of a collection of (key, value) pairs,
-such that each possible key appears at most once in the collection.
+A [dictionary](https://en.wikipedia.org/wiki/Associative_array) (or associative array, map, symbol table)
+is an abstract data type composed of a collection of (key, value) pairs,
+such that each possible key appears at most once in the collection,
+and is associated to only one value.
+It is possible to search for a key in the dictionnary and get back its value.
 
 Several dictionaries are proposed. The "best" to use depends on the data type
 and in particular:
@@ -2305,7 +2311,7 @@ For small, fast types (integer, or floats, or pair of such types),
 DICT\_OA\_DEF2 may be the best to use.
 For medium type, DICT\_DEF2 with mempool activated may be better.
 For even larger object, DICT\_STOREHASH\_DEF2 may be better.
-
+But for most uses, DICT\_DEF2 should be good enough.
 
 #### DICT\_DEF2(name, key\_type[, key\_oplist], value\_type[, value\_oplist])
 #### DICT\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, key\_type[, key\_oplist], value\_type[, value\_oplist])
@@ -2313,16 +2319,16 @@ For even larger object, DICT\_STOREHASH\_DEF2 may be better.
 DICT\_DEF2 defines the dictionary 'name##\_t' and its associated methods as "static inline" functions.
 'name' shall be a C identifier that will be used to identify the container.
 Current implementation uses chained Hash-Table and as such, elements in the dictionary are **unordered**.
+Elements are not moved on insertion / delete of other elements (the iterator may become invalid,
+but the referenced element remains here).
 
 It shall be done once per type and per compilation unit.
-It also define the iterator type name##\_it\_t and its associated methods as "static inline" functions
-and the iterated object type name##\_itref\_t that is a pair of key\_type and value\_type.
+It also define the iterator type 'name##\_it\_t', its associated methods as "static inline" functions
+and the iterated object type 'name##\_itref\_t' (that is a pair of key\_type and value\_type).
 
-The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
+Both object oplists are expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
 otherwise default methods are used. If there is no given oplist, the basic oplist for basic C types is used
 or a globally registered oplist is used.
-The created methods will use the operators to init, set and clear the contained object.
-
 The key\_oplist shall also define the additional operators (HASH and EQUAL).
 
 Example:
@@ -2356,7 +2362,7 @@ Example:
 ```
 
 DICT\_DEF2\_AS is the same as DICT\_DEF2 except the name of the types name\_t, name\_it\_t, name\_itref\_t,
-are provided.
+are provided by the user.
 
 
 #### DICT\_STOREHASH\_DEF2(name, key\_type[, key\_oplist], value\_type[, value\_oplist])
@@ -2380,20 +2386,18 @@ DICT\_OA\_DEF2 defines the dictionary 'name##\_t' and its associated methods
 as "static inline" functions much like DICT\_DEF2.
 The difference is that it uses an Open Addressing Hash-Table as container.
 
-It shall be done once per type and per compilation unit.
-It also define the iterator type name##\_it\_t and its associated methods as "static inline" functions,
-and the iterated object type name##\_itref\_t that is a pair of key\_type and value\_type.
-
-The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
-otherwise default methods are used. If there is no given oplist, the basic oplist for basic C types is used
-or a globally registered oplist is used.
-The created methods will use the operators to init, set and clear the contained object.
-
 The key\_oplist shall also define the additional operators :
 HASH and EQUAL and **OOR\_EQUAL** and **OOR\_SET**
 
+The Out-Of-Range operators (OOR\_EQUAL and OOR\_SET) are used to store unitialized keys
+in the dictionnary and be able to detect it. This enables avoiding a separate bitfield
+to know the state of the entry in the dictionnary (which increases memory usage and is
+cache unfriendly).
+
+The elements may move when inserting / deleting other elements (and not just the iterators).
+
 This implementation is in general faster for small types of keys
-(like integer or float) but slower for larger types.
+(like integer or float) but may be slower for larger types.
 
 Example:
 
@@ -2449,7 +2453,6 @@ It also define the iterator name##\_it\_t and its associated methods as "static 
 The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET, CLEAR, HASH and EQUAL),
 otherwise default methods are used. If there is no given oplist, the basic oplist for basic C types is used
 or a globally registered oplist is used.
-The created methods will use the operators to init, set and clear the contained object.
 
 Example:
 
@@ -2487,14 +2490,15 @@ are provided.
 
 DICT\_OASET\_DEF defines the dictionary set 'name##\_t' and its associated methods as "static inline" functions.
 A dictionary set is a specialized version of a dictionary with no value.
-The difference is that it uses an Open Addressing Hash-Table as 
-container.
+The difference is that it uses an Open Addressing Hash-Table as container.
 
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
 The key\_oplist shall therefore define the additional operators :
 HASH and EQUAL and **OOR\_EQUAL** and **OOR\_SET**
+
+The elements may move when inserting / deleting other elements (and not just the iterators).
 
 This implementation is in general faster for small types of keys
 (like integer) but slower for larger types.
@@ -2528,11 +2532,11 @@ Type of an iterator over this dictionary.
 Type of one item referenced in the dictionary for associative array.
 It is a structure composed of the key (field 'key') and the value (field 'value').
 
-This type is created only for associative arrays (\_DEF2 suffix).
+This type is created only for associative arrays (\_DEF2 suffix) and not for sets.
 
 ##### void name\_init(name\_t dict)
 
-Initialize the dictionary 'dict' to be empty.
+Initialize the dictionary 'dict'. It is empty.
 
 ##### void name\_clear(name\_t dict)
 
@@ -2549,12 +2553,12 @@ Set the dictionary 'dict' to be the same as 'ref'.
 ##### void name\_init\_move(name\_t dict, name\_t ref)
 
 Initialize the dictionary 'dict' by stealing as resource as possible
-from 'ref' and clear 'ref'.
+from 'ref'. Afterwards, it clears 'ref'.
 
 ##### void name\_move(name\_t dict, name\_t ref)
 
 Set the dictionary 'dict'  by stealing as resource as possible
-from 'ref' and clear 'ref'.
+from 'ref'. Afterwards, it clears 'ref'.
 
 ##### void name\_reset(name\_t dict)
 
@@ -2579,17 +2583,19 @@ This pointer remains valid until the array is modified by another method.
 Return a pointer to the value associated to the key 'key' in dictionary
 'dict' or create a new entry for the key 'key',
 in which case the associated 'value' is initialized with its default INIT operator.
-The returned pointer cannot be NULL.
+Therefore, the returned pointer cannot be NULL.
 This method is only defined if the value type of the element defines an INIT method.
 This pointer remains valid until the array is modified by another method.
 
 ##### void name\_set\_at(name\_t dict, const key\_type key, const value\_type value)   [for associative array]
 
 Set the value referenced by key 'key' in the dictionary 'dict' to 'value'.
+It overwrites the already existing value if 'key' is already present in the dictionnary (contrary to C++).
 
 ##### void name\_push(name\_t dict, const key\_type key)       [for dictionary set]
 
 Push the value referenced by key 'key' into the dictionary 'dict'.
+It overwrites the already existing value if 'key' is already present in the dictionnary (contrary to C++).
 
 ##### void name\_erase(name\_t dict, const key\_type key)
 
@@ -2598,7 +2604,10 @@ Do nothing if 'key' is no present in the dictionary.
 
 ##### void name\_it(name\_it\_t it, name\_t dict)
 
-Set the iterator 'it' to the first element of 'dict'.
+Set the iterator 'it' to the "first" element of 'dict'.
+What is exactly the "first" element is not specified.
+It is only ensured that all elements of the dictionnary are explored
+by going from "first" to "end".
 
 ##### void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
 
@@ -2606,7 +2615,8 @@ Set the iterator 'it' to the same element than 'ref'.
 
 ##### bool name\_end\_p(const name\_it\_t it)
 
-Return true if 'it' references no longer a valid element.
+Return true if 'it' references no longer a valid element
+(it has reached the end of the dictionnary).
 
 ##### bool name\_last\_p(const name\_it\_t it)
 
@@ -2635,37 +2645,41 @@ This pointer remains valid until the dictionary is modified by another method.
 
 Generate a formatted string representation of the dict 'dict' and set 'str' to this representation
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
-This method is only defined if the type of the element defines a GET\_STR method itself.
+This method is only defined if both key and value types define a GET\_STR method thenselves.
 
 ##### bool name\_parse\_str(name\_t dict, const char str[], const char **endp)
 
 Parse the formatted string 'str' that is assumed to be a string representation of a dict
 and set 'dict' to this representation.
-This method is only defined if all types of the element defines PARSE\_STR methods itself.
-It returns true if success, false otherwise.
-If endp is not NULL, it sets '*endp' to the pointer of the first character not
+It returns true in case of success, false otherwise.
+If 'endp' is not NULL, it sets '*endp' to the pointer of the first character not
 decoded by the function.
+This method is only defined if both key and value types define a PARSE\_STR method thenselves.
 
 ##### void name\_out\_str(FILE *file, const name\_t dict)
 
 Generate a formatted string representation of the dict 'dict' and outputs it into the FILE 'file'.
-This method is only defined if the type of the element defines a OUT\_STR method itself.
+This method is only defined if both key and value types define a OUT\_STR method thenselves.
 
-##### void name\_in\_str(name\_t dict, FILE *file)
+##### bool name\_in\_str(name\_t dict, FILE *file)
 
 Read from the file 'file' a formatted string representation of a dict and set 'dict' to this representation.
-This method is only defined if the type of the element defines a IN\_STR method itself.
+It returns true in case of success, false otherwise.
+In case of error, the position of the file is not specified but is likely to be just after the parsing error.
+Otherwise, the position of the file is just after the final read character associated to the dictionnary representation.
+This method is only defined if both key and value types define a IN\_STR method thenselves.
 
 ##### bool name\_equal\_p(const name\_t dict1, const name\_t dict2)
 
 Return true if both dict 'dict1' and 'dict2' are equal.
-This method is only defined if the type of the element defines a EQUAL method itself.
+This method is only defined if both key and value types define an EQUAL method thenselves.
 
 ##### void name\_splice(name\_t dict1, name\_t dict2)
 
 Move all items from 'dict2' into 'dict1'.
-If there is the same key between 'dict2' into 'dict1', then their values are added (as per the ADD method of the value type).
-Afterward 'dict2' is reset.
+If there is the same key between 'dict2' into 'dict1',
+then their values are added (as per the ADD method of the value type).
+Afterward 'dict2' is reset (i.e. empty).
 This method is only defined if the value type defines an ADD method.
 
 
@@ -2848,9 +2862,10 @@ decoded by the function.
 Generate a formatted string representation of the tuple 'tuple' and outputs it into the FILE 'file'.
 This method is only defined if all Oplist define a OUT\_STR method.
 
-##### void name\_in\_str(name\_t tuple, FILE *file)
+##### bool name\_in\_str(name\_t tuple, FILE *file)
 
 Read from the file 'file' a formatted string representation of a tuple and set 'tuple' to this representation.
+It returns true if success, false otherwise.
 This method is only defined if all Oplist define a IN\_STR method.
 
 
@@ -3026,20 +3041,24 @@ Convert the variant into a formatted string and send it to the stream 'file'.
 All types associated to the variant shall have a out\_str function
 for this function to be defined.
 
-##### void name\_in\_str(name\_t variant, FILE *file)
+##### bool name\_in\_str(name\_t variant, FILE *file)
 
 Read a formatted string representation of the variant from the stream 'file'
 and update the object variant with it.
 All types associated to the variant shall have a in\_str function
 for this function to be defined.
+It returns true if success, false otherwise.
 This method is defined if all methods define an INIT method.
+
 
 
 ### M-RBTREE
 
-A binary tree is a tree data structure in which each node has at most two children, which are referred to as the left child and the right child.
+A binary tree is a tree data structure in which each node has at most two children,
+which are referred to as the left child and the right child.
 In this kind of tree, all elements of the tree are totally ordered.
-The current implementation is [RED-BLACK TREE](https://en.wikipedia.org/wiki/Red%E2%80%93black_tree).
+The current implementation is [RED-BLACK TREE](https://en.wikipedia.org/wiki/Red%E2%80%93black_tree)
+which provides performance guarante for both insertion and lockup operations.
 It has not to be confused with a [B-TREE](https://en.wikipedia.org/wiki/B-tree).
 
 #### RBTREE\_DEF(name, type[, oplist])
@@ -3080,7 +3099,7 @@ are provided.
 
 #### RBTREE\_OPLIST(name [, oplist])
 
-Return the oplist of the Red-Black defined by calling RBTREE\_DEF with name & oplist.
+Return the oplist of the Red-Black tree defined by calling RBTREE\_DEF with name & oplist.
 If there is no given oplist, the basic oplist for basic C types is used.
 
 #### Created methods
@@ -3090,7 +3109,7 @@ In the following methods, name stands for the name given to the macro that is us
 
 ##### name\_t
 
-Type of the Red Black Tree of 'type'.
+Type of the Red Black Tree.
 
 ##### name\_it\_t
 
@@ -3134,11 +3153,13 @@ Return the number of elements of the Red Black Tree.
 
 Push 'data' into the Red Black Tree 'rbtree' at its ordered place
 while keeping the tree balanced.
+It overwrites the already existing value if 'key' is already present in the dictionnary (contrary to C++).
 
 ##### void name\_emplace[\_suffix](name\_t rbtree, args...)
 
 Push a new element by initializing it with the provided arguments,
 at its ordered place while keeping the tree balanced.
+It overwrites the already existing value if 'key' is already present in the dictionnary (contrary to C++).
 This method is created if the EMPLACE\_TYPE operator is provided. See emplace chapter.
 
 ##### void name\_pop(type *dest, name\_t rbtree, const type data)
@@ -3253,9 +3274,10 @@ decoded by the function.
 Generate a formatted string representation of the rbtree 'rbtree' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
-##### void name\_in\_str(name\_t rbtree, FILE *file)
+##### bool name\_in\_str(name\_t rbtree, FILE *file)
 
 Read from the file 'file' a formatted string representation of a rbtree and set 'rbtree' to this representation.
+It returns true if success, false otherwise.
 This method is only defined if the type of the element defines a IN\_STR method itself.
 
 ##### bool name\_equal\_p(const name\_t rbtree1, const name\_t rbtree2)
@@ -3581,9 +3603,10 @@ decoded by the function.
 Generate a formatted string representation of the tree 'tree' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
-##### void name\_in\_str(name\_t tree, FILE *file)
+##### bool name\_in\_str(name\_t tree, FILE *file)
 
 Read from the file 'file' a formatted string representation of a tree and set 'tree' to this representation.
+It returns true if success, false otherwise.
 This method is only defined if the type of the element defines a IN\_STR method itself.
 
 ##### bool name\_equal\_p(const name\_t tree1, const name\_t tree2)
