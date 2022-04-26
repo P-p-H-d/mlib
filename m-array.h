@@ -810,10 +810,9 @@
     if (m_core_clz64(size-1) & 1)                                             \
       th += th;                                                               \
                                                                               \
-    /* Pass 1: insertion sort (stable) */                                     \
+    /* Pass 1: Partial insertion sort (stable) up to 'th' size */             \
     for(size_t k = 0 ; k < size; ) {                                          \
       size_t max = size - k < 2*th ? size - k : th;                           \
-      M_ASSUME(max >= th);                                                    \
       for(size_t i = 1; i < max; i++) {                                       \
         size_t j = i;                                                         \
         while (j > 0 && M_CALL_CMP(oplist, tab[k+j-1], tab[k+j]) > 0) {       \
@@ -827,7 +826,7 @@
     /* N Pass of merge sort (stable) */                                       \
     while (th < size) {                                                       \
       type *dest = tmp;                                                       \
-      /* Pass n: Merge */                                                     \
+      /* Pass n: Merge 2 sections of 'th' elements */                         \
       for(size_t k = 0 ; k < size; ) {                                        \
         type *el1 = &tab[k];                                                  \
         type *el2 = &tab[k+th];                                               \
@@ -839,10 +838,10 @@
         k += n1+n2;                                                           \
         for (;;) {                                                            \
           if (M_CALL_CMP(oplist, *el1, *el2) <= 0) {                          \
-            M_CALL_SET(oplist, *dest, *el1);                                  \
+            M_DO_INIT_MOVE(oplist, *dest, *el1);                              \
             dest++;                                                           \
             el1++;                                                            \
-            if (-- n1 == 0) {                                                 \
+            if (M_UNLIKELY(-- n1 == 0)) {                                     \
               if (n2 > 0) {                                                   \
                 memcpy (dest, el2, n2 * sizeof (type));                       \
                 dest += n2;                                                   \
@@ -850,10 +849,10 @@
               break;                                                          \
             }                                                                 \
           } else {                                                            \
-            M_CALL_SET(oplist, *dest, *el2);                                  \
+            M_DO_INIT_MOVE(oplist, *dest, *el2);                              \
             dest++;                                                           \
             el2++;                                                            \
-            if (-- n2 == 0) {                                                 \
+            if (M_UNLIKELY(-- n2 == 0)) {                                     \
               if (n1 > 0) {                                                   \
                 memcpy (dest, el1, n1 * sizeof (type));                       \
                 dest += n1;                                                   \
