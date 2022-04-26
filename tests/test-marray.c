@@ -312,6 +312,26 @@ static void test_str(void)
   array_string_emplace_back(a, "Hello");
   assert(string_equal_str_p(*array_string_back(a), "Hello"));
 
+  array_string_emplace_back(a, "world");
+  assert(string_equal_str_p(*array_string_back(a), "world"));
+
+  array_string_emplace_back(a, "How");
+  assert(string_equal_str_p(*array_string_back(a), "How"));
+
+  array_string_emplace_back(a, "are");
+  assert(string_equal_str_p(*array_string_back(a), "are"));
+
+  array_string_emplace_back(a, "you");
+  assert(string_equal_str_p(*array_string_back(a), "you"));
+
+  // Test stable sort with string_t
+  array_string_special_stable_sort(a);
+
+  // Test INIT_WITH of array of string_t wihtin M_LET 
+  M_LET( (b, ("Hello"), ("How"), ("are"), ("world"), ("you")), ARRAY_OPLIST(array_string, STRING_OPLIST)){
+    assert( array_string_equal_p(a, b));
+  }
+
   array_string_clear(a);
 }
 
