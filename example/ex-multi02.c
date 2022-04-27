@@ -37,6 +37,10 @@ mpz_hash(const mpz_t z)
    HASH(mpz_hash),                                                      \
    OUT_STR( API( mpz_out_str, VOID, ARG1, 10, ARG2)),                   \
    IN_STR( API( mpz_inp_str, GT(0), ARG1, ARG2, 10)),                   \
+   EMPLACE_TYPE( LIST( (_si, mpz_init_set_si, int),                     \
+                       (_ui, mpz_init_set_ui, unsigned),                \
+                       (_d,  mpz_init_set_d,  double),                  \
+                       (_str, API(mpz_init_set_str, VOID, ARG1, ARG2, 10), const char *) )), \
    TYPE(mpz_t) )
 
 /* Define a variant over two integers named integer_t
@@ -59,6 +63,8 @@ DICT_DEF2(my_dict, string_t, my_integer_t)
 ARRAY_DEF(my_array, my_dict_t)
 /* Define the oplist associated to this array of dictionary of variant and register it */
 #define M_OPL_my_array_t() ARRAY_OPLIST(my_array, M_OPL_my_dict_t())
+
+ARRAY_DEF(array_mpz, mpz_t)
 
 int main(void)
 {
