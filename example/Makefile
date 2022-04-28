@@ -41,7 +41,7 @@ config:
 	printf "#include <gmp.h>\nint main(void){mpz_t z; mpz_init(z); return 0;}\n" > config-test.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS)  -I$(GMP_DIR)/include -L$(GMP_DIR)/lib -lgmp config-test.c -o config-test.exe 2> /dev/null && echo "-DHAVE_GMP=1  -I$(GMP_DIR)/include -L$(GMP_DIR)/lib -lgmp" > config || echo "-DHAVE_GMP=0" > config
 	printf "#include <mpfr.h>\nint main(void){mpfr_t z; mpfr_init(z); return 0;}\n" > config-test.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS)  -I$(GMP_DIR)/include -I$(MPFR_DIR)/include -L$(GMP_DIR)/lib -L$(MPFR_DIR)/lib -lmpfr -lgmp config-test.c -o config-test.exe 2> /dev/null && (echo "-DHAVE_GMP=1 -DHAVE_MPFR=1  -I$(GMP_DIR)/include -L$(GMP_DIR)/lib -I$(MPFR_DIR)/include -L$(MPFR_DIR)/lib -lmpfr -lgmp" > config )
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS)  -I$(GMP_DIR)/include -I$(MPFR_DIR)/include -L$(GMP_DIR)/lib -L$(MPFR_DIR)/lib -lmpfr -lgmp config-test.c -o config-test.exe 2> /dev/null && echo "-DHAVE_GMP=1 -DHAVE_MPFR=1  -I$(GMP_DIR)/include -L$(GMP_DIR)/lib -I$(MPFR_DIR)/include -L$(MPFR_DIR)/lib -lmpfr -lgmp" > config || echo "MPFR not available"
 	$(RM) config-test.c config-test.exe
 
 clean:
