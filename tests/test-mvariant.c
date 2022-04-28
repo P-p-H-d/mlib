@@ -219,9 +219,18 @@ test_triple(void)
   assert( triple_type(t) == triple_z_value);
   assert( testobj_cmp (z, *triple_get_z(t)) == 0);
 
+  triple_emplace_s(t, "HELLO");
+  assert( triple_type(t) == triple_s_value);
+  assert( string_equal_str_p (*triple_get_s(t), "HELLO"));
+
   testobj_clear(z);
   string_clear(s); 
   triple_clear(t);
+
+  triple_init_emplace_s(t, "INIT HELLO2");
+  assert( triple_type(t) == triple_s_value);
+  assert( string_equal_str_p (*triple_get_s(t), "INIT HELLO2"));
+  triple_clear(t);  
 }
 
 VARIANT_DEF2(single,
