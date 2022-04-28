@@ -3984,6 +3984,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
    The user provided macro prototype is
    macro(name, name_t, function_name, oplist, init_func, exp_emplace_type)
    It is suitable for container with a single type of data within.
+   NOTE: Use internally, M_MAP2, M_MAP2_C & M_MAP3
  */
 #define M_EMPLACE_QUEUE_DEF(name, name_t, function_name, oplist, macro)       \
   M_IF(M_TEST_METHOD_ALTER_P(EMPLACE_TYPE, oplist))                           \
