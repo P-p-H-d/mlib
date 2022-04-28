@@ -127,15 +127,21 @@ int main(void)
 
       mpz_set_str(gmp, "25446846874687468746874687468746874686874", 10); // Set gmp to a very long integer.
       my_number_set_z (z, gmp);                 // Set z as the mpz_t variable
-
       my_dict_set_at(dict, STRING_CTE("n2"), z); // Push it in the dictionary
+
       my_array_push_back (array, dict);          // Push the dictionary in the array
 
       // Let's add a new element in the array
       mpfr_set_str(mpfr, "42.17", 0, MPFR_RNDN); // Set mpfr to the real value given as a string
       my_number_set_fr(z, mpfr);                // Set z as this variable.
-
       my_dict_set_at(dict, STRING_CTE("n3"), z); // Push it in the dictionary
+
+      my_number_emplace_fr_si(z, 42);            // Directly emplace the variant as a mpfr_t with a signed integer for init
+      my_dict_set_at(dict, STRING_CTE("n4"), z); // Push it in the dictionary
+
+      my_number_emplace_z_ui(z, 189);            // Directly emplace the variant as a mpz_t with an unsigned integer for init
+      my_dict_set_at(dict, STRING_CTE("n5"), z); // Push it in the dictionary
+      
       my_array_push_back (array, dict);          // Push the dictionary in the array
         
       // Iterate over the array container
@@ -149,12 +155,12 @@ int main(void)
                         *my_number_cget_n(p->value));
               }
               if (my_number_z_p(p->value)) {
-                printf ("It is a mpz_t, value =");
+                printf ("It is a mpz_t, value = ");
                 mpz_out_str(stdout, 10, *my_number_cget_z(p->value));
                 printf("\n");
               }
               if (my_number_fr_p(p->value)) {
-                printf ("It is a mpfr_t, value =");
+                printf ("It is a mpfr_t, value = ");
                 mpfr_out_str(stdout, 10, 0, *my_number_cget_fr(p->value), MPFR_RNDN);
                 printf("\n");
               }
