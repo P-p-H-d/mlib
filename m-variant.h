@@ -105,6 +105,7 @@
   M_VAR1ANT_DEFINE_CLEAR(name, __VA_ARGS__)                                   \
   M_VAR1ANT_DEFINE_INIT_SET(name, __VA_ARGS__)                                \
   M_VAR1ANT_DEFINE_SET(name, __VA_ARGS__)                                     \
+  M_VAR1ANT_DEFINE_EMPLACE(name, __VA_ARGS__) \
   M_VAR1ANT_DEFINE_TEST_P(name, __VA_ARGS__)                                  \
   M_VAR1ANT_IF_ALL(INIT, __VA_ARGS__)                                         \
   (M_VAR1ANT_DEFINE_INIT_FIELD(name, __VA_ARGS__),)                           \
@@ -382,6 +383,39 @@
     return &my -> value . M_VAR1ANT_GET_FIELD a;                              \
   }
 
+
+/* Define the EMPLACE of a given type function.
+   NOTE: Use of a variant of MAP3 because of recursive use of MAP2/MAP3/REDUCE2 !
+ */
+#define M_VAR1ANT_DEFINE_EMPLACE(name, ...)                                   \
+  M_VAR1ANT_MAP3_ALT(M_VAR1ANT_DEFINE_EMPLACE_FUNC, name, __VA_ARGS__)
+// Variant of M_MAP3 using M_REDUCE3
+#define M_VAR1ANT_MAP3_ALT(f, d, ...)   M_REDUCE3(f, M_VAR1ANT_MAP3_ALT_ID, d, __VA_ARGS__)
+#define M_VAR1ANT_MAP3_ALT_ID(a, b)     a b
+
+#define M_VAR1ANT_DEFINE_EMPLACE_FUNC(name, num, a)                      \
+  M_EMPLACE_QUEUE_DEF( (name, M_VAR1ANT_GET_FIELD a), M_C(name,_ct), M_C3(name, _init_emplace_, M_VAR1ANT_GET_FIELD a), M_VAR1ANT_GET_OPLIST a, M_VAR1ANT_DEFINE_INIT_EMPLACE_DEF) \
+  M_EMPLACE_QUEUE_DEF( (name, M_VAR1ANT_GET_FIELD a), M_C(name,_ct), M_C3(name, _emplace_, M_VAR1ANT_GET_FIELD a), M_VAR1ANT_GET_OPLIST a, M_VAR1ANT_DEFINE_EMPLACE_DEF)
+
+#define M_VAR1ANT_DEFINE_INIT_EMPLACE_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
+static inline void                                                      \
+  function_name(name_t my                                                     \
+                M_EMPLACE_LIST_TYPE_VAR(ab, exp_emplace_type) )               \
+  {                                                                           \
+    my->type = M_C4(M_PAIR_1 name, _, M_PAIR_2 name, _value);                 \
+    M_EMPLACE_CALL_FUNC(ab, init_func, oplist, my -> value. M_PAIR_2 name, exp_emplace_type); \
+  }                                                                           \
+
+#define M_VAR1ANT_DEFINE_EMPLACE_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
+  static inline void                                                          \
+  function_name(name_t my                                                     \
+                M_EMPLACE_LIST_TYPE_VAR(ab, exp_emplace_type) )               \
+  {                                                                           \
+    /* No optimization done */                                          \
+    M_C(M_PAIR_1 name, _clear)(my);                                     \
+    my->type = M_C4(M_PAIR_1 name, _, M_PAIR_2 name, _value);                 \
+    M_EMPLACE_CALL_FUNC(ab, init_func, oplist, my -> value. M_PAIR_2 name, exp_emplace_type); \
+  }                                                                           \
 
 /* Define the EQUAL_P function. */
 #define M_VAR1ANT_DEFINE_EQUAL(name, ...)                                     \
