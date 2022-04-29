@@ -962,7 +962,7 @@
          M_CALL_IT_NEXT(cont_oplist, itSrc),                                  \
            M_CALL_IT_NEXT(cont_oplist, itDst) ) {                             \
       type_t *dstItem = M_CALL_IT_REF(cont_oplist, itDst);                    \
-      type_t const *srcItem = M_CALL_IT_REF(cont_oplist, itSrc);              \
+      type_t const *srcItem = M_CALL_IT_CREF(cont_oplist, itSrc);             \
       M_CALL_ADD(type_oplist, *dstItem, *dstItem, *srcItem);                  \
     }                                                                         \
   }                                                                           \
@@ -980,7 +980,7 @@
          M_CALL_IT_NEXT(cont_oplist, itSrc),                                  \
            M_CALL_IT_NEXT(cont_oplist, itDst) ) {                             \
       type_t *dstItem = M_CALL_IT_REF(cont_oplist, itDst);                    \
-      type_t const *srcItem = M_CALL_IT_REF(cont_oplist, itSrc);              \
+      type_t const *srcItem = M_CALL_IT_CREF(cont_oplist, itSrc);             \
       M_CALL_SUB(type_oplist, *dstItem, *dstItem, *srcItem);                  \
     }                                                                         \
   }                                                                           \
@@ -998,7 +998,7 @@
          M_CALL_IT_NEXT(cont_oplist, itSrc),                                  \
            M_CALL_IT_NEXT(cont_oplist, itDst) ) {                             \
       type_t *dstItem = M_CALL_IT_REF(cont_oplist, itDst);                    \
-      type_t const *srcItem = M_CALL_IT_REF(cont_oplist, itSrc);              \
+      type_t const *srcItem = M_CALL_IT_CREF(cont_oplist, itSrc);             \
       M_CALL_MUL(type_oplist, *dstItem, *dstItem, *srcItem);                  \
     }                                                                         \
   }                                                                           \
@@ -1016,7 +1016,7 @@
          M_CALL_IT_NEXT(cont_oplist, itSrc),                                  \
            M_CALL_IT_NEXT(cont_oplist, itDst) ) {                             \
       type_t *dstItem = M_CALL_IT_REF(cont_oplist, itDst);                    \
-      type_t const *srcItem = M_CALL_IT_REF(cont_oplist, itSrc);              \
+      type_t const *srcItem = M_CALL_IT_CREF(cont_oplist, itSrc);             \
       M_CALL_DIV(type_oplist, *dstItem, *dstItem, *srcItem);                  \
     }                                                                         \
   }                                                                           \
