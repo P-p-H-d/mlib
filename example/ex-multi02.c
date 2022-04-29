@@ -8,6 +8,7 @@
 #include "m-string.h"
 #include "m-dict.h"
 #include "m-array.h"
+#include "m-algo.h"
 
 // GMP doesn't provide a fast hash function (It is needed for being able to use mpz_t as key in a hashmap)
 static inline size_t
@@ -38,6 +39,7 @@ mpz_fast_hash(const mpz_t z)
    HASH(mpz_fast_hash),                                                 \
    OUT_STR( API( mpz_out_str, VOID, ARG1, 10, ARG2)),                   \
    IN_STR( API( mpz_inp_str, GT(0), ARG1, ARG2, 10)),                   \
+   ADD(mpz_add), SUB(mpz_sub), MUL(mpz_mul), DIV(mpz_div),              \
    EMPLACE_TYPE( LIST( (_si, mpz_init_set_si, int),                     \
                        (_ui, mpz_init_set_ui, unsigned),                \
                        (_d,  mpz_init_set_d,  double),                  \
@@ -78,6 +80,10 @@ mpfr_fast_hash (const mpfr_t f)
    HASH(mpfr_fast_hash),                                                 \
    OUT_STR( API( mpfr_out_str, VOID, ARG1, 10, 0, ARG2, MPFR_RNDN)),     \
    IN_STR( API( mpfr_inp_str, GT(0), ARG1, ARG2, 10, MPFR_RNDN)),        \
+   ADD( API(mpfr_add, VOID, ARG1, ARG2, ARG3, MPFR_RNDN)),               \
+   SUB( API(mpfr_sub, VOID, ARG1, ARG2, ARG3, MPFR_RNDN)),               \
+   MUL( API(mpfr_mul, VOID, ARG1, ARG2, ARG3, MPFR_RNDN)),               \
+   DIV( API(mpfr_div, VOID, ARG1, ARG2, ARG3, MPFR_RNDN)),               \
    EMPLACE_TYPE( LIST( (_si, API(mpfr_init_set_si, VOID, ARG1, ARG2, MPFR_RNDN), int), \
                        (_ui, API(mpfr_init_set_ui, VOID, ARG1, ARG2, MPFR_RNDN), unsigned), \
                        (_d,  API(mpfr_init_set_d,  VOID, ARG1, ARG2, MPFR_RNDN), double), \
@@ -112,7 +118,9 @@ ARRAY_DEF(my_array, my_dict_t)
 // Show how to define an array of mpz_t & mpfr_t
 // (Not needed for the sequel of this example)
 ARRAY_DEF(array_mpz, mpz_t)
+ALGO_DEF(array_mpz, ARRAY_OPLIST(array_mpz, M_OPL_mpz_t()))
 ARRAY_DEF(array_mpfr, mpfr_t)
+ALGO_DEF(array_mpfr, ARRAY_OPLIST(array_mpfr, M_OPL_mpfr_t()))
 
 int main(void)
 {
