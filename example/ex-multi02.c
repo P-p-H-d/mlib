@@ -93,9 +93,8 @@ mpfr_fast_hash (const mpfr_t f)
    TYPE(mpfr_t) )
 
 
-/* Define a variant over two integers named integer_t
-   Notice than mpz_t has special init & clear functions
-   mpz_init & mpz_clear.
+/* Define a variant over two numbers named number_t
+   Notice than mpz_t/mpfr_t has special init & clear functions.
    This is handle by the library.
 */
 VARIANT_DEF2(my_number,
@@ -105,7 +104,7 @@ VARIANT_DEF2(my_number,
 /* Define the oplist associated to this variant and register it */
 #define M_OPL_my_number_t() VARIANT_OPLIST(my_number, M_BASIC_OPLIST, M_OPL_mpz_t() )
 
-/* Define a dictionary of string --> integer named dict_my_t */
+/* Define a dictionary of string --> number named dict_my_t */
 DICT_DEF2(my_dict, string_t, my_number_t)
 /* Define the oplist associated to this dictionary and register it */
 #define M_OPL_my_dict_t() DICT_OPLIST(my_dict, STRING_OPLIST, M_OPL_my_number_t() )
@@ -115,7 +114,7 @@ ARRAY_DEF(my_array, my_dict_t)
 /* Define the oplist associated to this array of dictionary of variant and register it */
 #define M_OPL_my_array_t() ARRAY_OPLIST(my_array, M_OPL_my_dict_t())
 
-// Show how to define an array of mpz_t & mpfr_t
+// Show how to define an array of mpz_t & mpfr_t and some algorithms on then
 // (Not needed for the sequel of this example)
 ARRAY_DEF(array_mpz, mpz_t)
 ALGO_DEF(array_mpz, ARRAY_OPLIST(array_mpz, M_OPL_mpz_t()))
@@ -124,7 +123,7 @@ ALGO_DEF(array_mpfr, ARRAY_OPLIST(array_mpfr, M_OPL_mpfr_t()))
 
 int main(void)
 {
-  M_LET(z, my_number_t)              /* Define & init & clear an instance of a variant of integer */
+  M_LET(z, my_number_t)              /* Define & init & clear an instance of a variant of number_t */
     M_LET(dict, my_dict_t)            /* Define & init & clear an instance of a dictionary of variant */
     M_LET(array, my_array_t)          /* Define & init & clear an intance of an array of dictionary of variant */
     M_LET(gmp, mpz_t)                 /* M_LET allows even with non container type */
@@ -154,10 +153,10 @@ int main(void)
         
       // Iterate over the array container
       for M_EACH(item, array, my_array_t) {
-          // Iterate over the dictionary container
+          // Iterate over the dictionary '*item' container which is of type my_dict_t
           for M_EACH(p, *item, my_dict_t) {
-              printf("Key is '%s'. ", string_get_cstr(p->key));
               // Dictionary iterator are pair (key,value)
+              printf("Key is '%s'. ", string_get_cstr(p->key));
               if (my_number_n_p(p->value)) {
                 printf ("It is a long long, value = %lld\n",
                         *my_number_cget_n(p->value));
