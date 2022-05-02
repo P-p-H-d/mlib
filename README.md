@@ -5,10 +5,11 @@ Overview
 --------
 
 M\*LIB (M star lib) is a C library enabling to define and use **generic and
-type safe container** in pure C language, aka handling generic
-[containers](https://en.wikipedia.org/wiki/Container_%28abstract_data_type%29) in C.
+type safe container**, aka handling generic
+[containers](https://en.wikipedia.org/wiki/Container_%28abstract_data_type%29) in in pure C language.
 The objects within the containers can be trivial or very complex:
-they can have their own constructor, destructor, operators.
+they can have their own constructor, destructor, operators
+or can be basic C type like the C type 'int'.
 This makes it possible to construct fully
 recursive objects (container-of[...]-container-of-type-T),
 without erasing type information (typically using void pointers or resorting
@@ -84,7 +85,8 @@ but rather read the examples.
 In this documentation, 'shall' will be used to indicate a user constraint that is
 mandatory to follow under penalty of undefined behavior.
 'should' will be used to indicate a recommendation to the user.
-All pointers expect non-null argument except if indicated.
+
+All pointers expected by the functions of the library shall expect non-null argument except if indicated.
 
 
 Components
@@ -151,7 +153,7 @@ or a typedef alias of any C type:
 in fact, the preprocessing concatenation between 'type' and 'variable' into
 'type variable' shall be a valid C expression.
 Therefore the 'type' cannot be a C array or a function pointer
-and you need to use a typedef as an intermediary named type for such types.
+and you should use a typedef as an intermediary named type for such types.
 
 
 Build & Installation
