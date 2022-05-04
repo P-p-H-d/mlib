@@ -3666,7 +3666,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
    in which case concatenation cannot be used.
    NOTE: It doesn't test if M_OPL_##a() is exactly an oplist (M_OPLIST_P)
    but rather than if it starts with parenthesis: this is to allow
-   M_OPL_a() to expand into an invalid oplist ((M_LIB_ERRROR()))
+   M_OPL_a() to expand into an invalid oplist ((M_LIB_ERROR()))
    NOTE: The result of this macro shall be evaluated like this:
        M_GLOBAL_OPLIST_OR_DEF(type)()
 */
@@ -3684,6 +3684,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_OPL_char() M_BASIC_OPLIST
 #define M_OPL_short() M_BASIC_OPLIST
 #define M_OPL_int() M_BASIC_OPLIST
+#define M_OPL_unsigned() M_BASIC_OPLIST
 #define M_OPL_long() M_BASIC_OPLIST
 #define M_OPL_float() M_BASIC_OPLIST
 #define M_OPL_double() M_BASIC_OPLIST
