@@ -826,6 +826,9 @@ static int cmp2(int *a, int *b)
   return *a < *b ? -1 : *a > *b;
 }
 
+#define cmp3(a, b)                              \
+  (a < b ? -1 : a > b)
+
 static void test_generic_api(void)
 {
   assert( M_HEAD(17, 0) == 17);
@@ -837,6 +840,7 @@ static void test_generic_api(void)
 #define GO2 (INIT(API( init3, NONE, ARGPTR2, 0, ARG1 )))
 #define GO3 (EQUAL(API( cmp2, EQ(0), ARGPTR1, ARGPTR2 )))
 #define GO4 (EQUAL(API( cmp1, EQ(0), ARG1, ARG2 )))
+#define GO5 (EQUAL(API( cmp3, EQ(0), ARG1, ARG2 )))
 
   int x = 0, y = 0;
   M_CALL_INIT(GO1, x, y);
@@ -853,6 +857,13 @@ static void test_generic_api(void)
   assert(b);
   x = 77;
   b = M_CALL_EQUAL(GO4, x, y);
+  assert(!b);
+
+  x = y = 78;
+  b = M_CALL_EQUAL(GO5, x, y);
+  assert(b);
+  x = 77;
+  b = M_CALL_EQUAL(GO5, x, y);
   assert(!b);
 }
 
