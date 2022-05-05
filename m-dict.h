@@ -186,7 +186,7 @@
    current array size).
 */
 /* Deferred evaluation for arg */
-#define M_D1CT_DEF2_P1(arg) M_D1CT_DEF2_P2 arg
+#define M_D1CT_DEF2_P1(arg) M_ID( M_D1CT_DEF2_P2 arg )
 
 /* Validate the key oplist before going further */
 #define M_D1CT_DEF2_P2(name, key_type, key_oplist, value_type, value_oplist, dict_t, dict_it_t, it_deref_t) \
@@ -218,7 +218,7 @@
    representing a bucket).
 */
 /* Defered evaluation for arg */
-#define M_D1CT_SHASH_DEF2_P1(arg) M_D1CT_SHASH_DEF2_P2 arg
+#define M_D1CT_SHASH_DEF2_P1(arg) M_ID( M_D1CT_SHASH_DEF2_P2 arg )
 
 /* Validate the key oplist before going further */
 #define M_D1CT_SHASH_DEF2_P2(name, key_type, key_oplist, value_type, value_oplist, dict_t, dict_it_t, it_deref_t) \
@@ -248,7 +248,7 @@
    It is defined as an array of singly linked list (each list
    representing a bucket).
 */
-#define M_D1CT_SET_DEF_P1(arg) M_D1CT_SET_DEF_P2 arg
+#define M_D1CT_SET_DEF_P1(arg) M_ID( M_D1CT_SET_DEF_P2 arg )
 
 /* Validate the key oplist before going further */
 #define M_D1CT_SET_DEF_P2(name, key_type, key_oplist, dict_t, dict_it_t, it_deref_t) \
@@ -1215,7 +1215,7 @@ enum m_d1ct_oa_element_e {
     M_ASSERT( (dict)->upper_limit <= (dict)->mask+1);                         \
   } while (0)
 
-#define M_D1CT_OA_DEF_P1(args) M_D1CT_OA_DEF_P2 args
+#define M_D1CT_OA_DEF_P1(args) M_ID( M_D1CT_OA_DEF_P2 args )
 
 /* Validate the key oplist before going further */
 #define M_D1CT_OA_DEF_P2(name, key_type, key_oplist, value_type, value_oplist, dict_t, dict_it_t, it_deref_t) \
@@ -1234,7 +1234,7 @@ enum m_d1ct_oa_element_e {
                   M_D1CT_OA_LOWER_BOUND, M_D1CT_OA_UPPER_BOUND,               \
                   dict_t, dict_it_t, it_deref_t)
 
-#define M_D1CT_OASET_DEF_P1(args) M_D1CT_OASET_DEF_P2 args
+#define M_D1CT_OASET_DEF_P1(args) M_ID( M_D1CT_OASET_DEF_P2 args )
 
 /* Validate the value oplist before going further */
 #define M_D1CT_OASET_DEF_P2(name, key_type, key_oplist, dict_t, dict_it_t, it_deref_t) \

@@ -102,7 +102,7 @@ M_BEGIN_PROTECTED_CODE
   )
 
 // Deferred evaluatioin
-#define M_ISHAR3D_PTR_DEF_P1(arg) M_ISHAR3D_PTR_DEF_P2 arg
+#define M_ISHAR3D_PTR_DEF_P1(arg) M_ID( M_ISHAR3D_PTR_DEF_P2 arg )
 
 /* Validate the oplist before going further */
 #define M_ISHAR3D_PTR_DEF_P2(name, type, oplist, shared_t)                    \

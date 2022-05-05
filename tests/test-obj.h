@@ -163,11 +163,15 @@ static inline void testobj_str(string_t str, const testobj_t z, bool append)
   else        string_printf (str, "%u", z->ptr[0]);
 }
 
+// Go through a macro that forward to the right function.
+// This enables testing good macro expansion in OPLIST usage
+#define testobj_clear_indirect(op, x) testobj_clear(x)
+
 #define TESTOBJ_OPLIST							\
   (INIT(testobj_init),                                                  \
    INIT_SET(testobj_init_set),                                          \
    SET(testobj_set),                                                    \
-   CLEAR(testobj_clear),                                                \
+   CLEAR(API_1(testobj_clear_indirect)),                                \
    TYPE(testobj_t),                                                     \
    OUT_STR(testobj_out_str),                                            \
    IN_STR(testobj_in_str),                                              \

@@ -149,7 +149,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   } while (0)
 
 // deferred evaluation
-#define M_SHAR3D_PTR_DEF_P1(arg) M_SHAR3D_PTR_DEF_P2 arg
+#define M_SHAR3D_PTR_DEF_P1(arg) M_ID( M_SHAR3D_PTR_DEF_P2 arg )
 
 /* Validate the oplist before going further */
 #define M_SHAR3D_PTR_DEF_P2(name, type, oplist, cpt_oplist, shared_t)         \
@@ -360,7 +360,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   } while (0)
 
 // deferred
-#define M_SHAR3D_RESOURCE_DEF_P1(arg) M_SHAR3D_RESOURCE_DEF_P2 arg
+#define M_SHAR3D_RESOURCE_DEF_P1(arg) M_ID( M_SHAR3D_RESOURCE_DEF_P2 arg )
 
 /* Validate the oplist before going further */
 #define M_SHAR3D_RESOURCE_DEF_P2(name, type, oplist, shared_t, it_t)          \

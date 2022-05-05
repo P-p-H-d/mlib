@@ -103,7 +103,7 @@
 
 /* Deferred evaluation for the definition,
    so that all arguments are evaluated before further expansion */
-#define M_PR1OQUEUE_DEF_P1(arg)    M_PR1OQUEUE_DEF_P2 arg
+#define M_PR1OQUEUE_DEF_P1(arg)    M_ID( M_PR1OQUEUE_DEF_P2 arg )
 
 /* Validate the oplist before going further */
 #define M_PR1OQUEUE_DEF_P2(name, type, oplist, prioqueue_t, it_t)             \

@@ -304,7 +304,7 @@
 
 /* Deferred evaluation for the b+tree definition,
    so that all arguments are evaluated before further expansion */
-#define M_BPTR33_DEF_P1(arg) M_BPTR33_DEF_P2 arg
+#define M_BPTR33_DEF_P1(arg) M_ID( M_BPTR33_DEF_P2 arg )
 
 /* Validate the key oplist before going further */
 #define M_BPTR33_DEF_P2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t) \

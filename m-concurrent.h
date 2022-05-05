@@ -143,7 +143,7 @@
 
 /* Deferred evaluation for the concurrent definition,
    so that all arguments are evaluated before further expansion */
-#define M_C0NCURRENT_DEF_P1(arg) M_C0NCURRENT_DEF_P2 arg
+#define M_C0NCURRENT_DEF_P1(arg) M_ID( M_C0NCURRENT_DEF_P2 arg )
 
 /* Validate the value oplist before going further */
 #define M_C0NCURRENT_DEF_P2(name, type, oplist, concurrent_t)                 \
@@ -740,7 +740,7 @@
 
 /* Deferred evaluation for the RP concurrent definition,
    so that all arguments are evaluated before further expansion */
-#define M_C0NCURRENT_RP_DEF_P1(arg) M_C0NCURRENT_RP_DEF_P2 arg
+#define M_C0NCURRENT_RP_DEF_P1(arg) M_ID( M_C0NCURRENT_RP_DEF_P2 arg )
 
 /* Validate the value oplist before going further */
 #define M_C0NCURRENT_RP_DEF_P2(name, type, oplist, concurrent_t)              \

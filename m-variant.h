@@ -79,7 +79,7 @@
   M_IF_NARGS_EQ1(__VA_ARGS__)( (f, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)()), (f, __VA_ARGS__) )
 
 // Deferred evaluation
-#define M_VAR1ANT_DEF2_P1(...)                  M_VAR1ANT_DEF2_P2 __VA_ARGS__
+#define M_VAR1ANT_DEF2_P1(...)            M_ID( M_VAR1ANT_DEF2_P2 __VA_ARGS__ )
 
 // Test if all third argument of all arguments is an oplist
 #define M_VAR1ANT_IF_ALL_OPLIST(...)                                          \

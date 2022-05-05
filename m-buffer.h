@@ -235,7 +235,7 @@ m_buff3r_number_dec(m_buff3r_number_ct n, unsigned int policy)
 
 /* Deferred evaluation for the definition,
    so that all arguments are evaluated before further expansion */
-#define M_BUFF3R_DEF_P1(arg) M_BUFF3R_DEF_P2 arg
+#define M_BUFF3R_DEF_P1(arg) M_ID( M_BUFF3R_DEF_P2 arg )
 
 /* Validate the value oplist before going further */
 #define M_BUFF3R_DEF_P2(name, type, m_size, policy, oplist, buffer_t)         \
@@ -752,7 +752,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
 
 /* Deferred evaluation for the definition,
    so that all arguments are evaluated before further expansion */
-#define M_QU3UE_MPMC_DEF_P1(arg) M_QU3UE_MPMC_DEF_P2 arg
+#define M_QU3UE_MPMC_DEF_P1(arg) M_ID( M_QU3UE_MPMC_DEF_P2 arg )
 
 /* Validate the value oplist before going further */
 #define M_QU3UE_MPMC_DEF_P2(name, type, policy, oplist, buffer_t)             \
@@ -974,7 +974,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
 
 /* Deferred evaluation for the definition,
    so that all arguments are evaluated before further expansion */
-#define M_QU3UE_SPSC_DEF_P1(arg) M_QU3UE_SPSC_DEF_P2 arg
+#define M_QU3UE_SPSC_DEF_P1(arg) M_ID( M_QU3UE_SPSC_DEF_P2 arg )
 
 /* Validate the value oplist before going further */
 #define M_QU3UE_SPSC_DEF_P2(name, type, policy, oplist, buffer_t)             \

@@ -140,8 +140,8 @@ typedef struct m_il1st_head_s {
     M_ASSERT((node)->prev->next == node);                                     \
   } while (0)
 
-/* Indirection call to allow expanding all arguments (TBC) */
-#define M_IL1ST_DEF_P1(arg) M_IL1ST_DEF_P2 arg
+/* Indirection call to allow expanding all arguments */
+#define M_IL1ST_DEF_P1(arg) M_ID( M_IL1ST_DEF_P2 arg )
 
 /* Validate the oplist before going further */
 #define M_IL1ST_DEF_P2(name, type, oplist, list_t, it_t)                      \

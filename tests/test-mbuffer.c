@@ -53,6 +53,11 @@ QUEUE_SPSC_DEF_AS(BufferDouble3, BufferDouble3, double, BUFFER_QUEUE)
 #define M_OPL_BufferDouble2() BUFFER_OPLIST(BufferDouble2, M_BASIC_OPLIST)
 #define M_OPL_BufferDouble3() BUFFER_OPLIST(BufferDouble3, M_BASIC_OPLIST)
 
+// Define buffer with ENUM oplist (with API_1 usage)
+typedef enum { OK, KO } state_t;
+#define M_OPL_state_t() M_ENUM_OPLIST(state_t, OK)
+BUFFER_DEF(array_state, state_t, M_BUFFER_QUEUE, 0)
+
 buffer_uint_t g_buff;
 buffer_uint_t g_buffB;
 

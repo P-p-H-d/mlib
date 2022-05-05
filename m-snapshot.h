@@ -156,7 +156,7 @@ M_BEGIN_PROTECTED_CODE
 #define M_SNAPSH0T_SPSC_MAX_BUFFER             3
 
 // Defered evaluation of the arguments.
-#define M_SNAPSH0T_SPSC_DEF_P1(arg)        M_SNAPSH0T_SPSC_DEF_P2 arg
+#define M_SNAPSH0T_SPSC_DEF_P1(arg)        M_ID( M_SNAPSH0T_SPSC_DEF_P2 arg )
 
 /* Validate the oplist before going further */
 #define M_SNAPSH0T_SPSC_DEF_P2(name, type, oplist, snapshot_t)                \
@@ -591,7 +591,7 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
 
 
 // Defered evaluation
-#define M_SNAPSH0T_SPMC_DEF_P1(arg)        M_SNAPSH0T_SPMC_DEF_P2 arg
+#define M_SNAPSH0T_SPMC_DEF_P1(arg)        M_ID( M_SNAPSH0T_SPMC_DEF_P2 arg )
 
 /* Validate the oplist before going further */
 #define M_SNAPSH0T_SPMC_DEF_P2(name, type, oplist, snapshot_t)                \
@@ -700,7 +700,7 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
 // MPMC is built upon SPMC
 
 // Defered evaluation
-#define M_SNAPSH0T_MPMC_DEF_P1(arg)        M_SNAPSH0T_MPMC_DEF_P2 arg
+#define M_SNAPSH0T_MPMC_DEF_P1(arg)        M_ID( M_SNAPSH0T_MPMC_DEF_P2 arg )
 
 /* Validate the oplist before going further */
 #define M_SNAPSH0T_MPMC_DEF_P2(name, type, oplist, snapshot_t)                \

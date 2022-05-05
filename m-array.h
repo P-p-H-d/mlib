@@ -144,8 +144,12 @@
   } while (0)
 
 /* Deferred evaluation for the array definition,
-   so that all arguments are evaluated before further expansion */
-#define M_ARRA4_DEF_P1(arg) M_ARRA4_DEF_P2 arg
+   so that all arguments are fully evaluated before further expansion
+   (ensuring good performance)
+   and performed a final step evaluation of the returning expansion
+   (ensuring delayed evaluation are still expanded)
+*/
+#define M_ARRA4_DEF_P1(arg) M_ID( M_ARRA4_DEF_P2 arg )
 
 /* Validate the oplist before going further */
 #define M_ARRA4_DEF_P2(name, type, oplist, array_t, it_t)                     \
