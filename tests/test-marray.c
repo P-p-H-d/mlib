@@ -444,6 +444,77 @@ static void test_double(void)
   array_double_clear(g_array);
 }
 
+// Test support of M*LIB for C++ class
+#if defined(__cplusplus)
+
+/* For this, we need new placement support */
+#include <new>
+
+/* Some Simple Oplist for a C++ class (using new placement feature)
+   Some features may not be always available (like comparison or I/O).
+   It isn't exported, since there is no meaning to support for M*LIB
+   C++ class officialy (use the STL instead!)
+*/
+#define M_CLASS_CPP_INIT(opl,x)        (new (&(x)) (M_GET_NAME opl))
+#define M_CLASS_CPP_INIT_SET(opl,x, y) (new (&(x)) M_GET_NAME opl(y))
+#define M_CLASS_CPP_SET(opl, x, y)     ((x) = (y))
+#define M_CLASS_CPP_CLEAR(opl, x)      ((&(x))->~M_GET_NAME opl())
+#define M_CLASS_CPP_CLEAR2(x)          ((&(x))->~opl())
+#define M_CLASS_CPP_INIT_MOVE(opl,x,y) (new (&(x)) M_GET_NAME opl(std::move(y)), ((&(y))->~M_GET_NAME opl()))
+#define M_CLASS_CPP_CMP(opl, x, y)     ((x) < (y) ? -1 : (y) < (x) ? 1 : 0)
+#define M_CLASS_CPP_HASH(opl, x)       (std::hash(x))
+#define M_CLASS_OPLIST(_class)                  \
+  (NAME(_class),                                \
+   TYPE(_class),                                \
+   INIT(API_1(M_CLASS_CPP_INIT)),               \
+   INIT_SET(API_1(M_CLASS_CPP_INIT_SET)),       \
+   SET(API_1(M_CLASS_CPP_SET)),                 \
+   CLEAR(API_1(M_CLASS_CPP_CLEAR)),             \
+   INIT_MOVE(API_1(M_CLASS_CPP_INIT_MOVE)) )
+
+// Define a basic C++ class
+class Foo {
+  int *x;
+public:
+  Foo() { x = new (int); };
+  Foo(int n) { x = new (int) ; *x = n; }
+  Foo(const Foo &y) {x = new (int) ; *x = *y.x;};
+  ~Foo() { delete x; }
+  void operator=(const Foo &y) { *x = *y.x; };
+  void operator=(int n) { *x = n; }
+  bool operator<(const Foo &y) const { return *x < *y.x; }
+  bool operator==(int n) const { return *x == n; }
+};
+
+// Define a M*LIB array of such class
+ARRAY_DEF_AS(array_foo, array_foo_t, array_foo_it_t, Foo, M_CLASS_OPLIST(Foo))
+#define M_OPL_array_foo_t() ARRAY_OPLIST(array_foo, M_CLASS_OPLIST(Foo))
+
+static void test_cplusplus(void)
+{
+  int n = 100;
+  M_LET(a, array_foo_t) {
+    Foo b;
+    for(int i = 0; i < n; i++) {
+      b = i;
+      array_foo_push_back(a, b);
+    }
+    array_foo_it_t it;
+    int j = 0;
+    for(array_foo_it(it, a); !array_foo_end_p(it); array_foo_next(it)) {
+      assert( *array_foo_cref(it) == j);
+      j++;
+    }
+    assert(j == n);
+  }
+}
+#else
+static void test_cplusplus(void)
+{
+  // Nothing to do
+}
+#endif
+
 int main(void)
 {
   test_uint();
@@ -451,5 +522,6 @@ int main(void)
   test_d();
   test_str();
   test_double();
+  test_cplusplus();
   exit(0);
 }
