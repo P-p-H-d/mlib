@@ -6100,6 +6100,7 @@ NOTE: It should work for a wide range of inputs
 except when it is called with a macro function that takes
 more than one argument and without its arguments
 (in which case it generates a compiler error).
+It also won't work for expression starting with ')'
 
 ##### M\_PARENTHESIS\_P(expression)
 
