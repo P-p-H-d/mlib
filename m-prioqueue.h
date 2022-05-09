@@ -87,17 +87,23 @@
    ,PUSH(M_C(name,_push))                                                     \
    ,POP(M_C(name,_pop))                                                       \
    ,OPLIST(oplist)                                                            \
-   ,EMPTY_P(M_C(name, _empty_p)),                                             \
+   ,EMPTY_P(M_C(name, _empty_p))                                              \
    ,GET_SIZE(M_C(name, _size))                                                \
-   ,IT_TYPE(M_C(name, _it_ct)),                                               \
-   IT_FIRST(M_C(name,_it)),                                                   \
-   IT_END(M_C(name,_it_end)),                                                 \
-   IT_SET(M_C(name,_it_set)),                                                 \
-   IT_END_P(M_C(name,_end_p)),                                                \
-   IT_EQUAL_P(M_C(name,_it_equal_p)),                                         \
-   IT_LAST_P(M_C(name,_last_p)),                                              \
-   IT_NEXT(M_C(name,_next)),                                                  \
-   IT_CREF(M_C(name,_cref)),                                                  \
+   ,IT_TYPE(M_C(name, _it_ct))                                                \
+   ,IT_FIRST(M_C(name,_it))                                                   \
+   ,IT_END(M_C(name,_it_end))                                                 \
+   ,IT_SET(M_C(name,_it_set))                                                 \
+   ,IT_END_P(M_C(name,_end_p))                                                \
+   ,IT_EQUAL_P(M_C(name,_it_equal_p))                                         \
+   ,IT_LAST_P(M_C(name,_last_p))                                              \
+   ,IT_NEXT(M_C(name,_next))                                                  \
+   ,IT_CREF(M_C(name,_cref))                                                  \
+   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),)               \
+   ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),)         \
+   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),)               \
+   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),)                  \
+   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)),)      \
+   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)),)         \
    )
 
 
@@ -429,9 +435,57 @@
      }                                                                        \
    }                                                                          \
    , /* No EQUAL */ )                                                         \
-
+                                                                              \
+  M_IF_METHOD(OUT_STR, oplist)(                                               \
+  static inline void                                                          \
+  M_C(name, _out_str)(FILE *file, const prioqueue_t p)                        \
+  {                                                                           \
+    M_C(name, _array_out_str)(file, p->array);                                \
+  }                                                                           \
+  ,/* No OUT_STR */)                                                          \
+                                                                              \
+  M_IF_METHOD(IN_STR, oplist)(                                                \
+  static inline bool                                                          \
+  M_C(name, _in_str)(prioqueue_t p, FILE *file)                               \
+  {                                                                           \
+    return M_C(name, _array_in_str)(p->array, file);                          \
+  }                                                                           \
+  ,/* No IN_STR */)                                                           \
+                                                                              \
+  M_IF_METHOD(GET_STR, oplist)(                                               \
+  static inline void                                                          \
+  M_C(name, _get_str)(string_t str, const prioqueue_t p, bool append)         \
+  {                                                                           \
+    M_C(name, _array_get_str)(str, p->array, append);                         \
+  }                                                                           \
+  ,/* No GET_STR */)                                                          \
+                                                                              \
+  M_IF_METHOD(PARSE_STR, oplist)(                                             \
+  static inline bool                                                          \
+  M_C(name, _parse_str)(prioqueue_t p, const char str[], const char **endp)   \
+  {                                                                           \
+    return M_C(name, _array_parse_str)(p->array, str, endp);                  \
+  }                                                                           \
+  ,/* No PARSE_STR */)                                                        \
+                                                                              \
+  M_IF_METHOD(OUT_SERIAL, oplist)(                                            \
+  static inline m_serial_return_code_t                                        \
+  M_C(name, _out_serial)(m_serial_write_t f, const prioqueue_t p)             \
+  {                                                                           \
+    return M_C(name, _array_out_serial)(f, p->array);                         \
+  }                                                                           \
+  ,/* No OUT_SERIAL */)                                                       \
+                                                                              \
+  M_IF_METHOD2(IN_SERIAL, INIT, oplist)(                                      \
+  static inline m_serial_return_code_t                                        \
+  M_C(name, _in_serial)(array_t array, m_serial_read_t f)                     \
+  {                                                                           \
+    return M_C(name, _array_in_serial)(p->array, f);                          \
+  }                                                                           \
+  ,/* No in_SERIAL */)
 
 // TODO: set all & remove all function
+
 #if M_USE_SMALL_NAME
 #define PRIOQUEUE_DEF M_PRIOQUEUE_DEF
 #define PRIOQUEUE_DEF_AS M_PRIOQUEUE_DEF_AS
