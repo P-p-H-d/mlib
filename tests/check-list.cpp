@@ -43,7 +43,7 @@ LIST_DEF(list_int, int)
 // Compare the M*LIB container a to the C++ container b
 #define CMP_CONT(a, b) cmp_cont(a, b)
 
-// Compate the M*LIB base object to the C++ base object
+// Compare the M*LIB base object to the C++ base object
 #define CMP_BASE(a, b) assert( (a) == (b) )
 
 void cmp_cont(list_int_t a, std::forward_list<int> b)
