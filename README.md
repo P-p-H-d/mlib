@@ -3637,6 +3637,7 @@ A [priority queue](https://en.wikipedia.org/wiki/Priority_queue) is a queue  whe
 
 
 #### PRIOQUEUE\_DEF(name, type [, oplist])
+#### PRIOQUEUE\_DEF\_AS(name,  name\_t, name\_it\_t, type [, oplist])
 
 Define the priority queue 'name##\_t' and its associated methods
 as "static inline" functions.
@@ -3654,11 +3655,7 @@ otherwise default methods are used. If there is no given oplist, the basic oplis
 or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 
-
-#### PRIOQUEUE\_DEF\_AS(name,  name\_t, name\_it\_t, type [, oplist])
-
-Same as PRIOQUEUE\_DEF except the name of the types name\_t, name\_it\_t
-are provided.
+PRIOQUEUE\_DEF\_AS is the same as PRIOQUEUE\_DEF except the name of the types name\_t, name\_it\_t are provided.
 
 #### PRIOQUEUE\_OPLIST(name, [, oplist])
 
