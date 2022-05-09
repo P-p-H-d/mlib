@@ -63,7 +63,7 @@
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
   (M_ALG0_EXTRACT,                                                            \
    M_IF_NARGS_EQ2(__VA_ARGS__)(M_ALG0_EXTRACT_FUNC, M_ALG0_EXTRACT_ARG))      \
-  (contD, M_GLOBAL_OPLIST(contDop), M_GLOBAL_OPLIST(contS),  __VA_ARGS__)
+  (contD, contDop, contS,  __VA_ARGS__)
 
 /* Perform a Reduce operation over a container.
    USAGE:
@@ -1068,8 +1068,9 @@
   } while (0)
 
 
-#define M_ALG0_EXTRACT(contDst, contDstOplist,                                \
-                      contSrc, contSrcOplist) do {                            \
+#define M_ALG0_EXTRACT(contDst, contDstOplist, contSrc, contSrcOplist)        \
+  M_ALG0_EXTRACT_P1(contDst, M_GLOBAL_OPLIST(contDstOplist), contSrc, M_GLOBAL_OPLIST(contSrcOplist))
+#define M_ALG0_EXTRACT_P1(contDst, contDstOplist, contSrc, contSrcOplist) do{ \
     M_CALL_RESET(contDstOplist, contDst);                                     \
     for M_EACH(_item, contSrc, contSrcOplist) {                               \
         M_IF_METHOD(PUSH, contDstOplist)(                                     \
@@ -1081,8 +1082,9 @@
     M_IF_METHOD(REVERSE, contDstOplist) (M_CALL_REVERSE(contDstOplist, contDst);, ) \
   } while (0)
 
-#define M_ALG0_EXTRACT_FUNC(contDst, contDstOplist,                           \
-                      contSrc, contSrcOplist,                                 \
+#define M_ALG0_EXTRACT_FUNC(contDst, contDstOplist, contSrc, contSrcOplist, condFunc) \
+  M_ALG0_EXTRACT_FUNC_P1(contDst, M_GLOBAL_OPLIST(contDstOplist), contSrc, M_GLOBAL_OPLIST(contSrcOplist), condFunc)
+#define M_ALG0_EXTRACT_FUNC_P1(contDst, contDstOplist, contSrc, contSrcOplist, \
                       condFunc) do {                                          \
     M_CALL_RESET(contDstOplist, contDst);                                     \
     for M_EACH(_item, contSrc, contSrcOplist) {                               \
@@ -1097,8 +1099,11 @@
     M_IF_METHOD(REVERSE, contDstOplist) (M_CALL_REVERSE(contDstOplist, contDst);, ) \
   } while (0)
 
-#define M_ALG0_EXTRACT_ARG(contDst, contDstOplist,                            \
-                          contSrc, contSrcOplist,                             \
+#define M_ALG0_EXTRACT_ARG(contDst, contDstOplist, contSrc, contSrcOplist,    \
+                          condFunc, ...)                                      \
+  M_ALG0_EXTRACT_ARG_P1(contDst, M_GLOBAL_OPLIST(contDstOplist), contSrc, M_GLOBAL_OPLIST(contSrcOplist), \
+                        condFunc, __VA_ARGS__)
+#define M_ALG0_EXTRACT_ARG_P1(contDst, contDstOplist, contSrc, contSrcOplist, \
                           condFunc, ...) do {                                 \
     M_CALL_RESET(contDstOplist, contDst);                                     \
     for M_EACH(_item, contSrc, contSrcOplist) {                               \
