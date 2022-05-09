@@ -478,7 +478,7 @@
                                                                               \
   M_IF_METHOD2(IN_SERIAL, INIT, oplist)(                                      \
   static inline m_serial_return_code_t                                        \
-  M_C(name, _in_serial)(array_t array, m_serial_read_t f)                     \
+  M_C(name, _in_serial)(prioqueue_t p, m_serial_read_t f)                     \
   {                                                                           \
     return M_C(name, _array_in_serial)(p->array, f);                          \
   }                                                                           \
