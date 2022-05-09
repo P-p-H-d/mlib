@@ -120,7 +120,9 @@
 
 
 /* Define the oplist of a B+TREE used as a set of type (from BPTREE_DEF).
-   USAGE: BPTREE_OPLIST(name [, oplist_of_the_type]) */
+   USAGE: BPTREE_OPLIST(name [, oplist_of_the_type])
+   NOTE: IT_REF is not exported so that the container appears as not modifiable
+   by algorithm. */
 #define M_BPTREE_OPLIST(...)                                                  \
   M_BPTR33_KEY_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
                         ((__VA_ARGS__, M_BASIC_OPLIST ),                      \
@@ -129,9 +131,8 @@
 
 /* Define the oplist of a B+TREE used as a map of a key type to a value type (from BPTREE_DEF2).
    USAGE: BPTREE_OPLIST2(name[, key_oplist, value_oplist]) 
-   NOTE: IT_REF is not exported so that the contained appears as not modifiable
-   by algorithm.
-*/
+   NOTE: IT_REF is not exported so that the container appears as not modifiable
+   by algorithm. */
 #define M_BPTREE_OPLIST2(...)                                                 \
   M_BPTR33_OPLIST2_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
                      ((__VA_ARGS__, M_BASIC_OPLIST, M_BASIC_OPLIST ),         \
@@ -173,7 +174,6 @@
    IT_END_P(M_C(name,_end_p)),                                                \
    IT_EQUAL_P(M_C(name,_it_equal_p)),                                         \
    IT_NEXT(M_C(name,_next)),                                                  \
-   IT_REF(M_C(name,_ref)),                                                    \
    IT_CREF(M_C(name,_cref)),                                                  \
    RESET(M_C(name,_reset)),                                                   \
    PUSH(M_C(name,_push)),                                                     \
