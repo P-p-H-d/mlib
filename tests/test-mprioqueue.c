@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include "test-obj.h"
+#include "m-string.h"
 #include "m-prioqueue.h"
 
 #include "coverage.h"
@@ -37,8 +38,14 @@ static inline bool testobj_equal2_p(const testobj_t z1, const testobj_t z2)
 
 PRIOQUEUE_DEF(obj_pqueue, testobj_t, M_OPEXTEND(TESTOBJ_CMP_OPLIST, EQUAL(testobj_equal2_p) ))
 
-PRIOQUEUE_DEF_AS(PrioDouble, PrioDouble, PrioDoubleIt, double)
-#define M_OPL_PrioDouble() PRIOQUEUE_OPLIST(PrioDouble, M_BASIC_OPLIST)
+#define OUT_DOUBLE(f, d)      fprintf(f, "%f", d)
+#define IN_DOUBLE(d, f)       m_core_fscan_double(d, f)
+#define GET_STR_DOUBLE(str, d, append) (append ? string_cat_printf : string_printf)(str, "%f", d)
+#define PARSE_DOUBLE(x, s, e) m_core_parse_double(x, s, e)
+#define double_OPLIST         M_OPEXTEND(M_BASIC_OPLIST,        \
+                                         OUT_STR(OUT_DOUBLE), IN_STR(IN_DOUBLE  M_IPTR), GET_STR(GET_STR_DOUBLE), PARSE_STR(PARSE_DOUBLE M_IPTR))
+PRIOQUEUE_DEF_AS(PrioDouble, PrioDouble, PrioDoubleIt, double, double_OPLIST)
+#define M_OPL_PrioDouble() PRIOQUEUE_OPLIST(PrioDouble, double_OPLIST)
 
 static void test1(void)
 {
@@ -330,6 +337,39 @@ static void test_double(void)
   }
 }
 
+static void test_io(void)
+{
+  PrioDouble q1, q2;
+  string_t str;
+  PrioDouble_init(q1);
+  PrioDouble_init(q2);
+  string_init(str);
+
+  // Test empty
+  FILE *f = fopen("a-mprioqueue.dat", "wt");
+  if (!f) abort();
+  PrioDouble_out_str(f, q1);
+  fclose(f);
+  f = m_core_fopen ("a-mprioqueue.dat", "rt");
+  if (!f) abort();
+  bool b = PrioDouble_in_str (q2, f);
+  assert (b == true);
+  assert (PrioDouble_equal_p (q1, q2));
+  fclose(f);
+
+  PrioDouble_get_str(str, q1, false);
+  assert(string_equal_str_p(str, "[]"));
+  const char *endp;
+  b= PrioDouble_parse_str(q2, string_get_cstr(str), &endp);
+  assert(b);
+  assert(*endp == 0);
+  assert (PrioDouble_equal_p (q1, q2));
+
+  PrioDouble_clear(q1);
+  PrioDouble_clear(q2);
+  string_clear(str);
+}
+
 int main(void)
 {
   test1();
@@ -337,5 +377,6 @@ int main(void)
   test_update();
   test_double();
   test_it();
+  test_io();
   exit(0);
 }
