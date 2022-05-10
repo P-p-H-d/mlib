@@ -656,7 +656,7 @@ static void test_int(void)
   assert(string_equal_str_p(s, "4294967295"));
 
   for(int i = -10000; i <= 10000; i++) {
-    sprintf(buffer, "%d", i);
+    snprintf(buffer, sizeof buffer, "%d", i);
     string_set_si(s, i);
     assert(string_equal_str_p(s, buffer));
   }
