@@ -256,6 +256,10 @@ static void test_update(void)
 
     front = obj_pqueue_front(p);
     assert ( (*front)->a == 5);
+
+    obj_pqueue_emplace_ui(p, 0);
+    front = obj_pqueue_front(p);
+    assert ( (*front)->ptr[0] == 0);
   }
   obj_pqueue_clear(p);
 }
