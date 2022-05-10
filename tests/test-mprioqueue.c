@@ -350,7 +350,7 @@ static void test_io(void)
   string_init(str);
 
   // Test empty
-  FILE *f = fopen("a-mprioqueue.dat", "wt");
+  FILE *f = m_core_fopen("a-mprioqueue.dat", "wt");
   if (!f) abort();
   PrioDouble_out_str(f, q1);
   fclose(f);

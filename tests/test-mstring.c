@@ -648,7 +648,7 @@ static void test_int(void)
   string_init(s);
 
   for(unsigned i = 0; i <= 10000; i++) {
-    sprintf(buffer, "%u", i);
+    snprintf(buffer, sizeof buffer, "%u", i);
     string_set_ui(s, i);
     assert(string_equal_str_p(s, buffer));
   }
@@ -662,7 +662,7 @@ static void test_int(void)
   }
   string_set_si(s, 2147483647);
   assert(string_equal_str_p(s, "2147483647"));
-  string_set_si(s, -2147483648);
+  string_set_si(s, 0-2147483648);
   assert(string_equal_str_p(s, "-2147483648"));
   
   string_clear(s);
