@@ -3793,6 +3793,37 @@ Update the iterator 'it' to the previous element.
 
 Return a constant pointer to the referenced item.
 
+##### void name\_get\_str(string\_t str, const name\_t queue, bool append)
+
+Generate a formatted string representation of the priority queue 'queue' and set 'str' to this representation
+(if 'append' is false) or append 'str' with this representation (if 'append' is true).
+This method is only defined if the type of the element defines a GET\_STR method itself.
+
+##### bool name\_parse\_str(name\_t queue, const char str[], const char **endp)
+
+Parse the formatted string 'str' that is assumed to be a string representation of a priority queue
+and set 'queue' to this representation.
+This method is only defined if the type of the element defines PARSE\_STR & INIT methods itself.
+It returns true if success, false otherwise.
+If endp is not NULL, it sets '*endp' to the pointer of the first character not
+decoded by the function.
+
+##### void name\_out\_str(FILE *file, const name\_t queue)
+
+Generate a formatted string representation of the priority queue 'queue' and outputs it into the FILE 'file'.
+This method is only defined if the type of the element defines a OUT\_STR method itself.
+
+##### bool name\_in\_str(name\_t queue, FILE *file)
+
+Read from the file 'file' a formatted string representation of a priority queue and set 'queue' to this representation.
+It returns true if success, false otherwise.
+This method is only defined if the type of the element defines a IN\_STR & INIT method itself.
+
+##### void name\_emplace[\_suffix](name\_t queue, args...)
+
+Push a new element on the priority queue by initializing it with the provided arguments.
+This method is created if the EMPLACE\_TYPE operator is provided. See emplace chapter.
+
 
 
 ### M-BUFFER
