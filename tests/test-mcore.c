@@ -258,6 +258,7 @@ static void test_map(void)
   assert (M_MAP (f, 1) 0 == 1);
   assert (M_MAP (f, 1, 2) 0 == 5);
   assert (M_MAP (f, 1, 2, 3) 0 == 14);
+  assert (M_MAP (f, M_SEQ(1, 4)) 0 ==  1+4+9+16);
 
   assert (M_MAP2 (f2, 2, 1) 0 == 2);
   assert (M_MAP2 (f2, 3, 1, 2) 0 == 9);
