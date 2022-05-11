@@ -486,9 +486,19 @@ public:
   bool operator==(int n) const { return *x == n; }
 };
 
+// Disable the warning due to using memcpy/memmove with this C++ class
+#if defined(__GNUC__) && __GNUC__ >= 8
+  _Pragma("GCC diagnostic push")
+  _Pragma("GCC diagnostic ignored \"-Wclass-memaccess\"")
+#endif
+
 // Define a M*LIB array of such class
 ARRAY_DEF_AS(array_foo, array_foo_t, array_foo_it_t, Foo, M_CLASS_OPLIST(Foo))
 #define M_OPL_array_foo_t() ARRAY_OPLIST(array_foo, M_CLASS_OPLIST(Foo))
+
+#if defined(__GNUC__) && __GNUC__ >= 8
+  _Pragma("GCC diagnostic pop")
+#endif
 
 static void test_cplusplus(void)
 {
