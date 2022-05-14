@@ -99,7 +99,7 @@ typedef const struct m_string_s *m_string_srcptr;
 
 /* Input option for m_string_fgets 
    M_STRING_READ_LINE  (read line), 
-   M_STRING_READ_PURE_LINE (read line and remove CR and LF)
+   M_STRING_READ_PURE_LINE (read line and remove final CR and/or LF)
    M_STRING_READ_FILE (read all file)
 */
 typedef enum m_string_fgets_e {
@@ -107,7 +107,7 @@ typedef enum m_string_fgets_e {
 } m_string_fgets_t;
 
 /* An unicode value */
-typedef unsigned int m_string_unicode_t;
+typedef uint32_t m_string_unicode_t;
 
 /* Error in case of decoding */
 #define M_STRING_UNICODE_ERROR (UINT_MAX)
@@ -121,10 +121,10 @@ typedef struct m_string_it_s {
 
 /* Internal method to test if the string is stack based or heap based
    We test if the ptr field points to the heap allocated buffer or not.
-   This is no particularly efficient from a memory point of view
+   This is not particularly efficient from a memory point of view
    (as we may reuse the pointer field to store some data)
    but it should be enough for most of "small" strings as most
-   of the strings are less than 14 characters.
+   of the strings are less than 14 characters (64 bits architecture).
    Moreover it generates quite efficient code.
    NOTE: We set the pointer to NULL (instead of storing a pointer to
    the stack buffer for example) for stack based allocation so that
@@ -156,7 +156,7 @@ static inline size_t
 m_string_size(const m_string_t s)
 {
   // Function can be called when contract is not fulfilled
-  // Reading both values before calling the '?' operator allows compiler to generate branchless code
+  // Reading both values before calling the '?' operator enables compiler to generate branchless code
   const size_t s_stack = (size_t) s->u.stack.buffer[sizeof (m_str1ng_heap_ct) - 1];
   const size_t s_heap  = s->u.heap.size;
   return m_str1ng_stack_p(s) ?  s_stack : s_heap;
@@ -167,7 +167,7 @@ static inline size_t
 m_string_capacity(const m_string_t s)
 {
   // Function can be called when contract is not fulfilled
-  // Reading both values before calling the '?' operator allows compiler to generate branchless code
+  // Reading both values before calling the '?' operator enables compiler to generate branchless code
   const size_t c_stack = sizeof (m_str1ng_heap_ct) - 1;
   const size_t c_heap  = s->u.heap.alloc;
   return m_str1ng_stack_p(s) ?  c_stack : c_heap;
@@ -1614,7 +1614,7 @@ m_str1ng_utf8_decode(char c, m_str1ng_utf8_state_e *state,
                     m_string_unicode_t *unicode)
 {
   const unsigned int type = m_core_clz32((unsigned char)~c) - (unsigned) (sizeof(uint32_t) - 1) * CHAR_BIT;
-  const m_string_unicode_t mask1 = (UINT_MAX - (m_string_unicode_t)(*state != M_STR1NG_UTF8_STARTING) + 1);
+  const m_string_unicode_t mask1 = (UINT32_MAX - (m_string_unicode_t)(*state != M_STR1NG_UTF8_STARTING) + 1);
   const m_string_unicode_t mask2 = (0xFFU >> type);
   *unicode = ((*unicode << 6) & mask1) | ((unsigned int) c & mask2);
   *state = (m_str1ng_utf8_state_e) M_STR1NG_UTF8_STATE_TAB[(unsigned int) *state + type];
