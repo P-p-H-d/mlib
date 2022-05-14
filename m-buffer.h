@@ -832,7 +832,11 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
       /* Thread has been preempted by another one. */                         \
       return false;                                                           \
     }                                                                         \
-    /* If it is interrupted here, it may block pop method (not push) */       \
+    /* If it is interrupted here, it may block all pop methods (not push)     \
+       even if there is other threads that have pushed data later in the      \
+       queue as all pop threads will try to enqueue this particular element   \
+       but always fail. The won't try to enqueue other elements.              \
+       As such, this queue is not strictly lock-free.*/                       \
     if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
       M_CALL_SET(oplist, table->Tab[i].x, x);                                 \
     } else {                                                                  \
