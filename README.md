@@ -940,25 +940,35 @@ This header is for creating [singly linked list](https://en.wikipedia.org/wiki/L
 A linked list is a linear collection of elements,
 in which each element points to the next, all representing a sequence.
 
-#### LIST\_DEF(name, type, [, oplist])
-#### LIST\_DEF\_AS(name, name\_t, name\_it\_t, type, [, oplist])
+#### LIST\_DEF(name, type [, oplist])
+#### LIST\_DEF\_AS(name, name\_t, name\_it\_t, type [, oplist])
 
 LIST\_DEF defines the singly linked list named 'name##\_t' that contains objects of type 'type' and the associated methods as "static inline" functions.
-'name' shall be a C identifier that will be used to identify the list. It will be used to create all the types and functions to handle the container.
+'name' shall be a C identifier that will be used to identify the list. It will be used to create all the types (including the iterator) and functions to handle the container.
 This definition shall be done once per name and per compilation unit.
-It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
 A fundamental property of a list is that the objects created within the list
 will remain at their initialized address, and won't moved due to
 operations done on the list (except if it is removed).
+Therefore a returned pointer to an element of the container
+remains valid until this element is destroyed in the container.
 
 The type oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR).
-If there is no given oplist, the basic oplist for basic C types is used
-or a globally registered oplist is used if there is one available.
-The created methods use the operators to init, set and clear the contained object.
+If there is no oplist parameter,
+a globally registered oplist associated to the type is used if possible,
+or the basic oplist for basic C types is used.
+This oplist will be used to handle internally the object type.
 
 For this structure, the back is always the first element,
 and the front is the last element: the list grows from the back.
+Therefore, the iteration of this container using iterators will
+go from the back to the front element (contrary to an array).
+
+Even if it provides random access functions, theses access are slow (linear access)
+and should be avoided: it iterates linearly over all the elements of the container
+until it reaches the requested element. The size method has the same drawback.
+
+The push / pop methods of the container always operate on the back of the container.
 
 Example:
 
@@ -1023,13 +1033,14 @@ Example:
 ```
 
 LIST\_DEF\_AS is the same as LIST\_DEF
-except the name of the types name\_t, name\_it\_t are provided.
+except the name of the types name\_t, name\_it\_t are provided by the user.
 
 #### LIST\_OPLIST(name [, oplist])
 
 Return the oplist of the list defined by calling LIST\_DEF
 & LIST\_DUAL\_PUSH\_DEF with name & oplist. 
 If there is no given oplist, the basic oplist for basic C types is used.
+There is no globally registered oplist support.
 
 #### LIST\_INIT\_VALUE()
 
@@ -1037,7 +1048,7 @@ Define an initial value that is suitable to initialize global variable(s)
 of type 'list' as created by LIST\_DEF or LIST\_DEF\_AS.
 It enables to create a list as a global variable and to initialize it.
 
-The list should still be cleared manually to avoid leaking memory.
+The list shall still be cleared manually to avoid leaking memory.
 
 Example:
 
@@ -1054,11 +1065,13 @@ The following types are automatically defined by the previous definition macro:
 
 #### name\_t
 
-Type of the list of 'type'.
+Type of the list of 'type':
+either the concatenation of 'name' and '\_t' or the name provided by the user.
 
 #### name\_it\_t
 
-Type of an iterator over this list.
+Type of an iterator over this list:
+either the concatenation of 'name' and '\_it\_t' or the name provided by the user.
 
 The following methods are automatically created by the previous definition macro:
 
@@ -1222,21 +1235,28 @@ After wise, 'it' points to the next element of the list.
 
 ##### void name\_splice\_back(name\_t list1, name\_t list2, name\_it\_t it)
 
-Move the element pointed by 'it' (which is an iterator of 'list2') from the list 'list2' to the back position of 'list1'.
-After wise, 'it' points to the next element of 'list2'.
+Move the element referenced by the iterator 'it'
+from the list 'list2' to the back position of the list 'list1'.
+'it' shall be an iterator of 'list2'.
+Afterwards, 'it' references the next element of the list if it exists,
+or not a valid element otherwise.
 
 ##### void name\_splice\_at(name\_t list1, name\_it\_t it1, name\_t list2, name\_it\_t it2)
 
-Move the element pointed by 'it2' (which is an iterator of 'list2') from the list 'list2' to the position just after 'it1' in the list 'list1'.
-After wise, 'it2' points to the next element of 'list2'
-and 'it1' points to the inserted element in 'list1'.
-If 'it1' is the end position, it inserts it at the back (just like \_insert\_at).
+Move the element referenced by the iterator 'it2' from the list 'list2'
+to the position just after 'it1' in the list 'list1'.
+(If 'it1' is not a valid position, it inserts it at the back just like name\_insert).
+'it1' shall be an iterator of 'list1'.
+'it2' shall be an iterator of 'list2'.
+Afterwards, 'it2' references the next element of the list if it exists,
+or not a valid element otherwise,
+and 'it1' references the inserted element in 'list1'.
 
 ##### void name\_splice(name\_t list1, name\_t list2)
 
-Move all the element of 'list2' into 'list1", moving the last element
-of 'list2' after the first element of 'list1'.
-After-wise, 'list2' remains initialized but is emptied.
+Move all the element of the list 'list2' into the list 'list1",
+moving the last element of 'list2' after the first element of 'list1'.
+Afterwards, 'list2' remains initialized but is emptied.
 
 ##### void name\_reverse(name\_t list)
 
@@ -1283,33 +1303,25 @@ This method is only defined if the type of the element defines a HASH method its
 
 
 #### LIST\_DUAL\_PUSH\_DEF(name, type[, oplist])
-#### LIST\_DUAL\_PUSH\_DEF\_AS(name, name\_t, name\_it\_t, type, [, oplist])
+#### LIST\_DUAL\_PUSH\_DEF\_AS(name, name\_t, name\_it\_t, type [, oplist])
 
-LIST\_DUAL\_PUSH\_DEF defines the singly linked list named 'name##\_t' that contains the objects 
-of type 'type' and the associated methods as "static inline" functions.
-'name' shall be a C identifier that will be used to identify the list. 
-It will be used to create all the types and functions to handle the container.
-It shall be done once per type and per compilation unit.
-It also define the iterator name##\_it\_t and its associated methods as "static inline" functions too.
+LIST\_DUAL\_PUSH\_DEF defines the singly linked list named 'name_t'
+that contains the objects of type 'type' and the associated methods as "static inline" functions.
 
 The only difference with the list defined by LIST\_DEF is
 the support of the method PUSH\_FRONT in addition to PUSH\_BACK 
 (therefore the DUAL PUSH name).
-There is still only POP method (POP\_BACK). The head of the list is a bit
-bigger to be able to handle such methods to work.
-This enables this list to be able to represent both stack (PUSH\_BACK + POP\_BACK)
-and queue (PUSH\_FRONT + POP\_BACK).
+However, there is still only POP method (POP\_BACK).
+The head of the list is a bit bigger to be able to handle such method to work.
 
-A fundamental property of a list is that the objects created within the list
-will remain at their initialized address, and won't moved due to
-operations on the list.
+This list is therefore able to represent
+either a stack (PUSH\_BACK + POP\_BACK)
+or a queue (PUSH\_FRONT + POP\_BACK).
 
-The object oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR).
-If there is no given oplist, the basic oplist for basic C types is used
-or a globally registered oplist is used.
-The created methods will use the operators to init, set and clear the contained object.
+LIST\_DUAL\_PUSH\_DEF\_AS is the same as LIST\_DUAL\_PUSH\_DEF
+except the name of the types name\_t, name\_it\_t are provided by the user.
 
-For this structure, the back is always the first element, and the front is the last element.
+See LIST\_DEF for more details and constraints.
 
 Example:
 
@@ -1340,25 +1352,8 @@ Example:
 	  list_mpz_clear(a);
 	}
 ```
-
-If the given oplist contain the method MEMPOOL, then macro will create a dedicated mempool
-that is named with the given value of the method MEMPOOL, optimized for this kind of list:
-
-* it creates a mempool named by the concatenation of "name" and "\_mempool",
-* it creates a variable named by the value of the method MEMPOOL with linkage defined
-by the value of the method MEMPOOL\_LINKAGE (can be extern, static or none),
-this variable will be shared by all lists of the same type.
-* it overwrites memory allocation of the created list to use this mempool with this variable.
-
-mempool creates heavily efficient list but it will be only worth the effort in some
-heavy performance context. The created mempool has to be initialized before using any
-methods of the created list by calling  mempool\_list\_name\_init(variable)
-and cleared by calling mempool\_list\_name\_clear(variable).
-
 The methods follow closely the methods defined by LIST\_DEF.
 
-LIST\_DUAL\_PUSH\_DEF\_AS is the same as LIST\_DUAL\_PUSH\_DEF
-except the name of the types name\_t, name\_it\_t are provided.
 
 
 #### LIST\_DUAL\_PUSH\_INIT\_VALUE()
@@ -1384,11 +1379,13 @@ The following types are automatically defined by the previous macro:
 
 #### name\_t
 
-Type of the list of 'type'.
+Type of the list of 'type':
+either the concatenation of 'name' and '\_t' or the name provided by the user.
 
 #### name\_it\_t
 
-Type of an iterator over this list.
+Type of an iterator over this list:
+either the concatenation of 'name' and '\_it\_t' or the name provided by the user.
 
 The following methods are automatically and properly created by the previous macro.
 
@@ -1635,21 +1632,26 @@ This method is only defined if the type of the element defines a HASH method its
 An [array](https://en.wikipedia.org/wiki/Array_data_structure) is a growable collection of element that are individually indexable.
 
 #### ARRAY\_DEF(name, type [, oplist])
-#### ARRAY\_DEF\_AS(name, name\_t, name\_it\_t, type, [, oplist])
+#### ARRAY\_DEF\_AS(name, name\_t, name\_it\_t, type [, oplist])
 
-ARRAY\_DEF defines the array 'name##\_t' that contains the objects of type 'type'
+ARRAY\_DEF defines the array 'name\_t' that contains the objects of type 'type'
 and its associated methods as "static inline" functions.
 Compared to C arrays, the created methods handle automatically the size (aka growable array).
 'name' shall be a C identifier that will be used to identify the container.
 
-It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
+It also define the iterator 'name\_it\_t' and its associated methods as "static inline" functions.
 
-The object oplist is expected to have at least the following operators (CLEAR),
-and usually (INIT, INIT\_SET, SET and CLEAR)
-otherwise default methods are used.
+The object oplist is expected to have at least the following operators (CLEAR).
+It should also provide the following operators (INIT, INIT\_SET, SET and CLEAR).
+Otherwise default methods are used.
 If there is no given oplist, the basic oplist for basic C types is used
 or a globally registered oplist is used.
 The created methods will use the operators to init-and-set, set and clear the contained object.
+
+The push / pop methods of the container always operate on the back of the container,
+acting like a stack-like container.
+
+The key type used to index the array (key\_type\_t) is size\_t.
 
 Example:
 
@@ -1682,7 +1684,7 @@ Example:
 ```
 
 ARRAY\_DEF\_AS is the same as ARRAY\_DEF except the name of the types name\_t, name\_it\_t
-are provided.
+are provided by the user.
 
 #### ARRAY\_OPLIST(name [, oplist])
 
@@ -1713,11 +1715,13 @@ The following types are automatically defined by the previous macro:
 
 #### name\_t
 
-Type of the array of 'type'.
+Type of the array of 'type':
+either the concatenation of 'name' and '\_t' or the name provided by the user.
 
 #### name\_it\_t
 
-Type of an iterator over this array.
+Type of an iterator over this array:
+either the concatenation of 'name' and '\_it\_t' or the name provided by the user.
 
 The following methods are automatically and properly created by the previous macros:
 
@@ -1784,9 +1788,12 @@ This method is created if the INIT\_SET or INIT\_MOVE operator is provided.
 
 ##### void name\_push\_at(name\_t array, size\_t key, const type x)
 
-Push a new element into the position 'key' of the array 'array' with the value 'value' contained within.
+Push a new element into the position 'key' of the array 'array' 
+with the value 'value'.
+All elements after the position 'key' (included) will be moved in the array towards the back,
+and the array will have one more element.
 'key' shall be a valid position of the array: from 0 to the size of array (included).
-This method is created if the INIT\_SET operator is provided.
+This method is created only if the INIT\_SET operator is provided.
 
 ##### void name\_emplace\_back[\_suffix](name\_t array, args...)
 
@@ -1809,15 +1816,15 @@ This method is created if the INIT\_SET or INIT\_MOVE operator is provided.
 ##### void name\_pop\_until(name\_t array, array\_it\_t position)
 
 Pop all elements of the array 'array' from 'position' to the back of the array,
-clearing them.
-This method is only defined if the type of the element defines an INIT method.
+while clearing them.
+This method is created only if the INIT operator is provided.
 
 ##### void name\_pop\_at(type *dest, name\_t array, size\_t key)
 
 Set *dest to the value the element 'key' if dest is not NULL,
-then remove the element 'key' from the array.
+then remove the element 'key' from the array (decreasing the array size).
 'key' shall be within the size of the array.
-This method is created if the SET or INIT\_MOVE operator is provided.
+This method is created only if the SET or INIT\_MOVE operator is provided.
 
 ##### type *name\_front(const name\_t array)
 
@@ -2022,8 +2029,8 @@ This header is for creating [double-ended queue](https://en.wikipedia.org/wiki/D
 A deque is an abstract data type that generalizes a queue, 
 for that elements can be added to or removed from either the front (head) or back (tail)
 
-#### DEQUE\_DEF(name, type, [, oplist])
-#### DEQUE\_DEF\_AS(name, name\_t, name\_it\_t, type, [, oplist])
+#### DEQUE\_DEF(name, type [, oplist])
+#### DEQUE\_DEF\_AS(name, name\_t, name\_it\_t, type [, oplist])
 
 DEQUE\_DEF defines the deque 'name##\_t' that contains the objects of type 'type' and its associated methods as "static inline" functions.
 'name' shall be a C identifier that will be used to identify the deque. It will be used to create all the types and functions to handle the container.
@@ -2034,6 +2041,8 @@ The object oplist is expected to have at least the following operators (INIT, IN
 otherwise default methods are used. If there is no given oplist, the basic oplist for basic C types is used
 or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
+
+The algorithm complexity to access random elements is in O(ln(n))
 
 Example:
 
