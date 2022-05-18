@@ -934,6 +934,383 @@ API Documentation
 The M*LIB reference card is available [here](http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Container.html).
 
 
+### Generic methods
+
+The generated containers tries to generate and provide a consistent interface:
+their methods would behave the same for all generated containers.
+This chapter will explain the generic interface.
+In case of difference, it will be explained in the specific container.
+
+In the following descrition:
+
+* name is the prefix used for the container generation,
+* name\_t refers to the type of the container,
+* name\_it\_t refers to the iterator type of the container,
+* type\_t refers to the type of the object stored in the container,
+* key\_type\_t refers to the type of the key object used to associate an element to,
+* value\_type\_t refers to the type of the value object used to associate an element to.
+* name\_itref\_t refers to a pair of key and value for associative arrays.
+
+An object shall be initialized (aka constructor) before being use by other methods.
+It shall be cleared (aka destructor) after being use and before program terminaison.
+An iterator has not destructor but shall be set before being used.
+
+This generic interface is specified as follow:
+
+##### void name\_init(name\_t container)
+
+Initialize the container 'container' (aka constructor) to an empty container.
+Also called the default constructor of the container.
+
+##### void name\_init\_set(name\_t container, const name\_t ref)
+
+Initialize the container 'container' (aka constructor) and set it to a copy of 'ref'.
+This method is only created only if the INIT\_SET & SET methods are provided.
+Also called the copy constructor of the container.
+
+##### void name\_set(name\_t container, const name\_t ref)
+
+Set the container 'container' to the a copy of 'ref'.
+This method is only created only if the INIT\_SET & SET methods are provided.
+
+##### void name\_init\_move(name\_t container, name\_t ref)
+
+Initialize the container 'container' (aka constructor)
+by stealing as many resources from 'ref' as possible.
+After-wise 'ref' is cleared and can no longer be used (aka destructor).
+
+##### void name\_move(name\_t container, name\_t ref)
+
+Set the container 'container' (aka constructor)
+by stealing as many resources from 'ref' as possible.
+After-wise 'ref' is cleared and can no longer be used (aka destructor).
+
+##### void name\_clear(name\_t container)
+
+Clear the container 'container (aka destructor),
+calling the CLEAR method of all the objects of the container and freeing memory.
+The object can't be used anymore, except to be reinitialized with a constructor.
+
+##### void name\_reset(name\_t container)
+
+Reset the container clearing and freeing all objects stored in it.
+The container becomes empty but remains initialized.
+
+##### type\_t *name\_back(const name\_t container)
+
+Return a pointer to the data stored in the back of the container.
+This pointer should not be stored in a global variable.
+
+##### type\_t *name\_front(const name\_t container)
+
+Return a pointer to the data stored in the front of the container.
+This pointer should not be stored in a global variable.
+
+##### void name\_push(name\_t container, const type\_t value)
+##### void name\_push\_back(name\_t container, const type\_t value)
+##### void name\_push\_front(name\_t container, const type\_t value)
+
+Push a new element in the container 'container'
+as a copy of the object 'value'.
+This method is created only if the INIT\_SET operator is provided.
+
+The \_back suffixed method will push it in the back of the container.
+The \_front suffixed method will push it in the front of the container.
+
+##### type\_t *name\_push\_raw(name\_t container)
+##### type\_t *name\_push\_back\_raw(name\_t container)
+##### type\_t *name\_push\_front\_raw(name\_t container)
+
+Push a new element in the container 'container'
+without initializing it and returns a pointer to the **non-initialized** data.
+The first thing to do after calling this function shall be to initialize the data
+using the proper constructor of the object of type 'type\_t'.
+This enables using more specialized constructor than the generic copy one.
+The user should use other \_push function if possible rather than this one
+as it is low level and error prone.
+This pointer should not be stored in a global variable.
+
+The \_back suffixed method will push it in the back of the container.
+The \_front suffixed method will push it in the front of the container.
+
+##### type\_t *name\_push\_new(name\_t container)
+##### type\_t *name\_push\_back\_new(name\_t container)
+##### type\_t *name\_push\_front\_new(name\_t container)
+
+Push a new element in the container 'container'
+and initialize it with the default constructor associated to the type 'type\_t'.
+Return a pointer to the initialized object.
+This pointer should not be stored in a global variable.
+This method is only created only if the INIT method is provided.
+
+The \_back suffixed method will push it in the back of the container.
+The \_front suffixed method will push it in the front of the container.
+
+##### void name\_push\_move(name\_t container, type\_t *value)
+##### void name\_push\_back\_move(name\_t container, type\_t *value)
+##### void name\_push\_front\_move(name\_t container, type\_t *value)
+
+Push a new element in the container 'container' 
+as a move from the object '\*value':
+it will therefore steal as much resources from '\*value' as possible. 
+Afterward '\*value' is cleared and cannot longer be used (aka. destructor).
+
+The \_back suffixed method will push it in the back of the container.
+The \_front suffixed method will push it in the front of the container.
+
+##### void name\_emplace\[suffix\](name\_t container, args...)
+##### void name\_emplace\_back\[suffix\](name\_t container, args...)
+##### void name\_emplace\_front\[suffix\](name\_t container, args...)
+
+Push a new element in the container 'container'
+by initializing it with the provided arguments.
+The provided arguments shall therefore match one of the constructor provided
+by the EMPLACE\_TYPE operator.
+There is one generated method per suffix defined in the EMPLACE\_TYPE operator,
+and the 'suffix' in the generated method name corresponds to the suffix defined in
+in the EMPLACE\_TYPE operator (it can be empty).
+This method is created only if the EMPLACE\_TYPE operator is provided.
+See emplace chapter for more details.
+
+The \_back suffixed method will push it in the back of the container.
+The \_front suffixed method will push it in the front of the container.
+
+##### void name\_pop(type\_t *data, name\_t container)
+##### void name\_pop\_back(type\_t *data, name\_t container)
+##### void name\_pop\_front(type\_t *data, name\_t container)
+
+Pop a element from the the container 'container';
+and set '*data' to this value if data is not the NULL pointer,
+otherwise it only pops the data.
+This method is created if the SET or INIT\_MOVE operator is provided.
+
+The \_back suffixed method will pop it from the back of the container.
+The \_front suffixed method will pop it from the front of the container.
+
+##### void name\_pop\_move(type\_t *data, name\_t container)
+##### void name\_pop\_move\_back(type\_t *data, name\_t container)
+##### void name\_pop\_move\_front(type\_t *data, name\_t container)
+
+Pop a element from the container 'container'
+and initialize and set '*data' to this value (aka. constructor)
+by stealing as much resources from the container as possible.
+data shall not be a NULL pointer.
+
+The \_back suffixed method will pop it from the back of the container.
+The \_front suffixed method will pop it from the front of the container.
+
+##### bool name\_empty\_p(const name\_t container)
+
+Return true if the container is empty, false otherwise.
+
+##### void name\_swap(name\_t container1, name\_t container2)
+
+Swap the container 'container1' and 'container2'.
+
+##### void name\_set\_at(name\_t container, size_t key, type\_t value)
+##### void name\_set\_at(name\_t container, key\_type\_t key, value\_type\_t value) [for associative array]
+
+Set the element associated to 'key' of the container 'container' to 'value'.
+
+If the container is sequence-like (like array), the key is an integer.
+The selected element is the 'key'-th element of the container,
+The index 'key' shall be within the size of the container.
+This method is created if the INIT\_SET operator is provided.
+
+If the container is associative-array like,
+the selected element is the 'value' object associated to the 'key' object in the container.
+It is created if it doesn't exist, overwritten otherwise.
+
+##### type\_t *name\_get(const name\_t container, size\_t key) [for sequence-like]
+##### const type\_t *name\_cget(const name\_t container, size_t key) [for sequence-like]
+##### type\_t *name\_get(const name\_t container, const type\_t key) [for set-like]
+##### const type\_t *name\_cget(const name\_t container, const type\_t key) [for set-like]
+##### value\_type\_t *name\_get(const name\_t container, const key\_type\_t key) [for associative array]
+##### const value\_type\_t *name\_cget(const name\_t container, const key\_type\_t key) [for associative array]
+
+Return a modifiable (resp. constant) pointer to 
+the element associated to 'key' in the container.
+
+If the container is sequence-like, the key is an integer.
+The selected element is the 'key'-th element of the container,
+the front being at the index 0, the last at the index (size-1).
+The index 'key' shall be within the size of the container.
+Therefore it will never return NULL in this case.
+
+If the container is associative array like,
+the selected element is the 'value' object associated to the 'key' object in the container.
+If the key is not found, it returns NULL.
+
+If the container is set-like,
+the selected element is the 'value' object which is equal to the 'key' object in the container.
+If the key is not found, it returns NULL.
+
+This pointer remains valid until the container is modified by another method.
+This pointer should not be stored in a global variable.
+
+##### type\_t *name\_safe\_get(name\_t container, size\_t key) [for sequence]
+##### type\_t *name\_safe\_get(name\_t container, const type\_t key) [for set]
+##### value\_type\_t *name\_safe\_get(name\_t container, const key\_type\_t key) [for associative array]
+
+Return a modifiable pointer to 
+the element associated to 'key' in the container,
+creating a new element if it doesn't exist (ensuring therefore a safet 'get' operation).
+
+If the container is sequence-like, key\_type\_t is an alias for size\_t and key an integer,
+the selected element is the 'key'-th element of the container.
+If the element doesn't exist, the container size will be increased 
+if needed (creating new elements with the INIT operator),
+which might increase the container to much in some cases.
+
+The returned pointer cannot be NULL.
+This method is only created only if the INIT method is provided.
+This pointer remains valid until the array is modified by another method.
+This pointer should not be stored in a global variable.
+
+##### void name\_erase(name\_t container, const size\_t key)
+##### void name\_erase(name\_t container, const type\_t key) [for set]
+##### void name\_erase(name\_t container, const key\_type\_t key) [for associative array]
+
+Remove the element referenced by the key 'key' in the container 'container'.
+Do nothing if 'key' is no present in the container.
+
+##### size\_t name\_size(const name\_t container)
+
+Return the number elements of the container (its size).
+Return 0 if there no element.
+
+##### size\_t name\_capacity(const name\_t container)
+
+Return the capacity of the container, i.e. the maximum number of elements
+supported by the container before a reserve operation is needed to accomodate
+new elements.
+
+##### void name\_resize(name\_t container, size\_t size)
+
+Resize the container 'container' to the size 'size',
+increasing or decreasing the size of the container
+by initializing new elements or clearing existing ones.
+This method is only created only if the INIT method is provided.
+
+##### void name\_reserve(name\_t container, size\_t capacity)
+
+Extend or reduce the capacity of the 'container' to a rounded value based on 'capacity'.
+If the given capacity is below the current size of the container, 
+the capacity is set to a rounded value based on the size of the container.
+Therefore a capacity of 0 can be used to perform a shrink-to-fit operation on the container,
+i.e. reducing the container allocation to the maximum.
+
+##### void name\_it(name\_it\_t it, const name\_t container)
+
+Set the iterator 'it' to the first element of the container 'container'.
+There is no destructor associated to this initialization.
+
+##### void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
+
+Set the iterator 'it' to the iterator 'ref'.
+There is no destructor associated to this initialization.
+
+##### void name\_it\_end(name\_it\_t it, const name\_t container)
+
+Set the iterator 'it' to a non valid element of the container.
+There is no destructor associated to this initialization.
+
+##### bool name\_end\_p(const name\_it\_t it)
+
+Return true if the iterator doesn't reference a valid element anymore.
+
+##### bool name\_last\_p(const name\_it\_t it)
+
+Return true if the iterator references the last element of the container
+or if the iterator doesn't reference a valid element anymore.
+
+##### bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
+
+Return true if the iterator 'it1' references the same element than the iterator 'it2'.
+
+##### void name\_next(name\_it\_t it)
+
+Move the iterator to the next element of the container.
+
+##### void name\_previous(name\_it\_t it)
+
+Move the iterator 'it' to the previous element of the container.
+
+##### type\_t *name\_ref(name\_it\_t it)
+##### const type\_t *name\_cref(const name\_it\_t it)
+##### name\_itref\_t *name\_ref(name\_it\_t it)  [for associative array]
+##### const name\_itref\_t *name\_cref(name\_it\_t it)  [for associative array]
+
+Return a modifiable (resp. constant) pointer to the element pointed by the iterator.
+For associative-array like container, this element is the pair composed of
+the key ('key' field) and the associated value ('value' field);
+otherwise this element is simply the basic type of the container (type\_t).
+
+This pointer should not be stored in a global variable.
+This pointer remains valid until the container is modified by another method.
+
+##### void name\_insert(name\_t container, const name\_it\_t it, const type\_t x)
+
+Insert the object 'x' after the position referenced by the iterator 'it' in the container 'container'
+or if the iterator 'it' doesn't reference anymore to a valid element of the container,
+it is added as the first element of the container.
+'it' shall be an iterator of the container 'container'.
+
+##### void name\_remove(name\_t container, name\_it\_t it)
+
+Remove the element referenced by the iterator 'it' from the container 'container'.
+'it' shall be an iterator of the container 'container'.
+Afterwards, 'it' references the next element of the container if it exists,
+or not a valid element otherwise.
+
+##### bool name\_equal\_p(const name\_t container1, const name\_t container2)
+
+Return true if both containers 'container1' and 'container2' are considered equal.
+This method is only created only if the EQUAL method is provided.
+
+##### size\_t name\_hash(const name\_t container)
+
+Return a fast hash value of the container 'container',
+suitable to be used by a dictionnary.
+This method is only created only if the HASH method is provided.
+
+##### void name\_get\_str(string\_t str, const name\_t container, bool append)
+
+Set 'str' to the formatted string representation of the container 'container' if 'append' is false
+or append 'str' with this representation if 'append' is true.
+This method is only created only if the GET\_STR method is provided.
+
+##### bool name\_parse\_str(name\_t container, const char str[], const char **endp)
+
+Parse the formatted string 'str',
+that is assumed to be a string representation of a container,
+and set 'container' to this representation.
+It returns true if success, false otherwise.
+If endp is not NULL, it sets '*endp' to the pointer of the first character not
+decoded by the function (or where the parsing fails).
+This method is only created only if the GET\_STR & INIT methods are provided.
+
+It is ensured that the container gets from parsing a formatted string representation
+gets from name\_get\_str and the original container are equal.
+
+##### void name\_out\_str(FILE *file, const name\_t container)
+
+Generate a formatted string representation of the container 'container'
+and outputs it into the file 'file'.
+The file 'file' shall be opened in write text mode and without error.
+This method is only created only if the OUT\_STR methods is provided.
+
+##### bool name\_in\_str(name\_t container, FILE *file)
+
+Read from the file 'file' a formatted string representation of a container
+and set 'container' to this representation.
+It returns true if success, false otherwise.
+This method is only created only if the IN\_STR & INIT methods are provided.
+
+It is ensured that the container gets from parsing a formatted string representation
+gets from name\_out\_str and the original container are equal.
+
+
 ### M-LIST
 
 This header is for creating [singly linked list](https://en.wikipedia.org/wiki/Linked_list).
@@ -1074,165 +1451,47 @@ either the concatenation of 'name' and '\_t' or the name provided by the user.
 Type of an iterator over this list:
 either the concatenation of 'name' and '\_it\_t' or the name provided by the user.
 
-The following methods are automatically created by the previous definition macro:
+The following methods of the generic interface are defined (See generic interface for details):
 
-##### void name\_init(name\_t list)
+* void name\_init(name\_t list)
+* void name\_init\_set(name\_t list, const name\_t ref)
+* void name\_set(name\_t list, const name\_t ref)
+* void name\_init\_move(name\_t list, name\_t ref)
+* void name\_move(name\_t list, name\_t ref)
+* void name\_clear(name\_t list)
+* void name\_reset(name\_t list)
+* type *name\_back(const name\_t list)
+* void name\_push\_back(name\_t list, const type value)
+* type *name\_push\_raw(name\_t list)
+* type *name\_push\_new(name\_t list)
+* void name\_push\_move(name\_t list, type *value)
+* void name\_emplace\_back\[suffix\](name\_t list, args...)
+* void name\_pop\_back(type *data, name\_t list)
+* void name\_pop\_move(type *data, name\_t list)
+* bool name\_empty\_p(const name\_t list)
+* void name\_swap(name\_t list1, name\_t list2)
+* void name\_it(name\_it\_t it, const name\_t list)
+* void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
+* void name\_it\_end(name\_it\_t it, const name\_t list)
+* bool name\_end\_p(const name\_it\_t it)
+* bool name\_last\_p(const name\_it\_t it)
+* bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
+* void name\_next(name\_it\_t it)
+* type *name\_ref(name\_it\_t it)
+* const type *name\_cref(const name\_it\_t it)
+* type *name\_get(const name\_t list, size\_t i)
+* const type *name\_cget(const name\_t list, size\_t i)
+* size\_t name\_size(const name\_t list)
+* void name\_insert(name\_t list, const name\_it\_t it, const type x)
+* void name\_remove(name\_t list, name\_it\_t it)
+* void name\_get\_str(string\_t str, const name\_t list, bool append)
+* bool name\_parse\_str(name\_t list, const char str[], const char **endp)
+* void name\_out\_str(FILE *file, const name\_t list)
+* bool name\_in\_str(name\_t list, FILE *file)
+* bool name\_equal\_p(const name\_t list1, const name\_t list2)
+* size\_t name\_hash(const name\_t list)
 
-Initialize the list 'list' (aka constructor) to an empty list.
-
-##### void name\_init\_set(name\_t list, const name\_t ref)
-
-Initialize the list 'list' (aka constructor) and set it to a copy of 'ref'.
-
-##### void name\_set(name\_t list, const name\_t ref)
-
-Set the list 'list' to the a copy of 'ref'.
-
-##### void name\_init\_move(name\_t list, name\_t ref)
-
-Initialize the list 'list' (aka constructor) by stealing as many resources
-from 'ref' as possible.
-After-wise 'ref' is cleared and can no longer be used.
-
-##### void name\_move(name\_t list, name\_t ref)
-
-Set the list 'list' (aka constructor) by stealing as many resources from 'ref' as possible.
-After-wise 'ref' is cleared and can no longer be used.
-
-##### void name\_clear(name\_t list)
-
-Clear the list 'list (aka destructor), calling the CLEAR method of all the
-objects of the list and freeing memory.
-The list can't be used anymore, except with a constructor.
-
-##### void name\_reset(name\_t list)
-
-Reset the list (the list becomes empty but remains initialized and empty).
-
-##### type *name\_back(const name\_t list)
-
-Return a pointer to the data stored in the back of the list.
-
-##### void name\_push\_back(name\_t list, const type value)
-
-Push a new element within the list 'list' with the value 'value' contained within.
-
-##### type *name\_push\_raw(name\_t list)
-
-Push a new element within the list 'list' without initializing it and returns a pointer to the **non-initialized** data.
-The first thing to do after calling this function is to initialize the data
-using the proper constructor. This enables using more specialized
-constructor than the generic one.
-Return a pointer to the **non-initialized** data.
-
-##### type *name\_push\_new(name\_t list)
-
-Push a new element within the list 'list' and initialize it with the default constructor of the type.
-Return a pointer to the initialized object.
-This method is only defined if the type of the element defines an INIT method.
-
-##### void name\_push\_move(name\_t list, type *value)
-
-Push a new element within the list 'list' with the value '\*value' contained within
-by stealing as much resources from '\*value' than possible. Afterward '\*value' is
-cleared and cannot longer be used.
-
-##### void name\_emplace\_back[\_suffix](name\_t list, args...)
-
-Push a new element by initializing it with the provided arguments,
-at the back of the list.
-This method is created if the EMPLACE\_TYPE operator is provided. See emplace chapter.
-
-##### void name\_pop\_back(type *data, name\_t list)
-
-Pop a element from the list 'list', and set *data to this value
-if data is not the NULL pointer (otherwise only pop the data).
-
-##### void name\_pop\_move(type *data, name\_t list)
-
-Pop a element from the list 'list', and initialize and set *data to this value
-by stealing as much resources from the list as possible.
-data cannot be a NULL pointer.
-
-##### bool name\_empty\_p(const name\_t list)
-
-Return true if the list is empty, false otherwise.
-
-##### void name\_swap(name\_t list1, name\_t list2)
-
-Swap the list 'list1' and 'list2'.
-
-##### void name\_it(name\_it\_t it, const name\_t list)
-
-Set the iterator 'it' to the back(=first) element of 'list'.
-There is no destructor associated to this initialization.
-
-##### void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
-
-Set the iterator 'it' to the iterator 'ref'.
-There is no destructor associated to this initialization.
-
-##### void name\_it\_end(name\_it\_t it, const name\_t list)
-
-Set the iterator 'it' to a non valid element of the list.
-There is no destructor associated to this initialization.
-
-##### bool name\_end\_p(const name\_it\_t it)
-
-Return true if the iterator doesn't reference a valid element anymore.
-
-##### bool name\_last\_p(const name\_it\_t it)
-
-Return true if the iterator references the top(=last) element
-or if the iterator doesn't reference a valid element anymore.
-
-##### bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
-
-Return true if the iterator it1 references the same element than it2.
-
-##### void name\_next(name\_it\_t it)
-
-Move the iterator 'it' to the next element of the list,
-i.e. from the back (=first) element to the front (=last) element.
-
-##### type *name\_ref(name\_it\_t it)
-
-Return a pointer to the element pointed by the iterator.
-This pointer remains valid until the element is destroyed in the list.
-
-##### const type *name\_cref(const name\_it\_t it)
-
-Return a constant pointer to the element pointed by the iterator.
-This pointer remains valid until the element is destroyed in the list.
-
-##### type *name\_get(const name\_t list, size\_t i)
-
-Return a pointer to the element i-th of the list (from 0). 
-It is assumed than i is within the size of the list.
-This function is slow and iterates linearly over the element of the elements
-until it reaches the desired element.
-
-##### const type *name\_cget(const name\_t list, size\_t i)
-
-Return a constant pointer to the element i-th of the list (from 0). 
-It is assumed than i is within the size of the list.
-This function is slow and iterates linearly over the element of the elements
-until it reaches the desired element.
-
-##### size\_t name\_size(const name\_t list)
-
-Return the number elements of the list (aka size). Return 0 if there no element.
-This function is slow and iterates linearly over all the element
-to compute the size.
-
-##### void name\_insert(name\_t list, const name\_it\_t it, const type x)
-
-Insert 'x' after the position pointed by 'it' (which is an iterator of the list 'list') or if 'it' doesn't point anymore to a valid element of the list, it is added as the back (=first) element of the 'list'
-
-##### void name\_remove(name\_t list, name\_it\_t it)
-
-Remove the element 'it' from the list 'list'.
-After wise, 'it' points to the next element of the list.
+The following methods are also automatically created by the previous definition macro:
 
 ##### void name\_splice\_back(name\_t list1, name\_t list2, name\_it\_t it)
 
@@ -1262,45 +1521,6 @@ Afterwards, 'list2' remains initialized but is emptied.
 ##### void name\_reverse(name\_t list)
 
 Reverse the order of the list.
-
-##### void name\_get\_str(string\_t str, const name\_t list, bool append)
-
-Set 'str' to the formatted string representation of the list 'list'
-(if 'append' is false) or append 'str' with this representation
-(if 'append' is true).
-This method is only defined if the type of the element defines a GET\_STR method itself.
-
-##### bool name\_parse\_str(name\_t list, const char str[], const char **endp)
-
-Parse the formatted string 'str',
-that is assumed to be a string representation of a list
-and set 'list' to this representation.
-This method is only defined if the type of the element defines a PARSE\_STR & INIT methods itself.
-It returns true if success, false otherwise.
-If endp is not NULL, it sets '*endp' to the pointer of the first character not
-decoded by the function.
-
-##### void name\_out\_str(FILE *file, const name\_t list)
-
-Generate a formatted string representation of the list 'list' and outputs it into the FILE 'file'.
-This method is only defined if the type of the element defines a OUT\_STR method itself.
-
-##### bool name\_in\_str(name\_t list, FILE *file)
-
-Read from the file 'file' a formatted string representation of a list and set 'list' to this representation.
-It returns true if success, false otherwise.
-This method is only defined if the type of the element defines a IN\_STR & INIT method itself.
-
-##### bool name\_equal\_p(const name\_t list1, const name\_t list2)
-
-Return true if both lists 'list1' and 'list2' are equal.
-This method is only defined if the type of the element defines a EQUAL method itself.
-
-##### size\_t name\_hash(const name\_t list)
-
-Return a hash value of 'list'.
-This method is only defined if the type of the element defines a HASH method itself.
-
 
 
 #### LIST\_DUAL\_PUSH\_DEF(name, type[, oplist])
