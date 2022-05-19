@@ -1353,6 +1353,10 @@ until it reaches the requested element. The size method has the same drawback.
 
 The push / pop methods of the container always operate on the back of the container.
 
+LIST\_DEF\_AS is the same as LIST\_DEF
+except the name of the types 'name\_t', 'name\_it\_t' are provided by the user,
+and not computed from the 'name' prefix.
+
 Example:
 
 ```C
@@ -1395,6 +1399,7 @@ This variable is shared by all lists of the same type.
 
 mempool create heavily efficient list. However it is only worth the
 effort in some heavy performance context.
+Using mempool should be therefore avoided except in performance critical code.
 The created mempool has to be explicitly initialized before using any
 methods of the created list by calling  mempool\_list\_name\_init(variable)
 and cleared by calling mempool\_list\_name\_clear(variable).
@@ -1414,9 +1419,6 @@ Example:
           list_uint_mempool_clear(list_mpool);
         }
 ```
-
-LIST\_DEF\_AS is the same as LIST\_DEF
-except the name of the types name\_t, name\_it\_t are provided by the user.
 
 #### LIST\_OPLIST(name [, oplist])
 
