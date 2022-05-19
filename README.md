@@ -2308,19 +2308,39 @@ A [tuple](https://en.wikipedia.org/wiki/Tuple) is a finite ordered list of eleme
 
 TUPLE\_DEF2 defines the tuple 'name##\_t' and its associated methods as "static inline" functions.
 Each parameter of the macro is expected to be an element of the tuple.
-Each element is defined by three parameters within parenthesis: 
-the element name, the element type and the element oplist.
-'name' and 'element' shall be a C identifier that will be used to identify the container.
+Each element is defined by three parameters within parenthesis:
+* the element name (the field name of the structure) 
+* the element type (the associated type)
+* and the optional element oplist associated to this type (see generic interface for the behavior if it is absent)
+'name' and 'element' shall be C identifiers that will be used to identify the container and the fields.
+It will be used to create all the types (including the iterator)
+and functions to handle the container.
+This definition shall be done once per name and per compilation unit.
 
 This is more or less a C structure. The main added value compared to using a C struct
-is that it generates also all the basic methods to handle it.
+is that it generates also all the basic methods to handle it which is quite handy.
 
-It shall be done once per type and per compilation unit.
+The oplists shall have at least the following operators (INIT\_SET, SET and CLEAR),
+otherwise it won't generate compilable code.
 
-The object oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR),
-otherwise default methods are used. If there is no given oplist, the basic oplist for basic C types is used
-or a globally registered oplist is used.
-The created methods will use the operators to init, set and clear the contained object.
+In general, an optional method of the tuple will only be created 
+if all oplists define the needed optional methods for the underlying type.
+
+The \_hash (resp. \_equal\_p and \_cmp) method is an exception.
+This method is created only if at least one oplist of the tuple defines the HASH (resp. EQUAL) method.
+You can disable the use of a specific field for the hash computation of the tuple
+by disabling the HASH operator of such field ( with HASH(0) in its oplist ),
+in which case it is coherent to also disable the EQUAL operator too.
+Resp., you can disable the use of a field for the equality of the tuple
+by disabling the EQUAL operator of such field ( with EQUAL(0) in its oplist )
+
+The comparison of two tuples uses lexicographic order of the fields defining the CMP method.
+It is created only if at least one Oplist of the tuple define CMP method.
+You can disable the use of a field for the comparison of the tuple
+by disabling the CMP operator of such field ( with CMP(0) in its oplist )
+
+TUPLE\_DEF2\_AS is the same as TUPLE\_DEF2
+except the name of the type name\_t is provided.
 
 Example:
 
@@ -2347,9 +2367,6 @@ Example:
 	}
 ```
 
-TUPLE\_DEF2\_AS is the same as TUPLE\_DEF2 except the name of the type name\_t
-is provided.
-
 #### TUPLE\_OPLIST(name, oplist1[, ...] )
 
 Return the oplist of the tuple defined by calling TUPLE\_DEF2 with the given name & the Oplist.
@@ -2357,54 +2374,39 @@ Return the oplist of the tuple defined by calling TUPLE\_DEF2 with the given nam
 #### Created methods
 
 In the following methods, name stands for the name given to the macro that is used to identify the type.
-The following types are automatically defined by the previous macro:
+
+The following type is automatically defined by the previous definition macro if not provided by the user:
 
 #### name\_t
 
 Type of the defined tuple.
 
-The following methods are automatically and properly created by the previous macros:
+The following methods of the generic interface are defined (See generic interface for details):
 
-##### void name\_init(name\_t tuple)
+* void name\_init(name\_t tuple)
+* void name\_init\_set(name\_t tuple, const name\_t ref)
+* void name\_set(name\_t tuple, const name\_t ref)
+* void name\_init\_move(name\_t tuple, name\_t ref)
+* void name\_move(name\_t tuple, name\_t ref)
+* void name\_clear(name\_t tuple)
+* void name\_reset(name\_t tuple)
+* void name\_get\_str(string\_t str, const name\_t tuple, bool append)
+* bool name\_parse\_str(name\_t tuple, const char str[], const char **endp)
+* void name\_out\_str(FILE *file, const name\_t tuple)
+* bool name\_in\_str(name\_t tuple, FILE *file)
+* size\_t name\_hash(const name\_t tuple)
+* int name\_equal\_p(const name\_t tuple1, const name\_t tuple2)
+* int name\_cmp(const name\_t tuple1, const name\_t tuple2)
 
-Initialize the tuple 'tuple' (aka constructor) to an empty tuple.
-This method is defined if all methods define an INIT method.
-
-##### void name\_init\_set(name\_t tuple, const name\_t ref)
-
-Initialize the tuple 'tuple' (aka constructor) and set it to the value of 'ref'.
+The following specialized methods are automatically created by the previous definition macro:
 
 ##### void name\_init\_emplace(name\_t tuple, const type1 element1[, ...])
 
 Initialize the tuple 'tuple' (aka constructor) and set it to the value of the constructed tuple ('element1'[, ...]).
 
-##### void name\_set(name\_t tuple, const name\_t ref)
-
-Set the tuple 'tuple' to the value of 'ref'.
-
 ##### void name\_emplace(name\_t tuple, const type1 element1[, ...])
 
 Set the tuple 'tuple' to the value of the tuple constructed with ('element1'[,...]).
-
-##### void name\_init\_move(name\_t tuple, name\_t ref)
-
-Initialize the tuple 'tuple' (aka constructor) by stealing as many resources from 'ref' as possible.
-After-wise 'ref' is cleared.
-This method is created only if all Oplist of the tuple define INIT\_MOVE method.
-
-##### void name\_move(name\_t tuple, name\_t ref)
-
-Set the tuple 'tuple' by stealing as many resources from 'ref' as possible.
-After-wise 'ref' is cleared.
-This method is created only if all Oplist of the tuple define MOVE method.
-
-##### void name\_clear(name\_t tuple)
-
-Clear the tuple 'tuple (aka destructor).
-
-##### void name\_reset(name\_t tuple)
-
-Reset the tuple 'tuple' (applying the _reset method to all fields of the tuple).
 
 ##### const type1 *name\_cget\_at\_element1(const name\_t tuple)
 
@@ -2421,13 +2423,6 @@ There is as many methods as there are elements.
 Set the element of the tuple to 'element1'
 There is as many methods as there are elements.
 
-##### int name\_cmp(const name\_t tuple1, const name\_t tuple2)
-
-Compare 'tuple1' to 'tuple2' using lexicographic order of the fields defining the CMP method.
-This method is created only if at least one Oplist of the tuple define CMP method.
-You can disable the use of a field for the comparison of the tuple
-by disabling the CMP operator of such field ( with CMP(0) in its oplist )
-
 ##### int name\_cmp\_order(const name\_t tuple1, const name\_t tuple2, const int order[])
 
 Compare 'tuple1' to 'tuple2' using the given order.
@@ -2441,47 +2436,6 @@ This method is created only if all Oplist of the tuple define CMP method.
 
 Compare 'tuple1' to 'tuple2' using only the element element1 as reference.
 This method is created only if the oplist of element1 defines the CMP method.
-
-##### size\_t name\_hash(const name\_t tuple)
-
-Return a hash associated to the tuple using all fields defining the HASH method.
-This method is created only if at least one Oplist of the tuple define HASH method.
-You can disable the use of a field for the hash computation of the tuple
-by disabling the HASH operator of such field ( with HASH(0) in its oplist ),
-in which case it is coherent to also disable the EQUAL operator too.
-
-##### int name\_equal\_p(const name\_t tuple1, const name\_t tuple2)
-
-Return true if 'tuple1' and 'tuple2' are identical for all fields defining the EQUAL method.
-This method is created only if at least one Oplist of the tuple define EQUAL method.
-You can disable the use of a field for the equality of the tuple
-by disabling the EQUAL operator of such field ( with EQUAL(0) in its oplist )
-
-##### void name\_get\_str(string\_t str, const name\_t tuple, bool append)
-
-Generate a formatted string representation of the tuple 'tuple' and set 'str' to this representation
-(if 'append' is false) or append 'str' with this representation (if 'append' is true).
-This method is only defined if all Oplist define a GET\_STR method.
-
-##### bool name\_parse\_str(name\_t tuple, const char str[], const char **endp)
-
-Parse the formatted string 'str' that is assumed to be a string representation of a tuple
-and set 'tuple' to this representation.
-This method is only defined if all types of the element defines PARSE\_STR & INIT methods itself.
-It returns true if success, false otherwise.
-If endp is not NULL, it sets '*endp' to the pointer of the first character not
-decoded by the function.
-
-##### void name\_out\_str(FILE *file, const name\_t tuple)
-
-Generate a formatted string representation of the tuple 'tuple' and outputs it into the FILE 'file'.
-This method is only defined if all Oplist define a OUT\_STR method.
-
-##### bool name\_in\_str(name\_t tuple, FILE *file)
-
-Read from the file 'file' a formatted string representation of a tuple and set 'tuple' to this representation.
-It returns true if success, false otherwise.
-This method is only defined if all Oplist define a IN\_STR method.
 
 
 
