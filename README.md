@@ -955,6 +955,11 @@ An object shall be initialized (aka constructor) before being use by other metho
 It shall be cleared (aka destructor) after being use and before program terminaison.
 An iterator has not destructor but shall be set before being used.
 
+A container takes as input the
+* name: it is a mandatory argument that is the prefix used to generate all functions and types,
+* type: it is a mandatory argument that the basic element of the container,
+* oplist: it is an optional argument that defines the methods associated to the type. The provided oplist (if provided) shall be the one that is associated to the type, otherwise it won't generate compilable code. If there is no oplist parameter provided, a globally registered oplist associated to the type is used if possible, or the basic oplist for basic C types is used. This oplist will be used to handle internally the objects of the container.
+
 This generic interface is specified as follow:
 
 ##### void name\_init(name\_t container)
@@ -1334,13 +1339,8 @@ It will be used to create all the types (including the iterator)
 and functions to handle the container.
 This definition shall be done once per name and per compilation unit.
 
-The provided oplist is the oplist of the given type.
-It is expected to have at least the following operators (INIT\_SET, SET and CLEAR),
+The oplist shall have at least the following operators (INIT\_SET, SET and CLEAR),
 otherwise it won't generate compilable code.
-If there is no oplist parameter,
-a globally registered oplist associated to the type is used if possible,
-or the basic oplist for basic C types is used.
-This oplist will be used to handle internally the objects of the container.
 
 For this container, the back is always the first element,
 and the front is the last element: the list grows from the back.
@@ -1438,7 +1438,7 @@ The list shall still be cleared manually to avoid leaking memory.
 Example:
 
 ```C
-        LIST_DEF(list_int_t, int)
+        LIST_DEF(list_int, int)
         list_int_t my_list = LIST_INIT_VALUE();
 ```
 
@@ -1446,17 +1446,15 @@ Example:
 #### Created methods
 
 In the following methods, name stands for the name given to the macro that is used to identify the type.
-The following types are automatically defined by the previous definition macro:
+The following types are automatically defined by the previous definition macro if not provided by the user:
 
 #### name\_t
 
-Type of the list of 'type':
-either the concatenation of 'name' and '\_t' or the name provided by the user.
+Type of the list of 'type' objects.
 
 #### name\_it\_t
 
-Type of an iterator over this list:
-either the concatenation of 'name' and '\_it\_t' or the name provided by the user.
+Type of an iterator over this list.
 
 The following methods of the generic interface are defined (See generic interface for details):
 
@@ -1534,17 +1532,17 @@ Reverse the order of the list.
 #### LIST\_DUAL\_PUSH\_DEF\_AS(name, name\_t, name\_it\_t, type [, oplist])
 
 LIST\_DUAL\_PUSH\_DEF defines the singly linked list named 'name_t'
-that contains the objects of type 'type' and the associated methods as "static inline" functions.
+that contains the objects of type 'type' and their associated methods as "static inline" functions.
 
 The only difference with the list defined by LIST\_DEF is
-the support of the method PUSH\_FRONT in addition to PUSH\_BACK 
-(therefore the DUAL PUSH name).
-However, there is still only POP method (POP\_BACK).
-The head of the list is a bit bigger to be able to handle such method to work.
+the support of the method for PUSH\_FRONT in addition to the one for PUSH\_BACK 
+(so the DUAL PUSH name).
+However, there is still only POP method (associated to POP\_BACK).
+The list is a bit bigger to be able to handle such method to work, but not the nodes.
 
-This list is therefore able to represent
-either a stack (PUSH\_BACK + POP\_BACK)
-or a queue (PUSH\_FRONT + POP\_BACK).
+This list is therefore able to represent:
+* either a stack (PUSH\_BACK + POP\_BACK)
+* or a queue (PUSH\_FRONT + POP\_BACK).
 
 LIST\_DUAL\_PUSH\_DEF\_AS is the same as LIST\_DUAL\_PUSH\_DEF
 except the name of the types name\_t, name\_it\_t are provided by the user.
@@ -1582,8 +1580,6 @@ Example:
 ```
 The methods follow closely the methods defined by LIST\_DEF.
 
-
-
 #### LIST\_DUAL\_PUSH\_INIT\_VALUE()
 
 Define an initial value that is suitable to initialize global variable(s)
@@ -1595,7 +1591,7 @@ The list should still be cleared manually to avoid leaking memory.
 Example:
 
 ```C
-        LIST_DUAL_PUSH_DEF(list_int_t, int)
+        LIST_DUAL_PUSH_DEF(list_int, int)
         list_int_t my_list = LIST_DUAL_PUSH_INIT_VALUE();
 ```
 
@@ -1603,255 +1599,78 @@ Example:
 #### Created methods
 
 In the following methods, name stands for the name given to the macro that is used to identify the type.
-The following types are automatically defined by the previous macro:
+The following types are automatically defined by the previous definition macro if not provided by the user:
 
 #### name\_t
 
-Type of the list of 'type':
-either the concatenation of 'name' and '\_t' or the name provided by the user.
+Type of the list of 'type'.
 
 #### name\_it\_t
 
-Type of an iterator over this list:
-either the concatenation of 'name' and '\_it\_t' or the name provided by the user.
-
-The following methods are automatically and properly created by the previous macro.
-
-##### void name\_init(name\_t list)
-
-Initialize the list 'list' (aka constructor) to an empty list.
-
-##### void name\_init\_set(name\_t list, const name\_t ref)
-
-Initialize the list 'list' (aka constructor) and set it to the value of 'ref'.
-
-##### void name\_set(name\_t list, const name\_t ref)
-
-Set the list 'list' to the value of 'ref'.
-
-##### void name\_init\_move(name\_t list, name\_t ref)
-
-Initialize the list 'list' (aka constructor) by stealing as many resources from 'ref' as possible.
-After-wise 'ref' is cleared and can no longer be used.
-
-##### void name\_move(name\_t list, name\_t ref)
-
-Set the list 'list' (aka constructor) by stealing as many resources from 'ref' as possible.
-After-wise 'ref' is cleared and can no longer be used.
-
-##### void name\_clear(name\_t list)
-
-Clear the list 'list (aka destructor). The list can't be used anymore, except with a constructor.
-
-##### void name\_reset(name\_t list)
-
-Clean the list (the list becomes empty but remains initialized but is empty).
-
-##### type *name\_back(const name\_t list)
-
-Return a pointer to the data stored in the back of the list.
-
-##### void name\_push\_back(name\_t list, type value)
-
-Push a new element within the list 'list' with the value 'value'
-into the back of the list.
-
-##### type *name\_push\_back\_raw(name\_t list)
-
-Push a new element within the list 'list' without initializing it 
-into the back of the list
-and returns a pointer to the **non-initialized** data.
-The first thing to do after calling this function is to initialize the data using
-the proper constructor. This enables to use a more specialized
-constructor than the generic one.
-Return a pointer to the **non-initialized** data.
-
-##### type *name\_push\_back\_new(name\_t list)
-
-Push a new element within the list 'list' 
-into the back of the list
-and initialize it with the default constructor of the type.
-Return a pointer to the initialized object.
-This method is only defined if the type of the element defines an INIT method.
-
-##### void name\_push\_back\_move(name\_t list, type *value)
-
-Push a new element within the list 'list' with the value '*value'
-,by stealing as much resources from '*value' as possible,
-into the back of the list.
-Afterwards, *value is cleared and cannot be used anymore.
-value cannot be NULL.
-
-##### void name\_emplace\_back[\_suffix](name\_t list, args...)
-
-Push a new element by initializing it with the provided arguments,
-at the back of the list.
-This method is created if the EMPLACE\_TYPE operator is provided. See emplace chapter.
-
-##### const type *name\_front(const name\_t list)
-
-Return a constant pointer to the data stored in the front of the list.
-
-##### void name\_push\_front(name\_t list, type value)
-
-Push a new element within the list 'list' with the value 'value' contained within
-into the front of the list.
-
-##### type *name\_push\_front\_raw(name\_t list)
-
-Push a new element within the list 'list' without initializing it 
-into the front of the list
-and returns a pointer to the **non-initialized** data.
-The first thing to do after calling this function is to initialize the data using
-the proper constructor. This enables to use a more specialized
-constructor than the generic one.
-Return a pointer to the **non-initialized** data.
-
-##### type *name\_push\_front\_new(name\_t list)
-
-Push a new element within the list 'list' 
-into the front of the list
-and initialize it with the default constructor of the type.
-Return a pointer to the initialized object.
-This method is only defined if the type of the element defines an INIT method.
-
-##### void name\_push\_front\_move(name\_t list, type *value)
-
-Push a new element within the list 'list' with the value '*value'
-,by stealing as much resources from '*value' as possible,
-into the front of the list.
-Afterwards, *value is cleared and cannot be used anymore.
-value cannot be NULL.
-
-##### void name\_emplace\_front[\_suffix](name\_t list, args...)
-
-Push a new element by initializing it with the provided arguments,
-at the front of the list.
-This method is created if the EMPLACE\_TYPE operator is provided. See emplace chapter.
-
-##### void name\_pop\_back(type *data, name\_t list)
-
-Pop a element from the list 'list' and set *data to this value
-if data is not NULL. 
-
-##### void name\_pop\_move(type *data, name\_t list)
-
-Pop a element from the list 'list' and initialize and set *data to this value,
-stealing as much resources from the list as possible.
-
-##### bool name\_empty\_p(const name\_t list)
-
-Return true if the list is empty, false otherwise.
-
-##### void name\_swap(name\_t list1, name\_t list2)
-
-Swap the list 'list1' and 'list2'.
-
-##### void name\_it(name\_it\_t it, name\_t list)
-
-Set the iterator 'it' to the back(=first) element of 'list'.
-There is no destructor associated to this initialization.
-
-##### void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
-
-Set the iterator 'it' to the iterator 'ref'.
-There is no destructor associated to this initialization.
-
-##### void name\_it\_end(name\_it\_t it, const name\_t list)
-
-Set the iterator 'it' to an invalid reference of 'list'.
-There is no destructor associated to this initialization.
-
-##### bool name\_end\_p(const name\_it\_t it)
-
-Return true if the iterator doesn't reference a valid element anymore.
-
-##### bool name\_last\_p(const name\_it\_t it)
-
-Return true if the iterator references the top(=last) element or if the iterator doesn't reference a valid element anymore.
-
-##### bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
-
-Return true if the iterator it1 references the same element than it2.
-
-##### void name\_next(name\_it\_t it)
-
-Move the iterator 'it' to the next element of the list, ie. from the back (=first) element to the front(=last) element.
-
-##### type *name\_ref(name\_it\_t it)
-
-Return a pointer to the element pointed by the iterator.
-This pointer remains valid until the object is destroyed.
-
-##### const type *name\_cref(const name\_it\_t it)
-
-Return a constant pointer to the element pointed by the iterator.
-This pointer remains valid until the object is destroyed.
-
-##### size\_t name\_size(const name\_t list)
-
-Compute and return the number elements of the list (aka size).
-Return 0 if there no element.
-
-##### void name\_insert(name\_t list, const name\_it\_t it, const type x)
-
-Insert 'x' after the position pointed by 'it' (which is an iterator of the list 'list') or if 'it' doesn't point anymore to a valid element of the list, it is added as the back (=first) element of the 'list'
-
-##### void name\_remove(name\_t list, name\_it\_t it)
-
-Remove the element 'it' from the list 'list'.
-After wise, 'it' points to the next element of the list.
+Type of an iterator over this list.
+
+The following methods of the generic interface are defined (See generic interface for details):
+
+* void name\_init(name\_t list)
+* void name\_init\_set(name\_t list, const name\_t ref)
+* void name\_set(name\_t list, const name\_t ref)
+* void name\_init\_move(name\_t list, name\_t ref)
+* void name\_move(name\_t list, name\_t ref)
+* void name\_clear(name\_t list)
+* void name\_reset(name\_t list)
+* type *name\_back(const name\_t list)
+* void name\_push\_back(name\_t list, type value)
+* type *name\_push\_back\_raw(name\_t list)
+* type *name\_push\_back\_new(name\_t list)
+* void name\_push\_back\_move(name\_t list, type *value)
+* void name\_emplace\_back\[suffix\](name\_t list, args...)
+* const type *name\_front(const name\_t list)
+* void name\_push\_front(name\_t list, type value)
+* type *name\_push\_front\_raw(name\_t list)
+* type *name\_push\_front\_new(name\_t list)
+* void name\_push\_front\_move(name\_t list, type *value)
+* void name\_emplace\_front\[suffix\](name\_t list, args...)
+* void name\_pop\_back(type *data, name\_t list)
+* void name\_pop\_move(type *data, name\_t list)
+* bool name\_empty\_p(const name\_t list)
+* void name\_swap(name\_t list1, name\_t list2)
+* void name\_it(name\_it\_t it, name\_t list)
+* void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
+* void name\_it\_end(name\_it\_t it, const name\_t list)
+* bool name\_end\_p(const name\_it\_t it)
+* bool name\_last\_p(const name\_it\_t it)
+* bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
+* void name\_next(name\_it\_t it)
+* type *name\_ref(name\_it\_t it)
+* const type *name\_cref(const name\_it\_t it)
+* size\_t name\_size(const name\_t list)
+* void name\_insert(name\_t list, const name\_it\_t it, const type x)
+* void name\_remove(name\_t list, name\_it\_t it)
+* void name\_get\_str(string\_t str, const name\_t list, bool append)
+* bool name\_parse\_str(name\_t list, const char str[], const char **endp)
+* void name\_out\_str(FILE *file, const name\_t list)
+* bool name\_in\_str(name\_t list, FILE *file)
+* bool name\_equal\_p(const name\_t list1, const name\_t list2)
+* size\_t name\_hash(const name\_t list)
+
+The following specialized methods are automatically created by the previous definition macro:
 
 ##### void name\_splice\_back(name\_t list1, name\_t list2, name\_it\_t it)
 
-Move the element pointed by 'it' (which is an iterator of 'list2') from the list 'list2' to the back position of 'list1'.
-After wise, 'it' points to the next element of 'list2'.
+Move the element pointed by 'it'
+from the list 'list2' to the back position of the list 'list1'.
+'it' shall be an iterator of 'list2'.
+Afterwards, 'it' points to the next element of 'list2'.
 
 ##### void name\_splice(name\_t list1, name\_t list2)
 
-Move all the element of 'list2' into 'list1", moving the last element
-of 'list2' after the first element of 'list1'.
-After-wise, 'list2' is emptied.
+Move all the element of the list 'list2' into the list 'list1",
+moving the last element of 'list2' after the first element of 'list1'.
+Afterwards, 'list2' is emptied.
 
 ##### void name\_reverse(name\_t list)
 
 Reverse the order of the list.
-
-##### void name\_get\_str(string\_t str, const name\_t list, bool append)
-
-Generate a formatted string representation of the list 'list' and set 'str' to this representation
-(if 'append' is false) or append 'str' with this representation (if 'append' is true).
-This method is only defined if the type of the element defines a GET\_STR method itself.
-
-##### bool name\_parse\_str(name\_t list, const char str[], const char **endp)
-
-Parse the formatted string 'str' that is assumed to be a string representation of a list
-and set 'list' to this representation.
-This method is only defined if the type of the element defines PARSE\_STR & INIT methods itself.
-It returns true if success, false otherwise.
-If endp is not NULL, it sets '*endp' to the pointer of the first character not
-decoded by the function.
-
-##### void name\_out\_str(FILE *file, const name\_t list)
-
-Generate a formatted string representation of the list 'list' and outputs it into the FILE 'file'.
-This method is only defined if the type of the element defines a OUT\_STR method itself.
-
-##### bool name\_in\_str(name\_t list, FILE *file)
-
-Read from the file 'file' a formatted string representation of a list and set 'list' to this representation.
-It returns true if success, false otherwise.
-This method is only defined if the type of the element defines a IN\_STR & INIT method itself.
-
-##### bool name\_equal\_p(const name\_t list1, const name\_t list2)
-
-Return true if both lists 'list1' and 'list2' are equal.
-This method is only defined if the type of the element defines a EQUAL method itself.
-
-##### size\_t name\_hash(const name\_t list)
-
-Return a hash value of 'list'.
-This method is only defined if the type of the element defines a HASH method itself.
 
 
 
@@ -1863,23 +1682,22 @@ An [array](https://en.wikipedia.org/wiki/Array_data_structure) is a growable col
 #### ARRAY\_DEF\_AS(name, name\_t, name\_it\_t, type [, oplist])
 
 ARRAY\_DEF defines the array 'name\_t' that contains the objects of type 'type'
+in a sequence
 and its associated methods as "static inline" functions.
 Compared to C arrays, the created methods handle automatically the size (aka growable array).
 'name' shall be a C identifier that will be used to identify the container.
+It will be used to create all the types (including the iterator)
+and functions to handle the container.
 
-It also define the iterator 'name\_it\_t' and its associated methods as "static inline" functions.
-
-The object oplist is expected to have at least the following operators (CLEAR).
-It should also provide the following operators (INIT, INIT\_SET, SET and CLEAR).
-Otherwise default methods are used.
-If there is no given oplist, the basic oplist for basic C types is used
-or a globally registered oplist is used.
-The created methods will use the operators to init-and-set, set and clear the contained object.
+The provided oplist shall have at least the following operators (CLEAR).
+It should also provide the following operators (INIT, INIT\_SET, SET),
+so that at least some methods are defined for the array!
 
 The push / pop methods of the container always operate on the back of the container,
 acting like a stack-like container.
 
-The key type used to index the array (key\_type\_t) is size\_t.
+ARRAY\_DEF\_AS is the same as ARRAY\_DEF except the name of the types name\_t, name\_it\_t
+are provided by the user.
 
 Example:
 
@@ -1911,9 +1729,6 @@ Example:
 	}
 ```
 
-ARRAY\_DEF\_AS is the same as ARRAY\_DEF except the name of the types name\_t, name\_it\_t
-are provided by the user.
-
 #### ARRAY\_OPLIST(name [, oplist])
 
 Return the oplist of the array defined by calling ARRAY\_DEF with name & oplist. 
@@ -1939,80 +1754,66 @@ Example:
 
 In the following methods, name stands for the name given to the macro.
 This is used to identify the type.
-The following types are automatically defined by the previous macro:
+
+The following types are automatically defined by the previous definition macro if not provided by the user:
 
 #### name\_t
 
-Type of the array of 'type':
-either the concatenation of 'name' and '\_t' or the name provided by the user.
+Type of the array of 'type'.
 
 #### name\_it\_t
 
-Type of an iterator over this array:
-either the concatenation of 'name' and '\_it\_t' or the name provided by the user.
+Type of an iterator over this array.
 
-The following methods are automatically and properly created by the previous macros:
+The following methods of the generic interface are defined (See generic interface for details):
 
 ##### void name\_init(name\_t array)
-
-Initialize the array 'array' (aka constructor) to an empty array.
-
 ##### void name\_init\_set(name\_t array, const name\_t ref)
-
-Initialize the array 'array' (aka constructor) and set it to the value of 'ref'.
-This method is created if the INIT\_SET & SET operators are provided.
-
 ##### void name\_set(name\_t array, const name\_t ref)
-
-Set the array 'array' to the value of 'ref'.
-This method is created if the INIT\_SET & SET operators are provided.
-
 ##### void name\_init\_move(name\_t array, name\_t ref)
-
-Initialize the array 'array' (aka constructor) by stealing as many resources from 'ref' as possible.
-After-wise 'ref' is cleared.
-
 ##### void name\_move(name\_t array, name\_t ref)
-
-Set the array 'array' by stealing as many resources from 'ref' as possible.
-After-wise 'ref' is cleared.
-
 ##### void name\_clear(name\_t array)
-
-Clear the array 'array (aka destructor).
-
 ##### void name\_reset(name\_t array)
-
-Reset the array (the array becomes empty but remains initialized).
-
 ##### type *name\_push\_raw(name\_t array)
-
-Push the needed storage of a new element into the back of the array 'array'
-without initializing it and return
-a pointer to the non-initialized data.
-The first thing to do after calling this function is to initialize the data
-using the proper constructor. This enables to use a more specialized
-constructor than the generic one.
-It is recommended to use other \_push function if possible rather than this one
-as it is low level and error prone.
-
 ##### void name\_push\_back(name\_t array, const type value)
-
-Push a new element into the back of the array 'array' with the value 'value' contained within.
-This method is created if the INIT\_SET operator is provided.
-
 ##### type *name\_push\_new(name\_t array)
-
-Push a new element into the back of the array 'array' and initialize it with the default constructor.
-Return a pointer to this created element.
-This method is only defined if the type of the element defines an INIT method.
-
 ##### void name\_push\_move(name\_t array, type *val)
+##### void name\_emplace\_back\[suffix\](name\_t array, args...)
+##### void name\_pop\_back(type *data, name\_t array)
+##### void name\_pop\_move(type *data, name\_t array)
+##### type *name\_front(const name\_t array)
+##### type *name\_back(const name\_t array)
+##### void name\_set\_at(name\_t array, size\_t i, type value)
+##### type *name\_get(name\_t array, size\_t i)
+##### const type *name\_cget(const name\_t it, size\_t i)
+##### type *name\_safe\_get(name\_t array, size\_t i)
+##### bool name\_empty\_p(const name\_t array)
+##### size\_t name\_size(const name\_t array)
+##### size\_t name\_capacity(const name\_t array)
+##### void name\_resize(name\_t array, size\_t size)
+##### void name\_reserve(name\_t array, size\_t capacity)
+##### void name\_swap(name\_t array1, name\_t array2)
+##### void name\_it(name\_it\_t it, name\_t array)
+##### void name\_it\_last(name\_it\_t it, name\_t array)
+##### void name\_it\_end(name\_it\_t it, name\_t array)
+##### void name\_it\_set(name\_it\_t it1, name\_it\_t it2)
+##### bool name\_end\_p(name\_it\_t it)
+##### bool name\_last\_p(name\_it\_t it)
+##### bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
+##### void name\_next(name\_it\_t it)
+##### void name\_previous(name\_it\_t it)
+##### type *name\_ref(name\_it\_t it)
+##### const type *name\_cref(const name\_it\_t it)
+##### void name\_remove(name\_t array, name\_it\_t it)
+##### void name\_insert(name\_t array, name\_it\_t it, const type x)
+##### void name\_get\_str(string\_t str, const name\_t array, bool append)
+##### bool name\_parse\_str(name\_t array, const char str[], const char **endp)
+##### void name\_out\_str(FILE *file, const name\_t array)
+##### bool name\_in\_str(name\_t array, FILE *file)
+##### bool name\_equal\_p(const name\_t array1, const name\_t array2)
+##### size\_t name\_hash(const name\_t array)
 
-Push '*val' a new element into the back of the array 'array'
-by stealing as much resources as possible from '*val'.
-After-wise '*x' is cleared.
-This method is created if the INIT\_SET or INIT\_MOVE operator is provided.
+The following specialized methods are automatically created by the previous definition macro:
 
 ##### void name\_push\_at(name\_t array, size\_t key, const type x)
 
@@ -2022,24 +1823,6 @@ All elements after the position 'key' (included) will be moved in the array towa
 and the array will have one more element.
 'key' shall be a valid position of the array: from 0 to the size of array (included).
 This method is created only if the INIT\_SET operator is provided.
-
-##### void name\_emplace\_back[\_suffix](name\_t array, args...)
-
-Push a new element by initializing it with the provided arguments,
-at the back of the array.
-This method is created if the EMPLACE\_TYPE operator is provided. See emplace chapter.
-
-##### void name\_pop\_back(type *data, name\_t array)
-
-Pop a element from the back of the array 'array' and set *data to this value
-if data is not NULL (if data is NULL, the popped data is cleared).
-This method is created if the SET or INIT\_MOVE operator is provided.
-
-##### void name\_pop\_move(type *data, name\_t array)
-
-Pop a element from the back of the array 'array' and initialize
-*data with this value by stealing as much from the array as possible.
-This method is created if the INIT\_SET or INIT\_MOVE operator is provided.
 
 ##### void name\_pop\_until(name\_t array, array\_it\_t position)
 
@@ -2054,81 +1837,11 @@ then remove the element 'key' from the array (decreasing the array size).
 'key' shall be within the size of the array.
 This method is created only if the SET or INIT\_MOVE operator is provided.
 
-##### type *name\_front(const name\_t array)
-
-Return a pointer to the first element of the array.
-
-##### type *name\_back(const name\_t array)
-
-Return a pointer to the last element of the array.
-
-##### void name\_set\_at(name\_t array, size\_t i, type value)
-
-Set the element 'i' of array 'array' to 'value'.
-'i' shall be within 0 to the size of the array (excluded).
-This method is created if the INIT\_SET operator is provided.
-
-##### type *name\_get(name\_t array, size\_t i)
-
-Return a pointer to the element 'i' of the array.
-'i' shall be within 0 to the size of the array (excluded).
-The returned pointer cannot be NULL.
-This pointer remains valid until the array is modified by another method.
-
-##### const type *name\_cget(const name\_t it, size\_t i)
-
-Return a constant pointer to the element 'i' of the array.
-'i' shall be within 0 to the size of the array (excluded).
-The returned pointer cannot be NULL.
-This pointer remains valid until the array is modified by another method.
-
-##### type *name\_safe\_get(name\_t array, size\_t i)
-
-Return a pointer to the element 'i' of array 'array',
-by increasing the size of the array if needed (creating new elements with INIT).
-The returned pointer cannot be NULL.
-This method is only defined if the type of the element defines an INIT method.
-This pointer remains valid until the array is modified by another method.
-
-##### bool name\_empty\_p(const name\_t array)
-
-Return true if the array is empty, false otherwise.
-
-##### size\_t name\_size(const name\_t array)
-
-Return the size of the array.
-
-##### size\_t name\_capacity(const name\_t array)
-
-Return the capacity of the array.
-
-##### void name\_resize(name\_t array, size\_t size)
-
-Resize the array 'array' to the size 'size' (initializing or clearing elements).
-This method is only defined if the type of the element defines an INIT method.
-
-##### void name\_reserve(name\_t array, size\_t capacity)
-
-Extend or reduce the capacity of the 'array' to a rounded value based on 'capacity'.
-If the given capacity is below the current size of the array, the capacity is set to the size of the array.
-
-##### void name\_remove(name\_t array, name\_it\_t it)
-
-Remove the element pointed by the iterator 'it' from the array 'array'.
-'it' shall be a valid iterator. Afterward 'it' points to the next element, or points to the end.
-This method is created if the SET or INIT\_MOVE operator is provided.
-
 ##### void name\_remove\_v(name\_t array, size\_t i, size\_t j)
 
 Remove the element 'i' (included) to the element 'j' (excluded)
 from the array.
 'i' and 'j' shall be within the size of the array, and i < j.
-
-##### void name\_insert(name\_t array, name\_it\_t it, const type x)
-
-Insert the object 'x' at the position 'it' of the array.
-'it' shall be a valid iterator of the array.
-This method is created if the INIT\_SET operator is provided.
 
 ##### void name\_insert\_v(name\_t array, size\_t i, size\_t j)
 
@@ -2137,62 +1850,11 @@ new empty elements to the array.
 'i' and 'j' shall be within the size of the array, and i < j.
 This method is only defined if the type of the element defines an INIT method.
 
-##### void name\_swap(name\_t array1, name\_t array2)
-
-Swap the array 'array1' and 'array2'.
-
 ##### void name\_swap\_at(name\_t array, size\_t i, size\_t j)
 
 Swap the elements 'i' and 'j' of the array 'array'.
 'i' and 'j' shall reference valid elements of the array.
 This method is created if the INIT\_SET or INIT\_MOVE operator is provided.
-
-##### void name\_it(name\_it\_t it, name\_t array)
-
-Set the iterator 'it' to the first element of 'array'.
-
-##### void name\_it\_last(name\_it\_t it, name\_t array)
-
-Set the iterator 'it' to the last element of 'array'.
-
-##### void name\_it\_end(name\_it\_t it, name\_t array)
-
-Set the iterator 'it' to the end of 'array'.
-
-##### void name\_it\_set(name\_it\_t it1, name\_it\_t it2)
-
-Set the iterator 'it1' to 'it2'.
-
-##### bool name\_end\_p(name\_it\_t it)
-
-Return true if the iterator doesn't reference a valid element anymore.
-
-##### bool name\_last\_p(name\_it\_t it)
-
-Return true if the iterator references the last element of the array,
-or doesn't reference a valid element.
-
-##### bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
-
-Return true if both iterators reference the same element.
-
-##### void name\_next(name\_it\_t it)
-
-Move the iterator 'it' to the next element of the array.
-
-##### void name\_previous(name\_it\_t it)
-
-Move the iterator 'it' to the previous element of the array.
-
-##### type *name\_ref(name\_it\_t it)
-
-Return a pointer to the element pointed by the iterator.
-This pointer remains valid until the array is modified by another method.
-
-##### const type *name\_cref(const name\_it\_t it)
-
-Return a constant pointer to the element pointed by the iterator.
-This pointer remains valid until the array is modified by another method.
 
 ##### void name\_special\_sort(name\_t array)
 
@@ -2208,45 +1870,9 @@ This method provides an ad-hoc implementation of the stable sort.
 In practice, it is faster than the \_sort method for small types and fast
 comparisons.
 
-##### void name\_get\_str(string\_t str, const name\_t array, bool append)
-
-Generate a formatted string representation of the array 'array' and set 'str' to this representation
-(if 'append' is false) or append 'str' with this representation (if 'append' is true).
-This method is only defined if the type of the element defines a GET\_STR method itself.
-
-##### bool name\_parse\_str(name\_t array, const char str[], const char **endp)
-
-Parse the formatted string 'str' that is assumed to be a string representation of an array
-and set 'array' to this representation.
-This method is only defined if the type of the element defines both PARSE\_STR & INIT methods itself.
-It returns true if success, false otherwise.
-If endp is not NULL, it sets '*endp' to the pointer of the first character not
-decoded by the function.
-
-##### void name\_out\_str(FILE *file, const name\_t array)
-
-Generate a formatted string representation of the array 'array' and outputs it into the FILE 'file'.
-This method is only defined if the type of the element defines a OUT\_STR method itself.
-
-##### bool name\_in\_str(name\_t array, FILE *file)
-
-Read from the file 'file' a formatted string representation of an array and set 'array' to this representation.
-It returns true if success, false otherwise.
-This method is only defined if the type of the element defines both IN\_STR & INIT methods itself.
-
-##### bool name\_equal\_p(const name\_t array1, const name\_t array2)
-
-Return true if both arrays 'array1' and 'array2' are equal.
-This method is only defined if the type of the element defines a EQUAL method itself.
-
-##### size\_t name\_hash(const name\_t array)
-
-Return an hash value of 'array'.
-This method is only defined if the type of the element defines a HASH method itself.
-
 ##### void name\_splice(name\_t array1, name\_t array2)
 
-Merge the elements of 'array2' in 'array1' at its end.
+Move all the elements of the array 'array2' to the end of the array 'array1'.
 Afterwards, 'array2' is empty.
 
 
@@ -2261,16 +1887,20 @@ for that elements can be added to or removed from either the front (head) or bac
 #### DEQUE\_DEF\_AS(name, name\_t, name\_it\_t, type [, oplist])
 
 DEQUE\_DEF defines the deque 'name##\_t' that contains the objects of type 'type' and its associated methods as "static inline" functions.
-'name' shall be a C identifier that will be used to identify the deque. It will be used to create all the types and functions to handle the container.
-It shall be done once per type and per compilation unit.
-It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
+'name' shall be a C identifier that will be used to identify the list.
+It will be used to create all the types (including the iterator)
+and functions to handle the container.
+This definition shall be done once per name and per compilation unit.
 
-The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
-otherwise default methods are used. If there is no given oplist, the basic oplist for basic C types is used
-or a globally registered oplist is used.
-The created methods will use the operators to init, set and clear the contained object.
+The oplist shall have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
+otherwise it won't generate compilable code.
 
-The algorithm complexity to access random elements is in O(ln(n))
+The algorithm complexity to access random elements is in O(ln(n)).
+Removing an element may unbalance the deque, which breaks the promise
+of algorithm complexity for the _get method.
+
+DEQUE\_DEF\_AS is the same as DEQUE\_DEF
+except the name of the types name\_t, name\_it\_t are provided.
 
 Example:
 
@@ -2305,9 +1935,6 @@ Example:
 	}
 ```
 
-DEQUE\_DEF\_AS is the same as DEQUE\_DEF
-except the name of the types name\_t, name\_it\_t are provided.
-
 
 #### DEQUE\_OPLIST(name [, oplist])
 
@@ -2317,7 +1944,8 @@ Return the oplist of the deque defined by calling DEQUE\_DEF with name & oplist.
 #### Created methods
 
 In the following methods, name stands for the name given to the macro that is used to identify the type.
-The following types are automatically defined by the previous macro:
+
+The following types are automatically defined by the previous definition macro if not provided by the user:
 
 #### name\_t
 
@@ -2327,213 +1955,49 @@ Type of the deque of 'type'.
 
 Type of an iterator over this deque.
 
-The following methods are automatically and properly created by the previous macro.
-
-##### void name\_init(name\_t deque)
-
-Initialize the deque 'deque' (aka constructor) to an empty deque.
-
-##### void name\_init\_set(name\_t deque, const name\_t ref)
-
-Initialize the deque 'deque' (aka constructor) and set it to the value of 'ref'.
-
-##### void name\_set(name\_t deque, const name\_t ref)
-
-Set the deque 'deque' to the value of 'ref'.
-
-##### void name\_init\_move(name\_t deque, name\_t ref)
-
-Initialize the deque 'deque' (aka constructor) by stealing as many resources from 'ref' as possible.
-After-wise 'ref' is cleared and can no longer be used.
-
-##### void name\_move(name\_t deque, name\_t ref)
-
-Set the deque 'deque' (aka constructor) by stealing as many resources from 'ref' as possible.
-After-wise 'ref' is cleared and can no longer be used.
-
-##### void name\_clear(name\_t deque)
-
-Clear the deque 'deque (aka destructor). The deque can't be used anymore, except with a constructor.
-
-##### void name\_reset(name\_t deque)
-
-Reset the deque (the deque becomes empty but remains initialized but is empty).
-
-##### type *name\_back(const name\_t deque)
-
-Return a pointer to the data stored in the back of the deque.
-
-##### void name\_push\_back(name\_t deque, type value)
-
-Push a new element within the deque 'deque' with the value 'value' at the back of the deque.
-
-##### type *name\_push\_back\_raw(name\_t deque)
-
-Push at the back a new element within the deque 'deque' without initializing it and returns a pointer to the **non-initialized** data.
-The first thing to do after calling this function is to initialize the data using the proper constructor. This enables to use a more specialized
-constructor than the generic one.
-Return a pointer to the **non-initialized** data.
-
-##### type *name\_push\_back\_new(name\_t deque)
-
-Push at the back a new element within the deque 'deque' and initialize it with the default constructor of the type.
-Return a pointer to the initialized object.
-
-##### void name\_emplace\_back[\_suffix](name\_t list, args...)
-
-Push a new element by initializing it with the provided arguments,
-at the back of the queue.
-This method is created if the EMPLACE\_TYPE operator is provided. See emplace chapter.
-
-##### void name\_pop\_back(type *data, name\_t deque)
-
-Pop a element from the deque 'deque' and set *data to this value.
-If data pointer is NULL, then the popped value is discarded.
-
-##### type *name\_front(const name\_t deque)
-
-Return a pointer to the data stored in the front of the deque.
-
-##### void name\_push\_front(name\_t deque, type value)
-
-Push at the front a new element within the deque 'deque' with the value 'value'.
-
-##### type *name\_push\_front\_raw(name\_t deque)
-
-Push at the front a new element within the deque 'deque' without initializing it and returns a pointer to the **non-initialized** data.
-The first thing to do after calling this function is to initialize the data using the proper constructor. This enables to use a more specialized
-constructor than the generic one.
-Return a pointer to the **non-initialized** data.
-
-##### type *name\_push\_front\_new(name\_t deque)
-
-Push at the front a new element within the deque 'deque' and initialize it with the default constructor of the type.
-Return a pointer to the initialized object.
-
-##### void name\_emplace\_front[\_suffix](name\_t list, args...)
-
-Push a new element by initializing it with the provided arguments,
-at the front of the queue.
-This method is created if the EMPLACE\_TYPE operator is provided. See emplace chapter.
-
-##### void name\_pop\_front(type *data, name\_t deque)
-
-Pop a element from the deque 'deque' and set *data to this value.
-If data pointer is NULL, then the pop-ed value is discarded.
-
-##### bool name\_empty\_p(const name\_t deque)
-
-Return true if the deque is empty, false otherwise.
-
-##### void name\_swap(name\_t deque1, name\_t deque2)
-
-Swap the deque 'deque1' and 'deque2'.
-
-##### void name\_it(name\_it\_t it, name\_t deque)
-
-Set the iterator 'it' to the first element of 'deque' (aka the front).
-There is no destructor associated to this initialization.
-
-##### void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
-
-Set the iterator 'it' to the iterator 'ref'.
-There is no destructor associated to this initialization.
-
-##### bool name\_end\_p(const name\_it\_t it)
-
-Return true if the iterator doesn't reference a valid element anymore.
-
-##### bool name\_last\_p(const name\_it\_t it)
-
-Return true if the iterator references the last element or if the iterator doesn't reference a valid element anymore.
-
-##### bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
-
-Return true if the iterator it1 references the same element than it2.
-
-##### void name\_next(name\_it\_t it)
-
-Move the iterator 'it' to the next element of the deque, ie. from the front element to the back element.
-
-##### void name\_previous(name\_it\_t it)
-
-Move the iterator 'it' to the previous element of the deque, ie. from the back element to the front element.
-
-##### type *name\_ref(name\_it\_t it)
-
-Return a pointer to the element pointed by the iterator.
-This pointer remains valid until the deque is modified by another method.
-
-##### const type *name\_cref(const name\_it\_t it)
-
-Return a constant pointer to the element pointed by the iterator.
-This pointer remains valid until the deque is modified by another method.
-
-##### void name\_remove(name\_t deque, name\_it\_t it)
-
-Remove the element pointed by 'it' in the deque 'deque'.
-Afterwards 'it' references the next element or the end of the deque.
-'it' shall reference a valid element.
-Removing an element may unbalance the deque, which breaks the promise
-of algorithm complexity for the _get method.
-
-##### type *name\_get(const name\_t deque, size\_t i)
-
-Return a pointer to the element i-th of the deque (from 0). 
-It is assumed than i is within the size of the deque.
-The algorithm complexity is in O(ln(n))
-
-##### const type *name\_cget(const name\_t deque, size\_t i)
-
-Return a constant pointer to the element i-th of the deque (from 0). 
-It is assumed than i is within the size of the deque.
-The algorithm complexity is in O(ln(n))
-
-##### size\_t name\_size(const name\_t deque)
-
-Return the number elements of the deque (aka size). Return 0 if there no element.
-
-##### void name\_get\_str(string\_t str, const name\_t deque, bool append)
-
-Generate a formatted string representation of the deque 'deque' and set 'str' to this representation
-(if 'append' is false) or append 'str' with this representation (if 'append' is true).
-This method is only defined if the type of the element defines a GET\_STR method itself.
-
-##### bool name\_parse\_str(name\_t deque, const char str[], const char **endp)
-
-Parse the formatted string 'str' that is assumed to be a string representation of a deque
-and set 'deque' to this representation.
-This method is only defined if the type of the element defines PARSE\_STR & INIT methods itself.
-It returns true if success, false otherwise.
-If endp is not NULL, it sets '*endp' to the pointer of the first character not
-decoded by the function.
-
-##### void name\_out\_str(FILE *file, const name\_t deque)
-
-Generate a formatted string representation of the deque 'deque' and outputs it into the FILE 'file'.
-This method is only defined if the type of the element defines a OUT\_STR method itself.
-
-##### bool name\_in\_str(name\_t deque, FILE *file)
-
-Read from the file 'file' a formatted string representation of a deque and set 'deque' to this representation.
-It returns true if success, false otherwise.
-This method is only defined if the type of the element defines a IN\_STR method itself.
-
-##### bool name\_equal\_p(const name\_t deque1, const name\_t deque2)
-
-Return true if both deque 'deque1' and 'deque2' are equal.
-This method is only defined if the type of the element defines a EQUAL method itself.
-
-##### size\_t name\_hash(const name\_t deque)
-
-Return a hash value of 'deque'.
-This method is only defined if the type of the element defines a HASH method itself.
-
-##### void name\_swap\_at(name\_t deque, size\_t i, size\_t j)
-
-Swap the values within the deque pointed by 'i' and by 'j'.
-'i' & 'j' shall be valid index within the deque.
-This method is only defined if the type of the element defines a SWAP method itself.
+The following methods of the generic interface are defined (See generic interface for details):
+
+* void name\_init(name\_t deque)
+* void name\_init\_set(name\_t deque, const name\_t ref)
+* void name\_set(name\_t deque, const name\_t ref)
+* void name\_init\_move(name\_t deque, name\_t ref)
+* void name\_move(name\_t deque, name\_t ref)
+* void name\_clear(name\_t deque)
+* void name\_reset(name\_t deque)
+* type *name\_back(const name\_t deque)
+* void name\_push\_back(name\_t deque, type value)
+* type *name\_push\_back\_raw(name\_t deque)
+* type *name\_push\_back\_new(name\_t deque)
+* void name\_emplace\_back\[suffix\](name\_t list, args...)
+* void name\_pop\_back(type *data, name\_t deque)
+* type *name\_front(const name\_t deque)
+* void name\_push\_front(name\_t deque, type value)
+* type *name\_push\_front\_raw(name\_t deque)
+* type *name\_push\_front\_new(name\_t deque)
+* void name\_emplace\_front\[suffix\](name\_t list, args...)
+* void name\_pop\_front(type *data, name\_t deque)
+* bool name\_empty\_p(const name\_t deque)
+* void name\_swap(name\_t deque1, name\_t deque2)
+* void name\_it(name\_it\_t it, name\_t deque)
+* void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
+* bool name\_end\_p(const name\_it\_t it)
+* bool name\_last\_p(const name\_it\_t it)
+* bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
+* void name\_next(name\_it\_t it)
+* void name\_previous(name\_it\_t it)
+* type *name\_ref(name\_it\_t it)
+* const type *name\_cref(const name\_it\_t it)
+* void name\_remove(name\_t deque, name\_it\_t it)
+* type *name\_get(const name\_t deque, size\_t i)
+* const type *name\_cget(const name\_t deque, size\_t i)
+* size\_t name\_size(const name\_t deque)
+* void name\_get\_str(string\_t str, const name\_t deque, bool append)
+* bool name\_parse\_str(name\_t deque, const char str[], const char **endp)
+* void name\_out\_str(FILE *file, const name\_t deque)
+* bool name\_in\_str(name\_t deque, FILE *file)
+* bool name\_equal\_p(const name\_t deque1, const name\_t deque2)
+* size\_t name\_hash(const name\_t deque)
+* void name\_swap\_at(name\_t deque, size\_t i, size\_t j)
 
 
 
@@ -2563,20 +2027,31 @@ But for most uses, DICT\_DEF2 should be good enough.
 #### DICT\_DEF2(name, key\_type[, key\_oplist], value\_type[, value\_oplist])
 #### DICT\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, key\_type[, key\_oplist], value\_type[, value\_oplist])
 
-DICT\_DEF2 defines the dictionary 'name##\_t' and its associated methods as "static inline" functions.
-'name' shall be a C identifier that will be used to identify the container.
-Current implementation uses chained Hash-Table and as such, elements in the dictionary are **unordered**.
-Elements are not moved on insertion / delete of other elements (the iterator may become invalid,
-but the referenced element remains here).
+DICT\_DEF2 defines the dictionary 'name##\_t' and its associated methods as "static inline" functions as an associative array of 'key\_type' to 'value\_type'.
 
-It shall be done once per type and per compilation unit.
-It also define the iterator type 'name##\_it\_t', its associated methods as "static inline" functions
-and the iterated object type 'name##\_itref\_t' (that is a pair of key\_type and value\_type).
+'name' shall be a C identifier that will be used to identify the list.
+It will be used to create all the types (including the iterator and the iterated object type)
+and functions to handle the container.
+This definition shall be done once per name and per compilation unit.
 
-Both object oplists are expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
-otherwise default methods are used. If there is no given oplist, the basic oplist for basic C types is used
-or a globally registered oplist is used.
+Both oplist shall have at least the following operators (INIT\_SET, SET and CLEAR),
+otherwise it won't generate compilable code.
 The key\_oplist shall also define the additional operators (HASH and EQUAL).
+
+Current implementation uses chained Hash-Table and as such, elements in the dictionary are **unordered**. 
+However, elements are not moved on insertion / delete of other elements:
+even if the iterator may become invalid, the referenced element remains unmoved.
+
+The \_set\_at method overwrites the already existing value if 'key' is already present in the dictionnary (contrary to C++).
+
+The iterated object type 'name##\_itref\_t' is a pair of key\_type and value\_type.
+
+What is exactly the "first" element for the iteration is not specified.
+It is only ensured that all elements of the dictionnary are explored
+by going from "first" to "end".
+
+DICT\_DEF2\_AS is the same as DICT\_DEF2
+except the name of the types name\_t, name\_it\_t, name\_itref\_t are provided.
 
 Example:
 
@@ -2608,9 +2083,6 @@ Example:
 	}
 ```
 
-DICT\_DEF2\_AS is the same as DICT\_DEF2 except the name of the types name\_t, name\_it\_t, name\_itref\_t,
-are provided by the user.
-
 
 #### DICT\_STOREHASH\_DEF2(name, key\_type[, key\_oplist], value\_type[, value\_oplist])
 #### DICT\_STOREHASH\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, key\_type[, key\_oplist], value\_type[, value\_oplist])
@@ -2631,10 +2103,11 @@ except the name of the types name\_t, name\_it\_t, name\_itref\_t are provided.
 
 DICT\_OA\_DEF2 defines the dictionary 'name##\_t' and its associated methods
 as "static inline" functions much like DICT\_DEF2.
-The difference is that it uses an Open Addressing Hash-Table as container.
+The difference is that it uses an Open Addressing Hash-Table as container
+(breaking the property of not-moving object on dictionnary modification).
 
-The key\_oplist shall also define the additional operators :
-HASH and EQUAL and **OOR\_EQUAL** and **OOR\_SET**
+The key\_oplist shall also define the additional operators:
+**OOR\_EQUAL** and **OOR\_SET**
 
 The Out-Of-Range operators (OOR\_EQUAL and OOR\_SET) are used to store unitialized keys
 in the dictionnary and be able to detect it. This enables avoiding a separate bitfield
@@ -2645,6 +2118,9 @@ The elements may move when inserting / deleting other elements (and not just the
 
 This implementation is in general faster for small types of keys
 (like integer or float) but may be slower for larger types.
+
+DICT\_OA\_DEF2\_AS is the same as DICT\_OA\_DEF2
+except the name of the types name\_t, name\_it\_t, name\_itref\_t are provided.
 
 Example:
 
@@ -2679,10 +2155,6 @@ Example:
 	}
 ```
 
-DICT\_OA\_DEF2\_AS is the same as DICT\_OA\_DEF2
-except the name of the types name\_t, name\_it\_t, name\_itref\_t are provided.
-
-
 #### DICT\_OPLIST(name[, key\_oplist, value\_oplist])
 
 Return the oplist of the dictionary defined by calling any DICT\_*\_DEF2 with name & key\_oplist & value\_oplist. 
@@ -2694,12 +2166,22 @@ Return the oplist of the dictionary defined by calling any DICT\_*\_DEF2 with na
 DICT\_SET\_DEF defines the dictionary set 'name##\_t' and its associated methods as "static inline" functions.
 A dictionary set is a specialized version of a dictionary with no value (only keys).
 
-It shall be done once per type and per compilation unit.
-It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
+'name' shall be a C identifier that will be used to identify the list.
+It will be used to create all the types (including the iterator)
+and functions to handle the container.
+This definition shall be done once per name and per compilation unit.
 
-The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET, CLEAR, HASH and EQUAL),
-otherwise default methods are used. If there is no given oplist, the basic oplist for basic C types is used
-or a globally registered oplist is used.
+The oplist shall have at least the following operators (INIT\_SET, SET, CLEAR, HASH and EQUAL),
+otherwise it won't generate compilable code.
+
+The _push method will overwrite the already existing value if 'key' is already present in the dictionnary (contrary to C++).
+
+What is exactly the "first" element for the iteration is not specified.
+It is only ensured that all elements of the dictionnary are explored
+by going from "first" to "end".
+
+DICT\_SET\_DEF\_AS is the same as DICT\_SET\_DEF
+except the name of the types name\_t, name\_it\_t are provided.
 
 Example:
 
@@ -2728,30 +2210,23 @@ Example:
 	}
 ```
 
-DICT\_SET\_DEF\_AS is the same as DICT\_SET\_DEF except the name of the types name\_t, name\_it\_t,
-are provided.
-
 
 #### DICT\_OASET\_DEF(name, key\_type[, key\_oplist])
 #### DICT\_OASET\_DEF\_AS(name,  name\_t, name\_it\_t, key\_type[, key\_oplist])
 
-DICT\_OASET\_DEF defines the dictionary set 'name##\_t' and its associated methods as "static inline" functions.
-A dictionary set is a specialized version of a dictionary with no value.
+DICT\_OASET\_DEF defines the dictionary set 'name##\_t' and its associated methods as "static inline" functions just like DICT\_SET\_DEF.
 The difference is that it uses an Open Addressing Hash-Table as container.
 
-It shall be done once per type and per compilation unit.
-It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
-
-The key\_oplist shall therefore define the additional operators :
-HASH and EQUAL and **OOR\_EQUAL** and **OOR\_SET**
+The key\_oplist shall also define the additional operators:
+**OOR\_EQUAL** and **OOR\_SET**
 
 The elements may move when inserting / deleting other elements (and not just the iterators).
 
 This implementation is in general faster for small types of keys
 (like integer) but slower for larger types.
 
-DICT\_OASET\_DEF\_AS is the same as DICT\_OASET\_DEF except the name of the types name\_t, name\_it\_t,
-are provided.
+DICT\_OASET\_DEF\_AS is the same as DICT\_OASET\_DEF
+except the name of the types name\_t, name\_it\_t are provided.
 
 
 #### DICT\_SET\_OPLIST(name[, key\_oplist])
@@ -2762,164 +2237,57 @@ Return the oplist of the set defined by calling DICT\_SET\_DEF (or DICT\_OASET\_
 #### Created methods
 
 In the following methods, name stands for the name given to the macro that is used to identify the type.
-The following types/methods are automatically defined by the previous macro:
+
+The following types are automatically defined by the previous definition macro if not provided by the user:
 
 ##### name\_t
 
 Type of the dictionary which
-either associate 'key\_type' to 'value\_type',
-or store element 'key\_type'.
+* either associate 'key\_type' to 'value\_type',
+* or store unique element 'key\_type'.
 
 ##### name\_it\_t
 
 Type of an iterator over this dictionary.
 
-##### name\_itref\_t
+##### name\_itref\_t [only for associative array]
 
 Type of one item referenced in the dictionary for associative array.
 It is a structure composed of the key (field 'key') and the value (field 'value').
-
 This type is created only for associative arrays (\_DEF2 suffix) and not for sets.
 
-##### void name\_init(name\_t dict)
+The following methods of the generic interface are defined (See generic interface for details):
 
-Initialize the dictionary 'dict'. It is empty.
+* void name\_init(name\_t dict)
+* void name\_clear(name\_t dict)
+* void name\_init\_set(name\_t dict, const name\_t ref)
+* void name\_set(name\_t dict, const name\_t ref)
+* void name\_init\_move(name\_t dict, name\_t ref)
+* void name\_move(name\_t dict, name\_t ref)
+* void name\_reset(name\_t dict)
+* size\_t name\_size(const name\_t dict)
+* bool name\empty\_p(const name\_t dict)
+* value\_type \*name\_get(const name\_t dict, const key\_type key)
+* value\_type *name\_safe\_get(name\_t dict, const key\_type key)
+* void name\_set\_at(name\_t dict, const key\_type key, const value\_type value)   [for associative array]
+* void name\_push(name\_t dict, const key\_type key)       [for dictionary set]
+* void name\_erase(name\_t dict, const key\_type key)
+* void name\_it(name\_it\_t it, name\_t dict)
+* void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
+* bool name\_end\_p(const name\_it\_t it)
+* bool name\_last\_p(const name\_it\_t it)
+* void name\_next(name\_it\_t it)
+* name\_itref\_t *name\_ref(name\_it\_t it)  [for associative array]
+* key\_type *name\_ref(name\_it\_t it)       [for dictionary set]
+* const name\_itref\_t *name\_cref(name\_it\_t it)  [for associative array]
+* const key\_type *name\_cref(name\_it\_t it)       [for dictionary set]
+* void name\_get\_str(string\_t str, const name\_t dict, bool append)
+* bool name\_parse\_str(name\_t dict, const char str[], const char **endp)
+* void name\_out\_str(FILE *file, const name\_t dict)
+* bool name\_in\_str(name\_t dict, FILE *file)
+* bool name\_equal\_p(const name\_t dict1, const name\_t dict2)
 
-##### void name\_clear(name\_t dict)
-
-Clear the dictionary 'dict'.
-
-##### void name\_init\_set(name\_t dict, const name\_t ref)
-
-Initialize the dictionary 'dict' to be the same as 'ref'.
-
-##### void name\_set(name\_t dict, const name\_t ref)
-
-Set the dictionary 'dict' to be the same as 'ref'.
-
-##### void name\_init\_move(name\_t dict, name\_t ref)
-
-Initialize the dictionary 'dict' by stealing as resource as possible
-from 'ref'. Afterwards, it clears 'ref'.
-
-##### void name\_move(name\_t dict, name\_t ref)
-
-Set the dictionary 'dict'  by stealing as resource as possible
-from 'ref'. Afterwards, it clears 'ref'.
-
-##### void name\_reset(name\_t dict)
-
-Reset the dictionary 'dict'. 'dict' becomes empty but remains initialized.
-
-##### size\_t name\_size(const name\_t dict)
-
-Return the number of elements of the dictionary.
-
-##### bool name\empty\_p(const name\_t dict)
-
-Return true if the dictionary is empty, false otherwise.
-
-##### value\_type \*name\_get(const name\_t dict, const key\_type key)
-
-Return a pointer to the value associated to the key 'key' in dictionary
-'dict' or NULL if the key is not found.
-This pointer remains valid until the array is modified by another method.
-
-##### value\_type *name\_safe\_get(name\_t dict, const key\_type key)
-
-Return a pointer to the value associated to the key 'key' in dictionary
-'dict' or create a new entry for the key 'key',
-in which case the associated 'value' is initialized with its default INIT operator.
-Therefore, the returned pointer cannot be NULL.
-This method is only defined if the value type of the element defines an INIT method.
-This pointer remains valid until the array is modified by another method.
-
-##### void name\_set\_at(name\_t dict, const key\_type key, const value\_type value)   [for associative array]
-
-Set the value referenced by key 'key' in the dictionary 'dict' to 'value'.
-It overwrites the already existing value if 'key' is already present in the dictionnary (contrary to C++).
-
-##### void name\_push(name\_t dict, const key\_type key)       [for dictionary set]
-
-Push the value referenced by key 'key' into the dictionary 'dict'.
-It overwrites the already existing value if 'key' is already present in the dictionnary (contrary to C++).
-
-##### void name\_erase(name\_t dict, const key\_type key)
-
-Remove the element referenced by key 'key' in the dictionary 'dict'.
-Do nothing if 'key' is no present in the dictionary.
-
-##### void name\_it(name\_it\_t it, name\_t dict)
-
-Set the iterator 'it' to the "first" element of 'dict'.
-What is exactly the "first" element is not specified.
-It is only ensured that all elements of the dictionnary are explored
-by going from "first" to "end".
-
-##### void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
-
-Set the iterator 'it' to the same element than 'ref'.
-
-##### bool name\_end\_p(const name\_it\_t it)
-
-Return true if 'it' references no longer a valid element
-(it has reached the end of the dictionnary).
-
-##### bool name\_last\_p(const name\_it\_t it)
-
-Return true if 'it' references the last element or is no longer valid.
-
-##### void name\_next(name\_it\_t it)
-
-Update the iterator 'it' to the next element.
-
-##### name\_itref\_t *name\_ref(name\_it\_t it)  [for associative array]
-##### key\_type *name\_ref(name\_it\_t it)       [for dictionary set]
-
-Return a pointer to the pair composed by the key ('key' field) and its value ('value' field) if it is not a set,
-to the key type if it is a set.
-'key' element shall not be modified.
-This pointer remains valid until the dictionary is modified by another method.
-
-##### const name\_itref\_t *name\_cref(name\_it\_t it)  [for associative array]
-##### const key\_type *name\_cref(name\_it\_t it)       [for dictionary set]
-
-Return a constant pointer to the pair composed by the key ('key' field) and its value ('value' field) if it is not a set,
-to the key type if it is a set.
-This pointer remains valid until the dictionary is modified by another method.
-
-##### void name\_get\_str(string\_t str, const name\_t dict, bool append)
-
-Generate a formatted string representation of the dict 'dict' and set 'str' to this representation
-(if 'append' is false) or append 'str' with this representation (if 'append' is true).
-This method is only defined if both key and value types define a GET\_STR method thenselves.
-
-##### bool name\_parse\_str(name\_t dict, const char str[], const char **endp)
-
-Parse the formatted string 'str' that is assumed to be a string representation of a dict
-and set 'dict' to this representation.
-It returns true in case of success, false otherwise.
-If 'endp' is not NULL, it sets '*endp' to the pointer of the first character not
-decoded by the function.
-This method is only defined if both key and value types define a PARSE\_STR method thenselves.
-
-##### void name\_out\_str(FILE *file, const name\_t dict)
-
-Generate a formatted string representation of the dict 'dict' and outputs it into the FILE 'file'.
-This method is only defined if both key and value types define a OUT\_STR method thenselves.
-
-##### bool name\_in\_str(name\_t dict, FILE *file)
-
-Read from the file 'file' a formatted string representation of a dict and set 'dict' to this representation.
-It returns true in case of success, false otherwise.
-In case of error, the position of the file is not specified but is likely to be just after the parsing error.
-Otherwise, the position of the file is just after the final read character associated to the dictionnary representation.
-This method is only defined if both key and value types define a IN\_STR method thenselves.
-
-##### bool name\_equal\_p(const name\_t dict1, const name\_t dict2)
-
-Return true if both dict 'dict1' and 'dict2' are equal.
-This method is only defined if both key and value types define an EQUAL method thenselves.
+The following specialized methods are automatically created by the previous definition macro:
 
 ##### void name\_splice(name\_t dict1, name\_t dict2)
 
