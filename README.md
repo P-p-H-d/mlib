@@ -1316,14 +1316,7 @@ gets from name\_out\_str and the original container are equal.
 This header is for creating [singly linked list](https://en.wikipedia.org/wiki/Linked_list).
 
 A linked list is a linear collection of elements,
-in which each element points to the next, all representing a sequence.
-
-#### LIST\_DEF(name, type [, oplist])
-#### LIST\_DEF\_AS(name, name\_t, name\_it\_t, type [, oplist])
-
-LIST\_DEF defines the singly linked list named 'name##\_t' that contains objects of type 'type' and the associated methods as "static inline" functions.
-'name' shall be a C identifier that will be used to identify the list. It will be used to create all the types (including the iterator) and functions to handle the container.
-This definition shall be done once per name and per compilation unit.
+in which each element points to the next, all of then representing a sequence.
 
 A fundamental property of a list is that the objects created within the list
 will remain at their initialized address, and won't moved due to
@@ -1331,18 +1324,30 @@ operations done on the list (except if it is removed).
 Therefore a returned pointer to an element of the container
 remains valid until this element is destroyed in the container.
 
-The type oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR).
+#### LIST\_DEF(name, type [, oplist])
+#### LIST\_DEF\_AS(name, name\_t, name\_it\_t, type [, oplist])
+
+LIST\_DEF defines the singly linked list named 'name##\_t'
+that contains objects of type 'type' and their associated methods as "static inline" functions.
+'name' shall be a C identifier that will be used to identify the list.
+It will be used to create all the types (including the iterator)
+and functions to handle the container.
+This definition shall be done once per name and per compilation unit.
+
+The provided oplist is the oplist of the given type.
+It is expected to have at least the following operators (INIT\_SET, SET and CLEAR),
+otherwise it won't generate compilable code.
 If there is no oplist parameter,
 a globally registered oplist associated to the type is used if possible,
 or the basic oplist for basic C types is used.
-This oplist will be used to handle internally the object type.
+This oplist will be used to handle internally the objects of the container.
 
-For this structure, the back is always the first element,
+For this container, the back is always the first element,
 and the front is the last element: the list grows from the back.
-Therefore, the iteration of this container using iterators will
-go from the back to the front element (contrary to an array).
+Therefore, the iteration of this container using iterator objects will
+go from the back element to the front element (contrary to an array).
 
-Even if it provides random access functions, theses access are slow (linear access)
+Even if it provides random access functions, theses access are slow
 and should be avoided: it iterates linearly over all the elements of the container
 until it reaches the requested element. The size method has the same drawback.
 
@@ -1491,7 +1496,7 @@ The following methods of the generic interface are defined (See generic interfac
 * bool name\_equal\_p(const name\_t list1, const name\_t list2)
 * size\_t name\_hash(const name\_t list)
 
-The following methods are also automatically created by the previous definition macro:
+The following specialized methods are  automatically created by the previous definition macro:
 
 ##### void name\_splice\_back(name\_t list1, name\_t list2, name\_it\_t it)
 
