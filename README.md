@@ -2441,28 +2441,40 @@ This method is created only if the oplist of element1 defines the CMP method.
 
 ### M-VARIANT
 
-A [variant](https://en.wikipedia.org/wiki/Variant_type) is a finite exclusive list of elements of different types :
-the variant can be only equal to one element at a time. 
+A [variant](https://en.wikipedia.org/wiki/Variant_type) is a finite exclusive list of elements of different types:
+the variant can only be equal to one element at a time.
 
 #### VARIANT\_DEF2(name, (element1, type1[, oplist1]) [, ...])
 #### VARIANT\_DEF2\_AS(name,  name\_t, (element1, type1[, oplist1]) [, ...])
 
 VARIANT\_DEF2 defines the variant 'name##\_t' and its associated methods as "static inline" functions.
 Each parameter of the macro is expected to be an element of the variant.
-Each element is defined by three parameters within parenthesis: 
-the element name, the element type and the element oplist.
-'name' and 'element' shall be a C identifier that will be used to identify the container.
+Each element is defined by three parameters within parenthesis:
+* the mandatory element name,
+* the mandatory element type
+* and the optional element oplist.
+
+If an 'oplist' is given, it shall be the one matching the associated type.
+'name' and 'element<n>' shall be C identifiers that will be used to identify the list.
+'name' will be used to create all the types (including the iterator)
+and functions to handle the container.
+This definition shall be done once per name and per compilation unit.
 
 This is like a C union. The main added value compared to using a union
 is that it generates all the basic methods to handle it and it dynamically
 identifies which element is stored within.
+It is also able to store an 'EMPTY' state for the variant, contrary to an union
+(this is the state when default constructing it).
 
-It shall be done once per type and per compilation unit.
+The oplists shall have at least the following operators (INIT\_SET, SET and CLEAR),
+otherwise it won't generate compilable code.
+In general, an optional method of the variant will only be created
+if all oplists define the needed optional methods for the underlying type.
 
-The object oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR),
-otherwise default methods are used. If there is no given oplist, the basic oplist for basic C types is used
-or a globally registered oplist is used.
-The created methods will use the operators to init, set and clear the contained object.
+VARIANT\_DEF2\_AS is the same as VARIANT\_DEF2 except the name of the type name\_t
+is provided.
+
+name\_parse\_str & name\_in\_str depend also on the INIT operator.
 
 Example:
 
@@ -2492,64 +2504,56 @@ Example:
 	}
 ```
 
-VARIANT\_DEF2\_AS is the same as VARIANT\_DEF2 except the name of the type name\_t
-is provided.
-
 
 #### VARIANT\_OPLIST(name, oplist1[, ...] )
 
-Return the oplist of the variant defined by calling VARIANT\_DEF2 with the given name & the Oplist.
+Return the oplist of the variant defined by calling VARIANT\_DEF2 with the given name & the Oplists used to generate it.
 
 #### Created methods
 
 In the following methods, name stands for the name given to the macro that is used to identify the type.
-The following types / methods are automatically defined by the previous macro:
+
+The following type is automatically defined by the previous definition macro if not provided by the user:
 
 #### name\_t
 
 Type of the defined variant.
 
-##### void name\_init(name\_t variant)
+The following methods of the generic interface are defined (See generic interface for details):
 
-Initialize the variant 'variant' (aka constructor) to be empty.
+* void name\_init(name\_t variant)
+* void name\_init\_set(name\_t variant, const name\_t ref)
+* void name\_set(name\_t variant, const name\_t ref)
+* void name\_init\_move(name\_t variant, name\_t ref)
+* void name\_move(name\_t variant, name\_t ref)
+* void name\_clear(name\_t variant)
+* void name\_reset(name\_t variant)
+* bool name\_empty\_p(const name\_t variant)
+* size\_t name\_hash(const name\_t variant)
+* bool name\_equal\_p(const name\_t variant1, const name\_t variant2)
+* void name\_swap(name\_t variant1, name\_t variant2)
+* void name\_get\_str(string\_t str, name\_t variant, bool append)
+* bool name\_parse\_str(name\_t variant, const char str[], const char **endp)
+* void name\_out\_str(FILE *file, name\_t variant)
+* bool name\_in\_str(name\_t variant, FILE *file)
 
-##### void name\_init\_set(name\_t variant, const name\_t ref)
-
-Initialize the variant 'variant' (aka constructor) and set it to the value of 'ref'.
-
-##### void name\_set(name\_t variant, const name\_t ref)
-
-Set the variant 'variant' to the value of 'ref'.
-
-##### void name\_init\_move(name\_t variant, name\_t ref)
-
-Initialize the variant 'variant' (aka constructor) by stealing as many resources from 'ref' as possible.
-After-wise 'ref' is cleared.
-This method is created only if all Oplist of the variant define INIT\_MOVE method.
-
-##### void name\_move(name\_t variant, name\_t ref)
-##### void name\_move\_elementN(name\_t variant, typeN ref)
-
-Set the variant 'variant' by stealing as many resources from 'ref' as possible.
-After-wise 'ref' is cleared.
-This method is created only if all Oplist of the variant define MOVE method.
-
-##### void name\_clear(name\_t variant)
-
-Clear the variant 'variant (aka destructor).
-
-##### void name\_reset(name\_t variant)
-
-Reset the variant 'variant and make it empty.
+The following specialized methods are automatically created by the previous definition macro:
 
 ##### void name\_init\_elementN(name\_t variant)
 
-Initialize the variant 'variant' to the type of 'element1'
+Initialize the variant 'variant' to the type of 'element1' [constructor]
+using the default constructor of this element.
 This method is defined if all methods define an INIT method.
 
 ##### void name\_init\_set\_elementN(name\_t variant, const typeN elementN)
 
-Initialize and set the variant 'variant' to the type and value of 'elementN'.
+Initialize the variant 'variant' and set it to the type and value of 'elementN' [constructor]
+
+##### void name\_move\_elementN(name\_t variant, typeN ref)
+
+Set the variant 'variant' by stealing as many resources from 'ref' as possible.
+Afterwards 'ref' is cleared (destructor)
+This method is created only if all Oplist of the variant define MOVE method.
 
 ##### void name\_set\_elementN(name\_t variant, const typeN elementN)
 
@@ -2565,59 +2569,9 @@ If the variant isn't an object of such type, it returns NULL.
 Return a pointer to the 'variant' viewed as of type 'typeN'.
 If the variant isn't an object of such type, it returns NULL.
 
-##### bool name\_empty\_p(const name\_t variant)
-
-Return true if the variant is empty, false otherwise.
-
 ##### bool name\_elementN\_p(const name\_t variant)
 
 Return true if the variant is of the type of 'elementN'.
-
-##### size\_t name\_hash(const name\_t variant)
-
-Return a hash associated to the variant.
-All types associated to the variant shall have a hash function
-for this function to be defined.
-
-##### bool name\_equal\_p(const name\_t variant1, const name\_t variant2)
-
-Return true if both objects are equal, false otherwise.
-All types associated to the variant shall have a equal\_p function
-for this function to be defined.
-
-##### void name\_swap(name\_t variant1, name\_t variant2)
-
-Swap both objects.
-
-##### void name\_get\_str(string\_t str, name\_t variant, bool append)
-
-Convert the variant into a formatted string, appending it into 'str' or not.
-All types associated to the variant shall have a GET\_STR method
-for this function to be defined.
-
-##### bool name\_parse\_str(name\_t variant, const char str[], const char **endp)
-
-Parse the formatted string 'str' that is assumed to be a string representation of a variant
-and set 'variant' to this representation.
-This method is only defined if all types of the element defines PARSE\_STR & INIT methods itself.
-It returns true if success, false otherwise.
-If endp is not NULL, it sets '*endp' to the pointer of the first character not
-decoded by the function.
-
-##### void name\_out\_str(FILE *file, name\_t variant)
-
-Convert the variant into a formatted string and send it to the stream 'file'.
-All types associated to the variant shall have a out\_str function
-for this function to be defined.
-
-##### bool name\_in\_str(name\_t variant, FILE *file)
-
-Read a formatted string representation of the variant from the stream 'file'
-and update the object variant with it.
-All types associated to the variant shall have a in\_str function
-for this function to be defined.
-It returns true if success, false otherwise.
-This method is defined if all methods define an INIT method.
 
 
 
@@ -2625,7 +2579,9 @@ This method is defined if all methods define an INIT method.
 
 A binary tree is a tree data structure in which each node has at most two children,
 which are referred to as the left child and the right child.
-In this kind of tree, all elements of the tree are totally ordered.
+A node without any child is called a leaf. It can be seen as an ordered set.
+
+All elements of such tree are also totally ordered.
 The current implementation is [RED-BLACK TREE](https://en.wikipedia.org/wiki/Red%E2%80%93black_tree)
 which provides performance guarante for both insertion and lockup operations.
 It has not to be confused with a [B-TREE](https://en.wikipedia.org/wiki/B-tree).
@@ -2634,22 +2590,27 @@ It has not to be confused with a [B-TREE](https://en.wikipedia.org/wiki/B-tree).
 #### RBTREE\_DEF\_AS(name,  name\_t, name\_it\_t, type[, oplist])
 
 RBTREE\_DEF defines the binary ordered tree 'name##\_t' and its associated methods as "static inline" functions.
-'name' shall be a C identifier that will be used to identify the container.
+'name' shall be a C identifier that will be used to identify the list.
+It will be used to create all the types (including the iterator)
+and functions to handle the container.
+This definition shall be done once per name and per compilation unit.
 
 The CMP operator is used to perform the total ordering of the elements.
 
-It shall be done once per type and per compilation unit.
-It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
-
-The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET, CLEAR and CMP),
-otherwise default methods are used. If there is no given oplist, the basic oplist for basic C types is used
-or a globally registered oplist is used.
-The created methods will use the operators to init, set and clear the contained object.
+The oplist shall have at least the following operators (INIT, INIT\_SET, SET, CLEAR & CMP),
+otherwise it won't generate compilable code.
 
 Some methods may return a modifiable pointer to the found element
 (for example, _get). In this case, the user shall not modify the
 key order of the element, as there is no reordering of the tree
 in this case.
+
+A push method on the tree will put the given 'key' in its right place in the tree
+by keeping the tree ordered.
+It overwrites the already existing value if the key is already present in the dictionnary (contrary to C++).
+
+RBTREE\_DEF\_AS is the same as RBTREE\_DEF2 except the name of the types name\_t, name\_it\_t
+are provided by the user.
 
 Example:
 
@@ -2662,9 +2623,6 @@ Example:
                 rbtree_uint_clear(tree);                              
         }
 
-RBTREE\_DEF\_AS is the same as RBTREE\_DEF2 except the name of the types name\_t, name\_it\_t
-are provided.
-
 
 #### RBTREE\_OPLIST(name [, oplist])
 
@@ -2673,8 +2631,7 @@ If there is no given oplist, the basic oplist for basic C types is used.
 
 #### Created methods
 
-The following methods are automatically and properly created by the previous macros. 
-In the following methods, name stands for the name given to the macro that is used to identify the type.
+The following types are automatically defined by the previous definition macro with 'name' if not provided by the user:
 
 ##### name\_t
 
@@ -2684,52 +2641,41 @@ Type of the Red Black Tree.
 
 Type of an iterator over this Red Black Tree.
 
-##### void name\_init(name\_t rbtree)
+The following methods of the generic interface are defined (See generic interface for details):
 
-Initialize the Red Black Tree 'rbtree' to be empty.
+* void name\_init(name\_t rbtree)
+* void name\_clear(name\_t rbtree)
+* void name\_init\_set(name\_t rbtree, const name\_t ref)
+* void name\_set(name\_t rbtree, const name\_t ref)
+* void name\_init\_move(name\_t rbtree, name\_t ref)
+* void name\_move(name\_t rbtree, name\_t ref)
+* void name\_reset(name\_t rbtree)
+* size\_t name\_size(const name\_t rbtree)
+* void name\_push(name\_t rbtree, const type data)
+* void name\_emplace\[suffix\](name\_t rbtree, args...)
+* type * name\_get(const name\_t rbtree, const type data)
+* const type * name\_cget(const name\_t rbtree, const type data)
+* void name\_swap(name\_t rbtree1, name\_t rbtree2)
+* bool name\_empty\_p(const name\_t rbtree)
+* void name\_it(name\_it\_t it, name\_t rbtree)
+* void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
+* void name\_it\_last(name\_it\_t it, name\_t rbtree)
+* void name\_it\_end(name\_it\_t it, name\_t rbtree)
+* bool name\_end\_p(const name\_it\_t it)
+* bool name\_last\_p(const name\_it\_t it)
+* void name\_it\_remove(name\_t rbtree, name\_it\_t it)
+* void name\_next(name\_it\_t it)
+* void name\_previous(name\_it\_t it)
+* type *name\_ref(name\_it\_t it)
+* const type *name\_ref(name\_it\_t it)
+* void name\_get\_str(string\_t str, const name\_t rbtree, bool append)
+* bool name\_parse\_str(name\_t tree, const char str[], const char **endp)
+* void name\_out\_str(FILE *file, const name\_t rbtree)
+* bool name\_in\_str(name\_t rbtree, FILE *file)
+* bool name\_equal\_p(const name\_t rbtree1, const name\_t rbtree2)
+* size\_t name\_hash(const name\_t rbtree)
 
-##### void name\_clear(name\_t rbtree)
-
-Clear the Red Black Tree 'rbtree'.
-
-##### void name\_init\_set(name\_t rbtree, const name\_t ref)
-
-Initialize the Red Black Tree 'rbtree' to be the same as 'ref'.
-
-##### void name\_set(name\_t rbtree, const name\_t ref)
-
-Set the Red Black Tree 'rbtree' to be the same as 'ref'.
-
-##### void name\_init\_move(name\_t rbtree, name\_t ref)
-
-Initialize the Red Black Tree 'rbtree' by stealing as resource as possible
-from 'ref' and clear 'ref'.
-
-##### void name\_move(name\_t rbtree, name\_t ref)
-
-Set the Red Black Tree 'rbtree' by stealing as resource as possible
-from 'ref' and clear 'ref'.
-
-##### void name\_reset(name\_t rbtree)
-
-Reset the Red Black Tree 'rbtree' (It remains initialized but empty).
-
-##### size\_t name\_size(const name\_t rbtree)
-
-Return the number of elements of the Red Black Tree.
-
-##### void name\_push(name\_t rbtree, const type data)
-
-Push 'data' into the Red Black Tree 'rbtree' at its ordered place
-while keeping the tree balanced.
-It overwrites the already existing value if 'key' is already present in the dictionnary (contrary to C++).
-
-##### void name\_emplace[\_suffix](name\_t rbtree, args...)
-
-Push a new element by initializing it with the provided arguments,
-at its ordered place while keeping the tree balanced.
-It overwrites the already existing value if 'key' is already present in the dictionnary (contrary to C++).
-This method is created if the EMPLACE\_TYPE operator is provided. See emplace chapter.
+The following specialized methods are automatically created by the previous definition macro:
 
 ##### void name\_pop(type *dest, name\_t rbtree, const type data)
 
@@ -2750,49 +2696,11 @@ or NULL if there is no element.
 Return a pointer to the maximum element of the tree
 or NULL if there is no element.
 
-##### type * name\_get(const name\_t rbtree, const type *data)
-##### const type * name\_cget(const name\_t rbtree, const type *data)
-
-Return a pointer to the element of the tree 'rbtree' that is equal to 'data',
-or NULL if there is no match.
-
-##### void name\_swap(name\_t rbtree1, name\_t rbtree2)
-
-Swap both trees.
-
-##### bool name\_empty\_p(const name\_t rbtree)
-
-Return true if the tree is empty, false otherwise.
-
-##### void name\_it(name\_it\_t it, name\_t rbtree)
-
-Set the iterator 'it' to the first element of 'rbtree'.
-
-##### void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
-
-Set the iterator 'it' to the same element than 'ref'.
-
-##### void name\_it\_last(name\_it\_t it, name\_t rbtree)
-
-Set the iterator 'it' to the last element of 'rbtree'.
-
-##### void name\_it\_end(name\_it\_t it, name\_t rbtree)
-
-Set the iterator 'it' to no element of 'rbtree'.
-
 ##### void name\_it\_from(name\_it\_t it, const name\_t rbtree, const type data)
 
 Set the iterator 'it' to
 the lowest element of the tree 'rbtree' greater or equal than 'data'
 or an iterator to no element is there is none.
-
-##### bool name\_end\_p(const name\_it\_t it)
-
-Return true if 'it' references no longer a valid element.
-
-##### bool name\_last\_p(const name\_it\_t it)
-
-Return true if 'it' references the last element or is no longer valid.
 
 ##### bool name\_it\_until\_p(const name\_it\_t it, const type data)
 
@@ -2803,61 +2711,6 @@ or if it references no longer a valid element, false otherwise.
 
 Return true if 'it' references an element that is lower or equal than 'data'.
 Otherwise (or if it references no longer a valid element) it returns false.
-
-##### void name\_it\_remove(name\_t rbtree, name\_it\_t it)
-
-Remove the element pointed by 'it' from the tree 'rbtree' and update 'it' to point to the next element.
-All other iterators to the tree became invalid.
-
-##### void name\_next(name\_it\_t it)
-
-Update the iterator 'it' to the next element.
-
-##### void name\_previous(name\_it\_t it)
-
-Update the iterator 'it' to the previous element.
-
-##### type *name\_ref(name\_it\_t it)
-##### const type *name\_ref(name\_it\_t it)
-
-Return a pointer to the element pointer by the iterator 'it'.
-This pointer remains valid until the Red Black Tree is modified by another method.
-
-##### void name\_get\_str(string\_t str, const name\_t rbtree, bool append)
-
-Generate a formatted string representation of the rbtree 'rbtree' and set 'str' to this representation
-(if 'append' is false) or append 'str' with this representation (if 'append' is true).
-This method is only defined if the type of the element defines a GET\_STR method itself.
-
-##### bool name\_parse\_str(name\_t tree, const char str[], const char **endp)
-
-Parse the formatted string 'str' that is assumed to be a string representation of a RBTREE
-and set 'tree' to this representation.
-This method is only defined if all types of the element defines PARSE\_STR & INIT methods itself.
-It returns true if success, false otherwise.
-If endp is not NULL, it sets '*endp' to the pointer of the first character not
-decoded by the function.
-
-##### void name\_out\_str(FILE *file, const name\_t rbtree)
-
-Generate a formatted string representation of the rbtree 'rbtree' and outputs it into the FILE 'file'.
-This method is only defined if the type of the element defines a OUT\_STR method itself.
-
-##### bool name\_in\_str(name\_t rbtree, FILE *file)
-
-Read from the file 'file' a formatted string representation of a rbtree and set 'rbtree' to this representation.
-It returns true if success, false otherwise.
-This method is only defined if the type of the element defines a IN\_STR method itself.
-
-##### bool name\_equal\_p(const name\_t rbtree1, const name\_t rbtree2)
-
-Return true if both rbtree 'rbtree1' and 'rbtree2' are equal.
-This method is only defined if the type of the element defines a EQUAL method itself.
-
-##### size\_t name\_hash(const name\_t rbtree)
-
-Return the hash of the tree.
-This method is only defined if the type of the element defines a HASH method itself.
 
 
 
@@ -2881,6 +2734,7 @@ depends on the type itself (its size, its compare cost) and the cache of the
 processor. 
 
 #### BPTREE\_DEF2(name, N, key\_type, key\_oplist, value\_type, value\_oplist)
+#### BPTREE\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key\_type, key\_oplist, value\_type, value\_oplist)
 
 Define the B+TREE tree of rank N 'name##\_t' and its associated methods as
 "static inline" functions. This B+TREE will be created as an associative
@@ -2893,10 +2747,13 @@ N is the number of items per node and shall be greater or equal than 2.
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
-The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET, CLEAR and CMP),
-otherwise default methods are used. If there is no given oplist, the basic oplist for basic C types is used
-or a globally registered oplist is used.
-The created methods will use the operators to init, set and clear the contained object.
+The object oplist shall have at least the operators (INIT, INIT\_SET, SET, CLEAR and CMP).
+
+BPTREE\_DEF2\_AS is the same as BPTREE\_DEF2 except the name of
+the container type name\_t, 
+the iterator type name\_it\_t,
+and the iterated object type name\_itref\_t
+are provided by the user.
 
 Example:
 
@@ -2909,17 +2766,15 @@ Example:
                 tree_uint_clear(tree);
         }
 
-#### BPTREE\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key\_type, key\_oplist, value\_type, value\_oplist)
-
-Same as BPTREE\_DEF2 except the name of the types name\_t, name\_it\_t,
-name\_itref\_t are provided.
 
 #### BPTREE\_OPLIST2(name, key\_oplist, value\_oplist)
 
 Return the oplist of the BPTREE defined by calling BPTREE\_DEF2 with name,
 key\_oplist and value\_oplist.
 
+
 #### BPTREE\_DEF(name, N, key\_type[, key\_oplist])
+#### BPTREE\_DEF\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key\_type, key\_oplist)
 
 Define the B+TREE tree of rank N 'name##\_t' and its associated methods as
 "static inline" functions. This B+TREE will be created as an ordered set
@@ -2932,13 +2787,11 @@ N is the number of items per node and shall be greater or equal than 2.
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
-The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET, CLEAR and CMP),
-otherwise default methods are used. If there is no given oplist, the basic oplist for basic C types is used
-or a globally registered oplist is used.
-The created methods will use the operators to init, set and clear the contained object.
+The object oplist shall have at least the operators (INIT, INIT\_SET, SET, CLEAR and CMP).
 
-In the following specification, in this case, value\_type will be defined as the same
-as key\_type.
+BPTREE\_DEF\_AS is the same as BPTREE\_DEF except the name of
+the container type name\_t, the iterator type name\_it\_t and the iterated object type name\_itref\_t
+are provided by the user.
 
 Example:
 
@@ -2951,10 +2804,6 @@ Example:
                 tree_uint_clear(tree);
         }
 
-#### BPTREE\_DEF\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key\_type, key\_oplist)
-
-Same as BPTREE\_DEF except the name of the types name\_t, name\_it\_t, name\_itref\_t
-are provided.
 
 #### BPTREE\_OPLIST(name[, key\_oplist])
 
@@ -2963,6 +2812,7 @@ If there is no given oplist, the basic oplist for basic C types is used.
 
 
 #### BPTREE\_MULTI\_DEF2(name, N, key\_type, key\_oplist, value\_type, value\_oplist)
+#### BPTREE\_MULTI\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key\_type, key\_oplist, value\_type, value\_oplist)
 
 Define the B+TREE tree of rank N 'name##\_t' and its associated methods as
 "static inline" functions. This B+TREE will be created as an associative
@@ -2973,13 +2823,12 @@ the value associated to the key).
 
 See BPTREE\_DEF2 for additional details and example.
 
+BPTREE\_MULTI\_DEF2\_AS is the same as BPTREE\_MULTI\_DEF2 except the name of the types
+name\_t, name\_it\_t, name\_itref\_t are provided by the user.
 
-#### BPTREE\_MULTI\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key\_type, key\_oplist, value\_type, value\_oplist)
-
-Same as BPTREE\_MULTI\_DEF2 except the name of the types name\_t, name\_it\_t, name\_itref\_t
-are provided.
 
 #### BPTREE\_MULTI\_DEF(name, N, key\_type[, key\_oplist])
+#### BPTREE\_MULTI\_DEF\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key\_type, key\_oplist)
 
 Define the B+TREE tree of rank N 'name##\_t' and its associated methods as
 "static inline" functions. This B+TREE will be created as an ordered set
@@ -2990,17 +2839,13 @@ the key value).
 
 See BPTREE\_DEF for additional details and example.
 
-
-#### BPTREE\_MULTI\_DEF\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key\_type, key\_oplist)
-
-Same as BPTREE\_MULTI\_DEF except the name of the types name\_t, name\_it\_t, name\_itref\_t
-are provided.
+BPTREE\_MULTI\_DEF\_AS is the same as BPTREE\_MULTI\_DEF except the name of the types
+name\_t, name\_it\_t, name\_itref\_t are provided by the user.
 
 
 #### Created methods
 
-The following methods are automatically and properly created by the previous macros. 
-In the following methods, name stands for the name given to the macro that is used to identify the type.
+The following types are automatically defined by the previous definition macro if not provided by the user:
 
 ##### name\_t
 
@@ -3014,54 +2859,45 @@ Type of an iterator over this B+Tree.
 
 Type of one item referenced in the B+Tree. It is either:
 
-* a structure composed of a pointer to the key (field key\_ptr) and a pointer to the value (field value\_ptr) if the B+Tree is a map
+* a structure composed of a pointer to the key (field key\_ptr) and a pointer to the value (field value\_ptr) if the B+Tree is an associative array,
 * or the basic type of the container if the B+Tree is a set.
 
-##### void name\_init(name\_t tree)
 
-Initialize the B+Tree 'tree' and set it to empty.
+The following methods of the generic interface are defined (See generic interface for details):
 
-##### void name\_clear(name\_t tree)
+* void name\_init(name\_t tree)
+* void name\_clear(name\_t tree)
+* void name\_init\_set(name\_t tree, const name\_t ref)
+* void name\_set(name\_t tree, const name\_t ref)
+* void name\_init\_move(name\_t tree, name\_t ref)
+* void name\_move(name\_t tree, name\_t ref)
+* void name\_reset(name\_t tree)
+* size\_t name\_size(const name\_t tree)
+* void name\_push(name\_t tree, const key\_type data) [for set definition only]
+* void name\_set\_at(name\_t tree, const key\_type data, const value\_type val) [for associative array definition only]
+* bool name\_erase(name\_t tree, const key\_type data)
+* value\_type * name\_get(const name\_t tree, const key\_type data)
+* const value\_type * name\_cget(const name\_t tree, const key\_type data)
+* value\_type * name\_safe\_get(name\_t tree, const key\_type data)
+* void name\_swap(name\_t tree1, name\_t tree2)
+* bool name\_empty\_p(const name\_t tree)
+* void name\_it(name\_it\_t it, name\_t tree)
+* void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
+* void name\_it\_end(name\_it\_t it, name\_t tree)
+* bool name\_end\_p(const name\_it\_t it)
+* bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it1)
+* void name\_next(name\_it\_t it)
+* name\_itref\_t *name\_ref(name\_it\_t it)
+* const name\_itref\_t *name\_cref(name\_it\_t it)
+* void name\_get\_str(string\_t str, const name\_t tree, bool append)
+* bool name\_parse\_str(name\_t tree, const char str[], const char **endp)
+* void name\_out\_str(FILE *file, const name\_t tree)
+* bool name\_in\_str(name\_t tree, FILE *file)
+* bool name\_equal\_p(const name\_t tree1, const name\_t tree2)
+* size\_t name\_hash(const name\_t tree)
 
-Clear the B+Tree 'tree'.
 
-##### void name\_init\_set(name\_t tree, const name\_t ref)
-
-Initialize the B+Tree 'tree' to be the same as 'ref'.
-
-##### void name\_set(name\_t tree, const name\_t ref)
-
-Set the B+Tree 'tree' to be the same as 'ref'.
-
-##### void name\_init\_move(name\_t tree, name\_t ref)
-
-Initialize the B+Tree 'tree' by stealing as resource as possible
-from 'ref' and clear 'ref'.
-
-##### void name\_move(name\_t tree, name\_t ref)
-
-Set the B+Tree 'tree' by stealing as resource as possible
-from 'ref' and clear 'ref'.
-
-##### void name\_reset(name\_t tree)
-
-Reset the B+Tree 'tree' (It remains initialized but empty).
-
-##### size\_t name\_size(const name\_t tree)
-
-Return the number of elements of the B+Tree.
-
-##### void name\_push(name\_t tree, const key\_type data)
-
-Push 'data' into the B+Tree 'tree' at the right order
-while keeping the tree balanced.
-This function is defined only if the tree is not defined as an associative array.
-
-##### void name\_set\_at(name\_t tree, const key\_type data, const value\_type val)
-
-Associate the value 'val' to the key 'data' in the B+Tree 'tree'
-while keeping the tree balanced.
-This function is defined only if the tree is defined as an associative array.
+The following specialized methods are automatically created by the previous definition macro:
 
 ##### void name\_pop(value\_type *dest, name\_t tree, const key\_type data)
 
@@ -3069,12 +2905,6 @@ Pop 'data' from the B+Tree 'tree'
 and save the popped value into 'dest' if the pointer is not null
 while keeping the tree balanced.
 Do nothing if 'data' is no present in the B+Tree.
-
-##### bool name\_erase(name\_t tree, const key\_type data)
-
-Remove 'data' from the B+Tree 'tree'
-while keeping the tree balanced.
-Return true if the data is removed, false if nothing is done (data is not present).
 
 ##### value\_type * name\_min(const name\_t tree)
 ##### const value\_type * name\_cmin(const name\_t tree)
@@ -3088,47 +2918,10 @@ or NULL if there is no element in the B+Tree.
 Return a pointer to the maximum element of the tree
 or NULL if there is no element in the B+Tree.
 
-##### value\_type * name\_get(const name\_t tree, const key\_type data)
-##### const value\_type * name\_cget(const name\_t tree, const key\_type data)
-
-Return a pointer to the value of the tree 'tree' that is associated to 'data',
-or NULL if there is no match.
-
-##### value\_type * name\_safe\_get(name\_t tree, const key\_type data)
-
-Return a pointer to the value of the tree 'tree' that is associated to 'data'.
-If the key doesn't exist yet in the tree, a new entry is created with 'key'
-and a value initialized with its INIT operator,
-then a pointer to the newly created entry is returned.
-
-##### void name\_swap(name\_t tree1, name\_t tree2)
-
-Swap both trees.
-
-##### bool name\_empty\_p(const name\_t tree)
-
-Return true if the tree is empty, false otherwise.
-
-##### void name\_it(name\_it\_t it, name\_t tree)
-
-Set the iterator 'it' to the first element of 'tree'.
-
-##### void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
-
-Set the iterator 'it' to the same element than 'ref'.
-
-##### void name\_it\_end(name\_it\_t it, name\_t tree)
-
-Set the iterator 'it' to no element of 'tree'.
-
 ##### void name\_it\_from(name\_it\_t it, const name\_t tree, const type data)
 
 Set the iterator 'it' to the greatest element of 'tree'
 lower of equal than 'data' or the first element is there is none.
-
-##### bool name\_end\_p(const name\_it\_t it)
-
-Return true if 'it' references no longer a valid element.
 
 ##### bool name\_it\_until\_p(const name\_it\_t it, const type data)
 
@@ -3137,56 +2930,6 @@ Return true if 'it' references an element that is greater or equal than 'data'.
 ##### bool name\_it\_while\_p(const name\_it\_t it, const type data)
 
 Return true if 'it' references an element that is lower or equal than 'data'.
-
-##### bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it1)
-
-Return true if both iterators reference the same object.
-
-##### void name\_next(name\_it\_t it)
-
-Update the iterator 'it' to the next element.
-
-##### name\_itref\_t *name\_ref(name\_it\_t it)
-##### const name\_itref\_t *name\_cref(name\_it\_t it)
-
-Return a pointer to the element pointer by the iterator 'it'.
-This pointer remains valid until the B+Tree is modified by another method.
-
-##### void name\_get\_str(string\_t str, const name\_t tree, bool append)
-
-Generate a formatted string representation of the tree 'tree' and set 'str' to this representation
-(if 'append' is false) or append 'str' with this representation (if 'append' is true).
-This method is only defined if the type of the element defines a GET\_STR method itself.
-
-##### bool name\_parse\_str(name\_t tree, const char str[], const char **endp)
-
-Parse the formatted string 'str' that is assumed to be a string representation of a tree
-and set 'tree' to this representation.
-This method is only defined if the type of the element defines a PARSE\_STR method itself.
-It returns true if success, false otherwise.
-If endp is not NULL, it sets '*endp' to the pointer of the first character not
-decoded by the function.
-
-##### void name\_out\_str(FILE *file, const name\_t tree)
-
-Generate a formatted string representation of the tree 'tree' and outputs it into the FILE 'file'.
-This method is only defined if the type of the element defines a OUT\_STR method itself.
-
-##### bool name\_in\_str(name\_t tree, FILE *file)
-
-Read from the file 'file' a formatted string representation of a tree and set 'tree' to this representation.
-It returns true if success, false otherwise.
-This method is only defined if the type of the element defines a IN\_STR method itself.
-
-##### bool name\_equal\_p(const name\_t tree1, const name\_t tree2)
-
-Return true if both trees 'tree1' and 'tree2' are equal.
-This method is only defined if the type of the element defines a EQUAL method itself.
-
-##### size\_t name\_hash(const name\_t tree)
-
-Return the hash of the tree.
-This method is only defined if the type of the element defines a HASH method itself.
 
 
 
