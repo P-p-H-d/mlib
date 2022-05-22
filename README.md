@@ -380,7 +380,7 @@ Or even shorter when you're comfortable enough with the library:
         
         int main(void) {
           // Let's define & init 'z1=42' and 'z2=17' to be 'mpz_t'
-          M_LET ((z1,42), (z2,17), mpz_t)
+          M_LET ((z1,(42)), (z2,(17)), mpz_t)
             // Let's define 'array' as an 'array_mpz_t' with 'z1' and 'z2'
             M_LET((array,z1,z2), array_mpz_t) {
              // Let's iterate over all items of the container
