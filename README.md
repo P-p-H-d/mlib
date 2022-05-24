@@ -3717,23 +3717,27 @@ Several shared pointers may own the same object, sharing ownership of an object.
 
 
 #### SHARED\_PTR\_DEF(name, type[, oplist])
+#### SHARED\_PTR\_DEF\_AS(name, name\_t, type[, oplist])
 
 Define the shared pointer 'name##\_t' and its associated methods as "static inline" functions.
-A shared pointer is a mechanism to keep tracks of all users of an object
-and performs an automatic destruction of the object whenever all users release
+A shared pointer is a mechanism to keep tracks of all registered users of an object
+and performs an automatic destruction of the object only when all users release
 their need on this object.
+
+'name' shall be a C identifier that will be used to identify the list.
+It will be used to create all the types (including the iterator)
+and functions to handle the container.
+This definition shall be done once per name and per compilation unit.
 
 The tracking of ownership is atomic and the destruction of the object is thread safe.
 
-The object oplist is expected to have at least the following operators (CLEAR to clear the object and DEL to free the allocated memory),
-otherwise default methods are used. If there is no given oplist, the basic oplist for basic C types is used
-or a globally registered oplist is used.
-The created methods will use the operators to initialize, set and clear the contained object.
-It supports also the INIT\_MOVE operator of the object if available.
-
+The object oplist is expected to have at least the following operators (CLEAR to clear the object and DEL to free the allocated memory).
 
 There are designed to work with buffers with policy BUFFER\_PUSH\_INIT\_POP\_MOVE
 to send a shared pointer across multiple threads.
+
+SHARED\_PTR\_DEF\_AS is the same as SHARED\_PTR\_DEF except the name of the type name\_t
+is provided.
 
 Example:
 
@@ -3749,23 +3753,35 @@ Example:
         }
 
 
-#### SHARED\_PTR\_DEF\_AS(name, name\_t, type[, oplist])
+#### SHARED\_PTR\_RELAXES\_DEF(name, type[, oplist])
+#### SHARED\_PTR\_RELAXES\_DEF\_AS(name, name\_t, type[, oplist])
 
-Same as SHARED\_PTR\_DEF except the name of the type name\_t
-is provided.
+Theses are the same as SHARED\_PTR\_DEF / SHARED\_PTR\_DEF\_AS
+except that they are not thread safe.
+See SHARED\_PTR\_DEF for other details.
 
-#### Created methods
 
-The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro that is used to identify the type.
+#### Created types
+
+The following types are automatically defined by the previous definition macro if not provided by the user:
+
+##### name\_t
+
+Type of the shared pointer.
+
+#### Specialized methods
+
+The following specialized methods are automatically created by the previous definition macro:
 
 ##### void name\_init(shared\_t shared)
 
-Initialize the shared pointer 'shared' to represent NULL
+Initialize the shared pointer 'shared' to represent the NULL pointer
 (no object is therefore referenced).
 
 ##### void name\_init2(shared\_t shared, type *data)
 
-Initialize the shared pointer 'shared' to reference '*data'.
+Initialize the shared pointer 'shared' to reference the object '*data'
+and takes ownership of this object.
 User code shall not use '*data' (or any pointer to it) anymore
 as the shared pointer gets the exclusive ownership of the object.
 
@@ -3773,6 +3789,7 @@ as the shared pointer gets the exclusive ownership of the object.
 
 Initialize the shared pointer 'shared' to a new object of type 'type'.
 The default constructor of type is used to initialize the object.
+This method is only created only if the INIT method is provided.
 
 ##### void name\_init\_set(shared\_t shared, const shared\_t src)
 
@@ -3782,18 +3799,18 @@ This function is thread safe from 'src' point of view.
 
 ##### bool name\_NULL\_p(const shared\_t shared)
 
-Return true if shared doesn't reference any object.
+Return true if shared doesn't reference any object (i.e. is the NULL pointer).
 
 ##### void name\_clear(shared\_t shared)
 
-Clear the shared pointer:
+Clear the shared pointer (destructor):
 the shared pointer loses its ownership of the object and
-it destroys it if no longer any other shared pointers own the object.
+it destroys the shared object if no longer any other shared pointers own it.
 This function is thread safe.
 
 ##### void name\_reset(shared\_t shared)
 
-'shared' loses ownership of its object and destroys it
+'shared' loses ownership of its shared object and destroys it
 if no longer any other shared pointers own it.
 Then it makes the shared pointer 'shared' references no object (NULL)
 (it doesn't reference its object any-longer and loses its ownership of it).
@@ -3874,6 +3891,7 @@ Usage:
         struct mystruct variable = { ISHARED_PTR_STATIC_DESIGNATED_INIT(ishared_double, struct mystruct) };
 
 #### ISHARED\_PTR\_DEF(name, type[, oplist])
+#### ISHARED\_PTR\_DEF\_AS(name, name\_t, type[, oplist])
 
 Define the associated methods to handle the shared pointer named 'name'
 as "static inline" functions.
@@ -3904,11 +3922,14 @@ freed by DEL.
 
 It can be used for statically allocated entities. However, in this case,
 you shall disable the operator NEW & DEL when expanding the oplist
-so that the CLEAR method doesn't try to free the objects like this:
+so that the destruction doesn't try to free the objects, like this:
 
     (NEW(0), DEL(0))
 
 NEW & DEL operators shall be either both defined, or both disabled.
+
+ISHARED\_PTR\_DEF\_AS is the same as ISHARED\_PTR\_DEF except the name of the type name\_t
+is provided.
 
 Example (dynamic):
 
@@ -3931,26 +3952,25 @@ Example (dynamic):
         }
 
 
-#### ISHARED\_PTR\_DEF\_AS(name, name\_t, type[, oplist])
+#### Created types
 
-Same as ISHARED\_PTR\_DEF except the name of the type name\_t
-is provided.
+The following types are automatically defined by the previous definition macro if not provided by the user:
 
-
-#### Created methods
-
-The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro that is used to identify the type.
-
-##### typedef type *name\_t
+##### name\_t
 
 It will define name\_t as a pointer to shared counted object.
 This is a synonymous to a pointer to the object.
+
+#### Specialized methods
+
+The following specialized methods are automatically created by the previous definition macro:
 
 ##### name\_t name\_init(type *object)
 
 Return a shared pointer to 'object' which owns 'object'.
 It initializes the private fields of 'object' handling the shared pointer,
-returning a pointer to the object (but initialized).
+returning the same pointer to the object from a value point of view,
+but with the shared pointer field initialized.
 
 As a consequence, the shared pointer part of 'object' shall not have been initialized yet.
 The other part of 'object' may or may not be initialized before calling this method.
@@ -3964,11 +3984,9 @@ This function is thread safe.
 ##### name\_t name\_init\_new(void)
 
 Allocate a new object, initialize it and return an initialized shared pointer to it.
-
 The used allocation function is the NEW operator.
 
-This function is created only if the INIT method is defined in the oplist
-and if the NEW method has not been disabled in the oplist.
+This method is only created only if the INIT & NEW methods are provided and not disabled.
 
 ##### name\_t name\_init\_once(type *object)
 
@@ -3980,8 +3998,7 @@ Once the object is fully cleared, the initialization function may occur once aga
 object shall be a global variable initialized with the
 ISHARED\_PTR\_STATIC\_INIT macro.
 
-This function is created only if the INIT method is defined in the oplist
-and if the NEW method has been disabled in the oplist.
+This method is only created only if the INIT & NEW methods are provided and not disabled.
 
 ##### void name\_clear(name\_t shared)
 
