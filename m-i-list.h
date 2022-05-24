@@ -510,7 +510,7 @@ typedef struct m_il1st_head_s {
     M_C(name, _next)(it);                                                     \
   }                                                                           \
                                                                               \
-  M_IF_METHOD(NEW, oplist)(                                                   \
+  M_IF_METHOD2(NEW, INIT_SET, oplist)(                                        \
   static inline void                                                          \
   M_C(name, _insert)(list_t list, it_t it, type x)                            \
   {                                                                           \
@@ -528,7 +528,7 @@ typedef struct m_il1st_head_s {
     (void) list;                                                              \
     M_IL1ST_CONTRACT(name, list);                                             \
   }                                                                           \
-  , /* NEW not defined */)                                                    \
+  , /* NEW & INIT_SET not defined */)                                         \
                                                                               \
   static inline type *                                                        \
   M_C(name, _pop_back)(list_t list)                                           \
