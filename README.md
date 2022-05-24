@@ -1172,12 +1172,13 @@ This method is only created only if the INIT method is provided.
 This pointer remains valid until the array is modified by another method.
 This pointer should not be stored in a global variable.
 
-##### void name\_erase(name\_t container, const size\_t key)
-##### void name\_erase(name\_t container, const type\_t key) [for set]
-##### void name\_erase(name\_t container, const key\_type\_t key) [for associative array]
+##### bool name\_erase(name\_t container, const size\_t key)
+##### bool name\_erase(name\_t container, const type\_t key) [for set]
+##### bool name\_erase(name\_t container, const key\_type\_t key) [for associative array]
 
 Remove the element referenced by the key 'key' in the container 'container'.
 Do nothing if 'key' is no present in the container.
+Return true if the key was present and erased, false otherwise.
 
 ##### size\_t name\_size(const name\_t container)
 
@@ -4040,29 +4041,36 @@ level of the structure.
 See example of ILIST\_DEF.
 
 #### ILIST\_DEF(name, type[, oplist])
+#### ILIST\_DEF\_AS(name, name\_t, name\_it\_t, type[, oplist])
 
 Define the intrusive doubly-linked list 
 and define the associated methods to handle it as "static inline" functions.
-'name' shall be a C identifier that will be used to identify the list. It will be used to create all the types and functions to handle the container.
-It shall be done once per type and per compilation unit.
+
+'name' shall be a C identifier that will be used to identify the list.
+It will be used to create all the types (including the iterator)
+and functions to handle the container.
+This definition shall be done once per name and per compilation unit.
+
+The oplist shall have at least the following operators (CLEAR),
+otherwise it won't generate compilable code.
 
 An object is expected to be part of only one list of a kind in the entire program at a time.
 An intrusive list enables to move from an object to the next object without needing to go through the entire list,
 or to remove an object from a list in O(1).
 It may, or may not, be better than standard list. It depends on the context.
 
-If there is no given oplist, the methods for a basic C types are used,
-or if there is a globally registered oplist, it is used.
-The created methods will use the operators to init, set and clear the contained object.
-
 The given interface won't allocate anything to handle the objects as
 all allocations and initialization are let to the user.
-
 However the objects within the list can be automatically be cleared
 (by calling the CLEAR method to destruct the object) on list destruction.
-The memory allocation, performed by the called, can also be reclaimed
+Then the memory allocation, performed by the user program, can also be reclaimed
 by defining a DEL operator to free the used memory in the object oplist.
 If there is no DEL operator, it is up to the user to free the used memory.
+
+The list iterates from back to front.
+
+ILIST\_DEF\_AS is the same as ILIST\_DEF except the name of the types name\_t, name\_it\_t
+are provided.
 
 Example:
 
@@ -4095,14 +4103,10 @@ Example:
         }
 
 
-#### ILIST\_DEF\_AS(name, name\_t, name\_it\_t, type[, oplist])
 
-Same as SNAPSHOT\_SPSC\_DEF except the name of the types name\_t, name\_it\_t
-are provided.
+#### Created types
 
-#### Created methods
-
-The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro that is used to identify the type.
+The following types are automatically defined by the previous definition macro if not provided by the user:
 
 #### name\_t
 
@@ -4112,69 +4116,71 @@ Type of the list of 'type'.
 
 Type of an iterator over this list.
 
-The following methods are automatically and properly created by the previous macro.
+#### Generic methods
 
-##### void name\_init(name\_t list)
+The following methods of the generic interface are defined (See generic interface for details):
 
-Initialize the list 'list' (aka constructor) to an empty list.
+* void name\_init(name\_t list)
+* void name\_clear(name\_t list)
+* void name\_reset(name\_t list)
+* type *name\_back(const name\_t list)
+* type *name\_front(const name\_t list)
+* bool name\_empty\_p(const name\_t list)
+* void name\_swap(name\_t list1, name\_t list2)
+* void name\_it(name\_it\_t it, name\_t list)
+* void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
+* void name\_it\_last(name\_it\_t it, name\_t list)
+* void name\_it\_end(name\_it\_t it, name\_t list)
+* bool name\_end\_p(const name\_it\_t it)
+* bool name\_last\_p(const name\_it\_t it)
+* bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
+* void name\_next(name\_it\_t it)
+* void name\_previous(name\_it\_t it)
+* type *name\_ref(name\_it\_t it)
+* const type *name\_cref(const name\_it\_t it)
+* size\_t name\_size(const name\_t list)
+* void name\_remove(name\_t list, name\_it\_t it)
+
+#### Specialized methods
+
+The following specialized methods are automatically created by the previous definition macro:
 
 ##### void name\_init\_field(type *obj)
 
-Initialize the additional fields of the object '*obj'.
-
-##### void name\_clear(name\_t list)
-
-Clear the list 'list (aka destructor). The list can't be used anymore, except with a constructor.
-If the DEL operator is available in the oplist of the type,
-the cleared object will also be deleted.
-
-##### void name\_reset(name\_t list)
-
-Reset the list (the list becomes empty). The list remains initialized but is empty.
-If the DEL operator is available in the oplist of the type,
-the cleared object will also be deleted.
-
-##### type *name\_back(const name\_t list)
-
-Return a pointer to the data stored in the back of the list.
-
-##### type *name\_front(const name\_t list)
-
-Return a pointer to the data stored in the front of the list.
+Initialize the additional fields of the object '*obj' handling the list.
+This function shall be used in the object constructor.
 
 ##### void name\_push\_back(name\_t list, type *obj)
 
-Push the object '*obj' itself at the back of the list 'list'.
+Push the object '*obj' itself (and not a copy) at the back of the list 'list'.
 
 ##### void name\_push\_front(name\_t list, type *obj)
 
-Push the object '*obj' itself at the front of the list 'list'.
+Push the object '*obj' itself (and not a copy) at the front of the list 'list'.
 
 ##### void name\_push\_after(type *position, type *obj)
 
-Push the object '*obj' after the object '*position'.
+Push the object '*obj' itself (and not a copy) after the object '*position'.
 
 ##### type *name\_pop\_back(name\_t list)
 
 Pop the object from the back of the list 'list'
-and return a pointer to the popped object.
+and return a pointer to the popped object,
+given back the ownership of the object to the caller program
+(which becomes responsible to calling the destructor of this object).
 
 ##### type *name\_pop\_front(name\_t list)
 
 Pop the object from the front of the list 'list'
-and return a pointer to the popped object.
-
-##### bool name\_empty\_p(const name\_t list)
-
-Return true if the list is empty, false otherwise.
-
-##### void name\_swap(name\_t list1, name\_t list2)
-
-Swap the list 'list1' and 'list2'.
+and return a pointer to the popped object,
+given back the ownership of the object to the caller program
+(which becomes responsible to calling the destructor of this object).
 
 ##### void name\_unlink(type *obj)
 
 Remove the object '*obj' from the list.
+It gives back the ownership of the object to the caller program
+which becomes responsible to calling the destructor of this object.
 
 ##### type *name\_next\_obj(const name\_t list, const type *obj)
 
@@ -4186,105 +4192,58 @@ or NULL if there is no more object.
 Return the object that is before the object '*obj' in the list
 or NULL if there is no more object.
 
-##### void name\_it(name\_it\_t it, name\_t list)
-
-Set the iterator 'it' to the back(=first) element of 'list'.
-There is no destructor associated to this initialization.
-
-##### void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
-
-Set the iterator 'it' to the iterator 'ref'.
-There is no destructor associated to this initialization.
-
-##### void name\_it\_last(name\_it\_t it, name\_t list)
-
-Set the iterator 'it' to the last element of the list.
-There is no destructor associated to this initialization.
-
-##### void name\_it\_end(name\_it\_t it, name\_t list)
-
-Set the iterator 'it' to the end of the list (i.e. not a valid element).
-There is no destructor associated to this initialization.
-
-##### bool name\_end\_p(const name\_it\_t it)
-
-Return true if the iterator doesn't reference a valid element anymore.
-
-##### bool name\_last\_p(const name\_it\_t it)
-
-Return true if the iterator references the last element or if the iterator doesn't reference a valid element anymore.
-
-##### bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
-
-Return true if the iterator it1 references the same element than it2.
-
-##### void name\_next(name\_it\_t it)
-
-Move the iterator 'it' to the next element of the list.
-
-##### void name\_previous(name\_it\_t it)
-
-Move the iterator 'it' to the previous element of the list.
-
-##### type *name\_ref(name\_it\_t it)
-
-Return a pointer to the element pointed by the iterator.
-This pointer remains valid until the list is modified by another method.
-
-##### const type *name\_cref(const name\_it\_t it)
-
-Return a constant pointer to the element pointed by the iterator.
-This pointer remains valid until the list is modified by another method.
-
-##### size\_t name\_size(const name\_t list)
-
-Return the number elements of the list (aka size). Return 0 if there no element.
-
 ##### void name\_insert(name\_t list, name\_it\_t it, type x)
 
-Insert a copy of 'x' after the position pointed by 'it' 
-(which is an iterator of the list 'list') or if 'it' doesn't point anymore to a valid element of the list, it is added as the back (=first) element of the 'list'
-This service is available only if a NEW operator is available for the type.
-
-##### void name\_remove(name\_t list, name\_it\_t it)
-
-Remove the element 'it' from the list 'list'.
-After wise, 'it' points to the next element of the list.
+This method is the same as the generic one,
+except it is only created only if the NEW & INIT_SET methods are provided.
 
 ##### void name\_splice\_back(name\_t list1, name\_t list2, name\_it\_t it)
 
-Move the element pointed by 'it' (which is an iterator of 'list2') from the list 'list2' to the back position of 'list1'.
-After wise, 'it' points to the next element of 'list2'.
+Move the element pointed by 'it' from the list 'list2' to the back position of 'list1'.
+'it' shall be an iterator of 'list2'.
+Afterwards, 'it' points to the next element of 'list2'.
 
 ##### void name\_splice(name\_t list1, name\_t list2)
 
 Move all the element of 'list2' into 'list1", moving the last element
 of 'list2' after the first element of 'list1'.
-After-wise, 'list2' is emptied.
+Afterwards, 'list2' is emptied.
 
 
 ### M-CONCURRENT
 
 This header is for transforming a standard container (LIST, ARRAY, DICT, DEQUE, ...)
 into an equivalent container but compatible with concurrent access by different threads. 
-In practice, it puts a lock to access the container.
+In practice, it puts a mutex lock to access the container.
 
 As such it is quite generic. However it is less efficient than containers
 specially tuned for multiple threads.
 There is also no iterators.
 
-#### methods
-
 #### CONCURRENT\_DEF(name, type[, oplist])
+#### CONCURRENT\_DEF\_AS(name, name\_t, type[, oplist])
 
 Define the concurrent container 'name' based on container 'type' of oplist 'oplist',
 and define the associated methods to handle it as "static inline" functions.
-'name' shall be a C identifier that will be used to identify the list. 
-It will be used to create all the types and functions to handle the container.
-It shall be done once per type and per compilation unit.
+
+'name' shall be a C identifier that will be used to identify the list.
+It will be used to create all the types (including the iterator)
+and functions to handle the container.
+This definition shall be done once per name and per compilation unit.
 
 It scans the 'oplist' of the type to create equivalent function,
-so it needs it (either explicitly or implicitly).
+so the exact generated methods depend on explicitly the exported methods in the oplist:
+The init method is only defined if the base container exports the INIT operator,
+same for the clear method and the CLEAR operator,
+and so on for all created methods.
+
+In the description below,
+subtype\_t is the type of the element within the given container 'type' (if it exists),
+key\_t is the key type of the element within the given container 'type' (if it exists),
+value\_t is the value type of the element within the given container 'type' (if it exists).
+
+CONCURRENT\_DEF\_AS is the same as CONCURRENT\_DEF except the name of the type name\_t
+is provided.
 
 Example:
 
@@ -4304,99 +4263,61 @@ Example:
              cdeque_uint_push (x2, 17);
         }
 
-#### CONCURRENT\_DEF\_AS(name, name\_t, type[, oplist])
 
-Same as CONCURRENT\_DEF except the name of the type name\_t
-is provided.
+#### Created types
 
-
-#### Created methods
-
-The following methods are automatically and properly created by the previous macros. 
-In the following methods, name stands for the name given to the macro that is used to identify the type.
+The following types are automatically defined by the previous definition macro if not provided by the user:
 
 ##### name\_t
 
 Type of the concurrent container of 'type'.
 
-##### void name\_init(name\_t concurrent)
+#### Generic methods
 
-Initialize the concurrent container.
-This method is only defined if the base container exports the INIT operator.
+The following methods of the generic interface are defined (See generic interface for details):
 
-##### void name\_init\_set(name\_t concurrent, const name\_t src)
+* void name\_init(name\_t concurrent)
+* void name\_init\_set(name\_t concurrent, const name\_t src)
+* void name\_init\_move(name\_t concurrent, name\_t src)
+* void name\_set(name\_t concurrent, const name\_t src)
+* void name\_move(name\_t concurrent, name\_t src)
+* void name\_reset(name\_t concurrent)
+* void name\_clear(name\_t concurrent)
+* void name\_swap(name\_t concurrent1, name\_t concurrent2)
+* bool name\_empty\_p(const name\_t concurrent)
+* void name\_set\_at(name\_t concurrent, key\_t key, value\_t value)
+* bool name\_erase(name\_t concurrent, const key\_t key)
+* void name\_push(name\_t concurrent, const subtype\_t data)
+* void name\_push\_move(name\_t concurrent, subtype\_t *data)
+* void name\_pop\_move(subtype\_t *data, name\_t concurrent)
+* void name\_get\_str(string\_t str, name\_t concurrent, bool append)
+* void name\_out\_str(FILE *file, name\_t concurrent)
+* bool name\_parse\_str(name\_t concurrent, const char str[], const char **end)
+* bool name\_in\_str(name\_t concurrent, FILE *file)
+* bool name\_equal\_p(name\_t concurrent1, name\_t concurrent2)
+* size\_t name\_hash(name\_t concurrent)
 
-Initialize the concurrent container and set it with a copy of 'src'.
-This method is only defined if the base container exports the INIT\_SET operator.
 
-##### void name\_init\_move(name\_t concurrent, name\_t src)
+Returns true in case of success, false otherwise.
 
-Initialize the concurrent container by stealing as much resources from 'src' as possible.
-Afterwards 'src' is cleared.
-This method is only defined if the base container exports the INIT\_MOVE operator.
 
-##### void name\_set(name\_t concurrent, const name\_t src)
+#### Specialized methods
 
-Set the container with a copy of 'src'.
-This method is only defined if the base container exports the SET operator.
-
-##### void name\_move(name\_t concurrent, name\_t src)
-
-Set the container with the value of 'src' by stealing as much resources from 'src' as possible.
-Afterwards 'src' is cleared.
-This method is only defined if the base container exports the MOVE operator.
-
-##### void name\_reset(name\_t concurrent)
-
-Reset the concurrent container.
-Afterwards the container is empty, but remains initialized.
-This method is only defined if the base container exports the RESET operator.
-
-##### void name\_clear(name\_t concurrent)
-
-Clear the concurrent container and destroy any resource.
-This method shall only be called in context when no other threads can use the resource.
-This method is only defined if the base container exports the CLEAR operator.
-
-##### void name\_swap(name\_t concurrent1, name\_t concurrent2)
-
-Swap both containers.
-This method is only defined if the base container exports the SWAP operator.
-
-##### bool name\_empty\_p(const name\_t concurrent)
-
-Return true if the container is empty, false otherwise.
-This method is only defined if the base container exports the EMPTY\_P operator.
-
-##### void name\_set\_at(name\_t concurrent, key\_t key, value\_t value)
-
-Associate to the key 'key' the value 'value' in the container.
-This method is only defined if the base container exports the SET\_KEY operator.
+The following specialized methods are automatically created by the previous definition macro:
 
 ##### bool name\_get\_copy(value\_t *value, name\_t concurrent, key\_t key)
 
 Read the value associated to the key 'key'. 
 If it exists, it sets '*value' to it and returns true.
-Otherwise it returns false.
+Otherwise it returns false (*value is unchanged).
 This method is only defined if the base container exports the GET\_KEY operator.
 
 ##### void name\_safe\_get\_copy(value\_t *value, name\_t concurrent, key\_t key)
 
 Read the value associated to the key 'key'. 
 If it exists, it sets '*value' to it.
-Otherwise it creates a new value and sets '*value' to it.
+Otherwise it creates a new value (default constructor) and sets '*value' to it.
 This method is only defined if the base container exports the SAFE\_GET\_KEY operator.
-
-##### bool name\_erase(name\_t concurrent, const key\_t key)
-
-Erase the association for the key 'key'.
-Returns true in case of success, false otherwise.
-This method is only defined if the base container exports the ERASE\_KEY operator.
-
-##### void name\_push(name\_t concurrent, const subtype\_t data)
-
-Push data in the container.
-This method is only defined if the base container exports the PUSH operator.
 
 ##### void name\_pop(subtype\_t *data, name\_t concurrent)
 
@@ -4406,45 +4327,6 @@ Testing with the operator EMPTY\_P before calling this function is not enough
 as there can be some concurrent scenario where another thread pop the last value.
 name\_pop\_blocking should be used instead.
 This method is only defined if the base container exports the POP operator.
-
-##### void name\_push\_move(name\_t concurrent, subtype\_t *data)
-
-Push data in the container by stealing as much resources from data as possible.
-Afterwards, data is cleared.
-This method is only defined if the base container exports the PUSH\_MOVE operator.
-
-##### void name\_pop\_move(subtype\_t *data, name\_t concurrent)
-
-Pop data from the container and initialize '*data' with it.
-name\_pop\_move\_blocking should be used instead (See name\_pop for details).
-This method is only defined if the base container exports the POP\_MOVE operator.
-
-##### void name\_get\_str(string\_t str, name\_t concurrent, bool append)
-
-Convert the formatted container into a string representation of it and put it in 'str'
-This method is only defined if the base container exports the GET\_STR operator.
-
-##### void name\_out\_str(FILE *file, name\_t concurrent)
-
-Convert the formatted container into a string and put it in 'file'.
-This method is only defined if the base container exports the OUT\_STR operator.
-
-##### bool name\_parse\_str(name\_t concurrent, const char str[], const char **end)
-
-Convert the formatted string representing the container and set it 'concurrent' to it.
-Return true in case of success, false otherwise.
-This method is only defined if the base container exports the PARSE\_STR operator.
-
-##### bool name\_in\_str(name\_t concurrent, FILE *file)
-
-Read the file and convert the formatted string representing the container and set it 'concurrent' to it.
-Return true in case of success, false otherwise.
-This method is only defined if the base container exports the IN\_STR operator.
-
-##### bool name\_equal\_p(name\_t concurrent1, name\_t concurrent2)
-
-Return true if both containers are equal, false otherwise.
-This method is only defined if the base container exports the EQUAL operator.
 
 ##### bool name\_get\_blocking(value\_t *value, name\_t concurrent, key\_t key, bool blocking)
 
@@ -4473,11 +4355,6 @@ After the wait, it initializes & sets '*data' to it and returns true.
 Otherwise if blocking is false, it returns false (*data remains uninitialized!).
 This method is only defined if the base container exports the POP\_MOVE and EMPTY\_P operators.
 
-##### size\_t name\_hash(name\_t concurrent)
-
-Return a value suitable for being a hash of the container.
-This method is only defined if the base container exports the HASH operator.
-
 
 
 ### M-BITSET
@@ -4499,9 +4376,9 @@ Example:
         }
 
 
-#### methods
+#### methods, types & constants
 
-The methods are mostly the same than for an array. The following methods are available:
+The following methods are available:
 
 ##### bitset\_t
 
@@ -4739,7 +4616,7 @@ Example:
                 string_clear(s1);
         }
 
-#### methods
+#### methods, types & constants
 
 The following methods are available:
 
