@@ -208,6 +208,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
   }                                                                           \
                                                                               \
+  M_IF_METHOD(INIT, oplist)(                                                  \
   static inline void                                                          \
   M_C(name, _init_new)(shared_t shared)                                       \
   {                                                                           \
@@ -227,6 +228,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     *shared = ptr;                                                            \
     M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
   }                                                                           \
+  , /* No INIT */ )                                                           \
                                                                               \
   static inline bool                                                          \
   M_C(name, _NULL_p)(const shared_t shared)                                   \
