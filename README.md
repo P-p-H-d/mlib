@@ -2279,7 +2279,7 @@ The following methods of the generic interface are defined (See generic interfac
 * value\_type *name\_safe\_get(name\_t dict, const key\_type key)
 * void name\_set\_at(name\_t dict, const key\_type key, const value\_type value)   [for associative array]
 * void name\_push(name\_t dict, const key\_type key)       [for dictionary set]
-* void name\_erase(name\_t dict, const key\_type key)
+* bool name\_erase(name\_t dict, const key\_type key)
 * void name\_it(name\_it\_t it, name\_t dict)
 * void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
 * bool name\_end\_p(const name\_it\_t it)
@@ -3029,7 +3029,7 @@ The following methods of the generic interface are defined (See generic interfac
 * const type *name\_front(name\_t queue)
 * void name\_pop(type *dest, name\_t queue)
 * bool name\_equal\_p(const name\_t queue1, const name\_t queue2)
-* void name\_erase(name\_t queue, const type\_t val)
+* bool name\_erase(name\_t queue, const type\_t val)
 * void name\_it(name\_it\_t it, name\_t queue)
 * void name\_it\_last(name\_it\_t it, name\_t queue)
 * void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
