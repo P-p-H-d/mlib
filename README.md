@@ -5010,7 +5010,7 @@ is undefined.
 
 ##### string\_unicode\_t
 
-Define a type suitable to store a unicode character.
+Define a type suitable to store a unicode character as an integer.
 
 ##### string\_it\_t
 
