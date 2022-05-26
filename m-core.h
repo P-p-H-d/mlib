@@ -2304,7 +2304,7 @@ static inline bool
 m_core_parse_char (char *ptr, const char str[], const char **endptr)
 {
     *ptr = *str++;
-    if (endptr != NULL) *endptr = str;
+    if (endptr != NULL) { *endptr = str; }
     return true;
 }
 
@@ -2313,7 +2313,7 @@ m_core_parse_bool (bool *ptr, const char str[], const char **endptr)
 {
   char c = *str++;
   *ptr = (c == '1');
-  if (endptr != NULL) *endptr = str;
+  if (endptr != NULL) { *endptr = str; }
   return (c == '0' || c == '1');
 }
 
@@ -2323,7 +2323,7 @@ m_core_parse_bool (bool *ptr, const char str[], const char **endptr)
   {                                                                           \
     char *end;                                                                \
     *ptr = (type) parse_func (str, &end extra_arg);                           \
-    if (endptr != NULL) *endptr = end;                                        \
+    if (endptr != NULL) { *endptr = end; }                                    \
     return end != str;                                                        \
     }
 
