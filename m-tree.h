@@ -85,13 +85,13 @@
         /* All child of this node have the parent field correctly set */      \
         m_tr33_index_t itj = (it).tree->tab[(it).index].child;                \
         /* They all have their sibling as the left node */                    \
-        m_tr33_index_t left = M_TR33_NO_NODE;                                 \
+        m_tr33_index_t lftj = M_TR33_NO_NODE;                                 \
         /* We don't have any infinite loop */                                 \
         unsigned cpt = 0;                                                     \
         while (itj >= 0) {                                                    \
             M_ASSERT( (it).tree->tab[itj].parent == (it).index );             \
-            M_ASSERT( (it).tree->tab[itj].left == left );                     \
-            left = itj;                                                       \
+            M_ASSERT( (it).tree->tab[itj].left == lftj );                     \
+            lftj = itj;                                                       \
             itj = (it).tree->tab[itj].right;                                  \
             M_ASSERT( ++cpt < M_USE_TREE_MAX_CHILD_PER_PARENT);               \
         }                                                                     \
@@ -251,7 +251,7 @@ typedef int32_t m_tr33_index_t;
                 return M_TR33_NO_NODE;                                        \
             }                                                                 \
             /* Construct the list of free node in the extra allocated pool */ \
-            for(int32_t i = tree->size ; i < alloc; i++) {                    \
+            for(size_t i = tree->size ; i < alloc; i++) {                     \
                 ptr[i].parent = M_TR33_NO_NODE;                               \
                 ptr[i].left   = M_TR33_NO_NODE;                               \
                 ptr[i].right  = M_TR33_NO_NODE;                               \
@@ -716,7 +716,7 @@ typedef int32_t m_tr33_index_t;
         M_C(name, _next_section)(&child, it);                                 \
         while (!M_C(name, _end_p)(child)) {                                   \
             M_C3(m_tr33_, name, _free_node)(child.tree, child.index);         \
-            M_CALL_CLEAR(oplist, child.tree->tab[child.index]);               \
+            M_CALL_CLEAR(oplist, child.tree->tab[child.index].data);          \
             M_C(name, _next_section)(&child, it);                             \
         }                                                                     \
         /* Unlink the removed node */                                         \
