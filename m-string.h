@@ -1997,11 +1997,11 @@ namespace m_lib {
 #define m_string_strim(...)                                                   \
   m_string_strim(M_DEFAULT_ARGS(2, ("  \n\r\t"), __VA_ARGS__))
 
-/* Concat a set strings (or const char * if C1)) into one string */
+/* Concat a set strings (or const char * if C11)) into one string */
 #define m_string_cats(a, ...)                                                 \
   M_MAP2_C(m_string_cat, a, __VA_ARGS__)
 
-/* Set a string to a set strings (or const char * if C1)) */
+/* Set a string to a set strings (or const char * if C11)) */
 #define m_string_sets(a, ...)                                                 \
   (m_string_reset(a), M_MAP2_C(m_string_cat, a, __VA_ARGS__) )
 
