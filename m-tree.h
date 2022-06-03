@@ -61,7 +61,6 @@
 # define M_TR33_NODE_CONTRACT(node, tree) do {                                \
     M_ASSERT( (tree)->size > 0);                                              \
     M_ASSERT( (node)->parent != M_TR33_NO_NODE);                              \
-    M_ASSERT( (node) >= &(tree)->tab[0] && (node) < &(tree)->tab[(tree)->capacity] ); \
     M_ASSERT( (node)->parent == M_TR33_ROOT_NODE || (node)->parent >= 0);     \
     M_ASSERT( (node)->parent != M_TR33_ROOT_NODE || (node) == &(tree)->tab[(tree)->root_index] ); \
 } while (0)
@@ -70,6 +69,7 @@
     M_ASSERT( (tree)->size >= 0 && (tree)->size <= (tree)->capacity);         \
     M_ASSERT( (tree)->capacity >= 0 );                                        \
     M_ASSERT( (tree)->capacity == 0 || (tree)->tab != NULL);                  \
+    M_ASSERT( (tree)->allow_realloc == 1 || (tree)->allow_realloc == 32 );    \
     M_ASSERT( (tree)->free_index >= M_TR33_NO_NODE && (tree)->free_index < (tree)->capacity); \
     M_ASSERT( (tree)->root_index >= M_TR33_NO_NODE && (tree)->root_index < (tree)->capacity); \
     M_ASSERT( (tree)->free_index < 0 || (tree)->tab[(tree)->free_index].parent == M_TR33_NO_NODE); \
@@ -81,6 +81,7 @@
     M_TR33_CONTRACT( (it).tree);                                              \
     M_ASSERT(valid == false || (it).index >= 0);                              \
     if ((it).index >= 0) {                                                    \
+        M_ASSERT( (it).index < (it).tree->capacity);                          \
         M_TR33_NODE_CONTRACT(&(it).tree->tab[(it).index], (it).tree);         \
         /* All child of this node have the parent field correctly set */      \
         m_tr33_index_t itj = (it).tree->tab[(it).index].child;                \
@@ -158,6 +159,7 @@ typedef int32_t m_tr33_index_t;
        + capacity is the allocated size of the array 'tab'                    \
        + root_index is the index of the "first" root in the tree.             \
        + free_index is the list of free nodes in the array 'tab'.             \
+       + allow_realloc is a bool encoded as true=1 and false=32               \
        + tab is a pointer to the allocated nodes.                             \
     */                                                                        \
     typedef struct M_C(name, _s) {                                            \
@@ -165,6 +167,7 @@ typedef int32_t m_tr33_index_t;
         m_tr33_index_t       capacity;                                        \
         m_tr33_index_t       root_index;                                      \
         m_tr33_index_t       free_index;                                      \
+        unsigned             allow_realloc;                                   \
         M_C(name, _node_ct) *tab;                                             \
     } tree_t[1];                                                              \
                                                                               \
@@ -189,6 +192,7 @@ typedef int32_t m_tr33_index_t;
         tree->capacity = 0;                                                   \
         tree->root_index = M_TR33_NO_NODE;                                    \
         tree->free_index = M_TR33_NO_NODE;                                    \
+        tree->allow_realloc = true;                                           \
         tree->tab = NULL;                                                     \
         M_TR33_CONTRACT(tree);                                                \
     }                                                                         \
@@ -234,12 +238,54 @@ typedef int32_t m_tr33_index_t;
         return M_ASSIGN_CAST(size_t, tree->size);                             \
     }                                                                         \
                                                                               \
+    static inline void                                                        \
+    M_C(name, _reserve)(tree_t tree, size_t alloc) {                          \
+        M_TR33_CONTRACT(tree);                                                \
+        /* Nothing to do if the request is lower than the current capacity. */ \
+        if (alloc <= tree->capacity) {                                        \
+            return;                                                           \
+        }                                                                     \
+        /* Realloc the array */                                               \
+        if (M_UNLIKELY (alloc >= INT32_MAX)) {                                \
+            M_MEMORY_FULL(sizeof (struct M_C(name, _node_s)) * alloc);        \
+            return;                                                           \
+        }                                                                     \
+        struct M_C(name, _node_s) *ptr =                                      \
+            M_CALL_REALLOC(oplist, struct M_C(name, _node_s), tree->tab, alloc); \
+        if (M_UNLIKELY (ptr == NULL) ) {                                      \
+            M_MEMORY_FULL(sizeof (struct M_C(name, _node_s)) * alloc);        \
+            return;                                                           \
+        }                                                                     \
+        /* Construct the list of free node in the extra allocated pool */     \
+        for(size_t i = tree->size ; i < alloc; i++) {                         \
+            ptr[i].parent = M_TR33_NO_NODE;                                   \
+            ptr[i].left   = M_TR33_NO_NODE;                                   \
+            ptr[i].right  = M_TR33_NO_NODE;                                   \
+            ptr[i].child  = i + 1;                                            \
+        }                                                                     \
+        /* The last node has no child in the free node list */                \
+        ptr[alloc-1].child = M_TR33_NO_NODE;                                  \
+        /* Save the free list state in the tree */                            \
+        tree->tab = ptr;                                                      \
+        tree->capacity = alloc;                                               \
+        M_TR33_CONTRACT(tree);                                                \
+    }                                                                         \
+                                                                              \
+    static inline void                                                        \
+    M_C(name, _lock)(tree_t tree, bool lock) {                                \
+        M_TR33_CONTRACT(tree);                                                \
+        tree->allow_realloc = lock ? 32 : 1;                                  \
+        M_TR33_CONTRACT(tree);                                                \
+    }                                                                         \
+                                                                              \
     static inline m_tr33_index_t                                              \
     M_C3(m_tr33_, name, _alloc_node)(tree_t tree) {                           \
         m_tr33_index_t ret = tree->free_index;                                \
         if (M_UNLIKELY(ret < 0)) {                                            \
             /* No more enough space: realloc the array */                     \
-            const size_t alloc = M_CALL_INC_ALLOC(oplist, tree->size);        \
+            size_t alloc = M_CALL_INC_ALLOC(oplist, tree->size);              \
+            /* Take into account if realloc is allowed */                     \
+            alloc <<= tree->allow_realloc;                                    \
             if (M_UNLIKELY (alloc >= INT32_MAX)) {                            \
                 M_MEMORY_FULL(sizeof (struct M_C(name, _node_s)) * alloc);    \
                 return M_TR33_NO_NODE;                                        \
@@ -305,6 +351,16 @@ typedef int32_t m_tr33_index_t;
         it_t it;                                                              \
         it.tree = tree;                                                       \
         it.index = tree->root_index;                                          \
+        M_TR33_IT_CONTRACT(it, false);                                        \
+        return it;                                                            \
+    }                                                                         \
+                                                                              \
+    static inline it_t                                                        \
+    M_C(name, _it_end)(tree_t tree) {                                         \
+        M_TR33_CONTRACT(tree);                                                \
+        it_t it;                                                              \
+        it.tree = tree;                                                       \
+        it.index = M_TR33_NO_NODE;                                            \
         M_TR33_IT_CONTRACT(it, false);                                        \
         return it;                                                            \
     }                                                                         \
