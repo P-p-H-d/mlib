@@ -242,7 +242,7 @@ typedef int32_t m_tr33_index_t;
     M_C(name, _reserve)(tree_t tree, size_t alloc) {                          \
         M_TR33_CONTRACT(tree);                                                \
         /* Nothing to do if the request is lower than the current capacity. */ \
-        if (alloc <= tree->capacity) {                                        \
+        if (alloc <= (size_t) tree->capacity) {                               \
             return;                                                           \
         }                                                                     \
         /* Realloc the array */                                               \
@@ -256,12 +256,20 @@ typedef int32_t m_tr33_index_t;
             M_MEMORY_FULL(sizeof (struct M_C(name, _node_s)) * alloc);        \
             return;                                                           \
         }                                                                     \
+        /* Free the list */                                                   \
+        m_tr33_index_t *free_index = &tree->free_index;                       \
+        if (*free_index != M_TR33_NO_NODE) {                                  \
+            while (ptr[*free_index].child != M_TR33_NO_NODE) {                \
+                free_index = &ptr[*free_index].child;                         \
+            }                                                                 \
+        }                                                                     \
+        *free_index = tree->capacity;                                         \
         /* Construct the list of free node in the extra allocated pool */     \
-        for(size_t i = tree->size ; i < alloc; i++) {                         \
+        for(size_t i = tree->capacity ; i < alloc; i++) {                     \
             ptr[i].parent = M_TR33_NO_NODE;                                   \
             ptr[i].left   = M_TR33_NO_NODE;                                   \
             ptr[i].right  = M_TR33_NO_NODE;                                   \
-            ptr[i].child  = i + 1;                                            \
+            ptr[i].child  = i+1;                                       \
         }                                                                     \
         /* The last node has no child in the free node list */                \
         ptr[alloc-1].child = M_TR33_NO_NODE;                                  \
@@ -283,7 +291,7 @@ typedef int32_t m_tr33_index_t;
         m_tr33_index_t ret = tree->free_index;                                \
         if (M_UNLIKELY(ret < 0)) {                                            \
             /* No more enough space: realloc the array */                     \
-            size_t alloc = M_CALL_INC_ALLOC(oplist, tree->size);              \
+            size_t alloc = M_CALL_INC_ALLOC(oplist, tree->capacity);          \
             /* Take into account if realloc is allowed */                     \
             alloc <<= tree->allow_realloc;                                    \
             if (M_UNLIKELY (alloc >= INT32_MAX)) {                            \
@@ -297,7 +305,7 @@ typedef int32_t m_tr33_index_t;
                 return M_TR33_NO_NODE;                                        \
             }                                                                 \
             /* Construct the list of free node in the extra allocated pool */ \
-            for(size_t i = tree->size ; i < alloc; i++) {                     \
+            for(size_t i = tree->capacity; i < alloc; i++) {                  \
                 ptr[i].parent = M_TR33_NO_NODE;                               \
                 ptr[i].left   = M_TR33_NO_NODE;                               \
                 ptr[i].right  = M_TR33_NO_NODE;                               \
