@@ -3991,9 +3991,9 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_EMPLACE_LIST_TYPE_VAR_MULTI(prefix, emplace_type)                   \
   M_MAP3(M_EMPLACE_LIST_TYPE_VAR_MULTI_F, prefix, M_ID emplace_type)
 #define M_EMPLACE_LIST_TYPE_VAR_MULTI_F(prefix, num, type)                    \
-  , type M_C(prefix, num)
+  , type const M_C(prefix, num)
 #define M_EMPLACE_LIST_TYPE_VAR_SINGLE(prefix, emplace_type)                  \
-  , emplace_type prefix
+  , emplace_type const prefix
 
 
 /* Expand to the list of variable name based on the the declaration with
