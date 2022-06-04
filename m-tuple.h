@@ -212,7 +212,12 @@ namespace m_lib {
   /* Save constant as the number of arguments (internal) */                   \
   typedef enum {                                                              \
     M_C3(m_tupl3_, name, _num_args) = M_NARGS(__VA_ARGS__)                    \
-  } M_C3(m_tupl3_, name, _num_args_ct);
+  } M_C3(m_tupl3_, name, _num_args_ct);                                       \
+  /* Save alias for the types of arguments */                                 \
+  M_MAP3(M_TUPL3_DEFINE_TYPE_ELE, name, __VA_ARGS__)
+
+#define M_TUPL3_DEFINE_TYPE_ELE(name, num, a)                                 \
+  typedef M_TUPL3_GET_TYPE a M_C4(name, _type_, num, _ct);
 
 #define M_TUPL3_DEFINE_RECUR_TYPE_ELE(a)                                      \
   M_TUPL3_GET_TYPE a M_TUPL3_GET_FIELD a ;
@@ -736,7 +741,12 @@ namespace m_lib {
    M_IF_METHOD(NEW, M_RET_ARG1(__VA_ARGS__,))(NEW(M_DELAY2(M_GET_NEW) M_RET_ARG1(__VA_ARGS__,)),), \
    M_IF_METHOD(REALLOC, M_RET_ARG1(__VA_ARGS__,))(REALLOC(M_DELAY2(M_GET_REALLOC) M_RET_ARG1(__VA_ARGS__,)),), \
    M_IF_METHOD(DEL, M_RET_ARG1(__VA_ARGS__,))(DEL(M_DELAY2(M_GET_DEL) M_RET_ARG1(__VA_ARGS__,)),), \
+   EMPLACE_TYPE( ( M_REDUCE2(M_TUPL3_OPLIST_SUBTYPE, M_ID, name, M_SEQ(1, M_NARGS(__VA_ARGS__))) ) ) \
    )
+
+/* Support for EMPLACE_TYPE in OPLIST. It refers the created internal type alias */
+#define M_TUPL3_OPLIST_SUBTYPE(name, num) \
+    M_C4(name, _type_, num, _ct)
 
 #if M_USE_SMALL_NAME
 #define TUPLE_DEF2 M_TUPLE_DEF2
