@@ -556,6 +556,9 @@ static void test_reduce(void)
   assert ( M_REDUCE2(id, add, d, M_SEQ(1, 5)) == 5 * 6 /2);
   assert ( M_REDUCE2(id, add, d, M_SEQ(1, 10)) == 10 * 11 /2);
 
+  assert ( M_REDUCE2(id, add, d, M_SEQ(1, 1)) == 1);
+  assert ( M_REDUCE2(id, add, d, M_SEQ(1, 2)) == 1+2);
+
   assert ( M_REDUCE(M_ID, add, M_SEQ(1, 5))
            + M_REDUCE(M_ID, add, M_SEQ(6, 10))
            == M_REDUCE(M_ID, add, M_SEQ(1, 10)));                    
