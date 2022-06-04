@@ -48,6 +48,7 @@ int main(void)
   M_LET(base, base_t) {
     // Read the JSON file and fill-in base
     read(base, "ex11-json01.json");
+    base_emplace_back(base, STRING_CTE("John"), 40, false);
     // Print the contents of base:
     printf ("List of presents:\n");
     for M_EACH(el, base, base_t) {
