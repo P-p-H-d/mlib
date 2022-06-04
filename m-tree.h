@@ -353,6 +353,7 @@ typedef int32_t m_tr33_index_t;
     }                                                                         \
                                                                               \
     /* The iterator references the first root node */                         \
+    /* usually for pre-order walk */                                          \
     static inline it_t                                                        \
     M_C(name, _it)(tree_t tree) {                                             \
         M_TR33_CONTRACT(tree);                                                \
@@ -695,6 +696,7 @@ typedef int32_t m_tr33_index_t;
     }                                                                         \
                                                                               \
     /* Scan all nodes, first the parent then the children (uses with _it) */  \
+    /* pre-order walk */                                                      \
     static inline void                                                        \
     M_C(name, _next)(it_t *it) {                                              \
         M_TR33_IT_CONTRACT(*it, true);                                        \
@@ -714,6 +716,7 @@ typedef int32_t m_tr33_index_t;
     }                                                                         \
                                                                               \
     /* Scan all nodes, first the children then the parent */                  \
+    /* post-order walk */                                                     \
     static inline it_t                                                        \
     M_C(name, _it_post)(tree_t tree) {                                        \
         M_TR33_CONTRACT(tree);                                                \
@@ -727,6 +730,7 @@ typedef int32_t m_tr33_index_t;
     }                                                                         \
                                                                               \
     /* Scan all nodes, first the children then the parent (uses with _it_post) */ \
+    /* post-order walk */                                                     \
     static inline void                                                        \
     M_C(name, _next_post)(it_t *it) {                                         \
         M_TR33_IT_CONTRACT(*it, true);                                        \
@@ -752,10 +756,20 @@ typedef int32_t m_tr33_index_t;
         return it1.tree == it2.tree && it1.index == it2.index;                \
     }                                                                         \
                                                                               \
+    /* Scan all nodes, first the parent, then the children */                 \
+    /* post-order walk */                                                     \
+    static inline it_t                                                        \
+    M_C(name, _it_subpre)(it_t it) {                                          \
+        /* Nothing to do as it is already on the parent! */                   \
+        return it;                                                            \
+    }                                                                         \
+                                                                              \
     /* Scan the nodes of it_ref, first the parent then the children */        \
+    /* pre-order walk */                                                      \
     static inline void                                                        \
-    M_C(name, _next_section)(it_t *it, it_t it_ref) {                         \
+    M_C(name, _next_subpre)(it_t *it, it_t it_ref) {                          \
         M_TR33_IT_CONTRACT(*it, true);                                        \
+        M_TR33_IT_CONTRACT(it_ref, true);                                     \
         M_ASSERT(it->tree == it_ref.tree);                                    \
         /* First go down, if impossible go right */                           \
         if (M_C(name, _it_down)(it)) { return; }                              \
@@ -772,9 +786,10 @@ typedef int32_t m_tr33_index_t;
     }                                                                         \
                                                                               \
     /* Scan all nodes, first the children then the parent */                  \
+    /* post-order walk */                                                     \
     static inline it_t                                                        \
     M_C(name, _it_subpost)(it_t it) {                                         \
-        M_TR33_IT_CONTRACT(it, true);                                        \
+        M_TR33_IT_CONTRACT(it, true);                                         \
         /* Evaluate child first, so go down to the lowest child */            \
         while (M_C(name, _it_down)(&it)) {}                                   \
         M_TR33_IT_CONTRACT(it, false);                                        \
@@ -782,11 +797,12 @@ typedef int32_t m_tr33_index_t;
     }                                                                         \
                                                                               \
     /* Scan all nodes, first the children then the parent (uses with _it_subpost) */ \
+    /* post-order walk */                                                     \
     static inline void                                                        \
     M_C(name, _next_subpost)(it_t *it, it_t ref) {                            \
         M_TR33_IT_CONTRACT(*it, true);                                        \
         M_TR33_IT_CONTRACT(ref, true);                                        \
-        M_ASSERT(it->tree == ref.tree); \
+        M_ASSERT(it->tree == ref.tree);                                       \
         if (it->index == ref.index) {                                         \
             /* Reach end of tree */                                           \
             it->index = M_TR33_NO_NODE;                                       \
@@ -808,12 +824,12 @@ typedef int32_t m_tr33_index_t;
         M_TR33_IT_CONTRACT(it, true);                                         \
         /* remove the node, including its childs */                           \
         /* Fast removal of all the childs as we don't need to perfom a clean unlink */ \
-        it_t child = it;                                                      \
-        M_C(name, _next_section)(&child, it);                                 \
+        it_t child = M_C(name, _it_subpre)(it);                               \
+        M_C(name, _next_subpre)(&child, it);                                  \
         while (!M_C(name, _end_p)(child)) {                                   \
             M_C3(m_tr33_, name, _free_node)(child.tree, child.index);         \
             M_CALL_CLEAR(oplist, child.tree->tab[child.index].data);          \
-            M_C(name, _next_section)(&child, it);                             \
+            M_C(name, _next_subpre)(&child, it);                              \
         }                                                                     \
         /* Unlink the removed node */                                         \
         it.tree->tab[it.index].child = M_TR33_NO_NODE;                        \
@@ -931,7 +947,7 @@ typedef int32_t m_tr33_index_t;
     }
     
 // TODO: 
-// * insertion function with move semantics.
+// * insertion function with move semantics (or _raw methods?)
 // * Sort the nodes of a child in function of a userfunction
 
 #endif
