@@ -269,7 +269,7 @@ typedef int32_t m_tr33_index_t;
             ptr[i].parent = M_TR33_NO_NODE;                                   \
             ptr[i].left   = M_TR33_NO_NODE;                                   \
             ptr[i].right  = M_TR33_NO_NODE;                                   \
-            ptr[i].child  = i+1;                                       \
+            ptr[i].child  = i+1;                                              \
         }                                                                     \
         /* The last node has no child in the free node list */                \
         ptr[alloc-1].child = M_TR33_NO_NODE;                                  \
@@ -769,6 +769,38 @@ typedef int32_t m_tr33_index_t;
         /* Reach end of section */                                            \
         it->index = M_TR33_NO_NODE;                                           \
         M_TR33_IT_CONTRACT(*it, false);                                       \
+    }                                                                         \
+                                                                              \
+    /* Scan all nodes, first the children then the parent */                  \
+    static inline it_t                                                        \
+    M_C(name, _it_subpost)(it_t it) {                                         \
+        M_TR33_IT_CONTRACT(it, true);                                        \
+        /* Evaluate child first, so go down to the lowest child */            \
+        while (M_C(name, _it_down)(&it)) {}                                   \
+        M_TR33_IT_CONTRACT(it, false);                                        \
+        return it;                                                            \
+    }                                                                         \
+                                                                              \
+    /* Scan all nodes, first the children then the parent (uses with _it_subpost) */ \
+    static inline void                                                        \
+    M_C(name, _next_subpost)(it_t *it, it_t ref) {                            \
+        M_TR33_IT_CONTRACT(*it, true);                                        \
+        M_TR33_IT_CONTRACT(ref, true);                                        \
+        M_ASSERT(it->tree == ref.tree); \
+        if (it->index == ref.index) {                                         \
+            /* Reach end of tree */                                           \
+            it->index = M_TR33_NO_NODE;                                       \
+            return;                                                           \
+        }                                                                     \
+        /* First go right */                                                  \
+        if (M_C(name, _it_right)(it)) {                                       \
+            /* then go down */                                                \
+            while (M_C(name, _it_down)(it)) {}                                \
+            return;                                                           \
+        }                                                                     \
+        /* If impossible to go right, move up */                              \
+        bool b = M_C(name, _it_up)(it);                                       \
+        assert(b);                                                            \
     }                                                                         \
                                                                               \
     static inline void                                                        \
