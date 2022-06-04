@@ -9,7 +9,7 @@ TUPLE_DEF2(person,
            (present, bool)
            )
 // Register the oplist of this tuple globaly
-#define M_OPL_person_t() TUPLE_OPLIST(person, M_BASIC_OPLIST, STRING_OPLIST, M_BASIC_OPLIST )
+#define M_OPL_person_t() TUPLE_OPLIST(person, STRING_OPLIST, M_BASIC_OPLIST, M_BOOL_OPLIST )
 
 // Let's define an array of person
 ARRAY_DEF(base, person_t)

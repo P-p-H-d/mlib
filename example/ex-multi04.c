@@ -19,13 +19,13 @@ TUPLE_DEF2(record, (fields, symbol_list_t))
 #define M_OPL_record_t() TUPLE_OPLIST(record, M_OPL_symbol_list_t())
 
 TUPLE_DEF2(my_tuple, (name, string_t), (value, int))
-#define M_OPL_my_tuple_t() TUPLE_OPLIST(my_tuple)
+#define M_OPL_my_tuple_t() TUPLE_OPLIST(my_tuple, STRING_OPLIST, M_BASIC_OPLIST)
 
 ARRAY_DEF(my_list_of_tuple, my_tuple_t)
 #define M_OPL_my_list_of_tuple_t() ARRAY_OPLIST(my_list_of_tuple)
 
 TUPLE_DEF2(my_tuple_of_tuple, (name, string_t), (inner_tuple, my_tuple_t))
-#define M_OPL_my_tuple_of_tuple_t() TUPLE_OPLIST(my_tuple_of_tuple)
+#define M_OPL_my_tuple_of_tuple_t() TUPLE_OPLIST(my_tuple_of_tuple, STRING_OPLIST, M_OPL_my_tuple_t() )
 
 LIST_DEF(list_of_tuple_of_tuple, my_tuple_of_tuple_t)
 #define M_OPL_list_of_tuple_of_tuple_t() LIST_OPLIST(list_of_tuple_of_tuple, M_OPL_my_tuple_of_tuple_t() )
