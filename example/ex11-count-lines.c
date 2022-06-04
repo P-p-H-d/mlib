@@ -10,22 +10,28 @@
 #include "m-string.h"
 #include "m-atomic.h"
 
-/* Disable HASH for atomic as the default won't work */
+/* Disable HASH for atomic as the default hash method won't work */
 #define M_OPL_atomic_uint() M_OPEXTEND(M_BASIC_OPLIST, HASH(0))
 
-/* Define a dir as the number of lines and the name of the directory */
+/* Define a directory as the number of lines of the files in this directory
+   and the name of the directory */
 TUPLE_DEF2( dir, (nlines, atomic_uint), (name, string_t))
 #define M_OPL_dir_t() TUPLE_OPLIST(dir, M_BASIC_OPLIST, M_STRING_OPLIST)
 
-/* A tree of dir */
+/* A hierarchical tree of directory */
 M_TREE_DEF(tree, dir_t)
 
+/* Maximum number of characters read by file */
 #define MAX_READ_BUFFER 8192
+
+/* Maximum number of directory to scan */
+#define MAX_DIRECTORY 100000
 
 static tree_it_t
 add_directory(tree_it_t parent, const string_t dirname)
 {
-  // Miss: return dir_emplace_child(parent, 0, dirname);
+  // Miss: return dir_emplace_child(parent, 0, dirname); to simplify this function.
+  // which is too complex for what she does.
   dir_t data;
   tree_it_t it;
   dir_init_emplace(data, 0, dirname);
@@ -52,10 +58,10 @@ count_eol(const char buffer[], size_t num)
 static bool
 is_a_c_file(const string_t filename)
 {
-  return (m_string_end_with_str_p(filename, ".c")
-    || m_string_end_with_str_p(filename, ".h")
-    || m_string_end_with_str_p(filename, ".cpp")
-    || m_string_end_with_str_p(filename, ".hpp"));
+  return (string_end_with_str_p(filename, ".c")
+    || string_end_with_str_p(filename, ".h")
+    || string_end_with_str_p(filename, ".cpp")
+    || string_end_with_str_p(filename, ".hpp"));
 }
 
 static void
@@ -100,6 +106,7 @@ scan_directories(tree_it_t parent, const string_t dirname)
   // Scan all entries in the directory
   struct dirent *entry = readdir(dir);
   while (entry) {
+    // Ignore hidden entries (including '.' and '..')
     if (entry->d_name[0] != '.') {
       // Construct the path to the filename
       string_sets(filename, dirname, "/", entry->d_name);
@@ -110,7 +117,7 @@ scan_directories(tree_it_t parent, const string_t dirname)
         fprintf(stderr, "ERROR: Cannot stat %s\n", string_get_cstr(filename));
         exit(2);
       }
-      // Further scanning
+      // Further scanning in function of the kind of entry
       if (S_ISDIR(buf.st_mode)) {
         scan_directories(it, filename);
       } else {
@@ -128,20 +135,22 @@ scan_directories(tree_it_t parent, const string_t dirname)
 static void
 consolidate_directories(tree_t directories)
 {
+  // Scan all entries, first the childreen, then the parent
   for(tree_it_t it = tree_it_post(directories) ; !tree_end_p(it) ; tree_next_post(&it) ) {
     dir_t *parent = tree_up_ref(it);
     dir_t *myself = tree_ref(it);
     if (parent != NULL) {
+      // Add the child number of lines to the parent
       atomic_fetch_add_explicit(&(*parent)->nlines, (*myself)->nlines, memory_order_relaxed);
     }
-    // TODO: Sort the data
-
+    // TODO: Sort the data of the childreen by the number of lines
   }
 }
 
 static void
 print_result(tree_t directories)
 {
+  // Scan all entries, first the parent, then the childreen
   for(tree_it_t it = tree_it(directories) ; !tree_end_p(it) ; tree_next(&it) ) {
     int depth = tree_depth(it);
     for(int i = 0; i < depth; i++) printf("+");
@@ -157,20 +166,25 @@ int main(int argc, const char *argv[])
 
   printf("Count the number of C/C++ lines of code\n");
   if (argc < 2) {
-    fprintf(stderr, "ERROR. Usage is %s <directory>.\n", argv[0]);
+    fprintf(stderr, "ERROR. Usage is '%s <directory>'.\n", argv[0]);
     exit(1);
   }
 
+  /* Init the tree, reserve for at least the number of max directory
+    and prevent any further increase of allocation:
+    this is to ensure that other threads can deref a dir safely */
   tree_init(directories);
-  tree_reserve(directories, 1000000);
+  tree_reserve(directories, MAX_DIRECTORY);
   tree_lock(directories, true);
   string_init_set_str(str, argv[1]);
   tree_it_t it = tree_it_end(directories);
 
+  /* Main processing */
   scan_directories(it, str);
   consolidate_directories(directories);
   print_result(directories);
 
+  /* Clear everything & quit */
   string_clear(str);
   tree_clear(directories);
   exit(0);
