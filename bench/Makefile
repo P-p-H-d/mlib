@@ -118,7 +118,7 @@ bench-stl:
 bench-qt:
 	@if test -n "$${QT}" ; then $(MAKE) bench-qt0 ; else echo "Nothing to be done for QT." ; fi
 bench-qt0:
-	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -fPIC `PKG_CONFIG_PATH="$${QT}" pkg-config --libs --cflags Qt5Core` bench-qt.cpp common.c -o bench-qt.exe
+	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -fPIC bench-qt.cpp common.c -o bench-qt.exe `PKG_CONFIG_PATH="$${QT}" pkg-config --libs --cflags Qt5Core`
 	@./bench-qt.exe 10
 	@./bench-qt.exe 20
 	@./bench-qt.exe 30
@@ -162,12 +162,12 @@ bench-cmc0:
 	@./bench-cmc.exe 30
 	@./bench-cmc.exe 40
 
-# LIBDYNAMIC shall point to the the directory containing the file libdynamic.pc
+# LIBDYNAMIC shall point to the the source directory where the source is built
 bench-libdynamic:
 	@if test -n "$${LIBDYNAMIC}" ; then $(MAKE) bench-libdynamic0 ; else echo "Nothing to be done for LIBDYNAMIC." ; fi
 
 bench-libdynamic0:
-	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) bench-libdynamic.c common.c -o bench-libdynamic.exe `PKG_CONFIG_PATH="$${LIBDYNAMIC}" pkg-config --libs --cflags libdynamic` 
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) bench-libdynamic.c common.c -o bench-libdynamic.exe -I$${LIBDYNAMIC}/src $${LIBDYNAMIC}/.libs/libdynamic.a
 	@./bench-libdynamic.exe 20
 	@./bench-libdynamic.exe 40
 	@./bench-libdynamic.exe 41
