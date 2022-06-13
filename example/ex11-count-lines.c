@@ -10,12 +10,20 @@
 #include "m-string.h"
 #include "m-atomic.h"
 
+/* Sort the atomic unsigned int with the biggest value first. */
+static inline int atomic_uint_cmp(const atomic_uint *a, const atomic_uint *b)
+{
+  unsigned ai = atomic_load(a), bi = atomic_load(b);
+  return ai > bi ? -1 : ai < bi;
+}
 /* Disable HASH for atomic as the default hash method won't work */
-#define M_OPL_atomic_uint() M_OPEXTEND(M_BASIC_OPLIST, HASH(0))
+#define M_OPL_atomic_uint() M_OPEXTEND(M_BASIC_OPLIST, HASH(0), CMP(API_6(atomic_uint_cmp)))
 
 /* Define a directory as the number of lines of the files in this directory
-   and the name of the directory */
-TUPLE_DEF2( dir, (nlines, atomic_uint), (name, string_t))
+   and the name of the directory 
+   (Only sort with the number value by disable the sort compare for the string).
+*/
+TUPLE_DEF2( dir, (nlines, atomic_uint), (name, string_t, M_OPEXTEND(STRING_OPLIST, CMP(0))))
 #define M_OPL_dir_t() TUPLE_OPLIST(dir, M_BASIC_OPLIST, M_STRING_OPLIST)
 
 /* A hierarchical tree of directory */
@@ -143,7 +151,8 @@ consolidate_directories(tree_t directories)
       // Add the child number of lines to the parent
       atomic_fetch_add_explicit(&(*parent)->nlines, (*myself)->nlines, memory_order_relaxed);
     }
-    // TODO: Sort the data of the childreen by the number of lines
+    // Sort the data of the childreen by the number of lines
+    tree_sort_child(it);
   }
 }
 
@@ -152,10 +161,11 @@ print_result(tree_t directories)
 {
   // Scan all entries, first the parent, then the childreen
   for(tree_it_t it = tree_it(directories) ; !tree_end_p(it) ; tree_next(&it) ) {
-    int depth = tree_depth(it);
-    for(int i = 0; i < depth; i++) printf("+");
+    int i, depth = tree_depth(it);
+    for(i = 0; i < depth; i++) printf("+");
+    for(     ; i < 8; i++) printf(" ");
     const dir_t *d = tree_cref(it);
-    printf("%u %s\n", (unsigned) (*d)->nlines, string_get_cstr( (*d)->name ) );
+    printf("%6u %s\n", (unsigned) (*d)->nlines, string_get_cstr( (*d)->name ) );
   }
 }
 
