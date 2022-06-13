@@ -399,15 +399,15 @@ namespace m_lib {
 
 #define M_TUPL3_MAP_CMP_FIELD(name, a)                                        \
   M_IF_METHOD(CMP, M_TUPL3_GET_OPLIST a)(                                     \
-    M_TUPL3_DEFINE_CMP_FIELD_FUNC(name, M_TUPL3_GET_FIELD a, M_TUPL3_GET_CMP a), \
+    M_TUPL3_DEFINE_CMP_FIELD_FUNC(name, M_TUPL3_GET_FIELD a, M_TUPL3_GET_CMP a, M_TUPL3_GET_OPLIST a), \
   )
 
-#define M_TUPL3_DEFINE_CMP_FIELD_FUNC(name, field, func_cmp)                  \
+#define M_TUPL3_DEFINE_CMP_FIELD_FUNC(name, field, func_cmp, oplist)          \
   static inline int M_C3(name, _cmp_, field)(M_C(name,_ct) const e1 ,         \
                                              M_C(name,_ct) const e2) {        \
     M_TUPL3_CONTRACT(e1);                                                     \
     M_TUPL3_CONTRACT(e2);                                                     \
-    return func_cmp ( e1 -> field , e2 -> field );                            \
+    return M_APPLY_API(func_cmp, oplist, e1 -> field , e2 -> field );         \
   }
 
 
@@ -745,7 +745,7 @@ namespace m_lib {
    )
 
 /* Support for EMPLACE_TYPE in OPLIST. It refers the created internal type alias */
-#define M_TUPL3_OPLIST_SUBTYPE(name, num) \
+#define M_TUPL3_OPLIST_SUBTYPE(name, num)                                     \
     M_C4(name, _type_, num, _ct)
 
 #if M_USE_SMALL_NAME
