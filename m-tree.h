@@ -867,50 +867,65 @@ typedef int32_t m_tr33_index_t;
         return it1;                                                           \
     }                                                                         \
                                                                               \
-    static inline it_t                                                        \
-    M_C(name, _swap_at)(it_t it1, it_t it2) {                                 \
-        M_ASSERT(it1.tree == it2.tree);                                       \
+    static inline void                                                        \
+    M_C(name, _swap_at)(it_t it1, it_t it2, bool swapChild) {                 \
+        M_ASSUME(it1.tree == it2.tree);                                       \
         M_TR33_IT_CONTRACT(it1, true);                                        \
         M_TR33_IT_CONTRACT(it2, true);                                        \
-        m_tr33_index_t tmp1, tmp2;                                            \
-        /* Swap left references */                                            \
-        tmp1 = it1.tree->tab[it1.index].left;                                 \
-        tmp2 = it2.tree->tab[it2.index].left;                                 \
-        it1.tree->tab[it1.index].left = tmp2;                                 \
-        it2.tree->tab[it2.index].left = tmp1;                                 \
-        if (tmp1 >= 0) { it1.tree->tab[tmp1].right = it2.index; }             \
-        if (tmp2 >= 0) { it2.tree->tab[tmp2].right = it1.index; }             \
-        /* Swap right references */                                           \
-        tmp1 = it1.tree->tab[it1.index].right;                                \
-        tmp2 = it2.tree->tab[it2.index].right;                                \
-        it1.tree->tab[it1.index].right = tmp2;                                \
-        it2.tree->tab[it2.index].right = tmp1;                                \
-        if (tmp1 >= 0) { it1.tree->tab[tmp1].left = it2.index; }              \
-        if (tmp2 >= 0) { it2.tree->tab[tmp2].left = it1.index; }              \
-        /* Swap down references */                                            \
-        tmp1 = it1.tree->tab[it1.index].child;                                \
-        tmp2 = it2.tree->tab[it2.index].child;                                \
-        it1.tree->tab[it1.index].child = tmp2;                                \
-        it2.tree->tab[it2.index].child = tmp1;                                \
-        while (tmp1 >= 0) {                                                   \
-            it1.tree->tab[tmp1].parent = it2.index;                           \
-            tmp1 = it1.tree->tab[tmp1].right;                                 \
+        /* Read all references before modifying anything */                   \
+        m_tr33_index_t tmp1_l = it1.tree->tab[it1.index].left;                \
+        m_tr33_index_t tmp2_l = it2.tree->tab[it2.index].left;                \
+        m_tr33_index_t tmp1_r = it1.tree->tab[it1.index].right;               \
+        m_tr33_index_t tmp2_r = it2.tree->tab[it2.index].right;               \
+        m_tr33_index_t tmp1_d = it1.tree->tab[it1.index].child;               \
+        m_tr33_index_t tmp2_d = it2.tree->tab[it2.index].child;               \
+        m_tr33_index_t tmp1_u = it1.tree->tab[it1.index].parent;              \
+        m_tr33_index_t tmp2_u = it2.tree->tab[it2.index].parent;              \
+        /* Special cases if both nodes are siblings of the same node */       \
+        if (tmp1_r == it2.index) {                                            \
+            M_ASSERT(tmp2_l == it1.index);                                    \
+            tmp1_r = it1.index;                                               \
+            tmp2_l = it2.index;                                               \
         }                                                                     \
-        while (tmp2 >= 0) {                                                   \
-            it2.tree->tab[tmp2].parent = it1.index;                           \
-            tmp2 = it2.tree->tab[tmp2].right;                                 \
+        if (tmp2_r == it1.index) {                                            \
+            M_ASSERT(tmp1_l == it2.index);                                    \
+            tmp2_r = it2.index;                                               \
+            tmp1_l = it1.index;                                               \
+        }                                                                     \
+        /* Swap left references */                                            \
+        it1.tree->tab[it1.index].left = tmp2_l;                               \
+        it2.tree->tab[it2.index].left = tmp1_l;                               \
+        if (tmp1_l >= 0) { it1.tree->tab[tmp1_l].right = it2.index; }         \
+        if (tmp2_l >= 0) { it2.tree->tab[tmp2_l].right = it1.index; }         \
+        /* Swap right references */                                           \
+        it1.tree->tab[it1.index].right = tmp2_r;                              \
+        it2.tree->tab[it2.index].right = tmp1_r;                              \
+        if (tmp1_r >= 0) { it1.tree->tab[tmp1_r].left = it2.index; }          \
+        if (tmp2_r >= 0) { it2.tree->tab[tmp2_r].left = it1.index; }          \
+        /* Swap down references */                                            \
+        if (swapChild == false) {                                             \
+            it1.tree->tab[it1.index].child = tmp2_d;                          \
+            it2.tree->tab[it2.index].child = tmp1_d;                          \
+            while (tmp1_d >= 0) {                                             \
+                it1.tree->tab[tmp1_d].parent = it2.index;                     \
+                tmp1_d = it1.tree->tab[tmp1_d].right;                         \
+            }                                                                 \
+            while (tmp2_d >= 0) {                                             \
+                it2.tree->tab[tmp2_d].parent = it1.index;                     \
+                tmp2_d = it2.tree->tab[tmp2_d].right;                         \
+            }                                                                 \
         }                                                                     \
         /* Swap up references */                                              \
-        tmp1 = it1.tree->tab[it1.index].parent;                               \
-        tmp2 = it2.tree->tab[it2.index].parent;                               \
-        it1.tree->tab[it1.index].parent = tmp2;                               \
-        it2.tree->tab[it2.index].parent = tmp1;                               \
-        if (it1.tree->tab[tmp1].child == it1.index) {                         \
-            it1.tree->tab[tmp1].child = it2.index;                            \
+        it1.tree->tab[it1.index].parent = tmp2_u;                             \
+        it2.tree->tab[it2.index].parent = tmp1_u;                             \
+        if (tmp1_u >= 0 && it1.tree->tab[tmp1_u].child == it1.index) {        \
+            it1.tree->tab[tmp1_u].child = it2.index;                          \
         }                                                                     \
-        if (it2.tree->tab[tmp2].child == it2.index) {                         \
-            it2.tree->tab[tmp2].child = it1.index;                            \
+        else if (tmp2_u >= 0 && it2.tree->tab[tmp2_u].child == it2.index) {   \
+            it2.tree->tab[tmp2_u].child = it1.index;                          \
         }                                                                     \
+        M_TR33_IT_CONTRACT(it1, true);                                        \
+        M_TR33_IT_CONTRACT(it2, true);                                        \
     }                                                                         \
                                                                               \
     static void                                                               \
@@ -944,7 +959,33 @@ typedef int32_t m_tr33_index_t;
         }                                                                     \
         M_TR33_IT_CONTRACT(it1, true);                                        \
         M_TR33_IT_CONTRACT(it2, true);                                        \
-    }
+    }                                                                         \
+                                                                              \
+    M_IF_METHOD(CMP,oplist)(                                                  \
+    static void                                                               \
+    M_C(name, _sort_child)(it_t it0) {                                        \
+        M_TR33_IT_CONTRACT(it0, true);                                        \
+        it_t it1 = it0;                                                       \
+        if (!M_C(name, _it_down)(&it1) ) return ;                             \
+        /* Selection sort */                                                  \
+        do {                                                                  \
+            it_t it_min = it1;                                                \
+            it_t it2    = it1;                                                \
+            while (M_C(name, _it_right)(&it2)) {                              \
+                if (M_CALL_CMP(oplist, *M_C(name, _cref)(it2), *M_C(name, _cref)(it_min)) < 0) { \
+                    it_min = it2;                                             \
+                }                                                             \
+            }                                                                 \
+            if (M_C(name, _it_equal_p)(it_min, it1) == false) {               \
+                M_C(name, _swap_at)(it1, it_min, true);                       \
+                /* The iterator it1 is no longer the min */                   \
+                it1 = it_min;                                                 \
+            }                                                                 \
+        } while (M_C(name, _it_right)(&it1));                                 \
+        M_TR33_IT_CONTRACT(it0, true);                                        \
+    }                                                                         \
+    , /* No CMP */ )                                                          \
+
     
 // TODO: 
 // * insertion function with move semantics (or _raw methods?)
