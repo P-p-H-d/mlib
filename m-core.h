@@ -4012,10 +4012,10 @@ m_core_parse2_enum (const char str[], const char **endptr)
   M_IF(M_KEYWORD_P(INIT_WITH, init_func))                                     \
   (M_EMPLACE_CALL_FUNC_INIT_WITH, M_EMPLACE_CALL_FUNC_USER_PROVIDED)          \
   (prefix, init_func, oplist, dest, emplace_type)
-#define M_EMPLACE_CALL_FUNC_INIT_WITH(prefix, init_func, oplist, dest, emplace_type)    \
+#define M_EMPLACE_CALL_FUNC_INIT_WITH(prefix, init_func, oplist, dest, emplace_type) \
    /* If INIT_FUNC==INIT_WITH, classic use of INIT_WITH operator */           \
    M_CALL_INIT_WITH(oplist, dest M_EMPLACE_LIST_VAR(prefix, emplace_type) )
-#define M_EMPLACE_CALL_FUNC_USER_PROVIDED(prefix, init_func, oplist, dest, emplace_type)    \
+#define M_EMPLACE_CALL_FUNC_USER_PROVIDED(prefix, init_func, oplist, dest, emplace_type) \
    /* Use the user provided init_func instead (with API transformation) */    \
    M_APPLY_API(init_func, oplist, dest M_EMPLACE_LIST_VAR(prefix, emplace_type) )
 
