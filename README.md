@@ -6538,6 +6538,9 @@ Register the work order 'func(data)' to the the synchronization point 'syncBlock
 If no worker is available (and no extraQueue), the work order 'func(data)' will be handled
 by the caller. Otherwise the work order 'func(data)' will be handled
 by an asynchronous worker and the function immediately returns.
+The object(s) referenced by 'data' shall remain available (not destructed) until the
+control flow reaches the next synchronization point (worker\_sync),
+as theses object(s) may be delayed read by other threads until this point.
 
 #### bool worker\_sync\_p(worker\_block\_t syncBlock)
 
@@ -6572,6 +6575,9 @@ These lists shall be exhaustive to capture all needed variables.
 
 This macro needs either GCC (for nested function) or CLANG (for blocks)
 or a C++11 compiler (for lambda and functional) to work.
+
+The next synchronization point (worker\_sync) shall be present in the control flow
+of the current C block.
 
 NOTE1: Even if nested functions are used for GCC, it doesn't generate
 a trampoline and the stack doesn't need to be executable as all variables are captured by the library.
