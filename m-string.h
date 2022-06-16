@@ -1640,19 +1640,14 @@ m_str1ng_utf8_valid_str_p(const char str[])
 }
 
 /* Computer the number of unicode characters are represented in the UTF8 stream
-   Return SIZE_MAX (aka -1) in case of error
  */
 static inline size_t
 m_str1ng_utf8_length(const char str[])
 {
   size_t size = 0;
-  m_str1ng_utf8_state_e s = M_STR1NG_UTF8_STARTING;
-  m_string_unicode_t u = 0;
   while (*str) {
-    m_str1ng_utf8_decode(*str, &s, &u);
-    if (M_UNLIKELY (s == M_STR1NG_UTF8_ERROR)) return SIZE_MAX;
-    size += (s == M_STR1NG_UTF8_STARTING);
-    str++;
+    unsigned char val = (unsigned char) *str++;
+    size += ((val & 0xC0u) != 0x80u);
   }
   return size;
 }
