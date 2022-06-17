@@ -5054,12 +5054,11 @@ Return the number of UTF8 encoded characters in the string.
 
 Return true if the string is a valid UTF8,
 false otherwise.
-It doesn't check for unique canonical form for UTF8 string,
-so it may report 'true' whereas the string is not strictly conforming.
+It doesn't check for unique canonical form for UTF8 string.
 
 ##### STRING\_CTE(string)
 
-Macro to convert a constant array string into a temporary string\_t variable
+Macro to convert a constant C string into a temporary string\_t variable
 suitable only for being called within a function.
 
 ##### STRING\_OPLIST
@@ -5068,20 +5067,20 @@ The oplist of a string\_t
 
 ##### BOUNDED\_STRING\_DEF(name, size)
 
-aka char[N+1]
+aka char[size+1]
 TODO: Document the API.
 
 
 ### M-CORE
 
 This header is the internal core of M\*LIB, providing a lot of functionality 
-by extending a lot the preprocessing capability.
+by extending the preprocessing capability.
 Working with these macros is not easy and the developer needs to know
 how the macro preprocessing works.
 It also adds the needed macro for handling the oplist.
 As a consequence, it is needed by all other header files.
 
-Some macros are using recursion to work.
+A few macros are using recursion to work.
 This is not an easy feat to do as it needs some tricks to work (see
 reference).
 This still work well with only one major limitation: it can not be chained.
@@ -5157,7 +5156,7 @@ at macro processing stage, not at compiler stage).
 ##### M\_INV(cond)
 
 Inverse 0 into 1 and 1 into 0. It is undefined if cond is not 0 or 1
-(use M\_BOOL to convert). 
+(You could use M\_BOOL to convert). 
 Return a pre-processing token corresponding to this value (meaning it is evaluated
 at macro processing stage, not at compiler stage).
 
@@ -5165,7 +5164,7 @@ at macro processing stage, not at compiler stage).
 
 Perform a logical 'and' between cond1 and cond2. 
 cond1 and cond2 shall be 0 or 1.
-(You should use M\_bool to convert this parameter otherwise).
+(You could use M\_bool to convert).
 Return a pre-processing token corresponding to this value (meaning it is evaluated
 at macro processing stage, not at compiler stage).
 
@@ -5173,7 +5172,7 @@ at macro processing stage, not at compiler stage).
 
 Perform a logical 'or' between cond1 and cond2. 
 cond1 and cond2 shall be 0 or 1.
-(You should use M\_bool to convert this parameter otherwise).
+(You could use M\_bool to convert).
 Return a pre-processing token corresponding to this value (meaning it is evaluated
 at macro processing stage, not at compiler stage).
 
@@ -5190,22 +5189,22 @@ x and y shall be within [0..M\_MAX\_NB\_ARGUMENT].
 ##### M\_LESS\_THAN\_P(x, y)
 
 Return 1 if x < y, 0 otherwise (resolution is performed at preprocessing time).
-x and y shall be within [0..M\_MAX\_NB\_ARGUMENT].x
+x and y shall be within [0..M\_MAX\_NB\_ARGUMENT].
 
 ##### M\_LESS_OR\_EQUAL\_P(x, y)
 
 Return 1 if x <= y, 0 otherwise (resolution is performed at preprocessing time).
-x and y shall be within [0..M\_MAX\_NB\_ARGUMENT].x
+x and y shall be within [0..M\_MAX\_NB\_ARGUMENT].
 
 ##### M\_GREATER_OR\_EQUAL\_P(x, y)
 
 Return 1 if x >= y, 0 otherwise (resolution is performed at preprocessing time).
-x and y shall be within [0..M\_MAX\_NB\_ARGUMENT].x
+x and y shall be within [0..M\_MAX\_NB\_ARGUMENT].
 
 ##### M\_GREATER_THAN\_P(x, y)
 
 Return 1 if x > y, 0 otherwise (resolution is performed at preprocessing time).
-x and y shall be within [0..M\_MAX\_NB\_ARGUMENT].x
+x and y shall be within [0..M\_MAX\_NB\_ARGUMENT].
 
 ##### M\_COMMA\_P(arglist)
 
@@ -5227,7 +5226,7 @@ It also won't work for expression starting with ')'
 
 ##### M\_PARENTHESIS\_P(expression)
 
-Return 1 if the argument 'expression' starts a parenthesis and ends it
+Return 1 if the argument 'expression' starts with a parenthesis and ends with it
 (like '(...)'), 0 otherwise.
 Return a pre-processing token corresponding to this value (meaning it is evaluated
 at macro processing stage, not at compiler stage).
@@ -5266,8 +5265,8 @@ Return the pre-processing token 'action\_if\_true' if 'cond' is true,
 action\_if\_false otherwise (meaning it is evaluated
 at macro processing stage, not at compiler stage).
 
-cond shall be a 0 or 1 as a preprocessing constant.
-(You should use M\_bool to convert this parameter otherwise).
+'cond' shall be a 0 or 1 as a preprocessing constant.
+(You could use M\_bool to convert).
 
 ##### M\_IF\_EMPTY(cond)(action\_if\_true, action\_if\_false)
 
@@ -5275,14 +5274,14 @@ Return the pre-processing token 'action\_if\_true' if 'cond' is empty,
 action\_if\_false otherwise (meaning it is evaluated
 at macro processing stage, not at compiler stage).
 
-cond shall be a preprocessing constant equal to 0 or 1.
-(You should use M\_bool to convert this parameter otherwise).
+'cond' shall be a preprocessing constant equal to 0 or 1.
+(You could use M\_bool to convert).
 
 ##### M\_DELAY1(expr)
 ##### M\_DELAY2(expr) 
 ##### M\_DELAY3(expr)
 ##### M\_DELAY4(expr) 
-##### M\_ID
+##### M\_ID(...)
 
 Delay the evaluation by 1, 2, 3 or 4 steps.
 This is necessary to write macros that are recursive.
@@ -5428,6 +5427,8 @@ Can not be chained.
       ==>
       f(a, b) f(c, d)
 
+OBSOLETE macro
+
 ##### M\_REDUCE(funcMap, funcReduce, args...)
 
 Map the macro funcMap to all given arguments 'args'
@@ -5458,7 +5459,7 @@ and reduce all theses computation with the macro 'funcReduce'.
 
 ##### M\_SEQ(init, end)
 
-Generate a sequence of number from 'init' to 'end'
+Generate a sequence of number from 'init' to 'end' (included)
 
         M_SEQ(1, 6)
         ==>
@@ -5655,6 +5656,7 @@ It can be used to generate less predictable hash values at run-time,
 which may protect against 
 [DOS dictionary attacks](https://events.ccc.de/congress/2011/Fahrplan/attachments/2007_28C3_Effective_DoS_on_web_application_platforms.pdf).
 It shall be unique for a running instance of M\*LIB.
+
 Note that using a random seed is not enough to protect efficiently against
 such attacks. A cryptography secure hash may be also needed.
 If it is not defined, the default is to use the value 0,
@@ -5690,8 +5692,8 @@ limb can be 0.
 ##### size\_t m\_core\_hash (const void *str, size\_t length)
 
 Compute the hash of the binary representation of the data pointer by 'str'
-of length 'length'. 'str' shall have the same alignment restriction
-than a 'size\_t'.
+of length 'length'. 'str' shall have the maximum alignment restriction
+of all types that size is less or equal than 'length'.
 
 
 #### OPERATORS Functions
@@ -5829,6 +5831,8 @@ By putting this after a method for an operator in the oplist,
 it specifies that the first argument of the method shall be a pointer
 to the destination type, rather than the type.
 See M\_API\_2 for an equivalent implementation.
+
+OBSOLETE MACRO
 
 ##### M\_DO\_INIT\_MOVE(oplist, dest, src)
 ##### M\_DO\_MOVE(oplist, dest, src)
