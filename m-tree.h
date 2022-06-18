@@ -186,6 +186,11 @@ typedef int32_t m_tr33_index_t;
         m_tr33_index_t        index;                                          \
     } it_t;                                                                   \
                                                                               \
+    M_TR33_DEF_P4_CORE(name, type, oplist, tree_t, it_t)                      \
+    M_TR33_DEF_P4_CLASSIC(name, type, oplist, tree_t, it_t)
+
+/* Define the core & unique methods of a tree */
+#define M_TR33_DEF_P4_CORE(name, type, oplist, tree_t, it_t)                  \
     static inline void                                                        \
     M_C(name, _init)(tree_t tree) {                                           \
         tree->size = 0;                                                       \
@@ -230,12 +235,6 @@ typedef int32_t m_tr33_index_t;
         /* This is so reusing the object implies an assertion failure */      \
         tree->size = 1;                                                       \
         tree->tab = NULL;                                                     \
-    }                                                                         \
-                                                                              \
-    static inline size_t                                                      \
-    M_C(name, _size)(const tree_t tree) {                                     \
-        M_TR33_CONTRACT(tree);                                                \
-        return M_ASSIGN_CAST(size_t, tree->size);                             \
     }                                                                         \
                                                                               \
     static inline void                                                        \
@@ -986,9 +985,167 @@ typedef int32_t m_tr33_index_t;
     }                                                                         \
     , /* No CMP */ )                                                          \
 
+
+/* Define the classic missing methods of a tree */
+#define M_TR33_DEF_P4_CLASSIC(name, type, oplist, tree_t, it_t)               \
+    static inline void                                                        \
+    M_C(name, _init_set)(tree_t tree, const tree_t ref) {                     \
+        tree->size = ref->size;                                               \
+        tree->capacity = ref->capacity;                                       \
+        tree->root_index = ref->root_index;                                   \
+        tree->free_index = ref->free_index;                                   \
+        tree->allow_realloc = ref->allow_realloc;                             \
+        size_t alloc = M_ASSIGN_CAST(size_t, ref->capacity);                  \
+        struct M_C(name, _node_s) *ptr =                                      \
+            M_CALL_REALLOC(oplist, struct M_C(name, _node_s), NULL, alloc);   \
+        if (M_UNLIKELY (ptr == NULL) ) {                                      \
+            M_MEMORY_FULL(sizeof(struct M_C(name, _node_s)) * alloc);         \
+            return;                                                           \
+        }                                                                     \
+        tree->tab = ptr;                                                      \
+        /* We don't scan recursively the node tree, but sequentially */       \
+        for(m_tr33_index_t i = 0 ; i < ref->capacity ; i ++) {                \
+            tree->tab[i].parent = ref->tab[i].parent;                         \
+            tree->tab[i].child  = ref->tab[i].child;                          \
+            tree->tab[i].left   = ref->tab[i].left;                           \
+            tree->tab[i].right  = ref->tab[i].right;                          \
+            /* If the node is not a free node, copy the data  */              \
+            if (tree->tab[i].parent != M_TR33_NO_NODE) {                      \
+                M_CALL_INIT_SET(oplist, tree->tab[i].data, ref->tab[i].data); \
+            }                                                                 \
+        }                                                                     \
+        M_TR33_CONTRACT(tree);                                                \
+    }                                                                         \
+                                                                              \
+    static inline void                                                        \
+    M_C(name, _set)(tree_t tree, const tree_t ref) {                          \
+        /* No optimum, but good enought for present time */                   \
+        M_C(name, _clear)(tree);                                              \
+        M_C(name, _init_set)(tree, ref);                                      \
+    }                                                                         \
+                                                                              \
+    static inline void                                                        \
+    M_C(name, _init_move)(tree_t tree, tree_t ref) {                          \
+        tree->size = ref->size;                                               \
+        tree->capacity = ref->capacity;                                       \
+        tree->root_index = ref->root_index;                                   \
+        tree->free_index = ref->free_index;                                   \
+        tree->allow_realloc = ref->allow_realloc;                             \
+        tree->tab = ref->tab;                                                 \
+        /* This is so reusing the object implies an assertion failure */      \
+        ref->size = 1;                                                        \
+        ref->tab = NULL;                                                      \
+    }                                                                         \
+                                                                              \
+    static inline void                                                        \
+    M_C(name, _move)(tree_t tree, tree_t ref) {                               \
+        M_C(name, _clear)(tree);                                              \
+        M_C(name, _init_move)(tree, ref);                                     \
+    }                                                                         \
+                                                                              \
+    static inline void                                                        \
+    M_C(name, _swap)(tree_t tree1, tree_t tree2) {                            \
+        M_TR33_CONTRACT(tree1);                                               \
+        M_TR33_CONTRACT(tree2);                                               \
+        M_SWAP(m_tr33_index_t, tree1->size, tree2->size);                     \
+        M_SWAP(m_tr33_index_t, tree1->capacity, tree2->capacity);             \
+        M_SWAP(m_tr33_index_t, tree1->root_index, tree2->root_index);         \
+        M_SWAP(m_tr33_index_t, tree1->free_index, tree2->free_index);         \
+        M_SWAP(unsigned, tree1->allow_realloc, tree2->allow_realloc);         \
+        M_SWAP(M_C(name, _node_ct) *, tree1->tab, tree2->tab);                \
+        M_TR33_CONTRACT(tree1);                                               \
+        M_TR33_CONTRACT(tree2);                                               \
+    }                                                                         \
+                                                                              \
+    static inline size_t                                                      \
+    M_C(name, _size)(const tree_t tree) {                                     \
+        M_TR33_CONTRACT(tree);                                                \
+        return M_ASSIGN_CAST(size_t, tree->size);                             \
+    }                                                                         \
+                                                                              \
+    static inline bool                                                        \
+    M_C(name, _empty_p)(const tree_t tree) {                                  \
+        M_TR33_CONTRACT(tree);                                                \
+        return tree->size == 0;                                               \
+    }                                                                         \
+                                                                              \
+    static inline size_t                                                      \
+    M_C(name, _capacity)(const tree_t tree) {                                 \
+        M_TR33_CONTRACT(tree);                                                \
+        return M_ASSIGN_CAST(size_t, tree->capacity);                         \
+    }                                                                         \
+                                                                              \
+    /* Service not really usefull as the affectation operator works with it */\
+    static inline void                                                        \
+    M_C(name, _it_set)(it_t *dst, it_t src ){                                 \
+        *dst = src;                                                           \
+    }                                                                         \
+                                                                              \
+    M_IF_METHOD(EQUAL, oplist)(                                               \
+    static inline bool                                                        \
+    M_C(name, _equal_p)(/*const*/ tree_t t1, /*const*/ tree_t t2) {           \
+        M_TR33_CONTRACT(t1);                                                  \
+        M_TR33_CONTRACT(t2);                                                  \
+        /* Fast case if the sizes don't match */                              \
+        if (M_LIKELY(t1->size != t2->size)) {                                 \
+            return false;                                                     \
+        }                                                                     \
+        /* Slow case. We need to scan both tree                               \
+           and check if we move in the same way                               \
+           while checking also the data                                       \
+           */                                                                 \
+        it_t it1 = M_C(name, _it)(t1);                                        \
+        it_t it2 = M_C(name, _it)(t2);                                        \
+        while (!M_C(name, _end_p)(it1)) {                                     \
+            if (M_C(name, _end_p)(it2)) return false;                         \
+            bool b = M_CALL_EQUAL(oplist, *M_C(name, _cref)(it1), *M_C(name, _cref)(it2)); \
+            if (!b) return false;                                             \
+            /* First go down, if impossible go right */                       \
+            if (M_C(name, _it_down)(&it1) ) {                                 \
+                b = M_C(name, _it_down)(&it2);                                \
+                if (!b) return false;                                         \
+                continue;                                                     \
+            }                                                                 \
+            if (M_C(name, _it_right)(&it1)) {                                 \
+                b = M_C(name, _it_right)(&it2);                               \
+                if (!b) return false;                                         \
+                continue;                                                     \
+            }                                                                 \
+            /* If impossible, move up and then right until impossible */      \
+            while (M_C(name, _it_up)(&it1)) {                                 \
+                b = M_C(name, _it_up)(&it2);                                  \
+                if (!b) return false;                                         \
+                if (M_C(name, _it_right)(&it1)) {                             \
+                    b = M_C(name, _it_right)(&it2);                           \
+                    if (!b) return false;                                     \
+                    goto do_continue;                                         \
+                }                                                             \
+            }                                                                 \
+            /* Reach end of tree */                                           \
+            do_continue:                                                      \
+            continue;                                                         \
+        }                                                                     \
+        return M_C(name, _end_p)(it2);                                        \
+    }                                                                         \
+    , /* No EQUAL */ )                                                        \
+                                                                              \
+    M_IF_METHOD(HASH, oplist)(                                                \
+    static size_t                                                             \
+    M_C(name, _hash)(/* const */ tree_t t1) {                                 \
+        M_HASH_DECL(hash);                                                    \
+        for(it_t it = M_C(name, _it)(t1);                                     \
+            !M_C(name, _end_p)(it) ;                                          \
+            M_C(name, _next)(&it)) {                                          \
+            size_t h = M_CALL_HASH(oplist, *M_C(name, _cref)(it));            \
+            M_HASH_UP(hash, h);                                               \
+        }                                                                     \
+        return M_HASH_FINAL(hash);                                            \
+    }                                                                         \
+    , /* No HASH */ )                                                         \
     
 // TODO: 
 // * insertion function with move semantics (or _raw methods?)
-// * Sort the nodes of a child in function of a userfunction
+// * emplace insertion
+// * I/O
 
 #endif
