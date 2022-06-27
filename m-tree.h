@@ -265,17 +265,17 @@ typedef int32_t m_tr33_index_t;
         }                                                                     \
         *free_index = tree->capacity;                                         \
         /* Construct the list of free node in the extra allocated pool */     \
-        for(size_t i = tree->capacity ; i < alloc; i++) {                     \
+        for(size_t i = (size_t)tree->capacity; i < alloc; i++) {              \
             ptr[i].parent = M_TR33_NO_NODE;                                   \
             ptr[i].left   = M_TR33_NO_NODE;                                   \
             ptr[i].right  = M_TR33_NO_NODE;                                   \
-            ptr[i].child  = i+1;                                              \
+            ptr[i].child  = (m_tr33_index_t)(i+1);                            \
         }                                                                     \
         /* The last node has no child in the free node list */                \
         ptr[alloc-1].child = M_TR33_NO_NODE;                                  \
         /* Save the free list state in the tree */                            \
         tree->tab = ptr;                                                      \
-        tree->capacity = alloc;                                               \
+        tree->capacity = (m_tr33_index_t) alloc;                              \
         M_TR33_CONTRACT(tree);                                                \
     }                                                                         \
                                                                               \
@@ -291,7 +291,7 @@ typedef int32_t m_tr33_index_t;
         m_tr33_index_t ret = tree->free_index;                                \
         if (M_UNLIKELY(ret < 0)) {                                            \
             /* No more enough space: realloc the array */                     \
-            size_t alloc = M_CALL_INC_ALLOC(oplist, tree->capacity);          \
+            size_t alloc = M_CALL_INC_ALLOC(oplist, (size_t) tree->capacity); \
             /* Take into account if realloc is allowed */                     \
             alloc <<= tree->allow_realloc;                                    \
             if (M_UNLIKELY (alloc >= INT32_MAX)) {                            \
@@ -305,17 +305,18 @@ typedef int32_t m_tr33_index_t;
                 return M_TR33_NO_NODE;                                        \
             }                                                                 \
             /* Construct the list of free node in the extra allocated pool */ \
-            for(size_t i = tree->capacity; i < alloc; i++) {                  \
+            M_ASSERT(tree->capacity >= 0);                                    \
+            for(size_t i = (size_t) tree->capacity; i < alloc; i++) {         \
                 ptr[i].parent = M_TR33_NO_NODE;                               \
                 ptr[i].left   = M_TR33_NO_NODE;                               \
                 ptr[i].right  = M_TR33_NO_NODE;                               \
-                ptr[i].child  = i + 1;                                        \
+                ptr[i].child  = (m_tr33_index_t) i + 1;                       \
             }                                                                 \
             /* The last node has no child in the free node list */            \
             ptr[alloc-1].child = M_TR33_NO_NODE;                              \
             /* Save the free list state in the tree */                        \
             tree->tab = ptr;                                                  \
-            tree->capacity = alloc;                                           \
+            tree->capacity = (m_tr33_index_t) alloc;                          \
             ret = tree->size;                                                 \
         }                                                                     \
         /* Pop an element in the list of free nodes */                        \
@@ -749,7 +750,7 @@ typedef int32_t m_tr33_index_t;
         M_TR33_IT_CONTRACT(*it, false);                                       \
     }                                                                         \
                                                                               \
-    static bool                                                               \
+    static inline bool                                                        \
     M_C(name, _it_equal_p)(it_t it1, it_t it2) {                              \
         M_TR33_IT_CONTRACT(it1, false);                                       \
         M_TR33_IT_CONTRACT(it2, false);                                       \
@@ -928,7 +929,7 @@ typedef int32_t m_tr33_index_t;
         M_TR33_IT_CONTRACT(it2, true);                                        \
     }                                                                         \
                                                                               \
-    static void                                                               \
+    static inline void                                                        \
     M_C(name, _graft_child)(it_t it1, const it_t it2) {                       \
         M_ASSERT(it1.tree == it2.tree);                                       \
         M_TR33_IT_CONTRACT(it1, true);                                        \
@@ -962,7 +963,7 @@ typedef int32_t m_tr33_index_t;
     }                                                                         \
                                                                               \
     M_IF_METHOD(CMP,oplist)(                                                  \
-    static void                                                               \
+    static inline void                                                        \
     M_C(name, _sort_child)(it_t it0) {                                        \
         M_TR33_IT_CONTRACT(it0, true);                                        \
         it_t it1 = it0;                                                       \
@@ -996,7 +997,7 @@ typedef int32_t m_tr33_index_t;
         tree->root_index = ref->root_index;                                   \
         tree->free_index = ref->free_index;                                   \
         tree->allow_realloc = ref->allow_realloc;                             \
-        size_t alloc = M_ASSIGN_CAST(size_t, ref->capacity);                  \
+        size_t alloc = (size_t) ref->capacity;                                \
         struct M_C(name, _node_s) *ptr =                                      \
             M_CALL_REALLOC(oplist, struct M_C(name, _node_s), NULL, alloc);   \
         if (M_UNLIKELY (ptr == NULL) ) {                                      \
@@ -1061,7 +1062,7 @@ typedef int32_t m_tr33_index_t;
     static inline size_t                                                      \
     M_C(name, _size)(const tree_t tree) {                                     \
         M_TR33_CONTRACT(tree);                                                \
-        return M_ASSIGN_CAST(size_t, tree->size);                             \
+        return (size_t) tree->size;                                           \
     }                                                                         \
                                                                               \
     static inline bool                                                        \
@@ -1073,7 +1074,7 @@ typedef int32_t m_tr33_index_t;
     static inline size_t                                                      \
     M_C(name, _capacity)(const tree_t tree) {                                 \
         M_TR33_CONTRACT(tree);                                                \
-        return M_ASSIGN_CAST(size_t, tree->capacity);                         \
+        return (size_t) tree->capacity;                                       \
     }                                                                         \
                                                                               \
     /* Service not really usefull as the affectation operator works with it */\
@@ -1131,7 +1132,7 @@ typedef int32_t m_tr33_index_t;
     , /* No EQUAL */ )                                                        \
                                                                               \
     M_IF_METHOD(HASH, oplist)(                                                \
-    static size_t                                                             \
+    static inline size_t                                                      \
     M_C(name, _hash)(/* const */ tree_t t1) {                                 \
         M_HASH_DECL(hash);                                                    \
         for(it_t it = M_C(name, _it)(t1);                                     \
@@ -1149,7 +1150,7 @@ typedef int32_t m_tr33_index_t;
 #define M_TR33_DEF_P4_IO(name, type, oplist, tree_t, it_t)                    \
 M_IF_METHOD(GET_STR, oplist)(                                                 \
 static inline void                                                            \
-M_C(name, _get_str)(string_t str, tree_t tree, bool append) {                 \
+M_C(name, _get_str)(string_t str, /*const*/ tree_t tree, bool append) {       \
     (append ? m_string_cat_str : m_string_set_str) (str, "[");                \
     it_t it = M_C(name, _it)(tree);                                           \
     while (!M_C(name, _end_p)(it)) {                                          \
@@ -1186,6 +1187,10 @@ M_C(name, _get_str)(string_t str, tree_t tree, bool append) {                 \
 M_IF_METHOD(PARSE_STR, oplist)(                                               \
 static inline bool                                                            \
 M_C(name, _parse_str)(tree_t tree, const char str[], const char **endp) {     \
+    M_TR33_CONTRACT(tree);                                                    \
+    int cmd = 0;                                                              \
+    type item;                                                                \
+    it_t it;                                                                  \
     M_C(name, _reset)(tree);                                                  \
     bool success = false;                                                     \
     int c = *str;                                                             \
@@ -1193,10 +1198,8 @@ M_C(name, _parse_str)(tree_t tree, const char str[], const char **endp) {     \
     c = *++str;                                                               \
     if (M_UNLIKELY (c == ']')) { success = true; goto exit; }                 \
     if (M_UNLIKELY (c == 0)) goto exit;                                       \
-    type item;                                                                \
     M_CALL_INIT(oplist, item);                                                \
-    it_t it = M_C(name, _it_end)(tree);                                       \
-    int cmd = 0;                                                              \
+    it = M_C(name, _it_end)(tree);                                            \
     while (true) {                                                            \
         c = *str++;                                                           \
         if (c != '{') goto exit_clear;                                        \
@@ -1241,6 +1244,7 @@ exit_clear:                                                                   \
     M_CALL_CLEAR(oplist, item);                                               \
 exit:                                                                         \
     if (endp) *endp = str;                                                    \
+    M_TR33_CONTRACT(tree);                                                    \
     return success;                                                           \
 }                                                                             \
 , /* No PARSE_STR */ )                                                        \
@@ -1249,5 +1253,12 @@ exit:                                                                         \
 // * insertion function with move semantics (or _raw methods?)
 // * emplace insertion
 // * I/O
+
+
+#if M_USE_SMALL_NAME
+#define TREE_DEF M_TREE_DEF
+#define TREE_DEF_AS M_TREE_DEF_AS
+#define TREE_OPLIST M_TREE_OPLIST
+#endif
 
 #endif
