@@ -426,20 +426,24 @@ typedef int32_t m_tr33_index_t;
         M_TR33_IT_CONTRACT(it, true);                                         \
         m_tr33_index_t i = M_C3(m_tr33_, name, _alloc_node)(it.tree);         \
         m_tr33_index_t parent = it.tree->tab[it.index].parent;                \
+        m_tr33_index_t left   = it.tree->tab[it.index].left;                  \
+        m_tr33_index_t right  = it.tree->tab[it.index].right;                 \
         it.tree->tab[i].parent = parent;                                      \
-        it.tree->tab[i].left  = it.tree->tab[it.index].left;                  \
-        it.tree->tab[i].right = it.tree->tab[it.index].right;                 \
-        it.tree->tab[i].child = it.index;                                     \
+        it.tree->tab[i].left   = left;                                        \
+        it.tree->tab[i].right  = right;                                       \
+        it.tree->tab[i].child  = it.index;                                    \
         it.tree->tab[it.index].parent = i;                                    \
         it.tree->tab[it.index].left = M_TR33_NO_NODE;                         \
         it.tree->tab[it.index].right = M_TR33_NO_NODE;                        \
         if (M_UNLIKELY(it.tree->root_index == it.index)) {                    \
             /* We have added a parent to the root node. Update root index */  \
             it.tree->root_index = i;                                          \
-        } else { if (it.tree->tab[ parent ].child == it.index) {              \
+        } else { if (it.tree->tab[parent].child == it.index) {                \
             /* Update the parent to point to the new child */                 \
-            it.tree->tab[ parent ].child = i;                                 \
+            it.tree->tab[parent].child = i;                                   \
         } }                                                                   \
+        if (left  != M_TR33_NO_NODE) { it.tree->tab[left].right = i; }        \
+        if (right != M_TR33_NO_NODE) { it.tree->tab[right].left = i; }        \
         /* Return updated iterator on the inserted node */                    \
         it.index = i;                                                         \
         M_CALL_INIT_SET(oplist, it.tree->tab[i].data, data);                  \
@@ -496,6 +500,7 @@ typedef int32_t m_tr33_index_t;
     static inline it_t                                                        \
     M_C(name, _insert_left)(it_t it, type const data) {                       \
         M_TR33_IT_CONTRACT(it, true);                                         \
+        M_ASSERT(it.index != it.tree->root_index);                            \
         m_tr33_index_t i = M_C3(m_tr33_, name, _alloc_node)(it.tree);         \
         m_tr33_index_t left = it.tree->tab[it.index].left;                    \
         m_tr33_index_t parent = it.tree->tab[it.index].parent;                \
@@ -523,6 +528,7 @@ typedef int32_t m_tr33_index_t;
     static inline it_t                                                        \
     M_C(name, _insert_right)(it_t it, type const data) {                      \
         M_TR33_IT_CONTRACT(it, true);                                         \
+        M_ASSERT(it.index != it.tree->root_index);                            \
         m_tr33_index_t i = M_C3(m_tr33_, name, _alloc_node)(it.tree);         \
         m_tr33_index_t right = it.tree->tab[it.index].right;                  \
         it.tree->tab[i].parent = it.tree->tab[it.index].parent;               \
@@ -1253,7 +1259,9 @@ exit:                                                                         \
 // * insertion function with move semantics (or _raw methods?)
 // * emplace insertion
 // * I/O
-
+// * Allocate one more "spare" member in the array (alloc is capacity+1),
+// so that we don't need to write if (i != M_TR33_NO_NODE) { tab[i] = j; }
+// but simply "tab[i] = j;" (avoid one conditional branch).
 
 #if M_USE_SMALL_NAME
 #define TREE_DEF M_TREE_DEF
