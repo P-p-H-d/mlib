@@ -90,10 +90,25 @@ static void test_basic(void)
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{-1,[{0,[{1,[{3},{5,[{2}]},{4,[{6}]}]}]}]}]"));
 
-    tree_insert_child(it4, 7);
+    tree_it_t it7 = tree_insert_child(it4, 7);
     assert( tree_size(t) == 9);
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{-1,[{0,[{1,[{3},{5,[{2}]},{4,[{7},{6}]}]}]}]}]"));
+
+    tree_insert_child(it7, 8);
+    assert( tree_size(t) == 10);
+    tree_get_str(s, t, false);
+    assert(string_equal_str_p(s, "[{-1,[{0,[{1,[{3},{5,[{2}]},{4,[{7,[{8}]},{6}]}]}]}]}]"));
+
+    tree_insert_left(it7, 9);
+    assert( tree_size(t) == 11);
+    tree_get_str(s, t, false);
+    assert(string_equal_str_p(s, "[{-1,[{0,[{1,[{3},{5,[{2}]},{4,[{9},{7,[{8}]},{6}]}]}]}]}]"));
+
+    tree_insert_right(it7, 10);
+    assert( tree_size(t) == 12);
+    tree_get_str(s, t, false);
+    assert(string_equal_str_p(s, "[{-1,[{0,[{1,[{3},{5,[{2}]},{4,[{9},{7,[{8}]},{10},{6}]}]}]}]}]"));
 
     string_clear(s);
     tree_clear(t);
