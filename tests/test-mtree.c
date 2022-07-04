@@ -99,8 +99,76 @@ static void test_basic(void)
     tree_clear(t);
 }
 
+/* Random insertion in a tree.
+   We let the normal assertions of the tree to check for errors. */
+#define MAX_NODE_INSERT 10000
+static tree_it_t g_tree[MAX_NODE_INSERT];
+static tree_it_t g_root;
+static unsigned g_num;
+
+static void insert(unsigned cmd, unsigned ref)
+{
+  assert( g_num < MAX_NODE_INSERT);
+  assert( cmd < 5);
+  assert( ref <= g_num);
+  int val = (int) g_num + 1;
+  switch (cmd) {
+    case 0:
+      g_tree[++g_num] = tree_insert_up( g_tree[ref], val);
+      if (tree_it_equal_p(g_tree[ref], g_root)) {
+        g_root = g_tree[g_num];
+      }
+      break;
+    case 1:
+      g_tree[++g_num] = tree_insert_down( g_tree[ref], val);
+      break;
+    case 2:
+      g_tree[++g_num] = tree_insert_child( g_tree[ref], val);
+      break;
+    case 3:
+      if (tree_it_equal_p(g_tree[ref], g_root)) {
+        return;
+      }
+      g_tree[++g_num] = tree_insert_left( g_tree[ref], val);
+      break;
+    default:
+      if (tree_it_equal_p(g_tree[ref], g_root)) {
+        return;
+      }
+      g_tree[++g_num] = tree_insert_right( g_tree[ref], val);
+      break;
+  }
+}
+
+
+static inline unsigned int rand_get(void)
+{
+  static unsigned int randValue = 0;
+  randValue = randValue * 31421U + 6927U;
+  return randValue;
+}
+
+static void test_gen(void)
+{
+  tree_t t;
+  string_t s;
+  tree_init(t);
+  string_init(s);
+  g_root = g_tree[++ g_num] = tree_set_root(t, 1);
+  tree_get_str(s, t, false);
+  for(unsigned i = 0; i < MAX_NODE_INSERT; i++) {
+    unsigned cmd = rand_get() % 5;
+    unsigned ref = 1 + (rand_get() % g_num);
+    insert(cmd, ref);
+    tree_get_str(s, t, false);
+  }
+  string_clear(s);
+  tree_clear(t);
+}
+
 int main(void)
 {
     test_basic();
+    test_gen();
     return 0;
 }
