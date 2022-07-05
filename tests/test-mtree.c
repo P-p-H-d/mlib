@@ -32,7 +32,7 @@
   (append ? m_string_cat_printf : m_string_printf) (str, "%d", x)
 
 START_COVERAGE
-TREE_DEF(tree, int, M_OPEXTEND(M_DEFAULT_OPLIST, GET_STR(M_GET_STRING_INT)))
+TREE_DEF(tree, int, M_OPEXTEND(M_DEFAULT_OPLIST, GET_STR(M_GET_STRING_INT),PARSE_STR(m_core_parse_sint M_IPTR),IN_STR(m_core_fscan_sint)))
 END_COVERAGE
 TREE_DEF(tree_mpz, testobj_t, TESTOBJ_OPLIST)
 
@@ -181,9 +181,91 @@ static void test_gen(void)
   tree_clear(t);
 }
 
+static void test_io(void)
+{
+  bool b;
+  tree_t t1, t2;
+  tree_init(t1);
+  tree_init_set(t2, t1);
+  assert(tree_empty_p(t2));
+
+  // Test empty
+#if 0
+  FILE *f = m_core_fopen ("a-mtree.dat", "wt");
+  if (!f) abort();
+  tree_out_str(f, t1);
+  fclose (f);
+
+  f = m_core_fopen ("a-mtree.dat", "rt");
+  if (!f) abort();
+  b = tree_in_str (t2, f);
+  assert (b == true);
+  assert (tree_equal_p (t1, t2));
+  assert(tree_empty_p(t2));
+  fclose(f);
+#endif
+
+  M_LET(s, string_t) {
+    tree_get_str(s, t1, false);
+    assert(string_equal_str_p(s, "[]"));
+    const char *sp;
+    b = tree_parse_str(t2, string_get_cstr(s), &sp);
+    assert(b);
+    assert(*sp == 0);
+    assert(tree_equal_p(t1, t2));
+    assert(tree_empty_p(t2));
+  }
+
+  // Not empty
+  tree_it_t root = tree_set_root(t1, 0);
+  tree_it_t it = tree_insert_child(root, 2);
+  tree_insert_down(root, 1);
+  tree_insert_left(it, 3);
+  tree_it_t it4 = tree_insert_right(it, 4);
+  root = tree_insert_up(root, -1);
+  tree_insert_up(it, 5);
+  tree_insert_child(it4, 6);
+  tree_it_t it7 = tree_insert_child(it4, 7);
+  tree_insert_child(it7, 8);
+  tree_insert_left(it7, 9);
+  tree_insert_right(it7, 10);
+
+  tree_set(t2, t1);
+  assert (tree_equal_p (t1, t2));
+  tree_reset(t2);
+
+  M_LET(s, string_t) {
+    tree_get_str(s, t1, false);
+    assert(string_equal_str_p(s, "[{-1,[{0,[{1,[{3},{5,[{2}]},{4,[{9},{7,[{8}]},{10},{6}]}]}]}]}]"));
+    const char *sp;
+    b = tree_parse_str(t2, string_get_cstr(s), &sp);
+    assert(b);
+    assert(*sp == 0);
+    assert(tree_equal_p(t1, t2));
+  }
+
+#if 0
+  f = m_core_fopen ("a-mtree.dat", "wt");
+  if (!f) abort();
+  tree_out_str(f, t1);
+  fclose (f);
+
+  f = m_core_fopen ("a-mtree.dat", "rt");
+  if (!f) abort();
+  b = tree_in_str (t2, f);
+  assert (b == true);
+  assert (tree_equal_p (t1, t2));
+  fclose(f);
+#endif
+
+  tree_clear(t1);
+  tree_clear(t2);
+}
+
 int main(void)
 {
     test_basic();
     test_gen();
+    test_io();
     return 0;
 }
