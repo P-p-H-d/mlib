@@ -1129,6 +1129,9 @@ typedef int32_t m_tr33_index_t;
                     goto do_continue;                                         \
                 }                                                             \
             }                                                                 \
+            b = M_C(name, _it_up)(&it2);                                      \
+            if (b) return false;                                              \
+            return true;                                                      \
             /* Reach end of tree */                                           \
             do_continue:                                                      \
             continue;                                                         \
@@ -1202,7 +1205,7 @@ M_C(name, _parse_str)(tree_t tree, const char str[], const char **endp) {     \
     int c = *str;                                                             \
     if (M_UNLIKELY (c != '[')) goto exit;                                     \
     c = *++str;                                                               \
-    if (M_UNLIKELY (c == ']')) { success = true; goto exit; }                 \
+    if (M_UNLIKELY (c == ']')) { success = true; str++; goto exit; }          \
     if (M_UNLIKELY (c == 0)) goto exit;                                       \
     M_CALL_INIT(oplist, item);                                                \
     it = M_C(name, _it_end)(tree);                                            \
