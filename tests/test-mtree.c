@@ -30,9 +30,11 @@
 
 #define M_GET_STRING_INT(str, x, append)                                      \
   (append ? m_string_cat_printf : m_string_printf) (str, "%d", x)
+#define M_OUT_STR_INT(f, x)                                      \
+  fprintf (f, "%d", x)
 
 START_COVERAGE
-TREE_DEF(tree, int, M_OPEXTEND(M_DEFAULT_OPLIST, GET_STR(M_GET_STRING_INT),PARSE_STR(m_core_parse_sint M_IPTR),IN_STR(m_core_fscan_sint)))
+TREE_DEF(tree, int, M_OPEXTEND(M_DEFAULT_OPLIST, GET_STR(M_GET_STRING_INT),PARSE_STR(m_core_parse_sint M_IPTR),IN_STR(m_core_fscan_sint M_IPTR), OUT_STR(M_OUT_STR_INT)))
 END_COVERAGE
 TREE_DEF(tree_mpz, testobj_t, TESTOBJ_OPLIST)
 
@@ -115,8 +117,8 @@ static void test_basic(void)
 }
 
 /* Random insertion in a tree.
-   We let the normal assertions of the tree to check for errors. */
-#define MAX_NODE_INSERT 10000
+   We let the normal assertions of the tree checking for violations of the tree properties. */
+#define MAX_NODE_INSERT 5000
 static tree_it_t g_tree[MAX_NODE_INSERT];
 static tree_it_t g_root;
 static unsigned g_num;
@@ -190,7 +192,6 @@ static void test_io(void)
   assert(tree_empty_p(t2));
 
   // Test empty
-#if 0
   FILE *f = m_core_fopen ("a-mtree.dat", "wt");
   if (!f) abort();
   tree_out_str(f, t1);
@@ -203,7 +204,6 @@ static void test_io(void)
   assert (tree_equal_p (t1, t2));
   assert(tree_empty_p(t2));
   fclose(f);
-#endif
 
   M_LET(s, string_t) {
     tree_get_str(s, t1, false);
@@ -247,7 +247,6 @@ static void test_io(void)
     assert(tree_equal_p(t1, t2));
   }
 
-#if 0
   f = m_core_fopen ("a-mtree.dat", "wt");
   if (!f) abort();
   tree_out_str(f, t1);
@@ -259,7 +258,6 @@ static void test_io(void)
   assert (b == true);
   assert (tree_equal_p (t1, t2));
   fclose(f);
-#endif
 
   tree_clear(t1);
   tree_clear(t2);
