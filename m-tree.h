@@ -1257,6 +1257,107 @@ exit:                                                                         \
     return success;                                                           \
 }                                                                             \
 , /* No PARSE_STR */ )                                                        \
+                                                                              \
+M_IF_METHOD(OUT_STR, oplist)(                                                 \
+static inline void                                                            \
+M_C(name, _out_str)(FILE *f, /*const*/ tree_t tree) {                         \
+    fputc('[', f);                                                            \
+    it_t it = M_C(name, _it)(tree);                                           \
+    while (!M_C(name, _end_p)(it)) {                                          \
+        fputc('{', f);                                                        \
+        type const *item = M_C(name, _cref)(it);                              \
+        M_CALL_OUT_STR(oplist, f, *item);                                     \
+        /* Go down the tree */                                                \
+        if (M_C(name, _it_down)(&it)) {                                       \
+            fputc (M_GET_SEPARATOR oplist, f);                                \
+            fputc ('[', f);                                                   \
+            continue;                                                         \
+        }                                                                     \
+            fputc ('}', f);                                                   \
+        if (M_C(name, _it_right)(&it)) {                                      \
+            fputc (M_GET_SEPARATOR oplist, f);                                \
+            continue;                                                         \
+        }                                                                     \
+        while (M_C(name, _it_up)(&it)) {                                      \
+            fputc (']', f);                                                   \
+            fputc ('}', f);                                                   \
+            if (M_C(name, _it_right)(&it)) {                                  \
+                fputc (M_GET_SEPARATOR oplist, f);                            \
+                goto continue_tree;                                           \
+            }                                                                 \
+        }                                                                     \
+        it = M_C(name, _it_end)(tree);                                        \
+        continue_tree:                                                        \
+        (void) 0;                                                             \
+    }                                                                         \
+    fputc (']', f);                                                           \
+}                                                                             \
+, /* No OUT_STR */ )                                                          \
+                                                                              \
+M_IF_METHOD(IN_STR, oplist)(                                                  \
+static inline bool                                                            \
+M_C(name, _in_str)(tree_t tree, FILE *f) {                                    \
+    M_TR33_CONTRACT(tree);                                                    \
+    int cmd = 0;                                                              \
+    type item;                                                                \
+    it_t it;                                                                  \
+    M_C(name, _reset)(tree);                                                  \
+    bool success = false;                                                     \
+    int c = fgetc(f);                                                         \
+    if (M_UNLIKELY (c != '[')) goto exit;                                     \
+    c = fgetc(f);                                                             \
+    if (M_UNLIKELY (c == ']')) { success = true; goto exit; }                 \
+    ungetc(c, f);                                                             \
+    if (M_UNLIKELY (c == 0)) goto exit;                                       \
+    M_CALL_INIT(oplist, item);                                                \
+    it = M_C(name, _it_end)(tree);                                            \
+    while (true) {                                                            \
+        c = fgetc(f);                                                         \
+        if (c != '{') goto exit_clear;                                        \
+        bool b = M_CALL_IN_STR(oplist, item, f);                              \
+        c = fgetc(f);                                                         \
+        if (b == false || c == 0) { goto exit_clear; }                        \
+        /* Insert the item as the root or as a right sibling or as a child */ \
+        switch (cmd) {                                                        \
+            case 0: it = M_C(name, _set_root)(tree, item); break;             \
+            case 1: it = M_C(name, _insert_right)(it, item); break;           \
+            case 2: it = M_C(name, _insert_child)(it, item); break;           \
+            default: M_ASSERT(0);                                             \
+        }                                                                     \
+        if (c == ',') {                                                       \
+            /* The current item has some children */                          \
+            c = fgetc(f);                                                     \
+            if (c != '[') { goto exit_clear; }                                \
+            /* next is a child: push_down */                                  \
+            cmd = 2;                                                          \
+            continue;                                                         \
+        }                                                                     \
+        /* The current item has no children. */                               \
+        if (c != '}') { goto exit_clear; }                                    \
+        /* Scan the next character to decide where to move (right or up) */   \
+        c = fgetc(f);                                                         \
+        if (c == ']') {                                                       \
+            do {                                                              \
+                /* move up. It we cannot, we have reached the end */          \
+                if (!M_C(name, _it_up)(&it)) { goto exit_success; }           \
+                c = fgetc(f);                                                 \
+                if (c != '}') { goto exit_clear; }                            \
+                c = fgetc(f);                                                 \
+            } while (c == ']');                                               \
+        }                                                                     \
+        if (c != ',') { goto exit_clear; }                                    \
+        /* next is a sibling: push_right */                                   \
+        cmd = 1;                                                              \
+    }                                                                         \
+exit_success:                                                                 \
+    success = true;                                                           \
+exit_clear:                                                                   \
+    M_CALL_CLEAR(oplist, item);                                               \
+exit:                                                                         \
+    M_TR33_CONTRACT(tree);                                                    \
+    return success;                                                           \
+}                                                                             \
+, /* No IN_STR */ )                                                           \
 
 // TODO: 
 // * insertion function with move semantics (or _raw methods?)
