@@ -192,6 +192,7 @@ SYNTHESIS_DATA=	M-ALGO test-malgo.c.c test-malgo.synt			\
 		M-SHARED test-mshared.c.c test-mshared.synt				\
 		M-SNAPSHOT test-msnapshot.c.c test-msnapshot.synt		\
 		M-STRING ../m-string.h test-mstring.synt 				\
+		M-TREE test-mtree.c.c test-mtree.synt 				    \
 		M-TUPLE test-mtuple.c.c test-mtuple.synt 				\
 		M-VARIANT test-mvariant.c.c test-mvariant.synt 			\
 		M-WORKER ../m-worker.h test-mworker.synt		
