@@ -232,6 +232,9 @@ static void test_io(void)
 
   tree_set(t2, t1);
   assert (tree_equal_p (t1, t2));
+  it = tree_it(t2);
+  tree_insert_child(it, 60);
+  assert (!tree_equal_p (t1, t2));
   tree_reset(t2);
 
   M_LET(s, string_t) {
