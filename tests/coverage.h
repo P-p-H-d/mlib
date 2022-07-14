@@ -101,6 +101,9 @@
 #undef M_ASSIGN_CAST
 #undef M_CHECK_DEFAULT_TYPE
 #undef M_CHECK_SAME
+#undef M_TR33_NODE_CONTRACT
+#undef M_TR33_CONTRACT
+#undef M_TR33_IT_CONTRACT
 #else
 /* For normal builds, empty macros which does nothing */
 #define START_COVERAGE
