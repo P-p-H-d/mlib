@@ -546,6 +546,7 @@ typedef int32_t m_tr33_index_t;
                                                                               \
     static inline bool                                                        \
     M_C(name, _it_up)(it_t *it) {                                             \
+        M_ASSERT(it != NULL);                                                 \
         M_TR33_IT_CONTRACT(*it, true);                                        \
         m_tr33_index_t i = it->tree->tab[it->index].parent;                   \
         bool ret = i >= 0;                                                    \
@@ -558,6 +559,7 @@ typedef int32_t m_tr33_index_t;
                                                                               \
     static inline bool                                                        \
     M_C(name, _it_down)(it_t *it) {                                           \
+        M_ASSERT(it != NULL);                                                 \
         M_TR33_IT_CONTRACT(*it, true);                                        \
         m_tr33_index_t i = it->tree->tab[it->index].child;                    \
         bool ret = i >= 0;                                                    \
@@ -570,6 +572,7 @@ typedef int32_t m_tr33_index_t;
                                                                               \
     static inline bool                                                        \
     M_C(name, _it_left)(it_t *it) {                                           \
+        M_ASSERT(it != NULL);                                                 \
         M_TR33_IT_CONTRACT(*it, true);                                        \
         m_tr33_index_t i = it->tree->tab[it->index].left;                     \
         bool ret = i >= 0;                                                    \
@@ -582,6 +585,7 @@ typedef int32_t m_tr33_index_t;
                                                                               \
     static inline bool                                                        \
     M_C(name, _it_right)(it_t *it) {                                          \
+        M_ASSERT(it != NULL);                                                 \
         M_TR33_IT_CONTRACT(*it, true);                                        \
         m_tr33_index_t i = it->tree->tab[it->index].right;                    \
         bool ret = i >= 0;                                                    \
