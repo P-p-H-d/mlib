@@ -87,7 +87,7 @@ static void test_basic(void)
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{-1,[{0,[{1,[{3},{5,[{2}]},{4}]}]}]}]"));
 
-    tree_insert_child(it4, 6);
+    tree_it_t it6 = tree_insert_child(it4, 6);
     assert( tree_size(t) == 8);
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{-1,[{0,[{1,[{3},{5,[{2}]},{4,[{6}]}]}]}]}]"));
@@ -111,6 +111,18 @@ static void test_basic(void)
     assert( tree_size(t) == 12);
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{-1,[{0,[{1,[{3},{5,[{2}]},{4,[{9},{7,[{8}]},{10},{6}]}]}]}]}]"));
+
+    assert( *tree_down_ref(it7) == 8);
+    assert( *tree_up_ref(it7) == 4);
+    assert( *tree_left_ref(it7) == 9);
+    assert( *tree_right_ref(it7) == 10);
+
+    assert( *tree_down_ref(root) == 0);
+    assert(  tree_up_ref(root) == NULL);
+    assert(  tree_left_ref(root) == NULL);
+    assert(  tree_right_ref(root) == NULL);
+
+    assert( tree_down_ref(it6) == NULL);
 
     string_clear(s);
     tree_clear(t);
