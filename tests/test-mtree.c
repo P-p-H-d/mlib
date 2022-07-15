@@ -124,6 +124,48 @@ static void test_basic(void)
 
     assert( tree_down_ref(it6) == NULL);
 
+    assert( *tree_ref(root) == -1);
+    assert( *tree_ref(it6) == 6);
+    assert( *tree_cref(root) == -1);
+    assert( *tree_cref(it6) == 6);
+
+    assert( tree_root_p(root) == true);
+    assert( tree_root_p(it7) == false);
+    assert( tree_root_p(it6) == false);
+
+    assert( tree_node_p(root) == true);
+    assert( tree_node_p(it7) == true);
+    assert( tree_node_p(it6) == false);
+
+    assert( tree_leaf_p(root) == false);
+    assert( tree_leaf_p(it7) == false);
+    assert( tree_leaf_p(it6) == true);
+
+    assert(tree_degree(root) == 1);
+    assert(tree_degree(it7) == 1);
+    assert(tree_degree(it4) == 4);
+    assert(tree_degree(it6) == 0);
+
+    assert(tree_depth(root) == 0);
+    assert(tree_depth(it7) == 4);
+    assert(tree_depth(it6) == 4);
+
+    assert(tree_tree(root) == &t[0]);
+
+    int i = 0;
+    for(it = tree_it(t); !tree_end_p(it); tree_next(&it), i++) {
+      static const int tab[] = {-1,0,1,3,5,2,4,9,7,8,10,6};
+      assert( *tree_ref(it) == tab[i] );
+    }
+
+    for(i = 0, it = tree_it_post(t); !tree_end_p(it); tree_next_post(&it), i++) {
+      static const int tab[] = {3, 2, 5, 9, 8, 7, 10, 6, 4, 1, 0, -1};
+      assert( *tree_cref(it) == tab[i] );
+    }
+
+    assert( tree_it_equal_p(root, root) == true);
+    assert( tree_it_equal_p(root, it7) == false);
+
     string_clear(s);
     tree_clear(t);
 }
