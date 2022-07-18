@@ -834,18 +834,14 @@ typedef int32_t m_tr33_index_t;
     M_C(name, _prune)(it_t it) {                                              \
         M_TR33_IT_CONTRACT(it, true);                                         \
         /* remove the node, including its childs */                           \
-        /* Fast removal of all the childs as we don't need to perfom a clean unlink */ \
-        it_t child = M_C(name, _it_subpre)(it);                               \
-        M_C(name, _next_subpre)(&child, it);                                  \
+        it_t child = M_C(name, _it_subpost)(it);                              \
         while (!M_C(name, _end_p)(child)) {                                   \
-            M_C3(m_tr33_, name, _free_node)(child.tree, child.index);         \
-            M_CALL_CLEAR(oplist, child.tree->tab[child.index].data);          \
-            M_C(name, _next_subpre)(&child, it);                              \
+            it_t next = child;                                                \
+            M_C(name, _next_subpost)(&next, it);                              \
+            bool b = M_C(name, _remove)(child);                               \
+            M_ASSERT(b);                                                      \
+            child = next;                                                     \
         }                                                                     \
-        /* Unlink the removed node */                                         \
-        it.tree->tab[it.index].child = M_TR33_NO_NODE;                        \
-        bool b = M_C(name, _remove)(it);                                      \
-        M_ASSERT(b);                                                          \
     }                                                                         \
                                                                               \
     static inline it_t                                                        \
