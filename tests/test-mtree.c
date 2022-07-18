@@ -38,6 +38,8 @@ TREE_DEF(tree, int, M_OPEXTEND(M_DEFAULT_OPLIST, GET_STR(M_GET_STRING_INT),PARSE
 END_COVERAGE
 TREE_DEF(tree_mpz, testobj_t, TESTOBJ_OPLIST)
 
+#define numberof(x) (int)(sizeof (x) / sizeof((x)[0]))
+
 static void test_basic(void)
 {
     tree_t   t;
@@ -62,12 +64,12 @@ static void test_basic(void)
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{0,[{2}]}]"));
 
-    tree_insert_down(root, 1);
+    tree_it_t it1 = tree_insert_down(root, 1);
     assert( tree_size(t) == 3);
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{0,[{1,[{2}]}]}]"));
 
-    tree_insert_left(it, 3);
+    tree_it_t it3 = tree_insert_left(it, 3);
     assert( tree_size(t) == 4);
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{0,[{1,[{3},{2}]}]}]"));
@@ -97,7 +99,7 @@ static void test_basic(void)
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{-1,[{0,[{1,[{3},{5,[{2}]},{4,[{7},{6}]}]}]}]}]"));
 
-    tree_insert_child(it7, 8);
+    tree_it_t it8 = tree_insert_child(it7, 8);
     assert( tree_size(t) == 10);
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{-1,[{0,[{1,[{3},{5,[{2}]},{4,[{7,[{8}]},{6}]}]}]}]}]"));
@@ -155,16 +157,72 @@ static void test_basic(void)
     int i = 0;
     for(it = tree_it(t); !tree_end_p(it); tree_next(&it), i++) {
       static const int tab[] = {-1,0,1,3,5,2,4,9,7,8,10,6};
+      assert( i < numberof (tab) );
       assert( *tree_ref(it) == tab[i] );
     }
 
     for(i = 0, it = tree_it_post(t); !tree_end_p(it); tree_next_post(&it), i++) {
       static const int tab[] = {3, 2, 5, 9, 8, 7, 10, 6, 4, 1, 0, -1};
+      assert( i < numberof (tab) );
       assert( *tree_cref(it) == tab[i] );
+    }
+
+    for(i = 0, it = tree_it_subpre(it4); !tree_end_p(it); tree_next_subpre(&it, it4), i++) {
+      static const int tab[] = {4,9,7,8,10,6};
+      assert( i < numberof (tab) );
+      assert( *tree_ref(it) == tab[i] );
+    }
+
+    for(i = 0, it = tree_it_subpre(it7); !tree_end_p(it); tree_next_subpre(&it, it7), i++) {
+      static const int tab[] = {7,8};
+      assert( i < numberof (tab) );
+      assert( *tree_ref(it) == tab[i] );
+    }
+
+    for(i = 0, it = tree_it_subpost(it4); !tree_end_p(it); tree_next_subpost(&it, it4), i++) {
+      static const int tab[] = {9,8,7,10,6,4};
+      assert( i < numberof (tab) );
+      assert( *tree_ref(it) == tab[i] );
+    }
+
+    for(i = 0, it = tree_it_subpost(it7); !tree_end_p(it); tree_next_subpost(&it, it7), i++) {
+      static const int tab[] = {8, 7};
+      assert( i < numberof (tab) );
+      assert( *tree_ref(it) == tab[i] );
     }
 
     assert( tree_it_equal_p(root, root) == true);
     assert( tree_it_equal_p(root, it7) == false);
+
+    it = tree_lca(it4, it7);
+    assert( tree_it_equal_p(it, it4));
+
+    it = tree_lca(it3, it7);
+    assert( tree_it_equal_p(it, it1));
+    it = tree_lca(it7, it3);
+    assert( tree_it_equal_p(it, it1));
+
+    bool b = tree_remove(it7);
+    assert(b);
+    assert( tree_size(t) == 11);
+    tree_get_str(s, t, false);
+    assert(string_equal_str_p(s, "[{-1,[{0,[{1,[{3},{5,[{2}]},{4,[{9},{8},{10},{6}]}]}]}]}]"));
+
+    it7 = tree_it_end(t);
+    b = tree_remove(it7);
+    assert(!b);
+    assert( tree_size(t) == 11);
+
+    b = tree_remove(it8);
+    assert(b);
+    assert( tree_size(t) == 10);
+    tree_get_str(s, t, false);
+    assert(string_equal_str_p(s, "[{-1,[{0,[{1,[{3},{5,[{2}]},{4,[{9},{10},{6}]}]}]}]}]"));
+
+    tree_prune(it4);
+    assert( tree_size(t) == 6);
+    tree_get_str(s, t, false);
+    assert(string_equal_str_p(s, "[{-1,[{0,[{1,[{3},{5,[{2}]}]}]}]}]"));
 
     string_clear(s);
     tree_clear(t);
