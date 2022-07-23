@@ -899,6 +899,14 @@ typedef int32_t m_tr33_index_t;
             tmp2_r = it2.index;                                               \
             tmp1_l = it1.index;                                               \
         }                                                                     \
+        if (tmp1_u == it2.index) {                                            \
+            tmp1_u = it1.index;                                               \
+            tmp2_d = it2.index;                                               \
+        }                                                                     \
+        if (tmp2_u == it1.index) {                                            \
+            tmp2_u = it2.index;                                               \
+            tmp1_d = it1.index;                                               \
+        }                                                                     \
         /* Swap left references */                                            \
         it1.tree->tab[it1.index].left = tmp2_l;                               \
         it2.tree->tab[it2.index].left = tmp1_l;                               \
@@ -923,13 +931,24 @@ typedef int32_t m_tr33_index_t;
             }                                                                 \
         }                                                                     \
         /* Swap up references */                                              \
+        bool dont_swap_back = true;                                           \
         it1.tree->tab[it1.index].parent = tmp2_u;                             \
         it2.tree->tab[it2.index].parent = tmp1_u;                             \
         if (tmp1_u >= 0 && it1.tree->tab[tmp1_u].child == it1.index) {        \
             it1.tree->tab[tmp1_u].child = it2.index;                          \
+            dont_swap_back = tmp1_u != tmp2_u;                                \
         }                                                                     \
-        else if (tmp2_u >= 0 && it2.tree->tab[tmp2_u].child == it2.index) {   \
+        if (tmp1_u == M_TR33_ROOT_NODE) {                                     \
+            it1.tree->root_index = it2.index;                                 \
+            M_ASSERT(tmp1_u != tmp2_u);                                       \
+        }                                                                     \
+        /* Both may have the same parent (don't swap back in this case) */    \
+        if (tmp2_u >= 0 && dont_swap_back && it2.tree->tab[tmp2_u].child == it2.index) { \
             it2.tree->tab[tmp2_u].child = it1.index;                          \
+        }                                                                     \
+        if (tmp2_u == M_TR33_ROOT_NODE) {                                     \
+            it2.tree->root_index = it1.index;                                 \
+            M_ASSERT(tmp1_u != tmp2_u);                                       \
         }                                                                     \
         M_TR33_IT_CONTRACT(it1, true);                                        \
         M_TR33_IT_CONTRACT(it2, true);                                        \
