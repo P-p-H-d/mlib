@@ -53,12 +53,13 @@ static void test_basic(void)
     assert(string_equal_str_p(s, "[]"));
 
     tree_it_t root = tree_set_root(t, 0);
+    tree_it_t it0 = root;
     assert( tree_size(t) == 1);
     assert( tree_empty_p(t) == false);
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{0}]"));
 
-    tree_it_t it = tree_insert_child(root, 2);
+    tree_it_t it2 = tree_insert_child(root, 2);
     assert( tree_size(t) == 2);
     assert( tree_empty_p(t) == false);
     tree_get_str(s, t, false);
@@ -69,12 +70,12 @@ static void test_basic(void)
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{0,[{1,[{2}]}]}]"));
 
-    tree_it_t it3 = tree_insert_left(it, 3);
+    tree_it_t it3 = tree_insert_left(it2, 3);
     assert( tree_size(t) == 4);
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{0,[{1,[{3},{2}]}]}]"));
 
-    tree_it_t it4 = tree_insert_right(it, 4);
+    tree_it_t it4 = tree_insert_right(it2, 4);
     assert( tree_size(t) == 5);
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{0,[{1,[{3},{2},{4}]}]}]"));
@@ -84,7 +85,7 @@ static void test_basic(void)
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{-1,[{0,[{1,[{3},{2},{4}]}]}]}]"));
 
-    tree_insert_up(it, 5);
+    tree_it_t it5 = tree_insert_up(it2, 5);
     assert( tree_size(t) == 7);
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{-1,[{0,[{1,[{3},{5,[{2}]},{4}]}]}]}]"));
@@ -155,6 +156,7 @@ static void test_basic(void)
     assert(tree_tree(root) == &t[0]);
 
     int i = 0;
+    tree_it_t it;
     for(it = tree_it(t); !tree_end_p(it); tree_next(&it), i++) {
       static const int tab[] = {-1,0,1,3,5,2,4,9,7,8,10,6};
       assert( i < numberof (tab) );
@@ -223,6 +225,24 @@ static void test_basic(void)
     assert( tree_size(t) == 6);
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{-1,[{0,[{1,[{3},{5,[{2}]}]}]}]}]"));
+
+    tree_swap_at(it3, it5, false);
+    assert( tree_size(t) == 6);
+    tree_get_str(s, t, false);
+    assert(string_equal_str_p(s, "[{-1,[{0,[{1,[{5},{3,[{2}]}]}]}]}]"));
+    tree_swap_at(it3, it5, true);
+    tree_get_str(s, t, false);
+    assert(string_equal_str_p(s, "[{-1,[{0,[{1,[{3,[{2}]},{5}]}]}]}]"));
+
+    tree_swap_at(it0, it2, false);
+    tree_get_str(s, t, false);
+    assert(string_equal_str_p(s, "[{-1,[{2,[{1,[{3,[{0}]},{5}]}]}]}]"));
+    tree_swap_at(root, it0, false);
+    tree_get_str(s, t, false);
+    assert(string_equal_str_p(s, "[{0,[{2,[{1,[{3,[{-1}]},{5}]}]}]}]"));
+    tree_swap_at(root, it3, false);
+    tree_get_str(s, t, false);
+    assert(string_equal_str_p(s, "[{0,[{2,[{1,[{-1,[{3}]},{5}]}]}]}]"));
 
     string_clear(s);
     tree_clear(t);
