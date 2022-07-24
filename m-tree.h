@@ -879,6 +879,7 @@ typedef int32_t m_tr33_index_t;
         M_ASSUME(it1.tree == it2.tree);                                       \
         M_TR33_IT_CONTRACT(it1, true);                                        \
         M_TR33_IT_CONTRACT(it2, true);                                        \
+        if (M_UNLIKELY(it1.index == it2.index)) { return; }                   \
         /* Read all references before modifying anything */                   \
         m_tr33_index_t tmp1_l = it1.tree->tab[it1.index].left;                \
         m_tr33_index_t tmp2_l = it2.tree->tab[it2.index].left;                \
