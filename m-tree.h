@@ -902,11 +902,11 @@ typedef int32_t m_tr33_index_t;
         }                                                                     \
         if (tmp1_u == it2.index) {                                            \
             tmp1_u = it1.index;                                               \
-            tmp2_d = it2.index;                                               \
+            if (tmp2_d == it1.index) { tmp2_d = it2.index; }                  \
         }                                                                     \
         if (tmp2_u == it1.index) {                                            \
             tmp2_u = it2.index;                                               \
-            tmp1_d = it1.index;                                               \
+            if (tmp1_d == it2.index) { tmp1_d = it1.index; }                  \
         }                                                                     \
         /* Swap left references */                                            \
         it1.tree->tab[it1.index].left = tmp2_l;                               \
