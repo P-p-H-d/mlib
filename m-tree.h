@@ -511,13 +511,10 @@ typedef int32_t m_tr33_index_t;
         it.tree->tab[it.index].left = i;                                      \
         /* If there is a left node, update its right */                       \
         if (left >= 0) { it.tree->tab[left].right = i; }                      \
-        /* Might insert left of root: update root in this case */             \
-        if (M_UNLIKELY(parent == M_TR33_ROOT_NODE)) {                         \
-            it.tree->root_index = i;                                          \
-        } else { if (it.tree->tab[parent].child == it.index) {                \
+        if (it.tree->tab[parent].child == it.index) {                         \
             /* Update the first child of the parent */                        \
             it.tree->tab[parent].child = i;                                   \
-        } }                                                                   \
+        }                                                                     \
         /* Return updated iterator on the inserted node */                    \
         it.index = i;                                                         \
         M_CALL_INIT_SET(oplist, it.tree->tab[i].data, data);                  \
