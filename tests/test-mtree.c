@@ -193,6 +193,16 @@ static void test_basic(void)
       assert( *tree_ref(it) == tab[i] );
     }
 
+    size_t capa = tree_capacity(t);
+    tree_reserve(t, 0);
+    M_ASSERT(tree_capacity(t) == capa);
+    tree_reserve(t, 100000);
+    M_ASSERT(tree_capacity(t) == 100000);
+
+    // Nothing to test for lock?
+    tree_lock(t, true);
+    tree_lock(t, false);
+
     assert( tree_it_equal_p(root, root) == true);
     assert( tree_it_equal_p(root, it7) == false);
 
@@ -204,7 +214,33 @@ static void test_basic(void)
     it = tree_lca(it7, it3);
     assert( tree_it_equal_p(it, it1));
 
-    bool b = tree_remove(it7);
+    it = it3;
+    bool b = tree_it_right(&it);
+    assert(b);
+    assert(tree_it_equal_p(it, it5));
+    b = tree_it_left(&it);
+    assert(b);
+    assert(tree_it_equal_p(it, it3));
+    b = tree_it_up(&it);
+    assert(b);
+    b = tree_it_up(&it);
+    assert(b);
+    assert(tree_it_equal_p(it, it0));
+    b = tree_it_up(&it);
+    assert(b);
+    b = tree_it_up(&it);
+    assert(!b);
+    b = tree_it_down(&it);
+    assert(b);
+    b = tree_it_down(&it);
+    assert(b);
+    b = tree_it_down(&it);
+    assert(b);
+    assert(tree_it_equal_p(it, it3));
+    b = tree_it_down(&it);
+    assert(!b);
+
+    b = tree_remove(it7);
     assert(b);
     assert( tree_size(t) == 11);
     tree_get_str(s, t, false);
