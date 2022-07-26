@@ -671,7 +671,7 @@ typedef int32_t m_tr33_index_t;
             child_r = child;                                                  \
             it.tree->tab[child_r].parent = parent;                            \
             while (it.tree->tab[child_r].right != M_TR33_NO_NODE) {           \
-                child_r = it.tree->tab[child].right;                          \
+                child_r = it.tree->tab[child_r].right;                        \
                 it.tree->tab[child_r].parent = parent;                        \
             }                                                                 \
             /* Remove node from sibling */                                    \
