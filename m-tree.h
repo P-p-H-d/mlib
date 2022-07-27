@@ -957,24 +957,24 @@ typedef int32_t m_tr33_index_t;
         M_ASSERT(it1.tree == it2.tree);                                       \
         M_TR33_IT_CONTRACT(it1, true);                                        \
         M_TR33_IT_CONTRACT(it2, true);                                        \
+        M_ASSERT(it2.index != it2.tree->root_index);                          \
         /* Move the node it2 and its child down the node *it1 */              \
         /* Both belongs to the same tree */                                   \
-        m_tr33_index_t i = it2.index;                                         \
+        const m_tr33_index_t i = it2.index;                                   \
         /* Unlink it2 except its child */                                     \
-        m_tr33_index_t parent = it1.tree->tab[i].parent;                      \
+        const m_tr33_index_t parent = it1.tree->tab[i].parent;                \
         if (parent >= 0 && it1.tree->tab[parent].child == i) {                \
             it1.tree->tab[parent].child = it1.tree->tab[i].right;             \
         }                                                                     \
-        m_tr33_index_t left = it1.tree->tab[i].left;                          \
+        const m_tr33_index_t left = it1.tree->tab[i].left;                    \
         if (left >= 0) { it1.tree->tab[left].right = it1.tree->tab[i].right;} \
-        m_tr33_index_t right = it1.tree->tab[i].right;                        \
+        const m_tr33_index_t right = it1.tree->tab[i].right;                  \
         if (right >= 0) { it1.tree->tab[right].left = it1.tree->tab[i].left;} \
         /* Add the new node */                                                \
-        m_tr33_index_t child = it1.tree->tab[it1.index].child;                \
+        const m_tr33_index_t child = it1.tree->tab[it1.index].child;          \
         it1.tree->tab[i].parent = it1.index;                                  \
         it1.tree->tab[i].left  = M_TR33_NO_NODE;                              \
         it1.tree->tab[i].right = child;                                       \
-        it1.tree->tab[i].child = M_TR33_NO_NODE;                              \
         /* Update the parent */                                               \
         it1.tree->tab[it1.index].child = i;                                   \
         /* Update the sibling */                                              \
