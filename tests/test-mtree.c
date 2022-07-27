@@ -280,6 +280,10 @@ static void test_basic(void)
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{0,[{2,[{1,[{-1,[{3}]},{5}]}]}]}]"));
 
+    tree_graft_child(it0, root);
+    tree_get_str(s, t, false);
+    assert(string_equal_str_p(s, "[{0,[{-1,[{3}]},{2,[{1,[{5}]}]}]}]"));
+
     size_t hash = tree_hash(t);
     assert(hash != 0);
 
