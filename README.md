@@ -100,6 +100,7 @@ The following headers define containers that don't require the user structure to
 * [m-dict.h](#m-dict): header for creating generic dictionary or set of generic type (and of variable kind),
 * [m-rbtree.h](#m-rbtree): header for creating binary sorted tree of generic type,
 * [m-bptree.h](#m-bptree): header for creating B+TREE of generic type,
+* [m-tree.h](#m-tree): header for creating generic tree of generic type,
 * [m-tuple.h](#m-tuple): header for creating arbitrary tuple of generic type,
 * [m-variant.h](#m-variant): header for creating arbitrary variant of generic type,
 * [m-prioqueue.h](#m-prioqueue): header for creating priority queue of generic type and of variable size,
@@ -2950,6 +2951,18 @@ Return true if 'it' references an element that is greater or equal than 'data'.
 ##### bool name\_it\_while\_p(const name\_it\_t it, const type data)
 
 Return true if 'it' references an element that is lower or equal than 'data'.
+
+
+
+### M-TREE
+
+A [tree](https://en.wikipedia.org/wiki/Tree_(data_structure)) is an abstract data type 
+to represent the hierarchic nature of a structure with a set of connected nodes.
+Each node in the tree can be connected to many children,
+but must be connected to exactly one parent,
+except for the root node, which has no parent.
+
+TODO: document API
 
 
 
