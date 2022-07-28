@@ -284,6 +284,18 @@ static void test_basic(void)
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{0,[{-1,[{3}]},{2,[{1,[{5}]}]}]}]"));
 
+    tree_sort_child(it0);
+    tree_get_str(s, t, false);
+    assert(string_equal_str_p(s, "[{0,[{-1,[{3}]},{2,[{1,[{5}]}]}]}]"));
+
+    tree_swap_at(root, it2, true);
+    tree_sort_child(it0);
+    tree_get_str(s, t, false);
+    assert(string_equal_str_p(s, "[{0,[{-1,[{3}]},{2,[{1,[{5}]}]}]}]"));
+
+    tree_it_set(&it, root);
+    assert(tree_it_equal_p(it, root));
+
     size_t hash = tree_hash(t);
     assert(hash != 0);
 
@@ -368,8 +380,11 @@ static void test_gen(void)
     if (!tree_it_equal_p(g_tree[ref], g_root)) {
       // We only do it if the ref node is not root (too many corner cases to undo)
       insert(cmd, ref);
+      assert(!tree_equal_p(t, t0));
       tree_remove( g_tree[g_num]);
       g_num--;
+      assert(tree_equal_p(t, t0));
+      tree_swap(t, t0);
       assert(tree_equal_p(t, t0));
     }
   }
