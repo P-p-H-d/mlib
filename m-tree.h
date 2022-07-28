@@ -990,6 +990,7 @@ typedef int32_t m_tr33_index_t;
     M_C(name, _sort_child)(it_t it0) {                                        \
         M_TR33_IT_CONTRACT(it0, true);                                        \
         it_t it1 = it0;                                                       \
+        /* Go to the child, if it doesn't exist, nothing to sort */           \
         if (!M_C(name, _it_down)(&it1) ) return ;                             \
         /* Selection sort */                                                  \
         do {                                                                  \
