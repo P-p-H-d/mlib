@@ -452,7 +452,7 @@ int testMLIB_nonemptyCtor (int count) {
   int i, c = 0;
   for (c=i=0; i < count; i++) {
     m_string_t b;
-    m_string_init_set_str(b, TESTSTRING1);
+    m_string_init_set_cstr(b, TESTSTRING1);
     BARRIER(&b);
     c += m_string_size(b) ^i;
     m_string_clear(b);
@@ -464,7 +464,7 @@ int testMLIB_smallnonemptyCtor (int count) {
   int i, c = 0;
   for (c=i=0; i < count; i++) {
     m_string_t b;
-    m_string_init_set_str(b, SMALLTESTSTRING1);
+    m_string_init_set_cstr(b, SMALLTESTSTRING1);
     BARRIER(&b);
     c += m_string_size(b) ^i;
     m_string_clear(b);
@@ -477,7 +477,7 @@ int testMLIB_cstrAssignment (int count) {
   m_string_t b;
   m_string_init(b);
   for (c=i=0; i < count; i++) {
-    m_string_set_str(b, TESTSTRING1);
+    m_string_set_cstr(b, TESTSTRING1);
     BARRIER(&b);
     c += m_string_size(b) ^i;
   }
@@ -489,7 +489,7 @@ int testMLIB_extraction (int count) {
   int i, c = 0;
 
   m_string_t b;
-  m_string_init_set_str(b, TESTSTRING1);
+  m_string_init_set_cstr(b, TESTSTRING1);
   
   for (c=i=0; i < count; i++) {
     c += m_string_get_char(b, (i & 7));
@@ -504,11 +504,11 @@ int testMLIB_extraction (int count) {
 int testMLIB_scan (int count) {
   int i, c = 0;
   m_string_t b;
-  m_string_init_set_str(b, "Dot. 123. Some more data.");
+  m_string_init_set_cstr(b, "Dot. 123. Some more data.");
 
   for (c=i=0; i < count; i++) {
     c += m_string_search_char (b, '.');
-    c += m_string_search_str (b, "123");
+    c += m_string_search_cstr (b, "123");
     c += m_string_search_pbrk (b, "sm") ^i;
     BARRIER(&b);
   }
@@ -519,14 +519,14 @@ int testMLIB_scan (int count) {
 int testMLIB_concat (int count) {
   int i, j, c = 0;
   m_string_t a, accum;
-  m_string_init_set_str(a, TESTSTRING1);
+  m_string_init_set_cstr(a, TESTSTRING1);
   m_string_init (accum);
 
   for (j=0; j < count; j++) {
-    m_string_set_str(accum, "");
+    m_string_set_cstr(accum, "");
     for (i=0; i < 250; i++) {
       m_string_cat(accum, a);
-      m_string_cat_str(accum, "!!");
+      m_string_cat_cstr(accum, "!!");
       BARRIER(&accum);
       c += m_string_size(accum) ^i;
     }
@@ -539,7 +539,7 @@ int testMLIB_concat (int count) {
 int testMLIB_replace (int count) {
   int j, c = 0;
   m_string_t a;
-  m_string_init_set_str(a, TESTSTRING1);
+  m_string_init_set_cstr(a, TESTSTRING1);
   
   for (j=0; j < count; j++) {
     m_string_replace_at(a, 11, 4, "XXXXXX");
