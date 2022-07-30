@@ -76,3 +76,8 @@ V0.5.*: * M_INVERT is renamed into M_REVERSE to be more coherent with the REVERS
 V0.6.*: * Rename M_DEFAULT_OPLIST in M_BASIC_OPLIST
         * Remove experimental macro M_IF_DEFAULT1.
         * Remove M_INVERT
+        * String functions with _str suffix for C strings have been renamed with _cstr suffix (like string_cat_str ==> m_string_cat_cstr)
+        Note: the compatible layer still keeps the old naming,
+        so except if you are using the prefixed version of the strings
+        or the bounded strings API, you won't need to upgrade your code.
+        
