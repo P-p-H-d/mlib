@@ -69,7 +69,7 @@
     M_ASSERT( (tree)->size >= 0 && (tree)->size <= (tree)->capacity);         \
     M_ASSERT( (tree)->capacity >= 0 );                                        \
     M_ASSERT( (tree)->capacity == 0 || (tree)->tab != NULL);                  \
-    M_ASSERT( (tree)->allow_realloc == 1 || (tree)->allow_realloc == 32 );    \
+    M_ASSERT( (tree)->allow_realloc == 0 || (tree)->allow_realloc == INT32_MAX );    \
     M_ASSERT( (tree)->free_index >= M_TR33_NO_NODE && (tree)->free_index < (tree)->capacity); \
     M_ASSERT( (tree)->root_index >= M_TR33_NO_NODE && (tree)->root_index < (tree)->capacity); \
     M_ASSERT( (tree)->free_index < 0 || (tree)->tab[(tree)->free_index].parent == M_TR33_NO_NODE); \
@@ -159,7 +159,7 @@ typedef int32_t m_tr33_index_t;
        + capacity is the allocated size of the array 'tab'                    \
        + root_index is the index of the "first" root in the tree.             \
        + free_index is the list of free nodes in the array 'tab'.             \
-       + allow_realloc is a bool encoded as true=1 and false=32               \
+       + allow_realloc is a bool encoded as true=0 and false=INT32_MAX        \
        + tab is a pointer to the allocated nodes.                             \
     */                                                                        \
     typedef struct M_C(name, _s) {                                            \
@@ -167,7 +167,7 @@ typedef int32_t m_tr33_index_t;
         m_tr33_index_t       capacity;                                        \
         m_tr33_index_t       root_index;                                      \
         m_tr33_index_t       free_index;                                      \
-        unsigned             allow_realloc;                                   \
+        uint32_t             allow_realloc;                                   \
         M_C(name, _node_ct) *tab;                                             \
     } tree_t[1];                                                              \
                                                                               \
@@ -192,13 +192,14 @@ typedef int32_t m_tr33_index_t;
 
 /* Define the core & unique methods of a tree */
 #define M_TR33_DEF_P4_CORE(name, type, oplist, tree_t, it_t)                  \
+    /* Initialize a generic tree (empty) */                                   \
     static inline void                                                        \
     M_C(name, _init)(tree_t tree) {                                           \
         tree->size = 0;                                                       \
         tree->capacity = 0;                                                   \
         tree->root_index = M_TR33_NO_NODE;                                    \
         tree->free_index = M_TR33_NO_NODE;                                    \
-        tree->allow_realloc = true;                                           \
+        tree->allow_realloc = 0;                                              \
         tree->tab = NULL;                                                     \
         M_TR33_CONTRACT(tree);                                                \
     }                                                                         \
@@ -282,7 +283,7 @@ typedef int32_t m_tr33_index_t;
     static inline void                                                        \
     M_C(name, _lock)(tree_t tree, bool lock) {                                \
         M_TR33_CONTRACT(tree);                                                \
-        tree->allow_realloc = lock ? 32 : 1;                                  \
+        tree->allow_realloc = lock ? INT32_MAX : 0;                           \
         M_TR33_CONTRACT(tree);                                                \
     }                                                                         \
                                                                               \
@@ -293,7 +294,7 @@ typedef int32_t m_tr33_index_t;
             /* No more enough space: realloc the array */                     \
             size_t alloc = M_CALL_INC_ALLOC(oplist, (size_t) tree->capacity); \
             /* Take into account if realloc is allowed */                     \
-            alloc <<= tree->allow_realloc;                                    \
+            alloc += tree->allow_realloc;                                     \
             if (M_UNLIKELY (alloc >= INT32_MAX)) {                            \
                 M_MEMORY_FULL(sizeof (struct M_C(name, _node_s)) * alloc);    \
                 return M_TR33_NO_NODE;                                        \
