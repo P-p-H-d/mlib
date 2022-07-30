@@ -557,7 +557,7 @@ static inline void                                                            \
     M_VAR1ANT_CONTRACT(name, el);                                             \
     M_ASSERT (str != NULL);                                                   \
     void (*func)(m_string_t, const char *);                                   \
-    func = append ? m_string_cat_str : m_string_set_str;                      \
+    func = append ? m_string_cat_cstr : m_string_set_cstr;                    \
     switch (el->type) {                                                       \
     case M_C(name, _EMPTY): func(str, "@EMPTY@"); break;                      \
       M_MAP2(M_VAR1ANT_DEFINE_GET_STR_FUNC , name, __VA_ARGS__)               \

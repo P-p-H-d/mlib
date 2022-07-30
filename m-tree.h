@@ -1178,7 +1178,7 @@ typedef int32_t m_tr33_index_t;
 M_IF_METHOD(GET_STR, oplist)(                                                 \
 static inline void                                                            \
 M_C(name, _get_str)(string_t str, /*const*/ tree_t tree, bool append) {       \
-    (append ? m_string_cat_str : m_string_set_str) (str, "[");                \
+    (append ? m_string_cat_cstr : m_string_set_cstr) (str, "[");              \
     it_t it = M_C(name, _it)(tree);                                           \
     while (!M_C(name, _end_p)(it)) {                                          \
         m_string_push_back (str, '{');                                        \

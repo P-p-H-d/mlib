@@ -452,7 +452,7 @@ namespace m_lib {
     bool comma = false;                                                       \
     M_TUPL3_CONTRACT(el);                                                     \
     M_ASSERT (str != NULL);                                                   \
-    (append ? m_string_cat_str : m_string_set_str) (str, "(");                \
+    (append ? m_string_cat_cstr : m_string_set_cstr) (str, "(");              \
     M_MAP(M_TUPL3_DEFINE_GET_STR_FUNC , __VA_ARGS__)                          \
     m_string_push_back (str, ')');                                            \
   }

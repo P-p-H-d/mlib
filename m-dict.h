@@ -769,7 +769,7 @@
   static inline void                                                          \
   M_C(name, _get_str)(m_string_t str, const dict_t dict, const bool append)   \
   {                                                                           \
-    (append ? m_string_cat_str : m_string_set_str) (str, "{");                \
+    (append ? m_string_cat_cstr : m_string_set_cstr) (str, "{");              \
     dict_it_t it;                                                             \
     bool print_comma = false;                                                 \
     for (M_C(name, _it)(it, dict) ;                                           \

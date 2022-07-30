@@ -1018,7 +1018,7 @@ typedef enum {
                                          tree_t const t1, bool append) {      \
     M_RBTR33_CONTRACT(t1);                                                    \
     M_ASSERT(str != NULL);                                                    \
-    (append ? m_string_cat_str : m_string_set_str) (str, "[");                \
+    (append ? m_string_cat_cstr : m_string_set_cstr) (str, "[");              \
     /* NOTE: The print is really naive, and not really efficient */           \
     bool commaToPrint = false;                                                \
     it_t it1;                                                                 \

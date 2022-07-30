@@ -935,7 +935,7 @@ m_bitset_get_str(m_string_t str, const m_bitset_t set, bool append)
 {
   M_B1TSET_CONTRACT (set);
   M_ASSERT(str != NULL);
-  (append ? m_string_cat_str : m_string_set_str) (str, "[");
+  (append ? m_string_cat_cstr : m_string_set_cstr) (str, "[");
   for(size_t i = 0; i < set->size; i++) {
     const bool b = m_bitset_get (set, i);
     const char c = b ? '1' : '0';

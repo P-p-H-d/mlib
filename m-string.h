@@ -119,6 +119,11 @@ typedef struct m_string_it_s {
   const char *next_ptr;
 } m_string_it_t[1];
 
+/* PREFIX:
+   m_str1ng_: private methods
+   m_string_: public methods
+*/
+
 /* Internal method to test if the string is stack based or heap based
    We test if the ptr field points to the heap allocated buffer or not.
    This is not particularly efficient from a memory point of view
@@ -228,7 +233,7 @@ static inline m_string_ptr m_str1ng_init_ref(m_string_t v) { m_string_init(v); r
   The ownership of the data is transfered back to the caller
   and the returned pointer has to be released by M_MEMORY_FREE. */
 static inline char *
-m_string_clear_get_str(m_string_t v)
+m_string_clear_get_cstr(m_string_t v)
 {
   M_STR1NG_CONTRACT(v);
   char *p = v->ptr;
@@ -389,7 +394,7 @@ m_string_reserve(m_string_t v, size_t alloc)
 
 /* Set the string to the C string str */
 static inline void
-m_string_set_str(m_string_t v, const char str[])
+m_string_set_cstr(m_string_t v, const char str[])
 {
   M_STR1NG_CONTRACT (v);
   M_ASSERT(str != NULL);
@@ -403,7 +408,7 @@ m_string_set_str(m_string_t v, const char str[])
 
 /* Set the string to the n first characters of the C string str */
 static inline void
-m_string_set_strn(m_string_t v, const char str[], size_t n)
+m_string_set_cstrn(m_string_t v, const char str[], size_t n)
 {
   M_STR1NG_CONTRACT (v);
   M_ASSERT(str != NULL);
@@ -460,10 +465,10 @@ m_string_init_set(m_string_t v1, const m_string_t v2)
 /* Initialize the string and set it to the C string
    (constructor) */
 static inline void
-m_string_init_set_str(m_string_t v1, const char str[])
+m_string_init_set_cstr(m_string_t v1, const char str[])
 {
   m_string_init(v1);
-  m_string_set_str(v1, str);
+  m_string_set_cstr(v1, str);
 }
 
 /* Initialize the string, set it to the other one,
@@ -519,7 +524,7 @@ m_string_push_back (m_string_t v, char c)
 
 /* Concatene the string with the C string */
 static inline void
-m_string_cat_str(m_string_t v, const char str[])
+m_string_cat_cstr(m_string_t v, const char str[])
 {
   M_STR1NG_CONTRACT (v);
   M_ASSERT (str != NULL);
@@ -551,7 +556,7 @@ m_string_cat(m_string_t v, const m_string_t v2)
 /* Compare the string to the C string and
   return the sort order (negative if less, 0 if equal, positive if greater) */
 static inline int
-m_string_cmp_str(const m_string_t v1, const char str[])
+m_string_cmp_cstr(const m_string_t v1, const char str[])
 {
   M_STR1NG_CONTRACT (v1);
   M_ASSERT (str != NULL);
@@ -570,11 +575,11 @@ m_string_cmp(const m_string_t v1, const m_string_t v2)
 
 /* Test if the string is equal to the given C string */
 static inline bool
-m_string_equal_str_p(const m_string_t v1, const char str[])
+m_string_equal_cstr_p(const m_string_t v1, const char str[])
 {
   M_STR1NG_CONTRACT(v1);
   M_ASSERT (str != NULL);
-  return m_string_cmp_str(v1, str) == 0;
+  return m_string_cmp_cstr(v1, str) == 0;
 }
 
 /* Test if the string is equal to the other string */
@@ -598,7 +603,7 @@ m_string_equal_p(const m_string_t v1, const m_string_t v2)
    Note: doesn't work with UTF-8 strings.
 */
 static inline int
-m_string_cmpi_str(const m_string_t v1, const char p2[])
+m_string_cmpi_cstr(const m_string_t v1, const char p2[])
 {
   M_STR1NG_CONTRACT (v1);
   M_ASSERT (p2 != NULL);
@@ -622,7 +627,7 @@ m_string_cmpi_str(const m_string_t v1, const char p2[])
 static inline int
 m_string_cmpi(const m_string_t v1, const m_string_t v2)
 {
-  return m_string_cmpi_str(v1, m_string_get_cstr(v2));
+  return m_string_cmpi_cstr(v1, m_string_get_cstr(v2));
 }
 
 /* Search for the position of the character c
@@ -663,7 +668,7 @@ m_string_search_rchar (const m_string_t v, char c, size_t start)
    Return M_STRING_FAILURE if not found.
    By default, start is zero. */
 static inline size_t
-m_string_search_str (const m_string_t v, const char str[], size_t start)
+m_string_search_cstr(const m_string_t v, const char str[], size_t start)
 {
   M_STR1NG_CONTRACT (v);
   M_ASSERT_INDEX (start, m_string_size(v)+1);
@@ -681,7 +686,7 @@ m_string_search (const m_string_t v1, const m_string_t v2, size_t start)
 {
   M_STR1NG_CONTRACT (v2);
   M_ASSERT_INDEX (start, m_string_size(v1)+1);
-  return m_string_search_str(v1, m_string_get_cstr(v2), start);
+  return m_string_search_cstr(v1, m_string_get_cstr(v2), start);
 }
 
 /* Search for the first matching character in the given C string 
@@ -701,7 +706,7 @@ m_string_search_pbrk(const m_string_t v1, const char first_of[], size_t start)
 
 /* Compare the string to the C string using strcoll */
 static inline int
-m_string_strcoll_str(const m_string_t v, const char str[])
+m_string_strcoll_cstr(const m_string_t v, const char str[])
 {
   M_STR1NG_CONTRACT (v);
   return strcoll(m_string_get_cstr(v), str);
@@ -712,7 +717,7 @@ static inline int
 m_string_strcoll (const m_string_t v1, const m_string_t v2)
 {
   M_STR1NG_CONTRACT (v2);
-  return m_string_strcoll_str(v1, m_string_get_cstr(v2));
+  return m_string_strcoll_cstr(v1, m_string_get_cstr(v2));
 }
 
 /* Return the number of bytes of the segment of s
@@ -777,15 +782,16 @@ m_string_mid (m_string_t v, size_t index, size_t size)
   m_string_left(v, size);
 }
 
-/* Return in the string the C string str1 into the C string str2 from start
+/* Replace in the string the firt occurence of the C string str1
+   into the C string str2 from start
    By default, start is zero.
 */
 static inline size_t
-m_string_replace_str (m_string_t v, const char str1[], const char str2[], size_t start)
+m_string_replace_cstr (m_string_t v, const char str1[], const char str2[], size_t start)
 {
   M_STR1NG_CONTRACT (v);
   M_ASSERT (str1 != NULL && str2 != NULL);
-  size_t i = m_string_search_str(v, str1, start);
+  size_t i = m_string_search_cstr(v, str1, start);
   if (i != M_STRING_FAILURE) {
     const size_t str1_l = strlen(str1);
     const size_t str2_l = strlen(str2);
@@ -802,7 +808,8 @@ m_string_replace_str (m_string_t v, const char str1[], const char str2[], size_t
   return i;
 }
 
-/* Return in the string the string str1 into the string str2 from start
+/* Replace in the string the firt occurence of the C string v1
+   into the C string v2 from start
    By default, start is zero.
 */
 static inline size_t
@@ -811,7 +818,7 @@ m_string_replace (m_string_t v, const m_string_t v1, const m_string_t v2, size_t
   M_STR1NG_CONTRACT (v);
   M_STR1NG_CONTRACT (v1);
   M_STR1NG_CONTRACT (v2);
-  return m_string_replace_str(v, m_string_get_cstr(v1), m_string_get_cstr(v2), start);
+  return m_string_replace_cstr(v, m_string_get_cstr(v1), m_string_get_cstr(v2), start);
 }
 
 /* Replace in the string the sub-string at position 'pos' for 'len' bytes
@@ -842,7 +849,7 @@ m_string_replace_at (m_string_t v, size_t pos, size_t len, const char str2[])
 
 /* Replace all occurences of str1 into str2 when strlen(str1) >= strlen(str2) */
 static inline void
-m_str1ng_replace_all_str_1ge2 (m_string_t v, const char str1[], size_t str1len, const char str2[], size_t str2len)
+m_str1ng_replace_all_cstr_1ge2 (m_string_t v, const char str1[], size_t str1len, const char str2[], size_t str2len)
 {
   M_STR1NG_CONTRACT (v);
   M_ASSERT(str1len >= str2len);
@@ -907,7 +914,7 @@ m_str1ng_strstr_r(char org[], char src[], const char pattern[], size_t pattern_s
 
 /* Replace all occurences of str1 into str2 when strlen(str1) < strlen(str2) */
 static inline void
-m_str1ng_replace_all_str_1lo2 (m_string_t v, const char str1[], size_t str1len, const char str2[], size_t str2len)
+m_str1ng_replace_all_cstr_1lo2 (m_string_t v, const char str1[], size_t str1len, const char str2[], size_t str2len)
 {
   M_STR1NG_CONTRACT (v);
   M_ASSERT(str1len < str2len);
@@ -949,15 +956,15 @@ m_str1ng_replace_all_str_1lo2 (m_string_t v, const char str1[], size_t str1len, 
 }
 
 static inline void
-m_string_replace_all_str (m_string_t v, const char str1[], const char str2[])
+m_string_replace_all_cstr (m_string_t v, const char str1[], const char str2[])
 {
   size_t str1_l = strlen(str1);
   size_t str2_l = strlen(str2);
   assert(str1_l > 0);
   if (str1_l >= str2_l) {
-    m_str1ng_replace_all_str_1ge2(v, str1, str1_l, str2, str2_l );
+    m_str1ng_replace_all_cstr_1ge2(v, str1, str1_l, str2, str2_l );
   } else {
-    m_str1ng_replace_all_str_1lo2(v, str1, str1_l, str2, str2_l );
+    m_str1ng_replace_all_cstr_1lo2(v, str1, str1_l, str2, str2_l );
   }
 }
 
@@ -969,9 +976,9 @@ m_string_replace_all (m_string_t v, const m_string_t str1, const m_string_t str2
   assert(str1_l > 0);
   assert(str2_l > 0);
   if (str1_l >= str2_l) {
-    m_str1ng_replace_all_str_1ge2(v, m_string_get_cstr(str1), str1_l, m_string_get_cstr(str2), str2_l );
+    m_str1ng_replace_all_cstr_1ge2(v, m_string_get_cstr(str1), str1_l, m_string_get_cstr(str2), str2_l );
   } else {
-    m_str1ng_replace_all_str_1lo2(v, m_string_get_cstr(str1), str1_l, m_string_get_cstr(str2), str2_l );
+    m_str1ng_replace_all_cstr_1lo2(v, m_string_get_cstr(str1), str1_l, m_string_get_cstr(str2), str2_l );
   }
 }
 
@@ -1783,7 +1790,7 @@ m_string_push_u (m_string_t str, m_string_unicode_t u)
   M_STR1NG_CONTRACT(str);
   char buffer[4+1];
   m_str1ng_utf8_encode(buffer, u);
-  m_string_cat_str(str, buffer);
+  m_string_cat_cstr(str, buffer);
 }
 
 /* Compute the length in UTF8 characters in the string */
@@ -1817,7 +1824,7 @@ m_string_utf8_p(m_string_t str)
     for(size_t i = 0 ; i < size; i++) {                                       \
       char c = m_string_get_char(str, i);                                     \
       if (c == sep) {                                                         \
-        m_string_set_strn(tmp, &m_string_get_cstr(str)[begin], i - begin);    \
+        m_string_set_cstrn(tmp, &m_string_get_cstr(str)[begin], i - begin);   \
         /* If push move method is available, use it */                        \
         M_IF_METHOD(PUSH_MOVE,oplist)(                                        \
                                       M_CALL_PUSH_MOVE(oplist, cont, &tmp);   \
@@ -1828,7 +1835,7 @@ m_string_utf8_p(m_string_t str)
           begin = i + 1;                                                      \
       }                                                                       \
     }                                                                         \
-    m_string_set_strn(tmp, &m_string_get_cstr(str)[begin], size - begin);     \
+    m_string_set_cstrn(tmp, &m_string_get_cstr(str)[begin], size - begin);    \
     M_CALL_PUSH(oplist, cont, tmp);                                           \
     /* HACK: if method reverse is defined, it is likely that we have */       \
     /* inserted the items in the wrong order (aka for a list) */              \
@@ -1903,7 +1910,7 @@ namespace m_lib {
 /* Initialize a string with the given list of arguments.
    Check if it is a formatted input or not by counting the number of arguments.
    If there is only one argument, it can only be a set to C string.
-   It is much faster in this case to call m_string_init_set_str.
+   It is much faster in this case to call m_string_init_set_cstr.
    In C11 mode, it uses the fact that m_string_init_set is overloaded to handle both
    C string and string. */
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)
@@ -1911,7 +1918,7 @@ namespace m_lib {
   M_IF_NARGS_EQ1(__VA_ARGS__)(m_string_init_set, m_string_init_printf)(v, __VA_ARGS__)
 #else
 #define M_STR1NG_INIT_WITH(v, ...)                                            \
-  M_IF_NARGS_EQ1(__VA_ARGS__)(m_string_init_set_str, m_string_init_printf)(v, __VA_ARGS__)
+  M_IF_NARGS_EQ1(__VA_ARGS__)(m_string_init_set_cstr, m_string_init_printf)(v, __VA_ARGS__)
 #endif
 
 /* NOTE: Use GCC extension (OBSOLETE) */
@@ -1969,8 +1976,8 @@ namespace m_lib {
   m_string_search_rchar(M_DEFAULT_ARGS(3, (0), __VA_ARGS__))
 
 /* Search for a C string in a string (string, c_string[, start=0]) */
-#define m_string_search_str(...)                                              \
-  m_string_search_str(M_DEFAULT_ARGS(3, (0), __VA_ARGS__))
+#define m_string_search_cstr(...)                                             \
+  m_string_search_cstr(M_DEFAULT_ARGS(3, (0), __VA_ARGS__))
 
 /* Search for a string in a string (string, string[, start=0]) */
 #define m_string_search(...)                                                  \
@@ -1981,8 +1988,8 @@ namespace m_lib {
   m_string_search_pbrk(M_DEFAULT_ARGS(3, (0), __VA_ARGS__))
 
 /* Replace a C string to another C string in a string (string, c_src_string, c_dst_string, [, start=0]) */
-#define m_string_replace_str(...)                                             \
-  m_string_replace_str(M_DEFAULT_ARGS(4, (0), __VA_ARGS__))
+#define m_string_replace_cstr(...)                                            \
+  m_string_replace_cstr(M_DEFAULT_ARGS(4, (0), __VA_ARGS__))
 
 /* Replace a string to another string in a string (string, src_string, dst_string, [, start=0]) */
 #define m_string_replace(...)                                                 \
@@ -2020,27 +2027,27 @@ namespace m_lib {
            )(a,b,c)
 
 /* Init & Set the string a to the string (or C string) b (constructor) */
-#define m_string_init_set(a,b) M_STR1NG_SELECT2(m_string_init_set, m_string_init_set_str, a, b)
+#define m_string_init_set(a,b) M_STR1NG_SELECT2(m_string_init_set, m_string_init_set_cstr, a, b)
 
 /* Set the string a to the string (or C string) b */
-#define m_string_set(a,b) M_STR1NG_SELECT2(m_string_set, m_string_set_str, a, b)
+#define m_string_set(a,b) M_STR1NG_SELECT2(m_string_set, m_string_set_cstr, a, b)
 
 /* Concatene the string (or C string) b to the string a */
-#define m_string_cat(a,b) M_STR1NG_SELECT2(m_string_cat, m_string_cat_str, a, b)
+#define m_string_cat(a,b) M_STR1NG_SELECT2(m_string_cat, m_string_cat_cstr, a, b)
 
 /* Compare the string a to the string (or C string) b and return the sort order */
-#define m_string_cmp(a,b) M_STR1NG_SELECT2(m_string_cmp, m_string_cmp_str, a, b)
+#define m_string_cmp(a,b) M_STR1NG_SELECT2(m_string_cmp, m_string_cmp_cstr, a, b)
 
 /* Compare for equality the string a to the string (or C string) b */
-#define m_string_equal_p(a,b) M_STR1NG_SELECT2(m_string_equal_p, m_string_equal_str_p, a, b)
+#define m_string_equal_p(a,b) M_STR1NG_SELECT2(m_string_equal_p, m_string_equal_cstr_p, a, b)
 
 /* strcoll the string a to the string (or C string) b */
-#define m_string_strcoll(a,b) M_STR1NG_SELECT2(m_string_strcoll, m_string_strcoll_str, a, b)
+#define m_string_strcoll(a,b) M_STR1NG_SELECT2(m_string_strcoll, m_string_strcoll_cstr, a, b)
 
 #undef m_string_search
 /* Search for a string in a string (or C string) (string, string[, start=0]) */
 #define m_string_search(...)                                                  \
-  M_APPLY(M_STR1NG_SELECT3, m_string_search, m_string_search_str,             \
+  M_APPLY(M_STR1NG_SELECT3, m_string_search, m_string_search_cstr,            \
           M_DEFAULT_ARGS(3, (0), __VA_ARGS__) )
 #endif
 
@@ -2191,7 +2198,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _set_str)(bounded_t s, const char str[])                          \
+  M_C(name, _set_cstr)(bounded_t s, const char str[])                         \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     m_core_strncpy(s->s, max_size+1, str, max_size);                          \
@@ -2200,7 +2207,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _set_strn)(bounded_t s, const char str[], size_t n)               \
+  M_C(name, _set_cstrn)(bounded_t s, const char str[], size_t n)              \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     M_ASSERT(str != NULL);                                                    \
@@ -2222,7 +2229,7 @@ namespace m_lib {
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     M_BOUNDED_STR1NG_CONTRACT(str, max_size);                                 \
-    M_C(name, _set_str)(s, str->s);                                           \
+    M_C(name, _set_cstr)(s, str->s);                                          \
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -2232,7 +2239,7 @@ namespace m_lib {
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     M_BOUNDED_STR1NG_CONTRACT(str, max_size);                                 \
     M_ASSERT_INDEX (offset, max_size+1);                                      \
-    M_C(name, _set_strn)(s, str->s+offset, length);                           \
+    M_C(name, _set_cstrn)(s, str->s+offset, length);                          \
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -2243,14 +2250,14 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init_set_str)(bounded_t s, const char str[])                     \
+  M_C(name, _init_set_cstr)(bounded_t s, const char str[])                    \
   {                                                                           \
     M_C(name,_init)(s);                                                       \
-    M_C(name,_set_str)(s, str);                                               \
+    M_C(name,_set_cstr)(s, str);                                              \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _cat_str)(bounded_t s, const char str[])                          \
+  M_C(name, _cat_cstr)(bounded_t s, const char str[])                         \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     M_ASSERT (str != NULL);                                                   \
@@ -2262,11 +2269,11 @@ namespace m_lib {
   M_C(name, _cat)(bounded_t s, const bounded_t  str)                          \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(str, max_size);                                 \
-    M_C(name, _cat_str)(s, str->s);                                           \
+    M_C(name, _cat_cstr)(s, str->s);                                          \
   }                                                                           \
                                                                               \
   static inline int                                                           \
-  M_C(name, _cmp_str)(const bounded_t s, const char str[])                    \
+  M_C(name, _cmp_cstr)(const bounded_t s, const char str[])                   \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     M_ASSERT(str != NULL);                                                    \
@@ -2282,7 +2289,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _equal_str_p)(const bounded_t s, const char str[])                \
+  M_C(name, _equal_cstr_p)(const bounded_t s, const char str[])               \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     M_ASSERT(str != NULL);                                                    \
@@ -2480,10 +2487,10 @@ namespace m_lib {
 /* Initialize a bounded string with the given list of arguments.
    Check if it is a formatted input or not by counting the number of arguments.
    If there is only one argument, it can only be a set to C string.
-   It is much faster in this case to call m_string_init_set_str.
+   It is much faster in this case to call m_string_init_set_cstr.
 */
 #define M_BOUNDED_STR1NG_INIT_WITH(oplist, v, ...)                            \
-  M_IF_NARGS_EQ1(__VA_ARGS__)(M_C(M_GET_NAME oplist, _init_set_str)(v, __VA_ARGS__), M_BOUNDED_STR1NG_INIT_PRINTF(oplist, v, __VA_ARGS__))
+  M_IF_NARGS_EQ1(__VA_ARGS__)(M_C(M_GET_NAME oplist, _init_set_cstr)(v, __VA_ARGS__), M_BOUNDED_STR1NG_INIT_PRINTF(oplist, v, __VA_ARGS__))
 
 #define M_BOUNDED_STR1NG_INIT_PRINTF(oplist, v, ...)                          \
   (M_GET_INIT oplist (v), M_C(M_GET_NAME oplist, _printf)(v, __VA_ARGS__))
@@ -2516,46 +2523,46 @@ namespace m_lib {
 #define string_get_cstr m_string_get_cstr
 #define string_init m_string_init
 #define string_clear m_string_clear
-#define string_clear_get_str m_string_clear_get_str
+#define string_clear_get_str m_string_clear_get_cstr
 #define string_reset m_string_reset
 #define string_get_char m_string_get_char
 #define string_set_char m_string_set_char
 #define string_empty_p m_string_empty_p
 #define string_reserve m_string_reserve
-#define string_set_str m_string_set_str
-#define string_set_strn m_string_set_strn
+#define string_set_str m_string_set_cstr
+#define string_set_strn m_string_set_cstrn
 #define string_set m_string_set
 #define string_set_n m_string_set_n
 #define string_init_set m_string_init_set
-#define string_init_set_str m_string_init_set_str
+#define string_init_set_str m_string_init_set_cstr
 #define string_init_move m_string_init_move
 #define string_swap m_string_swap
 #define string_move m_string_move
 #define string_push_back m_string_push_back
-#define string_cat_str m_string_cat_str
+#define string_cat_str m_string_cat_cstr
 #define string_cat m_string_cat
-#define string_cmp_str m_string_cmp_str
+#define string_cmp_str m_string_cmp_cstr
 #define string_cmp m_string_cmp
-#define string_equal_str_p m_string_equal_str_p
+#define string_equal_str_p m_string_equal_cstr_p
 #define string_equal_p m_string_equal_p
-#define string_cmpi_str m_string_cmpi_str
+#define string_cmpi_str m_string_cmpi_cstr
 #define string_cmpi m_string_cmpi
 #define string_search_char m_string_search_char
 #define string_search_rchar m_string_search_rchar
-#define string_search_str m_string_search_str
+#define string_search_str m_string_search_cstr
 #define string_search m_string_search
 #define string_search_pbrk m_string_search_pbrk
-#define string_strcoll_str m_string_strcoll_str
+#define string_strcoll_str m_string_strcoll_cstr
 #define string_strcoll m_string_strcoll
 #define string_spn m_string_spn
 #define string_cspn m_string_cspn
 #define string_left m_string_left
 #define string_right m_string_right
 #define string_mid m_string_mid
-#define string_replace_str m_string_replace_str
+#define string_replace_str m_string_replace_cstr
 #define string_replace m_string_replace
 #define string_replace_at m_string_replace_at
-#define string_replace_all_str m_string_replace_all_str
+#define string_replace_all_str m_string_replace_all_cstr
 #define string_replace_all m_string_replace_all
 #define string_vprintf m_string_vprintf
 #define string_printf m_string_printf

@@ -899,7 +899,7 @@
                       bool append)                                            \
   {                                                                           \
     M_ARRA4_CONTRACT(array);                                                  \
-    (append ? m_string_cat_str : m_string_set_str) (str, "[");                \
+    (append ? m_string_cat_cstr : m_string_set_cstr) (str, "[");              \
     it_t it;                                                                  \
     for (M_C(name, _it)(it, array) ;                                          \
          !M_C(name, _end_p)(it);                                              \

@@ -1250,7 +1250,7 @@
                                          const tree_t t1, bool append) {      \
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, t1);                            \
     M_ASSERT(str != NULL);                                                    \
-    (append ? m_string_cat_str : m_string_set_str) (str, "[");                \
+    (append ? m_string_cat_cstr : m_string_set_cstr) (str, "[");              \
     /* NOTE: The print is really naive, and not really efficient */           \
     bool commaToPrint = false;                                                \
     it_t it;                                                                  \
@@ -1263,7 +1263,7 @@
       subtype_t const *ref1 = M_C(name, _cref)(it);                           \
       M_IF(isMap)(                                                            \
                   M_CALL_GET_STR(key_oplist, str, *ref1->key_ptr, true);      \
-                  m_string_cat_str(str, ":");                                 \
+                  m_string_cat_cstr(str, ":");                                \
                   M_CALL_GET_STR(value_oplist,str, *ref1->value_ptr, true)    \
                   ,                                                           \
                   M_CALL_GET_STR(key_oplist, str, *ref1, true);               \

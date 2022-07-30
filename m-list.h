@@ -688,7 +688,7 @@
                       bool append)                                            \
   {                                                                           \
     M_ASSERT (str != NULL && list != NULL);                                   \
-    (append ? m_string_cat_str : m_string_set_str) (str, "[");                \
+    (append ? m_string_cat_cstr : m_string_set_cstr) (str, "[");              \
     it_t it;                                                                  \
     for (M_C(name, _it)(it, list) ;                                           \
          !M_C(name, _end_p)(it);                                              \
