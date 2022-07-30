@@ -99,7 +99,7 @@ m_ser1al_bin_read_size(FILE *f, size_t *size)
     return true;
   }
   size_t s = 0;
-  int l = (c = 255) ? 8 : (c == 254) ? 4 : 2;
+  int l = (c == 255) ? 8 : (c == 254) ? 4 : 2;
   for(int i = 0; i < l; i++) {
       c = fgetc(f);
       if (M_UNLIKELY(c == EOF)) return false;
