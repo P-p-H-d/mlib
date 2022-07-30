@@ -675,44 +675,44 @@ static void test_bounded1(void)
   assert (string16_empty_p(s));
   assert (string16_size(s) == 0);
   assert (string16_capacity(s) == 17);
-  string16_set_str(s, "Hello");
+  string16_set_cstr(s, "Hello");
   assert (!string16_empty_p(s));
   assert (string16_size(s) == 5);
-  assert (string16_equal_str_p(s, "Hello"));
-  assert (string16_cmp_str(s, "Hello") == 0);
+  assert (string16_equal_cstr_p(s, "Hello"));
+  assert (string16_cmp_cstr(s, "Hello") == 0);
   assert (string16_get_char(s, 1) == 'e');
   assert (strcmp(string16_get_cstr(s), "Hello") == 0);
   string16_reset(s);
   assert (string16_empty_p(s));
   assert (string16_size(s) == 0);
-  string16_set_str(s, "Hello, world! How do you do?");
+  string16_set_cstr(s, "Hello, world! How do you do?");
   assert (!string16_empty_p(s));
   assert (string16_size(s) == 16);
-  assert (string16_equal_str_p(s, "Hello, world! Ho"));
-  string16_set_strn(s, "Hello, world! How do you do?", 17);
+  assert (string16_equal_cstr_p(s, "Hello, world! Ho"));
+  string16_set_cstrn(s, "Hello, world! How do you do?", 17);
   assert (!string16_empty_p(s));
   assert (string16_size(s) == 16);
-  assert (string16_equal_str_p(s, "Hello, world! Ho"));
-  string16_set_strn(s, "Hello, world! How do you do?", 15);
+  assert (string16_equal_cstr_p(s, "Hello, world! Ho"));
+  string16_set_cstrn(s, "Hello, world! How do you do?", 15);
   assert (!string16_empty_p(s));
   assert (string16_size(s) == 15);
-  assert (string16_equal_str_p(s, "Hello, world! H"));
-  string16_cat_str(s, "ow do you do?");
+  assert (string16_equal_cstr_p(s, "Hello, world! H"));
+  string16_cat_cstr(s, "ow do you do?");
   assert (string16_size(s) == 16);
-  assert (!string16_equal_str_p(s, "Hello, world! H"));
-  assert (string16_equal_str_p(s, "Hello, world! Ho"));
+  assert (!string16_equal_cstr_p(s, "Hello, world! H"));
+  assert (string16_equal_cstr_p(s, "Hello, world! Ho"));
   string16_printf(s, "HeH:%d", 16);
   assert (string16_size(s) == 6);
-  assert (string16_equal_str_p(s, "HeH:16"));
+  assert (string16_equal_cstr_p(s, "HeH:16"));
   string16_cat_printf(s, " GeG:%d/%d FRE:%d", 17, 42, 13);
   assert (string16_size(s) == 16);
-  assert (string16_equal_str_p(s, "HeH:16 GeG:17/42"));
+  assert (string16_equal_cstr_p(s, "HeH:16 GeG:17/42"));
   assert (string16_hash(s) != 0);
   
-  string16_set_strn(s, "Hello, world! How do you do?", 15);
+  string16_set_cstrn(s, "Hello, world! How do you do?", 15);
   string16_init_set(d, s);
   string16_reset(s);
-  assert (string16_equal_str_p(d, "Hello, world! H"));
+  assert (string16_equal_cstr_p(d, "Hello, world! H"));
   
   string16_clear(d);
   string16_clear(s);
@@ -727,7 +727,7 @@ static void test_bounded_io(void)
   string16_init(s);
   string16_init(d);
   
-  string16_set_str(s, "Hello \"world\"");
+  string16_set_cstr(s, "Hello \"world\"");
   f = m_core_fopen ("a-mstring.dat", "wt");
   assert (f != NULL);
   string16_out_str (f, s);
@@ -760,11 +760,11 @@ static void test_bounded_M_LET(void)
   }
   
   M_LET( (x, ("tree")), BOUNDED_STRING_OPLIST(string16)) {
-    assert (string16_equal_str_p(x, "tree"));
+    assert (string16_equal_cstr_p(x, "tree"));
   }
 
   M_LET( (x,"tree%d", 78), BOUNDED_STRING_OPLIST(string16)) {
-    assert (string16_equal_str_p(x, "tree78"));
+    assert (string16_equal_cstr_p(x, "tree78"));
   }
 
 }
