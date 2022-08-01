@@ -69,7 +69,7 @@
     M_ASSERT( (tree)->size >= 0 && (tree)->size <= (tree)->capacity);         \
     M_ASSERT( (tree)->capacity >= 0 );                                        \
     M_ASSERT( (tree)->capacity == 0 || (tree)->tab != NULL);                  \
-    M_ASSERT( (tree)->allow_realloc == 0 || (tree)->allow_realloc == INT32_MAX );    \
+    M_ASSERT( (tree)->allow_realloc == 0 || (tree)->allow_realloc == INT32_MAX ); \
     M_ASSERT( (tree)->free_index >= M_TR33_NO_NODE && (tree)->free_index < (tree)->capacity); \
     M_ASSERT( (tree)->root_index >= M_TR33_NO_NODE && (tree)->root_index < (tree)->capacity); \
     M_ASSERT( (tree)->free_index < 0 || (tree)->tab[(tree)->free_index].parent == M_TR33_NO_NODE); \
@@ -423,7 +423,7 @@ typedef int32_t m_tr33_index_t;
     }                                                                         \
                                                                               \
     static inline it_t                                                        \
-    M_C(name, _insert_up)(it_t it, type const data) {                         \
+    M_C(name, _insert_up_raw)(it_t it) {                                      \
         M_TR33_IT_CONTRACT(it, true);                                         \
         m_tr33_index_t i = M_C3(m_tr33_, name, _alloc_node)(it.tree);         \
         m_tr33_index_t parent = it.tree->tab[it.index].parent;                \
@@ -447,13 +447,20 @@ typedef int32_t m_tr33_index_t;
         if (right != M_TR33_NO_NODE) { it.tree->tab[right].left = i; }        \
         /* Return updated iterator on the inserted node */                    \
         it.index = i;                                                         \
-        M_CALL_INIT_SET(oplist, it.tree->tab[i].data, data);                  \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return it;                                                            \
     }                                                                         \
                                                                               \
     static inline it_t                                                        \
-    M_C(name, _insert_down)(it_t it, type const data) {                       \
+    M_C(name, _insert_up)(it_t pos, type const data) {                        \
+        it_t it = M_C(name, _insert_up_raw)(pos);                             \
+        M_CALL_INIT_SET(oplist, it.tree->tab[it.index].data, data);           \
+        M_TR33_IT_CONTRACT(it, true);                                         \
+        return it;                                                            \
+    }                                                                         \
+                                                                              \
+    static inline it_t                                                        \
+    M_C(name, _insert_down_raw)(it_t it) {                                    \
         M_TR33_IT_CONTRACT(it, true);                                         \
         m_tr33_index_t i = M_C3(m_tr33_, name, _alloc_node)(it.tree);         \
         m_tr33_index_t child = it.tree->tab[it.index].child;                  \
@@ -469,13 +476,20 @@ typedef int32_t m_tr33_index_t;
         }                                                                     \
         /* Return updated iterator on the inserted node */                    \
         it.index = i;                                                         \
-        M_CALL_INIT_SET(oplist, it.tree->tab[i].data, data);                  \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return it;                                                            \
     }                                                                         \
                                                                               \
     static inline it_t                                                        \
-    M_C(name, _insert_child)(it_t it, type const data) {                      \
+    M_C(name, _insert_down)(it_t pos, type const data) {                      \
+        it_t it = M_C(name, _insert_down_raw)(pos);                           \
+        M_CALL_INIT_SET(oplist, it.tree->tab[it.index].data, data);           \
+        M_TR33_IT_CONTRACT(it, true);                                         \
+        return it;                                                            \
+    }                                                                         \
+                                                                              \
+    static inline it_t                                                        \
+    M_C(name, _insert_child_raw)(it_t it) {                                   \
         M_TR33_IT_CONTRACT(it, true);                                         \
         /* Insert a node as a child of another, making the current childreen  \
             of the nodes their siblings */                                    \
@@ -493,13 +507,20 @@ typedef int32_t m_tr33_index_t;
         }                                                                     \
         /* Return updated iterator on the inserted node */                    \
         it.index = i;                                                         \
-        M_CALL_INIT_SET(oplist, it.tree->tab[i].data, data);                  \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return it;                                                            \
     }                                                                         \
                                                                               \
     static inline it_t                                                        \
-    M_C(name, _insert_left)(it_t it, type const data) {                       \
+    M_C(name, _insert_child)(it_t pos, type const data) {                     \
+        it_t it = M_C(name, _insert_child_raw)(pos);                          \
+        M_CALL_INIT_SET(oplist, it.tree->tab[it.index].data, data);           \
+        M_TR33_IT_CONTRACT(it, true);                                         \
+        return it;                                                            \
+    }                                                                         \
+                                                                              \
+    static inline it_t                                                        \
+    M_C(name, _insert_left_raw)(it_t it) {                                    \
         M_TR33_IT_CONTRACT(it, true);                                         \
         M_ASSERT(it.index != it.tree->root_index);                            \
         m_tr33_index_t i = M_C3(m_tr33_, name, _alloc_node)(it.tree);         \
@@ -518,13 +539,20 @@ typedef int32_t m_tr33_index_t;
         }                                                                     \
         /* Return updated iterator on the inserted node */                    \
         it.index = i;                                                         \
-        M_CALL_INIT_SET(oplist, it.tree->tab[i].data, data);                  \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return it;                                                            \
     }                                                                         \
                                                                               \
     static inline it_t                                                        \
-    M_C(name, _insert_right)(it_t it, type const data) {                      \
+    M_C(name, _insert_left)(it_t pos, type const data) {                      \
+        it_t it = M_C(name, _insert_left_raw)(pos);                           \
+        M_CALL_INIT_SET(oplist, it.tree->tab[it.index].data, data);           \
+        M_TR33_IT_CONTRACT(it, true);                                         \
+        return it;                                                            \
+    }                                                                         \
+                                                                              \
+    static inline it_t                                                        \
+    M_C(name, _insert_right_raw)(it_t it) {                                   \
         M_TR33_IT_CONTRACT(it, true);                                         \
         M_ASSERT(it.index != it.tree->root_index);                            \
         m_tr33_index_t i = M_C3(m_tr33_, name, _alloc_node)(it.tree);         \
@@ -537,7 +565,14 @@ typedef int32_t m_tr33_index_t;
         it.tree->tab[it.index].right = i;                                     \
         /* Return updated iterator on the inserted node */                    \
         it.index = i;                                                         \
-        M_CALL_INIT_SET(oplist, it.tree->tab[i].data, data);                  \
+        M_TR33_IT_CONTRACT(it, true);                                         \
+        return it;                                                            \
+    }                                                                         \
+                                                                              \
+    static inline it_t                                                        \
+    M_C(name, _insert_right)(it_t pos, type const data) {                     \
+        it_t it = M_C(name, _insert_right_raw)(pos);                          \
+        M_CALL_INIT_SET(oplist, it.tree->tab[it.index].data, data);           \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return it;                                                            \
     }                                                                         \
