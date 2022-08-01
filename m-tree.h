@@ -460,6 +460,14 @@ typedef int32_t m_tr33_index_t;
     }                                                                         \
                                                                               \
     static inline it_t                                                        \
+    M_C(name, _move_up)(it_t pos, type *data) {                               \
+        it_t it = M_C(name, _insert_up_raw)(pos);                             \
+        M_DO_INIT_MOVE(oplist, it.tree->tab[it.index].data, *data);           \
+        M_TR33_IT_CONTRACT(it, true);                                         \
+        return it;                                                            \
+    }                                                                         \
+                                                                              \
+    static inline it_t                                                        \
     M_C(name, _insert_down_raw)(it_t it) {                                    \
         M_TR33_IT_CONTRACT(it, true);                                         \
         m_tr33_index_t i = M_C3(m_tr33_, name, _alloc_node)(it.tree);         \
@@ -484,6 +492,14 @@ typedef int32_t m_tr33_index_t;
     M_C(name, _insert_down)(it_t pos, type const data) {                      \
         it_t it = M_C(name, _insert_down_raw)(pos);                           \
         M_CALL_INIT_SET(oplist, it.tree->tab[it.index].data, data);           \
+        M_TR33_IT_CONTRACT(it, true);                                         \
+        return it;                                                            \
+    }                                                                         \
+                                                                              \
+    static inline it_t                                                        \
+    M_C(name, _move_down)(it_t pos, type *data) {                             \
+        it_t it = M_C(name, _insert_down_raw)(pos);                           \
+        M_DO_INIT_MOVE(oplist, it.tree->tab[it.index].data, *data);           \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return it;                                                            \
     }                                                                         \
@@ -515,6 +531,14 @@ typedef int32_t m_tr33_index_t;
     M_C(name, _insert_child)(it_t pos, type const data) {                     \
         it_t it = M_C(name, _insert_child_raw)(pos);                          \
         M_CALL_INIT_SET(oplist, it.tree->tab[it.index].data, data);           \
+        M_TR33_IT_CONTRACT(it, true);                                         \
+        return it;                                                            \
+    }                                                                         \
+                                                                              \
+    static inline it_t                                                        \
+    M_C(name, _move_child)(it_t pos, type *data) {                            \
+        it_t it = M_C(name, _insert_child_raw)(pos);                          \
+        M_DO_INIT_MOVE(oplist, it.tree->tab[it.index].data, *data);           \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return it;                                                            \
     }                                                                         \
@@ -552,6 +576,14 @@ typedef int32_t m_tr33_index_t;
     }                                                                         \
                                                                               \
     static inline it_t                                                        \
+    M_C(name, _move_left)(it_t pos, type *data) {                             \
+        it_t it = M_C(name, _insert_left_raw)(pos);                           \
+        M_DO_INIT_MOVE(oplist, it.tree->tab[it.index].data, *data);           \
+        M_TR33_IT_CONTRACT(it, true);                                         \
+        return it;                                                            \
+    }                                                                         \
+                                                                              \
+    static inline it_t                                                        \
     M_C(name, _insert_right_raw)(it_t it) {                                   \
         M_TR33_IT_CONTRACT(it, true);                                         \
         M_ASSERT(it.index != it.tree->root_index);                            \
@@ -573,6 +605,14 @@ typedef int32_t m_tr33_index_t;
     M_C(name, _insert_right)(it_t pos, type const data) {                     \
         it_t it = M_C(name, _insert_right_raw)(pos);                          \
         M_CALL_INIT_SET(oplist, it.tree->tab[it.index].data, data);           \
+        M_TR33_IT_CONTRACT(it, true);                                         \
+        return it;                                                            \
+    }                                                                         \
+                                                                              \
+    static inline it_t                                                        \
+    M_C(name, _move_right)(it_t pos, type *data) {                            \
+        it_t it = M_C(name, _insert_right_raw)(pos);                          \
+        M_DO_INIT_MOVE(oplist, it.tree->tab[it.index].data, *data);           \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return it;                                                            \
     }                                                                         \
@@ -1414,9 +1454,7 @@ exit:                                                                         \
 , /* No IN_STR */ )                                                           \
 
 // TODO: 
-// * insertion function with move semantics (or _raw methods?)
 // * emplace insertion
-// * I/O
 // * Allocate one more "spare" member in the array (alloc is capacity+1),
 // so that we don't need to write if (i != M_TR33_NO_NODE) { tab[i] = j; }
 // but simply "tab[i] = j;" (avoid one conditional branch).
