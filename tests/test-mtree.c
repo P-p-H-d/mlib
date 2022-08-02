@@ -358,7 +358,7 @@ static void test_gen(void)
   tree_t t, t0;
   string_t s;
   tree_init(t);
-  tree_init(t0);
+  tree_init_set(t0, t);
   string_init(s);
   g_root = g_tree[++ g_num] = tree_set_root(t, 1);
   tree_get_str(s, t, false);
