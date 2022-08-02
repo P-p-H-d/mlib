@@ -252,6 +252,10 @@ typedef int32_t m_tr33_index_t;
             M_MEMORY_FULL(sizeof (struct M_C(name, _node_s)) * alloc);        \
             return;                                                           \
         }                                                                     \
+        /* Allocate one more term in the array so that tab[-1] exists.        \
+           This enables performing latter tab[M_TR33_NO_NODE].x = something;  \
+           as M_TR33_NO_NODE is -1. This enables avoiding testing for         \
+           M_TR33_NO_NODE in some cases, performing branchless code. */       \
         struct M_C(name,_node_s)*ptr = tree->tab == NULL ? NULL : tree->tab-1;\
         ptr = M_CALL_REALLOC(oplist, struct M_C(name, _node_s), ptr, alloc+1);\
         if (M_UNLIKELY (ptr == NULL) ) {                                      \
@@ -302,6 +306,10 @@ typedef int32_t m_tr33_index_t;
                 M_MEMORY_FULL(sizeof (struct M_C(name, _node_s)) * alloc);    \
                 return M_TR33_NO_NODE;                                        \
             }                                                                 \
+            /* Allocate one more term in the array so that tab[-1] exists.    \
+            This enables performing latter tab[M_TR33_NO_NODE].x = something; \
+            as M_TR33_NO_NODE is -1. This enables avoiding testing for        \
+            M_TR33_NO_NODE in some cases, performing branchless code. */      \
             struct M_C(name,_node_s)*ptr = tree->tab == NULL ? NULL : tree->tab-1; \
             ptr = M_CALL_REALLOC(oplist, struct M_C(name, _node_s), ptr, alloc+1); \
             if (M_UNLIKELY (ptr == NULL) ) {                                  \
@@ -444,12 +452,13 @@ typedef int32_t m_tr33_index_t;
         if (M_UNLIKELY(it.tree->root_index == it.index)) {                    \
             /* We have added a parent to the root node. Update root index */  \
             it.tree->root_index = i;                                          \
+            M_ASSERT( it.tree->tab[i].parent == M_TR33_ROOT_NODE);            \
         } else { if (it.tree->tab[parent].child == it.index) {                \
             /* Update the parent to point to the new child */                 \
             it.tree->tab[parent].child = i;                                   \
         } }                                                                   \
-        if (left  != M_TR33_NO_NODE) { it.tree->tab[left].right = i; }        \
-        if (right != M_TR33_NO_NODE) { it.tree->tab[right].left = i; }        \
+        it.tree->tab[left].right = i;                                         \
+        it.tree->tab[right].left = i;                                         \
         /* Return updated iterator on the inserted node */                    \
         it.index = i;                                                         \
         M_TR33_IT_CONTRACT(it, true);                                         \
@@ -523,9 +532,7 @@ typedef int32_t m_tr33_index_t;
         /* Update the parent */                                               \
         it.tree->tab[it.index].child = i;                                     \
         /* Update the sibling */                                              \
-        if (child != M_TR33_NO_NODE) {                                        \
-            it.tree->tab[child].left = i;                                     \
-        }                                                                     \
+        it.tree->tab[child].left = i;                                         \
         /* Return updated iterator on the inserted node */                    \
         it.index = i;                                                         \
         M_TR33_IT_CONTRACT(it, true);                                         \
@@ -561,7 +568,7 @@ typedef int32_t m_tr33_index_t;
         it.tree->tab[i].child = M_TR33_NO_NODE;                               \
         it.tree->tab[it.index].left = i;                                      \
         /* If there is a left node, update its right */                       \
-        if (left >= 0) { it.tree->tab[left].right = i; }                      \
+        it.tree->tab[left].right = i;                                         \
         if (it.tree->tab[parent].child == it.index) {                         \
             /* Update the first child of the parent */                        \
             it.tree->tab[parent].child = i;                                   \
@@ -598,7 +605,7 @@ typedef int32_t m_tr33_index_t;
         it.tree->tab[i].left   = it.index;                                    \
         it.tree->tab[i].right  = right;                                       \
         it.tree->tab[i].child  = M_TR33_NO_NODE;                              \
-        if (right >= 0) { it.tree->tab[right].left = i; }                     \
+        it.tree->tab[right].left = i;                                         \
         it.tree->tab[it.index].right = i;                                     \
         /* Return updated iterator on the inserted node */                    \
         it.index = i;                                                         \
@@ -735,12 +742,8 @@ typedef int32_t m_tr33_index_t;
         /* Test if No child for this node */                                  \
         if (child == M_TR33_NO_NODE) {                                        \
             /* Remove node from sibling */                                    \
-            if (left != M_TR33_NO_NODE) {                                     \
-                it.tree->tab[left].right = right;                             \
-            }                                                                 \
-            if (right != M_TR33_NO_NODE) {                                    \
-                it.tree->tab[right].left = left;                              \
-            }                                                                 \
+            it.tree->tab[left].right = right;                                 \
+            it.tree->tab[right].left = left;                                  \
             /* Remove node from parent if it is the first child */            \
             if (parent >= 0 && it.tree->tab[parent].child == it.index) {      \
                 M_ASSERT(left == M_TR33_NO_NODE);                             \
@@ -756,14 +759,10 @@ typedef int32_t m_tr33_index_t;
                 it.tree->tab[child_r].parent = parent;                        \
             }                                                                 \
             /* Remove node from sibling */                                    \
-            if (left != M_TR33_NO_NODE) {                                     \
-                it.tree->tab[left].right = child;                             \
-                it.tree->tab[child].left = left;                              \
-            }                                                                 \
-            if (right != M_TR33_NO_NODE) {                                    \
-                it.tree->tab[right].left = child_r;                           \
-                it.tree->tab[child_r].right = right;                          \
-            }                                                                 \
+            it.tree->tab[left].right = child;                                 \
+            it.tree->tab[child].left = left;                                  \
+            it.tree->tab[right].left = child_r;                               \
+            it.tree->tab[child_r].right = right;                              \
             /* Remove node from parent if it is the first child */            \
             if (parent >= 0 && it.tree->tab[parent].child == it.index) {      \
                 M_ASSERT(left == M_TR33_NO_NODE);                             \
@@ -989,13 +988,13 @@ typedef int32_t m_tr33_index_t;
         /* Swap left references */                                            \
         it1.tree->tab[it1.index].left = tmp2_l;                               \
         it2.tree->tab[it2.index].left = tmp1_l;                               \
-        if (tmp1_l >= 0) { it1.tree->tab[tmp1_l].right = it2.index; }         \
-        if (tmp2_l >= 0) { it2.tree->tab[tmp2_l].right = it1.index; }         \
+        it1.tree->tab[tmp1_l].right = it2.index;                              \
+        it2.tree->tab[tmp2_l].right = it1.index;                              \
         /* Swap right references */                                           \
         it1.tree->tab[it1.index].right = tmp2_r;                              \
         it2.tree->tab[it2.index].right = tmp1_r;                              \
-        if (tmp1_r >= 0) { it1.tree->tab[tmp1_r].left = it2.index; }          \
-        if (tmp2_r >= 0) { it2.tree->tab[tmp2_r].left = it1.index; }          \
+        it1.tree->tab[tmp1_r].left = it2.index;                               \
+        it2.tree->tab[tmp2_r].left = it1.index;                               \
         /* Swap down references */                                            \
         if (swapChild == false) {                                             \
             it1.tree->tab[it1.index].child = tmp2_d;                          \
@@ -1048,9 +1047,9 @@ typedef int32_t m_tr33_index_t;
             it1.tree->tab[parent].child = it1.tree->tab[i].right;             \
         }                                                                     \
         const m_tr33_index_t left = it1.tree->tab[i].left;                    \
-        if (left >= 0) { it1.tree->tab[left].right = it1.tree->tab[i].right;} \
+        it1.tree->tab[left].right = it1.tree->tab[i].right;                   \
         const m_tr33_index_t right = it1.tree->tab[i].right;                  \
-        if (right >= 0) { it1.tree->tab[right].left = it1.tree->tab[i].left;} \
+        it1.tree->tab[right].left = it1.tree->tab[i].left;                    \
         /* Add the new node */                                                \
         const m_tr33_index_t child = it1.tree->tab[it1.index].child;          \
         it1.tree->tab[i].parent = it1.index;                                  \
@@ -1059,9 +1058,7 @@ typedef int32_t m_tr33_index_t;
         /* Update the parent */                                               \
         it1.tree->tab[it1.index].child = i;                                   \
         /* Update the sibling */                                              \
-        if (child != M_TR33_NO_NODE) {                                        \
-            it1.tree->tab[child].left = i;                                    \
-        }                                                                     \
+        it1.tree->tab[child].left = i;                                        \
         M_TR33_IT_CONTRACT(it1, true);                                        \
         M_TR33_IT_CONTRACT(it2, true);                                        \
     }                                                                         \
