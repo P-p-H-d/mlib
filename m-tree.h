@@ -233,7 +233,8 @@ typedef int32_t m_tr33_index_t;
     static inline void                                                        \
     M_C(name, _clear)(tree_t tree) {                                          \
         M_C(name, _reset)(tree);                                              \
-        M_CALL_FREE(oplist, tree->tab);                                       \
+        struct M_C(name,_node_s)*ptr = tree->tab == NULL ? NULL : tree->tab-1;\
+        M_CALL_FREE(oplist, ptr);                                             \
         /* This is so reusing the object implies an assertion failure */      \
         tree->size = 1;                                                       \
         tree->tab = NULL;                                                     \
@@ -251,12 +252,14 @@ typedef int32_t m_tr33_index_t;
             M_MEMORY_FULL(sizeof (struct M_C(name, _node_s)) * alloc);        \
             return;                                                           \
         }                                                                     \
-        struct M_C(name, _node_s) *ptr =                                      \
-            M_CALL_REALLOC(oplist, struct M_C(name, _node_s), tree->tab, alloc); \
+        struct M_C(name,_node_s)*ptr = tree->tab == NULL ? NULL : tree->tab-1;\
+        ptr = M_CALL_REALLOC(oplist, struct M_C(name, _node_s), ptr, alloc+1);\
         if (M_UNLIKELY (ptr == NULL) ) {                                      \
             M_MEMORY_FULL(sizeof (struct M_C(name, _node_s)) * alloc);        \
             return;                                                           \
         }                                                                     \
+        /* Skip the first term to keep it as empty & unused */                \
+        ptr++;                                                                \
         /* Free the list */                                                   \
         m_tr33_index_t *free_index = &tree->free_index;                       \
         if (*free_index != M_TR33_NO_NODE) {                                  \
@@ -299,12 +302,14 @@ typedef int32_t m_tr33_index_t;
                 M_MEMORY_FULL(sizeof (struct M_C(name, _node_s)) * alloc);    \
                 return M_TR33_NO_NODE;                                        \
             }                                                                 \
-            struct M_C(name, _node_s) *ptr =                                  \
-                M_CALL_REALLOC(oplist, struct M_C(name, _node_s), tree->tab, alloc); \
+            struct M_C(name,_node_s)*ptr = tree->tab == NULL ? NULL : tree->tab-1; \
+            ptr = M_CALL_REALLOC(oplist, struct M_C(name, _node_s), ptr, alloc+1); \
             if (M_UNLIKELY (ptr == NULL) ) {                                  \
                 M_MEMORY_FULL(sizeof (struct M_C(name, _node_s)) * alloc);    \
                 return M_TR33_NO_NODE;                                        \
             }                                                                 \
+            /* Skip the first term to keep it as empty & unused */            \
+            ptr++;                                                            \
             /* Construct the list of free node in the extra allocated pool */ \
             M_ASSERT(tree->capacity >= 0);                                    \
             for(size_t i = (size_t) tree->capacity; i < alloc; i++) {         \
@@ -1098,22 +1103,26 @@ typedef int32_t m_tr33_index_t;
         tree->free_index = ref->free_index;                                   \
         tree->allow_realloc = ref->allow_realloc;                             \
         size_t alloc = (size_t) ref->capacity;                                \
-        struct M_C(name, _node_s) *ptr =                                      \
-            M_CALL_REALLOC(oplist, struct M_C(name, _node_s), NULL, alloc);   \
-        if (M_UNLIKELY (ptr == NULL) ) {                                      \
-            M_MEMORY_FULL(sizeof(struct M_C(name, _node_s)) * alloc);         \
-            return;                                                           \
-        }                                                                     \
-        tree->tab = ptr;                                                      \
-        /* We don't scan recursively the node tree, but sequentially */       \
-        for(m_tr33_index_t i = 0 ; i < ref->capacity ; i ++) {                \
-            tree->tab[i].parent = ref->tab[i].parent;                         \
-            tree->tab[i].child  = ref->tab[i].child;                          \
-            tree->tab[i].left   = ref->tab[i].left;                           \
-            tree->tab[i].right  = ref->tab[i].right;                          \
-            /* If the node is not a free node, copy the data  */              \
-            if (tree->tab[i].parent != M_TR33_NO_NODE) {                      \
-                M_CALL_INIT_SET(oplist, tree->tab[i].data, ref->tab[i].data); \
+        if (ref->tab == NULL) {                                               \
+            tree->tab = NULL;                                                 \
+        } else {                                                              \
+            struct M_C(name, _node_s) *ptr =                                  \
+                M_CALL_REALLOC(oplist, struct M_C(name, _node_s), NULL, alloc+1); \
+            if (M_UNLIKELY (ptr == NULL) ) {                                  \
+                M_MEMORY_FULL(sizeof(struct M_C(name, _node_s)) * alloc);     \
+                return;                                                       \
+            }                                                                 \
+            tree->tab = ++ptr;                                                \
+            /* We don't scan recursively the node tree, but sequentially */   \
+            for(m_tr33_index_t i = 0 ; i < ref->capacity ; i ++) {            \
+                tree->tab[i].parent = ref->tab[i].parent;                     \
+                tree->tab[i].child  = ref->tab[i].child;                      \
+                tree->tab[i].left   = ref->tab[i].left;                       \
+                tree->tab[i].right  = ref->tab[i].right;                      \
+                /* If the node is not a free node, copy the data  */          \
+                if (tree->tab[i].parent != M_TR33_NO_NODE) {                  \
+                    M_CALL_INIT_SET(oplist, tree->tab[i].data, ref->tab[i].data); \
+                }                                                             \
             }                                                                 \
         }                                                                     \
         M_TR33_CONTRACT(tree);                                                \
