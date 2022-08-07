@@ -1774,51 +1774,51 @@ Type of an iterator over this array.
 
 The following methods of the generic interface are defined (See generic interface for details):
 
-##### void name\_init(name\_t array)
-##### void name\_init\_set(name\_t array, const name\_t ref)
-##### void name\_set(name\_t array, const name\_t ref)
-##### void name\_init\_move(name\_t array, name\_t ref)
-##### void name\_move(name\_t array, name\_t ref)
-##### void name\_clear(name\_t array)
-##### void name\_reset(name\_t array)
-##### type *name\_push\_raw(name\_t array)
-##### void name\_push\_back(name\_t array, const type value)
-##### type *name\_push\_new(name\_t array)
-##### void name\_push\_move(name\_t array, type *val)
-##### void name\_emplace\_back\[suffix\](name\_t array, args...)
-##### void name\_pop\_back(type *data, name\_t array)
-##### void name\_pop\_move(type *data, name\_t array)
-##### type *name\_front(const name\_t array)
-##### type *name\_back(const name\_t array)
-##### void name\_set\_at(name\_t array, size\_t i, type value)
-##### type *name\_get(name\_t array, size\_t i)
-##### const type *name\_cget(const name\_t it, size\_t i)
-##### type *name\_safe\_get(name\_t array, size\_t i)
-##### bool name\_empty\_p(const name\_t array)
-##### size\_t name\_size(const name\_t array)
-##### size\_t name\_capacity(const name\_t array)
-##### void name\_resize(name\_t array, size\_t size)
-##### void name\_reserve(name\_t array, size\_t capacity)
-##### void name\_swap(name\_t array1, name\_t array2)
-##### void name\_it(name\_it\_t it, name\_t array)
-##### void name\_it\_last(name\_it\_t it, name\_t array)
-##### void name\_it\_end(name\_it\_t it, name\_t array)
-##### void name\_it\_set(name\_it\_t it1, name\_it\_t it2)
-##### bool name\_end\_p(name\_it\_t it)
-##### bool name\_last\_p(name\_it\_t it)
-##### bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
-##### void name\_next(name\_it\_t it)
-##### void name\_previous(name\_it\_t it)
-##### type *name\_ref(name\_it\_t it)
-##### const type *name\_cref(const name\_it\_t it)
-##### void name\_remove(name\_t array, name\_it\_t it)
-##### void name\_insert(name\_t array, name\_it\_t it, const type x)
-##### void name\_get\_str(string\_t str, const name\_t array, bool append)
-##### bool name\_parse\_str(name\_t array, const char str[], const char **endp)
-##### void name\_out\_str(FILE *file, const name\_t array)
-##### bool name\_in\_str(name\_t array, FILE *file)
-##### bool name\_equal\_p(const name\_t array1, const name\_t array2)
-##### size\_t name\_hash(const name\_t array)
+* void name\_init(name\_t array)
+* void name\_init\_set(name\_t array, const name\_t ref)
+* void name\_set(name\_t array, const name\_t ref)
+* void name\_init\_move(name\_t array, name\_t ref)
+* void name\_move(name\_t array, name\_t ref)
+* void name\_clear(name\_t array)
+* void name\_reset(name\_t array)
+* type *name\_push\_raw(name\_t array)
+* void name\_push\_back(name\_t array, const type value)
+* type *name\_push\_new(name\_t array)
+* void name\_push\_move(name\_t array, type *val)
+* void name\_emplace\_back\[suffix\](name\_t array, args...)
+* void name\_pop\_back(type *data, name\_t array)
+* void name\_pop\_move(type *data, name\_t array)
+* type *name\_front(const name\_t array)
+* type *name\_back(const name\_t array)
+* void name\_set\_at(name\_t array, size\_t i, type value)
+* type *name\_get(name\_t array, size\_t i)
+* const type *name\_cget(const name\_t it, size\_t i)
+* type *name\_safe\_get(name\_t array, size\_t i)
+* bool name\_empty\_p(const name\_t array)
+* size\_t name\_size(const name\_t array)
+* size\_t name\_capacity(const name\_t array)
+* void name\_resize(name\_t array, size\_t size)
+* void name\_reserve(name\_t array, size\_t capacity)
+* void name\_swap(name\_t array1, name\_t array2)
+* void name\_it(name\_it\_t it, name\_t array)
+* void name\_it\_last(name\_it\_t it, name\_t array)
+* void name\_it\_end(name\_it\_t it, name\_t array)
+* void name\_it\_set(name\_it\_t it1, name\_it\_t it2)
+* bool name\_end\_p(name\_it\_t it)
+* bool name\_last\_p(name\_it\_t it)
+* bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
+* void name\_next(name\_it\_t it)
+* void name\_previous(name\_it\_t it)
+* type *name\_ref(name\_it\_t it)
+* const type *name\_cref(const name\_it\_t it)
+* void name\_remove(name\_t array, name\_it\_t it)
+* void name\_insert(name\_t array, name\_it\_t it, const type x)
+* void name\_get\_str(string\_t str, const name\_t array, bool append)
+* bool name\_parse\_str(name\_t array, const char str[], const char **endp)
+* void name\_out\_str(FILE *file, const name\_t array)
+* bool name\_in\_str(name\_t array, FILE *file)
+* bool name\_equal\_p(const name\_t array1, const name\_t array2)
+* size\_t name\_hash(const name\_t array)
 
 #### Specialized methods
 
@@ -2962,7 +2962,274 @@ Each node in the tree can be connected to many children,
 but must be connected to exactly one parent,
 except for the root node, which has no parent.
 
-TODO: document API
+#### TREE\_DEF(name, type [, oplist])
+#### PRIOQUEUE\_DEF\_AS(name,  name\_t, name\_it\_t, type [, oplist])
+
+Define the tree 'name##\_t' and its associated methods as "static inline" functions.
+The tree will be composed of object of type 'type', connected each other.
+
+'name' shall be a C identifier that will be used to identify the tree.
+It will be used to create all the types (including the iterator)
+and functions to handle the container.
+This definition shall be done once per name and per compilation unit.
+
+Any insert (resp. remove) in the tree shall specific the insertion point
+(resp. deleting point). To construct a tree, you start by creating the
+root node (using the \_set\_root method) and then insert new nodes from there.
+Each insertion of node in the tree will return an iterator of the inserted
+node. This can be used to construct quickly a full tree.
+
+The oplist shall have at least the following operators (INIT\_SET, & CLEAR),
+otherwise it won't generate compilable code.
+
+The tree handles its own pool of nodes for the nodes.
+It is called the capacity of the tree. 
+This pool of nodes will increase when needed by default.
+However, in case of capacity increased, all the nodes of the tree may move in memory to accomodate the new need.
+You may also request to reserve more capacity to avoid moving the items, and disable this auto-expand feature (in which a MEMORY\_FAILURE is raised).
+
+There are several way to iterate over this container:
+
+* Scan all nodes: first the parent then the children (pre-order walk).
+* Scan all nodes: first the children then the parent (post-order walk).
+* Scan the nodes of a sub-tree: first the parent then the children (pre-order walk of a subtree).
+* Scan the nodes of a sub-tree: first the children then the parent (post-order walk of a subtree).
+
+On insertion, all iterators remain valid.
+Except if it says otherwise, all functions accepting iterators expect a valid iterator (i.e. it references an existing node).
+
+TRREE\_DEF\_AS is the same as TREE\_DEF except the name of the types name\_t, name\_it\_t are provided.
+
+#### TREE\_OPLIST(name, [, oplist])
+
+Define the oplist of the generic tree defined with 'name' and potentially 'oplist'.
+If there is no given oplist, the basic oplist for basic C types is used.
+
+#### Created types
+
+The following types are automatically defined by the previous definition macro if not provided by the user:
+
+##### name\_t
+
+Type of the generic tree of 'type'.
+
+##### name\_it\_t
+
+Type of an iterator over this generic tree.
+
+#### Generic methods
+
+The following methods of the generic interface are defined (See generic interface for details):
+
+* void name\_init(name\_t tree)
+* void name\_init\_set(name\_t tree, const name\_t ref)
+* void name\_init\_move(name\_t tree, name\_t ref)
+* void name\_set(name\_t tree, const name\_t ref)
+* void name\_move(name\_t tree, name\_t ref)
+* void name\_clear(name\_t tree)
+* void name\_reset(name\_t tree)
+* size\_t name\_size(const name\_t tree)
+* size\_t name_capacity(const name\_t tree)
+* void name\_reserve(name\_t tree, size\_t capacity)
+* bool name\_empty\_p(const name\_t tree)
+* void name\_swap(name\_t tree1, name\_t tree2)
+* bool name\_equal\_p(const name\_t tree1, const name\_t tree2)
+* bool name\_end\_p(const name\_it\_t it)
+* bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
+* const type *name\_cref(name\_it\_t it)
+* type *name\_ref(name\_it\_t it)
+* bool name\_remove(it\_t it)
+* void name\_get\_str(string\_t str, const name\_t tree, bool append)
+* bool name\_parse\_str(name\_t tree, const char str[], const char **endp)
+* void name\_out\_str(FILE *file, const name\_t tree)
+* bool name\_in\_str(name\_t tree, FILE *file)
+
+#### Specialized methods
+
+The following specialized methods are automatically created by the previous definition macro:
+
+##### void name\_lock(name\_t tree, bool lock)
+
+Disable the auto-resize feature of the tree (if lock is true), or enable it otherwise.
+By default, the feature is enabled.
+Locking a tree shall be done after reserving the maximum
+number of nodes that can be added by your tree,
+so that the returned pointers to the internal types
+won't move on inserting a new node.
+
+##### name\_it\_t name\_set\_root(name\_t tree, const type value)
+
+Set the tree to a single root node and set this node to 'value'.
+
+##### it\_t name\_insert\_up\_raw(it\_t ref)
+##### it\_t name\_insert\_left\_raw(it\_t ref)
+##### it\_t name\_insert\_right\_raw(it\_t ref)
+##### it\_t name\_insert\_down\_raw(it\_t ref)
+##### it\_t name\_insert\_child\_raw(it\_t ref)
+
+Insert a node up (resp. left, right, down and down) the given referenced iterator without initializing it.
+It returns an iterator to the inserted node with **non-initialized** data.
+The first thing to do after calling this function shall be to initialize the data
+using the proper constructor of the object of type 'type' (the pointer can be get through name\_ref)
+This enables using more specialized constructor than the generic copy one.
+The user should use other the non \_raw function if possible rather than this one
+as it is low level and error prone.
+
+name\_insert\_down\_raw will move all children of the referenced node as children of the inserted children,
+whereas name\_insert\_down\_raw will insert the node as the new first child of the referenced node.
+
+##### it\_t name\_insert\_up(it\_t ref, const type value)
+##### it\_t name\_insert\_left(it\_t ref, const type value)
+##### it\_t name\_insert\_right(it\_t ref, const type value)
+##### it\_t name\_insert\_down(it\_t ref, const type value)
+##### it\_t name\_insert\_child(it\_t ref, const type value)
+
+Insert a node up (resp. left, right, down and down) the given referenced iterator and initialize it with a copy of 'value'.
+It returns an iterator to the inserted node.
+
+name\_insert\_down will move all children of the referenced node as children of the inserted children,
+whereas name\_insert\_down will insert the node as the new first child of the referenced node.
+
+##### it\_t name\_move\_up(it\_t ref, type *value)
+##### it\_t name\_move\_left(it\_t ref, type *value)
+##### it\_t name\_move\_right(it\_t ref, type *value)
+##### it\_t name\_move\_down(it\_t ref, type *value)
+##### it\_t name\_move\_child(it\_t ref, type *value)
+
+Insert a node up (resp. left, right, down and down) the given referenced iterator and initialize it with 'value' by stealing as much resource from 'value' as possible (and destroy '\*value')
+It returns an iterator to the inserted node.
+
+name\_move\_down will move all children of the referenced node as children of the inserted children,
+whereas name\_move\_down will insert the node as the new first child of the referenced node.
+
+##### type *name\_up\_ref(name\_it\_t it)
+##### type *name\_down\_ref(name\_it\_t it)
+##### type *name\_left\_ref(name\_it\_t it)
+##### type *name\_right\_ref(name\_it\_t it)
+
+Return a pointer to the type of the node which is 
+* up the given iterator,
+* down the given iterator (i.e. the first child of the node)
+* left the given iterator,
+* right the given iterator,
+respectively.
+It returns NULL if there is no such node.
+
+##### bool  name\_it\_up(it\_t *it)
+##### bool  name\_it\_down(it\_t *it)
+##### bool  name\_it\_left(it\_t *it)
+##### bool  name\_it\_right(it\_t *it)
+
+Update the iterator to point to the node which is up (resp. down, left and right) the given iterator.
+Return true in case of success, false otherwise (as such node doesn't exist, the iterator remains unchanged).
+
+##### bool  name\_root\_p(const it\_t it)
+
+Return true if 'it' references the root node, false otherwise.
+
+##### bool  name\_node\_p(const it\_t it)
+
+Return true if 'it' references a non-leaf node, false otherwise.
+
+##### bool  name\_leaf\_p(const it\_t it)
+
+Return true if 'it' references a leaf node, false otherwise.
+
+##### int32_t name\_degree(const it\_t it)
+
+Return the degree of the referenced node (aka the number of children).
+A leaf node has a degree of 0.
+This function is linear in the number of children of the node.
+
+#####  int32_t name\_depth(const it\_t it)
+
+Return the depth of the referenced node (aka the number of nodes until reaching the root node).
+The root node has a depth of 0.
+This function is linear in the depth of the node.
+
+##### type *name\_unlink(it\_t it)
+
+Unlink the referenced node from the tree,
+so that the node is removed from the tree.
+All children of the removed node become children of the parent node.
+If the removed node is the root node, than the root node shall have only one child.
+
+Return a reference to the internal type and give back ownership of the type:
+you shall destroy the type (using CLEAR or MOVE methods) before calling any other tree functions
+(as the memory area used by the node may be removed on inserting a new node)
+
+You should use the remove service instead as it has the same semantics but it is safer as it perform the clear of the data.
+
+##### void name\_prune(name\_it\_t it)
+
+Remove the referenced node and its child.
+See name\_remove for more details.
+
+##### name\_it\_t name\_it\_end(name\_t tree)
+
+Return an iterator that references no valid node.
+
+##### void name\_it\_set(name\_it\_t *it, const name\_it\_t ref)
+
+Set the iterator '*it' to 'ref'.
+NOTE: you can use the '=' affectation operator of the C language to copy tree iterators too.
+
+##### name\_it\_t name\_it(name\_t tree)
+
+Return an iterator of the tree that will iterator on the tree in global pre-order walk
+(the root).
+
+##### void name\_next(name\_it\_t *it)
+
+Update the iterator of the tree so that it references the next node in a global pre-order walk,
+or set it to invalid if the walk is finished.
+
+##### name\_it\_t name\_it\_post(name\_t tree)
+
+Return an iterator of the tree that will iterator on the tree in global post-order walk
+
+##### void name\_next\_post(name\_it\_t *it)
+
+Update the iterator of the tree so that it references the next node in a global post-order walk,
+or set it to invalid if the walk is finished.
+
+##### name\_it\_t name\_it\_subpre(name\_t tree, const name\_it\_t ref)
+
+Return an iterator of the tree that will iterator on the tree in pre-order walk of the child nodes of the referenced one.
+
+##### void name\_next\_subpre(name\_it\_t it, const name\_it\_t ref)
+
+Update the iterator of the tree so that it references the next node in a local pre-order walk of the child nodes of the referenced one,
+or set it to invalid if the walk is finished (the sub tree is fully scanned).
+
+The referenced iterator shall be the same as the one used to create the updated iterator (with name\_it\_subpre).
+
+##### name\_it\_t name\_it\_subpost(name\_t tree, const name\_it\_t ref)
+
+Return an iterator of the tree that will iterator on the tree in post-order walk of the child nodes of the referenced one.
+
+##### void name\_next\_subpost(name\_it\_t it, const name\_it\_t ref)
+
+Update the iterator of the tree so that it references the next node in a local post-order walk of the child nodes of the referenced one,
+or set it to invalid if the walk is finished (the sub tree is fully scanned).
+
+The referenced iterator shall be the same as the one used to create the updated iterator (with name\_it\_subpost).
+
+##### void name\_lca(name\_it\_t it1, name\_it\_t it2)
+
+Compute the Lowest Common Ancestor of the two iterators.
+Both iterators shall belong to the same tree.
+
+##### void name\_swap\_at(name\_it\_t it1, name\_it\_t it2, bool swapChild)
+
+Swap the node referenced by it1 and the node referenced by it2 in the tree.
+If swapChild is true, the children nodes perform the swap with their parent.
+Otherwise, only the referenced nodes are swapped.
+
+##### void name\_sort\_child(name\_it\_t it1)
+
+Sort the child of the node referenced by it1 in the order of the type.
+This method is constructed if the basic type exports the CMP type.
 
 
 
@@ -2981,7 +3248,7 @@ Define the priority queue 'name##\_t' and its associated methods
 as "static inline" functions.
 The queue will be composed of object of type 'type'.
 
-'name' shall be a C identifier that will be used to identify the list.
+'name' shall be a C identifier that will be used to identify the queue.
 It will be used to create all the types (including the iterator)
 and functions to handle the container.
 This definition shall be done once per name and per compilation unit.
