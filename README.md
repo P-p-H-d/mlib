@@ -2963,7 +2963,7 @@ but must be connected to exactly one parent,
 except for the root node, which has no parent.
 
 #### TREE\_DEF(name, type [, oplist])
-#### PRIOQUEUE\_DEF\_AS(name,  name\_t, name\_it\_t, type [, oplist])
+#### TREE\_DEF\_AS(name,  name\_t, name\_it\_t, type [, oplist])
 
 Define the tree 'name##\_t' and its associated methods as "static inline" functions.
 The tree will be composed of object of type 'type', connected each other.
