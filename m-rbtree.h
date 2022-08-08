@@ -474,6 +474,7 @@ typedef enum {
   {                                                                           \
     M_RBTR33_CONTRACT (tree);                                                 \
     M_ASSERT (it != NULL);                                                    \
+    (void) tree; /* parameter not used */                                     \
     it->cpt = 0;                                                              \
   }                                                                           \
                                                                               \

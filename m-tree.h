@@ -96,6 +96,8 @@
             itj = (it).tree->tab[itj].right;                                  \
             M_ASSERT( ++cpt < M_USE_TREE_MAX_CHILD_PER_PARENT);               \
         }                                                                     \
+        (void) cpt; /* may be unused in release mode */                       \
+        (void) lftj; /* may be unused in release mode */                      \
     }                                                                         \
 } while (0)
 
@@ -382,6 +384,7 @@ typedef int32_t m_tr33_index_t;
     static inline it_t                                                        \
     M_C(name, _it_end)(tree_t tree) {                                         \
         M_TR33_CONTRACT(tree);                                                \
+        (void) tree; /* parameter not used */                                 \
         it_t it;                                                              \
         it.tree = tree;                                                       \
         it.index = M_TR33_NO_NODE;                                            \
@@ -682,26 +685,26 @@ typedef int32_t m_tr33_index_t;
     }                                                                         \
                                                                               \
     static inline bool                                                        \
-    M_C(name, _root_p)(it_t it) {                                             \
+    M_C(name, _root_p)(const it_t it) {                                       \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return it.tree->tab[it.index].parent == M_TR33_ROOT_NODE;             \
     }                                                                         \
                                                                               \
     static inline bool                                                        \
-    M_C(name, _node_p)(it_t it) {                                             \
+    M_C(name, _node_p)(const it_t it) {                                       \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return it.tree->tab[it.index].child != M_TR33_NO_NODE;                \
     }                                                                         \
                                                                               \
     static inline bool                                                        \
-    M_C(name, _leaf_p)(it_t it) {                                             \
+    M_C(name, _leaf_p)(const it_t it) {                                       \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return it.tree->tab[it.index].child == M_TR33_NO_NODE;                \
     }                                                                         \
                                                                               \
     /* Compute the degree of a node in linear time */                         \
     static inline int32_t                                                     \
-    M_C(name, _degree)(it_t it) {                                             \
+    M_C(name, _degree)(const it_t it) {                                       \
         M_TR33_IT_CONTRACT(it, true);                                         \
         int32_t ret = 0;                                                      \
         m_tr33_index_t i = it.tree->tab[it.index].child;                      \
@@ -752,12 +755,16 @@ typedef int32_t m_tr33_index_t;
         } else {                                                              \
             /* Merge the child with the current siblings */                   \
             /* Compute the range of childs & update their parent */           \
+            size_t num_child = 1;                                             \
             child_r = child;                                                  \
             it.tree->tab[child_r].parent = parent;                            \
             while (it.tree->tab[child_r].right != M_TR33_NO_NODE) {           \
                 child_r = it.tree->tab[child_r].right;                        \
                 it.tree->tab[child_r].parent = parent;                        \
+                num_child ++;                                                 \
             }                                                                 \
+            (void) num_child;                                                 \
+            M_ASSERT(it.index != it.tree->root_index || num_child == 1);      \
             /* Remove node from sibling */                                    \
             it.tree->tab[left].right = child;                                 \
             it.tree->tab[child].left = left;                                  \
@@ -904,6 +911,7 @@ typedef int32_t m_tr33_index_t;
         }                                                                     \
         /* If impossible to go right, move up */                              \
         bool b = M_C(name, _it_up)(it);                                       \
+        (void) b; /* parameter not used */                                    \
         assert(b);                                                            \
     }                                                                         \
                                                                               \
@@ -916,6 +924,7 @@ typedef int32_t m_tr33_index_t;
             it_t next = child;                                                \
             M_C(name, _next_subpost)(&next, it);                              \
             bool b = M_C(name, _remove)(child);                               \
+            (void) b; /* parameter not used */                                \
             M_ASSERT(b);                                                      \
             child = next;                                                     \
         }                                                                     \
@@ -1461,9 +1470,9 @@ exit:                                                                         \
 
 // TODO: 
 // * emplace insertion
-// * Allocate one more "spare" member in the array (alloc is capacity+1),
-// so that we don't need to write if (i != M_TR33_NO_NODE) { tab[i] = j; }
-// but simply "tab[i] = j;" (avoid one conditional branch).
+// * serialization
+// * OPLIST ?
+// * _previous ?
 
 #if M_USE_SMALL_NAME
 #define TREE_DEF M_TREE_DEF
