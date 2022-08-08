@@ -14,7 +14,7 @@ int main(void) {
   dict_m32_set_at (h, 5, 10);               // h[5] = 10
   char *k = dict_m32_get(h, 10);            // No 10 in h, so k == NULL
   int is_missing = (k != NULL);             // true
-  assert (is_missing);
+  assert (is_missing); (void) is_missing;
   dict_m32_erase(h, 5);                    // h is now empty
   dict_m32_it_t it;                         // iterate over all dictionnary
   for (dict_m32_it (it, h) ; !dict_m32_end_p (it); dict_m32_next(it)) {

@@ -23,7 +23,7 @@ ARRAY_DEF(vector_int, int)
 
 int main(void)
 {
-  int s;
+  int s = 0;
   // Init keys as a vector_int_t, initialize it (and prepare its destruction)
   M_LET(keys, vector_int_t)
     // Initialize m as a dictionnary and initialize it with the given database

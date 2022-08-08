@@ -19,7 +19,7 @@ int main(void)
   M_LET(s, string_t)
     // Let v be a vector of integer and initialize it.
     M_LET( (v, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10), vector_int_t) {
-    int sum, product;
+    int sum = 0, product = 0;
     
     // Compute the sum of theses integers.
     ALGO_REDUCE(sum, v, vector_int_t, add);

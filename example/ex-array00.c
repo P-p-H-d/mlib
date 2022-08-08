@@ -231,7 +231,7 @@ test_cstring(int n)
 
   r_cstring_init(array);
   for(int i = 0; i < n; i++) {
-    char buffer[10];
+    char buffer[16];
     // Create a string from the integer
     sprintf(buffer, "%d", i);
     // We need to make an explicit copy of the string
@@ -612,7 +612,7 @@ int main (int argc, const char *argv[])
   s = test_rockme3(n);
   printf ("S[rockme3] = %d\n", s);
 
-  s = test_rockme3(n);
+  s = test_rockme4(n);
   printf ("S[rockme4] = %d\n", s);
 
   exit(0);
