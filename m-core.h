@@ -31,9 +31,18 @@
 #include <limits.h>
 #include <string.h>
 #include <ctype.h>
-#include <stdlib.h>
 #include <assert.h>
 
+
+/* By default, always use stdlib. Can be turned off in specific environment if needed
+   by defining M_USE_STDLIB to 0.
+   If it is disabled, you need to override memory & failure global macros too */
+#ifndef M_USE_STDLIB
+# define M_USE_STDLIB 1
+#endif
+#if M_USE_STDLIB
+# include <stdlib.h>  /* For abort, malloc, realloc, free */
+#endif
 
 /* By default, always use stdio. Can be turned off in specific environment if needed
    by defining M_USE_STDIO to 0 */
@@ -105,16 +114,16 @@
 
 /* Deprecated attribute for a function */
 #if defined(__GNUC__) &&  __GNUC__ >= 4
-#define M_ATTR_DEPRECATED __attribute__((deprecated))
+# define M_ATTR_DEPRECATED __attribute__((deprecated))
 #else
-#define M_ATTR_DEPRECATED
+# define M_ATTR_DEPRECATED
 #endif
 
 /* Extension attribute to silent warnings on extensions */
 #if defined(__GNUC__)
-#define M_ATTR_EXTENSION __extension__
+# define M_ATTR_EXTENSION __extension__
 #else
-#define M_ATTR_EXTENSION
+# define M_ATTR_EXTENSION
 #endif
 
 
@@ -3997,7 +4006,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 
 /* Expand to the list of variable name based on the the declaration with
-   emplace type to use in the INIT_WITH call (start with a ,) */
+   emplace type to use in the INIT_WITH or specific method call (start with a ,) */
 #define M_EMPLACE_LIST_VAR(prefix, emplace_type)                              \
   M_IF(M_PARENTHESIS_P( emplace_type ))(M_EMPLACE_LIST_VAR_MULTI, M_EMPLACE_LIST_VAR_SINGLE)(prefix, emplace_type)
 #define M_EMPLACE_LIST_VAR_MULTI(prefix, emplace_type)                        \
@@ -4007,7 +4016,8 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 
 /* Call either INIT_WITH with the prefixed arguments used for emplace
-   or with the user provided init_func */
+   if init_func is the keyword INIT_WITH
+   or with the user provided init_func (otherwise) */
 #define M_EMPLACE_CALL_FUNC(prefix, init_func, oplist, dest, emplace_type)    \
   M_IF(M_KEYWORD_P(INIT_WITH, init_func))                                     \
   (M_EMPLACE_CALL_FUNC_INIT_WITH, M_EMPLACE_CALL_FUNC_USER_PROVIDED)          \
@@ -4018,6 +4028,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_EMPLACE_CALL_FUNC_USER_PROVIDED(prefix, init_func, oplist, dest, emplace_type) \
    /* Use the user provided init_func instead (with API transformation) */    \
    M_APPLY_API(init_func, oplist, dest M_EMPLACE_LIST_VAR(prefix, emplace_type) )
+
 
 /* Generate one or several definitions for the EMPLACE methods
    using the operator EMPLACE_TYPE to get the suitable user types
@@ -4055,6 +4066,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 /* Define & expand one emplace method by using the definition macro */
 #define M_EMPLACE_QUEUE_DEF_SINGLE_EXPAND(name, name_t, function_name, oplist, macro, emplace_type) \
   macro(name, name_t, function_name, oplist, INIT_WITH, emplace_type)
+
 
 
 /************************************************************/
@@ -4123,6 +4135,7 @@ m_core_backoff_clear(m_core_backoff_ct backoff)
   // Nothing to do
   (void) backoff;
 }
+
 
 
 /************************************************************/
