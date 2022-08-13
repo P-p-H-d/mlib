@@ -627,9 +627,10 @@ Example:
         #define M_OPL_mpz_t() M_CLASSIC_OPLIST(mpz)
 
 Within an OPLIST, you can also specify the needed low-level transformation to perform for the method.
-This is called API adaptation.
+This is called API adaptation: it enables to transform the API requirements of the selected operator
+to the API provided by the given method.
 Assuming that the method to call is called 'method' and the first argument of the operator is 'output',
-then the following transformation are applied:
+then the following default transformation are available:
 
 * API\_0: method(output, ...)  /\* Default transformation API \*/
 * API\_1: method(oplist, output, ...) /\* Give oplist to the method \*/
@@ -640,7 +641,8 @@ then the following transformation are applied:
 * API\_6 : method(&output, &...) /\* Pass by address the two first arguments \*/
 * API\_7:  method(oplist, &output, &...) /\* Pass by address the two first argument and give the oplist of the type \*/
 
-Example:
+The API transformation to use shall be embedded in the OPLIST definition.
+For example:
 
         (INIT(API_0(mpz_init)), SET(API_0(mpz_set)), INIT_SET(API_0(mpz_init_set)), CLEAR(API_0(mpz_clear)))
 
@@ -686,6 +688,7 @@ This will serialize the mpz\_t value in base 10 using the mpz\_out\_str method.
 An operator OP can be defined, omitted or disabled:
 
 * ( OP(f) ): the function f is the method of the operator OP
+* ( OP(API\_N(f)) ): the function f is the method of the operator OP with the API transformation number N,
 * ( ): the operator OP is omitted, and the default global operation for OP is used (if it exists).
 * ( OP(0) ): the operator OP is disabled, and it can never be used.
 
@@ -709,7 +712,7 @@ My type is:
 Note: The precise exported methods of the OPLIST depend of the version
 of the used C language. Typically, in C11 mode, the M\_BASIC\_OPLIST
 exports all needed methods to handle generic input/output of int/floats
-(using \_Generic) whereas it is not possible in C99 mode.
+(using \_Generic keyword) whereas it is not possible in C99 mode.
 
 This explains why JSON import/export is only available in C11 mode
 (See below chapter).
@@ -1334,7 +1337,7 @@ remains valid until this element is destroyed in the container.
 #### LIST\_DEF(name, type [, oplist])
 #### LIST\_DEF\_AS(name, name\_t, name\_it\_t, type [, oplist])
 
-LIST\_DEF defines the singly linked list named 'name##\_t'
+LIST\_DEF defines the singly linked list named 'name\_t'
 that contains objects of type 'type' and their associated methods as "static inline" functions.
 'name' shall be a C identifier that will be used to identify the list.
 It will be used to create all the types (including the iterator)
@@ -1536,7 +1539,7 @@ Reverse the order of the list.
 #### LIST\_DUAL\_PUSH\_DEF(name, type[, oplist])
 #### LIST\_DUAL\_PUSH\_DEF\_AS(name, name\_t, name\_it\_t, type [, oplist])
 
-LIST\_DUAL\_PUSH\_DEF defines the singly linked list named 'name_t'
+LIST\_DUAL\_PUSH\_DEF defines the singly linked list named 'name\_t'
 that contains the objects of type 'type' and their associated methods as "static inline" functions.
 
 The only difference with the list defined by LIST\_DEF is
@@ -1895,8 +1898,8 @@ for that elements can be added to or removed from either the front (head) or bac
 #### DEQUE\_DEF(name, type [, oplist])
 #### DEQUE\_DEF\_AS(name, name\_t, name\_it\_t, type [, oplist])
 
-DEQUE\_DEF defines the deque 'name##\_t' that contains the objects of type 'type' and its associated methods as "static inline" functions.
-'name' shall be a C identifier that will be used to identify the list.
+DEQUE\_DEF defines the deque 'name\_t' that contains the objects of type 'type' and its associated methods as "static inline" functions.
+'name' shall be a C identifier that will be used to identify the deque.
 It will be used to create all the types (including the iterator)
 and functions to handle the container.
 This definition shall be done once per name and per compilation unit.
@@ -2028,7 +2031,7 @@ and in particular:
 * the load factor.
 
 For small, fast types (integer, or floats, or pair of such types),
-DICT\_OA\_DEF2 may be the best to use.
+DICT\_OA\_DEF2 may be the best to use (but slighty more complex to instantiate).
 For medium type, DICT\_DEF2 with mempool activated may be better.
 For even larger object, DICT\_STOREHASH\_DEF2 may be better.
 But for most uses, DICT\_DEF2 should be good enough.
@@ -2036,9 +2039,9 @@ But for most uses, DICT\_DEF2 should be good enough.
 #### DICT\_DEF2(name, key\_type[, key\_oplist], value\_type[, value\_oplist])
 #### DICT\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, key\_type[, key\_oplist], value\_type[, value\_oplist])
 
-DICT\_DEF2 defines the dictionary 'name##\_t' and its associated methods as "static inline" functions as an associative array of 'key\_type' to 'value\_type'.
+DICT\_DEF2 defines the dictionary 'name\_t' and its associated methods as "static inline" functions as an associative array of 'key\_type' to 'value\_type'.
 
-'name' shall be a C identifier that will be used to identify the list.
+'name' shall be a C identifier that will be used to identify the dictionnary.
 It will be used to create all the types (including the iterator and the iterated object type)
 and functions to handle the container.
 This definition shall be done once per name and per compilation unit.
@@ -2096,7 +2099,7 @@ Example:
 #### DICT\_STOREHASH\_DEF2(name, key\_type[, key\_oplist], value\_type[, value\_oplist])
 #### DICT\_STOREHASH\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, key\_type[, key\_oplist], value\_type[, value\_oplist])
 
-DICT\_STOREHASH\_DEF2 defines the dictionary 'name##\_t' and its associated methods as "static inline" functions
+DICT\_STOREHASH\_DEF2 defines the dictionary 'name\_t' and its associated methods as "static inline" functions
 just like DICT\_DEF2.
 
 The only difference is that it stores (caches) the hash of each key alongside the key in the dictionary.
@@ -2110,7 +2113,7 @@ except the name of the types name\_t, name\_it\_t, name\_itref\_t are provided.
 #### DICT\_OA\_DEF2(name, key\_type[, key\_oplist], value\_type[, value\_oplist])
 #### DICT\_OA\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, key\_type[, key\_oplist], value\_type[, value\_oplist])
 
-DICT\_OA\_DEF2 defines the dictionary 'name##\_t' and its associated methods
+DICT\_OA\_DEF2 defines the dictionary 'name\_t' and its associated methods
 as "static inline" functions much like DICT\_DEF2.
 The difference is that it uses an Open Addressing Hash-Table as container
 (breaking the property of not-moving object on dictionnary modification).
@@ -2172,10 +2175,10 @@ Return the oplist of the dictionary defined by calling any DICT\_*\_DEF2 with na
 #### DICT\_SET\_DEF(name, key\_type[, key\_oplist])
 #### DICT\_SET\_DEF\_AS(name,  name\_t, name\_it\_t, key\_type[, key\_oplist])
 
-DICT\_SET\_DEF defines the dictionary set 'name##\_t' and its associated methods as "static inline" functions.
+DICT\_SET\_DEF defines the dictionary set 'name\_t' and its associated methods as "static inline" functions.
 A dictionary set is a specialized version of a dictionary with no value (only keys).
 
-'name' shall be a C identifier that will be used to identify the list.
+'name' shall be a C identifier that will be used to identify the dictionnary.
 It will be used to create all the types (including the iterator)
 and functions to handle the container.
 This definition shall be done once per name and per compilation unit.
@@ -2223,7 +2226,7 @@ Example:
 #### DICT\_OASET\_DEF(name, key\_type[, key\_oplist])
 #### DICT\_OASET\_DEF\_AS(name,  name\_t, name\_it\_t, key\_type[, key\_oplist])
 
-DICT\_OASET\_DEF defines the dictionary set 'name##\_t' and its associated methods as "static inline" functions just like DICT\_SET\_DEF.
+DICT\_OASET\_DEF defines the dictionary set 'name\_t' and its associated methods as "static inline" functions just like DICT\_SET\_DEF.
 The difference is that it uses an Open Addressing Hash-Table as container.
 
 The key\_oplist shall also define the additional operators:
@@ -2317,7 +2320,7 @@ A [tuple](https://en.wikipedia.org/wiki/Tuple) is a finite ordered list of eleme
 #### TUPLE\_DEF2(name, (element1, type1[, oplist1]) [, ...])
 #### TUPLE\_DEF2\_AS(name,  name\_t, (element1, type1[, oplist1]) [, ...])
 
-TUPLE\_DEF2 defines the tuple 'name##\_t' and its associated methods as "static inline" functions.
+TUPLE\_DEF2 defines the tuple 'name\_t' and its associated methods as "static inline" functions.
 Each parameter of the macro is expected to be an element of the tuple.
 Each element is defined by three parameters within parenthesis:
 * the element name (the field name of the structure) 
@@ -2460,7 +2463,7 @@ the variant can only be equal to one element at a time.
 #### VARIANT\_DEF2(name, (element1, type1[, oplist1]) [, ...])
 #### VARIANT\_DEF2\_AS(name,  name\_t, (element1, type1[, oplist1]) [, ...])
 
-VARIANT\_DEF2 defines the variant 'name##\_t' and its associated methods as "static inline" functions.
+VARIANT\_DEF2 defines the variant 'name\_t' and its associated methods as "static inline" functions.
 Each parameter of the macro is expected to be an element of the variant.
 Each element is defined by three parameters within parenthesis:
 * the mandatory element name,
@@ -2468,7 +2471,7 @@ Each element is defined by three parameters within parenthesis:
 * and the optional element oplist.
 
 If an 'oplist' is given, it shall be the one matching the associated type.
-'name' and 'element<n>' shall be C identifiers that will be used to identify the list.
+'name' and 'element<n>' shall be C identifiers that will be used to identify the variant.
 'name' will be used to create all the types (including the iterator)
 and functions to handle the container.
 This definition shall be done once per name and per compilation unit.
@@ -2596,7 +2599,7 @@ A binary tree is a tree data structure in which each node has at most two childr
 which are referred to as the left child and the right child.
 A node without any child is called a leaf. It can be seen as an ordered set.
 
-All elements of such tree are also totally ordered.
+A R-B Tree is a tree where all elements are also totally ordered, and the worst-case of any operation is in logarithm of the number of elements in the tree.
 The current implementation is [RED-BLACK TREE](https://en.wikipedia.org/wiki/Red%E2%80%93black_tree)
 which provides performance guarante for both insertion and lockup operations.
 It has not to be confused with a [B-TREE](https://en.wikipedia.org/wiki/B-tree).
@@ -2604,8 +2607,8 @@ It has not to be confused with a [B-TREE](https://en.wikipedia.org/wiki/B-tree).
 #### RBTREE\_DEF(name, type[, oplist])
 #### RBTREE\_DEF\_AS(name,  name\_t, name\_it\_t, type[, oplist])
 
-RBTREE\_DEF defines the binary ordered tree 'name##\_t' and its associated methods as "static inline" functions.
-'name' shall be a C identifier that will be used to identify the list.
+RBTREE\_DEF defines the binary ordered tree 'name\_t' and its associated methods as "static inline" functions.
+'name' shall be a C identifier that will be used to identify the R-B Tree.
 It will be used to create all the types (including the iterator)
 and functions to handle the container.
 This definition shall be done once per name and per compilation unit.
@@ -2755,7 +2758,7 @@ processor.
 #### BPTREE\_DEF2(name, N, key\_type, key\_oplist, value\_type, value\_oplist)
 #### BPTREE\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key\_type, key\_oplist, value\_type, value\_oplist)
 
-Define the B+TREE tree of rank N 'name##\_t' and its associated methods as
+Define the B+TREE tree of rank N 'name\_t' and its associated methods as
 "static inline" functions. This B+TREE will be created as an associative
 array of the key\_type to the value\_type.
 
@@ -2795,7 +2798,7 @@ key\_oplist and value\_oplist.
 #### BPTREE\_DEF(name, N, key\_type[, key\_oplist])
 #### BPTREE\_DEF\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key\_type, key\_oplist)
 
-Define the B+TREE tree of rank N 'name##\_t' and its associated methods as
+Define the B+TREE tree of rank N 'name\_t' and its associated methods as
 "static inline" functions. This B+TREE will be created as an ordered set
 of key\_type.
 
@@ -2833,7 +2836,7 @@ If there is no given oplist, the basic oplist for basic C types is used.
 #### BPTREE\_MULTI\_DEF2(name, N, key\_type, key\_oplist, value\_type, value\_oplist)
 #### BPTREE\_MULTI\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key\_type, key\_oplist, value\_type, value\_oplist)
 
-Define the B+TREE tree of rank N 'name##\_t' and its associated methods as
+Define the B+TREE tree of rank N 'name\_t' and its associated methods as
 "static inline" functions. This B+TREE will be created as an associative
 array of the 'key\_type' to the 'value\_type' and allows multiple instance of
 the same key in the tree (aka it is a multimap: re-adding the same key in
@@ -2849,7 +2852,7 @@ name\_t, name\_it\_t, name\_itref\_t are provided by the user.
 #### BPTREE\_MULTI\_DEF(name, N, key\_type[, key\_oplist])
 #### BPTREE\_MULTI\_DEF\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key\_type, key\_oplist)
 
-Define the B+TREE tree of rank N 'name##\_t' and its associated methods as
+Define the B+TREE tree of rank N 'name\_t' and its associated methods as
 "static inline" functions. This B+TREE will be created as an ordered set
 of key\_type and allows multiple instance of
 the same key in the tree (aka it is a multiset: re-adding the same key in
@@ -2965,7 +2968,7 @@ except for the root node, which has no parent.
 #### TREE\_DEF(name, type [, oplist])
 #### TREE\_DEF\_AS(name,  name\_t, name\_it\_t, type [, oplist])
 
-Define the tree 'name##\_t' and its associated methods as "static inline" functions.
+Define the tree 'name\_t' and its associated methods as "static inline" functions.
 The tree will be composed of object of type 'type', connected each other.
 
 'name' shall be a C identifier that will be used to identify the tree.
@@ -3162,7 +3165,7 @@ You should use the remove service instead as it has the same semantics but it is
 
 ##### void name\_prune(name\_it\_t it)
 
-Remove the referenced node and its child.
+Remove the referenced node including all its children.
 See name\_remove for more details.
 
 ##### name\_it\_t name\_it\_end(name\_t tree)
@@ -3244,7 +3247,7 @@ It is currently implemented as a [heap](https://en.wikipedia.org/wiki/Heap_(data
 #### PRIOQUEUE\_DEF(name, type [, oplist])
 #### PRIOQUEUE\_DEF\_AS(name,  name\_t, name\_it\_t, type [, oplist])
 
-Define the priority queue 'name##\_t' and its associated methods
+Define the priority queue 'name\_t' and its associated methods
 as "static inline" functions.
 The queue will be composed of object of type 'type'.
 
@@ -3350,13 +3353,13 @@ as if its head was connected to its tail.
 #### BUFFER\_DEF(name, type, size, policy[, oplist])
 #### BUFFER\_DEF\_AS(name,  name\_t, type, size, policy[, oplist])
 
-Define the buffer 'name##\_t' and its associated methods as "static inline" functions.
+Define the buffer 'name\_t' and its associated methods as "static inline" functions.
 A buffer is a fixed circular queue implementing a queue (or stack) interface.
 It can be used to transfer message from multiple producer threads to multiple consumer threads.
 This is done internally using a mutex and conditional waits
 (if it is built with the BUFFER\_THREAD\_SAFE option -- default)
 
-'name' shall be a C identifier that will be used to identify the list.
+'name' shall be a C identifier that will be used to identify the buffer.
 It will be used to create all the types (including the iterator)
 and functions to handle the container.
 This definition shall be done once per name and per compilation unit.
@@ -3491,7 +3494,7 @@ Otherwise it does nothing.
 #### QUEUE\_MPMC\_DEF(name, type, policy[, oplist])
 #### QUEUE\_MPMC\_DEF\_AS(name, name\_t, type, policy[, oplist])
 
-Define the MPMC queue 'name##\_t' and its associated methods as "static inline" functions.
+Define the MPMC queue 'name\_t' and its associated methods as "static inline" functions.
 A MPMC queue is a fixed circular queue implementing a queue (or stack) interface.
 It can be used to transfer message from Multiple Producer threads to Multiple Consumer threads.
 This queue is not strictly lock free but [has](https://stackoverflow.com/questions/45907210/lock-free-progress-guarantees)
@@ -3499,7 +3502,7 @@ a lot of the properties of such algorithms.
 
 The size is specified only at run-time and shall be a power of 2.
 
-'name' shall be a C identifier that will be used to identify the list.
+'name' shall be a C identifier that will be used to identify the queue.
 It will be used to create all the types (including the iterator)
 and functions to handle the container.
 This definition shall be done once per name and per compilation unit.
@@ -3583,7 +3586,7 @@ This function is thread safe.
 #### QUEUE\_SPSC\_DEF(name, type, policy[, oplist])
 #### QUEUE\_SPSC\_DEF\_AS(name, name\_t, type, policy[, oplist])
 
-Define the SPSC queue 'name##\_t' and its associated methods as "static inline" functions.
+Define the SPSC queue 'name\_t' and its associated methods as "static inline" functions.
 A SPSC queue is a fixed circular queue implementing a queue (or stack) interface.
 It can be used to transfer message from a Single Producer thread to a Single Consumer thread.
 This is done internally using lock-free objects.
@@ -3591,7 +3594,7 @@ It is more specialized than QUEUE\_MPMC\_DEF and as such, is faster.
 
 The size is specified only at run-time and shall be a power of 2.
 
-'name' shall be a C identifier that will be used to identify the list.
+'name' shall be a C identifier that will be used to identify the queue.
 It will be used to create all the types (including the iterator)
 and functions to handle the container.
 This definition shall be done once per name and per compilation unit.
@@ -3740,7 +3743,7 @@ Only a single reader thread and a single writer thread are supported.
 It is a SPSC atomic shared register.
 In practice, it is implemented using a triple buffer (lock-free).
 
-'name' shall be a C identifier that will be used to identify the list.
+'name' shall be a C identifier that will be used to identify the snapshot.
 It will be used to create all the types (including the iterator)
 and functions to handle the container.
 This definition shall be done once per name and per compilation unit.
@@ -3837,7 +3840,7 @@ but ensuring integrity and coherency of the data accross multiple threads.
 One single writer and multiple (=N) readers are supported.
 In practice, it is implemented using a 'N+2' buffer (lock-free).
 
-'name' shall be a C identifier that will be used to identify the list.
+'name' shall be a C identifier that will be used to identify the snapshot.
 It will be used to create all the types (including the iterator)
 and functions to handle the container.
 This definition shall be done once per name and per compilation unit.
@@ -3920,7 +3923,7 @@ Multiple (=M) writers and multiple (=N) readers are supported.
 In practice, it is implemented using a 'M+N+2' buffer (lock-free)
 by avoiding copying the data.
 
-'name' shall be a C identifier that will be used to identify the list.
+'name' shall be a C identifier that will be used to identify the snapshot.
 It will be used to create all the types (including the iterator)
 and functions to handle the container.
 This definition shall be done once per name and per compilation unit.
@@ -4000,12 +4003,12 @@ Several shared pointers may own the same object, sharing ownership of an object.
 #### SHARED\_PTR\_DEF(name, type[, oplist])
 #### SHARED\_PTR\_DEF\_AS(name, name\_t, type[, oplist])
 
-Define the shared pointer 'name##\_t' and its associated methods as "static inline" functions.
+Define the shared pointer 'name\_t' and its associated methods as "static inline" functions.
 A shared pointer is a mechanism to keep tracks of all registered users of an object
 and performs an automatic destruction of the object only when all users release
 their need on this object.
 
-'name' shall be a C identifier that will be used to identify the list.
+'name' shall be a C identifier that will be used to identify the shared pointer.
 It will be used to create all the types (including the iterator)
 and functions to handle the container.
 This definition shall be done once per name and per compilation unit.
@@ -4506,7 +4509,7 @@ There is also no iterators.
 Define the concurrent container 'name' based on container 'type' of oplist 'oplist',
 and define the associated methods to handle it as "static inline" functions.
 
-'name' shall be a C identifier that will be used to identify the list.
+'name' shall be a C identifier that will be used to identify the concurrent container.
 It will be used to create all the types (including the iterator)
 and functions to handle the container.
 This definition shall be done once per name and per compilation unit.
@@ -6067,7 +6070,7 @@ Each method does nothing.
 ##### M\_CLASSIC\_OPLIST(name)
 
 Create the oplist with the operators using the pattern 'name', i.e.
-name##\_init, name##\_init\_set, name##\_set, name##\_clear, name##\_t
+name##\_init, name##\_init\_set, name##\_set, name##\_clear, name\_t
 
 ##### M\_OPFLAT oplist
 
