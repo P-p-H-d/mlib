@@ -75,6 +75,15 @@ jobs:
       working-directory: ./tests
       run: make sanitize -j 2
 
+  build_linux_coverage:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: make coverage
+      working-directory: ./tests
+      run: make coverage -j 2
+
   build_windows_mingw:
     runs-on: windows-latest
     
