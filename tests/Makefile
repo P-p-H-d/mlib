@@ -166,8 +166,8 @@ gene-serial:
 #####################################################################################################
 
 coverage:
-	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.gcov/g'`
-	$(MAKE) synthesis
+	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.gcov/g'` CC="cc -std=c11"
+	$(MAKE) synthesis.synt check-synthesis
 
 SYNTHESIS_DATA=	M-ALGO test-malgo.c.c test-malgo.synt			\
 		M-ARRAY test-marray.c.c test-marray.synt				\
@@ -197,7 +197,7 @@ SYNTHESIS_DATA=	M-ALGO test-malgo.c.c test-malgo.synt			\
 		M-VARIANT test-mvariant.c.c test-mvariant.synt 			\
 		M-WORKER ../m-worker.h test-mworker.synt		
 
-synthesis:
+synthesis.synt:
 	@printf "+-------------------------------+-------------------------------+\n"
 	@for i in $(SYNTHESIS_DATA) ; do 							\
 	if test "$$j" = "" ; then j=$$i ; continue ; fi;			\
@@ -205,8 +205,13 @@ synthesis:
 	printf "|\t%16.16s\t|\t%16.16s\t|\n"	"$$j"	"`grep -v Creating $$i|grep $$k -F -A1 |tail -1|cut -f2 -d':'`"; 	\
 	j="";														\
 	k="";														\
-	done
+	done                                                        > synthesis.synt
+	@cat synthesis.synt
 	@printf "+-------------------------------+-------------------------------+\n"
+
+# Compare the computed coverage against the reference coverage (synthesis.ref), allowing only increase of coverage
+check-synthesis: synthesis.synt
+	@paste synthesis.ref synthesis.synt |awk '($$2 != $$9) {err=1} { n1=$$4*$$6/100 ; n2=$$11*$$13/100; if (n1 > n2) { printf "ERROR for %s: new coverage (%d) is lower than reference (%d)\n",$$2,n2,n1 ; err=2 } } END {exit err}'
 
 
 #####################################################################################################
