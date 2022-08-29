@@ -786,6 +786,32 @@ m_bitset_clz(const m_bitset_t set)
   return s;
 }
 
+/* Count the number of trailing zero */
+static inline size_t
+m_bitset_ctz(const m_bitset_t set)
+{
+  M_B1TSET_CONTRACT(set);
+  size_t s = set->size;
+  if (M_UNLIKELY (s == 0)) {
+    return 0;
+  }
+  size_t i = 0, n = (s -1) / M_B1TSET_LIMB_BIT;
+  size_t m = s % M_B1TSET_LIMB_BIT;
+  m_b1tset_limb_ct limb = set->ptr[0];
+  s = 0;
+  while (limb == 0 && i < n) {
+    s += M_B1TSET_LIMB_BIT;
+    limb = set->ptr[++i];
+  }
+  if (i == n && m != 0) {
+    m_b1tset_limb_ct mask = (((m_b1tset_limb_ct)1) << m) - 1;
+    limb &= mask;
+  }
+  unsigned ctz = m_core_ctz64(limb);
+  s += (ctz == 64) ? m : ctz;
+  return s;
+}
+
 // For GCC or CLANG or ICC
 #if defined(__GNUC__)
 static inline size_t m_b1tset_popcount64(m_b1tset_limb_ct limb)
@@ -910,6 +936,7 @@ m_bitset_popcount(const m_bitset_t set)
 #define bitset_not m_bitset_not
 #define bitset_hash m_bitset_hash
 #define bitset_clz m_bitset_clz
+#define bitset_ctz m_bitset_ctz
 #define bitset_popcount m_bitset_popcount
 #define bitset_get_str m_bitset_get_str
 
