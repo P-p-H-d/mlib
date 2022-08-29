@@ -749,6 +749,18 @@ static void test_builtin(void)
     assert(m_core_clz64((uint64_t) ((1ULL<<i) | 1)) == 63U - i);
   }
 
+  assert(m_core_ctz32(0) == 32);
+  for(unsigned i = 0; i < 31; i++) {
+    assert(m_core_ctz32((uint32_t) (1UL<<i)) == i);
+    assert(m_core_ctz32((uint32_t) ((1UL<<i) | 1UL<<31)) == i);
+  }
+
+  assert(m_core_ctz64(0) == 64);
+  for(unsigned i = 0; i < 63; i++) {
+    assert(m_core_ctz64((uint64_t) (1ULL<<i)) == i);
+    assert(m_core_ctz64((uint64_t) ((1ULL<<i) | 1ULL<<63)) == i);
+  }
+
   assert ( m_core_roundpow2(0) == 0);
   for(unsigned i = 0; i < 62; i++) {
     assert ( m_core_roundpow2(1ULL<<i) == 1ULL<<i);

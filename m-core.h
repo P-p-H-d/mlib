@@ -2652,6 +2652,15 @@ static inline unsigned int m_core_clz64(uint64_t limb)
   return (unsigned int) (M_UNLIKELY (limb == 0ULL) ? sizeof (uint64_t)*CHAR_BIT : (size_t) __builtin_clzll(limb) - (sizeof (unsigned long long) - sizeof (uint64_t)) * CHAR_BIT);
 }
 
+static inline unsigned int m_core_ctz32(uint32_t limb)
+{
+  return (unsigned int) (M_UNLIKELY (limb == 0) ? sizeof(uint32_t)*CHAR_BIT : (size_t) __builtin_ctzl(limb));
+}
+static inline unsigned int m_core_ctz64(uint64_t limb)
+{
+  return (unsigned int) (M_UNLIKELY (limb == 0ULL) ? sizeof (uint64_t)*CHAR_BIT : (size_t) __builtin_ctzll(limb));
+}
+
 #elif defined(_MSC_VER) && (defined(_M_AMD64) || defined(_M_ARM64))
 // NOTE: _BitScanReverse64 is 64-bits only (not compatible 32 bits).
 #include <intrin.h>
@@ -2674,6 +2683,25 @@ static inline unsigned int m_core_clz64(uint64_t limb)
   }
 }
 
+static inline unsigned int m_core_ctz32(uint32_t limb)
+{
+  unsigned long bit = 0;
+  if (_BitScanForward( &bit, limb ) != 0) {
+    return bit;
+  } else {
+    return 32;
+  }
+}
+static inline unsigned int m_core_ctz64(uint64_t limb)
+{
+  unsigned long bit = 0;
+  if (_BitScanForward64( &bit, limb ) != 0) {
+    return bit;
+  } else {
+    return 64;
+  }
+}
+
 #else
 // Emulation layer
 #define M_CORE_CLZ_TAB "\010\07\06\06\05\05\05\05\04\04\04\04\04\04\04\04\03\03\03\03\03\03\03\03\03\03\03\03\03\03\03\03\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00"
@@ -2687,7 +2715,7 @@ static inline unsigned int m_core_clz32(uint32_t limb)
      + -2 for the highest 16 bits,
      + -1 for the highest 8 bits,
      + 0 otherwise */
-  shift = -(limb < 0x1000000UL);
+  shift = -(unsigned) (limb < 0x1000000UL);
   shift -= (limb < 0x10000UL);
   shift -= (limb < 0x100UL);
   shift  = shift*8 + 24;
@@ -2708,7 +2736,7 @@ static inline unsigned int m_core_clz64(uint64_t limb)
      + -2 for the highest 16 bits,
      + -1 for the highest 8 bits,
      + 0 otherwise */
-  shift = -(limb < 0x100000000000000UL);
+  shift = -(unsigned) (limb < 0x100000000000000UL);
   shift -= (limb < 0x1000000000000UL);
   shift -= (limb < 0x10000000000UL);
   shift -= (limb < 0x100000000UL);
@@ -2719,6 +2747,24 @@ static inline unsigned int m_core_clz64(uint64_t limb)
   shift = 56 - shift + (unsigned int) M_CORE_CLZ_TAB[limb >> shift ];
   return shift;
 }
+
+/* See algorithm ctz5 that uses de Bruijn sequences to construct a minimal perfect hash function (32 bits) */
+#define M_CORE_CTZ_TAB "\000\001\034\002\035\016\030\003\036\026\024\017\031\021\004\010\037\033\015\027\025\023\020\007\032\014\022\006\013\005\012\011"
+
+static inline unsigned int m_core_ctz32(uint32_t limb)
+{
+  if (limb == 0) { return 32; }
+  return (unsigned int) M_CORE_CTZ_TAB[ ( (uint32_t) (limb & -limb) * 0x077CB531) >> 27];
+}
+
+static inline unsigned int m_core_ctz64(uint64_t limb)
+{
+  unsigned int shift = 0;
+  if ((limb & 0x0FFFFFFFFull) == 0) { shift = 32; limb >>= 32; }
+  if (limb == 0) { return 32+shift; }
+  return shift + (unsigned int) M_CORE_CTZ_TAB[ ( (uint32_t) (limb & -limb) * 0x077CB531) >> 27];
+}
+
 #endif
 
 /* Implement a kind of FNV1A Hash.
