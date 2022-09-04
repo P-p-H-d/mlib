@@ -420,6 +420,19 @@ static void test_clz(void)
   }
 }
 
+static void test_reset_resize(void)
+{
+  M_LET(set, bitset_t) {
+    bitset_init(set);
+    bitset_resize(set, 128);
+    bitset_set_at(set, 0, true);
+    bitset_reset(set);
+    bitset_resize(set, 128);
+    assert(bitset_get(set, 0) == false);
+  }
+}
+
+
 int main(void)
 {
   test1();
@@ -428,5 +441,6 @@ int main(void)
   test_logic();
   test_let();
   test_clz();
+  test_reset_resize();
   exit(0);
 }

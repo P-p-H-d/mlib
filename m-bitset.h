@@ -98,6 +98,10 @@ m_bitset_reset(m_bitset_t t)
 {
   M_B1TSET_CONTRACT(t);
   t->size = 0;
+  // to support calling resize after reset, clear the bits in the first limb
+  if (M_LIKELY(t->ptr != 0)) {
+    t->ptr[0] = 0;
+  }
 }
 
 /* Clear a bitset (DESTRUCTOR) */
