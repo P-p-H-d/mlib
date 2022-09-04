@@ -420,6 +420,29 @@ static void test_clz(void)
   }
 }
 
+// Detect bug on bitset_resize function in case of increase of size.
+// the first limb may not be cleared properly in some cases
+static void test_resize(void)
+{
+  M_LET(set, bitset_t) {
+    for(size_t i = 1; i < 257; i++) {
+      bitset_resize(set, i);
+      assert( bitset_get(set, i-1) == false);
+      bitset_set_at(set, 0, true);
+      bitset_set_at(set, i-1, true);
+      bitset_reset(set);
+      bitset_resize(set, i);
+      assert( bitset_get(set, 0) == false);
+      assert( bitset_get(set, i-1) == false);
+      bitset_set_at(set, 0, true);
+      bitset_set_at(set, i-1, true);
+      bitset_resize(set, i-1);
+      bitset_resize(set, i);
+      assert( bitset_get(set, i-1) == false);
+    }
+  }
+}
+
 int main(void)
 {
   test1();
@@ -428,5 +451,6 @@ int main(void)
   test_logic();
   test_let();
   test_clz();
+  test_resize();
   exit(0);
 }
