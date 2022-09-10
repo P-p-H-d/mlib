@@ -5314,8 +5314,23 @@ This library doesn't provide any treatment over code points.
 
 ##### void string\_it(string\_it\_t it, const string\_t str)
 
-Initialize the iterator 'it' to iterate over the string 'str'
-over UTF8 encoded code point.
+Initialize the iterator 'it' to iterate over the UTF-8 code points of
+string 'str'.
+
+##### void string\_it\end(string\_it\_t it, const string\_t str)
+
+Initialize the iterator 'it' to the end iteration of the string 'str'.
+
+##### void string\_it\_set(string\_it\_t it1, const string\_it\_t it2)
+
+Initialize the iterator 'it1' to the same position than 'it2.
+
+##### void string\_it\_pos(string\_it\_t it, const string\_t str, size\_t pos)
+
+Initialize the iterator 'it' to iterate over the UTF-8 code points
+of string 'str', starting from position 'pos'.
+'pos' shall be within the size of the string.
+'pos' shall reference the starting point of an UTF-8 code point.
 
 ##### bool string\_end\_p (string\_it\_t it)
 
@@ -5334,6 +5349,14 @@ Return the unicode code point associated to the iterator.
 string\_end\_p shall have been called at least once
 per UTF8 code point before.
 It returns -1 in case of error in decoding the UTF8 string.
+
+##### size\_t string\_it\_get\_pos (const string\_it\_t it)
+
+Return the position in the stream of the iterator 'it'.
+
+##### bool string\_it\_equal\_p (const string\_it\_t it1, const string\_it\_t it2)
+
+Return true if both iterators reference the same position, false otherwise.
 
 ##### void string\_push\_u (string\_t str, string\_unicode\_t u)
 
