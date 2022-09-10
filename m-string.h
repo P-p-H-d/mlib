@@ -67,6 +67,20 @@ typedef enum {
   M_STR1NG_UTF8_ERROR = 32
 } m_str1ng_utf8_state_e;
 
+/* Maximum number of bytes per UTF8 code point */
+#define M_STR1NG_MAX_BYTE_UTF8 4
+
+/* Contract for a string iterator */
+#define M_STR1NG_IT_CONTRACT(it) do {                                         \
+  M_ASSERT( (it) != NULL);                                                    \
+  M_ASSERT( (it)->ptr != NULL);                                               \
+  M_ASSERT( 0 <= (it)->next_ptr && (it)->next_ptr <= M_STR1NG_MAX_BYTE_UTF8); \
+  M_ASSERT( (it)->string != NULL);                                            \
+  M_ASSERT( m_string_get_cstr((it)->string) <= (it)->ptr);                    \
+  M_ASSERT( (it)->ptr <= &m_string_get_cstr((it)->string)[m_string_size((it)->string)]); \
+} while (0)
+
+
 /****************************** EXTERNAL *******************************/
 
 /***********************************************************************/
@@ -117,6 +131,7 @@ typedef struct m_string_it_s {
   m_string_unicode_t u;            // Decoded Unicode code point for the iterator
   int         next_ptr;            // Offset to the next code point
   const char *ptr;
+  m_string_srcptr string;
 } m_string_it_t[1];
 
 /* PREFIX:
@@ -995,7 +1010,7 @@ m_string_set_ui(m_string_t v, unsigned int n)
 #elif UINT_MAX <= 18446744073709551615UL
   const size_t max_size = 20+1;
 #else
-# error Unexpected UINT_MAX value.
+# error Unexpected UINT_MAX value (workaround: Define M_USE_FAST_STRING_CONV to 0).
 #endif
   char buffer[max_size];
   m_str1ng_fit2size(v, max_size);
@@ -1025,7 +1040,7 @@ m_string_set_si(m_string_t v, int n)
 #elif INT_MAX <= 9223372036854775807LL
   const size_t max_size = 1+20+1;
 #else
-# error Unexpected INT_MAX value.
+# error Unexpected UINT_MAX value (workaround: Define M_USE_FAST_STRING_CONV to 0).
 #endif
   char buffer[max_size];
   m_str1ng_fit2size(v, max_size);
@@ -1703,6 +1718,8 @@ m_string_it(m_string_it_t it, const m_string_t str)
   it->ptr      = m_string_get_cstr(str);
   it->next_ptr = 0;
   it->u        = 0;
+  it->string   = str;
+  M_STR1NG_IT_CONTRACT(it);
 } 
 
 /* Set the iterator to the end of string 
@@ -1716,6 +1733,8 @@ m_string_it_end(m_string_it_t it, const m_string_t str)
   it->ptr      = &m_string_get_cstr(str)[m_string_size(str)];
   it->next_ptr = 0;
   it->u        = 0;
+  it->string   = str;
+  M_STR1NG_IT_CONTRACT(it);
 }
 
 /* Set the iterator to the same position than the other one */
@@ -1726,6 +1745,37 @@ m_string_it_set(m_string_it_t it, const m_string_it_t itsrc)
   it->ptr      = itsrc->ptr;
   it->next_ptr = itsrc->next_ptr;
   it->u        = itsrc->u;
+  it->string   = itsrc->string;
+  M_STR1NG_IT_CONTRACT(it);
+}
+
+/* Set the iterator to the given position in the string.
+   The given position shall reference a valide code point in the string.
+ */
+static inline void
+m_string_it_pos(m_string_it_t it, const m_string_t str, const size_t n)
+{
+  M_ASSERT(it != NULL);
+  M_STR1NG_CONTRACT(str);
+  // The offset shall be within the string
+  M_ASSERT(n <= m_string_size(str));
+  // The offset shall reference the first Byte of an UTF 8 Code point
+  M_ASSERT(m_str1ng_utf8_start_p ((unsigned char)m_string_get_cstr(str)[n]));
+  it->ptr      = &m_string_get_cstr(str)[n];
+  it->next_ptr = 0;
+  it->u        = 0;
+  it->string   = str;
+  M_STR1NG_IT_CONTRACT(it);
+}
+
+/* Return the current offset in the string referenced by the iterator.
+   This references avalid code point.
+ */
+static inline size_t
+m_string_it_get_pos(m_string_it_t it)
+{
+  M_STR1NG_IT_CONTRACT(it);
+  return (size_t) (it->ptr - m_string_get_cstr(it->string));
 }
 
 /* Test if the iterator has reached the end of the string.
@@ -1736,7 +1786,7 @@ m_string_it_set(m_string_it_t it, const m_string_it_t itsrc)
 static inline bool
 m_string_end_p (m_string_it_t it)
 {
-  M_ASSERT (it != NULL);
+  M_STR1NG_IT_CONTRACT(it);
   if (M_UNLIKELY (*it->ptr == 0))
     return true;
   m_str1ng_utf8_state_e state =  M_STR1NG_UTF8_STARTING;
@@ -1747,8 +1797,7 @@ m_string_end_p (m_string_it_t it)
     str++;
   } while (state != M_STR1NG_UTF8_STARTING && state != M_STR1NG_UTF8_ERROR && *str != 0);
   // Save where the current unicode value ends in the UTF8 steam
-  // UTF-8 is maximum 4 characters
-  M_ASSERT( (str > it->ptr) && (str - it->ptr) <= 4);
+  M_ASSERT( (str > it->ptr) && (str - it->ptr) <= M_STR1NG_MAX_BYTE_UTF8);
   it->next_ptr = (int) (str - it->ptr);
   // Save the decoded unicode value
   it->u = M_UNLIKELY (state == M_STR1NG_UTF8_ERROR) ? M_STRING_UNICODE_ERROR : u;
@@ -1759,7 +1808,8 @@ m_string_end_p (m_string_it_t it)
 static inline bool
 m_string_it_equal_p(const m_string_it_t it1, const m_string_it_t it2)
 {
-  M_ASSERT(it1 != NULL && it2 != NULL);
+  M_STR1NG_IT_CONTRACT(it1);
+  M_STR1NG_IT_CONTRACT(it2);
   // IT1.ptr == IT2.ptr ==> IT1 == IT2 ==> All fields are equal
   M_ASSERT(it1->ptr != it2->ptr || (it1->next_ptr == it2->next_ptr && it1->u == it2->u));
   return it1->ptr == it2->ptr;
@@ -1769,7 +1819,7 @@ m_string_it_equal_p(const m_string_it_t it1, const m_string_it_t it2)
 static inline void
 m_string_next (m_string_it_t it)
 {
-  M_ASSERT (it != NULL);
+  M_STR1NG_IT_CONTRACT(it);
   // We already decoded the UTF8 stream
   it->ptr += it->next_ptr;
 }
@@ -1778,7 +1828,7 @@ m_string_next (m_string_it_t it)
 static inline m_string_unicode_t
 m_string_get_cref (const m_string_it_t it)
 {
-  M_ASSERT (it != NULL);
+  M_STR1NG_IT_CONTRACT(it);
   return it->u;
 }
 
@@ -1786,7 +1836,7 @@ m_string_get_cref (const m_string_it_t it)
 static inline const m_string_unicode_t *
 m_string_cref (const m_string_it_t it)
 {
-  M_ASSERT (it != NULL);
+  M_STR1NG_IT_CONTRACT(it);
   return &it->u;
 }
 
@@ -2604,6 +2654,8 @@ namespace m_lib {
 #define string_utf8_p m_string_utf8_p
 #define string_set_ui m_string_set_ui
 #define string_set_si m_string_set_si
+#define string_it_pos m_string_it_pos
+#define string_it_get_pos m_string_it_get_pos
 
 #define STRING_CTE M_STRING_CTE
 #define STRING_DECL_INIT M_STRING_DECL_INIT
