@@ -1646,6 +1646,13 @@ m_str1ng_utf8_valid_str_p(const char str[])
   return true;
 }
 
+/* Test if the given character is the start of an UTF8 code point */
+static inline bool
+m_str1ng_utf8_start_p(unsigned char val)
+{
+  return ((val & 0xC0u) != 0x80u);
+}
+
 /* Computer the number of unicode characters are represented in the UTF8 stream
  */
 static inline size_t
@@ -1654,7 +1661,7 @@ m_str1ng_utf8_length(const char str[])
   size_t size = 0;
   while (*str) {
     unsigned char val = (unsigned char) *str++;
-    size += ((val & 0xC0u) != 0x80u);
+    size += m_str1ng_utf8_start_p(val);
   }
   return size;
 }
