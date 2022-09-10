@@ -83,9 +83,11 @@ static void test_utf8_it(void)
   string_it_t it2;
 
   string_init(s);
-  string_it_end(it2, s);
+  string_it(it2, s);
   assert( string_it_get_pos(it2) == 0);
   string_next(it2);
+  assert( string_it_get_pos(it2) == 0);
+  string_it_end(it2, s);
   assert( string_it_get_pos(it2) == 0);
 
   for(string_it(it, s) ; !string_end_p(it); string_next(it)) {
