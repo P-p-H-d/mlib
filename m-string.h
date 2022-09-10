@@ -106,16 +106,16 @@ typedef enum m_string_fgets_e {
   M_STRING_READ_LINE = 0, M_STRING_READ_PURE_LINE = 1, M_STRING_READ_FILE = 2
 } m_string_fgets_t;
 
-/* An unicode value */
+/* An unicode code point */
 typedef uint32_t m_string_unicode_t;
 
 /* Error in case of decoding */
 #define M_STRING_UNICODE_ERROR (UINT_MAX)
 
-/* Iterator on a string over UTF8 encoded characters */
+/* Iterator on a string over UTF8 encoded code points */
 typedef struct m_string_it_s {
-  m_string_unicode_t u;            // Decoded Unicode character for the iterator
-  int         next_ptr;            // Offset to the next character
+  m_string_unicode_t u;            // Decoded Unicode code point for the iterator
+  int         next_ptr;            // Offset to the next code point
   const char *ptr;
 } m_string_it_t[1];
 
@@ -1612,9 +1612,9 @@ m_string_in_serial(m_string_t v, m_serial_read_t serial)
 
 /* Main generic UTF8 decoder
    It shall be (nearly) branchless on any CPU.
-   It takes a character, and the previous state and the previous value of the unicode value.
-   It updates the state and the decoded unicode value.
-   A decoded unicoded value is valid only when the state is STARTING.
+   It takes a byte, and the previous state and the previous value of the unicode code point.
+   It updates the state and the decoded unicode code point.
+   A decoded unicoded code point is valid only when the state is STARTING.
  */
 static inline void
 m_str1ng_utf8_decode(char c, m_str1ng_utf8_state_e *state,
@@ -1628,7 +1628,7 @@ m_str1ng_utf8_decode(char c, m_str1ng_utf8_state_e *state,
 }
 
 /* Check if the given array of characters is a valid UTF8 stream */
-/* NOTE: Non-canonical representation are not rejected */
+/* NOTE: Non-canonical representation are not always rejected */
 static inline bool
 m_str1ng_utf8_valid_str_p(const char str[])
 {
@@ -1646,15 +1646,14 @@ m_str1ng_utf8_valid_str_p(const char str[])
   return true;
 }
 
-/* Test if the given character is the start of an UTF8 code point */
+/* Test if the given byte is the start of an UTF8 code point */
 static inline bool
 m_str1ng_utf8_start_p(unsigned char val)
 {
   return ((val & 0xC0u) != 0x80u);
 }
 
-/* Computer the number of unicode characters are represented in the UTF8 stream
- */
+/* Computer the number of unicode code points are encoded in the UTF8 stream */
 static inline size_t
 m_str1ng_utf8_length(const char str[])
 {
@@ -1666,7 +1665,7 @@ m_str1ng_utf8_length(const char str[])
   return size;
 }
 
-/* Encode an unicode into an UTF8 stream of characters */
+/* Encode an unicode code point into an UTF8 stream */
 static inline int
 m_str1ng_utf8_encode(char buffer[5], m_string_unicode_t u)
 {
@@ -1695,7 +1694,7 @@ m_str1ng_utf8_encode(char buffer[5], m_string_unicode_t u)
   }
 }
 
-/* Start iteration over the UTF8 encoded unicode value */
+/* Start iteration over the UTF8 encoded unicode code point */
 static inline void
 m_string_it(m_string_it_t it, const m_string_t str)
 {
@@ -1766,17 +1765,16 @@ m_string_it_equal_p(const m_string_it_t it1, const m_string_it_t it2)
   return it1->ptr == it2->ptr;
 }
 
-/* Advance the iterator to the next UTF8 unicode character */
+/* Advance the iterator to the next UTF8 unicode code point */
 static inline void
 m_string_next (m_string_it_t it)
 {
   M_ASSERT (it != NULL);
   // We already decoded the UTF8 stream
-  // Read the decoded value
   it->ptr += it->next_ptr;
 }
 
-/* Return the unicode value associated to the iterator */
+/* Return the unicode code point associated to the iterator */
 static inline m_string_unicode_t
 m_string_get_cref (const m_string_it_t it)
 {
@@ -1784,7 +1782,7 @@ m_string_get_cref (const m_string_it_t it)
   return it->u;
 }
 
-/* Return the unicode value associated to the iterator */
+/* Return the unicode code point associated to the iterator */
 static inline const m_string_unicode_t *
 m_string_cref (const m_string_it_t it)
 {
@@ -1792,7 +1790,7 @@ m_string_cref (const m_string_it_t it)
   return &it->u;
 }
 
-/* Push unicode into string, encoding it in UTF8 */
+/* Push unicode code point into string, encoding it in UTF8 */
 static inline void
 m_string_push_u (m_string_t str, m_string_unicode_t u)
 {
@@ -1802,7 +1800,7 @@ m_string_push_u (m_string_t str, m_string_unicode_t u)
   m_string_cat_cstr(str, buffer);
 }
 
-/* Compute the length in UTF8 characters in the string */
+/* Compute the length in UTF8 code points in the string */
 static inline size_t
 m_string_length_u(m_string_t str)
 {
