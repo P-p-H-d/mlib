@@ -5297,7 +5297,7 @@ is undefined.
 
 ##### string\_unicode\_t
 
-Define a type suitable to store a unicode character as an integer.
+Define a type suitable to store an unicode code point as an integer.
 
 ##### string\_it\_t
 
