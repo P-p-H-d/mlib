@@ -38,10 +38,13 @@ static void test_utf8_basic(void)
   for (string_unicode_t i = 1; i < 0x10ffff; i++) {
     if (i < 0xD800U || i > 0xDFFFU) {
       string_it_t it;
-      char buf[5] = {0};
-      m_str1ng_utf8_encode (buf, i);
+      char *buf = m_str1ng_get_cstr(s);
       /* Low level access for internal testing */
       it->ptr = buf;
+      it->next_ptr = 0;
+      it->string = s;
+      m_str1ng_utf8_encode (buf, i);
+      m_str1ng_set_size(s, strlen(buf));
       bool b = string_end_p(it);
       assert (b == false);
       assert (it->u == i);
