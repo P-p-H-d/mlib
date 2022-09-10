@@ -4899,6 +4899,10 @@ Example:
                 string_clear(s1);
         }
 
+The basic usage is a string of ASCII byte-character.
+However, the functions supports also UTF-8 encoded string (except said otherwise).
+It supports encoding/decoding of UTF8 code point.
+
 #### methods, types & constants
 
 The following methods are available:
@@ -5298,12 +5302,20 @@ Define a type suitable to store a unicode character as an integer.
 ##### string\_it\_t
 
 Define an iterator over the string, enabling to
-iterate the string over UTF8 encoded character.
+iterate the string over UTF8 encoded code point.
+
+The basic element of the string is a byte.
+An UTF-8 code point is composed of one to four bytes, encoded in a variable way.
+However, a Unicode character can be also composed of one or more code point.
+(See [UTF-8](https://en.wikipedia.org/wiki/UTF-8) )
+
+This library doesn't provide any treatment over code points.
+
 
 ##### void string\_it(string\_it\_t it, const string\_t str)
 
 Initialize the iterator 'it' to iterate over the string 'str'
-over UTF8 encoded character.
+over UTF8 encoded code point.
 
 ##### bool string\_end\_p (string\_it\_t it)
 
@@ -5312,31 +5324,29 @@ false otherwise.
 
 ##### void string\_next (string\_it\_t it)
 
-Move the iterator to the next UTF8 encoded character.
+Move the iterator to the next UTF8 encoded code point.
 string\_end\_p shall have been called at least once
-per UTF8 character before.
+per UTF8 code point before.
 
 ##### string\_unicode\_t string\_get\_cref (const string\_it\_t it)
 
-Return the unicode character associated to the UTF8 encoded character
-pointer by the iterator.
+Return the unicode code point associated to the iterator.
 string\_end\_p shall have been called at least once
-per UTF8 character before.
+per UTF8 code point before.
 It returns -1 in case of error in decoding the UTF8 string.
 
 ##### void string\_push\_u (string\_t str, string\_unicode\_t u)
 
-Push the unicode character 'u' into the string 'str'
-encoding it as a UTF8 encoded characters.
+Push the unicode code point 'u' into the string 'str'
+encoding it as a variable UTF8 encoded code point.
 
 ##### size\_t string\_length\_u(string\_t str)
 
-Return the number of UTF8 encoded characters in the string.
+Return the number of UTF8 encoded code point in the string.
 
 ##### bool string\_utf8\_p(string\_t str)
 
-Return true if the string is a valid UTF8,
-false otherwise.
+Return true if the string is a valid UTF8, false otherwise.
 It doesn't check for unique canonical form for UTF8 string.
 
 ##### STRING\_CTE(string)
