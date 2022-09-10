@@ -85,6 +85,8 @@ static void test_utf8_it(void)
   string_init(s);
   string_it_end(it2, s);
   assert( string_it_get_pos(it2) == 0);
+  string_next(it2);
+  assert( string_it_get_pos(it2) == 0);
 
   for(string_it(it, s) ; !string_end_p(it); string_next(it)) {
     assert(0); // Shall not be called
@@ -106,6 +108,9 @@ static void test_utf8_it(void)
   string_it_pos(it2, s, 0);
   assert( !string_end_p(it2) );
   assert( string_get_cref(it2) == 45);
+  string_next(it);
+  assert( string_it_get_pos(it) == 9);
+  assert( string_end_p(it) );
 
   string_set_str (s, "H€llo René Chaînôr¬");
   assert(string_length_u(s) == 19);

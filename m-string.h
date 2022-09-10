@@ -1787,8 +1787,10 @@ static inline bool
 m_string_end_p (m_string_it_t it)
 {
   M_STR1NG_IT_CONTRACT(it);
-  if (M_UNLIKELY (*it->ptr == 0))
+  if (M_UNLIKELY (*it->ptr == 0)) {
+    it->next_ptr = 0;                     // For safety, don't advance iterator over end of string
     return true;
+  }
   m_str1ng_utf8_state_e state =  M_STR1NG_UTF8_STARTING;
   m_string_unicode_t u = 0;
   const char *str = it->ptr;
