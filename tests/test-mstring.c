@@ -46,7 +46,7 @@ static void test_utf8_basic(void)
       assert (b == false);
       assert (it->u == i);
       assert (string_get_cref(it) == i);
-      assert (*it->next_ptr == 0);
+      assert (it->ptr[it->next_ptr] == 0);
       assert (m_str1ng_utf8_length(buf) == 1);
       assert (m_str1ng_utf8_valid_str_p(buf) == true);
       /* Higher level access */

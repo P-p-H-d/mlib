@@ -114,9 +114,9 @@ typedef uint32_t m_string_unicode_t;
 
 /* Iterator on a string over UTF8 encoded characters */
 typedef struct m_string_it_s {
-  m_string_unicode_t u;
+  m_string_unicode_t u;            // Decoded Unicode character for the iterator
+  int         next_ptr;            // Offset to the next character
   const char *ptr;
-  const char *next_ptr;
 } m_string_it_t[1];
 
 /* PREFIX:
@@ -1695,9 +1695,9 @@ m_string_it(m_string_it_t it, const m_string_t str)
   M_STR1NG_CONTRACT(str);
   M_ASSERT(it != NULL);
   it->ptr      = m_string_get_cstr(str);
-  it->next_ptr = it->ptr;
+  it->next_ptr = 0;
   it->u        = 0;
-}
+} 
 
 /* Set the iterator to the end of string 
    The iterator references therefore nothing.
@@ -1741,7 +1741,9 @@ m_string_end_p (m_string_it_t it)
     str++;
   } while (state != M_STR1NG_UTF8_STARTING && state != M_STR1NG_UTF8_ERROR && *str != 0);
   // Save where the current unicode value ends in the UTF8 steam
-  it->next_ptr = str;
+  // UTF-8 is maximum 4 characters
+  M_ASSERT( (str > it->ptr) && (str - it->ptr) <= 4);
+  it->next_ptr = (int) (str - it->ptr);
   // Save the decoded unicode value
   it->u = M_UNLIKELY (state == M_STR1NG_UTF8_ERROR) ? M_STRING_UNICODE_ERROR : u;
   return false;
@@ -1764,7 +1766,7 @@ m_string_next (m_string_it_t it)
   M_ASSERT (it != NULL);
   // We already decoded the UTF8 stream
   // Read the decoded value
-  it->ptr = it->next_ptr;
+  it->ptr += it->next_ptr;
 }
 
 /* Return the unicode value associated to the iterator */
