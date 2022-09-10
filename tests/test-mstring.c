@@ -114,6 +114,12 @@ static void test_utf8_it(void)
   assert( string_it_get_pos(it) == 9);
   assert( string_end_p(it) );
 
+  for(string_it_end(it, s), string_previous(it); !string_end_p(it); string_previous(it)) {
+    assert(i > 0);
+    i--;
+    assert (string_get_cref(it) == tab[i]);
+  }
+
   string_set_str (s, "H€llo René Chaînôr¬");
   assert(string_length_u(s) == 19);
   string_unicode_t tab2[19];

@@ -1826,6 +1826,30 @@ m_string_next (m_string_it_t it)
   it->ptr += it->next_ptr;
 }
 
+/* Move the iterator to the previous code point */
+static inline void
+m_string_previous(m_string_it_t it)
+{
+  M_STR1NG_IT_CONTRACT(it);
+  const char *ptr = it->ptr;
+  const char *org = m_string_get_cstr(it->string);
+  while (ptr > org) {
+    ptr --;
+    if (m_str1ng_utf8_start_p((unsigned char) *ptr) ) {
+      /* Start of an UTF 8 code point */
+      it->ptr = ptr;
+      /* Decode the UTF-8 code point */
+      bool b = m_string_end_p(it);
+      M_ASSERT(!b);
+      (void) b;
+    }
+  }
+  /* We reach the start of the string: mark the iterator to the end */
+  it->ptr = &org[m_string_size(it->string)];
+  it->next_ptr = 0;
+  M_STR1NG_IT_CONTRACT(it);
+}
+
 /* Return the unicode code point associated to the iterator */
 static inline m_string_unicode_t
 m_string_get_cref (const m_string_it_t it)
@@ -2658,6 +2682,7 @@ namespace m_lib {
 #define string_set_si m_string_set_si
 #define string_it_pos m_string_it_pos
 #define string_it_get_pos m_string_it_get_pos
+#define string_previous m_string_previous
 
 #define STRING_CTE M_STRING_CTE
 #define STRING_DECL_INIT M_STRING_DECL_INIT
