@@ -5343,6 +5343,10 @@ Move the iterator to the next UTF8 encoded code point.
 string\_end\_p shall have been called at least once
 per UTF8 code point before.
 
+##### void string\_previous (string\_it\_t it)
+
+Move the iterator to the previous UTF8 encoded code point.
+
 ##### string\_unicode\_t string\_get\_cref (const string\_it\_t it)
 
 Return the unicode code point associated to the iterator.
