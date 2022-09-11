@@ -1842,6 +1842,7 @@ m_string_previous(m_string_it_t it)
       bool b = m_string_end_p(it);
       M_ASSERT(!b);
       (void) b;
+      return;
     }
   }
   /* We reach the start of the string: mark the iterator to the end */
