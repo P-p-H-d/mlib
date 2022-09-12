@@ -41,15 +41,10 @@ static void test_utf8_basic(void)
       char *buf = m_str1ng_get_cstr(s);
       /* Low level access for internal testing */
       it->ptr = buf;
-      it->next_ptr = 0;
       it->string = s;
       m_str1ng_utf8_encode (buf, i);
       m_str1ng_set_size(s, strlen(buf));
-      bool b = string_end_p(it);
-      assert (b == false);
-      assert (it->u == i);
       assert (string_get_cref(it) == i);
-      assert (it->ptr[it->next_ptr] == 0);
       assert (m_str1ng_utf8_length(buf) == 1);
       assert (m_str1ng_utf8_valid_str_p(buf) == true);
       /* Higher level access */

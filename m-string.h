@@ -74,7 +74,6 @@ typedef enum {
 #define M_STR1NG_IT_CONTRACT(it) do {                                         \
   M_ASSERT( (it) != NULL);                                                    \
   M_ASSERT( (it)->ptr != NULL);                                               \
-  M_ASSERT( 0 <= (it)->next_ptr && (it)->next_ptr <= M_STR1NG_MAX_BYTE_UTF8); \
   M_ASSERT( (it)->string != NULL);                                            \
   M_ASSERT( m_string_get_cstr((it)->string) <= (it)->ptr);                    \
   M_ASSERT( (it)->ptr <= &m_string_get_cstr((it)->string)[m_string_size((it)->string)]); \
@@ -129,7 +128,6 @@ typedef uint32_t m_string_unicode_t;
 /* Iterator on a string over UTF8 encoded code points */
 typedef struct m_string_it_s {
   m_string_unicode_t u;            // Decoded Unicode code point for the iterator
-  int         next_ptr;            // Offset to the next code point
   const char *ptr;
   m_string_srcptr string;
 } m_string_it_t[1];
@@ -1716,7 +1714,6 @@ m_string_it(m_string_it_t it, const m_string_t str)
   M_STR1NG_CONTRACT(str);
   M_ASSERT(it != NULL);
   it->ptr      = m_string_get_cstr(str);
-  it->next_ptr = 0;
   it->u        = 0;
   it->string   = str;
   M_STR1NG_IT_CONTRACT(it);
@@ -1731,7 +1728,6 @@ m_string_it_end(m_string_it_t it, const m_string_t str)
   M_STR1NG_CONTRACT(str);
   M_ASSERT(it != NULL);
   it->ptr      = &m_string_get_cstr(str)[m_string_size(str)];
-  it->next_ptr = 0;
   it->u        = 0;
   it->string   = str;
   M_STR1NG_IT_CONTRACT(it);
@@ -1742,8 +1738,8 @@ static inline void
 m_string_it_set(m_string_it_t it, const m_string_it_t itsrc)
 {
   M_ASSERT(it != NULL && itsrc != NULL);
+  M_STR1NG_IT_CONTRACT(itsrc);
   it->ptr      = itsrc->ptr;
-  it->next_ptr = itsrc->next_ptr;
   it->u        = itsrc->u;
   it->string   = itsrc->string;
   M_STR1NG_IT_CONTRACT(it);
@@ -1762,7 +1758,6 @@ m_string_it_pos(m_string_it_t it, const m_string_t str, const size_t n)
   // The offset shall reference the first Byte of an UTF 8 Code point
   M_ASSERT(m_str1ng_utf8_start_p ((unsigned char)m_string_get_cstr(str)[n]));
   it->ptr      = &m_string_get_cstr(str)[n];
-  it->next_ptr = 0;
   it->u        = 0;
   it->string   = str;
   M_STR1NG_IT_CONTRACT(it);
@@ -1778,32 +1773,12 @@ m_string_it_get_pos(m_string_it_t it)
   return (size_t) (it->ptr - m_string_get_cstr(it->string));
 }
 
-/* Test if the iterator has reached the end of the string.
-   As it is where we perform the UTF8 decoding, the user 
-   needs to call this function at least once before any other
-   function, which is normally the case as the user shall test
-   if the stream is not empty before reading it. */
+/* Test if the iterator has reached the end of the string. */
 static inline bool
 m_string_end_p (m_string_it_t it)
 {
   M_STR1NG_IT_CONTRACT(it);
-  if (M_UNLIKELY (*it->ptr == 0)) {
-    it->next_ptr = 0;                     // For safety, don't advance iterator over end of string
-    return true;
-  }
-  m_str1ng_utf8_state_e state =  M_STR1NG_UTF8_STARTING;
-  m_string_unicode_t u = 0;
-  const char *str = it->ptr;
-  do {
-    m_str1ng_utf8_decode(*str, &state, &u);
-    str++;
-  } while (state != M_STR1NG_UTF8_STARTING && state != M_STR1NG_UTF8_ERROR && *str != 0);
-  // Save where the current unicode value ends in the UTF8 steam
-  M_ASSERT( (str > it->ptr) && (str - it->ptr) <= M_STR1NG_MAX_BYTE_UTF8);
-  it->next_ptr = (int) (str - it->ptr);
-  // Save the decoded unicode value
-  it->u = M_UNLIKELY (state == M_STR1NG_UTF8_ERROR) ? M_STRING_UNICODE_ERROR : u;
-  return false;
+  return it->ptr[0] == 0;
 }
 
 /* Test if the iterator is equal to the other one */
@@ -1812,8 +1787,6 @@ m_string_it_equal_p(const m_string_it_t it1, const m_string_it_t it2)
 {
   M_STR1NG_IT_CONTRACT(it1);
   M_STR1NG_IT_CONTRACT(it2);
-  // IT1.ptr == IT2.ptr ==> IT1 == IT2 ==> All fields are equal
-  M_ASSERT(it1->ptr != it2->ptr || (it1->next_ptr == it2->next_ptr && it1->u == it2->u));
   return it1->ptr == it2->ptr;
 }
 
@@ -1822,8 +1795,16 @@ static inline void
 m_string_next (m_string_it_t it)
 {
   M_STR1NG_IT_CONTRACT(it);
-  // We already decoded the UTF8 stream
-  it->ptr += it->next_ptr;
+  const char *ptr = it->ptr;
+  while (*ptr != 0) {
+    ptr ++;
+    if (m_str1ng_utf8_start_p((unsigned char) *ptr) ) {
+      /* Start of an UTF 8 code point */
+      break;
+    }
+  }
+  it->ptr = ptr;
+  return;
 }
 
 /* Move the iterator to the previous code point */
@@ -1838,16 +1819,11 @@ m_string_previous(m_string_it_t it)
     if (m_str1ng_utf8_start_p((unsigned char) *ptr) ) {
       /* Start of an UTF 8 code point */
       it->ptr = ptr;
-      /* Decode the UTF-8 code point */
-      bool b = m_string_end_p(it);
-      M_ASSERT(!b);
-      (void) b;
       return;
     }
   }
   /* We reach the start of the string: mark the iterator to the end */
   it->ptr = &org[m_string_size(it->string)];
-  it->next_ptr = 0;
   M_STR1NG_IT_CONTRACT(it);
 }
 
@@ -1856,14 +1832,27 @@ static inline m_string_unicode_t
 m_string_get_cref (const m_string_it_t it)
 {
   M_STR1NG_IT_CONTRACT(it);
-  return it->u;
+  M_ASSERT(*it->ptr != 0);
+
+  m_str1ng_utf8_state_e state =  M_STR1NG_UTF8_STARTING;
+  m_string_unicode_t u = 0;
+  const char *str = it->ptr;
+  do {
+    m_str1ng_utf8_decode(*str, &state, &u);
+    str++;
+  } while (state != M_STR1NG_UTF8_STARTING && state != M_STR1NG_UTF8_ERROR && *str != 0);
+  // Save where the current unicode value ends in the UTF8 steam
+  M_ASSERT( (str > it->ptr) && (str - it->ptr) <= M_STR1NG_MAX_BYTE_UTF8);
+  // Save the decoded unicode value
+  return M_UNLIKELY (state == M_STR1NG_UTF8_ERROR) ? M_STRING_UNICODE_ERROR : u;
 }
 
 /* Return the unicode code point associated to the iterator */
 static inline const m_string_unicode_t *
-m_string_cref (const m_string_it_t it)
+m_string_cref (m_string_it_t it)
 {
   M_STR1NG_IT_CONTRACT(it);
+  it->u = m_string_get_cref(it);
   return &it->u;
 }
 

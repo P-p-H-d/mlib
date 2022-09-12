@@ -5341,8 +5341,6 @@ false otherwise.
 ##### void string\_next (string\_it\_t it)
 
 Move the iterator to the next UTF8 encoded code point.
-string\_end\_p shall have been called at least once
-per UTF8 code point before.
 
 ##### void string\_previous (string\_it\_t it)
 
@@ -5351,8 +5349,6 @@ Move the iterator to the previous UTF8 encoded code point.
 ##### string\_unicode\_t string\_get\_cref (const string\_it\_t it)
 
 Return the unicode code point associated to the iterator.
-string\_end\_p shall have been called at least once
-per UTF8 code point before.
 It returns -1 in case of error in decoding the UTF8 string.
 
 ##### size\_t string\_it\_get\_pos (const string\_it\_t it)
