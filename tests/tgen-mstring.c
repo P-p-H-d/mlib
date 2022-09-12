@@ -35,5 +35,13 @@ void convert(string_t s, unsigned n)
 
 void construct(char s[], unsigned n)
 {
-  strcpy(s, M_CSTR("Hello %u worlds"));
+  strcpy(s, M_CSTR("Hello %u worlds", n));
+}
+
+void iterate(string_t s)
+{
+  string_it_t it;
+  for(string_it(it, s); !string_end_p(it); string_next(it)) {
+    printf("%u\n", string_get_cref(it));
+  }
 }
