@@ -1282,6 +1282,8 @@ M_BEGIN_PROTECTED_CODE
 #define M_CI_EMPTY_B(a, b)          a
 #define M_CI_EMPTY_CAT(a, b)        a ## b
 
+#define M_C3_EMPTY(a, b, c)         M_C3I_EMPTY(a, b, c)
+#define M_C3I_EMPTY(a, b, c)        M_CI_EMPTY( M_CI_EMPTY(a, b), c)
 
 /* Return 1 if argument is "()" or "(x)"
  * Test if () or (x) can be transformed into a comma (primary check for parenthesis),
@@ -4079,7 +4081,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 /* Generate one or several definitions for the EMPLACE methods
    using the operator EMPLACE_TYPE to get the suitable user types
    and the user provided macro to expand the function definition.
-   The user provided macro prototype is
+   The user provided a macro which prototype is
    macro(name, name_t, function_name, oplist, init_func, exp_emplace_type)
    It is suitable for container with a single type of data within.
    NOTE: Use internally, M_MAP2, M_MAP2_C & M_MAP3
@@ -4114,6 +4116,87 @@ m_core_parse2_enum (const char str[], const char **endptr)
   macro(name, name_t, function_name, oplist, INIT_WITH, emplace_type)
 
 
+/* Generate one or several definitions for the EMPLACE methods
+   using the operator EMPLACE_TYPE to get the suitable user types
+   and the user provided macro to expand the function definition.
+   The user provided three macros which prototype are
+   macro(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type)
+   first macro is for generating emplacing with both key & value are emplaced,
+   second macro is for generating emplacing with only key is emplaced,
+   third macro is for generating emplacing with only value is emplaced,
+   It is suitable for associative array containers.
+   NOTE: Use internally, M_MAP2, M_MAP2_C & M_MAP3
+ */
+#define M_EMPLACE_ASS_ARRAY_DEF(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val) \
+  M_IF(M_TEST_METHOD_ALTER_P(EMPLACE_TYPE, key_oplist))                           \
+  (M_EMPLACE_ASS_ARRAY_DEF_EXPAND_KEY_OR_BOTH, M_EMPLACE_ASS_ARRAY_DEF_EXPAND_VALUE_OR_NONE)                                         \
+  (name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val)
+/* We have a key EMPLACE_TYPE. We can generate key only or both emplace functions */
+#define M_EMPLACE_ASS_ARRAY_DEF_EXPAND_KEY_OR_BOTH(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val) \
+  M_IF(M_TEST_METHOD_ALTER_P(EMPLACE_TYPE, val_oplist))                           \
+  (M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH, M_EMPLACE_ASS_ARRAY_DEF_EXPAND_KEY)                                         \
+  (name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, M_GET_EMPLACE_TYPE key_oplist, M_GET_EMPLACE_TYPE val_oplist)
+/* We have a value EMPLACE_TYPE. We can generate value only or no emplace functions */
+#define M_EMPLACE_ASS_ARRAY_DEF_EXPAND_VALUE_OR_NONE(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val) \
+  M_IF(M_TEST_METHOD_ALTER_P(EMPLACE_TYPE, val_oplist))                           \
+  (M_EMPLACE_ASS_ARRAY_DEF_EXPAND_VAL, M_EAT)                                         \
+  (name, name_t, function_name, key_oplist, val_oplist, macro_val, macro_key, macro_val, M_GET_EMPLACE_TYPE key_oplist, M_GET_EMPLACE_TYPE val_oplist)
+
+/* Generate KEY only emplace functions */
+/* One EMPLACE_TYPE operator is defined ==> Perform the emplace function expansion.
+   If the emplace type starts with parenthesis, it is only one with multiple args */
+#define M_EMPLACE_ASS_ARRAY_DEF_EXPAND_KEY(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type) \
+  M_IF(M_PARENTHESIS_P(key_emp_type))                                         \
+  (M_EMPLACE_ASS_ARRAY_DEF_SINGLE_EXPAND_KEY, M_EMPLACE_ASS_ARRAY_DEF_EXPAND_P2_KEY)          \
+  (name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type)
+/* Test if it starts with LIST, in which case, multiple emplace methods have to be defined */
+#define M_EMPLACE_ASS_ARRAY_DEF_EXPAND_P2_KEY(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type) \
+  M_IF(M_KEYWORD_P(LIST, key_emp_type))                                       \
+  (M_EMPLACE_ASS_ARRAY_DEF_LIST_EXPAND_KEY, M_EMPLACE_ASS_ARRAY_DEF_SINGLE_EXPAND_KEY)        \
+  (name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type)
+/* Define & expand multiple emplace methods with the _key prefix */
+#define M_EMPLACE_ASS_ARRAY_DEF_LIST_EXPAND_KEY(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type) \
+  M_MAP2(M_EMPLACE_ASS_ARRAY_DEF_SUFFIX_KEY, (name, name_t, function_name, key_oplist, val_oplist, macro_key, key_emp_type, val_emp_type), M_KEYWORD_TO_VA_ARGS(LIST, key_emp_type))
+/* Let the arguments be expanded before calling the definition macro */
+#define M_EMPLACE_ASS_ARRAY_DEF_SUFFIX_KEY(trio, list) M_EMPLACE_ASS_ARRAY_DEF_SUFFIX2_KEY(M_ID trio, M_ID list)
+/* Let the arguments be expanded before calling the definition macro */
+#define M_EMPLACE_ASS_ARRAY_DEF_SUFFIX2_KEY(...)       M_EMPLACE_ASS_ARRAY_DEF_SUFFIX3_KEY(__VA_ARGS__)
+/* Everything is now proprely expanded. Just call the original macro (with a properly expanded emplace type) */
+#define M_EMPLACE_ASS_ARRAY_DEF_SUFFIX3_KEY(name, name_t, function_name, key_oplist, val_oplist, macro, key_emp_type, val_emp_type, sup_suffix, init_func, ...) \
+  macro(name, name_t, M_C3_EMPTY(function_name, _key, sup_suffix), key_oplist, val_oplist, init_func, val_init_func, (__VA_ARGS__), val_list )
+/* Define & expand one emplace method by using the definition macro */
+#define M_EMPLACE_ASS_ARRAY_DEF_SINGLE_EXPAND_KEY(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type) \
+  macro_key(name, name_t, M_C(function_name, _key), key_oplist, val_oplist, INIT_WITH, none, key_emp_type, val_emp_type)
+
+/* Generate VALUE only emplace functions */
+/* One EMPLACE_TYPE operator is defined ==> Perform the emplace function expansion.
+   If the emplace type starts with parenthesis, it is only one with multiple args */
+#define M_EMPLACE_ASS_ARRAY_DEF_EXPAND_VAL(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type) \
+  M_IF(M_PARENTHESIS_P(val_emp_type))                                         \
+  (M_EMPLACE_ASS_ARRAY_DEF_SINGLE_EXPAND_VAL, M_EMPLACE_ASS_ARRAY_DEF_EXPAND_P2_VAL)          \
+  (name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type)
+/* Test if it starts with LIST, in which case, multiple emplace methods have to be defined */
+#define M_EMPLACE_ASS_ARRAY_DEF_EXPAND_P2_VAL(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type) \
+  M_IF(M_KEYWORD_P(LIST, val_emp_type))                                       \
+  (M_EMPLACE_ASS_ARRAY_DEF_LIST_EXPAND_VAL, M_EMPLACE_ASS_ARRAY_DEF_SINGLE_EXPAND_VAL)        \
+  (name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type)
+/* Define & expand multiple emplace methods with the _val prefix */
+#define M_EMPLACE_ASS_ARRAY_DEF_LIST_EXPAND_VAL(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type) \
+  M_MAP2(M_EMPLACE_ASS_ARRAY_DEF_SUFFIX_VAL, (name, name_t, function_name, key_oplist, val_oplist, macro_val, key_emp_type, val_emp_type), M_KEYWORD_TO_VA_ARGS(LIST, val_emp_type))
+/* Let the arguments be expanded before calling the definition macro */
+#define M_EMPLACE_ASS_ARRAY_DEF_SUFFIX_VAL(trio, list) M_EMPLACE_ASS_ARRAY_DEF_SUFFIX2_VAL(M_ID trio, M_ID list)
+/* Let the arguments be expanded before calling the definition macro */
+#define M_EMPLACE_ASS_ARRAY_DEF_SUFFIX2_VAL(...)       M_EMPLACE_ASS_ARRAY_DEF_SUFFIX3_VAL(__VA_ARGS__)
+/* Everything is now proprely expanded. Just call the original macro (with a properly expanded emplace type) */
+#define M_EMPLACE_ASS_ARRAY_DEF_SUFFIX3_VAL(name, name_t, function_name, key_oplist, val_oplist, macro, key_emp_type, val_emp_type, sup_suffix, init_func, ...) \
+  macro(name, name_t, M_C3_EMPTY(function_name, _val, sup_suffix), key_oplist, val_oplist, init_func, val_init_func, val_list, (__VA_ARGS__) )
+/* Define & expand one emplace method by using the definition macro */
+#define M_EMPLACE_ASS_ARRAY_DEF_SINGLE_EXPAND_VAL(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type) \
+  macro_val(name, name_t, M_C(function_name, _val), key_oplist, val_oplist, none, INIT_WITH, key_emp_type, val_emp_type)
+
+// TODO:
+// M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH
+// 
 
 /************************************************************/
 /******************* Exponential Backoff ********************/
