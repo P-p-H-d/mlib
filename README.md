@@ -1320,6 +1320,26 @@ This method is only created only if the IN\_STR & INIT methods are provided.
 It is ensured that the container gets from parsing a formatted string representation
 gets from name\_out\_str and the original container are equal.
 
+##### m\_serial\_return\_code\_t name\_out\_serial(m\_serial\_write\_t serial, const name\_t container)
+
+Output the container 'container' into the serializing object 'serial'.
+How and where it is output depends on the serializing object.
+It returns M\_SERIAL\_OK\_DONE in case of success,
+or M\_SERIAL\_FAILURE in case of failure.
+In case of failure, the serializing object is in an unspecified state.
+This method is only created only if the OUT\_SERIAL methods is provided.
+
+##### m\_serial\_return\_code\_t name\_in\_str(name\_t container, m\_serial\_read\_t serial)
+
+Read from the serializing object 'serial' a representation of a container
+and set 'container' to this representation.
+It returns M\_SERIAL\_OK\_DONE in case of success,
+or M\_SERIAL\_FAILURE in case of failure.
+In case of failure, the serializing object is in an unspecified state.
+This method is only created only if the IN\_SERIAL & INIT methods are provided.
+
+It is ensured that the container gets from parsing a representation
+gets from name\_out\_serial and the original container are equal.
 
 ### M-LIST
 
@@ -1499,6 +1519,8 @@ The following methods of the generic interface are defined (See generic interfac
 * bool name\_parse\_str(name\_t list, const char str[], const char **endp)
 * void name\_out\_str(FILE *file, const name\_t list)
 * bool name\_in\_str(name\_t list, FILE *file)
+* m\_serial\_return\_code\_t name\_out\_serial(m\_serial\_write\_t serial, const name\_t container)
+* m\_serial\_return\_code\_t name\_in\_str(name\_t container, m\_serial\_read\_t serial)
 * bool name\_equal\_p(const name\_t list1, const name\_t list2)
 * size\_t name\_hash(const name\_t list)
 
@@ -1659,6 +1681,8 @@ The following methods of the generic interface are defined (See generic interfac
 * bool name\_parse\_str(name\_t list, const char str[], const char **endp)
 * void name\_out\_str(FILE *file, const name\_t list)
 * bool name\_in\_str(name\_t list, FILE *file)
+* m\_serial\_return\_code\_t name\_out\_serial(m\_serial\_write\_t serial, const name\_t container)
+* m\_serial\_return\_code\_t name\_in\_str(name\_t container, m\_serial\_read\_t serial)
 * bool name\_equal\_p(const name\_t list1, const name\_t list2)
 * size\_t name\_hash(const name\_t list)
 
@@ -1820,6 +1844,8 @@ The following methods of the generic interface are defined (See generic interfac
 * bool name\_parse\_str(name\_t array, const char str[], const char **endp)
 * void name\_out\_str(FILE *file, const name\_t array)
 * bool name\_in\_str(name\_t array, FILE *file)
+* m\_serial\_return\_code\_t name\_out\_serial(m\_serial\_write\_t serial, const name\_t container)
+* m\_serial\_return\_code\_t name\_in\_str(name\_t container, m\_serial\_read\_t serial)
 * bool name\_equal\_p(const name\_t array1, const name\_t array2)
 * size\_t name\_hash(const name\_t array)
 
@@ -2007,6 +2033,8 @@ The following methods of the generic interface are defined (See generic interfac
 * bool name\_parse\_str(name\_t deque, const char str[], const char **endp)
 * void name\_out\_str(FILE *file, const name\_t deque)
 * bool name\_in\_str(name\_t deque, FILE *file)
+* m\_serial\_return\_code\_t name\_out\_serial(m\_serial\_write\_t serial, const name\_t container)
+* m\_serial\_return\_code\_t name\_in\_str(name\_t container, m\_serial\_read\_t serial)
 * bool name\_equal\_p(const name\_t deque1, const name\_t deque2)
 * size\_t name\_hash(const name\_t deque)
 * void name\_swap\_at(name\_t deque, size\_t i, size\_t j)
@@ -2297,6 +2325,8 @@ The following methods of the generic interface are defined (See generic interfac
 * bool name\_parse\_str(name\_t dict, const char str[], const char **endp)
 * void name\_out\_str(FILE *file, const name\_t dict)
 * bool name\_in\_str(name\_t dict, FILE *file)
+* m\_serial\_return\_code\_t name\_out\_serial(m\_serial\_write\_t serial, const name\_t container)
+* m\_serial\_return\_code\_t name\_in\_str(name\_t container, m\_serial\_read\_t serial)
 * bool name\_equal\_p(const name\_t dict1, const name\_t dict2)
 
 #### Specialized methods
@@ -2408,6 +2438,8 @@ The following methods of the generic interface are defined (See generic interfac
 * bool name\_parse\_str(name\_t tuple, const char str[], const char **endp)
 * void name\_out\_str(FILE *file, const name\_t tuple)
 * bool name\_in\_str(name\_t tuple, FILE *file)
+* m\_serial\_return\_code\_t name\_out\_serial(m\_serial\_write\_t serial, const name\_t container)
+* m\_serial\_return\_code\_t name\_in\_str(name\_t container, m\_serial\_read\_t serial)
 * size\_t name\_hash(const name\_t tuple)
 * int name\_equal\_p(const name\_t tuple1, const name\_t tuple2)
 * int name\_cmp(const name\_t tuple1, const name\_t tuple2)
@@ -2552,6 +2584,8 @@ The following methods of the generic interface are defined (See generic interfac
 * bool name\_parse\_str(name\_t variant, const char str[], const char **endp)
 * void name\_out\_str(FILE *file, name\_t variant)
 * bool name\_in\_str(name\_t variant, FILE *file)
+* m\_serial\_return\_code\_t name\_out\_serial(m\_serial\_write\_t serial, const name\_t container)
+* m\_serial\_return\_code\_t name\_in\_str(name\_t container, m\_serial\_read\_t serial)
 
 #### Specialized methods
 
@@ -2692,6 +2726,8 @@ The following methods of the generic interface are defined (See generic interfac
 * bool name\_parse\_str(name\_t tree, const char str[], const char **endp)
 * void name\_out\_str(FILE *file, const name\_t rbtree)
 * bool name\_in\_str(name\_t rbtree, FILE *file)
+* m\_serial\_return\_code\_t name\_out\_serial(m\_serial\_write\_t serial, const name\_t container)
+* m\_serial\_return\_code\_t name\_in\_str(name\_t container, m\_serial\_read\_t serial)
 * bool name\_equal\_p(const name\_t rbtree1, const name\_t rbtree2)
 * size\_t name\_hash(const name\_t rbtree)
 
@@ -2916,6 +2952,8 @@ The following methods of the generic interface are defined (See generic interfac
 * bool name\_parse\_str(name\_t tree, const char str[], const char **endp)
 * void name\_out\_str(FILE *file, const name\_t tree)
 * bool name\_in\_str(name\_t tree, FILE *file)
+* m\_serial\_return\_code\_t name\_out\_serial(m\_serial\_write\_t serial, const name\_t container)
+* m\_serial\_return\_code\_t name\_in\_str(name\_t container, m\_serial\_read\_t serial)
 * bool name\_equal\_p(const name\_t tree1, const name\_t tree2)
 * size\_t name\_hash(const name\_t tree)
 
@@ -3046,6 +3084,8 @@ The following methods of the generic interface are defined (See generic interfac
 * bool name\_parse\_str(name\_t tree, const char str[], const char **endp)
 * void name\_out\_str(FILE *file, const name\_t tree)
 * bool name\_in\_str(name\_t tree, FILE *file)
+* m\_serial\_return\_code\_t name\_out\_serial(m\_serial\_write\_t serial, const name\_t container)
+* m\_serial\_return\_code\_t name\_in\_str(name\_t container, m\_serial\_read\_t serial)
 
 #### Specialized methods
 
@@ -3327,6 +3367,8 @@ The following methods of the generic interface are defined (See generic interfac
 * bool name\_parse\_str(name\_t queue, const char str[], const char **endp)
 * void name\_out\_str(FILE *file, const name\_t queue)
 * bool name\_in\_str(name\_t queue, FILE *file)
+* m\_serial\_return\_code\_t name\_out\_serial(m\_serial\_write\_t serial, const name\_t container)
+* m\_serial\_return\_code\_t name\_in\_str(name\_t container, m\_serial\_read\_t serial)
 * void name\_emplace\[suffix\](name\_t queue, args...)
 
 #### Specialized methods
@@ -4577,6 +4619,8 @@ The following methods of the generic interface are defined (See generic interfac
 * void name\_out\_str(FILE *file, name\_t concurrent)
 * bool name\_parse\_str(name\_t concurrent, const char str[], const char **end)
 * bool name\_in\_str(name\_t concurrent, FILE *file)
+* m\_serial\_return\_code\_t name\_out\_serial(m\_serial\_write\_t serial, const name\_t container)
+* m\_serial\_return\_code\_t name\_in\_str(name\_t container, m\_serial\_read\_t serial)
 * bool name\_equal\_p(name\_t concurrent1, name\_t concurrent2)
 * size\_t name\_hash(name\_t concurrent)
 
