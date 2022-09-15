@@ -45,3 +45,8 @@ void iterate(string_t s)
     printf("%u\n", string_get_cref(it));
   }
 }
+
+bool start_p(char *p)
+{
+  return m_str1ng_utf8_start_p((unsigned char) *p);
+}
