@@ -523,6 +523,7 @@ M_BEGIN_PROTECTED_CODE
 #define M_INC_52 53
 #define M_INC_53 M_OVERFLOW
 #define M_INC_M_OVERFLOW M_OVERFLOW
+#define M_INC_M_UNDERFLOW M_UNDERFLOW
 
 
 /* Decrement the number given in argument (from [0..52[) 
@@ -531,6 +532,7 @@ M_BEGIN_PROTECTED_CODE
 */
 #define M_DEC(x)          M_C(M_DEC_, x)
 #define M_DEC_M_UNDERFLOW M_UNDERFLOW
+#define M_DEC_M_OVERFLOW M_OVERFLOW
 #define M_DEC_0 M_UNDERFLOW
 #define M_DEC_1 0
 #define M_DEC_2 1

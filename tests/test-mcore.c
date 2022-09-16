@@ -156,6 +156,9 @@ static void test_incdec(void)
   assert(!M_KEYWORD_P(M_OVERFLOW, M_ADD(M_MAX_NB_ARGUMENT, 1)));
   assert(M_KEYWORD_P(M_OVERFLOW, M_ADD(M_MAX_NB_ARGUMENT, 2)));
   assert(M_KEYWORD_P(M_OVERFLOW, M_ADD(M_MAX_NB_ARGUMENT, 3)));
+  // Test if the initial error is not lost in translation
+  assert(M_KEYWORD_P(M_UNDERFLOW, M_INC(M_UNDERFLOW)));
+  assert(M_KEYWORD_P(M_OVERFLOW, M_DEC(M_OVERFLOW)));
 
   assert(M_AND(0, 0) == 0);
   assert(M_AND(0, 1) == 0);
