@@ -5779,6 +5779,14 @@ putting a comma between each expanded 'func(argc)'
       ==>
       f(d, 1, a) , f(d, 2, b) , f(d, 3, c)
 
+##### M\_CROSS\_MAP(func, arglist1, arglist2)
+
+Apply 'func' to each pair composed of one argument of arglist1 and one argument of arglist2,
+
+      M_CROSS_MAP(f, (1, 3), (2, 4) )
+      ==>
+      f(1, 2) f(1, 4) f(3, 2) f(3, 4)
+
 ##### M\_MAP\_PAIR(func, args...)
 
 Map a macro to all given pair of arguments (Using recursion).
