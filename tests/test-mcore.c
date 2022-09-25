@@ -34,6 +34,13 @@ static void test_cat(void)
   assert (M_C(A,andB));
   assert (M_C3(A,and,B));
   assert (M_C4(A,and,B,andC));
+
+  assert (M_C3_EMPTY(A,and,B));
+  assert (M_C3_EMPTY(Aand,,B));
+  assert (M_C3_EMPTY(AandB,,));
+
+  assert (M_C5_EMPTY(A,a,n,d,B));
+  assert (M_C5_EMPTY(Aand,,,,B));
 }
 
 static void test_power2(void)
@@ -276,6 +283,13 @@ static void test_map(void)
   assert (M_CROSS_MAP(f2, (1, 3), (2)) 0 == 1*2+3*2);
   assert (M_CROSS_MAP(f2, (1, 3), (2,4)) 0 == 1*2 + 1*4 + 3*2 + 3*4);
   assert (M_CROSS_MAP(f2, (1, 3, 5), (2,4)) 0 == 1*2 + 1*4 + 3*2 + 3*4 + 5*2 + 5*4);
+
+  assert (M_CROSS_MAP2(f3, 2, (1), (2)) 0 == (1*2) * 2);
+  assert (M_CROSS_MAP2(f3, 2, (1), (2, 3)) 0 == (1*2+1*3) * 2);
+  assert (M_CROSS_MAP2(f3, 2, (1, 3), (2)) 0 == (1*2+3*2) * 2);
+  assert (M_CROSS_MAP2(f3, 2, (1, 3), (2,4)) 0 == (1*2 + 1*4 + 3*2 + 3*4) * 2);
+  assert (M_CROSS_MAP2(f3, 2, (1, 3, 5), (2,4)) 0 == (1*2 + 1*4 + 3*2 + 3*4 + 5*2 + 5*4)*2);
+
 }
 
 static void test_let(void)
