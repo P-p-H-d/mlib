@@ -5787,6 +5787,14 @@ Apply 'func' to each pair composed of one argument of arglist1 and one argument 
       ==>
       f(1, 2) f(1, 4) f(3, 2) f(3, 4)
 
+##### M\_CROSS\_MAP2(func, data, arglist1, arglist2)
+
+Apply 'func' to each triplet composed of data, one argument of arglist1 and one argument of arglist2,
+
+      M_CROSS_MAP2(f, 5, (1, 3), (2, 4) )
+      ==>
+      f(5, 1, 2) f(5, 1, 4) f(5, 3, 2) f(5, 3, 4)
+
 ##### M\_MAP\_PAIR(func, args...)
 
 Map a macro to all given pair of arguments (Using recursion).
