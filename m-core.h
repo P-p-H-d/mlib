@@ -4433,7 +4433,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_EMPLACE_ASS_ARRAY_DEF_SUFFIX2_VAL(...)       M_EMPLACE_ASS_ARRAY_DEF_SUFFIX3_VAL(__VA_ARGS__)
 /* Everything is now proprely expanded. Just call the original macro (with a properly expanded emplace type) */
 #define M_EMPLACE_ASS_ARRAY_DEF_SUFFIX3_VAL(name, name_t, function_name, key_oplist, val_oplist, macro, key_emp_type, val_emp_type, sup_suffix, init_func, ...) \
-  macro(name, name_t, M_C3_EMPTY(function_name, _val, sup_suffix), key_oplist, val_oplist, init_func, val_init_func, val_list, (__VA_ARGS__) )
+  macro(name, name_t, M_C3_EMPTY(function_name, _val, sup_suffix), key_oplist, val_oplist, key_init_func, init_func, val_list, (__VA_ARGS__) )
 /* Define & expand one emplace method by using the definition macro */
 #define M_EMPLACE_ASS_ARRAY_DEF_SINGLE_EXPAND_VAL(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type) \
   macro_val(name, name_t, M_C(function_name, _val), key_oplist, val_oplist, none, INIT_WITH, key_emp_type, val_emp_type)
