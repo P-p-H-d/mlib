@@ -32,17 +32,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <assert.h>
-
-
-/* By default, always use stdlib. Can be turned off in specific environment if needed
-   by defining M_USE_STDLIB to 0.
-   If it is disabled, you need to override memory & failure global macros too */
-#ifndef M_USE_STDLIB
-# define M_USE_STDLIB 1
-#endif
-#if M_USE_STDLIB
-# include <stdlib.h>  /* For abort, malloc, realloc, free */
-#endif
+#include <stdlib.h>  /* For abort, malloc, realloc, free, strtol, strtoul, strtoll, strtoull, strtod, strtold, rand */
 
 /* By default, always use stdio. Can be turned off in specific environment if needed
    by defining M_USE_STDIO to 0 */
@@ -51,6 +41,10 @@
 #endif
 #if M_USE_STDIO
 # include <stdio.h>
+#else
+#if !defined(M_MEMORY_FULL) || !defined(M_ASSERT_INIT)
+# error Without stdio.h, definitions for macros M_MEMORY_FULL, M_ASSERT_INIT are mandatory.
+#endif
 #endif
 
 /* By default, always use stdarg. Can be turned off in specific environment if needed
