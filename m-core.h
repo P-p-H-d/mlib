@@ -4455,6 +4455,54 @@ m_core_parse2_enum (const char str[], const char **endptr)
   macro_both(name, name_t, M_C5_EMPTY(function_name, _key, M_RET_ARG1(M_ID a), _val, M_RET_ARG1(M_ID b) ), key_oplist, val_oplist, M_RET_ARG2(M_ID a), M_RET_ARG2(M_ID b), (M_TAIL_2 a), (M_TAIL_2 b) )
 
 
+/* Definition of the emplace_back function for associative arrays.
+   It is defined here so that this definition is shared accross different
+   kind of associative array (RB-Tree, Hashmap, OA-Hashmap, B+Tree, ...)
+   This definition is far from being efficient but works for the current interface.
+   3 macros are needed: one when we emplace both key & value, one for key only
+   one for value only.
+*/
+#define M_ASS_ARRA1_EMPLACE_BOTH_DEF(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
+  static inline void                                                          \
+  function_name(name_t v                                                      \
+                M_EMPLACE_LIST_TYPE_VAR(akey, key_emplace_type)               \
+                M_EMPLACE_LIST_TYPE_VAR(aval, val_emplace_type)               \
+  ){                                                                          \
+    M_C(name, _key_ct) key;                                                   \
+    M_CALL_INIT(key_oplist, key);                                             \
+    M_EMPLACE_CALL_FUNC(akey, key_init_func, key_oplist, key, key_emplace_type); \
+    M_C(name, _value_ct) *val;                                                \
+    val = M_C(name, _safe_get)(v, key);                                       \
+    M_CALL_CLEAR(val_oplist, *val);                                           \
+    M_EMPLACE_CALL_FUNC(aval, val_init_func, val_oplist, *val, val_emplace_type); \
+    M_CALL_CLEAR(key_oplist, key);                                            \
+  }                                                                           \
+
+#define M_ASS_ARRA1_EMPLACE_KEY_DEF(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
+  static inline void                                                          \
+  function_name(name_t v                                                      \
+                M_EMPLACE_LIST_TYPE_VAR(akey, key_emplace_type)               \
+                , M_C(name, _value_ct) val                                    \
+  ){                                                                          \
+    M_C(name, _key_ct) key;                                                   \
+    M_CALL_INIT(key_oplist, key);                                             \
+    M_EMPLACE_CALL_FUNC(akey, key_init_func, key_oplist, key, key_emplace_type); \
+    M_C(name, _set_at)(v, key, val);                                          \
+    M_CALL_CLEAR(key_oplist, key);                                            \
+  }                                                                           \
+
+#define M_ASS_ARRA1_EMPLACE_VAL_DEF(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
+  static inline void                                                          \
+  function_name(name_t v, M_C(name, _key_ct) key                              \
+                M_EMPLACE_LIST_TYPE_VAR(aval, val_emplace_type)               \
+  ){                                                                          \
+    M_C(name, _value_ct) *val;                                                \
+    val = M_C(name, _safe_get)(v, key);                                       \
+    M_CALL_CLEAR(val_oplist, *val);                                           \
+    M_EMPLACE_CALL_FUNC(aval, val_init_func, val_oplist, *val, val_emplace_type); \
+  }                                                                           \
+
+
 /************************************************************/
 /******************* Exponential Backoff ********************/
 /************************************************************/
