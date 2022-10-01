@@ -41,10 +41,6 @@
 #endif
 #if M_USE_STDIO
 # include <stdio.h>
-#else
-#if !defined(M_MEMORY_FULL) || !defined(M_ASSERT_INIT)
-# error Without stdio.h, definitions for macros M_MEMORY_FULL, M_ASSERT_INIT are mandatory.
-#endif
 #endif
 
 /* By default, always use stdarg. Can be turned off in specific environment if needed
@@ -286,21 +282,41 @@ M_BEGIN_PROTECTED_CODE
 #endif
 
 /* This macro is called on memory allocation failure.
- * By default, it aborts the program execution.
+ * By default, it raises a fatal error.
  * NOTE: Can be overloaded by user code.
 */
 #ifndef M_MEMORY_FULL
-#define M_MEMORY_FULL(size) do {                                              \
-    fprintf(stderr, "ERROR(M*LIB): Cannot allocate %zu bytes of memory at (%s:%s:%d).\n", \
-            (size_t) (size), __FILE__, __func__, __LINE__);                   \
-    abort();                                                                  \
-  } while (0)
+#define M_MEMORY_FULL(size)                                                   \
+  M_RAISE_FATAL("Cannot allocate %zu bytes of memory at (%s:%s:%d).\n",       \
+                (size_t) (size), __FILE__, __func__, __LINE__)
 #endif
 
 
 /************************************************************/
 /*********************  ERROR handling **********************/
 /************************************************************/
+
+/* Raise a fatal error and terminate the current execution flow.
+   Default behavior performs the following actions:
+    * format and print the error message on stderr
+    * terminate the program.
+   Can be overloaded by the user code.
+   Usage:
+    M_RAISE_FATAL(message, ...)
+  with
+    message, a printf formatted message associated to the error
+*/
+#ifndef M_RAISE_FATAL
+#if M_USE_STDIO == 1
+#define M_RAISE_FATAL(...) do {                                               \
+    fprintf(stderr, "ERROR(M*LIB): " __VA_ARGS__);                            \
+    abort();                                                                  \
+  } while (0)
+#else
+# error Without stdio.h, definitions for macro M_RAISE_FATAL is mandatory.
+#endif
+#endif
+
 
 /* Define the default assertion macro used by M*LIB.
  * By default, it is an encapsulation of CLIB assert.
@@ -333,9 +349,8 @@ M_BEGIN_PROTECTED_CODE
 #ifndef M_ASSERT_INIT
 #define M_ASSERT_INIT(expr, object) {                                         \
     if (!(expr)) {                                                            \
-      fprintf(stderr, "ERROR(M*LIB): Cannot initialize %s at (%s:%s:%d): %s\n", \
-              (object), __FILE__, __func__, __LINE__, #expr);                 \
-      abort();                                                                \
+      M_RAISE_FATAL("Cannot initialize %s at (%s:%s:%d): %s\n",               \
+                  (object), __FILE__, __func__, __LINE__, #expr);             \
     } } while (0)
 #endif
 
@@ -4366,18 +4381,18 @@ m_core_parse2_enum (const char str[], const char **endptr)
    NOTE: Use internally, M_MAP2, M_MAP2_C & M_MAP3
  */
 #define M_EMPLACE_ASS_ARRAY_DEF(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val) \
-  M_IF(M_TEST_METHOD_ALTER_P(EMPLACE_TYPE, key_oplist))                           \
-  (M_EMPLACE_ASS_ARRAY_DEF_EXPAND_KEY_OR_BOTH, M_EMPLACE_ASS_ARRAY_DEF_EXPAND_VALUE_OR_NONE)                                         \
+  M_IF(M_TEST_METHOD_ALTER_P(EMPLACE_TYPE, key_oplist))                       \
+  (M_EMPLACE_ASS_ARRAY_DEF_EXPAND_KEY_OR_BOTH, M_EMPLACE_ASS_ARRAY_DEF_EXPAND_VALUE_OR_NONE) \
   (name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val)
 /* We have a key EMPLACE_TYPE. We can generate key only or both emplace functions */
 #define M_EMPLACE_ASS_ARRAY_DEF_EXPAND_KEY_OR_BOTH(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val) \
-  M_IF(M_TEST_METHOD_ALTER_P(EMPLACE_TYPE, val_oplist))                           \
-  (M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH, M_EMPLACE_ASS_ARRAY_DEF_EXPAND_KEY)                                         \
+  M_IF(M_TEST_METHOD_ALTER_P(EMPLACE_TYPE, val_oplist))                       \
+  (M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH, M_EMPLACE_ASS_ARRAY_DEF_EXPAND_KEY)   \
   (name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, M_GET_EMPLACE_TYPE key_oplist, M_GET_EMPLACE_TYPE val_oplist)
 /* We have a value EMPLACE_TYPE. We can generate value only or no emplace functions */
 #define M_EMPLACE_ASS_ARRAY_DEF_EXPAND_VALUE_OR_NONE(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val) \
-  M_IF(M_TEST_METHOD_ALTER_P(EMPLACE_TYPE, val_oplist))                           \
-  (M_EMPLACE_ASS_ARRAY_DEF_EXPAND_VAL, M_EAT)                                         \
+  M_IF(M_TEST_METHOD_ALTER_P(EMPLACE_TYPE, val_oplist))                       \
+  (M_EMPLACE_ASS_ARRAY_DEF_EXPAND_VAL, M_EAT)                                 \
   (name, name_t, function_name, key_oplist, val_oplist, macro_val, macro_key, macro_val, M_GET_EMPLACE_TYPE key_oplist, M_GET_EMPLACE_TYPE val_oplist)
 
 /* Generate KEY only emplace functions */
@@ -4385,12 +4400,12 @@ m_core_parse2_enum (const char str[], const char **endptr)
    If the emplace type starts with parenthesis, it is only one with multiple args */
 #define M_EMPLACE_ASS_ARRAY_DEF_EXPAND_KEY(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type) \
   M_IF(M_PARENTHESIS_P(key_emp_type))                                         \
-  (M_EMPLACE_ASS_ARRAY_DEF_SINGLE_EXPAND_KEY, M_EMPLACE_ASS_ARRAY_DEF_EXPAND_P2_KEY)          \
+  (M_EMPLACE_ASS_ARRAY_DEF_SINGLE_EXPAND_KEY, M_EMPLACE_ASS_ARRAY_DEF_EXPAND_P2_KEY) \
   (name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type)
 /* Test if it starts with LIST, in which case, multiple emplace methods have to be defined */
 #define M_EMPLACE_ASS_ARRAY_DEF_EXPAND_P2_KEY(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type) \
   M_IF(M_KEYWORD_P(LIST, key_emp_type))                                       \
-  (M_EMPLACE_ASS_ARRAY_DEF_LIST_EXPAND_KEY, M_EMPLACE_ASS_ARRAY_DEF_SINGLE_EXPAND_KEY)        \
+  (M_EMPLACE_ASS_ARRAY_DEF_LIST_EXPAND_KEY, M_EMPLACE_ASS_ARRAY_DEF_SINGLE_EXPAND_KEY) \
   (name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type)
 /* Define & expand multiple emplace methods with the _key prefix */
 #define M_EMPLACE_ASS_ARRAY_DEF_LIST_EXPAND_KEY(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type) \
@@ -4411,12 +4426,12 @@ m_core_parse2_enum (const char str[], const char **endptr)
    If the emplace type starts with parenthesis, it is only one with multiple args */
 #define M_EMPLACE_ASS_ARRAY_DEF_EXPAND_VAL(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type) \
   M_IF(M_PARENTHESIS_P(val_emp_type))                                         \
-  (M_EMPLACE_ASS_ARRAY_DEF_SINGLE_EXPAND_VAL, M_EMPLACE_ASS_ARRAY_DEF_EXPAND_P2_VAL)          \
+  (M_EMPLACE_ASS_ARRAY_DEF_SINGLE_EXPAND_VAL, M_EMPLACE_ASS_ARRAY_DEF_EXPAND_P2_VAL) \
   (name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type)
 /* Test if it starts with LIST, in which case, multiple emplace methods have to be defined */
 #define M_EMPLACE_ASS_ARRAY_DEF_EXPAND_P2_VAL(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type) \
   M_IF(M_KEYWORD_P(LIST, val_emp_type))                                       \
-  (M_EMPLACE_ASS_ARRAY_DEF_LIST_EXPAND_VAL, M_EMPLACE_ASS_ARRAY_DEF_SINGLE_EXPAND_VAL)        \
+  (M_EMPLACE_ASS_ARRAY_DEF_LIST_EXPAND_VAL, M_EMPLACE_ASS_ARRAY_DEF_SINGLE_EXPAND_VAL) \
   (name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type)
 /* Define & expand multiple emplace methods with the _val prefix */
 #define M_EMPLACE_ASS_ARRAY_DEF_LIST_EXPAND_VAL(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type) \
@@ -4440,9 +4455,9 @@ m_core_parse2_enum (const char str[], const char **endptr)
   M_EMPLACE_ASS_ARRAY_DEF_EXPAND_VAL(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type) \
   M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH_B(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH_EMP_TYPE(key_emp_type), M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH_EMP_TYPE(val_emp_type) )
 /* Transform all forms to the generic LIST form */
-#define M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH_EMP_TYPE(val_emp) \
+#define M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH_EMP_TYPE(val_emp)                 \
   M_IF(M_PARENTHESIS_P(val_emp))(M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH_EMP_TYPE_PARENTHESIS, M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH_EMP_TYPE_B)(val_emp)
-#define M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH_EMP_TYPE_B(val_emp) \
+#define M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH_EMP_TYPE_B(val_emp)               \
   M_IF(M_KEYWORD_P(LIST, val_emp))(M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH_EMP_TYPE_LIST, M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH_EMP_TYPE_SINGLE)(val_emp)
 #define M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH_EMP_TYPE_PARENTHESIS(val_emp) LIST( ( , INIT_WITH, M_ID val_emp) )
 #define M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH_EMP_TYPE_SINGLE(val_emp) LIST( ( , INIT_WITH, val_emp) )
