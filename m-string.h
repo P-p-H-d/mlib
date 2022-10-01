@@ -138,9 +138,9 @@ typedef struct m_string_it_s {
 */
 
 /* Internal method to test if the string is stack based or heap based
-   We test if the ptr field points to the heap allocated buffer or not.
+   We test if the ptr is NULL or not.
    This is not particularly efficient from a memory point of view
-   (as we may reuse the pointer field to store some data)
+   (as we could reuse the pointer field to store some data)
    but it should be enough for most of "small" strings as most
    of the strings are less than 14 characters (64 bits architecture).
    Moreover it generates quite efficient code.
@@ -156,7 +156,7 @@ m_str1ng_stack_p(const m_string_t s)
   return (s->ptr == NULL);
 }
 
-/* Internal method to set the size of the string */
+/* Internal method to set the size of the string (excluding final nul char) */
 static inline void
 m_str1ng_set_size(m_string_t s, size_t size)
 {
@@ -165,11 +165,12 @@ m_str1ng_set_size(m_string_t s, size_t size)
     M_ASSERT (size < sizeof (m_str1ng_heap_ct) - 1);
     // The size of the string is stored as the last char of the buffer.
     s->u.stack.buffer[sizeof (m_str1ng_heap_ct) - 1] = (char) size;
-  } else
+  } else {
     s->u.heap.size = size;
+  }
 }
 
-/* Return the number of characters of the string */
+/* Return the number of bytes of the string (excluding the final nul char) */
 static inline size_t
 m_string_size(const m_string_t s)
 {
@@ -180,7 +181,7 @@ m_string_size(const m_string_t s)
   return m_str1ng_stack_p(s) ?  s_stack : s_heap;
 }
 
-/* Return the capacity of the string */
+/* Return the capacity of the string (including the final nul char) */
 static inline size_t
 m_string_capacity(const m_string_t s)
 {
