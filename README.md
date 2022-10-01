@@ -6445,7 +6445,7 @@ See the assert C macro for details.
 
 The default is the assert macro.
 
-### M\_ASSERT\_SLOW(expression)
+##### M\_ASSERT\_SLOW(expression)
 
 This macro defines the specialized assert macro used by M\*LIB
 which is used on slow assertion properties
@@ -6454,7 +6454,7 @@ See the assert C macro for details.
 
 The default is the assert macro if M\*LIB test suite, nothing otherwise.
 
-### M\_ASSERT\_INIT(expression)
+##### M\_ASSERT\_INIT(expression)
 
 This macro defines the specialized assert macro used by M\*LIB
 which shall be kept on release program.
@@ -6462,7 +6462,7 @@ See the assert C macro for details.
 
 The default is to raise a fatal error if the expression is false.
 
-### M\_ASSERT\_INDEX(index, maximum)
+##### M\_ASSERT\_INDEX(index, maximum)
 
 This macro defines the specialized assert macro used by M\*LIB
 which is used for buffer overflow checking:
