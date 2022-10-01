@@ -998,27 +998,29 @@ m_string_replace_all (m_string_t v, const m_string_t str1, const m_string_t str2
 // Define the fast integer to string conversions if requested
 // or if no support for stdarg.
 #if M_USE_FAST_STRING_CONV == 1 || M_USE_STDARG == 0
+
+  // Compute the maximum number of characters needed for the buffer.
+#if UINT_MAX == 4294967295U
+#define M_STR1NG_INT_MAX_SIZE (10+1)
+#elif UINT_MAX <= 18446744073709551615UL
+#define M_STR1NG_INT_MAX_SIZE (20+1)
+#else
+# error Unexpected UINT_MAX value (workaround: Define M_USE_FAST_STRING_CONV to 0).
+#endif
+
 static inline void
 m_string_set_ui(m_string_t v, unsigned int n)
 {
   M_STR1NG_CONTRACT (v);
-  // Compute the maximum number of characters needed for the buffer.
-#if UINT_MAX == 4294967295U
-  const size_t max_size = 10+1;
-#elif UINT_MAX <= 18446744073709551615UL
-  const size_t max_size = 20+1;
-#else
-# error Unexpected UINT_MAX value (workaround: Define M_USE_FAST_STRING_CONV to 0).
-#endif
-  char buffer[max_size];
-  m_str1ng_fit2size(v, max_size);
+  char buffer[M_STR1NG_INT_MAX_SIZE];
+  m_str1ng_fit2size(v, M_STR1NG_INT_MAX_SIZE);
   unsigned i = 0, j = 0;
   do {
     // 0123456789 are mandatory in this order as characters, as per C standard.
     buffer[i++] = (char) ('0' + (n % 10U));
     n /= 10U;
   } while (n != 0);
-  M_ASSERT_INDEX(i, max_size);
+  M_ASSERT_INDEX(i, M_STR1NG_INT_MAX_SIZE);
   char *d = m_str1ng_get_cstr(v);
   while (i > 0) {
     d[j++] = buffer[--i];
@@ -1033,15 +1035,8 @@ m_string_set_si(m_string_t v, int n)
 {
   M_STR1NG_CONTRACT (v);
   // Compute the maximum number of characters needed for the buffer.
-#if INT_MAX == 2147483647
-  const size_t max_size = 1+10+1;
-#elif INT_MAX <= 9223372036854775807LL
-  const size_t max_size = 1+20+1;
-#else
-# error Unexpected UINT_MAX value (workaround: Define M_USE_FAST_STRING_CONV to 0).
-#endif
-  char buffer[max_size];
-  m_str1ng_fit2size(v, max_size);
+  char buffer[M_STR1NG_INT_MAX_SIZE];
+  m_str1ng_fit2size(v, M_STR1NG_INT_MAX_SIZE);
   unsigned i = 0, j = 0;
   bool neg = n < 0;
   unsigned n0 = neg ? 0U -(unsigned) n : (unsigned) n;
@@ -1050,7 +1045,7 @@ m_string_set_si(m_string_t v, int n)
     buffer[i++] = (char) ('0' + (n0 % 10U));
     n0 /= 10U;
   } while (n0 != 0);
-  M_ASSERT_INDEX(i, max_size);
+  M_ASSERT_INDEX(i, M_STR1NG_INT_MAX_SIZE);
   char *d = m_str1ng_get_cstr(v);
   if (neg) d[j++] = '-';
   while (i > 0) {
