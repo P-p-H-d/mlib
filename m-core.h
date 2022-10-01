@@ -359,10 +359,14 @@ M_BEGIN_PROTECTED_CODE
  * The index is supposed to be unsigned.
  * It is only used to valid user input, not an intermediary calculus.
  * NOTE: Can be overiden by user if it needs to keep access under control
- * even on release mode */
+ * even on release mode
+ * NOTE: (index)-(index) is used to represent 0, but to avoid spurious
+ * warning by the compiler on "comparaison is always true" for unsigned
+ * numbers (It is properly optimized in 0).
+ * */
 #ifndef M_ASSERT_INDEX
 #define M_ASSERT_INDEX(index, max) do {                                       \
-    M_ASSERT((index) < (max));                                                \
+    M_ASSERT((index) >= ((index)-(index)) && (index) < (max));                \
   } while (0)
 #endif
 
