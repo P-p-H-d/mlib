@@ -6371,18 +6371,16 @@ so that they can be adapted to a particular memory pool.
 
 Return a pointer to a new allocated non-initialized object of type 'type'.
 In case of allocation error, it returns NULL.
-The default used function is the 'malloc' function of the LIBC.
 
-The user may defined its own implementation of the macro before including any M\*LIB header.
+The default used function is the 'malloc' function of the LIBC.
 
 ##### void M\_MEMORY\_DEL (type *ptr)
 
 Delete the cleared object pointed by the pointer 'ptr'
 that was previously allocated by the macro M\_MEMORY\_ALLOC.
 'ptr' can not be NULL.
-The default used function is the 'free' function of the LIBC.
 
-The user may defined its own implementation of the macro before including any M\*LIB header.
+The default used function is the 'free' function of the LIBC.
 
 ##### type *M\_MEMORY\_REALLOC (type, ptr, number)
 
@@ -6395,24 +6393,21 @@ The objects are not initialized, nor the state of previous objects changed
 The address of the previous objects may have moved and the MOVE operator
 is not used in this case.
 In case of allocation error, it returns NULL.
-The default used function is the 'realloc' function of the LIBC.
 
-The user may defined its own implementation of the macro before including any M\*LIB header.
+The default used function is the 'realloc' function of the LIBC.
 
 ##### void M\_MEMORY\_FREE (type *ptr)
 
 Delete the cleared object pointed by the pointer 'ptr'.
 The pointer was previously allocated by the macro M\_MEMORY\_REALLOC.
 'ptr' can not be NULL.
-The default used function is the 'free' function of the LIBC.
 
-The user may defined its own implementation of the macro before including any M\*LIB header.
+The default used function is the 'free' function of the LIBC.
 
 ##### void M\_MEMORY\_FULL (size\_t size)
 
 This macro is called by M\*LIB when a memory error has been detected.
 The parameter 'size' is what was tried to be allocated (as a hint).
-The default is to abort the execution.
 The macro can :
 
 * abort the execution,
@@ -6423,19 +6418,57 @@ NOTE: The last two cases are not properly fully supported yet.
 Throwing an exception is not fully supported yet 
 (Needs M\*LIB support to clear the skipped objects).
 
-The user may defined its own implementation of the macro before including any M\*LIB header.
+The default is to raise a fatal error.
 
-##### void M\_ASSERT\_INIT\_FAILURE(expression, object\_name)
+##### void M\_ASSERT\_INIT(expression, object\_name)
 
 This macro is called when an assertion used in an initialization context
 is called to check the good creation of an object (like a thread, a mutex)
 that string name is 'object\_name'. 
-
 If the given 'expression' is false, the execution shall be aborted.
 The assertion is kept in programs built in release mode.
-The default is to abort the execution.
 
-The user may defined its own implementation of the macro before including any M\*LIB header.
+The default is to raise a fatal error.
+
+##### M\_RAISE\_FATAL(message...)
+
+This macro is called by the user code to raise a fatal error and terminate
+the program execution. This macro shall not return.
+
+By default, it prints the error message on stderr and calls abort to terminate
+program execution.
+
+##### M\_ASSERT(expression)
+
+This macro defines the generic assert macro used by M\*LIB.
+See the assert C macro for details.
+
+The default is the assert macro.
+
+### M\_ASSERT\_SLOW(expression)
+
+This macro defines the specialized assert macro used by M\*LIB
+which is used on slow assertion properties
+(that have a significant impact on program time).
+See the assert C macro for details.
+
+The default is the assert macro if M\*LIB test suite, nothing otherwise.
+
+### M\_ASSERT\_INIT(expression)
+
+This macro defines the specialized assert macro used by M\*LIB
+which shall be kept on release program.
+See the assert C macro for details.
+
+The default is to raise a fatal error if the expression is false.
+
+### M\_ASSERT\_INDEX(index, maximum)
+
+This macro defines the specialized assert macro used by M\*LIB
+which is used for buffer overflow checking:
+it checks if index is in the range 0 to maximum-1.
+
+The default is to call M\_ASSERT with this property.
 
 
 #### Generic Serialization objects
@@ -7734,6 +7767,7 @@ Default value: 1 (undef) on MSYS2, 0 otherwise.
 
 This macro indicates if the system header stdio.h shall be included
 and the FILE functions be defined (=1) or not (=0).
+If it is not included, the macro M\_RAISE\_FATAL shall be defined by the user.
 
 Default value: 1
 
@@ -7843,6 +7877,10 @@ See [m-core.h](#m-core)
 See [m-core.h](#m-core)
 
 ### M\_MEMORY\_FULL
+
+See [m-core.h](#m-core)
+
+### M\_RAISE\_FATAL
 
 See [m-core.h](#m-core)
 
