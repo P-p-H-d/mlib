@@ -4488,7 +4488,6 @@ m_core_parse2_enum (const char str[], const char **endptr)
                 M_EMPLACE_LIST_TYPE_VAR(aval, val_emplace_type)               \
   ){                                                                          \
     M_C(name, _key_ct) key;                                                   \
-    M_CALL_INIT(key_oplist, key);                                             \
     M_EMPLACE_CALL_FUNC(akey, key_init_func, key_oplist, key, key_emplace_type); \
     M_C(name, _value_ct) *val;                                                \
     val = M_C(name, _safe_get)(v, key);                                       \
@@ -4504,7 +4503,6 @@ m_core_parse2_enum (const char str[], const char **endptr)
                 , M_C(name, _value_ct) val                                    \
   ){                                                                          \
     M_C(name, _key_ct) key;                                                   \
-    M_CALL_INIT(key_oplist, key);                                             \
     M_EMPLACE_CALL_FUNC(akey, key_init_func, key_oplist, key, key_emplace_type); \
     M_C(name, _set_at)(v, key, val);                                          \
     M_CALL_CLEAR(key_oplist, key);                                            \
