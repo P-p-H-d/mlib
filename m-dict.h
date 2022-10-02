@@ -707,8 +707,8 @@
 
 /* Define additional functions for dictionnary (Common for all kinds of dictionnary).
    Do not used any specific fields of the dictionnary but the public API
-
-   It is not possible to define the _remove method: we could easily define it
+  
+   It is not possible to define a method for IT_REMOVE: we could easily define it
    by performing an _erase of the key get by the _cref method. However,
    computing the next element is way harder. We could easily compute the next
    element of the iteration (using _next). However with the _erase method, the
@@ -717,7 +717,18 @@
    'next' element impossible as the order of the elements in the dict
    has fundamentaly changed in this case. We could detect this and restart
    the iteration from the first element, but it wouldn't fit the contract
-   of the IT\_REMOVE operator.
+   of the IT_REMOVE operator.
+
+   HASH method for dictionnary itself seems hard to implement:
+   we have to handle the case where two dictionaries are structuraly
+   different, but functionnaly identical (seems they have the same
+   members, but put in a different order).
+   We cannot iterator over the dictionary to compute a hash, as the
+   order of the items in the dictionnary is not specified: they more
+   or less follow the hash of the keys, but if the low bits of the
+   hash of the key is equal, they order may be different.
+   Or if the table of the dictionnary has different values (this may
+   be avoided).
  */
 #define M_D1CT_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t, it_deref_t) \
                                                                               \
@@ -1024,16 +1035,6 @@
   }                                                                           \
   , /* NO UPDATE */) )                                                        \
                                                                               \
-  /* HASH method for dictionnary itself seems hard to implement:              \
-     we have to handle the case where two dictionaries are structuraly        \
-     different, but functionnaly identical (seems they have the same          \
-     members, but put in a different order).                                  \
-     We cannot iterator over the dictionary to compute a hash, as the         \
-     order of the items in the dictionnary is not specified: they more        \
-     or less follow the hash of the keys, but if the low bits of the          \
-     hash of the key is equal, they order may be different.                   \
-     Or if the table of the dictionnary has different values (this may        \
-     be avoided). */
 
 
 
