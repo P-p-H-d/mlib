@@ -1165,24 +1165,7 @@ typedef enum {
   }                                                                           \
   , /* no in_serial */ )                                                      \
                                                                               \
-  M_EMPLACE_QUEUE_DEF(name, tree_t, M_C(name, _emplace), oplist, M_RBTR33_EMPLACE_DEF)
-
-
-/* Definition of the emplace_back function for RB TREE
-   Nothing particular to note: we go through the slow path.
- */
-#define M_RBTR33_EMPLACE_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  static inline void                                                          \
-  function_name(name_t v                                                      \
-                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
-  {                                                                           \
-    M_C(name, _subtype_ct) data;                                              \
-    /* Need to construct the object BEFORE,                                   \
-       so that we can perform comparison on it when inserting it */           \
-    M_EMPLACE_CALL_FUNC(a, init_func, oplist, data, exp_emplace_type);        \
-    M_C(name, _push)(v, data);                                                \
-    M_CALL_CLEAR(oplist, data);                                               \
-  }
+  M_EMPLACE_QUEUE_DEF(name, tree_t, M_C(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
 
 
 // TODO: specialized _sort shall do nothing, but shall check the requested order. How ?

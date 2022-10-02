@@ -484,24 +484,8 @@
   }                                                                           \
   ,/* No in_SERIAL */)                                                        \
                                                                               \
-  M_EMPLACE_QUEUE_DEF(name, prioqueue_t, M_C(name, _emplace), oplist, M_PR1OQUEUE_EMPLACE_DEF)
+  M_EMPLACE_QUEUE_DEF(name, prioqueue_t, M_C(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
 
-
-/* Definition of the emplace_back function for priority queue
-   Nothing particular to note: we go through the slow path.
- */
-#define M_PR1OQUEUE_EMPLACE_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  static inline void                                                          \
-  function_name(name_t v                                                      \
-                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
-  {                                                                           \
-    M_C(name, _subtype_ct) data;                                              \
-    /* Need to construct the object BEFORE,                                   \
-       so that we can perform comparison on it when inserting it */           \
-    M_EMPLACE_CALL_FUNC(a, init_func, oplist, data, exp_emplace_type);        \
-    M_C(name, _push)(v, data);                                                \
-    M_CALL_CLEAR(oplist, data);                                               \
-  }
 
 // TODO: set all & remove all function
 

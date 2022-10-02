@@ -4474,6 +4474,17 @@ m_core_parse2_enum (const char str[], const char **endptr)
   macro_both(name, name_t, M_C5_EMPTY(function_name, _key, M_RET_ARG1(M_ID a), _val, M_RET_ARG1(M_ID b) ), key_oplist, val_oplist, M_RET_ARG2(M_ID a), M_RET_ARG2(M_ID b), (M_TAIL_2 a), (M_TAIL_2 b) )
 
 
+/* Quick call to emplace def generation which transform into an
+  associative array emplace generation or queue generation
+  depending on the parameter isSet (= 0 or 1) */
+#define M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF(isSet, name, name_t, key_oplist, val_oplist) \
+  M_C(M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF, isSet)(name, name_t, key_oplist, val_oplist)
+#define M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF0(name, name_t, key_oplist, val_oplist) \
+  M_EMPLACE_ASS_ARRAY_DEF(name, name_t, M_C(name, _emplace), key_oplist, value_type, M_EMPLACE_ASS_ARRA1_BOTH_GENE, M_EMPLACE_ASS_ARRA1_KEY_GENE, M_EMPLACE_ASS_ARRA1_VAL_GENE)
+#define M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF1(name, name_t, key_oplist, val_oplist) \
+  M_EMPLACE_QUEUE_DEF(name, name_t, M_C(name, _emplace), key_oplist, M_EMPLACE_QUEUE_GENE)
+
+
 /* Definition of the emplace_back function for associative arrays.
    It is defined here so that this definition is shared accross different
    kind of associative array (RB-Tree, Hashmap, OA-Hashmap, B+Tree, ...)
@@ -4481,7 +4492,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
    3 macros are needed: one when we emplace both key & value, one for key only
    one for value only.
 */
-#define M_ASS_ARRA1_EMPLACE_BOTH_DEF(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
+#define M_EMPLACE_ASS_ARRA1_BOTH_GENE(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
   static inline void                                                          \
   function_name(name_t v                                                      \
                 M_EMPLACE_LIST_TYPE_VAR(akey, key_emplace_type)               \
@@ -4496,7 +4507,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
     M_CALL_CLEAR(key_oplist, key);                                            \
   }                                                                           \
 
-#define M_ASS_ARRA1_EMPLACE_KEY_DEF(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
+#define M_EMPLACE_ASS_ARRA1_KEY_GENE(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
   static inline void                                                          \
   function_name(name_t v                                                      \
                 M_EMPLACE_LIST_TYPE_VAR(akey, key_emplace_type)               \
@@ -4508,7 +4519,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
     M_CALL_CLEAR(key_oplist, key);                                            \
   }                                                                           \
 
-#define M_ASS_ARRA1_EMPLACE_VAL_DEF(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
+#define M_EMPLACE_ASS_ARRA1_VAL_GENE(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
   static inline void                                                          \
   function_name(name_t v, M_C(name, _key_ct) key                              \
                 M_EMPLACE_LIST_TYPE_VAR(aval, val_emplace_type)               \
@@ -4518,6 +4529,19 @@ m_core_parse2_enum (const char str[], const char **endptr)
     M_CALL_CLEAR(val_oplist, *val);                                           \
     M_EMPLACE_CALL_FUNC(aval, val_init_func, val_oplist, *val, val_emplace_type); \
   }                                                                           \
+
+/* Generic emplace for a queue like container */
+#define M_EMPLACE_QUEUE_GENE(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
+  static inline void                                                          \
+  function_name(name_t v                                                      \
+                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  {                                                                           \
+    M_C(name, _subtype_ct) data;                                              \
+    M_EMPLACE_CALL_FUNC(a, init_func, oplist, data, exp_emplace_type);        \
+    M_C(name, _push)(v, data);                                                \
+    M_CALL_CLEAR(oplist, data);                                               \
+  }
+
 
 
 /************************************************************/

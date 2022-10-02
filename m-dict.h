@@ -707,7 +707,7 @@
 
 /* Define additional functions for dictionnary (Common for all kinds of dictionnary).
    Do not used any specific fields of the dictionnary but the public API
-  
+
    It is not possible to define a method for IT_REMOVE: we could easily define it
    by performing an _erase of the key get by the _cref method. However,
    computing the next element is way harder. We could easily compute the next
@@ -1035,8 +1035,7 @@
   }                                                                           \
   , /* NO UPDATE */) )                                                        \
                                                                               \
-
-
+  M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF(isSet, name, dict_t, key_oplist, val_oplist)
 
 /* Deferred evaluation for the definition,
    so that all arguments are evaluated before further expansion */
