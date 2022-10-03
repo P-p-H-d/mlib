@@ -1467,7 +1467,8 @@
       return ret;                                                             \
   }                                                                           \
   , /* no in_serial */ )                                                      \
-
+                                                                              \
+  M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF(M_INV(isMap), name, tree_t, key_oplist, val_oplist)
 
 #if M_USE_SMALL_NAME
 #define BPTREE_DEF2 M_BPTREE_DEF2
