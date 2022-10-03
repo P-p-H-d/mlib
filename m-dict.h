@@ -1035,7 +1035,7 @@
   }                                                                           \
   , /* NO UPDATE */) )                                                        \
                                                                               \
-  M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF(isSet, name, dict_t, key_oplist, val_oplist)
+  M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF(isSet, name, dict_t, key_oplist, value_oplist)
 
 /* Deferred evaluation for the definition,
    so that all arguments are evaluated before further expansion */
