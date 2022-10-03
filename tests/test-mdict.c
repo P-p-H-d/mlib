@@ -533,12 +533,58 @@ test_oa_str2(void)
   dict_oa_bstr_clear(dict);
 }
 
+static void test_emplace (void)
+{
+  dict_mpz_t d;
+  dict_mpz_init(d);
+  string_t s;
+  string_init(s);
+
+  dict_mpz_emplace_key_val_str(d, "HELLO", "14");
+  string_set_str(s, "HELLO");
+  testobj_t *ptr = dict_mpz_get(d, s);
+  assert(ptr != NULL);
+  assert(testobj_cmp_ui(*ptr, 14) == 0);
+
+  dict_mpz_emplace_key_val_ui(d, "HE", 145);
+  string_set_str(s, "HE");
+  ptr = dict_mpz_get(d, s);
+  assert(ptr != NULL);
+  assert(testobj_cmp_ui(*ptr, 145) == 0);
+
+  dict_mpz_emplace_key_val(d, "SHE", *ptr);
+  string_set_str(s, "SHE");
+  ptr = dict_mpz_get(d, s);
+  assert(ptr != NULL);
+  assert(testobj_cmp_ui(*ptr, 145) == 0);
+
+  dict_mpz_emplace_key(d, "IT", *ptr);
+  string_set_str(s, "IT");
+  ptr = dict_mpz_get(d, s);
+  assert(ptr != NULL);
+  assert(testobj_cmp_ui(*ptr, 145) == 0);
+
+  dict_mpz_emplace_val_ui(d, s, 19);
+  ptr = dict_mpz_get(d, s);
+  assert(ptr != NULL);
+  assert(testobj_cmp_ui(*ptr, 19) == 0);
+
+  dict_mpz_emplace_val_str(d, s, "190");
+  ptr = dict_mpz_get(d, s);
+  assert(ptr != NULL);
+  assert(testobj_cmp_ui(*ptr, 190) == 0);
+
+  string_clear(s);
+  dict_mpz_clear(d);
+}
+
 int main(void)
 {
   test1();
   test_set();
   test_init();
   test_equal();
+  test_emplace();
   test_oa();
   test_init_oa();
   test_it_oa();

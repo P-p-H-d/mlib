@@ -34,6 +34,7 @@ END_COVERAGE
 BPTREE_DEF2(btree_my, 3, testobj_t, TESTOBJ_CMP_OPLIST, testobj_t, TESTOBJ_CMP_OPLIST)
 BPTREE_DEF2(btree_string, 5, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
 BPTREE_DEF2(btree_int, 17, int, int)
+BPTREE_DEF2(btree_mpz, 9, string_t, STRING_OPLIST, testobj_t, TESTOBJ_CMP_OPLIST)
 
 BPTREE_DEF(btree_intset, 13, int)
 BPTREE_DEF(btree_myset, 15, testobj_t, TESTOBJ_CMP_OPLIST)
@@ -641,6 +642,55 @@ static void test_double(void)
   }
 }
 
+static void test_emplace (void)
+{
+  btree_mpz_t d;
+  btree_mpz_init(d);
+  string_t s;
+  string_init(s);
+  testobj_t o;
+  testobj_init(o);
+
+  btree_mpz_emplace_key_val_str(d, "HELLO", "14");
+  string_set_str(s, "HELLO");
+  testobj_t *ptr = btree_mpz_get(d, s);
+  assert(ptr != NULL);
+  assert(testobj_cmp_ui(*ptr, 14) == 0);
+
+  btree_mpz_emplace_key_val_ui(d, "HE", 145);
+  string_set_str(s, "HE");
+  ptr = btree_mpz_get(d, s);
+  assert(ptr != NULL);
+  assert(testobj_cmp_ui(*ptr, 145) == 0);
+
+  testobj_set(o, *ptr);
+  btree_mpz_emplace_key_val(d, "SHE", o);
+  string_set_str(s, "SHE");
+  ptr = btree_mpz_get(d, s);
+  assert(ptr != NULL);
+  assert(testobj_cmp_ui(*ptr, 145) == 0);
+
+  btree_mpz_emplace_key(d, "IT", o);
+  string_set_str(s, "IT");
+  ptr = btree_mpz_get(d, s);
+  assert(ptr != NULL);
+  assert(testobj_cmp_ui(*ptr, 145) == 0);
+
+  btree_mpz_emplace_val_ui(d, s, 19);
+  ptr = btree_mpz_get(d, s);
+  assert(ptr != NULL);
+  assert(testobj_cmp_ui(*ptr, 19) == 0);
+
+  btree_mpz_emplace_val_str(d, s, "190");
+  ptr = btree_mpz_get(d, s);
+  assert(ptr != NULL);
+  assert(testobj_cmp_ui(*ptr, 190) == 0);
+
+  testobj_clear(o);
+  string_clear(s);
+  btree_mpz_clear(d);
+}
+
 int main(void)
 {
   test1();
@@ -654,5 +704,6 @@ int main(void)
   test_multimap();
   test_multiset();
   test_double();
+  test_emplace();
   exit(0);
 }
