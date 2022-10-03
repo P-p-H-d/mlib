@@ -771,6 +771,7 @@
         value_t v;                                                            \
         M_CALL_INIT(value_oplist, v);                                         \
         M_C(name, _set_at)(b, key, v);                                        \
+        M_CALL_CLEAR(value_oplist, v);                                        \
       ,                                                                       \
         M_C(name, _push)(b, key);                                             \
       )                                                                       \
