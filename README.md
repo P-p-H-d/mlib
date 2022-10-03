@@ -857,7 +857,9 @@ For example, for an ARRAY definition named vec, if there is such a definition of
 
 Another example, for an ARRAY definition named vec, if there is such a definition of EMPLACE\_TYPE( LIST( (_ui, mpz\_init\_set\_ui, unsigned int), (_si, mpz\_init\_set\_si, int) ) ), it will generate two functions vec_emplace_back_ui(unsigned int) and vec_emplace_back_si(int). Theses functions will take the (unsigned) int parameter, construct the object from it then push the result back on the array.
 
-
+If the container is an associative array, the name will be constructed as follow:
+        name\_emplace[\_key\_keysuffix][\_val\_valsuffix]
+where keysuffix (resp. valsuffix) is the emplace suffix of the key (resp. value) oplist.
 
 External Reference
 ------------------
@@ -1129,6 +1131,28 @@ This method is created if the INIT\_SET operator is provided.
 If the container is associative-array like,
 the selected element is the 'value' object associated to the 'key' object in the container.
 It is created if it doesn't exist, overwritten otherwise.
+
+##### void name\_emplace\_key[keysuffix](name\_t container, keyargs..., value\_type\_t value) [for associative array]
+##### void name\_emplace\_val[valsuffix](name\_t container, key\_type\_t key, valargs...) [for associative array]
+##### void name\_emplace\_key[keysuffix]\_val[valsuffix](name\_t container, keyargs..., valargs...) [for associative array]
+
+Set the element associated to 'key' of the container 'container' to 'value'.
+'key' (resp. value) is constructed from the provided args 'keyargs' (resp. valargs) if not provided.
+
+keyargs (resp. valargs) shall therefore match one of the constructor provided
+by the EMPLACE\_TYPE operator of the key (resp. the value).
+
+There is:
+
+* one generated method per suffix defined in the EMPLACE\_TYPE operator of the key,
+* one generated method per suffix defined in the EMPLACE\_TYPE operator of the value,
+* one generated method per pair of suffix defined in the EMPLACE\_TYPE operators of the key and value,
+
+The 'suffix' in the generated method name corresponds to the suffix defined in
+in the EMPLACE\_TYPE operator (it can be empty).
+This method is created only if one EMPLACE\_TYPE operator is provided.
+See emplace chapter for more details.
+
 
 ##### type\_t *name\_get(const name\_t container, size\_t key) [for sequence-like]
 ##### const type\_t *name\_cget(const name\_t container, size_t key) [for sequence-like]
@@ -2328,6 +2352,8 @@ The following methods of the generic interface are defined (See generic interfac
 * m\_serial\_return\_code\_t name\_out\_serial(m\_serial\_write\_t serial, const name\_t container)
 * m\_serial\_return\_code\_t name\_in\_str(name\_t container, m\_serial\_read\_t serial)
 * bool name\_equal\_p(const name\_t dict1, const name\_t dict2)
+* void name\_emplace[suffix](name\_t container, keyargs...) [for dictionary set]
+* void name\_emplace\_key[keysuffix]\_val[valsuffix](name\_t container, keyargs..., valargs...) [for associative array]
 
 #### Specialized methods
 
@@ -2956,6 +2982,8 @@ The following methods of the generic interface are defined (See generic interfac
 * m\_serial\_return\_code\_t name\_in\_str(name\_t container, m\_serial\_read\_t serial)
 * bool name\_equal\_p(const name\_t tree1, const name\_t tree2)
 * size\_t name\_hash(const name\_t tree)
+* void name\_emplace[suffix](name\_t container, keyargs...) [for dictionary set]
+* void name\_emplace\_key[keysuffix]\_val[valsuffix](name\_t container, keyargs..., valargs...) [for associative array]
 
 #### Specialized methods
 
