@@ -482,6 +482,22 @@ static void init_rand(void)
   }
 }
 
+static int read_int(FILE *f)
+{
+  int c = 0;
+  while (true) {
+    int n = fscanf(f, " %d", &c);
+    if (n == 1) {
+      return c;
+    }
+    if (feof(f)) {
+      return 0;
+    }
+    // Skip next character
+    c = fgetc(f);
+  }
+}
+
 int main(int argc, const char *argv[])
 {
   int loop = argc >= 2 ? atoi(argv[1]) : DEFAULT_NUMBER;
@@ -496,11 +512,20 @@ int main(int argc, const char *argv[])
   M_CALL_INIT(M_GET_OPLIST CONT_OPL, b0);
   TYPE_SET_INT(b0, 0);
   CLASS_SET_INT(b1, 0);
-  
-  for(int i = 0; i < loop; i++) {
-    int t = rand();
-    int s = rand();
-    test(t, s, b0, b1, c0, c1);
+
+  if (loop < 0) {
+    /* test input is provided from stdin */
+    while (!feof(stdin)) {
+      int t = read_int(stdin);
+      int s = read_int(stdin);
+      test(t, s, b0, b1, c0, c1);
+    }
+  } else {
+    for(int i = 0; i < loop; i++) {
+      int t = rand();
+      int s = rand();
+      test(t, s, b0, b1, c0, c1);
+    }
   }
 
   M_CALL_CLEAR(M_GET_OPLIST CONT_OPL, b0);
