@@ -107,6 +107,7 @@ clean:
 	$(RM) *.exe *.s *~ *.o *.log a*.dat
 	$(RM) *.gcda *.gcno *.gcov all.info test.tar *.synt clang_output_* *.c.c *.end.c *.first.c *.middle.c *.analyzer
 	$(RMDIR) coverage coverage-dir mlib-report
+	$(RMDIR) fuzzer-testsuite fuzzer-findings
 
 distclean: clean
 	$(RM) *.depend depend
@@ -245,6 +246,24 @@ sanitize:
 analyze:
 	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.analyzer/g'`
 
+
+#####################################################################################################
+# Fuzzer (american fuzzy lop)
+#####################################################################################################
+
+FUZZ=
+
+fuzz-generic:
+	$(MAKE) check-${FUZZ}.log CXX=afl-g++
+	mkdir -p fuzzer-testsuite
+	echo "0 1 2 3 4 5 6 7 8 9 10 11" > fuzzer-testsuite/t1
+	afl-fuzz -i fuzzer-testsuite/ -o fuzzer-findings ./check-${FUZZ}.exe -1
+
+fuzz-array:
+	$(MAKE) fuzz-generic FUZZ=array
+
+fuzz-list:
+	$(MAKE) fuzz-generic FUZZ=list
 
 #####################################################################################################
 # Test with the maximum representative number of compiler and flags.
