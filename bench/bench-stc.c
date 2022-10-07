@@ -95,7 +95,7 @@ test_dict(size_t  n)
   for (size_t i = 0; i < n; i++) {
     unsigned long value = rand_get();
     unsigned long key = rand_get();
-    cmap_ulong_put(&dict, key, value);
+    cmap_ulong_insert_or_assign(&dict, key, value);
   }
   rand_init();
   unsigned int s = 0;
@@ -118,8 +118,7 @@ static inline void char_init (char_array_t *a) { a->a[0] = 0; }
 static inline void char_set (char_array_t *a, const char_array_t b) { strcpy(a->a, b.a); }
 static inline bool char_equal_p (const char_array_t *a, const char_array_t *b) { return strcmp(a->a,b->a)==0; }
 static inline void char_clear (char_array_t *a) { (void)a; }
-static inline size_t char_hash(const char_array_t *a, size_t size) {
-  (void) size;
+static inline size_t char_hash(const char_array_t *a) {
   size_t hash = 0;
   const char *s = a->a;
   while (*s) hash = hash * 31421 + (*s++) + 6927;
@@ -142,7 +141,7 @@ test_dict_big(size_t  n)
     char_array_t s1, s2;
     sprintf(s1.a, "%u", rand_get());
     sprintf(s2.a, "%u", rand_get());
-    cmap_achar_put(&dict, s1, s2);
+    cmap_achar_insert_or_assign(&dict, s1, s2);
   }
   rand_init();
   unsigned int s = 0;
