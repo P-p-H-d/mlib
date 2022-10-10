@@ -3645,20 +3645,6 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_EQUAL_BASIC(a,b)      (M_CHECK_BASIC_TYPE(a), (a) == (b))
 #define M_CMP_BASIC(a,b)        (M_CHECK_BASIC_TYPE(a), (a) < (b) ? -1 : (a) > (b))
 
-/* Define the default limits:
- * - default maximum size of the basic type in "limb"
- * - default maximum size of the iterator type in "limb"
- * - default type for IT_REF (0: classic, 2: struct of { key_ptr, value_ptr} )
- * The default are fine for a lot of container except:
- * - dequee (basic type is bigger)
- * - rbtree
- * - B+Tree (it_ref is 2)
- */
-#define M_LIMIT_BASE_TYPE_DFT   6
-#define M_LIMIT_IT_TYPE_DFT     4
-#define M_LIMIT_IT_REF_DFT      0
-#define M_LIMITS_DEFAULT        ( M_LIMIT_BASE_TYPE_DFT, M_LIMIT_IT_TYPE_DFT, M_LIMIT_IT_REF_DFT)
-
 /* NOTE: Theses operators are NOT compatible with the '[1]' tricks
    if the variable is defined as a parameter of a function
    (sizeof (a) is not portable). */
