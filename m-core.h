@@ -4522,7 +4522,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
   function_name(name_t v                                                      \
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
-    M_C(name, _subtype_ct) data;                                              \
+    M_GET_TYPE oplist data;                                                   \
     M_EMPLACE_CALL_FUNC(a, init_func, oplist, data, exp_emplace_type);        \
     M_C(name, _push)(v, data);                                                \
     M_CALL_CLEAR(oplist, data);                                               \
