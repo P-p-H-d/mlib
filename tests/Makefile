@@ -45,7 +45,7 @@ all:
 .POSIX:
 .PHONY: scan-build sanitize check clean *.log coverage synthesis
 .SUFFIXES:
-.SUFFIXES: .c .exe .log .depend .gcov .analyzer .cpp
+.SUFFIXES: .c .exe .log .depend .gcov .analyzer .cpp .fuzz
 .SECONDARY:
 
 .c.exe:
@@ -75,6 +75,12 @@ all:
 	mv $<.c.gcov `basename $< .c`.gcov
 	$(RM) $<.first.c $<.end.c $<.middle.c $<.c $<.exe
 
+.cpp.fuzz:
+	afl-g++ $(WCFLAGS_CPP) $(CPPFLAGS) -Wno-sign-conversion -Wno-inline -Wno-conversion -O2 -fsanitize=address,undefined,leak -m32 $< -o $@.exe
+	mkdir -p fuzzer-testsuite
+	for i in $$(seq 1 1000) ; do printf "%d " $$RANDOM ; done > fuzzer-testsuite/t1
+	afl-fuzz -i fuzzer-testsuite/ -o fuzzer-findings -m 800 ./$@.exe -1
+
 -include depend
 
 depend:
@@ -87,7 +93,7 @@ depend:
 
 
 #####################################################################################################
-# Clean
+# Main target
 #####################################################################################################
 
 # This target generates all executable to be tested by CodeQL
@@ -246,24 +252,6 @@ sanitize:
 analyze:
 	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.analyzer/g'`
 
-
-#####################################################################################################
-# Fuzzer (american fuzzy lop)
-#####################################################################################################
-
-FUZZ=
-
-fuzz-generic:
-	$(MAKE) check-${FUZZ}.log CXX=afl-g++
-	mkdir -p fuzzer-testsuite
-	echo "0 1 2 3 4 5 6 7 8 9 10 11" > fuzzer-testsuite/t1
-	afl-fuzz -i fuzzer-testsuite/ -o fuzzer-findings ./check-${FUZZ}.exe -1
-
-fuzz-array:
-	$(MAKE) fuzz-generic FUZZ=array
-
-fuzz-list:
-	$(MAKE) fuzz-generic FUZZ=list
 
 #####################################################################################################
 # Test with the maximum representative number of compiler and flags.
