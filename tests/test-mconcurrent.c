@@ -226,6 +226,18 @@ static void test_double(void)
   ConcurrentRpDouble_clear(r);
 }
 
+static void test_emplace(void)
+{
+  key_list_ts_t ts;
+  key_list_ts_init(ts);
+  key_list_ts_emplace(ts, "HELLO");
+  M_LET(s, string_t) {
+    key_list_ts_pop(&s, ts);
+    assert(string_equal_str_p(s, "HELLO"));
+  }
+  key_list_ts_clear(ts);
+}
+
 int main(void)
 {
   test_basic();
@@ -233,5 +245,6 @@ int main(void)
   test_thread();
   test_rp_thread();
   test_double();
+  test_emplace();
   exit(0);
 }

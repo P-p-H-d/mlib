@@ -515,6 +515,8 @@
     M_C(name, _write_signal)(out);                                            \
     M_C(name, _write_unlock)(out);                                            \
   }                                                                           \
+                                                                              \
+  M_EMPLACE_QUEUE_DEF(name, concurrent_t, M_C(name, _emplace), M_GET_OPLIST oplist, M_EMPLACE_QUEUE_GENE) \
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(POP, oplist)(                                                   \
