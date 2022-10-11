@@ -271,6 +271,18 @@ static void test_no_thread(void)
   buffer_llong_clear(buff);
 }
 
+static void test_emplace(void)
+{
+  buffer_mpz_t b;
+  buffer_mpz_init(b, 32);
+  buffer_mpz_emplace_str(b, "56");
+  testobj_t o;
+  testobj_init(o);
+  buffer_mpz_pop(&o, b);
+  assert( testobj_cmp_ui(o, 56) == 0 );
+  testobj_clear(o);
+  buffer_mpz_clear(b);
+}
 /********************************************************************************************/
 
 /* Test intrusive shared pointer + buffer */
@@ -642,6 +654,7 @@ int main(void)
   test_stack();
   test_stack2();
   test_no_thread();
+  test_emplace();
   test_global_ishared();
   test_queue(1000000, 2, 2148371710223136ULL);
   test_spsc();

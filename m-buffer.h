@@ -737,6 +737,8 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
      }                                                                        \
    }                                                                          \
  }                                                                            \
+                                                                              \
+ M_EMPLACE_QUEUE_DEF(name, buffer_t, M_C(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
 
 
 
