@@ -28,7 +28,7 @@
 #include "m-core.h"
 
 /* Define different kind of basic algorithms named 'name' over the container
-   which oplist is 'contOp', as static inline functions.
+   which oplist is 'cont_oplist', as static inline functions.
    USAGE:
    ALGO_DEF(algogName, containerOplist|type if oplist has been registered) */
 #define M_ALGO_DEF(name, cont_oplist)                                         \
@@ -45,8 +45,9 @@
   (M_ALG0_FOR_EACH, M_ALG0_FOR_EACH_ARG)                                      \
   (container, M_GLOBAL_OPLIST(cont_oplist), __VA_ARGS__)
 
+
 /* Map a function (or a macro) to all elements of a container
-   into another container.
+   and store it into another container.
    USAGE:
    ALGO_TRANSFORM(contDst, contDOplist|type_if_registered_oplist, contSrc, contSrcOplist|type_if_registered_oplist,
                   function[, extra arguments of function]) */
@@ -54,6 +55,7 @@
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
   (M_ALG0_TRANSFORM, M_ALG0_TRANSFORM_ARG)                                    \
   (contD, M_GLOBAL_OPLIST(contDop), contS, M_GLOBAL_OPLIST(contSop), __VA_ARGS__)
+
 
 /* Extract a subset of a container to copy into another container.
    USAGE:
@@ -64,6 +66,7 @@
   (M_ALG0_EXTRACT,                                                            \
    M_IF_NARGS_EQ2(__VA_ARGS__)(M_ALG0_EXTRACT_FUNC, M_ALG0_EXTRACT_ARG))      \
   (contD, contDop, contS,  __VA_ARGS__)
+
 
 /* Perform a Reduce operation over a container.
    USAGE:

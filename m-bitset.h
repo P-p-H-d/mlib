@@ -64,7 +64,7 @@ typedef uint64_t m_b1tset_limb_ct;
 typedef struct m_bitset_s {
   size_t size;            // Size is the number of bits
   size_t alloc;           // Alloc is the number of allocated limbs
-  m_b1tset_limb_ct *ptr;    // Pointer to the allocated limbs
+  m_b1tset_limb_ct *ptr;  // Pointer to the allocated limbs
 } m_bitset_t[1];
 
 /* Pointer to a m_bitset_t */
@@ -77,7 +77,7 @@ typedef const struct m_bitset_s *m_bitset_srcptr;
 typedef struct m_bitset_it_s {
   size_t index;           // index to the array of bit
   bool   value;           // value used for _ref & _cref to store the value
-  struct m_bitset_s *set;   // the associated bitset
+  struct m_bitset_s *set; // the associated bitset
 } m_bitset_it_t[1];
 
 /* Initialize a bitset (CONSTRUCTOR) */

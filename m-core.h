@@ -4444,7 +4444,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
   M_EMPLACE_ASS_ARRAY_DEF_EXPAND_KEY(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type) \
   M_EMPLACE_ASS_ARRAY_DEF_EXPAND_VAL(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, key_emp_type, val_emp_type) \
   M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH_B(name, name_t, function_name, key_oplist, val_oplist, macro_both, macro_key, macro_val, M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH_EMP_TYPE(key_emp_type), M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH_EMP_TYPE(val_emp_type) )
-/* Transform all forms to the generic LIST form */
+/* Transform all supported user forms to the generic LIST form */
 #define M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH_EMP_TYPE(val_emp)                 \
   M_IF(M_PARENTHESIS_P(val_emp))(M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH_EMP_TYPE_PARENTHESIS, M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH_EMP_TYPE_B)(val_emp)
 #define M_EMPLACE_ASS_ARRAY_DEF_EXPAND_BOTH_EMP_TYPE_B(val_emp)               \
@@ -4516,7 +4516,11 @@ m_core_parse2_enum (const char str[], const char **endptr)
     M_EMPLACE_CALL_FUNC(aval, val_init_func, val_oplist, *val, val_emplace_type); \
   }                                                                           \
 
-/* Generic emplace for a queue like container */
+/* Definition of the emplace_back function for queue.
+   It is defined here so that this definition is shared accross different
+   kind of kind of queue.
+   This definition is far from being efficient but works for the current interface.
+*/
 #define M_EMPLACE_QUEUE_GENE(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
   static inline void                                                          \
   function_name(name_t v                                                      \
