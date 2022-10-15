@@ -29,7 +29,7 @@ N=4
 BENCH_DEF=
 RM=rm -rf
 
-.PHONY: all pgo container queue mempool string plain bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-sparsepp bench-collectionc bench-tommyds bench-flathashmap bench-emilib bench-hopscotchmap bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost bench-mempool bench-string bench-plain bench-rigtorp-mpmc-queue bench-cmc
+.PHONY: all pgo container queue mempool string plain bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-sparsepp bench-collectionc bench-tommyds bench-flathashmap bench-emilib bench-emhash bench-hopscotchmap bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost bench-mempool bench-string bench-plain bench-rigtorp-mpmc-queue bench-cmc
 
 all: container queue mempool string plain
 
@@ -39,7 +39,7 @@ pgo:
 
 #########################################################################
 
-container: bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-cmc bench-sparsepp bench-densehashmap bench-collectionc bench-tommyds bench-flathashmap bench-emilib bench-hopscotchmap bench-uthash bench-qlibc bench-libsrt bench-nedtries bench-rigtorp-hashmap bench-ctl bench-stc bench-pottery
+container: bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-cmc bench-sparsepp bench-densehashmap bench-collectionc bench-tommyds bench-flathashmap bench-emilib bench-emhash bench-hopscotchmap bench-uthash bench-qlibc bench-libsrt bench-nedtries bench-rigtorp-hashmap bench-ctl bench-stc bench-pottery
 	@echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
 queue: bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost bench-rigtorp-mpmc-queue
@@ -238,6 +238,17 @@ bench-emilib0:
 	@./bench-emilib.exe 42
 	@./bench-emilib.exe 46
 	@./bench-emilib.exe 43
+
+# EMHASh shall point to the directory where the headers are
+bench-emhash:
+	@if test -n "$${EMHASH}" ; then $(MAKE) bench-emhash0 ; else echo "Nothing to be done for EMHASH." ; fi
+
+bench-emhash0:
+	$(CXX) -std=c++14 $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${EMHASH}" bench-emhash.cpp common.c -o bench-emhash.exe
+	@./bench-emhash.exe 41
+	@./bench-emhash.exe 42
+	@./bench-emhash.exe 46
+	@./bench-emhash.exe 43
 
 # HOPSCOTCHMAP shall point to the directory where the source are
 bench-hopscotchmap:
