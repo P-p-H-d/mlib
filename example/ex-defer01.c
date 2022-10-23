@@ -1,5 +1,10 @@
 #include "m-core.h"
 
+/* This example show how to use the M_LET_IF macro
+   that enables to construct an object and continue
+   if the construction succeeds.
+*/
+
 // Stubs defined for the example. Real code will use soundio library.
 struct SoundIo { int x; };
 struct SoundIoDevice { int x; };

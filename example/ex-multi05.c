@@ -3,7 +3,14 @@
 #include "m-array.h"
 #include "m-string.h"
 
-// Let's create an array of string_t and register it globaly
+/* This example show ARRAY_DEF usage with string,
+   M_LET macro usage with complex initialization condition:
+   how to initialize a dynamic array and initialize it with the given arguments.
+   It show also the M_EACH keywork
+*/
+
+// Let's create a dynamic array of string_t and register it globaly
+// a so called std::vector<std::string> in C++
 ARRAY_DEF(vector_string, string_t)
 #define M_OPL_vector_string_t() ARRAY_OPLIST(vector_string, STRING_OPLIST)
 

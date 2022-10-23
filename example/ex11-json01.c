@@ -2,6 +2,8 @@
 #include "m-tuple.h"
 #include "m-array.h"
 
+/* Basic example to show JSON serialization */
+
 // Let's define a 'person' composed of several fields.
 TUPLE_DEF2(person,
            (surname, string_t),

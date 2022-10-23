@@ -38,7 +38,7 @@ M_TREE_DEF(tree, dir_t)
 static tree_it_t
 add_directory(tree_it_t parent, const string_t dirname)
 {
-  // Miss: return dir_emplace_child(parent, 0, dirname); to simplify this function.
+  // TODO: return dir_emplace_child(parent, 0, dirname); to simplify this function.
   // which is too complex for what she does.
   dir_t data;
   tree_it_t it;

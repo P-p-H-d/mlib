@@ -26,13 +26,14 @@ int main(void)
 
         // Count the words.
         M_LET(map, dict_str_t) {
-            // Count the words:
+            // Count the words into the dictionnary 'map'
             for M_EACH(w, words, vector_str_t) {
                 (*dict_str_safe_get(map, *w)) ++;
             }
 
             // Print the count:
             for M_EACH(p, map, dict_str_t) {
+                // In C11 version we can use the M_PRINT macro that simplifies formatting.
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)            
                 M_PRINT(p->value, " occurences of ", p->key, "\n");
 #else

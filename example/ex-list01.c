@@ -28,11 +28,11 @@ int main(void)
   M_LET (grow, list_string_t)
     M_LET (tmpstr, string_t) { // And let's create also a string_t
 
-    // add string elements to the list
+    // add string elements to the list in different ways
     list_string_push_back (grow, STRING_CTE("AB"));
     string_printf(tmpstr, "%d", 12);
     list_string_push_back (grow, tmpstr);
-    list_string_push_back (grow, STRING_CTE("CD"));
+    list_string_emplace_back (grow, "CD");
 
     // Serialize the list of string into a big string.
     list_string_get_str (tmpstr, grow, false);
@@ -75,6 +75,7 @@ int main(void)
     // Split a string into a list.
     string_set_str(tmpstr, "HELLO;JOHN;HOW;ARE;YOU");
     astring_split(grow, tmpstr, ';');
+    // Iterate over the splitted list
     for M_EACH (item, grow, list_string_t) {
         printf ("Split Item = %s\n", string_get_cstr(*item) );
       }

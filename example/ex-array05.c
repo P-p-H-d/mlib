@@ -96,6 +96,7 @@ static void data_node_clear(data_node *obj)
    and gives the minimum oplist allowing M*LIB to handle
    properly the object 'data_node' with the API convention
    to respect for calling the methods.
+   The Manual defines the different supported API.
 */
 ARRAY_DEF(/* the array prefix */ array_data_node,
 	  /* the object type */ data_node,
