@@ -30,7 +30,7 @@ you just have to put the header in the search path of your compiler,
 and it will work.
 There is no dependency (except some other headers of M\*LIB and the LIBC).
 
-One of M\*LIB's design key is to ensure safety. This is done by multiple means:
+One of M\*LIB design key is to ensure safety. This is done by multiple means:
 
 * in debug mode, defensive programming is extensively used:
   the contracts of the function are checked, ensuring
@@ -47,8 +47,8 @@ One of M\*LIB's design key is to ensure safety. This is done by multiple means:
   the user calls to have proper warning checks.
 * extensive testing: the library is tested on the main targets using Continuous Integration with a coverage of the test suite of nearly 99%.
   The test suite itself is run through the multiple sanitizers defined by GCC/CLANG (Address, undefined, leak, thread).
-  The test suite also includes a comparaison of equivalent behaviors of M\*LIB with the C++ STL using random genetic algorithms.
-* static analysis: multiple static analyser (like scan-build or GCC fanalyzer or CodeQL) are run on the generated code, and the results analyzed.
+  The test suite also includes a comparison of equivalent behaviors of M\*LIB with the C++ STL using random genetic algorithms.
+* static analysis: multiple static analyzer (like scan-build or GCC fanalyzer or CodeQL) are run on the generated code, and the results analyzed.
 
 Other key designs are:
 
@@ -576,7 +576,7 @@ Other documented operators are:
 * PUSH(obj, subobj) : Push 'subobj' (of type SUBTYPE() ) into the container 'obj'. How and where it is pushed is container dependent.
 * POP(&subobj, obj) : Pop an object from the container 'obj' and set it in the initialized object '*subobj' (of type SUBTYPE()) if subobj is not NULL. Which object is popped is container dependent. The container shall have at least one object.
 * PUSH\_MOVE(obj, &subobj) : Push and move the object '*subobj' (of type SUBTYPE()) into the container 'obj' (subobj destructor). How it is pushed is container dependent. '*subobj' is cleared afterward and shall not be used anymore. See INIT\_MOVE for more details and constraints.
-* POP\_MOVE(&subobj, obj) : Pop an object from the container'obj' and **init & move** it in the uninitialized object '*subobj' (*subobj constructor). Which object is popped is container dependent. '*subobj' shall be uninitialized. The container shall have at least one object. See INIT\_MOVE for more details and constraints.
+* POP\_MOVE(&subobj, obj) : Pop an object from the container 'obj' and **init & move** it in the uninitialized object '*subobj' (*subobj constructor). Which object is popped is container dependent. '*subobj' shall be uninitialized. The container shall have at least one object. See INIT\_MOVE for more details and constraints.
 * IT\_TYPE() --> type: Return the type of the iterator object of this container.
 * IT\_FIRST(it\_obj, obj): Set the iterator it\_obj to the first sub-element of the container 'obj'. What is the first element is container dependent (it may be front or back, or something else). However, iterating from FIRST to LAST (included) or END (excluded) through IT\_NEXT ensures going through all elements of the container. If there is no sub-element in the container, it references an end of the container.
 * IT\_LAST(it\_obj, obj): Set the iterator it\_obj to the last sub-element of the container 'obj'.  What is the last element is container dependent (it may be front or back, or something else). However, iterating from LAST to FIRST (included) or END (excluded) through IT\_PREVIOUS ensures going through all elements of the container. If there is no sub-element in the container, it references an end of the container.
@@ -822,7 +822,7 @@ then there is definitely an **error** you should fix (except if it reports
 shadowed variables), in particular cast evolving pointers.
 
 You should also turn off the macro expansion of the errors reported by
-your compiler. There are often completly useless and misleading:
+your compiler. There are often completely useless and misleading:
 
 * For GCC, uses -ftrack-macro-expansion=0
 * For CLANG, uses -fmacro-backtrace-limit=1
@@ -902,7 +902,7 @@ Each can be classified into one of the following concept:
 * Header files are included multiple times with different contexts (some different values given to defined macros) in order to generate different code for each type. From a user point of view, this creates a new step before using the container: an instantiating stage that has to be done once per type and per compilation unit (The user is responsible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). The debug of the library is generally easy and can generate fully specialized & efficient code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. The interface used to configure the library can be quite tiresome in case of a lot of specialized methods to configure: it doesn't enable to chain the configuration from a container to another one easily. It also cannot have heavy customization of the code.
 * Macros are used to generate context-dependent C code enabling to generate code for different type. This is pretty much like the headers solution but with added flexibility. From a user point of view, this creates a new step before using the container: an instantiating stage that has to be done once per type and per compilation unit (The user is responsible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). This can generate fully specialized & efficient code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. From a library developer point of view, the library is harder to design and to debug: everything being expanded in one line, you can't step in the library (there is however a solution to overcome this limitation by adding another stage to the compilation process). You can however see the generated code by looking at the preprocessed file. You can perform heavy context-dependent customization of the code (transforming the macro preprocessing step into its own language). Properly done, you can also chain the methods from a container to another one easily, enabling expansion of the library. Errors within the macro expansion are generally hard to decipher, but errors in code using containers are easy to read and natural.
 
-M\*LIB's category is mainly the last one.
+M\*LIB category is mainly the last one.
 Some macros are also defined to access structure in a generic way, but they are optional.
 There are also intrusive containers.
 
@@ -947,7 +947,7 @@ their methods would behave the same for all generated containers.
 This chapter will explain the generic interface.
 In case of difference, it will be explained in the specific container.
 
-In the following descrition:
+In the following description:
 
 * name is the prefix used for the container generation,
 * name\_t refers to the type of the container,
@@ -958,7 +958,7 @@ In the following descrition:
 * name\_itref\_t refers to a pair of key and value for associative arrays.
 
 An object shall be initialized (aka constructor) before being use by other methods.
-It shall be cleared (aka destructor) after being use and before program terminaison.
+It shall be cleared (aka destructor) after being use and before program termination.
 An iterator has not destructor but shall be set before being used.
 
 A container takes as input the
@@ -1187,7 +1187,7 @@ This pointer should not be stored in a global variable.
 
 Return a modifiable pointer to 
 the element associated to 'key' in the container,
-creating a new element if it doesn't exist (ensuring therefore a safet 'get' operation).
+creating a new element if it doesn't exist (ensuring therefore a safe 'get' operation).
 
 If the container is sequence-like, key\_type\_t is an alias for size\_t and key an integer,
 the selected element is the 'key'-th element of the container.
@@ -1216,7 +1216,7 @@ Return 0 if there no element.
 ##### size\_t name\_capacity(const name\_t container)
 
 Return the capacity of the container, i.e. the maximum number of elements
-supported by the container before a reserve operation is needed to accomodate
+supported by the container before a reserve operation is needed to accommodate
 new elements.
 
 ##### void name\_resize(name\_t container, size\_t size)
@@ -1305,7 +1305,7 @@ This method is only created only if the EQUAL method is provided.
 ##### size\_t name\_hash(const name\_t container)
 
 Return a fast hash value of the container 'container',
-suitable to be used by a dictionnary.
+suitable to be used by a dictionary.
 This method is only created only if the HASH method is provided.
 
 ##### void name\_get\_str(string\_t str, const name\_t container, bool append)
@@ -2071,7 +2071,7 @@ A [dictionary](https://en.wikipedia.org/wiki/Associative_array) (or associative 
 is an abstract data type composed of a collection of (key, value) pairs,
 such that each possible key appears at most once in the collection,
 and is associated to only one value.
-It is possible to search for a key in the dictionnary and get back its value.
+It is possible to search for a key in the dictionary and get back its value.
 
 Several dictionaries are proposed. The "best" to use depends on the data type
 and in particular:
@@ -2083,7 +2083,7 @@ and in particular:
 * the load factor.
 
 For small, fast types (integer, or floats, or pair of such types),
-DICT\_OA\_DEF2 may be the best to use (but slighty more complex to instantiate).
+DICT\_OA\_DEF2 may be the best to use (but slightly more complex to instantiate).
 For medium type, DICT\_DEF2 with mempool activated may be better.
 For even larger object, DICT\_STOREHASH\_DEF2 may be better.
 But for most uses, DICT\_DEF2 should be good enough.
@@ -2093,7 +2093,7 @@ But for most uses, DICT\_DEF2 should be good enough.
 
 DICT\_DEF2 defines the dictionary 'name\_t' and its associated methods as "static inline" functions as an associative array of 'key\_type' to 'value\_type'.
 
-'name' shall be a C identifier that will be used to identify the dictionnary.
+'name' shall be a C identifier that will be used to identify the dictionary.
 It will be used to create all the types (including the iterator and the iterated object type)
 and functions to handle the container.
 This definition shall be done once per name and per compilation unit.
@@ -2106,12 +2106,12 @@ Current implementation uses chained Hash-Table and as such, elements in the dict
 However, elements are not moved on insertion / delete of other elements:
 even if the iterator may become invalid, the referenced element remains unmoved.
 
-The \_set\_at method overwrites the already existing value if 'key' is already present in the dictionnary (contrary to C++).
+The \_set\_at method overwrites the already existing value if 'key' is already present in the dictionary (contrary to C++).
 
 The iterated object type 'name##\_itref\_t' is a pair of key\_type and value\_type.
 
 What is exactly the "first" element for the iteration is not specified.
-It is only ensured that all elements of the dictionnary are explored
+It is only ensured that all elements of the dictionary are explored
 by going from "first" to "end".
 
 DICT\_DEF2\_AS is the same as DICT\_DEF2
@@ -2140,7 +2140,7 @@ Example:
 	  printf ("Value of %s is %u\n", string_get_cstr(x), *val);
 	  string_clear(x);
 	
-	  printf ("Dictionnary is: ");
+	  printf ("Dictionary is: ");
 	  dict_string_out_str(stdout, a);
 	  printf ("\n");
 	  dict_string_clear(a);
@@ -2168,14 +2168,14 @@ except the name of the types name\_t, name\_it\_t, name\_itref\_t are provided.
 DICT\_OA\_DEF2 defines the dictionary 'name\_t' and its associated methods
 as "static inline" functions much like DICT\_DEF2.
 The difference is that it uses an Open Addressing Hash-Table as container
-(breaking the property of not-moving object on dictionnary modification).
+(breaking the property of not-moving object on dictionary modification).
 
 The key\_oplist shall also define the additional operators:
 **OOR\_EQUAL** and **OOR\_SET**
 
-The Out-Of-Range operators (OOR\_EQUAL and OOR\_SET) are used to store unitialized keys
-in the dictionnary and be able to detect it. This enables avoiding a separate bitfield
-to know the state of the entry in the dictionnary (which increases memory usage and is
+The Out-Of-Range operators (OOR\_EQUAL and OOR\_SET) are used to store uninitialized keys
+in the dictionary and be able to detect it. This enables avoiding a separate bit-field
+to know the state of the entry in the dictionary (which increases memory usage and is
 cache unfriendly).
 
 The elements may move when inserting / deleting other elements (and not just the iterators).
@@ -2230,7 +2230,7 @@ Return the oplist of the dictionary defined by calling any DICT\_*\_DEF2 with na
 DICT\_SET\_DEF defines the dictionary set 'name\_t' and its associated methods as "static inline" functions.
 A dictionary set is a specialized version of a dictionary with no value (only keys).
 
-'name' shall be a C identifier that will be used to identify the dictionnary.
+'name' shall be a C identifier that will be used to identify the dictionary.
 It will be used to create all the types (including the iterator)
 and functions to handle the container.
 This definition shall be done once per name and per compilation unit.
@@ -2238,10 +2238,10 @@ This definition shall be done once per name and per compilation unit.
 The oplist shall have at least the following operators (INIT\_SET, SET, CLEAR, HASH and EQUAL),
 otherwise it won't generate compilable code.
 
-The _push method will overwrite the already existing value if 'key' is already present in the dictionnary (contrary to C++).
+The _push method will overwrite the already existing value if 'key' is already present in the dictionary (contrary to C++).
 
 What is exactly the "first" element for the iteration is not specified.
-It is only ensured that all elements of the dictionnary are explored
+It is only ensured that all elements of the dictionary are explored
 by going from "first" to "end".
 
 DICT\_SET\_DEF\_AS is the same as DICT\_SET\_DEF
@@ -2390,7 +2390,7 @@ This definition shall be done once per name and per compilation unit.
 This is more or less a C structure. The main added value compared to using a C struct
 is that it generates also all the basic methods to handle it which is quite handy.
 
-The oplists shall have at least the following operators (INIT\_SET, SET and CLEAR),
+The oplist shall have at least the following operators (INIT\_SET, SET and CLEAR),
 otherwise it won't generate compilable code.
 
 In general, an optional method of the tuple will only be created 
@@ -2661,7 +2661,7 @@ A node without any child is called a leaf. It can be seen as an ordered set.
 
 A R-B Tree is a tree where all elements are also totally ordered, and the worst-case of any operation is in logarithm of the number of elements in the tree.
 The current implementation is [RED-BLACK TREE](https://en.wikipedia.org/wiki/Red%E2%80%93black_tree)
-which provides performance guarante for both insertion and lockup operations.
+which provides performance guarantee for both insertion and lockup operations.
 It has not to be confused with a [B-TREE](https://en.wikipedia.org/wiki/B-tree).
 
 #### RBTREE\_DEF(name, type[, oplist])
@@ -2685,7 +2685,7 @@ in this case.
 
 A push method on the tree will put the given 'key' in its right place in the tree
 by keeping the tree ordered.
-It overwrites the already existing value if the key is already present in the dictionnary (contrary to C++).
+It overwrites the already existing value if the key is already present in the dictionary (contrary to C++).
 
 RBTREE\_DEF\_AS is the same as RBTREE\_DEF2 except the name of the types name\_t, name\_it\_t
 are provided by the user.
@@ -2901,7 +2901,7 @@ If there is no given oplist, the basic oplist for basic C types is used.
 Define the B+TREE tree of rank N 'name\_t' and its associated methods as
 "static inline" functions. This B+TREE will be created as an associative
 array of the 'key\_type' to the 'value\_type' and allows multiple instance of
-the same key in the tree (aka it is a multimap: re-adding the same key in
+the same key in the tree (aka it is a multi-map: re-adding the same key in
 the tree will add a new instance of the key in the tree rather than update
 the value associated to the key).
 
@@ -2917,7 +2917,7 @@ name\_t, name\_it\_t, name\_itref\_t are provided by the user.
 Define the B+TREE tree of rank N 'name\_t' and its associated methods as
 "static inline" functions. This B+TREE will be created as an ordered set
 of key\_type and allows multiple instance of
-the same key in the tree (aka it is a multiset: re-adding the same key in
+the same key in the tree (aka it is a multi set: re-adding the same key in
 the tree will add a new instance of the key in the tree rather than update
 the key value).
 
@@ -3054,15 +3054,15 @@ otherwise it won't generate compilable code.
 The tree handles its own pool of nodes for the nodes.
 It is called the capacity of the tree. 
 This pool of nodes will increase when needed by default.
-However, in case of capacity increased, all the nodes of the tree may move in memory to accomodate the new need.
+However, in case of capacity increased, all the nodes of the tree may move in memory to accommodate the new need.
 You may also request to reserve more capacity to avoid moving the items, and disable this auto-expand feature (in which a MEMORY\_FAILURE is raised).
 
 There are several way to iterate over this container:
 
 * Scan all nodes: first the parent then the children (pre-order walk).
 * Scan all nodes: first the children then the parent (post-order walk).
-* Scan the nodes of a sub-tree: first the parent then the children (pre-order walk of a subtree).
-* Scan the nodes of a sub-tree: first the children then the parent (post-order walk of a subtree).
+* Scan the nodes of a sub-tree: first the parent then the children (pre-order walk of a sub-tree).
+* Scan the nodes of a sub-tree: first the children then the parent (post-order walk of a sub-tree).
 
 On insertion, all iterators remain valid.
 Except if it says otherwise, all functions accepting iterators expect a valid iterator (i.e. it references an existing node).
@@ -3324,7 +3324,7 @@ It will be used to create all the types (including the iterator)
 and functions to handle the container.
 This definition shall be done once per name and per compilation unit.
 
-The CMP operator is used to sort the queue so that the highest priority is the minimun.
+The CMP operator is used to sort the queue so that the highest priority is the minimum.
 The EQUAL operator is used to identify an item on update or remove operations.
 It is uncorrelated with the CMP operator from the point of view of this container.
 (i.e. EQUAL() == TRUE is not equivalent to CMP() == 0 for this container)
@@ -3455,7 +3455,7 @@ Multiple additional policy can be applied to the buffer by performing a logical 
 * BUFFER\_DEFERRED\_POP : do not consider the object to be fully popped from the buffer by calling the pop method until the call to pop\_deferred ; this enables to handle object that are in-progress of being consumed by the thread.
 
 This container is designed to be used for synchronization inter-threads of data
-(and the buffer variable should be a global shared one). A function taggued "thread safe"
+(and the buffer variable should be a global shared one). A function tagged "thread safe"
 is thread safe only if the container has been generated with the THREAD_SAFE option.
 
 The oplist shall have at least the following operators (INIT\_SET, SET and CLEAR),
@@ -3906,7 +3906,7 @@ This function is thread-safe and performs atomic operation on the snapshot.
 Define the snapshot 'name ## \_t' (or 'name\_t') and its associated methods as "static inline" functions.
 A snapshot is an atomic shared register where only the latest state is
 important and accessible: it is like a global variable of type 'type'
-but ensuring integrity and coherency of the data accross multiple threads.
+but ensuring integrity and coherency of the data across multiple threads.
 One single writer and multiple (=N) readers are supported.
 In practice, it is implemented using a 'N+2' buffer (lock-free).
 
@@ -3988,7 +3988,7 @@ This function is thread-safe and performs atomic operation on the snapshot.
 Define the snapshot 'name ## \_t' (or 'name\_t') and its associated methods as "static inline" functions.
 A snapshot is an atomic shared register where only the latest state is
 important and accessible: it is like a global variable of type 'type'
-but ensuring integrity and coherency of the data accross multiple threads.
+but ensuring integrity and coherency of the data across multiple threads.
 Multiple (=M) writers and multiple (=N) readers are supported.
 In practice, it is implemented using a 'M+N+2' buffer (lock-free)
 by avoiding copying the data.
@@ -7817,14 +7817,14 @@ Default value: 1
 ### M\_USE\_CSTR\_ALLOC
 
 Define the allocation size of the temporary strings created by M\_CSTR
-(including the final nul char).
+(including the final null char).
 
 Default value: 256.
 
 ### M\_USE\_IDENTIFIER\_ALLOC
 
 Define the allocation size of a C identifier in the source code
-(excluding the final nul char).
+(excluding the final nil char).
 It is used to represent a C identifier by a C string.
 
 Default value: 128
@@ -7860,7 +7860,7 @@ Default value: 1 (compiled in C++), 0 (otherwise)
 
 ### M\_USE\_BACKOFF\_MAX\_COUNT
 
-Define the maximum iteration of the backoff exponential scheme
+Define the maximum iteration of the BACKOFF exponential scheme
 for the synchronization waiting loop of multi-threading code.
 
 Default value: 6
