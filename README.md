@@ -6943,6 +6943,9 @@ The following methods are available:
 
 A pool of worker.
 
+The type is incompatible between C++, C/CLANG and C(all others) due to technical constraints,
+so a variable of such a type shall always be accessed by the same compiler.
+
 #### worker\_sync\_t
 
 A synchronization point between workers.

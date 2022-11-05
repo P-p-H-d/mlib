@@ -40,7 +40,7 @@
 #include "m-buffer.h"
 #include "m-mutex.h"
 
-/* Include needed system header for detection of how many core on the system */
+/* Include needed system header for detection of how many cores are available in the system */
 #if defined(_WIN32)
 # include <windows.h>
 #elif (defined(__APPLE__) && defined(__MACH__))                               \
@@ -124,10 +124,10 @@ typedef struct m_work3r_order_s {
    is not sufficient for initialization of the structure.
    So let's use C++ constructor, destructor and copy constructor */
 #if M_USE_WORKER_CPP_FUNCTION
-# define M_WORK3R_CPP_INIT(x) (new (&(x)) m_work3r_order_ct())
+# define M_WORK3R_CPP_INIT(x)        (new (&(x)) m_work3r_order_ct())
 # define M_WORK3R_CPP_INIT_SET(x, y) (new (&(x)) m_work3r_order_ct(y))
-# define M_WORK3R_CPP_SET(x, y) ((x) = (y))
-# define M_WORK3R_CPP_CLEAR(x) ((&(x))->~m_work3r_order_ct())
+# define M_WORK3R_CPP_SET(x, y)      ((x) = (y))
+# define M_WORK3R_CPP_CLEAR(x)       ((&(x))->~m_work3r_order_ct())
 # define M_WORK3R_CPP_INIT_MOVE(x,y) (new (&(x)) m_work3r_order_ct(y), ((&(y))->~m_work3r_order_ct()))
 # define M_WORK3R_OPLIST                                                      \
       (INIT(M_WORK3R_CPP_INIT), INIT_SET(M_WORK3R_CPP_INIT_SET),              \
@@ -136,7 +136,7 @@ typedef struct m_work3r_order_s {
 # define M_WORK3R_OPLIST M_POD_OPLIST
 #endif
 
-/* Definition of a worker (implemented by a thread) */
+/* Definition of the identity of a worker thread */
 typedef struct m_work3r_thread_s {
   m_thread_t id;
 } m_work3r_thread_ct;
@@ -174,7 +174,7 @@ typedef struct m_worker_sync_s {
   struct m_worker_s *worker;            // Reference to the pool of workers
 } m_worker_sync_t[1];
 
-/* Return the number of CPU of the system */
+/* Return the number of cores available in the system */
 static inline int
 m_work3r_get_cpu_count(void)
 {
