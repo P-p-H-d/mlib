@@ -373,17 +373,15 @@ Or even shorter when you're comfortable enough with the library:
         #include "m-array.h"
         
         // Register the oplist of a mpz_t. It is a classic oplist.
-        #define M_OPL_mpz_t() M_OPEXTEND(M_CLASSIC_OPLIST(mpz), INIT_WITH(mpz_init_set_ui) )
+        #define M_OPL_mpz_t() M_OPEXTEND(M_CLASSIC_OPLIST(mpz), INIT_WITH(mpz_init_set_ui), EMPLACE_TYPE(unsigned int) )
         // Define an instance of an array of mpz_t (both type and function)
         ARRAY_DEF(array_mpz, mpz_t)
         // Register the oplist of the created instance of array of mpz_t
         #define M_OPL_array_mpz_t() ARRAY_OPLIST(array_mpz, M_OPL_mpz_t())
         
         int main(void) {
-          // Let's define & init 'z1=42' and 'z2=17' to be 'mpz_t'
-          M_LET ((z1,(42)), (z2,(17)), mpz_t)
-            // Let's define 'array' as an 'array_mpz_t' with 'z1' and 'z2'
-            M_LET((array,z1,z2), array_mpz_t) {
+            // Let's define 'array' as an 'array_mpz_t' with mpz_t(17) and mpz_t(42)
+            M_LET((array,(17),(42)), array_mpz_t) {
              // Let's iterate over all items of the container
              for M_EACH(item, array, array_mpz_t) {
                   gmp_printf("%Zd\n", *item);
