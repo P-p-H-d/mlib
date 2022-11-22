@@ -6291,24 +6291,30 @@ Example:
 
 ##### M\_LET(var1[,var2[,...]], oplist|type)
 
-This macro defines the variable 'var1'(resp. var2, ...) 
-of oplist 'oplist' (or of type 'type' with a globally registered oplist). 
+This macro defines the variable 'var1'(resp. var2, ...) of oplist 'oplist'.
+If a type (instead of an oplist) is used, the oplist of the type shall have been registered globally.
 It initializes 'var1' (resp. var2, ...) by calling the initialization method,
 and clears 'var1' (resp. var2, ...) by calling the clear method
 when the bracket associated to the M\_LET go out of scope.
 
-If 'var1' (resp. var2, ...) has the form (v1, arguments...),
+Its formulation is based on the expression 'let var1 as type in'
+
+Several forms are supported for the initialization method:
+
+* If 'var1' (resp. var2, ...) has the form (v1, arguments...),
 then the variable 'v1' will be initialized with the 
-contains of 'arguments...'.
-If 'arguments' is within parenthesis
+contains of the initializing list 'arguments...'.
+
+** If 'arguments' is single and within parenthesis
 or if there is more one argument
-or if the property LET\_AS\_INIT\_WITH is defined,
-it will use the operator INIT\_WITH if it exists to emplace the variable
-with the given arguments (The arguments are expected to be compatible with
+or if the property LET\_AS\_INIT\_WITH of the type is defined,
+it will use the operator INIT\_WITH (if it exists) to emplace the variable
+with the given arguments (The arguments are therefore expected to be compatible with
 the INIT\_WITH operator).
-Otherwise it will use the operator INIT\_SET (argument is expected
-to be the same type as the initialized type).
-In both cases, the empty initializer INIT operator is not called.
+** Otherwise it will use the operator INIT\_SET (argument is expected
+to be the same type as the initialized type in such case).
+
+* Otherwise it will use the empty initializer INIT operator.
 
 LIMITATION:
 An argument shall not contain any comma or it shall be put
@@ -6326,12 +6332,13 @@ Example:
 
      M_LET(a, STRING_OPLIST) { do something with a }  or
      M_LET(a, b, c, string_t) { do something with a, b & c }
-     M_LET( (a, ("Hello")), string_t) { do something with a }
+     M_LET( (a, ("Hello")), string_t) { do something with a initialized to "Hello" }
 
 NOTE: The user code shall not perform a return or a goto (or longjmp) outside the {} or a call to an exit function
 otherwise the clear code of the object won't be called .
-However, you can use the break instruction to quit the block (the clear function will be executed),
-and you can chain the M\_LET macro to create several different variables.
+However, you can use the break instruction to quit the block (the clear function will be executed).
+
+You can chain the M\_LET macro to create several different variables.
 
 
 ##### M\_LET\_IF(init\_code, test\_code, clear\_code [, else\_code] )
@@ -6364,6 +6371,7 @@ otherwise the clear\_code won't be called .
 However, you can use the break instruction to quit properly the block 
 (the clear\_code will be executed).
 You can chain the M\_LET\_IF macro to create several different variables.
+
 
 ##### M\_DEFER(clear\_code)
 
