@@ -98,7 +98,7 @@
 /* To be used by M_IF_FUNCOBJ macro defined in m-core.
    NOTE: It is reversed (0 instead of 1) so that it can be used in M_IF reliabely.
 */
-#define M_FUNCOBJ_IS_NOT_DEFINED 0
+#define M_FUNC0BJ_IS_NOT_DEFINED 0
 
 /* Design Constraints:
  *  callback SHALL be the first member of the structures in all the definitions.

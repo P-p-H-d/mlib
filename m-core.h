@@ -2310,10 +2310,10 @@ done
 
 /* If the Function Object is included, expands the code,
    otherwise do nothing.
-   M_FUNCOBJ_IS_NOT_DEFINED is defined to 0.
+   M_FUNC0BJ_IS_NOT_DEFINED is defined to 0.
    NOTE: M_IF is the variable is not defined assummes yes.
 */
-#define M_IF_FUNCOBJ(a)             M_IF(M_FUNCOBJ_IS_NOT_DEFINED)( ,a)
+#define M_IF_FUNCOBJ(a)             M_IF(M_FUNC0BJ_IS_NOT_DEFINED)( ,a)
 
 
 /* Helper macro to redefine a function with a default value:
