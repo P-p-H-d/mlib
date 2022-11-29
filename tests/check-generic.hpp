@@ -42,6 +42,22 @@
 # define BASE_TYPE BASE_TYPE_(CONT_OPL)
 #endif
 
+/* Get the affectation if needed to transform an integer into C++ class (resp. M*LIB type) */
+#ifndef CLASS_SET_INT
+# define CLASS_SET_INT(a, i) (a) = (i)
+#endif
+#ifndef TYPE_SET_INT
+# define TYPE_SET_INT(a, i)  (a) = (i)
+#endif
+
+/* Get the affectation if needed to transform a C++ iterator (resp. M*LIB) to an int */
+#ifndef CLASS_IT_TO_INT
+# define CLASS_IT_TO_INT(it) *(it)
+#endif
+#ifndef TYPE_IT_TO_INT
+# define TYPE_IT_TO_INT(it)  *(it)
+#endif
+
 #define CONT_NAME_(CONT_OPL) M_GET_NAME CONT_OPL
 #define CONT_NAME            CONT_NAME_(CONT_OPL)
 
@@ -128,37 +144,76 @@ void test(int select_test, int index,
 #if M_TEST_METHOD_P(GET_KEY, CONT_OPL)
   case 6:
     if (!c1.empty()) {
-      // To rework for dict
-      index = index % c1.size();
 #ifndef HAVE_GET_KEY_THROUGH_FIND
+      // GET_KEY takes an index which shall be within the range of the container
+      index = index % c1.size();
       M_CALL_SET(M_GET_OPLIST CONT_OPL, b0, *M_CALL_GET_KEY(CONT_OPL, c0, index));
       b1 = c1[index];
 #else
+      // GET_KEY takes a key
+      index = index % (DEFAULT_NUMBER/4);
       BASE_TYPE *p = M_CALL_GET_KEY(CONT_OPL, c0, index);
       if (p!= NULL) {
+	// Key found
         M_CALL_SET(M_GET_OPLIST CONT_OPL, b0, *p);
         auto i = c1.find(index);
         assert(i != c1.end());
-        b1 = *i;
+        b1 = CLASS_IT_TO_INT(i);
       } else {
+	// Key not found
         auto i = c1.find(index);
         assert(i == c1.end());
         TYPE_SET_INT(b0, 0);
         CLASS_SET_INT(b1, 0);
       }
 #endif
+    } else {
+      assert( M_CALL_EMPTY_P(CONT_OPL, c0) == true);
     }
     break;
 #endif
 
 #if M_TEST_METHOD_P(SET_KEY, CONT_OPL)
   case 7:
-    if (!c1.empty()) {
-      TYPE_SET_INT(b0, index);
-      CLASS_SET_INT(b1, index);
-      index = index % c1.size();
-      M_CALL_SET_KEY(CONT_OPL, c0, index, b0);
-      c1[index] = b1;
+    TYPE_SET_INT(b0, index);
+    CLASS_SET_INT(b1, index);
+#ifndef HAVE_SET_KEY
+    if (!c1.empty())
+      {
+	index = index % c1.size();
+	M_CALL_SET_KEY(CONT_OPL, c0, index, b0);
+	c1[index] = b1;
+      }
+#else
+    index = index % (DEFAULT_NUMBER/4);
+    M_CALL_SET_KEY(CONT_OPL, c0, index, b0);
+    c1[index] = b1;
+#endif
+    break;
+
+  case 21:
+    {
+      unsigned n = index % 1000;
+      unsigned offset = (index / 1027) % 1000;
+#ifndef HAVE_SET_KEY
+      // If it is a sequence container, check it it fits, otherwise resize
+      // without resize which may not be available, but push is assumed to be.
+      if ((size_t) n+offset > c1.size() ) {
+	TYPE_SET_INT(b0, 0);
+	CLASS_SET_INT(b1, 0);
+	for(unsigned i = c1.size() ; i < (size_t) n+offset; i++) {
+	  M_CALL_PUSH(CONT_OPL, c0, b0);
+	  c1.push_back(b1);
+	}
+	assert(c1.size() == (size_t) n+offset);
+      }
+#endif
+      for(unsigned i = 0; i < n; i++) {
+	TYPE_SET_INT(b0, 3*i);
+	CLASS_SET_INT(b1, 3*i);
+	M_CALL_SET_KEY(CONT_OPL, c0, offset + i, b0);
+	c1[offset + i] = b1;
+      }
     }
     break;
 #endif
@@ -228,7 +283,6 @@ void test(int select_test, int index,
 
 #if M_TEST_METHOD_P(SAFE_GET_KEY, CONT_OPL)
   case 14:
-    // To rework for dict
     index = (1 + (c1.size() < 1000000)) * (index % ( c1.size() + 1) );
     M_CALL_SET(M_GET_OPLIST CONT_OPL, b0, *M_CALL_SAFE_GET_KEY(CONT_OPL, c0, index));
 #ifndef HAVE_GET_KEY_THROUGH_FIND
@@ -240,10 +294,15 @@ void test(int select_test, int index,
     {
       auto i = c1.find(index);
       if (i == c1.end()) {
+#ifdef HAVE_SET_KEY
+	c1[index] = 0;
+#else
         c1.insert(index);
+#endif
         i = c1.find(index);
+	assert(i != c1.end());
       }
-      b1 = *i;
+      b1 = CLASS_IT_TO_INT(i);
     }
 #endif
     break;
@@ -254,15 +313,25 @@ void test(int select_test, int index,
     M_CALL_IT_FIRST(CONT_OPL, it0, c0);
     it1 = c1.begin();
     while (!M_CALL_IT_END_P(CONT_OPL, it0)) {
+#ifdef HAVE_SET_KEY
+      // Containers are key / value
+      index = M_CALL_IT_CREF(CONT_OPL, it0)->key;
+      M_CALL_SET(M_GET_OPLIST CONT_OPL, b0, M_CALL_IT_CREF(CONT_OPL, it0)->value);
+#else
+      // Containers are single key
       M_CALL_SET(M_GET_OPLIST CONT_OPL, b0, *M_CALL_IT_CREF(CONT_OPL, it0));
+      index = b0;
+#endif
 #ifndef DONT_HAVE_SEQUENCE_IT
+      // Container are ordered
       assert(it1 != c1.end());
-      b1 = *it1;
+      b1 = CLASS_IT_TO_INT(it1);
       it1++;
 #else
-      it1 = c1.find(b0);
+      // Containers are not ordered.
+      it1 = c1.find(index);
       assert(it1 != c1.end());
-      b1 = *it1;
+      b1 = CLASS_IT_TO_INT(it1);
 #endif
       CMP_BASE(b0, b1);
       M_CALL_IT_NEXT(CONT_OPL, it0);
@@ -281,7 +350,7 @@ void test(int select_test, int index,
       assert( !M_CALL_IT_END_P(CONT_OPL, it0));
       TYPE_SET_INT(b0, index);
       CLASS_SET_INT(b1, index);
-      M_CALL_SET(M_GET_OPLIST CONT_OPL, *M_CALL_IT_REF(CONT_OPL, it0), b0);
+      M_CALL_SET(M_GET_OPLIST CONT_OPL, TYPE_IT_TO_INT(M_CALL_IT_REF(CONT_OPL, it0)), b0);
       *it1 = b1;
       M_CALL_IT_NEXT(CONT_OPL, it0);
       it1++;
@@ -298,8 +367,8 @@ void test(int select_test, int index,
       auto it1b = c1.rbegin();
       while (it1b != c1.rend()) {
         assert( !M_CALL_IT_END_P(CONT_OPL, it0));
-        M_CALL_SET(M_GET_OPLIST CONT_OPL, b0, *M_CALL_IT_CREF(CONT_OPL, it0));
-        b1 = *it1b;
+        M_CALL_SET(M_GET_OPLIST CONT_OPL, b0, TYPE_IT_TO_INT(M_CALL_IT_CREF(CONT_OPL, it0)));
+        b1 = CLASS_IT_TO_INT(it1b);
         CMP_BASE(b0, b1);
         M_CALL_IT_PREVIOUS(CONT_OPL, it0);
         it1b++;
@@ -384,13 +453,6 @@ void test(int select_test, int index,
 
 #if M_TEST_METHOD_P(REVERSE, CONT_OPL)
   case 20:
-    M_CALL_REVERSE(CONT_OPL, c0);
-    c1.reverse();
-    break;
-#endif
-
-#if M_TEST_METHOD_P(SPLICE_BACK, CONT_OPL)
-  case 21:
     M_CALL_REVERSE(CONT_OPL, c0);
     c1.reverse();
     break;
