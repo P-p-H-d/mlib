@@ -25,26 +25,17 @@
 
 RBTREE_DEF(tree_int, int)
 
-// Transform an integer 'i' into a M*LIB base item 'a'
-#define TYPE_SET_INT(a, i) (a) = (i)
-
 // Container OPLIST
 #define CONT_OPL   RBTREE_OPLIST(tree_int, M_OPL_int())
 
 // C++ Base class of the item in the container
 #define BASE_CLASS int
 
-// Transform an integer 'i' into a C++ base item 'a'
-#define CLASS_SET_INT(a, i) (a) = (i)
-
 // C++ Container class
 #define CONT_CLASS std::set<int>
 
 // Compare the M*LIB container a to the C++ container b
 #define CMP_CONT(a, b) cmp_cont(a, b)
-
-// Compare the M*LIB base object to the C++ base object
-#define CMP_BASE(a, b) assert( (a) == (b) )
 
 void cmp_cont(const tree_int_t a, const std::set<int> &b)
 {
@@ -55,8 +46,7 @@ void cmp_cont(const tree_int_t a, const std::set<int> &b)
     assert(!tree_int_end_p(ita));
     const int *b0 = tree_int_cref(ita);
     const int &b1 = *itb;
-    //printf("%d VS %d\n", *b0, b1);
-    CMP_BASE(*b0, b1);
+    assert(*b0 == b1);
     itb++;
     tree_int_next(ita);
   }

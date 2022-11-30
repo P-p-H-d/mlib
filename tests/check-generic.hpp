@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, Patrick Pelissier
+ * Copyright (c) 2021-2022 Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,9 +37,15 @@
 # define CONT_TYPE_(CONT_OPL) M_GET_TYPE CONT_OPL
 # define CONT_TYPE CONT_TYPE_(CONT_OPL)
 #endif
+
+// Type used for M*LIB container. Default is the same as C++
 #ifndef BASE_TYPE
-# define BASE_TYPE_(CONT_OPL) M_GET_SUBTYPE CONT_OPL
-# define BASE_TYPE BASE_TYPE_(CONT_OPL)
+# define BASE_TYPE BASE_CLASS
+#endif
+
+// Compare the M*LIB base object to the C++ base object
+#ifndef CMP_BASE
+# define CMP_BASE(a, b) assert( (a) == (b) )
 #endif
 
 /* Get the affectation if needed to transform an integer into C++ class (resp. M*LIB type) */
@@ -58,9 +64,27 @@
 # define TYPE_IT_TO_INT(it)  *(it)
 #endif
 
+/* Global properties of the container */
+// Use find to perform GET_KEY for C++
+//#define HAVE_GET_KEY_THROUGH_FIND
+// Container are nor ordered
+//#define DONT_HAVE_SEQUENCE_IT
+// associative array container
+//#define HAVE_SET_KEY
+// Container is in reverse
+//#define HAVE_REVERSE_IT
+// Have PUSH_FRONT operator
+//#define HAVE_PUSH_FRONT
+// Have POP_FRONT operator
+//#define HAVE_POP_FRONT
+
+/*********************************************************************************/
+
+// Define the container name, extracting it from its oplist
 #define CONT_NAME_(CONT_OPL) M_GET_NAME CONT_OPL
 #define CONT_NAME            CONT_NAME_(CONT_OPL)
 
+// Define the maximum number of tests
 #define MAX_TEST 28
 
 #ifdef HAVE_REVERSE_IT
@@ -456,6 +480,7 @@ void test(int select_test, int index,
     M_CALL_REVERSE(CONT_OPL, c0);
     c1.reverse();
     break;
+    // 21 is above
 #endif
 
 #ifdef HAVE_PUSH_FRONT
@@ -513,6 +538,7 @@ void test(int select_test, int index,
     // Needs SPLICE ?
     
   default:
+    M_STATIC_ASSERT( 28 == MAX_TEST, MLIB_INTERNAL_ERROR, "Constant MAX_TEST is no coherent with the effective number of tests");
     // Nothing to do
     break;
   }

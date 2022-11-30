@@ -25,26 +25,17 @@
 
 ARRAY_DEF(array_int, int)
 
-// Transform an integer 'i' into a M*LIB base item 'a'
-#define TYPE_SET_INT(a, i) (a) = (i)
-
 // Container OPLIST
 #define CONT_OPL   ARRAY_OPLIST(array_int, M_OPL_int())
 
 // C++ Base class of the item in the container
 #define BASE_CLASS int
 
-// Transform an integer 'i' into a C++ base item 'a'
-#define CLASS_SET_INT(a, i) (a) = (i)
-
 // C++ Container class
 #define CONT_CLASS std::vector<int>
 
 // Compare the M*LIB container a to the C++ container b
 #define CMP_CONT(a, b) cmp_cont(a, b)
-
-// Compare the M*LIB base object to the C++ base object
-#define CMP_BASE(a, b) assert( (a) == (b) )
 
 void cmp_cont(array_int_t a, std::vector<int> b)
 {
@@ -53,7 +44,7 @@ void cmp_cont(array_int_t a, std::vector<int> b)
   for(size_t i = 0; i < s; i++) {
     int *b0 = array_int_get(a, i);
     int &b1 = b.at(i);
-    CMP_BASE(*b0, b1);
+    assert(*b0 == b1);
   }
 }
 

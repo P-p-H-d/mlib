@@ -27,9 +27,6 @@
 #define CMP_REVERT(a,b)      ((a) > (b) ? -1 : (a) < (b))
 PRIOQUEUE_DEF(prio_int, int, M_OPEXTEND(M_BASIC_OPLIST, CMP(CMP_REVERT) ))
 
-// Transform an integer 'i' into a M*LIB base item 'a'
-#define TYPE_SET_INT(a, i) (a) = (i)
-
 // Container OPLIST (disable iterators & reset)
 #define CONT_OPL                                                        \
   M_OPEXTEND( PRIOQUEUE_OPLIST(prio_int, M_OPL_int()),                  \
@@ -47,28 +44,20 @@ PRIOQUEUE_DEF(prio_int, int, M_OPEXTEND(M_BASIC_OPLIST, CMP(CMP_REVERT) ))
 // C++ Base class of the item in the container
 #define BASE_CLASS int
 
-// Transform an integer 'i' into a C++ base item 'a'
-#define CLASS_SET_INT(a, i) (a) = (i)
-
 // C++ Container class
 #define CONT_CLASS std::priority_queue<int>
 
 // Compare the M*LIB container a to the C++ container b
 #define CMP_CONT(a, b) cmp_cont(a, b)
 
-// Compare the M*LIB base object to the C++ base object
-#define CMP_BASE(a, b) assert( (a) == (b) )
-
 void cmp_cont(const prio_int_t a, const std::priority_queue<int> &b)
 {
   std::priority_queue<int> cb = b;
   prio_int_t ca;
   prio_int_init_set(ca, a);
-  //printf("ca="); prio_int_out_str(stdout, ca); printf("\n");
   while (!cb.empty()) {
     int n;
     prio_int_pop(&n, ca);
-    //printf("N=%d TOP=%d\n", n, cb.top());
     assert(n == cb.top());
     cb.pop();
   }

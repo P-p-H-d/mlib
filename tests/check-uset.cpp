@@ -25,26 +25,17 @@
 
 DICT_SET_DEF(dict_int, int)
 
-// Transform an integer 'i' into a M*LIB base item 'a'
-#define TYPE_SET_INT(a, i) (a) = (i)
-
 // Container OPLIST
 #define CONT_OPL   DICT_SET_OPLIST(dict_int, M_OPL_int())
 
 // C++ Base class of the item in the container
 #define BASE_CLASS int
 
-// Transform an integer 'i' into a C++ base item 'a'
-#define CLASS_SET_INT(a, i) (a) = (i)
-
 // C++ Container class
 #define CONT_CLASS std::unordered_set<int>
 
 // Compare the M*LIB container a to the C++ container b
 #define CMP_CONT(a, b) cmp_cont(a, b)
-
-// Compare the M*LIB base object to the C++ base object
-#define CMP_BASE(a, b) assert( (a) == (b) )
 
 void cmp_cont(const dict_int_t a, const std::unordered_set<int> &b)
 {
@@ -54,7 +45,7 @@ void cmp_cont(const dict_int_t a, const std::unordered_set<int> &b)
     const int &b1 = *itb;
     const int *b0 = dict_int_get(a, b1);
     assert(b0 != nullptr);
-    CMP_BASE(*b0, b1);
+    assert(*b0 == b1);
     itb++;
     n++;
   }

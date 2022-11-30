@@ -25,26 +25,17 @@
 
 DEQUE_DEF(deque_float, float)
 
-// Transform an integer 'i' into a M*LIB base item 'a'
-#define TYPE_SET_INT(a, i) (a) = (i)
-
 // Container OPLIST
 #define CONT_OPL   DEQUE_OPLIST(deque_float, M_OPL_float())
 
 // C++ Base class of the item in the container
 #define BASE_CLASS float
 
-// Transform an integer 'i' into a C++ base item 'a'
-#define CLASS_SET_INT(a, i) (a) = (i)
-
 // C++ Container class
 #define CONT_CLASS std::deque<float>
 
 // Compare the M*LIB container a to the C++ container b
 #define CMP_CONT(a, b) cmp_cont(a, b)
-
-// Compare the M*LIB base object to the C++ base object
-#define CMP_BASE(a, b) assert( (a) == (b) )
 
 void cmp_cont(deque_float_t a, std::deque<float> b)
 {
@@ -55,7 +46,7 @@ void cmp_cont(deque_float_t a, std::deque<float> b)
     assert(!deque_float_end_p(ita));
     const float *b0 = deque_float_cref(ita);
     float &b1 = *itb;
-    CMP_BASE(*b0, b1);
+    assert(*b0 == b1);
     itb++;
     deque_float_next(ita);
   }

@@ -30,7 +30,6 @@ DICT_DEF2(dict_int, int, int)
 
 // C++ Base class of the item in the container
 #define BASE_CLASS int
-#define BASE_TYPE  int
 
 // C++ Container class
 #define CONT_CLASS std::unordered_map<int,int>
@@ -38,9 +37,7 @@ DICT_DEF2(dict_int, int, int)
 // Compare the M*LIB container a to the C++ container b
 #define CMP_CONT(a, b) cmp_cont(a, b)
 
-// Compare the M*LIB base object to the C++ base object
-#define CMP_BASE(a, b) assert( (a) == (b) )
-
+// Get the value from the iterator
 #define CLASS_IT_TO_INT(it) (it)->second
 #define TYPE_IT_TO_INT(it)  (it)->value
 
@@ -51,7 +48,7 @@ void cmp_cont(const dict_int_t a, const std::unordered_map<int,int> &b)
   while (itb != b.end()) {
     const int *b0 = dict_int_get(a, itb->first);
     assert(b0 != nullptr);
-    CMP_BASE(*b0, itb->second);
+    assert(*b0 == itb->second);
     itb++;
     n++;
   }
@@ -60,8 +57,11 @@ void cmp_cont(const dict_int_t a, const std::unordered_map<int,int> &b)
 
 #define DEFAULT_NUMBER 1000000
 
+// Use find to perform GET_KEY for C++
 #define HAVE_GET_KEY_THROUGH_FIND
+// Container are nor ordered
 #define DONT_HAVE_SEQUENCE_IT
+// associative array container
 #define HAVE_SET_KEY
 
 #define push_back insert
