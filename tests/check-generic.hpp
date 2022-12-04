@@ -337,7 +337,11 @@ void test(int select_test, int index,
     M_CALL_IT_FIRST(CONT_OPL, it0, c0);
     it1 = c1.begin();
     while (!M_CALL_IT_END_P(CONT_OPL, it0)) {
-#ifdef HAVE_SET_KEY
+#ifdef HAVE_KEY_PTR
+      // Containers are key / value (through ptr)
+      index = *M_CALL_IT_CREF(CONT_OPL, it0)->key_ptr;
+      M_CALL_SET(M_GET_OPLIST CONT_OPL, b0, *M_CALL_IT_CREF(CONT_OPL, it0)->value_ptr);
+#elif defined(HAVE_SET_KEY)
       // Containers are key / value
       index = M_CALL_IT_CREF(CONT_OPL, it0)->key;
       M_CALL_SET(M_GET_OPLIST CONT_OPL, b0, M_CALL_IT_CREF(CONT_OPL, it0)->value);
