@@ -449,6 +449,8 @@ static void test_double(void)
 
 /* For this, we need new placement support */
 #include <new>
+/* For std::move */
+#include <utility>
 
 /* Some Simple Oplist for a C++ class (using new placement feature)
    Some features may not be always available (like comparison or I/O).

@@ -181,10 +181,18 @@
 
 #elif defined(__GNUC__)
 
+#if __GNUC__ >= 12
+/* Warnings disabled for GNU C in C mode (Wstringop-overflow produces false warnings) */
+#define M_BEGIN_PROTECTED_CODE                                                \
+  _Pragma("GCC diagnostic push")                                              \
+  _Pragma("GCC diagnostic ignored \"-Wformat-nonliteral\"")                   \
+  _Pragma("GCC diagnostic ignored \"-Wstringop-overflow\"")
+#else
 /* Warnings disabled for GNU C in C mode */
 #define M_BEGIN_PROTECTED_CODE                                                \
   _Pragma("GCC diagnostic push")                                              \
   _Pragma("GCC diagnostic ignored \"-Wformat-nonliteral\"")
+#endif
 
 #define M_END_PROTECTED_CODE                                                  \
   _Pragma("GCC diagnostic pop")
@@ -2771,7 +2779,7 @@ namespace m_lib {
 #define M_CSTR(...)                                                           \
   (m_lib::m_char_array<M_USE_CSTR_ALLOC>(__VA_ARGS__)).m_get()
 
-#elif defined(__GNUC__) && !defined(M_ADDRESS_SANITIZER)
+#elif defined(__GNUC__) && !defined(M_ADDRESS_SANITIZER) && __GNUC__ < 12
 
 /* Return a constant string constructed based on the printf-liked formated string
    and its arguments.

@@ -310,7 +310,9 @@
                                                                     )         \
                       )                                                       \
   {                                                                           \
-    struct M_C(name, _s) *self = (struct M_C(name, _s) *)(void*)_self;	       \
+    /* Let's go through an uintptr_t to avoid [broken] aliasing detection by compiler */ \
+    uintptr_t __self = (uintptr_t) _self;				      \
+    struct M_C(name, _s) *self = (struct M_C(name, _s) *)(void*)__self;       \
     (void) self; /* maybe unused */                                           \
     callback_core;                                                            \
   }                                                                           \

@@ -1632,7 +1632,8 @@ m_str1ng_utf8_decode(char c, m_str1ng_utf8_state_e *state,
   const unsigned int type = m_core_clz32((unsigned char)~c) - (unsigned) (sizeof(uint32_t) - 1) * CHAR_BIT;
   const m_string_unicode_t mask1 = (UINT32_MAX - (m_string_unicode_t)(*state != M_STR1NG_UTF8_STARTING) + 1);
   const m_string_unicode_t mask2 = (0xFFU >> type);
-  *unicode = ((*unicode << 6) & mask1) | ((unsigned int) c & mask2);
+  const m_string_unicode_t c1 = (m_string_unicode_t) c;
+  *unicode = ((*unicode << 6) & mask1) | (c1 & mask2);
   *state = (m_str1ng_utf8_state_e) M_STR1NG_UTF8_STATE_TAB[(unsigned int) *state + type];
 }
 
