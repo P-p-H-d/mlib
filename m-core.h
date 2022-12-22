@@ -2194,6 +2194,8 @@ done
 /* Return the tail sublist of the sublist of the VA_ARGS (removing the 2 first elements) */
 #define M_TAIL_2(x, y, ...) __VA_ARGS__
 
+/* Return the tail sublist of the sublist of the VA_ARGS (removing the 3 first elements) */
+#define M_TAIL_3(x, y, z, ...) __VA_ARGS__
 
 /* Concatene two arglists 'a' and 'b',
    handling the case of empty arglist
