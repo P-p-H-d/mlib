@@ -4294,6 +4294,66 @@ m_core_parse2_enum (const char str[], const char **endptr)
   M_PAIR_2 d (M_PAIR_1 d, M_PAIR_1 a, M_PAIR_2 a)
 
 
+/* Provide an INIT_WITH method that uses the EMPLACE_TYPE definition
+   by performing a _Generic selection on the first given argument
+   for all selections that match the number of arguments given to INIT_WITH,
+   and uses the provided init_func functions for constructing the variable.
+   Needs to be defined in the OPLIST with API_1
+   Only LIST based emplace_type supported as we need a dedicated init_func
+   FIXME: M_MAP2 allowed in INIT_WITH? (Seems working)
+*/
+#define M_INIT_WITH_THROUGH_EMPLACE_TYPE(oplist, dst, ...)                    \
+  M_IF(M_TEST_METHOD_P(EMPLACE_TYPE, oplist))                                 \
+    (M_INIT_WITH_EMPLACE_TYPE_2, M_INIT_WITH_NOT_AVAILABLE)                   \
+    (oplist, dst, __VA_ARGS__)
+#define M_INIT_WITH_NOT_AVAILABLE(oplist, dst, ...)                           \
+  M_STATIC_FAILURE(M_LIB_ILLEGAL_EMPLACE_TYPE,                                \
+           "Cannot INIT_WITH through EMPLACE_TYPE, such operator is not provided in the given oplist: " #oplist)
+#define M_INIT_WITH_EMPLACE_TYPE_2(oplist, dst, ...)                          \
+  M_INIT_WITH_EMPLACE_TYPE_3(M_GET_EMPLACE_TYPE oplist, oplist, dst, __VA_ARGS__)
+#define M_INIT_WITH_EMPLACE_TYPE_3(emplace_type, oplist, dst, ...)            \
+  M_IF(M_KEYWORD_P(LIST,emplace_type))                                        \
+    (M_INIT_WITH_EMPLACE_TYPE_4, M_INIT_WITH_EMPLACE_TYPE_FAIL)               \
+    (emplace_type, oplist, dst, __VA_ARGS__)
+#define M_INIT_WITH_EMPLACE_TYPE_FAIL(emplace_type, oplist, dst, ...)         \
+  M_STATIC_FAILURE(M_LIB_ILLEGAL_EMPLACE_TYPE,                                \
+           "Only LIST based EMPLACE_TYPE with explicit init_func (No INIT_WITH) are supported")
+#define M_INIT_WITH_EMPLACE_TYPE_4(emplace_type, oplist, dst, ...)            \
+  _Generic( M_RET_ARG1( __VA_ARGS__, )                                        \
+        M_MAP2(M_INIT_WITH_EMPLACE_APPLY,                                     \
+           (oplist, dst, M_ADD(2, M_NARGS(__VA_ARGS__)), __VA_ARGS__),        \
+           M_KEYWORD_TO_VA_ARGS(LIST, emplace_type))                          \
+        , default: M_STATIC_ASSERT(M_INIT_WITH_EMPLACE_LIST_ASSERT_COND(emplace_type, __VA_ARGS__), M_LIB_ILLEGAL_EMPLACE_TYPE, \
+                    "Cannot find any matching constructor for the type of "   \
+                    M_AS_STR (M_RET_ARG1( __VA_ARGS__, )                      \
+                    " with " M_AS_STR(M_NARGS(__VA_ARGS__)) " arguments in " M_AS_STR(emplace_type) )) \
+        )
+/* arglist is (oplist, dest, NARGS, args...) emplace_type is (suffix, init_func, types...) */
+#define M_INIT_WITH_EMPLACE_APPLY(arglist, emplace_type)                      \
+  M_IF(M_EQUAL(M_RET_ARG3 arglist, M_NARGS emplace_type))                     \
+    (M_INIT_WITH_EMPLACE_APPLY_2, M_EAT)(arglist, emplace_type)
+#define M_INIT_WITH_EMPLACE_APPLY_2(arglist, emplace_type)                    \
+  , M_RET_ARG3 emplace_type : M_APPLY_API(M_RET_ARG2 emplace_type, M_RET_ARG1 arglist, M_RET_ARG2 arglist M_INIT_WITH_EMPLACE_LIST_VAR((M_TAIL_3 arglist), emplace_type) )
+#define M_INIT_WITH_EMPLACE_LIST_VAR(arglist, emplace_type)                   \
+  M_MAP3( M_INIT_WITH_EMPLACE_LIST_VAR_MULTI_FUNC, emplace_type,              \
+      M_INIT_WITH_EMPLACE_LIST_VAR_ID arglist)
+#define M_INIT_WITH_EMPLACE_LIST_VAR_MULTI_FUNC(emplace_type, num, arg)       \
+  , M_AS_TYPE(M_RET_ARG(M_ADD(num, 2), M_INIT_WITH_EMPLACE_LIST_VAR_ID emplace_type), arg)
+#define M_INIT_WITH_EMPLACE_LIST_VAR_ID(...) __VA_ARGS__ /* M_ID macro */
+// Workaround to provide a nice static failure at compile time if we cannot find a matching type.
+#define M_INIT_WITH_EMPLACE_LIST_ASSERT_COND(emplace_type, ...)               \
+  _Generic( M_RET_ARG1( __VA_ARGS__, )                                        \
+        M_MAP2(M_INIT_WITH_EMPLACE_LIST_ASSERT_COND_APPLY, M_ADD(2, M_NARGS(__VA_ARGS__)), \
+           M_KEYWORD_TO_VA_ARGS(LIST, emplace_type))                          \
+        , default: 0 )
+#define M_INIT_WITH_EMPLACE_LIST_ASSERT_COND_APPLY(args, emplace_type)        \
+  M_IF(M_EQUAL(args, M_NARGS emplace_type))                                   \
+    (M_INIT_WITH_EMPLACE_LIST_ASSERT_COND_APPLY_2, M_EAT)(args, emplace_type)
+#define M_INIT_WITH_EMPLACE_LIST_ASSERT_COND_APPLY_2(args, emplace_type)      \
+  , M_RET_ARG3 emplace_type : 1
+
+
+
 /************************************************************/
 /******************* EMPLACE GENERATION  ********************/
 /************************************************************/
