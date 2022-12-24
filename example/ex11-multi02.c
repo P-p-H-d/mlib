@@ -34,6 +34,7 @@ mpz_fast_hash(const mpz_t z)
 /* Define the OPLIST of a mpz_t and register it globally */
 #define M_OPL_mpz_t()                                                   \
   (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), \
+   INIT_WITH(API_1(M_INIT_WITH_THROUGH_EMPLACE_TYPE)),                  \
    EQUAL( API( mpz_cmp, EQ(0), ARG1, ARG2)),                            \
    CMP(mpz_cmp),                                                        \
    HASH(mpz_fast_hash),                                                 \
@@ -75,6 +76,7 @@ mpfr_fast_hash (const mpfr_t f)
 /* Define the OPLIST of a mpfr_t and register it globally */
 #define M_OPL_mpfr_t()                                                   \
   (INIT(mpfr_init), INIT_SET(API(mpfr_init_set, VOID, ARG1, ARG2, MPFR_RNDN)), SET(API(mpfr_set, VOID, ARG1, ARG2, MPFR_RNDN)), CLEAR(mpfr_clear), \
+   INIT_WITH(API_1(M_INIT_WITH_THROUGH_EMPLACE_TYPE)),                  \
    EQUAL( API( mpfr_cmp, EQ(0), ARG1, ARG2)),                            \
    CMP(mpfr_cmp),                                                        \
    HASH(mpfr_fast_hash),                                                 \
@@ -89,11 +91,13 @@ mpfr_fast_hash (const mpfr_t f)
                        (_d,  API(mpfr_init_set_d,  VOID, ARG1, ARG2, MPFR_RNDN), double), \
                        (_ld, API(mpfr_init_set_ld, VOID, ARG1, ARG2, MPFR_RNDN), long double), \
                        (_z,  API(mpfr_init_set_z,  VOID, ARG1, ARG2, MPFR_RNDN), mpz_t), \
-                       (_str, API(mpfr_init_set_str, VOID, ARG1, ARG2, 10, MPFR_RNDN), const char *) )), \
+                       (_zptr,  API(mpfr_init_set_z,  VOID, ARG1, ARG2, MPFR_RNDN), mpz_ptr), \
+                       (_cstr, API(mpfr_init_set_str, VOID, ARG1, ARG2, 10, MPFR_RNDN), const char *), \
+                       (_str, API(mpfr_init_set_str, VOID, ARG1, ARG2, 10, MPFR_RNDN), char *) )), \
    TYPE(mpfr_t) )
 
 
-/* Define a variant over two numbers named number_t
+/* Define a variant over three kind of numbers named my_number_t
    Notice than mpz_t/mpfr_t has special init & clear functions.
    This is handle by the library.
 */
@@ -102,45 +106,83 @@ VARIANT_DEF2(my_number,
              (z, mpz_t),
              (fr, mpfr_t) )
 /* Define the oplist associated to this variant and register it */
-#define M_OPL_my_number_t() VARIANT_OPLIST(my_number, M_BASIC_OPLIST, M_OPL_mpz_t() )
+#define M_OPL_my_number_t() VARIANT_OPLIST(my_number, M_BASIC_OPLIST, M_OPL_mpz_t(), M_OPL_mpfr_t() )
 
-/* Define a dictionary of string --> number named dict_my_t */
+
+/* Define a dictionary of string_t --> my_number_t named my_dict_t */
 DICT_DEF2(my_dict, string_t, my_number_t)
 /* Define the oplist associated to this dictionary and register it */
 #define M_OPL_my_dict_t() DICT_OPLIST(my_dict, STRING_OPLIST, M_OPL_my_number_t() )
 
-/* Define an array of such dictionary named array_my_t */
+
+/* Define an array of such dictionary named my_array_t */
 ARRAY_DEF(my_array, my_dict_t)
 /* Define the oplist associated to this array of dictionary of variant and register it */
 #define M_OPL_my_array_t() ARRAY_OPLIST(my_array, M_OPL_my_dict_t())
 
+
 // Show how to define an array of mpz_t & mpfr_t and some algorithms on then
 // (Not needed for the sequel of this example)
 ARRAY_DEF(array_mpz, mpz_t)
-ALGO_DEF(array_mpz, ARRAY_OPLIST(array_mpz, M_OPL_mpz_t()))
+#define M_OPL_array_mpz_t() ARRAY_OPLIST(array_mpz, M_OPL_mpz_t())
+ALGO_DEF(array_mpz, array_mpz_t)
 ARRAY_DEF(array_mpfr, mpfr_t)
-ALGO_DEF(array_mpfr, ARRAY_OPLIST(array_mpfr, M_OPL_mpfr_t()))
+#define M_OPL_array_mpfr_t() ARRAY_OPLIST(array_mpfr, M_OPL_mpfr_t())
+ALGO_DEF(array_mpfr, array_mpfr_t)
+
+static void
+compute_roots(array_mpfr_t roots, const array_mpz_t pol)
+{
+  assert( array_mpz_size(pol) == 3);
+  // Initialize mpfr_t variables from the mpz_t values in the array 'pol'
+  // & clear then once the brackets end.
+  M_LET( (a, (*array_mpz_get(pol, 0))),
+         (b, (*array_mpz_get(pol, 1))),
+         (c, (*array_mpz_get(pol, 2))),
+         delta, tmp, mpfr_t) {
+      // Reset the output array
+      array_mpfr_reset(roots);
+      // Compute the results
+      mpfr_mul(delta, b, b, MPFR_RNDN);
+      mpfr_mul_ui(tmp, a, 4, MPFR_RNDN);
+      mpfr_mul(tmp, tmp, c, MPFR_RNDN);
+      mpfr_sub(delta, delta, tmp, MPFR_RNDN);
+      mpfr_sqrt(delta, delta, MPFR_RNDN);
+      mpfr_neg(tmp, b, MPFR_RNDN);
+      mpfr_add(tmp, tmp, delta, MPFR_RNDN);
+      mpfr_div(tmp, tmp, a, MPFR_RNDN);
+      mpfr_div_2ui(tmp, tmp, 1, MPFR_RNDN);
+      // Push first root
+      array_mpfr_push_back(roots, tmp);
+      mpfr_neg(tmp, b, MPFR_RNDN);
+      mpfr_sub(tmp, tmp, delta, MPFR_RNDN);
+      mpfr_div(tmp, tmp, a, MPFR_RNDN);
+      mpfr_div_2ui(tmp, tmp, 1, MPFR_RNDN);
+      // Push second root
+      array_mpfr_push_back(roots, tmp);
+  }
+}
 
 int main(void)
 {
-  M_LET(z, my_number_t)              /* Define & init & clear an instance of a variant of number_t */
+  M_LET(z, my_number_t)               /* Define & init & clear an instance of a variant of my_number_t */
     M_LET(dict, my_dict_t)            /* Define & init & clear an instance of a dictionary of variant */
     M_LET(array, my_array_t)          /* Define & init & clear an intance of an array of dictionary of variant */
     M_LET(gmp, mpz_t)                 /* M_LET allows even with non container type */
-    M_LET(mpfr, mpfr_t)
     {
-      my_number_set_n (z, 17LL);                // Set z as the long long 17
+      my_number_set_n (z, 17LL);                 // Set z as the long long 17
       my_dict_set_at(dict, STRING_CTE("n1"), z); // Push it in the dictionary
 
       mpz_set_str(gmp, "25446846874687468746874687468746874686874", 10); // Set gmp to a very long integer.
-      my_number_set_z (z, gmp);                 // Set z as the mpz_t variable
+      my_number_set_z (z, gmp);                  // Set z as the mpz_t variable
       my_dict_set_at(dict, STRING_CTE("n2"), z); // Push it in the dictionary
 
       my_array_push_back (array, dict);          // Push the dictionary in the array
 
-      // Let's add a new element in the array
-      mpfr_set_str(mpfr, "42.17", 0, MPFR_RNDN); // Set mpfr to the real value given as a string
-      my_number_set_fr(z, mpfr);                // Set z as this variable.
+      // Let's add a new element in the array through a mpfr_t set to 42.17
+      M_LET( (fr, ("42.17")), mpfr_t) {
+        my_number_set_fr(z, fr);                // Set z as this variable.
+      }
       my_dict_set_at(dict, STRING_CTE("n3"), z); // Push it in the dictionary
 
       my_number_emplace_fr_si(z, 42);            // Directly emplace the variant as a mpfr_t with a signed integer for init
@@ -157,6 +199,7 @@ int main(void)
           for M_EACH(p, *item, my_dict_t) {
               // Dictionary iterator are pair (key,value)
               printf("Key is '%s'. ", string_get_cstr(p->key));
+              // In function of the type of value
               if (my_number_n_p(p->value)) {
                 printf ("It is a long long, value = %lld\n",
                         *my_number_cget_n(p->value));
@@ -175,11 +218,20 @@ int main(void)
           printf("Next element of array\n");
         }
       
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
       // Print all the array in one step. Need to be done in C11 only
-      M_PRINT("The array is equal to ", (array, my_array_t), "\n");
-#endif
+      M_PRINT("\nThe array is equal to ", (array, my_array_t), "\n");
     } /* All variables are automatically cleared beyond this point */
+
+    // Define an array of mpz_t as { 1, 2, 3 } (with auto promotion from integer)
+    // The auto-promotion uses _Generic feature and is available only in C11.
+    M_LET ( (az, (1), (2), (1)), array_mpz_t)
+    M_LET ( roots, array_mpfr_t) {
+      // Compute roots
+      compute_roots(roots, az);
+      // Display of roots:
+      M_PRINT("Roots of ", (az, array_mpz_t), " are ", (roots, array_mpfr_t), "\n");
+    }
+
 }
 
 #else
