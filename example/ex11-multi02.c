@@ -44,7 +44,8 @@ mpz_fast_hash(const mpz_t z)
    EMPLACE_TYPE( LIST( (_si, mpz_init_set_si, int),                     \
                        (_ui, mpz_init_set_ui, unsigned),                \
                        (_d,  mpz_init_set_d,  double),                  \
-                       (_str, API(mpz_init_set_str, VOID, ARG1, ARG2, 10), const char *) )), \
+                       (_cstr, API(mpz_init_set_str, VOID, ARG1, ARG2, 10), const char *), \
+                       (_str, API(mpz_init_set_str, VOID, ARG1, ARG2, 10), char *) )), \
    TYPE(mpz_t) )
 
 
@@ -222,9 +223,9 @@ int main(void)
       M_PRINT("\nThe array is equal to ", (array, my_array_t), "\n");
     } /* All variables are automatically cleared beyond this point */
 
-    // Define an array of mpz_t as { 1, 2, 3 } (with auto promotion from integer)
+    // Define an array of mpz_t as { 1, 2, 1 } (with auto promotion from integer)
     // The auto-promotion uses _Generic feature and is available only in C11.
-    M_LET ( (az, (1), (2), (1)), array_mpz_t)
+    M_LET ( (az, (1), ("2"), (1.0)), array_mpz_t)
     M_LET ( roots, array_mpfr_t) {
       // Compute roots
       compute_roots(roots, az);
