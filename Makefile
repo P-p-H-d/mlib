@@ -1,4 +1,4 @@
-# Copyright (c) 2017-2022, Patrick Pelissier
+# Copyright (c) 2017-2023, Patrick Pelissier
 # All rights reserved.
 # 
 # Redistribution and use in source and binary forms, with or without

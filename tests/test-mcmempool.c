@@ -1,7 +1,7 @@
 /*
  * M*LIB - Test for Concurrent memory pool allocator
  *
- * Copyright (c) 2017-2022, Patrick Pelissier
+ * Copyright (c) 2017-2023, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
