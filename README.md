@@ -867,6 +867,7 @@ For example, a non exhaustive list is:
 
 * [BKTHOMPS/CONTAINERS](https://github.com/bkthomps/Containers)
 * [BSD tree.h](http://fxr.watson.org/fxr/source/sys/tree.h)
+* [CC](https://github.com/JacksonAllan/CC)
 * [CDSA](https://github.com/MichaelJWelsh/cdsa)
 * [CELLO](http://libcello.org/)
 * [C-Macro-Collections](https://github.com/LeoVen/C-Macro-Collections)
