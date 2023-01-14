@@ -40,10 +40,6 @@
      *ptr = 17;
      mempool_uint_free(m, ptr);
      mempool_uint_clear(m); // Give back memory to system
-   Technically, it uses a list of memory regions, where multiple
-   allocations are performed in each region. However, it
-   can not use m-list since it may be expanded from LIST_DEF
-   (recursive dependency problem).
 */
 #define M_MEMPOOL_DEF(name, type)                                             \
   M_MEMPOOL_DEF_AS(name, M_C(name,_t), type)
@@ -72,6 +68,11 @@
 
 /********************************** INTERNAL ************************************/
 
+/*
+  Technically, it uses a list of memory regions, where multiple
+  allocations are performed in each region. However, it
+  can not use m-list since it may be expanded from LIST_DEF
+  (recursive dependency problem). */
 #define M_M3MPOOL_DEF_P2(name, type, name_t)                                  \
   M_M3MPOOL_DEF_TYPE(name, type, name_t)                                      \
   M_M3MPOOL_DEF_CORE(name, type, name_t)
