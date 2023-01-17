@@ -450,6 +450,48 @@ M_BEGIN_PROTECTED_CODE
 
 
 /***************************************************************/
+/****************** Function Generation Macro ******************/
+/***************************************************************/
+
+/*
+ * Define the expansion logic to define a public / private / type function
+ * for inline expansion
+ */
+#define M_EXPAND_FUNC_INLINE(proto, ...)                                      \
+  static inline proto __VA_ARGS__
+
+#define M_EXPAND_FUNC_INLINE_PRIVATE(...)                                     \
+  __VA_ARGS__
+
+#define M_EXPAND_FUNC_INLINE_TYPE(...)                                        \
+  __VA_ARGS__
+
+/*
+ * Define the expansion logic to define a public / private / type function
+ * for inline expansion
+ */
+#define M_EXPAND_FUNC_DECL(proto, ...)                                        \
+  extern proto;
+
+#define M_EXPAND_FUNC_DECL_PRIVATE(...)
+
+#define M_EXPAND_FUNC_DECL_TYPE(...)                                          \
+  __VA_ARGS__
+
+/*
+ * Define the expansion logic to define a public / private / type function
+ * for inline expansion
+ */
+#define M_EXPAND_FUNC_BODY(proto, ...)                                        \
+  proto __VA_ARGS__
+
+#define M_EXPAND_FUNC_BODY_PRIVATE(...)                                       \
+  __VA_ARGS__
+
+#define M_EXPAND_FUNC_BODY_TYPE(...)
+
+
+/***************************************************************/
 /****************** Preprocessing Times Macro ******************/
 /***************************************************************/
 

@@ -26,7 +26,7 @@
 #define MSTARLIB_I_LIST_H
 
 #include "m-core.h"
-#include "m-list.h" // For M_L1ST_ITBASE_DEF
+#include "m-list.h" // For M_L1ST_DEF_ITBASE
 
 /* Interface to add to a structure to enable intrusive doubly-linked support.
    name: name of the intrusive list.
@@ -169,7 +169,7 @@ typedef struct m_il1st_head_s {
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
   M_IL1ST_DEF_CORE(name, type, oplist, list_t, it_t)                          \
   /* Used of internal macro from m-list */                                    \
-  M_L1ST_ITBASE_DEF(name, type, oplist, list_t, it_t)
+  M_L1ST_DEF_ITBASE(M_EXPAND_FUNC_INLINE, name, type, oplist, list_t, it_t)
 
 /* Define the type of an intrusive list */
 #define M_IL1ST_DEF_TYPE(name, type, oplist, list_t, it_t)                    \
