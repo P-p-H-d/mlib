@@ -133,6 +133,7 @@
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                          \
    )
 
+
 /* Internal contract 
    NOTE: Can't check too much without locking the container itself
 */
@@ -160,6 +161,13 @@
    - concurrent_t: alias for M_C(name, _t) [ type of the container ]
  */
 #define M_C0NCURRENT_DEF_P3(name, type, oplist, concurrent_t)                 \
+  M_C0NCURRENT_DEF_TYPE(name, type, oplist, concurrent_t)                     \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+  M_C0NCURRENT_DEF_CORE(name, type, oplist, concurrent_t)                     \
+  M_C0NCURRENT_DEF_COMMON(name, type, oplist, concurrent_t)
+
+/* Define the type of a concurrent container */
+#define M_C0NCURRENT_DEF_TYPE(name, type, oplist, concurrent_t)               \
                                                                               \
   /* Define a concurrent container using a lock */                            \
   typedef struct M_C(name, _s) {                                              \
@@ -177,10 +185,10 @@
   typedef concurrent_t M_C(name, _ct);                                        \
   typedef type         M_C(name, _subtype_ct);                                \
                                                                               \
-  /* Don't define iterator as it cannot be reliable in a concurrent type */   \
-  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
-                                                                              \
-  /* Define the internal services used for the lock strategy  */              \
+  /* Cannot define iterator as it cannot be reliable in a concurrent type */  \
+
+  /* Define the internal services used for the lock strategy  */
+#define M_C0NCURRENT_DEF_CORE(name, type, oplist, concurrent_t)               \
                                                                               \
   /* Initial the fields of the concurrent object not associated to the        \
   sub-container. */                                                           \
@@ -274,9 +282,6 @@
     may wait on a some data of this container. */                             \
     m_cond_broadcast(out->there_is_data);                                     \
   }                                                                           \
-                                                                              \
-  M_C0NCURRENT_DEF_FUNC_P3(name, type, oplist, concurrent_t)
-
 
 /* Internal definition of the functions commons to concurrent and rp-concurrent
    - name: prefix to be used
@@ -286,7 +291,7 @@
   A function is defined only if the underlying container exports the needed
   services. It is usually one service declared per service exported.
 */
-#define M_C0NCURRENT_DEF_FUNC_P3(name, type, oplist, concurrent_t)            \
+#define M_C0NCURRENT_DEF_COMMON(name, type, oplist, concurrent_t)             \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
   static inline void                                                          \
@@ -759,6 +764,12 @@
    - concurrent_t: alias for M_C(name, _t) [ type of the container ]
  */
 #define M_C0NCURRENT_RP_DEF_P3(name, type, oplist, concurrent_t)              \
+  M_C0NCURRENT_RP_DEF_TYPE(name, type, oplist, concurrent_t)                  \
+  M_C0NCURRENT_RP_DEF_CORE(name, type, oplist, concurrent_t)                  \
+  M_C0NCURRENT_DEF_COMMON(name, type, oplist, concurrent_t)
+
+/* Define the type of a RP concurrent container */
+#define M_C0NCURRENT_RP_DEF_TYPE(name, type, oplist, concurrent_t)            \
                                                                               \
   typedef struct M_C(name, _s) {                                              \
     struct M_C(name, _s) *self;                                               \
@@ -774,8 +785,10 @@
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);                     \
                                                                               \
   typedef type M_C(name, _subtype_ct);                                        \
+
+/* Define the internal services for the lock strategy of a RP container */
+#define M_C0NCURRENT_RP_DEF_CORE(name, type, oplist, concurrent_t)            \
                                                                               \
-  /* Define the internal services for the lock strategy  */                   \
   static inline void                                                          \
   M_C(name, _internal_init)(concurrent_t out)                                 \
   {                                                                           \
@@ -894,8 +907,7 @@
     m_cond_broadcast(out->there_is_data);                                     \
     m_mutex_unlock (out->lock);                                               \
   }                                                                           \
-                                                                              \
-  M_C0NCURRENT_DEF_FUNC_P3(name, type, oplist, concurrent_t)
+
 
 #if M_USE_SMALL_NAME
 #define CONCURRENT_DEF M_CONCURRENT_DEF
