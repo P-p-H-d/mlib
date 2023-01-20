@@ -73,6 +73,11 @@
 /********************************** INTERNAL ************************************/
 
 #define M_M3MPOOL_DEF_P2(name, type, name_t)                                  \
+  M_M3MPOOL_DEF_TYPE(name, type, name_t)                                      \
+  M_M3MPOOL_DEF_CORE(name, type, name_t)
+
+/* Define the types of the mempool */
+#define M_M3MPOOL_DEF_TYPE(name, type, name_t)                                \
                                                                               \
   /* Define the type of element in a segment of the mempool.                  \
     Either it is the basic type or a pointer to another one.  */              \
@@ -96,6 +101,10 @@
     M_C(name,_union_ct)   *free_list;                                         \
     M_C(name,_segment_ct) *current_segment;                                   \
   } name_t[1];                                                                \
+
+
+/* Define the core functions of the mempool */
+#define M_M3MPOOL_DEF_CORE(name, type, name_t)                                \
                                                                               \
   static inline void                                                          \
   M_C(name,_init)(name_t mem)                                                 \
