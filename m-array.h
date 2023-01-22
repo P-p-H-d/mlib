@@ -60,9 +60,9 @@
 #define M_ARRAY_INIT_VALUE()                                                  \
   { { 0, 0, NULL } }
 
-/********************************************************************************/
-/********************************** INTERNAL ************************************/
-/********************************************************************************/
+/*****************************************************************************/
+/********************************** INTERNAL *********************************/
+/*****************************************************************************/
 
 /* Deferred evaluation for the oplist definition,
    so that all arguments are evaluated before further expansion */
@@ -135,6 +135,7 @@
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                          \
    )
 
+
 /* Define the internal contract of an array */
 #define M_ARRA4_CONTRACT(a) do {                                              \
     M_ASSERT (a != NULL);                                                     \
@@ -142,6 +143,7 @@
     M_ASSERT (a->size == 0 || a->ptr != NULL);                                \
     M_ASSERT (a->alloc == 0 || a->ptr != NULL);                               \
   } while (0)
+
 
 /* Deferred evaluation for the array definition,
    so that all arguments are fully evaluated before further expansion
@@ -167,6 +169,12 @@
    - it_t: alias for the iterator of the array
 */
 #define M_ARRA4_DEF_P3(name, type, oplist, array_t, it_t)                     \
+  M_ARRA4_DEF_TYPE(name, type, oplist, array_t, it_t)                         \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+  M_ARRA4_DEF_CORE(name, type, oplist, array_t, it_t)
+
+/* Define the types */
+#define M_ARRA4_DEF_TYPE(name, type, oplist, array_t, it_t)                   \
                                                                               \
   /* Define a dynamic array */                                                \
   typedef struct M_C(name, _s) {                                              \
@@ -187,8 +195,9 @@
   typedef array_t M_C(name, _ct);                                             \
   typedef it_t M_C(name, _it_ct);                                             \
   typedef type M_C(name, _subtype_ct);                                        \
-                                                                              \
-  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+
+/* Define the core functions */
+#define M_ARRA4_DEF_CORE(name, type, oplist, array_t, it_t)                   \
                                                                               \
   static inline void                                                          \
   M_C(name, _init)(array_t v)                                                 \

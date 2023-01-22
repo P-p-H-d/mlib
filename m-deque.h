@@ -56,7 +56,10 @@
 #define M_USE_DEQUE_DEFAULT_SIZE  8
 #endif
 
-/********************************** INTERNAL ************************************/
+
+/*****************************************************************************/
+/********************************* INTERNAL **********************************/
+/*****************************************************************************/
 
 /* Define the internal contract of a deque */
 #define M_D3QU3_CONTRACT(d) do {                                              \
@@ -93,16 +96,22 @@
    - node_t: alias for node_t [ node ]
  */
 #define M_D3QU3_DEF_P3(name, type, oplist, deque_t, it_t, node_t)             \
+  M_D3QU3_DEF_TYPE(name, type, oplist, deque_t, it_t, node_t)                 \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+  M_D3QU3_DEF_CORE(name, type, oplist, deque_t, it_t, node_t)
+
+/* Define the types.
+   It is a linked list of buckets of the types,
+   each new created bucket size grows compared to the previous one
+   resulting in:
+   strict O(1) for push/pop
+   O(ln(n)) for random access.
+   No insert / delete operations are planned.
+   [Could be done in O(n) complexity if needed]
+   Define the bucket (aka node) structure.
+*/
+#define M_D3QU3_DEF_TYPE(name, type, oplist, deque_t, it_t, node_t)           \
                                                                               \
-  /* It is a linked list of buckets of the types,                             \
-     each new created bucket size grows compared to the previous one          \
-     resulting in:                                                            \
-     strict O(1) for push/pop                                                 \
-     O(ln(n)) for random access.                                              \
-     No insert / delete operations are planned.                               \
-     [Could be done in O(n) complexity if needed]                             \
-     Define the bucket (aka node) structure.                                  \
-  */                                                                          \
   typedef struct M_C(name, _node_s) {                                         \
     ILIST_INTERFACE(M_C(name, _node_list), struct M_C(name, _node_s));        \
     size_t size;                                                              \
@@ -115,6 +124,7 @@
      so we register as a DEL operator the FREE operator of the oplist.        \
      The interfaces are compatible.                                           \
   */                                                                          \
+  /* FIXME: How can I separate public types and private implementation? */    \
   ILIST_DEF(M_C(name, _node_list), node_t, (DEL(M_GET_FREE oplist)) )         \
                                                                               \
   /* Define an internal iterator */                                           \
@@ -153,8 +163,9 @@
   typedef deque_t M_C(name, _ct);                                             \
   typedef type    M_C(name, _subtype_ct);                                     \
   typedef it_t    M_C(name, _it_ct);                                          \
-                                                                              \
-  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+
+/* Define the core functions */
+#define M_D3QU3_DEF_CORE(name, type, oplist, deque_t, it_t, node_t)           \
                                                                               \
   /* Allocate a new node for a deque */                                       \
   static inline node_t*                                                       \
