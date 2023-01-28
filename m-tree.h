@@ -136,7 +136,8 @@ typedef int32_t m_tr33_index_t;
   M_TR33_DEF_TYPE(name, type, oplist, tree_t, it_t)                           \
   M_TR33_DEF_P4_CORE(name, type, oplist, tree_t, it_t)                        \
   M_TR33_DEF_P4_EXT(name, type, oplist, tree_t, it_t)                         \
-  M_TR33_DEF_P4_IO(name, type, oplist, tree_t, it_t)
+  M_TR33_DEF_P4_IO(name, type, oplist, tree_t, it_t)                          \
+  M_TR33_DEF_P4_EMPLACE(name, type, oplist, tree_t, it_t)
 
 #define M_TR33_DEF_TYPE(name, type, oplist, tree_t, it_t)                     \
                                                                               \
@@ -193,6 +194,8 @@ typedef int32_t m_tr33_index_t;
         struct M_C(name, _s) *tree;                                           \
         m_tr33_index_t        index;                                          \
     } it_t;                                                                   \
+                                                                              \
+    typedef it_t M_C(name, _it_ct);
 
 /* Define the core & unique methods of a tree */
 #define M_TR33_DEF_P4_CORE(name, type, oplist, tree_t, it_t)                  \
@@ -1470,8 +1473,94 @@ exit:                                                                         \
 }                                                                             \
 , /* No IN_STR */ )                                                           \
 
+/* Define the emplace methods of a tree */
+#define M_TR33_DEF_P4_EMPLACE(name, type, oplist, tree_t, it_t)               \
+  M_EMPLACE_QUEUE_DEF(name, tree_t, M_C(name, _emplace_root), oplist, M_TR33_EMPLACE_ROOT_DEF) \
+  M_EMPLACE_QUEUE_DEF(name, it_t, M_C(name, _emplace_up), oplist, M_TR33_EMPLACE_UP_DEF) \
+  M_EMPLACE_QUEUE_DEF(name, it_t, M_C(name, _emplace_down), oplist, M_TR33_EMPLACE_DOWN_DEF) \
+  M_EMPLACE_QUEUE_DEF(name, it_t, M_C(name, _emplace_child), oplist, M_TR33_EMPLACE_CHILD_DEF) \
+  M_EMPLACE_QUEUE_DEF(name, it_t, M_C(name, _emplace_left), oplist, M_TR33_EMPLACE_LEFT_DEF) \
+  M_EMPLACE_QUEUE_DEF(name, it_t, M_C(name, _emplace_right), oplist, M_TR33_EMPLACE_RIGHT_DEF)
+
+/* Definition of the emplace_back functions */
+#define M_TR33_EMPLACE_ROOT_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
+  static inline M_C(name, _it_ct)                                             \
+    function_name(name_t tree                                                 \
+                  M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )              \
+    {                                                                         \
+        M_TR33_CONTRACT(tree);                                                \
+        M_C(name, _reset)(tree);                                              \
+        m_tr33_index_t i = M_C3(m_tr33_, name, _alloc_node)(tree);            \
+        tree->tab[i].parent = M_TR33_ROOT_NODE;                               \
+        tree->tab[i].left   = M_TR33_NO_NODE;                                 \
+        tree->tab[i].right  = M_TR33_NO_NODE;                                 \
+        tree->tab[i].child  = M_TR33_NO_NODE;                                 \
+        tree->root_index = i;                                                 \
+        M_EMPLACE_CALL_FUNC(a, init_func, oplist, tree->tab[i].data,          \
+                        exp_emplace_type);                                    \
+        M_C(name, _it_ct) it;                                                 \
+        it.tree = tree;                                                       \
+        it.index = tree->root_index;                                          \
+        M_TR33_CONTRACT(tree);                                                \
+        return it;                                                            \
+    }
+
+#define M_TR33_EMPLACE_UP_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
+  static inline name_t                                                        \
+  function_name(name_t pos                                                    \
+                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  {                                                                           \
+    name_t it = M_C(name, _insert_up_raw)(pos);                               \
+    M_EMPLACE_CALL_FUNC(a, init_func, oplist, it.tree->tab[it.index].data,    \
+                        exp_emplace_type);                                    \
+    return it;                                                                \
+  }
+
+#define M_TR33_EMPLACE_DOWN_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
+  static inline name_t                                                        \
+  function_name(name_t pos                                                    \
+                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  {                                                                           \
+    name_t it = M_C(name, _insert_down_raw)(pos);                             \
+    M_EMPLACE_CALL_FUNC(a, init_func, oplist, it.tree->tab[it.index].data,    \
+                        exp_emplace_type);                                    \
+    return it;                                                                \
+  }
+
+#define M_TR33_EMPLACE_CHILD_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
+  static inline name_t                                                        \
+  function_name(name_t pos                                                    \
+                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  {                                                                           \
+    name_t it = M_C(name, _insert_child_raw)(pos);                            \
+    M_EMPLACE_CALL_FUNC(a, init_func, oplist, it.tree->tab[it.index].data,    \
+                        exp_emplace_type);                                    \
+    return it;                                                                \
+  }
+
+#define M_TR33_EMPLACE_LEFT_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
+  static inline name_t                                                        \
+  function_name(name_t pos                                                    \
+                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  {                                                                           \
+    name_t it = M_C(name, _insert_left_raw)(pos);                             \
+    M_EMPLACE_CALL_FUNC(a, init_func, oplist, it.tree->tab[it.index].data,    \
+                        exp_emplace_type);                                    \
+    return it;                                                                \
+  }
+
+#define M_TR33_EMPLACE_RIGHT_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
+  static inline name_t                                                        \
+  function_name(name_t pos                                                    \
+                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  {                                                                           \
+    name_t it = M_C(name, _insert_right_raw)(pos);                            \
+    M_EMPLACE_CALL_FUNC(a, init_func, oplist, it.tree->tab[it.index].data,    \
+                        exp_emplace_type);                                    \
+    return it;                                                                \
+  }
+
 // TODO: 
-// * emplace insertion
 // * serialization
 // * OPLIST ?
 // * _previous ?
