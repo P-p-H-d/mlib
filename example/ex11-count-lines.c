@@ -17,14 +17,14 @@ static inline int atomic_uint_cmp(const atomic_uint *a, const atomic_uint *b)
   return ai > bi ? -1 : ai < bi;
 }
 /* Disable HASH for atomic as the default hash method won't work */
-#define M_OPL_atomic_uint() M_OPEXTEND(M_BASIC_OPLIST, HASH(0), CMP(API_6(atomic_uint_cmp)))
+#define M_OPL_atomic_uint() M_OPEXTEND(M_BASIC_OPLIST, HASH(0), CMP(API_6(atomic_uint_cmp)), INIT_SET(API_2(atomic_store)), SET(API_2(atomic_store)))
 
 /* Define a directory as the number of lines of the files in this directory
    and the name of the directory 
    (Only sort with the number value by disable the sort compare for the string).
 */
 TUPLE_DEF2( dir, (nlines, atomic_uint), (name, string_t, M_OPEXTEND(STRING_OPLIST, CMP(0))))
-#define M_OPL_dir_t() TUPLE_OPLIST(dir, M_BASIC_OPLIST, M_STRING_OPLIST)
+#define M_OPL_dir_t() TUPLE_OPLIST(dir, M_OPL_atomic_uint(), M_STRING_OPLIST)
 
 /* A hierarchical tree of directory */
 M_TREE_DEF(tree, dir_t)
@@ -38,18 +38,11 @@ M_TREE_DEF(tree, dir_t)
 static tree_it_t
 add_directory(tree_it_t parent, const string_t dirname)
 {
-  // TODO: return dir_emplace_child(parent, 0, dirname); to simplify this function.
-  // which is too complex for what she does.
-  dir_t data;
-  tree_it_t it;
-  dir_init_emplace(data, 0, dirname);
   if (tree_end_p(parent)) {
-    it = tree_set_root( tree_tree(parent), data);
+    return tree_emplace_root( tree_tree(parent), 0, dirname);
   } else {
-    it = tree_insert_child(parent, data);
+    return tree_emplace_child(parent, 0, dirname);
   }
-  dir_clear(data);
-  return it;
 }
 
 /* count the number of end of line character in the buffer */
