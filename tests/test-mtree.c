@@ -37,6 +37,7 @@ START_COVERAGE
 TREE_DEF(tree, int, M_OPEXTEND(M_DEFAULT_OPLIST, GET_STR(M_GET_STRING_INT),PARSE_STR(m_core_parse_sint M_IPTR),IN_STR(m_core_fscan_sint M_IPTR), OUT_STR(M_OUT_STR_INT)))
 END_COVERAGE
 TREE_DEF(tree_mpz, testobj_t, TESTOBJ_OPLIST)
+TREE_DEF(tree_string, string_t)
 
 #define numberof(x) (int)(sizeof (x) / sizeof((x)[0]))
 
@@ -507,10 +508,28 @@ static void test_io(void)
   tree_clear(t2);
 }
 
+static void test_emplace(void)
+{
+  tree_string_t t;
+  tree_string_init(t);
+  tree_string_it_t root = tree_string_emplace_root(t, "Hello");
+  root = tree_string_emplace_up(root, "Up");
+  tree_string_it_t it = tree_string_emplace_down(root, "Up2");
+  tree_string_emplace_left(it, "Up0");
+  tree_string_emplace_right(it, "Up3");
+  tree_string_emplace_child(it, "World");
+  M_LET(s, string_t) {
+    tree_string_get_str(s, t, false);
+    assert(string_equal_str_p(s, "[{\"Up\",[{\"Up0\"},{\"Up2\",[{\"World\"},{\"Hello\"}]},{\"Up3\"}]}]"));
+  }
+  tree_string_clear(t);
+}
+
 int main(void)
 {
     test_basic();
     test_gen();
     test_io();
+    test_emplace();
     return 0;
 }
