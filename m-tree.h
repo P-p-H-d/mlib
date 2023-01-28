@@ -133,6 +133,12 @@ typedef int32_t m_tr33_index_t;
    A root node is identified as parent as M_TR33_ROOT_NODE
 */
 #define M_TR33_DEF_P3(name, type, oplist, tree_t, it_t)                       \
+  M_TR33_DEF_TYPE(name, type, oplist, tree_t, it_t)                           \
+  M_TR33_DEF_P4_CORE(name, type, oplist, tree_t, it_t)                        \
+  M_TR33_DEF_P4_EXT(name, type, oplist, tree_t, it_t)                         \
+  M_TR33_DEF_P4_IO(name, type, oplist, tree_t, it_t)
+
+#define M_TR33_DEF_TYPE(name, type, oplist, tree_t, it_t)                     \
                                                                               \
     /* Define a node of the tree.                                             \
        Each node of a tree is present in the array of the tree and as such    \
@@ -187,10 +193,6 @@ typedef int32_t m_tr33_index_t;
         struct M_C(name, _s) *tree;                                           \
         m_tr33_index_t        index;                                          \
     } it_t;                                                                   \
-                                                                              \
-    M_TR33_DEF_P4_CORE(name, type, oplist, tree_t, it_t)                      \
-    M_TR33_DEF_P4_CLASSIC(name, type, oplist, tree_t, it_t)                   \
-    M_TR33_DEF_P4_IO(name, type, oplist, tree_t, it_t)
 
 /* Define the core & unique methods of a tree */
 #define M_TR33_DEF_P4_CORE(name, type, oplist, tree_t, it_t)                  \
@@ -1099,8 +1101,8 @@ typedef int32_t m_tr33_index_t;
     , /* No CMP */ )                                                          \
 
 
-/* Define the classic missing methods of a tree */
-#define M_TR33_DEF_P4_CLASSIC(name, type, oplist, tree_t, it_t)               \
+/* Define the classic extended missing methods of a tree */
+#define M_TR33_DEF_P4_EXT(name, type, oplist, tree_t, it_t)                   \
     static inline void                                                        \
     M_C(name, _init_set)(tree_t tree, const tree_t ref) {                     \
         tree->size = ref->size;                                               \
