@@ -4466,9 +4466,11 @@ m_core_parse2_enum (const char str[], const char **endptr)
    NOTE: Use internally, M_MAP2, M_MAP2_C & M_MAP3
  */
 #define M_EMPLACE_QUEUE_DEF(name, name_t, function_name, oplist, macro)       \
+  M_ID(                                                                       \
   M_IF(M_TEST_METHOD_ALTER_P(EMPLACE_TYPE, oplist))                           \
   (M_EMPLACE_QUEUE_DEF_EXPAND, M_EAT)                                         \
-  (name, name_t, function_name, oplist, macro, M_GET_EMPLACE_TYPE oplist)
+  (name, name_t, function_name, oplist, macro, M_GET_EMPLACE_TYPE oplist)     \
+                                                                        )
 /* One EMPLACE_TYPE operator is defined ==> Perform the emplace function expansion.
    If the emplace type starts with parenthesis, it is only one with multiple args */
 #define M_EMPLACE_QUEUE_DEF_EXPAND(name, name_t, function_name, oplist, macro, emplace_type) \
@@ -4600,7 +4602,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
   associative array emplace generation or queue generation
   depending on the parameter isSet (= 0 or 1) */
 #define M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF(isSet, name, name_t, key_oplist, val_oplist) \
-  M_C(M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF, isSet)(name, name_t, key_oplist, val_oplist)
+  M_ID( M_C(M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF, isSet)(name, name_t, key_oplist, val_oplist) )
 #define M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF0(name, name_t, key_oplist, val_oplist) \
   M_EMPLACE_ASS_ARRAY_DEF(name, name_t, M_C(name, _emplace), key_oplist, val_oplist, M_EMPLACE_ASS_ARRA1_BOTH_GENE, M_EMPLACE_ASS_ARRA1_KEY_GENE, M_EMPLACE_ASS_ARRA1_VAL_GENE)
 #define M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF1(name, name_t, key_oplist, val_oplist) \
