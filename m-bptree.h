@@ -192,6 +192,7 @@
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                          \
    )
 
+
 /* Deferred evaluation */
 #define M_BPTR33_OPLIST2_P1(arg) M_BPTR33_OPLIST2_P2 arg
 
@@ -302,21 +303,26 @@
  */
 #define M_BPTR33_MAX_STACK ((int)(1 + CHAR_BIT*sizeof (size_t)))
 
+
 /* Deferred evaluation for the b+tree definition,
    so that all arguments are evaluated before further expansion */
 #define M_BPTR33_DEF_P1(arg) M_ID( M_BPTR33_DEF_P2 arg )
 
 /* Validate the key oplist before going further */
 #define M_BPTR33_DEF_P2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t) \
-  M_IF_OPLIST(key_oplist)(M_BPTR33_DEF_P3, M_BPTR33_DEF_FAILURE)(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t)
+  M_IF_OPLIST(key_oplist)(M_BPTR33_DEF_P3, M_BPTR33_DEF_FAILURE)              \
+  (name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t)
 
 /* Validate the value oplist before going further */
 #define M_BPTR33_DEF_P3(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t) \
-  M_IF_OPLIST(value_oplist)(M_BPTR33_DEF_P4, M_BPTR33_DEF_FAILURE)(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t)
+  M_IF_OPLIST(value_oplist)(M_BPTR33_DEF_P4, M_BPTR33_DEF_FAILURE)            \
+  (name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t)
 
 /* Stop processing with a compilation failure */
 #define M_BPTR33_DEF_FAILURE(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t) \
-  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(BPTREE*_DEF): one of the given argument is not a valid oplist: " M_AS_STR(key_oplist) " / " M_AS_STR(value_oplist))
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST,                                       \
+                   "(BPTREE*_DEF): one of the given argument is not a valid oplist: " \
+                   M_AS_STR(key_oplist) " / " M_AS_STR(value_oplist))
 
 /* Internal b+tree definition
    - name: prefix to be used
@@ -334,7 +340,16 @@
    - subtype_t: alias for the type referenced by the iterator
  */
 #define M_BPTR33_DEF_P4(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t) \
-                                                                              \
+  M_BPTR33_DEF_TYPE(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t) \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, key_t, key_oplist)                       \
+  M_CHECK_COMPATIBLE_OPLIST(name, 2, value_t, value_oplist)                   \
+  M_BPTR33_DEF_CORE(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t) \
+  M_BPTR33_DEF_IT(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t) \
+  M_BPTR33_DEF_EXT(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t) \
+  M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF(M_INV(isMap), name, tree_t, key_oplist, value_oplist)
+
+/* Define the types of a B+Tree */
+#define M_BPTR33_DEF_TYPE(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t) \
   M_IF(isMap)(                                                                \
     /* Type returned by the iterator. Due to having key and value             \
        separated in their own array in the node, it is pointers to            \
@@ -389,9 +404,9 @@
     int    idx;                                                               \
   } it_t[1];                                                                  \
   typedef it_t M_C(name, _it_ct);                                             \
-                                                                              \
-  M_CHECK_COMPATIBLE_OPLIST(name, 1, key_t, key_oplist)                       \
-  M_CHECK_COMPATIBLE_OPLIST(name, 2, value_t, value_oplist)                   \
+
+/* Define the core functions of a B+ Tree */
+#define M_BPTR33_DEF_CORE(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t) \
                                                                               \
   /* Allocate a new node */                                                   \
   /* TODO: Can be specialized to alloc for leaf or for non leaf */            \
@@ -984,6 +999,80 @@
     }                                                                         \
     return M_C(name, _erase)(b, key);                                         \
   }                                                                           \
+  \
+  static inline value_t *                                                     \
+  M_C(name, _min)(const tree_t b)                                             \
+  {                                                                           \
+    M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
+    if (M_UNLIKELY (b->size == 0)) return NULL;                               \
+    node_t n = b->root;                                                       \
+    /* Scan down the nodes */                                                 \
+    while (!M_C(name, _is_leaf)(n)) {                                         \
+      n = n->kind.node[0];                                                    \
+    }                                                                         \
+    return &n->M_IF(isMap)(kind.value, key)[0];                               \
+  }                                                                           \
+                                                                              \
+  static inline value_t *                                                     \
+  M_C(name, _max)(const tree_t b)                                             \
+  {                                                                           \
+    M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
+    if (M_UNLIKELY (b->size == 0)) return NULL;                               \
+    node_t n = b->root;                                                       \
+    /* Scan down the nodes */                                                 \
+    while (!M_C(name, _is_leaf)(n)) {                                         \
+      n = n->kind.node[n->num];                                               \
+    }                                                                         \
+    return &n->M_IF(isMap)(kind.value, key)[-n->num-1];                       \
+  }                                                                           \
+                                                                              \
+  static inline value_t const *                                               \
+  M_C(name, _cmin)(const tree_t tree)                                         \
+  {                                                                           \
+    return M_CONST_CAST(value_t, M_C(name, _min)(tree));                      \
+  }                                                                           \
+                                                                              \
+  static inline value_t const *                                               \
+  M_C(name, _cmax)(const tree_t tree)                                         \
+  {                                                                           \
+    return M_CONST_CAST(value_t, M_C(name, _max)(tree));                      \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _init_move)(tree_t b, tree_t ref)                                 \
+  {                                                                           \
+    M_BPTR33_CONTRACT(N, isMulti, key_oplist, ref);                           \
+    M_ASSERT (b != NULL && b != ref);                                         \
+    b->size = ref->size;                                                      \
+    b->root = ref->root;                                                      \
+    ref->root = NULL;                                                         \
+    M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _move)(tree_t b, tree_t ref)                                      \
+  {                                                                           \
+    M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
+    M_BPTR33_CONTRACT(N, isMulti, key_oplist, ref);                           \
+    M_ASSERT (b != ref);                                                      \
+    M_C(name,_clear)(b);                                                      \
+    M_C(name,_init_move)(b, ref);                                             \
+    M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _swap)(tree_t tree1, tree_t tree2)                                \
+  {                                                                           \
+    M_BPTR33_CONTRACT(N, isMulti, key_oplist, tree1);                         \
+    M_BPTR33_CONTRACT(N, isMulti, key_oplist, tree2);                         \
+    M_SWAP(size_t, tree1->size, tree2->size);                                 \
+    M_SWAP(node_t, tree1->root, tree2->root);                                 \
+    M_BPTR33_CONTRACT(N, isMulti, key_oplist, tree1);                         \
+    M_BPTR33_CONTRACT(N, isMulti, key_oplist, tree2);                         \
+  }                                                                           \
+
+/* Define iterator functions. */
+#define M_BPTR33_DEF_IT(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t) \
                                                                               \
   static inline void                                                          \
   M_C(name, _it)(it_t it, const tree_t b)                                     \
@@ -1109,84 +1198,10 @@
     int cmp = M_CALL_CMP(key_oplist, n->key[it->idx], key);                   \
     return (cmp <= 0);                                                        \
   }                                                                           \
-                                                                              \
-  static inline value_t *                                                     \
-  M_C(name, _min)(const tree_t b)                                             \
-  {                                                                           \
-    M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
-    if (M_UNLIKELY (b->size == 0)) return NULL;                               \
-    node_t n = b->root;                                                       \
-    /* Scan down the nodes */                                                 \
-    while (!M_C(name, _is_leaf)(n)) {                                         \
-      n = n->kind.node[0];                                                    \
-    }                                                                         \
-    return &n->M_IF(isMap)(kind.value, key)[0];                               \
-  }                                                                           \
-                                                                              \
-  static inline value_t *                                                     \
-  M_C(name, _max)(const tree_t b)                                             \
-  {                                                                           \
-    M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
-    if (M_UNLIKELY (b->size == 0)) return NULL;                               \
-    node_t n = b->root;                                                       \
-    /* Scan down the nodes */                                                 \
-    while (!M_C(name, _is_leaf)(n)) {                                         \
-      n = n->kind.node[n->num];                                               \
-    }                                                                         \
-    return &n->M_IF(isMap)(kind.value, key)[-n->num-1];                       \
-  }                                                                           \
-                                                                              \
-  static inline value_t const *                                               \
-  M_C(name, _cmin)(const tree_t tree)                                         \
-  {                                                                           \
-    return M_CONST_CAST(value_t, M_C(name, _min)(tree));                      \
-  }                                                                           \
-                                                                              \
-  static inline value_t const *                                               \
-  M_C(name, _cmax)(const tree_t tree)                                         \
-  {                                                                           \
-    return M_CONST_CAST(value_t, M_C(name, _max)(tree));                      \
-  }                                                                           \
-                                                                              \
-  static inline void                                                          \
-  M_C(name, _init_move)(tree_t b, tree_t ref)                                 \
-  {                                                                           \
-    M_BPTR33_CONTRACT(N, isMulti, key_oplist, ref);                           \
-    M_ASSERT (b != NULL && b != ref);                                         \
-    b->size = ref->size;                                                      \
-    b->root = ref->root;                                                      \
-    ref->root = NULL;                                                         \
-    M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
-  }                                                                           \
-                                                                              \
-  static inline void                                                          \
-  M_C(name, _move)(tree_t b, tree_t ref)                                      \
-  {                                                                           \
-    M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
-    M_BPTR33_CONTRACT(N, isMulti, key_oplist, ref);                           \
-    M_ASSERT (b != ref);                                                      \
-    M_C(name,_clear)(b);                                                      \
-    M_C(name,_init_move)(b, ref);                                             \
-    M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
-  }                                                                           \
-                                                                              \
-  static inline void                                                          \
-  M_C(name, _swap)(tree_t tree1, tree_t tree2)                                \
-  {                                                                           \
-    M_BPTR33_CONTRACT(N, isMulti, key_oplist, tree1);                         \
-    M_BPTR33_CONTRACT(N, isMulti, key_oplist, tree2);                         \
-    M_SWAP(size_t, tree1->size, tree2->size);                                 \
-    M_SWAP(node_t, tree1->root, tree2->root);                                 \
-    M_BPTR33_CONTRACT(N, isMulti, key_oplist, tree1);                         \
-    M_BPTR33_CONTRACT(N, isMulti, key_oplist, tree2);                         \
-  }                                                                           \
-                                                                              \
-  M_BPTR33_FUNC_ADDITIONAL_DEF2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t)
-
 
 /* Define additional functions.
    Do not used any fields but the already defined methods */
-#define M_BPTR33_FUNC_ADDITIONAL_DEF2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t) \
+#define M_BPTR33_DEF_EXT(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t) \
                                                                               \
   M_IF_METHOD_BOTH(EQUAL, key_oplist, value_oplist)(                          \
   static inline bool M_C(name,_equal_p)(const tree_t t1, const tree_t t2) {   \
@@ -1468,8 +1483,7 @@
       return ret;                                                             \
   }                                                                           \
   , /* no in_serial */ )                                                      \
-                                                                              \
-  M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF(M_INV(isMap), name, tree_t, key_oplist, value_oplist)
+
 
 #if M_USE_SMALL_NAME
 #define BPTREE_DEF2 M_BPTREE_DEF2
