@@ -999,7 +999,7 @@
     }                                                                         \
     return M_C(name, _erase)(b, key);                                         \
   }                                                                           \
-  \
+                                                                              \
   static inline value_t *                                                     \
   M_C(name, _min)(const tree_t b)                                             \
   {                                                                           \
