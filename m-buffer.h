@@ -233,6 +233,7 @@ m_buff3r_number_dec(m_buff3r_number_ct n, unsigned int policy)
     M_ASSERT (m_buff3r_number_load(buffer->number[0], policy) <= M_BUFF3R_SIZE(size)); \
   } while (0)
 
+
 /* Deferred evaluation for the definition,
    so that all arguments are evaluated before further expansion */
 #define M_BUFF3R_DEF_P1(arg) M_ID( M_BUFF3R_DEF_P2 arg )
@@ -254,6 +255,13 @@ m_buff3r_number_dec(m_buff3r_number_ct n, unsigned int policy)
   - buffer_t: name of the buffer
   */
 #define M_BUFF3R_DEF_P3(name, type, m_size, policy, oplist, buffer_t)         \
+  M_BUFF3R_DEF_TYPE(name, type, m_size, policy, oplist, buffer_t)             \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+  M_BUFF3R_DEF_CORE(name, type, m_size, policy, oplist, buffer_t)             \
+  M_EMPLACE_QUEUE_DEF(name, buffer_t, M_C(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
+
+/* Define the type of a buffer */
+#define M_BUFF3R_DEF_TYPE(name, type, m_size, policy, oplist, buffer_t)       \
                                                                               \
   /* Put each data in a separate cache line to avoid false sharing            \
      by multiple writing threads. No need to align if there is no thread */   \
@@ -288,8 +296,9 @@ m_buff3r_number_dec(m_buff3r_number_ct n, unsigned int policy)
   /* Internal types used by the oplist */                                     \
   typedef type M_C(name, _subtype_ct);                                        \
   typedef buffer_t M_C(name, _ct);                                            \
-                                                                              \
-  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+
+/* Define the core functionnalities of a buffer */
+#define M_BUFF3R_DEF_CORE(name, type, m_size, policy, oplist, buffer_t)       \
                                                                               \
 static inline void                                                            \
 M_C(name, _init)(buffer_t v, size_t size)                                     \
@@ -737,10 +746,9 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
      }                                                                        \
    }                                                                          \
  }                                                                            \
-                                                                              \
- M_EMPLACE_QUEUE_DEF(name, buffer_t, M_C(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
 
 
+/*****************************************************************************/
 
 /* Definition of a a QUEUE for Many Produccer / Many Consummer
    for high bandwidth scenario:
@@ -787,6 +795,13 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   - buffer_t: name of the buffer
   */
 #define M_QU3UE_MPMC_DEF_P3(name, type, policy, oplist, buffer_t)             \
+  M_QU3UE_MPMC_DEF_TYPE(name, type, policy, oplist, buffer_t)                 \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+  M_QU3UE_MPMC_DEF_CORE(name, type, policy, oplist, buffer_t)                 \
+  M_EMPLACE_QUEUE_DEF(name, buffer_t, M_C(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
+
+/* Define the type of a MPMC queue */
+#define M_QU3UE_MPMC_DEF_TYPE(name, type, policy, oplist, buffer_t)           \
                                                                               \
   /* The sequence number of an element will be equal to either                \
      - 2* the index of the production which creates it,                       \
@@ -815,7 +830,9 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
                                                                               \
   typedef type M_C(name, _subtype_ct);                                        \
   typedef buffer_t M_C(name, _ct);                                            \
-                                                                              \
+
+/* Define the core functionnalities of a MPMC queue */
+#define M_QU3UE_MPMC_DEF_CORE(name, type, policy, oplist, buffer_t)           \
   static inline bool                                                          \
   M_C(name, _push)(buffer_t table, type const x)                              \
   {                                                                           \
@@ -968,6 +985,8 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   
 
 
+/*****************************************************************************/
+
 /* Definition of a a QUEUE for Single Producer / Single Consummer
    for high bandwidth scenario:
    * wait-free,
@@ -1012,6 +1031,13 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   - buffer_t: name of the buffer
   */
 #define M_QU3UE_SPSC_DEF_P3(name, type, policy, oplist, buffer_t)             \
+  M_QU3UE_SPSC_DEF_TYPE(name, type, policy, oplist, buffer_t)                 \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+  M_QU3UE_SPSC_DEF_CORE(name, type, policy, oplist, buffer_t)                 \
+  M_EMPLACE_QUEUE_DEF(name, buffer_t, M_C(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
+
+/* Define the type of a SPSC queue */
+#define M_QU3UE_SPSC_DEF_TYPE(name, type, policy, oplist, buffer_t)           \
                                                                               \
   /* Single producer / Single consummer                                       \
      So, only one thread will write in this table. The other thread           \
@@ -1031,6 +1057,9 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
                                                                               \
   typedef type M_C(name, _subtype_ct);                                        \
   typedef buffer_t M_C(name, _ct);                                            \
+
+/* Define the core functionnalities of a SPSC queue */
+#define M_QU3UE_SPSC_DEF_CORE(name, type, policy, oplist, buffer_t)           \
                                                                               \
   static inline bool                                                          \
   M_C(name, _push)(buffer_t table, type const x)                              \
@@ -1257,7 +1286,9 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
     buffer->Tab = NULL; /* safer */                                           \
     buffer->size = 3;                                                         \
   }                                                                           \
-                                                                              \
+
+
+/*****************************************************************************/
 
 /* Deferred evaluation for the definition,
    so that all arguments are evaluated before further expansion */
@@ -1287,6 +1318,9 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
    ,EMPTY_P(M_C(name, _empty_p)),                                             \
    ,GET_SIZE(M_C(name, _size))                                                \
    )
+
+
+/*****************************************************************************/
 
 #if M_USE_SMALL_NAME
 #define BUFFER_DEF M_BUFFER_DEF
