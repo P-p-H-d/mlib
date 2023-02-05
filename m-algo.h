@@ -119,36 +119,41 @@
   M_CHECK_COMPATIBLE_OPLIST(name, 10, container_t, cont_oplist)               \
   M_CHECK_COMPATIBLE_OPLIST(name, 11, type_t, type_oplist)                    \
                                                                               \
-  M_ALG0_CALLBACK_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
-  M_IF_FUNCOBJ(M_ALG0_FUNCOBJ_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t)) \
+  M_ALG0_DEF_CALLBACK(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_IF_FUNCOBJ(M_ALG0_DEF_FUNCOBJ(name, container_t, cont_oplist, type_t, type_oplist, it_t)) \
                                                                               \
   M_IF_METHOD(EQUAL, type_oplist)(                                            \
-  M_ALG0_FIND_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_ALG0_DEF_FIND(name, container_t, cont_oplist, type_t, type_oplist, it_t)  \
   , /* NO EQUAL */)                                                           \
                                                                               \
-  M_ALG0_FIND_IF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, if, M_C(name, _test_cb_ct), M_C(name, _eq_cb_ct), M_APPLY, M_APPLY) \
-  M_IF_FUNCOBJ(M_ALG0_FIND_IF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, fo, M_C(name, _test_obj_t), M_C(name, _eq_obj_t), M_C(name, _test_obj_call), M_C(name, _eq_obj_call))) \
+  M_ALG0_DEF_FIND_IF(name, container_t, cont_oplist, type_t, type_oplist, it_t, \
+                     if, M_C(name,_test_cb_ct), M_C(name,_eq_cb_ct), M_APPLY, M_APPLY) \
+  M_IF_FUNCOBJ(M_ALG0_DEF_FIND_IF(name, container_t, cont_oplist, type_t, type_oplist, it_t, \
+                                  fo, M_C(name,_test_obj_t), M_C(name,_eq_obj_t), M_C(name, _test_obj_call), M_C(name, _eq_obj_call))) \
                                                                               \
-  M_ALG0_MAP_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_ALG0_DEF_MAP(name, container_t, cont_oplist, type_t, type_oplist, it_t)   \
                                                                               \
-  M_ALG0_ALL_OF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, _, M_C(name, _test_cb_ct), M_APPLY) \
-  M_IF_FUNCOBJ(M_ALG0_ALL_OF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, _fo_, M_C(name, _test_obj_t), M_C(name, _test_obj_call)) ) \
+  M_ALG0_DEF_ALL_OF(name, container_t, cont_oplist, type_t, type_oplist, it_t, \
+                    _, M_C(name,_test_cb_ct), M_APPLY)                        \
+  M_IF_FUNCOBJ(M_ALG0_DEF_ALL_OF(name, container_t, cont_oplist, type_t, type_oplist, it_t, \
+                                 _fo_, M_C(name,_test_obj_t), M_C(name,_test_obj_call)) ) \
                                                                               \
   /* If there is a IT_REF method, we consider the container as modifiable through iterator */ \
   M_IF_METHOD(IT_REF, cont_oplist)(                                           \
-  M_ALG0_FILL_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
-  M_ALG0_VECTOR_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_ALG0_DEF_FILL(name, container_t, cont_oplist, type_t, type_oplist, it_t)  \
+  M_ALG0_DEF_VECTOR(name, container_t, cont_oplist, type_t, type_oplist, it_t)\
                                                                               \
   M_IF_METHOD(CMP, type_oplist)(                                              \
-  M_ALG0_MINMAX_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
-  M_ALG0_SORT_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, +, _sort) \
-  M_ALG0_SORT_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, -, _sort_dsc) \
+  M_ALG0_DEF_MINMAX(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_ALG0_DEF_SORT(name, container_t, cont_oplist, type_t, type_oplist, it_t, +, _sort) \
+  M_ALG0_DEF_SORT(name, container_t, cont_oplist, type_t, type_oplist, it_t, -, _sort_dsc) \
   M_IF_METHOD(IT_REMOVE, cont_oplist)(                                        \
-  M_ALG0_REMOVE_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_ALG0_DEF_REMOVE(name, container_t, cont_oplist, type_t, type_oplist, it_t)\
   , /* No IT_REMOVE method */)                                                \
   , /* No CMP method */)                                                      \
                                                                               \
-  M_IF_FUNCOBJ(M_ALG0_SORT_DEF_P6(name, container_t, cont_oplist, type_t, type_oplist, it_t, _sort_fo, M_ALG0_SORT_CALL_OBJ_P4, M_ALG0_SORT_PARAM_OBJ_P4, M_ALG0_SORT_ARG_OBJ_P4) ) \
+  M_IF_FUNCOBJ(M_ALG0_DEF_SORT_AUX(name, container_t, cont_oplist, type_t, type_oplist, it_t,\
+                                  _sort_fo, M_ALG0_SORT_CALL_OBJ_P4, M_ALG0_SORT_PARAM_OBJ_P4, M_ALG0_SORT_ARG_OBJ_P4) ) \
   , /* No IT_REF method */)                                                   \
                                                                               \
   M_IF_METHOD(EXT_ALGO, type_oplist)(                                         \
@@ -158,7 +163,7 @@
 
 /* Define the types of the callbacks associated to the algorithms.
  * Types remain internal */
-#define M_ALG0_CALLBACK_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define M_ALG0_DEF_CALLBACK(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   typedef bool (*M_C(name, _test_cb_ct))(type_t const);                       \
   typedef bool (*M_C(name, _eq_cb_ct))(type_t const, type_t const);           \
@@ -169,7 +174,7 @@
 
 /* Define the function objects associated to the algorithms.
  * Created Function objects are part of the public interface */
-#define M_ALG0_FUNCOBJ_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define M_ALG0_DEF_FUNCOBJ(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   FUNC_OBJ_ITF_DEF(M_C(name, _test_obj), bool, type_t const)                  \
   FUNC_OBJ_ITF_DEF(M_C(name, _eq_obj), bool, type_t const, type_t const )     \
@@ -179,7 +184,7 @@
   
 
 /* Define the sort functions with the CMP operator using the order selected */
-#define M_ALG0_SORT_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, order, sort_name) \
+#define M_ALG0_DEF_SORT(name, container_t, cont_oplist, type_t, type_oplist, it_t, order, sort_name) \
                                                                               \
   /* Define the encapsulation function that perform the selected order */     \
   static inline int M_C3(name,sort_name,_cmp)(type_t const*a,type_t const*b)  \
@@ -187,7 +192,7 @@
     return order M_CALL_CMP(type_oplist, *a, *b);                             \
   }                                                                           \
                                                                               \
-  M_ALG0_SORT_DEF_P6(name, container_t, cont_oplist, type_t, type_oplist, it_t, sort_name, M_ALG0_SORT_CALL_CMP_P4, M_EAT, /*empty*/ )
+  M_ALG0_DEF_SORT_AUX(name, container_t, cont_oplist, type_t, type_oplist, it_t, sort_name, M_ALG0_SORT_CALL_CMP_P4, M_EAT, /*empty*/ )
 
 // Call the comparaison function of the type oplist (Using CMP operator)
 #define M_ALG0_SORT_CALL_CMP_P4(name, sort_name, ref1, ref2)                  \
@@ -215,7 +220,7 @@
   It is needed to add another argument to the function.
   - cmp_arg: Name of such argument.
  */
-#define M_ALG0_SORT_DEF_P6(name, container_t, cont_oplist, type_t, type_oplist, it_t, sort_name, cmp_func, cmp_param, cmp_arg) \
+#define M_ALG0_DEF_SORT_AUX(name, container_t, cont_oplist, type_t, type_oplist, it_t, sort_name, cmp_func, cmp_param, cmp_arg) \
                                                                               \
   /* Test if the container is sorted */                                       \
   static inline bool                                                          \
@@ -507,7 +512,7 @@
   TODO: Define _find_sorted that find in a sorted random access container 
   (binary search)
  */
-#define M_ALG0_FIND_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define M_ALG0_DEF_FIND(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   /* It supposes that the container is not sorted */                          \
   /* Find the next occurrence from it (included) of data */                   \
   static inline void                                                          \
@@ -615,7 +620,7 @@
   TODO: Define _find_sorted that find in a sorted random access container 
   (binary search)
  */
-#define M_ALG0_FIND_IF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, test_t, eq_t, call_test, call_eq) \
+#define M_ALG0_DEF_FIND_IF(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, test_t, eq_t, call_test, call_eq) \
                                                                               \
   /* Find the next occurrence that matches the condition */                   \
   static inline void                                                          \
@@ -678,7 +683,7 @@
 
 
 /* Define the FILL algorithms */
-#define M_ALG0_FILL_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define M_ALG0_DEF_FILL(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   /* Fill all the container with value (overwritten) */                       \
   static inline void                                                          \
@@ -734,7 +739,7 @@
 
 
 /* Define MAP algorithms */
-#define M_ALG0_MAP_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define M_ALG0_DEF_MAP(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   /* Apply func for all elements of the container */                          \
   static inline void                                                          \
@@ -810,7 +815,7 @@
 
 
 /* Define ALL_OF algorithms */
-#define M_ALG0_ALL_OF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, func_t, call) \
+#define M_ALG0_DEF_ALL_OF(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, func_t, call) \
                                                                               \
   static inline bool                                                          \
   M_C4(name, _any_of, suffix, p) (container_t const l,                        \
@@ -847,7 +852,7 @@
 
 
 /* Define MIN / MAX algorithms */
-#define M_ALG0_MINMAX_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define M_ALG0_DEF_MINMAX(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   static inline type_t *                                                      \
   M_C(name, _min) (const container_t l)                                       \
@@ -895,8 +900,8 @@
     *max_p = max;                                                             \
   }                                                                           \
 
-
-#define M_ALG0_REMOVE_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+/* Define functions based on remove method */
+#define M_ALG0_DEF_REMOVE(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   static inline void                                                          \
   M_C(name, _uniq)(container_t l)                                             \
@@ -950,8 +955,8 @@
     }                                                                         \
   }                                                                           \
 
-
-#define M_ALG0_VECTOR_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+/* Define vector algorithms */
+#define M_ALG0_DEF_VECTOR(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   M_IF_METHOD(ADD, type_oplist)(                                              \
   static inline void M_C(name, _add) (container_t dst, const container_t src) \
