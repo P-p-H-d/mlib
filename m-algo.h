@@ -152,7 +152,7 @@
   , /* No IT_REMOVE method */)                                                \
   , /* No CMP method */)                                                      \
                                                                               \
-  M_IF_FUNCOBJ(M_ALG0_DEF_SORT_AUX(name, container_t, cont_oplist, type_t, type_oplist, it_t,\
+  M_IF_FUNCOBJ(M_ALG0_DEF_SORT_AUX(name, container_t, cont_oplist, type_t, type_oplist, it_t, \
                                   _sort_fo, M_ALG0_SORT_CALL_OBJ_P4, M_ALG0_SORT_PARAM_OBJ_P4, M_ALG0_SORT_ARG_OBJ_P4) ) \
   , /* No IT_REF method */)                                                   \
                                                                               \
