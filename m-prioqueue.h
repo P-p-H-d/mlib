@@ -127,9 +127,15 @@
    - it_t: iterator of the container
 */
 #define M_PR1OQUEUE_DEF_P3(name, type, oplist, prioqueue_t, it_t)             \
-                                                                              \
   /* Definition of the internal array used to construct the priority queue */ \
   ARRAY_DEF(M_C(name, _array), type, oplist)                                  \
+  M_PR1OQUEUE_DEF_TYPE(name, type, oplist, prioqueue_t, it_t)                 \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+  M_PR1OQUEUE_DEF_CORE(name, type, oplist, prioqueue_t, it_t)                 \
+  M_EMPLACE_QUEUE_DEF(name, prioqueue_t, M_C(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
+
+/* Define the types */
+#define M_PR1OQUEUE_DEF_TYPE(name, type, oplist, prioqueue_t, it_t)           \
                                                                               \
   /* Define the priority queue over the defined array */                      \
   typedef struct M_C(name, _s) {                                              \
@@ -146,8 +152,9 @@
   typedef prioqueue_t M_C(name, _ct);                                         \
   typedef type        M_C(name, _subtype_ct);                                 \
   typedef it_t        M_C(name, _it_ct);                                      \
-                                                                              \
-  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+
+/* Define the core functions */
+#define M_PR1OQUEUE_DEF_CORE(name, type, oplist, prioqueue_t, it_t)           \
                                                                               \
   static inline void                                                          \
   M_C(name, _init)(prioqueue_t p)                                             \
@@ -483,8 +490,6 @@
     return M_C(name, _array_in_serial)(p->array, f);                          \
   }                                                                           \
   ,/* No in_SERIAL */)                                                        \
-                                                                              \
-  M_EMPLACE_QUEUE_DEF(name, prioqueue_t, M_C(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
 
 
 // TODO: set all & remove all function

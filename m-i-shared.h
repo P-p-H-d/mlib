@@ -101,6 +101,7 @@ M_BEGIN_PROTECTED_CODE
   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                           \
   )
 
+
 // Deferred evaluatioin
 #define M_ISHAR3D_PTR_DEF_P1(arg) M_ID( M_ISHAR3D_PTR_DEF_P2 arg )
 
@@ -113,6 +114,12 @@ M_BEGIN_PROTECTED_CODE
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(ISHARED_PTR_DEF): the given argument is not a valid oplist: " #oplist)
 
 #define M_ISHAR3D_PTR_DEF_P3(name, type, oplist, shared_t)                    \
+  M_ISHAR3D_PTR_DEF_TYPE(name, type, oplist, shared_t)                        \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+  M_ISHAR3D_PTR_DEF_CORE(name, type, oplist, shared_t)                        \
+ 
+/* Define the types */
+#define M_ISHAR3D_PTR_DEF_TYPE(name, type, oplist, shared_t)                  \
                                                                               \
   /* The shared pointer is only a pointer to the type */                      \
   typedef type *shared_t;                                                     \
@@ -120,8 +127,9 @@ M_BEGIN_PROTECTED_CODE
   /* Define internal types for oplist */                                      \
   typedef shared_t M_C(name, _ct);                                            \
   typedef type     M_C(name, _subtype_ct);                                    \
-                                                                              \
-  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+
+/* Define the core functions */
+#define M_ISHAR3D_PTR_DEF_CORE(name, type, oplist, shared_t)                  \
                                                                               \
   static inline shared_t                                                      \
   M_C(name, _init)(type *ptr)                                                 \

@@ -122,6 +122,7 @@ typedef struct m_il1st_head_s {
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                          \
    )
 
+
 /* Contract respected by all intrusive lists */
 #define M_IL1ST_CONTRACT(name, list) do {                                     \
     M_ASSERT(list != NULL);                                                   \
@@ -160,6 +161,14 @@ typedef struct m_il1st_head_s {
     it_t: iterator of the intrusive list (name##_it_t)
 */
 #define M_IL1ST_DEF_P3(name, type, oplist, list_t, it_t)                      \
+  M_IL1ST_DEF_TYPE(name, type, oplist, list_t, it_t)                          \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+  M_IL1ST_DEF_CORE(name, type, oplist, list_t, it_t)                          \
+  /* Used of internal macro from m-list */                                    \
+  M_L1ST_ITBASE_DEF(name, type, oplist, list_t, it_t)
+
+/* Define the type of an intrusive list */
+#define M_IL1ST_DEF_TYPE(name, type, oplist, list_t, it_t)                    \
                                                                               \
   /* Define the list as a structure containing pointers                       \
    * to the front & back nodes */                                             \
@@ -183,8 +192,9 @@ typedef struct m_il1st_head_s {
   typedef type   M_C(name, _subtype_ct);                                      \
   typedef list_t M_C(name, _ct);                                              \
   typedef it_t   M_C(name, _it_ct);                                           \
-                                                                              \
-  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+
+/* Define core functions for intrusive lists */
+#define M_IL1ST_DEF_CORE(name, type, oplist, list_t, it_t)                    \
                                                                               \
   static inline void                                                          \
   M_C(name, _init)(list_t list)                                               \
@@ -653,9 +663,6 @@ typedef struct m_il1st_head_s {
     it->prev = next;                                                          \
     M_IL1ST_CONTRACT(name, list);                                             \
   }                                                                           \
-                                                                              \
-  /* Used of internal macro from m-list */                                    \
-  M_L1ST_ITBASE_DEF(name, type, oplist, list_t, it_t)
 
 
 #if M_USE_SMALL_NAME
