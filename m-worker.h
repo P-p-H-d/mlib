@@ -42,7 +42,7 @@
 
 /* Include needed system header for detection of how many cores are available in the system */
 #if defined(_WIN32)
-# include <windows.h>
+# include <sysinfoapi.h>
 #elif (defined(__APPLE__) && defined(__MACH__))                               \
   || defined(__DragonFly__) || defined(__FreeBSD__)                           \
   || defined(__NetBSD__) || defined(__OpenBSD__)
@@ -174,7 +174,9 @@ typedef struct m_worker_sync_s {
   struct m_worker_s *worker;            // Reference to the pool of workers
 } m_worker_sync_t[1];
 
-/* Return the number of cores available in the system */
+/* Return the number of CPU cores available in the system.
+   Works for WINDOWS, MACOS, *BSD, LINUX.
+ */
 static inline int
 m_work3r_get_cpu_count(void)
 {
@@ -193,6 +195,8 @@ m_work3r_get_cpu_count(void)
   return M_MAX(1, count);
 #elif defined (_SC_NPROCESSORS_ONLN)
   return (int) sysconf(_SC_NPROCESSORS_ONLN);
+#elif defined (_SC_NPROCESSORS_CONF)
+  return (int) sysconf(_SC_NPROCESSORS_CONF);
 #else
   return 1;
 #endif
