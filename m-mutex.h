@@ -63,7 +63,7 @@ static inline void m_mutex_init(m_mutex_t m)
   int rc = mtx_init(m, mtx_plain);
   // Abort program in case of initialization failure
   // There is really nothing else to do if a mutex cannot be constructed
-  M_ASSERT_INIT (rc == 0, "mutex");
+  M_ASSERT_INIT (rc == thrd_success, "mutex");
 }
 
 /* Clear the mutex (destructor) */
@@ -90,7 +90,7 @@ static inline void m_cond_init(m_cond_t c)
   int rc = cnd_init(c);
   // Abort program in case of initialization failure
   // There is really nothing else to do if the object cannot be constructed
-  M_ASSERT_INIT (rc == 0, "conditional variable");
+  M_ASSERT_INIT (rc == thrd_success, "conditional variable");
 }
 
 /* Clear the condition variable (destructor) */
