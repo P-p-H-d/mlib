@@ -102,7 +102,7 @@ exe: depend
 	@echo All executable generated
 
 check: depend
-	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.log/g'` `ls fail-*.c|$(SED) 's/\.c/\.log/g'` CC="$(CC)" CFLAGS="$(CFLAGS)"
+	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.log/g'` `ls fail-*.c|$(SED) 's/\.c/\.log.err/g'` CC="$(CC)" CFLAGS="$(CFLAGS)"
 	@echo All tests passed
 
 check-stl: depend
@@ -110,7 +110,7 @@ check-stl: depend
 	@echo All comparison against C++ STL passed
 
 clean:
-	$(RM) *.exe *.s *~ *.o *.log a*.dat
+	$(RM) *.exe *.s *~ *.o *.log *.log.err a*.dat
 	$(RM) *.gcda *.gcno *.gcov all.info test.tar *.synt clang_output_* *.c.c *.end.c *.first.c *.middle.c *.analyzer
 	$(RMDIR) coverage coverage-dir mlib-report
 	$(RMDIR) fuzzer-testsuite fuzzer-findings
@@ -126,17 +126,17 @@ distclean: clean
 # TODO: should grep failure message?
 FAIL_BASE=
 FAIL_SEQ=
-fail-generic.log:
+fail-generic.log.err:
 	for i in `seq 1 $(FAIL_SEQ)` ; do \
 	if $(CC) $(CFLAGS) $(CPPFLAGS) -g -c $(FAIL_BASE).c -o tmp.o -DTEST=$$i 2> $(FAIL_BASE)-$$i.log ; then echo "$(FAIL_BASE) -- TEST $$i : ERROR (compilation succeeded)" ; false ; elif grep -q "M_LIB_" $(FAIL_BASE)-$$i.log ; then echo "$(FAIL_BASE) -- TEST $$i : OK" ; else echo "$(FAIL_BASE) -- TEST $$i : WARNING (Not a M*LIB detected error)" ; fi \
 	done
 
-fail-no-oplist.log:
-	@$(MAKE) fail-generic.log FAIL_BASE=fail-no-oplist FAIL_SEQ=44
-fail-chain-oplist.log:
-	@$(MAKE) fail-generic.log FAIL_BASE=fail-chain-oplist FAIL_SEQ=24
-fail-incompatible.log:
-	@$(MAKE) fail-generic.log FAIL_BASE=fail-incompatible FAIL_SEQ=24
+fail-no-oplist.log.err:
+	@$(MAKE) fail-generic.log.err FAIL_BASE=fail-no-oplist FAIL_SEQ=44
+fail-chain-oplist.log.err:
+	@$(MAKE) fail-generic.log.err FAIL_BASE=fail-chain-oplist FAIL_SEQ=24
+fail-incompatible.log.err:
+	@$(MAKE) fail-generic.log.err FAIL_BASE=fail-incompatible FAIL_SEQ=24
 
 
 #####################################################################################################
