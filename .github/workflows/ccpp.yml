@@ -10,7 +10,7 @@ jobs:
     runs-on: ${{ matrix.platform }}
     
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
     - name: CPU Information
       run:  lscpu || sysctl -a|grep cpu || echo "CPU information not available"
     - name: make check C99
@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
     - name: update package list
       run: sudo apt-get update
     - name: install multilib
@@ -50,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
     - name: CPU Information
       run:  lscpu || echo "CPU information not available"
     - name: Clone TCC
@@ -70,7 +70,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
     - name: make sanitize
       working-directory: ./tests
       run: make sanitize -j 2
@@ -79,7 +79,7 @@ jobs:
     runs-on: windows-latest
     
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
     - name: make check
       shell: bash
       run: mingw32-make -j 2 CC="gcc -std=c99 -D__USE_MINGW_ANSI_STDIO=1" check
@@ -90,7 +90,7 @@ jobs:
       run:
         shell: msys2 {0}    
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - uses: msys2/setup-msys2@v2
       with:
           msystem: MINGW64
@@ -103,7 +103,7 @@ jobs:
     runs-on: windows-latest
     
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
     - name: make check
       shell: cmd
       working-directory: ./tests
@@ -113,9 +113,23 @@ jobs:
     runs-on: windows-latest
     
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v3
     - name: make check
       shell: cmd
       working-directory: ./tests
       run: Make-check-cl.bat clang-cl
 
+  build_freebsd:
+    runs-on: macos-12
+    name: FreeBSD over MACOS (virtualbox)
+    steps:
+    - uses: actions/checkout@v3
+    - name: Test in FreeBSD
+      id: test
+      uses: vmactions/freebsd-vm@v0
+      with:
+        usesh: true
+        run: |
+             freebsd-version
+             make clean && make check -j 2 CC="cc -std=c99 -Wno-unknown-warning-option -Werror"
+             make clean && make check -j 2 CC="cc -std=c11 -Wno-unknown-warning-option -Werror"
