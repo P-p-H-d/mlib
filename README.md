@@ -7671,6 +7671,10 @@ except for new sub-objects, for which default value are used).
 
 It is fully working with C11 compilers only.
 
+The current locale of the program shall be compatible with the JSON format,
+specially the fraction separator character shall be '.' in the current
+locale to respect the JSON format.
+
 #### C functions on FILE
 
 ##### m\_serial\_json\_write\_t
