@@ -1408,7 +1408,7 @@ m_string_get_str(m_string_t v, const m_string_t v2, bool append)
       ptr[size ++] = " tn\" r\\"[(c ^ (c >>5)) & 0x07];
       break;
     default:
-      if (M_UNLIKELY (!isprint(c))) {
+      if (M_UNLIKELY (!isprint((unsigned char) c))) {
         targetSize += 3;
         m_str1ng_set_size(v, size);
         ptr = m_str1ng_fit2size(v, targetSize);
