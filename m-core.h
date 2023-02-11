@@ -30,9 +30,9 @@
 #include <stdint.h>
 #include <limits.h>
 #include <string.h>
-#include <ctype.h>
+#include <ctype.h> /* For toupper, tolower, isprint, isspace */
 #include <assert.h>
-#include <stdlib.h>  /* For abort, malloc, realloc, free, strtol, strtoul, strtoll, strtoull, strtod, strtold, rand */
+#include <stdlib.h>  /* For abort, malloc, realloc, free, strtol, strtoul, strtoll, strtoull, strtof, strtod, strtold, rand */
 
 /* By default, always use stdio. Can be turned off in specific environment if needed
    by defining M_USE_STDIO to 0 */
@@ -57,6 +57,12 @@
 # define M_USE_SMALL_NAME 1
 #endif
 
+/* Used functions of the libc which are locale dependent:
+   toupper, tolower, isprint, isspace
+   strtol, strtoul, strtoll, strtoull, strtof, strtod, strtold
+   printf, fprintf, fscanf
+   Theses functions may behave differently in function of the locale.
+*/
 
 /***************************************************************/
 /************************ Compiler Macro ***********************/
