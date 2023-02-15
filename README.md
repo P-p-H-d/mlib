@@ -135,7 +135,7 @@ Other headers offering other functionality are:
 Finally headers for compatibility with non C11 compilers:
 
 * [m-atomic.h](#m-atomic): header for ensuring compatibility between C's stdatomic.h and C++'s atomic header. Provide also an implementation over mutex if nothing is available.
-* [m-mutex.h](#m-mutex): header for providing a very thin layer across multiple implementation of mutex/threads (C11/PTHREAD/WIN32).
+* [m-thread.h](#m-thread): header for providing a very thin layer across multiple implementation of mutex/threads (C11/PTHREAD/WIN32).
 
 Each containers define their iterators.
 
@@ -6796,7 +6796,7 @@ The full C definition are:
 See [m-serial-json.h](#m-serial-json) for example of use.
 
 
-### M-MUTEX
+### M-THREAD
 
 This header is for providing very thin layer around OS implementation of threads, conditional variables and mutex.
 It has back-ends for WIN32, POSIX thread or C11 thread.
@@ -7869,7 +7869,7 @@ Default value: 128
 
 ### M\_USE\_THREAD\_BACKEND
 
-Define the thread backend to use by m-mutex.h:
+Define the thread backend to use by m-thread.h:
 
 * 1: for C11 header threads.h
 * 2: for WINDOWS header windows.h

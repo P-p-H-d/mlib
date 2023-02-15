@@ -22,7 +22,7 @@
 */
 #include <stdio.h>
 
-#include "m-mutex.h"
+#include "m-thread.h"
 
 M_LOCK_DECL(global_lock);
 unsigned long long n = 0;

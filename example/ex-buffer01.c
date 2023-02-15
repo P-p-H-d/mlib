@@ -2,7 +2,7 @@
 
 #include "m-buffer.h"
 #include "m-shared.h"
-#include "m-mutex.h"
+#include "m-thread.h"
 
 /* Global variable to stop scheduling */
 atomic_bool             continue_threading_g;

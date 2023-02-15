@@ -31,7 +31,7 @@
 
 // Needed for M_THREAD_ATTR
 #if defined(MULTI_THREAD_MEASURE)
-#include "m-mutex.h"
+#include "m-thread.h"
 #endif
 
 #if defined(_WIN32)

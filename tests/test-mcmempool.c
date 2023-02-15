@@ -24,7 +24,7 @@
 */
 
 #include "m-c-mempool.h"
-#include "m-mutex.h"
+#include "m-thread.h"
 
 C_MEMPOOL_DEF(lf_mempool, int)
 

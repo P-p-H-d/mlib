@@ -38,7 +38,7 @@
 
 #include "m-atomic.h"
 #include "m-buffer.h"
-#include "m-mutex.h"
+#include "m-thread.h"
 
 /* Include needed system header for detection of how many cores are available in the system */
 #if defined(_WIN32)

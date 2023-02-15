@@ -154,7 +154,7 @@ using std::memory_order_seq_cst;
 */
 #else
 
-#include "m-mutex.h"
+#include "m-thread.h"
 #include "m-core.h"
 
 M_BEGIN_PROTECTED_CODE

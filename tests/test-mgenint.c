@@ -21,7 +21,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <stdio.h>
-#include "m-mutex.h"
+#include "m-thread.h"
 #include "m-atomic.h"
 
 #include "m-genint.h"

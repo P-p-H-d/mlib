@@ -26,7 +26,7 @@
 #define MSTARLIB_CONCURRENT_H
 
 #include "m-core.h"
-#include "m-mutex.h"
+#include "m-thread.h"
 #include "m-atomic.h"
 
 /* Define a protected concurrent container and its associated functions

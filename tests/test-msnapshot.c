@@ -23,7 +23,7 @@
 #include "test-obj.h"
 
 #include "m-snapshot.h"
-#include "m-mutex.h"
+#include "m-thread.h"
 
 #include "coverage.h"
 

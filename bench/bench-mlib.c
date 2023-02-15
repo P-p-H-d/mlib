@@ -14,7 +14,7 @@
 #include "m-mempool.h"
 #include "m-string.h"
 #include "m-buffer.h"
-#include "m-mutex.h"
+#include "m-thread.h"
 #include "m-deque.h"
 #include "m-concurrent.h"
 #include "m-tuple.h"

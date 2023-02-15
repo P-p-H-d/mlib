@@ -25,7 +25,7 @@
 
 #include "m-i-shared.h"
 
-#include "m-mutex.h"
+#include "m-thread.h"
 #include "coverage.h"
 
 typedef struct ishared_s {

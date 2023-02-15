@@ -26,7 +26,7 @@
 #define MSTARLIB_BUFFER_H
 
 #include "m-core.h"
-#include "m-mutex.h"
+#include "m-thread.h"
 #include "m-atomic.h"
 
 /* Define the different kind of policy a lock-based buffer can have:
