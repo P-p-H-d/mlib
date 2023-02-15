@@ -81,3 +81,4 @@ V0.6.*: * Rename M_DEFAULT_OPLIST in M_BASIC_OPLIST
         so except if you are using the prefixed version of the strings
         or the bounded strings API, you won't need to upgrade your code.
         
+V0.7.*: * Rename m-mutex.h header in m-thread.h
