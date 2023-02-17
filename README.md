@@ -7065,6 +7065,21 @@ NOTE3: It will generate warnings about shadowed variables. There is no way to av
 NOTE4: arrays and not trivially movable object are not supported as input / output variables due to 
 current technical limitations.
 
+#### M\_WORKER\_SPAWN\_DEF2(name, (name1, type1, oplist1), ...)
+
+Define a specialization of worker\_spawn, called m\_worker\_spawn ## name,
+that takes as input a function with the given name and arguments,
+avoiding casting the data to void*.
+The specialized method shall have the following prototype:
+
+    void function(type1 name1, type2 name2, ...);
+
+m\_worker\_spawn ## name has the following prototypes.
+
+    void m\_worker\_spawn ## name(m\_worker\_sync\_t block, void (*callback)(type1 name1, type2 name2, ...), type1 name1, type2 name2, ...);
+
+The arguments are properly copied and cleared using their oplists if the work-order is enqueued for a worker. 
+
 
 ### M-ATOMIC
 
