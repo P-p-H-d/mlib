@@ -19,6 +19,7 @@ static inline int atomic_uint_cmp(const atomic_uint *a, const atomic_uint *b)
 /* Disable HASH for atomic as the default hash method won't work */
 #define M_OPL_atomic_uint() M_OPEXTEND(M_BASIC_OPLIST, HASH(0), CMP(API_6(atomic_uint_cmp)), INIT_SET(API_2(atomic_store)), SET(API_2(atomic_store)))
 
+
 /* Define a directory as the number of lines of the files in this directory
    and the name of the directory 
    (Only sort with the number value by disable the sort compare for the string).
@@ -29,11 +30,23 @@ TUPLE_DEF2( dir, (nlines, atomic_uint), (name, string_t, M_OPEXTEND(STRING_OPLIS
 /* A hierarchical tree of directory */
 M_TREE_DEF(tree, dir_t)
 
+
 /* Maximum number of characters read by file */
 #define MAX_READ_BUFFER 8192
 
 /* Maximum number of directory to scan */
 #define MAX_DIRECTORY 100000
+
+
+/* Define the pool of worker threads */
+worker_t workers;
+
+/* Global synchronous block for all threads */
+m_worker_sync_t workers_block;
+
+/* Add a specialization of the spawn function for scan_file */
+M_WORKER_SPAWN_DEF2(scan_file, (parent, tree_it_t, M_POD_OPLIST), (filename, string_t) )
+
 
 static tree_it_t
 add_directory(tree_it_t parent, const string_t dirname)
@@ -66,7 +79,7 @@ is_a_c_file(const string_t filename)
 }
 
 static void
-scan_file(tree_it_t parent, const string_t filename)
+scan_file(tree_it_t parent, string_t filename)
 {
   if (!is_a_c_file(filename)) return;
 
@@ -122,7 +135,8 @@ scan_directories(tree_it_t parent, const string_t dirname)
       if (S_ISDIR(buf.st_mode)) {
         scan_directories(it, filename);
       } else {
-        scan_file(it, filename);
+        // Spawn a scan of file to available workers
+        m_worker_spawn_scan_file(workers_block, scan_file, it, filename);
       }
     }
     // Next entry in the directory
@@ -173,6 +187,9 @@ int main(int argc, const char *argv[])
     exit(1);
   }
 
+  /* Initialize the worker threads */
+  worker_init(workers);
+  
   /* Init the tree, reserve for at least the number of max directory
     and prevent any further increase of allocation:
     this is to ensure that other threads can deref a dir safely */
@@ -183,12 +200,16 @@ int main(int argc, const char *argv[])
   tree_it_t it = tree_it_end(directories);
 
   /* Main processing */
+  worker_start(workers_block, workers);
   scan_directories(it, str);
+  worker_sync(workers_block);
   consolidate_directories(directories);
   print_result(directories);
 
   /* Clear everything & quit */
   string_clear(str);
   tree_clear(directories);
+  worker_clear(workers);
+
   exit(0);
 }
