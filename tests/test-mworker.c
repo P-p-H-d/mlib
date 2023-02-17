@@ -76,6 +76,7 @@ static void test1bis(void)
   assert (atomic_load(&resetFunc_called) == true || m_work3r_get_cpu_count() == 1);
 }
 
+
 #if defined(__GNUC__) && (!defined(__clang__) || (defined(WORKER_USE_CLANG_BLOCK) && WORKER_USE_CLANG_BLOCK) || (defined(WORKER_USE_CPP_FUNCTION) && WORKER_USE_CPP_FUNCTION))
 
 /* The macro version will generate warnings about shadow variables.
@@ -110,10 +111,43 @@ static void test2(void)
 static void test2(void) {}
 #endif
 
+
+// Test using specialization of worker_spawn
+M_WORKER_SPAWN_DEF2(fib, (out, int *, M_PTR_OPLIST), (in, int) )
+
+static int fib3(int);
+static void subfib3 (int *dst, int n) {
+  *dst = fib3 (n);
+}
+static int fib3(int n)
+{
+  if (n < 2)
+    return n;
+
+  worker_sync_t b;
+
+  worker_start(b, w_g);
+  int x;
+  m_worker_spawn_fib (b, subfib3, &x, n-2);
+  int y = fib (n-1);
+  worker_sync(b);
+  return x + y;
+}
+
+static void test3(void)
+{
+  worker_init(w_g, 0);
+  int result = fib3(39);
+  assert (result == 63245986);
+  worker_clear(w_g);
+}
+
+
 int main(void)
 {
   test1();
   test1bis();
   test2();
+  test3();
   exit(0);
 }
