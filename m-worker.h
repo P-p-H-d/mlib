@@ -174,6 +174,128 @@ typedef struct m_worker_sync_s {
   struct m_worker_s *worker;            // Reference to the pool of workers
 } m_worker_sync_t[1];
 
+
+/* Extend m_worker_spawn by defining a specialization function
+   with the given arguments.
+   Generate the needed encapsulation for the user.
+   USAGE: name, oplists of arguments */
+#define M_WORKER_SPAWN_DEF2(name, ...)                                        \
+  M_BEGIN_PROTECTED_CODE                                                      \
+  M_WORK3R_SPAWN_EXTEND_P1( (name, M_MAP_C(M_WORK3R_SPAWN_EXTEND_P0, __VA_ARGS__) ) ) \
+  M_END_PROTECTED_CODE
+
+/* Output a valid oplist with the given type.
+   input is (fieldname, type) or (fieldname, type, oplist)
+   Output shall be : M_OPEXTEND(M_GLOBAL_OPLIST_OR_DEF(type_or_oplist)(), TYPE(type)) / M_OPEXTEND(oplist, TYPE(type))
+ */
+#define M_WORK3R_SPAWN_EXTEND_P0(...)                   M_SUFFIX_FUNCTION_BY_NARGS(M_WORK3R_SPAWN_EXTEND_P0, M_ID __VA_ARGS__) __VA_ARGS__
+#define M_WORK3R_SPAWN_EXTEND_P0_2(field, type)         M_OPEXTEND(M_GLOBAL_OPLIST_OR_DEF(type)(), TYPE(type))
+#define M_WORK3R_SPAWN_EXTEND_P0_3(field, type, oplist) M_IF_OPLIST(oplist)(M_WORK3R_SPAWN_EXTEND_P0_3_OK, M_WORK3R_SPAWN_EXTEND_P0_3_KO)(field, type, oplist)
+#define M_WORK3R_SPAWN_EXTEND_P0_3_OK(field, type, oplist) M_OPEXTEND(oplist, TYPE(type))
+#define M_WORK3R_SPAWN_EXTEND_P0_3_KO(field, type, oplist)                    \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(M_WORKER_SPAWN_EXTEND): the argument is not a valid oplist: " M_MAP(M_AS_STR, oplist))
+
+/* Deferred evaluation for the definition,
+   so that all arguments are evaluated before further expansion */
+#define M_WORK3R_SPAWN_EXTEND_P1(arg) M_ID( M_WORK3R_SPAWN_EXTEND_P2 arg )
+
+/* Validate the oplist before going further */
+#define M_WORK3R_SPAWN_EXTEND_P2(name, ...)                                   \
+  M_IF(M_REDUCE(M_OPLIST_P, M_AND, __VA_ARGS__))                              \
+  (M_WORK3R_SPAWN_EXTEND_P3, M_WORK3R_SPAWN_EXTEND_FAILURE)(name, __VA_ARGS__)
+
+/* Stop processing with a compilation failure */
+#define M_WORK3R_SPAWN_EXTEND_FAILURE(name, ...)                              \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST,                                       \
+                   "(M_WORKER_SPAWN_EXTEND): at least one of the given argument is not a valid oplist: " \
+                   M_MAP(M_AS_STR, __VA_ARGS__))
+
+/* Define the extension of spawn */
+#define M_WORK3R_SPAWN_EXTEND_P3(name, ...)                                   \
+  M_WORK3R_SPAWN_EXTEND_DEF_TYPE(name, __VA_ARGS__)                           \
+  M_WORK3R_SPAWN_EXTEND_DEF_CALLBACK(name, __VA_ARGS__)                       \
+  M_WORK3R_SPAWN_EXTEND_DEF_EMPLACE(name, __VA_ARGS__)                        \
+
+/* Define the type */
+#define M_WORK3R_SPAWN_EXTEND_DEF_TYPE(name, ...)                             \
+  typedef void (*M_C3(m_worker_,name, _callback_ct))(M_MAP_C(M_WORK3R_SPAWN_EXTEND_DEF_TYPE_TYPE, __VA_ARGS__)); \
+  struct M_C3(m_worker_, name, _s){                                           \
+    M_C3(m_worker_, name, _callback_ct) callback;                             \
+    M_MAP3(M_WORK3R_SPAWN_EXTEND_DEF_TYPE_FIELD, data, __VA_ARGS__)           \
+      };
+
+#define M_WORK3R_SPAWN_EXTEND_DEF_TYPE_FIELD(data, num, oplist)               \
+  M_GET_TYPE oplist M_C(field, num);
+
+#define M_WORK3R_SPAWN_EXTEND_DEF_TYPE_TYPE(oplist)                           \
+  M_GET_TYPE oplist
+
+/* Define the callback */
+#define M_WORK3R_SPAWN_EXTEND_DEF_CALLBACK(name, ...)                         \
+  static inline void                                                          \
+  M_C3(m_work3r_, name, _clear)(struct M_C3(m_worker_, name, _s) *p)          \
+  {                                                                           \
+    M_MAP3(M_WORK3R_SPAWN_EXTEND_DEF_CALLBACK_CLEAR, data, __VA_ARGS__)       \
+    /* TODO: Overload */                                                      \
+    M_MEMORY_DEL(p);                                                          \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C3(m_work3r_, name, _callback)(void *data)                                \
+  {                                                                           \
+    struct M_C3(m_worker_, name, _s) *p = (struct M_C3(m_worker_, name, _s) *) data; \
+    (*p->callback)(                                                           \
+    M_MAP3_C(M_WORK3R_SPAWN_EXTEND_DEF_CALLBACK_FIELD, data, __VA_ARGS__)     \
+                                                                        );    \
+    M_C3(m_work3r_, name, _clear)(p);                                         \
+  }
+
+#define M_WORK3R_SPAWN_EXTEND_DEF_CALLBACK_FIELD(data, num, oplist)           \
+  p->M_C(field, num)
+
+#define M_WORK3R_SPAWN_EXTEND_DEF_CALLBACK_CLEAR(data, num, oplist)           \
+  M_CALL_CLEAR(oplist, p->M_C(field, num)) ;
+
+/* Define the emplace like spawn method */
+#define M_WORK3R_SPAWN_EXTEND_DEF_EMPLACE(name, ...)                          \
+  static inline void                                                          \
+  M_C(m_worker_spawn_, name)(m_worker_sync_t block, M_C3(m_worker_, name, _callback_ct) callback, \
+                             M_MAP3_C(M_WORK3R_SPAWN_EXTEND_DEF_EMPLACE_FIELD, data, __VA_ARGS__) \
+                             )                                                \
+  {                                                                           \
+    if (!m_work3r_queue_full_p(block->worker->queue_g)) {                     \
+      struct M_C3(m_worker_, name, _s) *p = M_MEMORY_ALLOC ( struct M_C3(m_worker_, name, _s)); \
+      if (M_UNLIKELY(p == NULL)) {                                            \
+        M_MEMORY_FULL(sizeof (struct M_C3(m_worker_, name, _s)));             \
+      }                                                                       \
+      p->callback = callback;                                                 \
+      M_MAP3(M_WORK3R_SPAWN_EXTEND_DEF_EMPLACE_FIELD_COPY, data, __VA_ARGS__) \
+      const m_work3r_order_ct w = { block, p, M_C3(m_work3r_, name, _callback) M_WORK3R_EXTRA_ORDER }; \
+      if (m_work3r_queue_push (block->worker->queue_g, w) == true) {          \
+        atomic_fetch_add (&block->num_spawn, 1);                              \
+        return;                                                               \
+      }                                                                       \
+      /* No worker available now. Call the function ourself */                \
+      /* But before clear the allocated data */                               \
+      M_C3(m_work3r_, name, _clear)(p);                                       \
+    }                                                                         \
+    /* No worker available. Call the function ourself */                      \
+    (*callback) (                                                             \
+                 M_MAP3_C(M_WORK3R_SPAWN_EXTEND_DEF_EMPLACE_FIELD_ALONE, data, __VA_ARGS__) \
+                                                                        );    \
+  }
+
+#define M_WORK3R_SPAWN_EXTEND_DEF_EMPLACE_FIELD(data, num, oplist)            \
+  M_GET_TYPE oplist M_C(param, num)
+
+#define M_WORK3R_SPAWN_EXTEND_DEF_EMPLACE_FIELD_COPY(data, num, oplist)       \
+  M_CALL_INIT_SET(oplist, p-> M_C(field, num), M_C(param, num) );
+
+#define M_WORK3R_SPAWN_EXTEND_DEF_EMPLACE_FIELD_ALONE(data, num, oplist)      \
+  M_C(param, num)
+
+
+
 /* Return the number of CPU cores available in the system.
    Works for WINDOWS, MACOS, *BSD, LINUX.
  */
