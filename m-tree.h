@@ -72,8 +72,8 @@
     M_ASSERT( (tree)->allow_realloc == 0 || (tree)->allow_realloc == INT32_MAX ); \
     M_ASSERT( (tree)->free_index >= M_TR33_NO_NODE && (tree)->free_index < (tree)->capacity); \
     M_ASSERT( (tree)->root_index >= M_TR33_NO_NODE && (tree)->root_index < (tree)->capacity); \
-    M_ASSERT( (tree)->free_index < 0 || (tree)->tab[(tree)->free_index].parent == M_TR33_NO_NODE); \
-    M_ASSERT( (tree)->root_index < 0 || (tree)->tab[(tree)->root_index].parent == M_TR33_ROOT_NODE); \
+    M_ASSERT( (tree)->allow_realloc != 0 || (tree)->free_index < 0 || (tree)->tab[(tree)->free_index].parent == M_TR33_NO_NODE); \
+    M_ASSERT( (tree)->allow_realloc != 0 || (tree)->root_index < 0 || (tree)->tab[(tree)->root_index].parent == M_TR33_ROOT_NODE); \
     M_ASSERT( (tree)->root_index != M_TR33_NO_NODE || (tree)->size == 0);     \
 } while (0)
 
@@ -83,9 +83,12 @@
     if ((it).index >= 0) {                                                    \
         M_ASSERT( (it).index < (it).tree->capacity);                          \
         M_TR33_NODE_CONTRACT(&(it).tree->tab[(it).index], (it).tree);         \
-        /* All child of this node have the parent field correctly set */      \
+        /* Don't deref table if realloc is disabled as the tree can be        \
+           accessed concurrently (for _ref methods) */                        \
+        if ( (it).tree->allow_realloc == 0) {                                 \
+        /* All children of this node have the parent field correctly set */   \
         m_tr33_index_t itj = (it).tree->tab[(it).index].child;                \
-        /* They all have their sibling as the left node */                    \
+        /* They all have their siblings as the left node */                   \
         m_tr33_index_t lftj = M_TR33_NO_NODE;                                 \
         /* We don't have any infinite loop */                                 \
         unsigned cpt = 0;                                                     \
@@ -98,6 +101,7 @@
         }                                                                     \
         (void) cpt; /* may be unused in release mode */                       \
         (void) lftj; /* may be unused in release mode */                      \
+        }                                                                     \
     }                                                                         \
 } while (0)
 
@@ -389,7 +393,6 @@ typedef int32_t m_tr33_index_t;
     static inline it_t                                                        \
     M_C(name, _it_end)(tree_t tree) {                                         \
         M_TR33_CONTRACT(tree);                                                \
-        (void) tree; /* parameter not used */                                 \
         it_t it;                                                              \
         it.tree = tree;                                                       \
         it.index = M_TR33_NO_NODE;                                            \
