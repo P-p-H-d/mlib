@@ -8,43 +8,50 @@
 #include "m-string.h"
 #include "m-algo.h"
 
-// Let's create a list of string.
+// Let's create a list of string by using the M*LIB dynamic string.
 LIST_DEF(list_string, string_t)
 
-// Let's register the oplist globally so that other m*lib macros
+// Let's register the oplist globally so that other M*LIB macros
 // can get the oplist without us giving it explictly to them.
+// An oplist is the association of operators to the provided methods
+// so that generic code can use correctly an object of such type.
 #define M_OPL_list_string_t() LIST_OPLIST(list_string, STRING_OPLIST)
 
 // Let's define some basic algorithms over this list of string.
-ALGO_DEF(astring, M_OPL_list_string_t())
+// We reuse the prefix of the list to simplify usage, but algorithms can use separate namespace.
+ALGO_DEF(list_string, M_OPL_list_string_t())
 
 int main(void)
 {
-  // Let's create a variable named 'grow' which is a list of string_t
+  // Let's create a variable named 'list' which is a list of string_t
   // This variable is only defined within the associated '{' '}' block.
   // The constructor/destructor of the variable will be called within this block
   // You can also define the variable (list_string_t) and use explicitly
   // its constructor (list_string_init) / destructor (list_string_clear).
-  M_LET (grow, list_string_t)
+  M_LET (list, list_string_t)
     M_LET (tmpstr, string_t) { // And let's create also a string_t
 
     // add string elements to the list in different ways
-    list_string_push_back (grow, STRING_CTE("AB"));
+    // First is pushing a const string.
+    // The macro STRING_CTE creates a const string_t based on the given const char * string.
+    list_string_push_back (list, STRING_CTE("AB"));
+    // Second is creating a separate string_t and then pushing it in the list
     string_printf(tmpstr, "%d", 12);
-    list_string_push_back (grow, tmpstr);
-    list_string_emplace_back (grow, "CD");
+    list_string_push_back (list, tmpstr);
+    // Third is to emplace directly in the list by constructing a new string_t based on the given const char * 
+    list_string_emplace_back (list, "CD");
 
     // Serialize the list of string into a big string.
-    list_string_get_str (tmpstr, grow, false);
+    list_string_get_str (tmpstr, list, false);
 
-    // print out
-    printf("Number of elements = %zu\n", list_string_size(grow));
+    // print it
+    printf("Number of elements = %zu\n", list_string_size(list));
     printf("Final string = %s\n", string_get_cstr(tmpstr));
 
     // Let's iterate over each element of the list
     // using the macro for iteration over a container.
-    printf ("Using macro EACH :\n");
-    for M_EACH (item, grow, list_string_t) {
+    printf ("Using macro EACH:\n");
+    for M_EACH (item, list, list_string_t) {
         printf ("Item = ");
         string_fputs (stdout, *item);
         printf ("\n");
@@ -52,31 +59,38 @@ int main(void)
 
     // You can also use classic iterator:
     list_string_it_t it;
-    printf ("Using iterators :\n");
-    for(list_string_it(it, grow) ; !list_string_end_p(it) ; list_string_next(it)) {
+    printf ("Using iterators:\n");
+    for(list_string_it(it, list) ; !list_string_end_p(it) ; list_string_next(it)) {
       const string_t *item = list_string_cref (it);
       printf ("Item = ");
       string_fputs (stdout, *item);
       printf ("\n");
     }
 
+#if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)
+    // Another way: we map each element to the M_PRINT function.
+    printf ("Using macro ALGO_FOR_EACH:");
+    ALGO_FOR_EACH(list, list_string_t, M_PRINT, "\nItem = ");
+    printf ("\n");
+#endif
+
     // Get the min and the max of the list
-    string_t *p = astring_min(grow);
+    string_t *p = list_string_min(list);
     printf ("Min string is %s\n", string_get_cstr(*p));
-    p = astring_max(grow);
+    p = list_string_max(list);
     printf ("Max string is %s\n", string_get_cstr(*p));
 
     // We can even sort the list.
-    astring_sort(grow);
-    for M_EACH (item, grow, list_string_t) {
+    list_string_sort(list);
+    for M_EACH (item, list, list_string_t) {
         printf ("Sort Item = %s\n", string_get_cstr(*item) );
       }
     
     // Split a string into a list.
     string_set_str(tmpstr, "HELLO;JOHN;HOW;ARE;YOU");
-    astring_split(grow, tmpstr, ';');
+    list_string_split(list, tmpstr, ';');
     // Iterate over the splitted list
-    for M_EACH (item, grow, list_string_t) {
+    for M_EACH (item, list, list_string_t) {
         printf ("Split Item = %s\n", string_get_cstr(*item) );
       }
     
