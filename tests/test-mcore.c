@@ -880,6 +880,7 @@ static void test_generic_api(void)
 #define GO3 (EQUAL(API( cmp2, EQ(0), ARGPTR1, ARGPTR2 )))
 #define GO4 (EQUAL(API( cmp1, EQ(0), ARG1, ARG2 )))
 #define GO5 (EQUAL(API( cmp3, EQ(0), ARG1, ARG2 )))
+#define GO6 (CMP(API(cmp3, NEG, ARG1, ARG2)))
 
   int x = 0, y = 0;
   M_CALL_INIT(GO1, x, y);
@@ -904,6 +905,20 @@ static void test_generic_api(void)
   x = 77;
   b = M_CALL_EQUAL(GO5, x, y);
   assert(!b);
+
+  x = 78;
+  y = 77;
+  int r = M_CALL_CMP(GO6, x, y);
+  assert(r < 0);
+  x = 76;
+  y = 77;
+  r = M_CALL_CMP(GO6, x, y);
+  assert(r > 0);
+  x = 76;
+  y = 76;
+  r = M_CALL_CMP(GO6, x, y);
+  assert(r == 0);
+
 }
 
 int main(void)
