@@ -3580,6 +3580,7 @@ static inline size_t m_core_cstr_hash(const char str[])
    on the given keyword (NONE, EQ, NEQ, ...).) */
 #define M_REORDER_RET_NONE(...)     /* Nothing */
 #define M_REORDER_RET_VOID(...)     (void)
+#define M_REORDER_RET_NEG(...)      -
 #define M_REORDER_RET_EQ(value)     value == M_EAT
 #define M_REORDER_RET_NEQ(value)    value != M_EAT
 #define M_REORDER_RET_LT(value)     value >  M_EAT
@@ -4109,7 +4110,8 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_OPL_long() M_BASIC_OPLIST
 #define M_OPL_float() M_BASIC_OPLIST
 #define M_OPL_double() M_BASIC_OPLIST
-
+#define M_OPL_bool()   M_BOOL_OPLIST
+#define M_OPL__Bool()  M_BOOL_OPLIST
 
 /************************************************************/
 /******************** Syntax Enhancing **********************/
