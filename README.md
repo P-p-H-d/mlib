@@ -661,6 +661,7 @@ Usage in oplist:
 It can be
 NONE (no transformation),
 VOID (cast to void),
+NEG (inverse the result),
 EQ(val)/NEQ(val)/LT(val)/GT(val)/LE(val)/GE(val) (compare the return code to the given value)
 ARG[1-9] (set the associated argument number of the operator to the return code)
 * args are the list of the arguments of the function. It can be:
