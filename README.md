@@ -957,8 +957,8 @@ In the following description:
 * value\_type\_t refers to the type of the value object used to associate an element to.
 * name\_itref\_t refers to a pair of key and value for associative arrays.
 
-An object shall be initialized (aka constructor) before being use by other methods.
-It shall be cleared (aka destructor) after being use and before program termination.
+An object shall be initialized (aka constructor) before being used by other methods.
+It shall be cleared (aka destructor) after being used and before program termination.
 An iterator has not destructor but shall be set before being used.
 
 A container takes as input the
@@ -1353,7 +1353,7 @@ or M\_SERIAL\_FAILURE in case of failure.
 In case of failure, the serializing object is in an unspecified state.
 This method is only created only if the OUT\_SERIAL methods is provided.
 
-##### m\_serial\_return\_code\_t name\_in\_str(name\_t container, m\_serial\_read\_t serial)
+##### m\_serial\_return\_code\_t name\_in\_serial(name\_t container, m\_serial\_read\_t serial)
 
 Read from the serializing object 'serial' a representation of a container
 and set 'container' to this representation.
