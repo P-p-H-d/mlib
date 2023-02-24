@@ -96,9 +96,9 @@ static void test_uint(void)
   assert(rbtree_uint_size(tree) == 2);
   const unsigned int tab2[] = {5, 10};
   for M_EACH(item, tree, UINT_OPLIST) {
+      assert(k < 2);
       assert (*item == tab2[k] );
       k ++;
-      assert(k <= 2);
     }
   assert(k == 2);
 
@@ -108,9 +108,9 @@ static void test_uint(void)
   assert(rbtree_uint_size(tree) == 3);
   const unsigned int tab3[] = {5, 10, 17};
   for M_EACH(item, tree, UINT_OPLIST) {
+      assert(k < 3);
       assert (*item == tab3[k] );
       k ++;
-      assert(k <= 3);
     }
   assert(k == 3);
 
