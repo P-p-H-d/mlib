@@ -972,6 +972,7 @@ m_ser1al_str_json_read_array_start(m_serial_local_t local, m_serial_read_t seria
   m_ser1al_str_json_skip(f);
   if (M_UNLIKELY (**f == ']')) {
     c = m_ser1al_str_json_getc(f);
+    assert( c == ']');
     return M_SERIAL_OK_DONE;
   } else {
     return M_SERIAL_OK_CONTINUE;
@@ -1013,6 +1014,7 @@ m_ser1al_str_json_read_map_start(m_serial_local_t local, m_serial_read_t serial,
   m_ser1al_str_json_skip(f);
   if (M_UNLIKELY (**f == '}')) {
     c = m_ser1al_str_json_getc(f);
+    assert(c == '}');
     return M_SERIAL_OK_DONE;
   } else {
     return M_SERIAL_OK_CONTINUE;

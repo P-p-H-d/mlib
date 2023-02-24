@@ -888,7 +888,6 @@ m_str1ng_replace_all_cstr_1ge2 (m_string_t v, const char str1[], size_t str1len,
       memmove(dst, src, (size_t) (occ - src));
     }
     dst += (occ - src);
-    src  = occ;
     // Copy the replaced string
     memcpy(dst, str2, str2len);
     dst += str2len;
