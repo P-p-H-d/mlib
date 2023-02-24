@@ -1077,8 +1077,7 @@ m_string_vprintf (m_string_t v, const char format[], va_list args)
     ptr = m_str1ng_fit2size (v, (size_t) size + 1);
     alloc = m_string_capacity(v);
     // and redo the parsing.
-    va_copy(args, args_org);
-    size = vsnprintf (ptr, alloc, format, args);
+    size = vsnprintf (ptr, alloc, format, args_org);
     M_ASSERT (size > 0 && (size_t)size < alloc);
   }
   if (M_LIKELY (size >= 0)) {
@@ -1088,6 +1087,7 @@ m_string_vprintf (m_string_t v, const char format[], va_list args)
     m_str1ng_set_size(v, 0);
     ptr[0] = 0;
   }
+  va_end(args_org);
   M_STR1NG_CONTRACT (v);
   return size;
 }
