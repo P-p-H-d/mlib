@@ -354,7 +354,9 @@ static void test_double(void)
   double *p = SnapshotDouble_get_write_buffer(s);
   *p = 42.0;
   p = SnapshotDouble_write(s);
+  assert(p != NULL);
   const double *q = SnapshotDouble_read(s);
+  assert(q != NULL);
   assert (*q == 42.0);
   SnapshotDouble_clear(s);
 }
@@ -364,9 +366,12 @@ static void test_doubleSPMC(void)
   SnapshotDoubleSPMC s;
   SnapshotDoubleSPMC_init(s, 1);
   double *p = SnapshotDoubleSPMC_get_write_buffer(s);
+  assert(p != NULL);
   *p = 42.0;
   p = SnapshotDoubleSPMC_write(s);
+  assert(p != NULL);
   const double *q = SnapshotDoubleSPMC_read_start(s);
+  assert(q != NULL);
   assert (*q == 42.0);
   SnapshotDoubleSPMC_read_end(s, q);
   SnapshotDoubleSPMC_clear(s);
@@ -377,9 +382,11 @@ static void test_doubleMPMC(void)
   SnapshotDoubleMPMC s;
   SnapshotDoubleMPMC_init(s, 1, 1);
   double *p = SnapshotDoubleMPMC_write_start(s);
+  assert(p != NULL);
   *p = 42.0;
   SnapshotDoubleMPMC_write_end(s, p);
   const double *q = SnapshotDoubleMPMC_read_start(s);
+  assert(q != NULL);
   assert (*q == 42.0);
   SnapshotDoubleMPMC_read_end(s, q);
   SnapshotDoubleMPMC_clear(s);

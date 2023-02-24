@@ -98,6 +98,7 @@ static void test_uint(void)
   for M_EACH(item, tree, UINT_OPLIST) {
       assert (*item == tab2[k] );
       k ++;
+      assert(k <= 2);
     }
   assert(k == 2);
 
@@ -109,6 +110,7 @@ static void test_uint(void)
   for M_EACH(item, tree, UINT_OPLIST) {
       assert (*item == tab3[k] );
       k ++;
+      assert(k <= 3);
     }
   assert(k == 3);
 

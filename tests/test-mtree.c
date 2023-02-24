@@ -467,7 +467,7 @@ static void test_io(void)
   tree_insert_down(root, 1);
   tree_insert_left(it, 3);
   tree_it_t it4 = tree_insert_right(it, 4);
-  root = tree_insert_up(root, -1);
+  tree_insert_up(root, -1);
   tree_insert_up(it, 5);
   tree_insert_child(it4, 6);
   tree_it_t it7 = tree_insert_child(it4, 7);
