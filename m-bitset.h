@@ -121,16 +121,21 @@ m_bitset_set(m_bitset_t d, const m_bitset_t s)
   M_B1TSET_CONTRACT(s);
   if (M_UNLIKELY (d == s)) return;
   const size_t needAlloc = M_B1TSET_TO_ALLOC (s->size);
-  if (s->size > M_B1TSET_FROM_ALLOC (d->alloc)) {
-    m_b1tset_limb_ct *ptr = M_MEMORY_REALLOC (m_b1tset_limb_ct, d->ptr, needAlloc);
-    if (M_UNLIKELY (ptr == NULL)) {
-      M_MEMORY_FULL(needAlloc);
-      return ;
+  if (M_LIKELY (s->size > 0)) {
+    // Test if enough space in target
+    if (s->size > M_B1TSET_FROM_ALLOC (d->alloc)) {
+      m_b1tset_limb_ct *ptr = M_MEMORY_REALLOC (m_b1tset_limb_ct, d->ptr, needAlloc);
+      if (M_UNLIKELY (ptr == NULL)) {
+        M_MEMORY_FULL(needAlloc);
+        return ;
+      }
+      d->ptr = ptr;
+      d->alloc = needAlloc;
     }
-    d->ptr = ptr;
-    d->alloc = needAlloc;
+    M_ASSERT(d->ptr != NULL);
+    M_ASSERT(s->ptr != NULL);
+    memcpy (d->ptr, s->ptr, needAlloc * sizeof(m_b1tset_limb_ct) );
   }
-  memcpy (d->ptr, s->ptr, needAlloc * sizeof(m_b1tset_limb_ct) );
   d->size = s->size;
   M_B1TSET_CONTRACT(d);
 }
