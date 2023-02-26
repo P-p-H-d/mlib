@@ -25,6 +25,7 @@
    for basic types.
    For integer and floats, there is no need to specify
    an oplist. M_BASIC_OPLIST will be used.
+   For bool, M_BOOL_OPLIST will be used.
  */
 ARRAY_DEF(r_bool, bool)
 
@@ -214,9 +215,9 @@ static char *my_strdup(const char *p)
   return d;
 }
 
-/* Same with type const char *, representing a contant string.
+/* Same with type const char *, representing a contant C string.
    We *** need *** an explicit oplist to tell M*LIB
-   to consider the type as a constant string.
+   to consider the type as a constant C string.
    The oplist to use is M_CSTR_OPLIST.
    We could have used M_PTR_OPLIST too,
    but in this case, we won't get proper string order or
@@ -245,13 +246,13 @@ test_cstring(int n)
   for(int i = 0; i < n; i++) {
     // Get back the string
     const char *p = *r_cstring_get(array, i);
-    // Convert it to integer
+    // Convert it to an integer
     int j = atoi(p);
     s += j;
   }
 
   // We also need a special unalloc pass
-  // to free all constant strings we have allocated.
+  // to free all constant strings we have allocated using my_strdup
   for(int i = 0; i < n; i++) {
     const char *p = *r_cstring_get(array, i);
     free((void*)(uintptr_t)p);
@@ -264,7 +265,7 @@ test_cstring(int n)
 
 
 
-/* Same with type string_t of M*LIB, representing a variable string.
+/* Same with type string_t of M*LIB, representing a dynamic string.
    We don't need explicit oplist to tell M*LIB!
    The oplist to use is STRING_OPLIST,
    but it has been registered globaly, so we don't need to explicit
@@ -282,7 +283,7 @@ test_string(int n)
   
   for(int i = 0; i < n; i++) {
     // create a string from an integer
-    string_printf(str, "%d", i);
+    string_set_si(str, i);
     // No need to make a copy in the container!
     r_string_push_back(array, str);
   }
@@ -294,7 +295,7 @@ test_string(int n)
     s += j;
   }
 
-  // No need to explicit dealloc !
+  // No need to explicit free each term of the array
   string_clear(str);
   r_string_clear(array);
 
@@ -304,7 +305,7 @@ test_string(int n)
 
 
 /* Same with type string_t of M*LIB, representing a variable string
-   and its explicit oplist. And said above, it generates exactly the
+   and its explicit oplist. As said above, it generates exactly the
    same code. */
 ARRAY_DEF(r_string2, string_t, STRING_OPLIST)
 
@@ -340,6 +341,9 @@ test_vintptr(int n)
   int s = 0;
   for(int i = 0; i < n; i++) {
     // Get the pointer to the integer.
+    // As the basic type of the container is a pointer,
+    // and r_vintptr_get return a pointer to the basic type
+    // we need to dereference its return value to get the pointer value.
     volatile unsigned *p = *r_vintptr_get(array, i);
     s += *p;
   }
@@ -374,6 +378,7 @@ test_rockme(int n)
   for(int i = 0; i < n; i++) {
     struct rock_me_out rock;
     rock.n = i*i - i;
+    rock.other = 0.0f;
     // Push the struct in the array
     r_rockme_push_back(array, rock);
   }
@@ -414,6 +419,7 @@ test_rockme2(int n)
   for(int i = 0; i < n; i++) {
     rock_me_in rock;
     rock->n = i*i - i;
+    rock->other = 0.0f;
     r_rockme2_push_back(array, rock);
   }
 
@@ -458,6 +464,7 @@ test_rockme2b(int n)
   for(int i = 0; i < n; i++) {
     rock_me_in rock;
     rock->n = i*i - i;
+    rock->other = 0.0f;
     r_rockme2b_push_back(array, rock);
   }
 
@@ -478,11 +485,14 @@ test_rockme2b(int n)
 /* Same with a structure type defined as a tuple.
 
    We first define a tuple. No need to specify the oplist as it uses basic C types
-   so M_BASIC_OPLIST is used.
+   so M_BASIC_OPLIST is used by default.
 
    Then we define the array, giving it the oplist definition of the tuple:
    the macro TUPLE_OPLIST is used to build it based on the tuple name,
    and the oplists of the tuple.
+
+   The main advantage of a tuple over a classic structure is that you get
+   free classic methods of your structure.
  */
 TUPLE_DEF2(rock_you, (n, int), (other, float))
 
