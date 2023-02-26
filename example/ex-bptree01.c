@@ -25,7 +25,9 @@ int main(void)
   map_employee_id_set_at(Employees, 11632, STRING_CTE("John Do"));
   map_employee_id_set_at(Employees, 852, STRING_CTE("Peter"));
   map_employee_id_set_at(Employees, 530, STRING_CTE("Amanda"));
-  map_employee_id_set_at(Employees, 4258, STRING_CTE("Elisabeth"));
+
+  // You can also emplace the structure
+  map_employee_id_emplace_val(Employees, 4258, "Elisabeth");
 
   printf("Number of employees: %zu\n", map_employee_id_size(Employees));
 
@@ -60,6 +62,7 @@ int main(void)
     printf("\nElisabeth has id = %d\n", *map_employee_name_get(Employees_r, STRING_CTE("Elisabeth")));    
   } /* Employees_r is cleared beyond this point */
 
+  // But employee is not
   map_employee_id_clear(Employees);
   return 0;
 }
