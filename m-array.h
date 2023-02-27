@@ -171,7 +171,8 @@
 #define M_ARRA4_DEF_P3(name, type, oplist, array_t, it_t)                     \
   M_ARRA4_DEF_TYPE(name, type, oplist, array_t, it_t)                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
-  M_ARRA4_DEF_CORE(name, type, oplist, array_t, it_t)
+  M_ARRA4_DEF_CORE(name, type, oplist, array_t, it_t)                         \
+  M_EMPLACE_QUEUE_DEF(name, array_t, M_C(name, _emplace_back), oplist, M_ARRA4_EMPLACE_DEF)
 
 /* Define the types */
 #define M_ARRA4_DEF_TYPE(name, type, oplist, array_t, it_t)                   \
@@ -1091,6 +1092,10 @@
     M_ARRA4_CONTRACT(a2);                                                     \
     if (M_LIKELY (a2->size > 0)) {                                            \
       size_t newSize = a1->size + a2->size;                                   \
+      /* To overflow newSize, we need to a1 and a2 a little bit above         \
+         SIZE_MAX/2, which is not possible in the classic memory model as we  \
+         should have exhausted all memory before reaching such sizes. */      \
+      M_ASSERT(newSize > a1->size);                                           \
       if (newSize > a1->alloc) {                                              \
         type *ptr = M_CALL_REALLOC(oplist, type, a1->ptr, newSize);           \
         if (M_UNLIKELY (ptr == NULL) ) {                                      \
@@ -1099,6 +1104,8 @@
         a1->ptr = ptr;                                                        \
         a1->alloc = newSize;                                                  \
       }                                                                       \
+      M_ASSERT(a1->ptr != NULL);                                              \
+      M_ASSERT(a2->ptr != NULL);                                              \
       memcpy(&a1->ptr[a1->size], &a2->ptr[0], a2->size * sizeof (type));      \
       /* a2 is now empty */                                                   \
       a2->size = 0;                                                           \
@@ -1106,8 +1113,7 @@
       a1->size = newSize;                                                     \
     }                                                                         \
   }                                                                           \
-                                                                              \
-  M_EMPLACE_QUEUE_DEF(name, array_t, M_C(name, _emplace_back), oplist, M_ARRA4_EMPLACE_DEF)
+
 
 /* Definition of the emplace_back function for arrays */
 #define M_ARRA4_EMPLACE_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
