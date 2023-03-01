@@ -114,6 +114,7 @@
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                          \
    )
 
+
 /* Max depth of the binary tree
    It is at worst twice the depth of a perfectly even tree with maximum elements.
    The maximum number of elements is the max of size_t.
@@ -175,6 +176,15 @@ typedef enum {
    - node_t: alias for the node of an element of the container
  */
 #define M_RBTR33_DEF_P3(name, type, oplist, tree_t, node_t, it_t)             \
+  M_RBTR33_DEF_TYPE(name, type, oplist, tree_t, node_t, it_t)                 \
+  M_RBTR33_DEF_MEMPOOL(name, type, oplist, tree_t, node_t, it_t)              \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+  M_RBTR33_DEF_CORE(name, type, oplist, tree_t, node_t, it_t)                 \
+  M_RBTR33_DEF_IO(name, type, oplist, tree_t, node_t, it_t)                   \
+  M_EMPLACE_QUEUE_DEF(name, tree_t, M_C(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
+
+/* Define the types associated to a R/B Tree */
+#define M_RBTR33_DEF_TYPE(name, type, oplist, tree_t, node_t, it_t)           \
                                                                               \
   /* Node of Red/Black tree.                                                  \
      Each node has up to two child, a color (Red or black)                    \
@@ -205,7 +215,9 @@ typedef enum {
   typedef type   M_C(name, _subtype_ct);                                      \
   typedef tree_t M_C(name, _ct);                                              \
   typedef it_t   M_C(name, _it_ct);                                           \
-                                                                              \
+
+/* Define the mempool encapsulation */
+#define M_RBTR33_DEF_MEMPOOL(name, type, oplist, tree_t, node_t, it_t)        \
   /* Link with fast memory allocator if requested */                          \
   M_IF_METHOD(MEMPOOL, oplist)(                                               \
     /* Definition of the memory pool of this kind of node */                  \
@@ -222,23 +234,17 @@ typedef enum {
     }                                                                         \
                                                                               \
     , /* No mempool allocation */                                             \
-    /* Callic allocator function (common case) */                             \
+    /* Classic Allocator function (common case) */                            \
     static inline node_t *M_C3(m_rbtr33_,name,_new)(void) {                   \
       return M_CALL_NEW(oplist, node_t);                                      \
     }                                                                         \
-    /* Callic deallocator function (common case) */                           \
+    /* Classic deallocator function (common case) */                          \
     static inline void M_C3(m_rbtr33_,name,_del)(node_t *ptr) {               \
       M_CALL_DEL(oplist, ptr);                                                \
     }                                                                 )       \
-                                                                              \
-  /* Check if the given oplist is compatible with the given type */           \
-  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
-                                                                              \
-  /* Generate all functions */                                                \
-  M_RBTR33_DEF_P4(name, type, oplist, tree_t, node_t, it_t)
 
-
-#define M_RBTR33_DEF_P4(name, type, oplist, tree_t, node_t, it_t)             \
+/* Define the core functions */
+#define M_RBTR33_DEF_CORE(name, type, oplist, tree_t, node_t, it_t)           \
                                                                               \
   static inline void                                                          \
   M_C(name, _init)(tree_t tree)                                               \
@@ -1013,7 +1019,9 @@ typedef enum {
     return M_HASH_FINAL (hash);                                               \
   }                                                                           \
   , /* NO HASH METHOD */ )                                                    \
-                                                                              \
+
+/* Define the I/O functions */
+#define M_RBTR33_DEF_IO(name, type, oplist, tree_t, node_t, it_t)             \
   M_IF_METHOD(GET_STR, oplist)(                                               \
   static inline void M_C(name, _get_str)(m_string_t str,                      \
                                          tree_t const t1, bool append) {      \
@@ -1165,7 +1173,6 @@ typedef enum {
   }                                                                           \
   , /* no in_serial */ )                                                      \
                                                                               \
-  M_EMPLACE_QUEUE_DEF(name, tree_t, M_C(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
 
 
 // TODO: specialized _sort shall do nothing, but shall check the requested order. How ?

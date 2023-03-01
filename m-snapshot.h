@@ -168,6 +168,12 @@ M_BEGIN_PROTECTED_CODE
 
 /* Expand the type and the functions of a SPSC snapshot */
 #define M_SNAPSH0T_SPSC_DEF_P3(name, type, oplist, snapshot_t)                \
+  M_SNAPSH0T_SPSC_DEF_TYPE(name, type, oplist, snapshot_t)                    \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+  M_SNAPSH0T_SPSC_DEF_CORE(name, type, oplist, snapshot_t)                    \
+
+/* Define the type */
+#define M_SNAPSH0T_SPSC_DEF_TYPE(name, type, oplist, snapshot_t)              \
                                                                               \
   /* Create an aligned type to avoid false sharing between threads */         \
   typedef struct M_C(name, _aligned_type_s) {                                 \
@@ -185,8 +191,9 @@ M_BEGIN_PROTECTED_CODE
   /* Define internal types for oplist */                                      \
   typedef snapshot_t M_C(name, _ct);                                          \
   typedef type          M_C(name, _subtype_ct);                               \
-                                                                              \
-  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+
+/* Define the core functions */
+#define M_SNAPSH0T_SPSC_DEF_CORE(name, type, oplist, snapshot_t)              \
                                                                               \
   static inline void                                                          \
   M_C(name, _init)(snapshot_t snap)                                           \
@@ -603,6 +610,12 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
 
 /* Expand the type and the functions of a SPMC snapshot */
 #define M_SNAPSH0T_SPMC_DEF_P3(name, type, oplist, snapshot_t)                \
+  M_SNAPSH0T_SPMC_DEF_TYPE(name, type, oplist, snapshot_t)                    \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+  M_SNAPSH0T_SPMC_DEF_CORE(name, type, oplist, snapshot_t)                    \
+
+/* Define the type */
+#define M_SNAPSH0T_SPMC_DEF_TYPE(name, type, oplist, snapshot_t)              \
                                                                               \
   /* Create an aligned type to avoid false sharing between threads */         \
   typedef struct M_C(name, _aligned_type_s) {                                 \
@@ -618,8 +631,9 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
   /* Define internal types for oplist */                                      \
   typedef snapshot_t M_C(name, _ct);                                          \
   typedef type       M_C(name, _subtype_ct);                                  \
-                                                                              \
-  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+
+/* Define the core functions */
+#define M_SNAPSH0T_SPMC_DEF_CORE(name, type, oplist, snapshot_t)              \
                                                                               \
   static inline void                                                          \
   M_C(name, _init)(snapshot_t snap, size_t nReader)                           \
@@ -712,8 +726,13 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
 
 /* Expand the type and the functions of a MPMC snapshot */
 #define M_SNAPSH0T_MPMC_DEF_P3(name, type, oplist, snapshot_t)                \
-                                                                              \
   M_SNAPSH0T_SPMC_DEF_P1((M_C(name, _mrsw), type, oplist, M_C(name, _mrsw_pct))) \
+  M_SNAPSH0T_MPMC_DEF_TYPE(name, type, oplist, snapshot_t)                    \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+  M_SNAPSH0T_MPMC_DEF_CORE(name, type, oplist, snapshot_t)                    \
+
+/* Define the types */
+#define M_SNAPSH0T_MPMC_DEF_TYPE(name, type, oplist, snapshot_t)              \
                                                                               \
   typedef struct M_C(name, _s) {                                              \
     M_C(name, _mrsw_pct)  core;                                               \
@@ -722,8 +741,9 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
   /* Define internal types for oplist */                                      \
   typedef snapshot_t M_C(name, _ct);                                          \
   typedef type       M_C(name, _subtype_ct);                                  \
-                                                                              \
-  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+
+/* Define the core functions */
+#define M_SNAPSH0T_MPMC_DEF_CORE(name, type, oplist, snapshot_t)              \
                                                                               \
   static inline void                                                          \
   M_C(name, _init)(snapshot_t snap, size_t nReader, size_t nWriter)           \

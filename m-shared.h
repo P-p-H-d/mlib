@@ -31,14 +31,6 @@
 
 M_BEGIN_PROTECTED_CODE
 
-/* Define the oplist of a shared pointer.
-   USAGE: SHARED_OPLIST(name [, oplist_of_the_type]) */
-#define M_SHARED_PTR_OPLIST(...)                                              \
-  M_SHAR3D_PTR_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
-                        ((__VA_ARGS__, M_BASIC_OPLIST ),                      \
-                         (__VA_ARGS__ )))
-
-
 /* Define shared pointer and its function.
    USAGE: SHARED_PTR_DEF(name, type, [, oplist]) */
 #define M_SHARED_PTR_DEF(name, ...)                                           \
@@ -54,6 +46,14 @@ M_BEGIN_PROTECTED_CODE
                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_SHAR3D_ATOMIC_OPLIST, name_t ), \
                       (name, __VA_ARGS__ ,                                       M_SHAR3D_ATOMIC_OPLIST, name_t ))) \
   M_END_PROTECTED_CODE
+
+
+/* Define the oplist of a shared pointer.
+   USAGE: SHARED_OPLIST(name [, oplist_of_the_type]) */
+#define M_SHARED_PTR_OPLIST(...)                                              \
+  M_SHAR3D_PTR_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
+                        ((__VA_ARGS__, M_BASIC_OPLIST ),                      \
+                         (__VA_ARGS__ )))
 
 
 /* Define relaxed shared pointer and its function (thread unsafe).
@@ -142,6 +142,8 @@ static inline int m_shar3d_integer_add(int *p, int val) { int r = *p;  *p += val
 static inline int m_shar3d_integer_sub(int *p, int val) { int r = *p;  *p -= val; return r; }
 static inline int m_shar3d_integer_cref(int *p) { return *p; }
 
+/*****************************************************************************/
+
 /* Contract of a shared pointer */
 #define M_SHAR3D_CONTRACT(shared, cpt_oplist) do {                            \
     M_ASSERT(shared != NULL);                                                 \
@@ -161,6 +163,12 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
 
 /* Code generation */
 #define M_SHAR3D_PTR_DEF_P3(name, type, oplist, cpt_oplist, shared_t)         \
+  M_SHAR3D_PTR_DEF_TYPE(name, type, oplist, cpt_oplist, shared_t)             \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+  M_SHAR3D_PTR_DEF_CORE(name, type, oplist, cpt_oplist, shared_t)             \
+
+/* Define the types */
+#define M_SHAR3D_PTR_DEF_TYPE(name, type, oplist, cpt_oplist, shared_t)       \
                                                                               \
   typedef struct M_C(name, _s){                                               \
     type *data;                        /* Pointer to the data */              \
@@ -177,8 +185,9 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     type data;                                                                \
     struct M_C(name, _s) ptr;                                                 \
   } M_C(name, combine_ct)[1];                                                 \
-                                                                              \
-  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+
+/* Define the core functions */
+#define M_SHAR3D_PTR_DEF_CORE(name, type, oplist, cpt_oplist, shared_t)       \
                                                                               \
   static inline void                                                          \
   M_C(name, _init)(shared_t shared)                                           \
@@ -373,6 +382,12 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(SHARED_RESOURCE_DEF): the given argument is not a valid oplist: " #oplist)
 
 #define M_SHAR3D_RESOURCE_DEF_P3(name, type, oplist, shared_t, it_t)          \
+  M_SHAR3D_RESOURCE_DEF_TYPE(name, type, oplist, shared_t, it_t)              \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+  M_SHAR3D_RESOURCE_DEF_CORE(name, type, oplist, shared_t, it_t)              \
+
+/* Define the types */
+#define M_SHAR3D_RESOURCE_DEF_TYPE(name, type, oplist, shared_t, it_t)        \
                                                                               \
   /* Create an aligned type to avoid false sharing between threads */         \
   typedef struct M_C(name, _atype_s) {                                        \
@@ -393,7 +408,9 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
                                                                               \
   /* Internal Types for oplist */                                             \
   typedef shared_t M_C(name, _ct);                                            \
-                                                                              \
+
+/* Define the core functions */
+#define M_SHAR3D_RESOURCE_DEF_CORE(name, type, oplist, shared_t, it_t)        \
   static inline void                                                          \
   M_C(name, _init)(shared_t s, size_t n)                                      \
   {                                                                           \
