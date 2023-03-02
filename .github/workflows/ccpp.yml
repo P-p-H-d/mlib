@@ -131,6 +131,4 @@ jobs:
         run: |
              freebsd-version
              cd tests
-             make check -j 2 CC="cc -std=c99 -Wno-unknown-warning-option -Werror"
-             make clean
-             make check -j 2 CC="cc -std=c11 -Wno-unknown-warning-option -Werror" LDFLAGS="-lstdthreads"
+             make check -j 2 CC="cc -std=c99 -Wno-unknown-warning-option -Werror" && make clean && make check -j 2 CC="cc -std=c11 -Wno-unknown-warning-option -Werror" LDFLAGS="-lstdthreads" && make clean
