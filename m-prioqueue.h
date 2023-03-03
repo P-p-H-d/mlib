@@ -135,6 +135,7 @@
   M_PR1OQUEUE_DEF_TYPE(name, type, oplist, prioqueue_t, it_t)                 \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
   M_PR1OQUEUE_DEF_CORE(name, type, oplist, prioqueue_t, it_t)                 \
+  M_PR1OQUEUE_DEF_IT(name, type, oplist, prioqueue_t, it_t)                   \
   M_PR1OQUEUE_DEF_IO(name, type, oplist, prioqueue_t, it_t)                   \
   M_EMPLACE_QUEUE_DEF(name, prioqueue_t, M_C(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
 
@@ -299,68 +300,6 @@
     }                                                                         \
   }                                                                           \
                                                                               \
-  /* Define iterators over the array iterator */                              \
-  static inline void                                                          \
-  M_C(name, _it)(it_t it, prioqueue_t const v)                                \
-  {                                                                           \
-    M_C(name, _array_it)(it, v->array);                                       \
-  }                                                                           \
-                                                                              \
-  static inline void                                                          \
-  M_C(name, _it_last)(it_t it, prioqueue_t const v)                           \
-  {                                                                           \
-    M_C(name, _array_it_last)(it, v->array);                                  \
-  }                                                                           \
-                                                                              \
-  static inline void                                                          \
-  M_C(name, _it_end)(it_t it, prioqueue_t const v)                            \
-  {                                                                           \
-    M_C(name, _array_it_end)(it, v->array);                                   \
-  }                                                                           \
-                                                                              \
-  static inline void                                                          \
-  M_C(name, _it_set)(it_t it, const it_t org)                                 \
-  {                                                                           \
-    M_C(name, _array_it_set)(it, org);                                        \
-  }                                                                           \
-                                                                              \
-  static inline bool                                                          \
-  M_C(name, _end_p)(const it_t it)                                            \
-  {                                                                           \
-    return M_C(name, _array_end_p)(it);                                       \
-  }                                                                           \
-                                                                              \
-  static inline bool                                                          \
-  M_C(name, _last_p)(const it_t it)                                           \
-  {                                                                           \
-    return M_C(name, _array_last_p)(it);                                      \
-  }                                                                           \
-                                                                              \
-  static inline bool                                                          \
-  M_C(name, _it_equal_p)(const it_t it1,                                      \
-                         const it_t it2)                                      \
-  {                                                                           \
-    return M_C(name, _array_it_equal_p)(it1, it2);                            \
-  }                                                                           \
-                                                                              \
-  static inline void                                                          \
-  M_C(name, _next)(it_t it)                                                   \
-  {                                                                           \
-    M_C(name, _array_next)(it);                                               \
-  }                                                                           \
-                                                                              \
-  static inline void                                                          \
-  M_C(name, _previous)(it_t it)                                               \
-  {                                                                           \
-    M_C(name, _array_previous)(it);                                           \
-  }                                                                           \
-                                                                              \
-  static inline type const *                                                  \
-  M_C(name, _cref)(const it_t it)                                             \
-  {                                                                           \
-    return M_C(name, _array_cref)(it);                                        \
-  }                                                                           \
-                                                                              \
   M_IF_METHOD(EQUAL, oplist)                                                  \
   (                                                                           \
     /* EQUAL & CMP may be uncorrelated */                                     \
@@ -447,7 +386,72 @@
    }                                                                          \
    , /* No EQUAL */ )                                                         \
 
-/* Define the core functions */
+/* Define the IT based functions */
+#define M_PR1OQUEUE_DEF_IT(name, type, oplist, prioqueue_t, it_t)             \
+                                                                              \
+  /* Define iterators over the array iterator */                              \
+  static inline void                                                          \
+  M_C(name, _it)(it_t it, prioqueue_t const v)                                \
+  {                                                                           \
+    M_C(name, _array_it)(it, v->array);                                       \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _it_last)(it_t it, prioqueue_t const v)                           \
+  {                                                                           \
+    M_C(name, _array_it_last)(it, v->array);                                  \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _it_end)(it_t it, prioqueue_t const v)                            \
+  {                                                                           \
+    M_C(name, _array_it_end)(it, v->array);                                   \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _it_set)(it_t it, const it_t org)                                 \
+  {                                                                           \
+    M_C(name, _array_it_set)(it, org);                                        \
+  }                                                                           \
+                                                                              \
+  static inline bool                                                          \
+  M_C(name, _end_p)(const it_t it)                                            \
+  {                                                                           \
+    return M_C(name, _array_end_p)(it);                                       \
+  }                                                                           \
+                                                                              \
+  static inline bool                                                          \
+  M_C(name, _last_p)(const it_t it)                                           \
+  {                                                                           \
+    return M_C(name, _array_last_p)(it);                                      \
+  }                                                                           \
+                                                                              \
+  static inline bool                                                          \
+  M_C(name, _it_equal_p)(const it_t it1,                                      \
+                         const it_t it2)                                      \
+  {                                                                           \
+    return M_C(name, _array_it_equal_p)(it1, it2);                            \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _next)(it_t it)                                                   \
+  {                                                                           \
+    M_C(name, _array_next)(it);                                               \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _previous)(it_t it)                                               \
+  {                                                                           \
+    M_C(name, _array_previous)(it);                                           \
+  }                                                                           \
+                                                                              \
+  static inline type const *                                                  \
+  M_C(name, _cref)(const it_t it)                                             \
+  {                                                                           \
+    return M_C(name, _array_cref)(it);                                        \
+  }                                                                           \
+
+/* Define the IO functions */
 #define M_PR1OQUEUE_DEF_IO(name, type, oplist, prioqueue_t, it_t)             \
   M_IF_METHOD(OUT_STR, oplist)(                                               \
   static inline void                                                          \
