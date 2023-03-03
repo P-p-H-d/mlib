@@ -98,35 +98,36 @@ mpfr_fast_hash (const mpfr_t f)
    TYPE(mpfr_t) )
 
 
-/* Define a variant over three kind of numbers named my_number_t
+/* Define a variant (aka a typed union) over three kind of numbers named my_number_t
    Notice than mpz_t/mpfr_t has special init & clear functions.
-   This is handle by the library.
+   This is handled by the library.
 */
 VARIANT_DEF2(my_number,
              (n, long long),
              (z, mpz_t),
              (fr, mpfr_t) )
-/* Define the oplist associated to this variant and register it */
+/* Register the oplist associated to this variant named my_number_t */
 #define M_OPL_my_number_t() VARIANT_OPLIST(my_number, M_BASIC_OPLIST, M_OPL_mpz_t(), M_OPL_mpfr_t() )
 
 
 /* Define a dictionary of string_t --> my_number_t named my_dict_t */
 DICT_DEF2(my_dict, string_t, my_number_t)
-/* Define the oplist associated to this dictionary and register it */
+/* Register the oplist associated to this dictionary named my_dict_t */
 #define M_OPL_my_dict_t() DICT_OPLIST(my_dict, STRING_OPLIST, M_OPL_my_number_t() )
 
 
 /* Define an array of such dictionary named my_array_t */
 ARRAY_DEF(my_array, my_dict_t)
-/* Define the oplist associated to this array of dictionary of variant and register it */
+/* Register the oplist associated to this array (of dictionary of variant) named my_array_t*/
 #define M_OPL_my_array_t() ARRAY_OPLIST(my_array, M_OPL_my_dict_t())
 
 
-// Show how to define an array of mpz_t & mpfr_t and some algorithms on then
-// (Not needed for the sequel of this example)
+// Show how to define an array of mpz_t and some algorithms on it
 ARRAY_DEF(array_mpz, mpz_t)
 #define M_OPL_array_mpz_t() ARRAY_OPLIST(array_mpz, M_OPL_mpz_t())
 ALGO_DEF(array_mpz, array_mpz_t)
+
+// Show how to define an array of mpfr_t and some algorithms on it
 ARRAY_DEF(array_mpfr, mpfr_t)
 #define M_OPL_array_mpfr_t() ARRAY_OPLIST(array_mpfr, M_OPL_mpfr_t())
 ALGO_DEF(array_mpfr, array_mpfr_t)
@@ -136,14 +137,13 @@ compute_roots(array_mpfr_t roots, const array_mpz_t pol)
 {
   assert( array_mpz_size(pol) == 3);
   // Initialize mpfr_t variables from the mpz_t values in the array 'pol'
-  // & clear then once the brackets end.
   M_LET( (a, (*array_mpz_get(pol, 0))),
          (b, (*array_mpz_get(pol, 1))),
          (c, (*array_mpz_get(pol, 2))),
          delta, tmp, mpfr_t) {
       // Reset the output array
       array_mpfr_reset(roots);
-      // Compute the results
+      // Compute the first root
       mpfr_mul(delta, b, b, MPFR_RNDN);
       mpfr_mul_ui(tmp, a, 4, MPFR_RNDN);
       mpfr_mul(tmp, tmp, c, MPFR_RNDN);
@@ -155,13 +155,14 @@ compute_roots(array_mpfr_t roots, const array_mpz_t pol)
       mpfr_div_2ui(tmp, tmp, 1, MPFR_RNDN);
       // Push first root
       array_mpfr_push_back(roots, tmp);
+      // Compute second root
       mpfr_neg(tmp, b, MPFR_RNDN);
       mpfr_sub(tmp, tmp, delta, MPFR_RNDN);
       mpfr_div(tmp, tmp, a, MPFR_RNDN);
       mpfr_div_2ui(tmp, tmp, 1, MPFR_RNDN);
       // Push second root
       array_mpfr_push_back(roots, tmp);
-  }
+  } // Clear the mpfr_t variables after this point.
 }
 
 int main(void)
@@ -202,18 +203,19 @@ int main(void)
               printf("Key is '%s'. ", string_get_cstr(p->key));
               // In function of the type of value
               if (my_number_n_p(p->value)) {
-                printf ("It is a long long, value = %lld\n",
-                        *my_number_cget_n(p->value));
+                // Print it. 
+                M_PRINT("It is a long long, value = ", *my_number_cget_n(p->value), "\n");
               }
               if (my_number_z_p(p->value)) {
-                printf ("It is a mpz_t, value = ");
-                mpz_out_str(stdout, 10, *my_number_cget_z(p->value));
-                printf("\n");
+                // Print it. Since mpz_t isn't a native type, M_PRINT macro doesn't know it by default
+                // So we need to add the type to the value.
+                // M_PRINT will then look at its globally registered oplist
+                // and known how to print it.
+                M_PRINT("It is a mpz_t, value = ", (*my_number_cget_z(p->value), mpz_t), "\n");
               }
               if (my_number_fr_p(p->value)) {
-                printf ("It is a mpfr_t, value = ");
-                mpfr_out_str(stdout, 10, 0, *my_number_cget_fr(p->value), MPFR_RNDN);
-                printf("\n");
+                // Same but with a MPFR number.
+                M_PRINT("It is a mpfr_t, value = ", (*my_number_cget_fr(p->value), mpfr_t), "\n");
               }
             }
           printf("Next element of array\n");
@@ -223,7 +225,7 @@ int main(void)
       M_PRINT("\nThe array is equal to ", (array, my_array_t), "\n");
     } /* All variables are automatically cleared beyond this point */
 
-    // Define an array of mpz_t as { 1, 2, 1 } (with auto promotion from integer)
+    // Define an array of mpz_t as { 1, 2, 1 } (with auto promotion from integer / string / double)
     // The auto-promotion uses _Generic feature and is available only in C11.
     M_LET ( (az, (1), ("2"), (1.0)), array_mpz_t)
     M_LET ( roots, array_mpfr_t) {
