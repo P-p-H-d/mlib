@@ -135,6 +135,7 @@
   M_PR1OQUEUE_DEF_TYPE(name, type, oplist, prioqueue_t, it_t)                 \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
   M_PR1OQUEUE_DEF_CORE(name, type, oplist, prioqueue_t, it_t)                 \
+  M_PR1OQUEUE_DEF_IO(name, type, oplist, prioqueue_t, it_t)                   \
   M_EMPLACE_QUEUE_DEF(name, prioqueue_t, M_C(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
 
 /* Define the types */
@@ -445,7 +446,9 @@
      }                                                                        \
    }                                                                          \
    , /* No EQUAL */ )                                                         \
-                                                                              \
+
+/* Define the core functions */
+#define M_PR1OQUEUE_DEF_IO(name, type, oplist, prioqueue_t, it_t)             \
   M_IF_METHOD(OUT_STR, oplist)(                                               \
   static inline void                                                          \
   M_C(name, _out_str)(FILE *file, const prioqueue_t p)                        \
