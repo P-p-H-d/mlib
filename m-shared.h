@@ -93,7 +93,9 @@ M_BEGIN_PROTECTED_CODE
 
 
 
-/********************************** INTERNAL ************************************/
+/*****************************************************************************/
+/********************************** INTERNAL *********************************/
+/*****************************************************************************/
 
 // deferred evaluation
 #define M_SHAR3D_PTR_OPLIST_P1(arg) M_SHAR3D_PTR_OPLIST_P2 arg
@@ -142,7 +144,8 @@ static inline int m_shar3d_integer_add(int *p, int val) { int r = *p;  *p += val
 static inline int m_shar3d_integer_sub(int *p, int val) { int r = *p;  *p -= val; return r; }
 static inline int m_shar3d_integer_cref(int *p) { return *p; }
 
-/*****************************************************************************/
+
+/********************************** INTERNAL *********************************/
 
 /* Contract of a shared pointer */
 #define M_SHAR3D_CONTRACT(shared, cpt_oplist) do {                            \
@@ -360,10 +363,9 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     M_ASSERT (data != NULL);                                                  \
     return data;                                                              \
   }                                                                           \
-  
 
 
-/********************************** SHARED RESOURCE ************************************/
+/********************************** INTERNAL *********************************/
 
 #define M_SHAR3D_RESOURCE_CONTRACT(s) do {                                    \
     M_ASSERT (s != NULL);                                                     \
@@ -510,6 +512,8 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   }                                                                           \
 
 M_END_PROTECTED_CODE
+
+/********************************** INTERNAL *********************************/
 
 #if M_USE_SMALL_NAME
 #define SHARED_PTR_OPLIST M_SHARED_PTR_OPLIST

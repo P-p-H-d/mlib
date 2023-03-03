@@ -91,9 +91,9 @@
 
 
 
-/********************************************************************************/
-/********************************** INTERNAL ************************************/
-/********************************************************************************/
+/*****************************************************************************/
+/******************************** INTERNAL ***********************************/
+/*****************************************************************************/
 
 /* To be used by M_IF_FUNCOBJ macro defined in m-core.
    NOTE: It is reversed (0 instead of 1) so that it can be used in M_IF reliabely.
@@ -134,6 +134,8 @@
   PROPERTIES(( LET_AS_INIT_WITH(1) ))                                         \
   )
 
+
+/******************************** INTERNAL ***********************************/
 
 /* Specialization of the definition a function object interface of name 'name'
  * with a function like "retcode (void)" that doesn't have any input parameters.
@@ -204,6 +206,8 @@
       funcobj->callback(funcobj M_MAP3(M_FUNC0BJ_BASE_ARGCALL, name, __VA_ARGS__) ); \
   }
 
+
+/******************************** INTERNAL ***********************************/
 
 /* Specialization of the definition a function object instance of name 'name'
  * with no member attribute.
@@ -396,6 +400,9 @@
   M_MAP2(M_FUNC0BJ_CONTROL_OPLIST, name, __VA_ARGS__)
 #define M_FUNC0BJ_CONTROL_OPLIST(name, a)                                     \
   M_CHECK_COMPATIBLE_OPLIST(name, M_RET_ARG1 a, M_RET_ARG2 a, M_RET_ARG3 a)
+
+
+/******************************** INTERNAL ***********************************/
 
 #if M_USE_SMALL_NAME
 #define FUNC_OBJ_ITF_DEF M_FUNC_OBJ_ITF_DEF

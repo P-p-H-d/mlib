@@ -60,6 +60,7 @@
 #define M_ARRAY_INIT_VALUE()                                                  \
   { { 0, 0, NULL } }
 
+
 /*****************************************************************************/
 /********************************** INTERNAL *********************************/
 /*****************************************************************************/
@@ -136,6 +137,8 @@
    )
 
 
+/********************************** INTERNAL *********************************/
+
 /* Define the internal contract of an array */
 #define M_ARRA4_CONTRACT(a) do {                                              \
     M_ASSERT (a != NULL);                                                     \
@@ -172,6 +175,7 @@
   M_ARRA4_DEF_TYPE(name, type, oplist, array_t, it_t)                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
   M_ARRA4_DEF_CORE(name, type, oplist, array_t, it_t)                         \
+  M_ARRA4_DEF_IO(name, type, oplist, array_t, it_t)                           \
   M_EMPLACE_QUEUE_DEF(name, array_t, M_C(name, _emplace_back), oplist, M_ARRA4_EMPLACE_DEF)
 
 /* Define the types */
@@ -902,6 +906,70 @@
                                                                               \
   ,) /* IF CMP oplist */                                                      \
                                                                               \
+  M_IF_METHOD(EQUAL, oplist)(                                                 \
+  static inline bool                                                          \
+  M_C(name, _equal_p)(const array_t array1,                                   \
+                      const array_t array2)                                   \
+  {                                                                           \
+    M_ARRA4_CONTRACT(array1);                                                 \
+    M_ARRA4_CONTRACT(array2);                                                 \
+    if (array1->size != array2->size) return false;                           \
+    size_t i;                                                                 \
+    for(i = 0; i < array1->size; i++) {                                       \
+      type const *item1 = M_C(name, _cget)(array1, i);                        \
+      type const *item2 = M_C(name, _cget)(array2, i);                        \
+      bool b = M_CALL_EQUAL(oplist, *item1, *item2);                          \
+      if (!b) return false;                                                   \
+    }                                                                         \
+    return i == array1->size;                                                 \
+  }                                                                           \
+  , /* no EQUAL */ )                                                          \
+                                                                              \
+  M_IF_METHOD(HASH, oplist)(                                                  \
+  static inline size_t                                                        \
+  M_C(name, _hash)(const array_t array)                                       \
+  {                                                                           \
+    M_ARRA4_CONTRACT(array);                                                  \
+    M_HASH_DECL(hash);                                                        \
+    for(size_t i = 0 ; i < array->size; i++) {                                \
+      size_t hi = M_CALL_HASH(oplist, array->ptr[i]);                         \
+      M_HASH_UP(hash, hi);                                                    \
+    }                                                                         \
+    return M_HASH_FINAL (hash);                                               \
+  }                                                                           \
+  , /* no HASH */ )                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _splice)(array_t a1, array_t a2)                                  \
+  {                                                                           \
+    M_ARRA4_CONTRACT(a1);                                                     \
+    M_ARRA4_CONTRACT(a2);                                                     \
+    if (M_LIKELY (a2->size > 0)) {                                            \
+      size_t newSize = a1->size + a2->size;                                   \
+      /* To overflow newSize, we need to a1 and a2 a little bit above         \
+         SIZE_MAX/2, which is not possible in the classic memory model as we  \
+         should have exhausted all memory before reaching such sizes. */      \
+      M_ASSERT(newSize > a1->size);                                           \
+      if (newSize > a1->alloc) {                                              \
+        type *ptr = M_CALL_REALLOC(oplist, type, a1->ptr, newSize);           \
+        if (M_UNLIKELY (ptr == NULL) ) {                                      \
+          M_MEMORY_FULL(sizeof (type) * newSize);                             \
+        }                                                                     \
+        a1->ptr = ptr;                                                        \
+        a1->alloc = newSize;                                                  \
+      }                                                                       \
+      M_ASSERT(a1->ptr != NULL);                                              \
+      M_ASSERT(a2->ptr != NULL);                                              \
+      memcpy(&a1->ptr[a1->size], &a2->ptr[0], a2->size * sizeof (type));      \
+      /* a2 is now empty */                                                   \
+      a2->size = 0;                                                           \
+      /* a1 has been expanded with the items of a2 */                         \
+      a1->size = newSize;                                                     \
+    }                                                                         \
+  }                                                                           \
+
+/* Define the I/O functions */
+#define M_ARRA4_DEF_IO(name, type, oplist, array_t, it_t)                     \
                                                                               \
   M_IF_METHOD(GET_STR, oplist)(                                               \
   static inline void                                                          \
@@ -1051,69 +1119,6 @@
     return ret;                                                               \
   }                                                                           \
   , /* no IN_SERIAL & INIT */ )                                               \
-                                                                              \
-  M_IF_METHOD(EQUAL, oplist)(                                                 \
-  static inline bool                                                          \
-  M_C(name, _equal_p)(const array_t array1,                                   \
-                      const array_t array2)                                   \
-  {                                                                           \
-    M_ARRA4_CONTRACT(array1);                                                 \
-    M_ARRA4_CONTRACT(array2);                                                 \
-    if (array1->size != array2->size) return false;                           \
-    size_t i;                                                                 \
-    for(i = 0; i < array1->size; i++) {                                       \
-      type const *item1 = M_C(name, _cget)(array1, i);                        \
-      type const *item2 = M_C(name, _cget)(array2, i);                        \
-      bool b = M_CALL_EQUAL(oplist, *item1, *item2);                          \
-      if (!b) return false;                                                   \
-    }                                                                         \
-    return i == array1->size;                                                 \
-  }                                                                           \
-  , /* no EQUAL */ )                                                          \
-                                                                              \
-  M_IF_METHOD(HASH, oplist)(                                                  \
-  static inline size_t                                                        \
-  M_C(name, _hash)(const array_t array)                                       \
-  {                                                                           \
-    M_ARRA4_CONTRACT(array);                                                  \
-    M_HASH_DECL(hash);                                                        \
-    for(size_t i = 0 ; i < array->size; i++) {                                \
-      size_t hi = M_CALL_HASH(oplist, array->ptr[i]);                         \
-      M_HASH_UP(hash, hi);                                                    \
-    }                                                                         \
-    return M_HASH_FINAL (hash);                                               \
-  }                                                                           \
-  , /* no HASH */ )                                                           \
-                                                                              \
-  static inline void                                                          \
-  M_C(name, _splice)(array_t a1, array_t a2)                                  \
-  {                                                                           \
-    M_ARRA4_CONTRACT(a1);                                                     \
-    M_ARRA4_CONTRACT(a2);                                                     \
-    if (M_LIKELY (a2->size > 0)) {                                            \
-      size_t newSize = a1->size + a2->size;                                   \
-      /* To overflow newSize, we need to a1 and a2 a little bit above         \
-         SIZE_MAX/2, which is not possible in the classic memory model as we  \
-         should have exhausted all memory before reaching such sizes. */      \
-      M_ASSERT(newSize > a1->size);                                           \
-      if (newSize > a1->alloc) {                                              \
-        type *ptr = M_CALL_REALLOC(oplist, type, a1->ptr, newSize);           \
-        if (M_UNLIKELY (ptr == NULL) ) {                                      \
-          M_MEMORY_FULL(sizeof (type) * newSize);                             \
-        }                                                                     \
-        a1->ptr = ptr;                                                        \
-        a1->alloc = newSize;                                                  \
-      }                                                                       \
-      M_ASSERT(a1->ptr != NULL);                                              \
-      M_ASSERT(a2->ptr != NULL);                                              \
-      memcpy(&a1->ptr[a1->size], &a2->ptr[0], a2->size * sizeof (type));      \
-      /* a2 is now empty */                                                   \
-      a2->size = 0;                                                           \
-      /* a1 has been expanded with the items of a2 */                         \
-      a1->size = newSize;                                                     \
-    }                                                                         \
-  }                                                                           \
-
 
 /* Definition of the emplace_back function for arrays */
 #define M_ARRA4_EMPLACE_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
@@ -1126,6 +1131,8 @@
       return;                                                                 \
     M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
   }                                                                           \
+
+/********************************** INTERNAL *********************************/
 
 #if M_USE_SMALL_NAME
 #define ARRAY_DEF M_ARRAY_DEF

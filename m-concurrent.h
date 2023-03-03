@@ -76,7 +76,9 @@
                       (__VA_ARGS__ )))
 
 
-/********************************** INTERNAL ************************************/
+/*****************************************************************************/
+/******************************** INTERNAL ***********************************/
+/*****************************************************************************/
 
 /* Deferred evaluation for the oplist definition,
    so that all arguments are evaluated before further expansion */
@@ -134,12 +136,14 @@
    )
 
 
+/******************************** INTERNAL ***********************************/
+
 /* Internal contract 
    NOTE: Can't check too much without locking the container itself
 */
 #define M_C0NCURRENT_CONTRACT(c) do {                                         \
     M_ASSERT ((c) != NULL);                                                   \
-    M_ASSERT ( (c)->self == (c));                                             \
+    M_ASSERT ((c)->self == (c));                                              \
   } while (0)
 
 /* Deferred evaluation for the concurrent definition,
@@ -744,6 +748,7 @@
   ,)                                                                          \
 
 
+/******************************** INTERNAL ***********************************/
 
 /* Deferred evaluation for the RP concurrent definition,
    so that all arguments are evaluated before further expansion */
@@ -765,6 +770,7 @@
  */
 #define M_C0NCURRENT_RP_DEF_P3(name, type, oplist, concurrent_t)              \
   M_C0NCURRENT_RP_DEF_TYPE(name, type, oplist, concurrent_t)                  \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
   M_C0NCURRENT_RP_DEF_CORE(name, type, oplist, concurrent_t)                  \
   M_C0NCURRENT_DEF_COMMON(name, type, oplist, concurrent_t)
 
@@ -908,6 +914,8 @@
     m_mutex_unlock (out->lock);                                               \
   }                                                                           \
 
+
+/******************************** INTERNAL ***********************************/
 
 #if M_USE_SMALL_NAME
 #define CONCURRENT_DEF M_CONCURRENT_DEF

@@ -55,8 +55,9 @@
                         (__VA_ARGS__ )))
 
 
-
-/********************************** INTERNAL ************************************/
+/*****************************************************************************/
+/********************************** INTERNAL *********************************/
+/*****************************************************************************/
 
 /* Deferred evaluation for the definition,
    so that all arguments are evaluated before further expansion */
@@ -106,6 +107,8 @@
    ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)),)         \
    )
 
+
+/********************************** INTERNAL *********************************/
 
 /* Deferred evaluation for the definition,
    so that all arguments are evaluated before further expansion */
@@ -493,6 +496,8 @@
 
 
 // TODO: set all & remove all function
+
+/********************************** INTERNAL *********************************/
 
 #if M_USE_SMALL_NAME
 #define PRIOQUEUE_DEF M_PRIOQUEUE_DEF

@@ -177,8 +177,9 @@
    M_D1CT_SET_OPLIST_P1((__VA_ARGS__ )))
 
 
-
-/********************************** INTERNAL ************************************/
+/*****************************************************************************/
+/******************************** INTERNAL ***********************************/
+/*****************************************************************************/
 
 /* Define a dictionary from the key key_type to the value value_type.
    It is defined as an array of singly linked list (each list
@@ -1037,6 +1038,9 @@
                                                                               \
   M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF(isSet, name, dict_t, key_oplist, value_oplist)
 
+
+/******************************** INTERNAL ***********************************/
+
 /* Deferred evaluation for the definition,
    so that all arguments are evaluated before further expansion */
 #define M_D1CT_OPLIST_P1(arg) M_D1CT_OPLIST_P2 arg
@@ -1180,9 +1184,7 @@
   } while (0)
 
 
-/****************************************************************************************/
-/* Open Addressing implementation */
-/****************************************************************************************/
+/******************************** INTERNAL ***********************************/
 
 enum m_d1ct_oa_element_e {
   M_D1CT_OA_EMPTY = 0, M_D1CT_OA_DELETED = 1
@@ -1968,6 +1970,9 @@ enum m_d1ct_oa_element_e {
   }                                                                           \
                                                                               \
   M_D1CT_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t, it_deref_t)
+
+
+/******************************** INTERNAL ***********************************/
 
 #if M_USE_SMALL_NAME
 #define DICT_DEF2 M_DICT_DEF2

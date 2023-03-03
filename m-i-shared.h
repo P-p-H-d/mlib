@@ -72,7 +72,9 @@ M_BEGIN_PROTECTED_CODE
   M_END_PROTECTED_CODE
 
 
-/********************************** INTERNAL ************************************/
+/*****************************************************************************/
+/******************************** INTERNAL ***********************************/
+/*****************************************************************************/
 
 // Deferred evaluation
 #define M_ISHAR3D_PTR_OPLIST_P1(arg) M_ISHAR3D_PTR_OPLIST_P2 arg
@@ -101,6 +103,8 @@ M_BEGIN_PROTECTED_CODE
   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                           \
   )
 
+
+/******************************** INTERNAL ***********************************/
 
 // Deferred evaluatioin
 #define M_ISHAR3D_PTR_DEF_P1(arg) M_ID( M_ISHAR3D_PTR_DEF_P2 arg )
@@ -239,6 +243,8 @@ M_BEGIN_PROTECTED_CODE
                                                                               \
 
 M_END_PROTECTED_CODE
+
+/******************************** INTERNAL ***********************************/
 
 #if M_USE_SMALL_NAME
 #define ISHARED_PTR_OPLIST M_ISHARED_PTR_OPLIST

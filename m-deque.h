@@ -98,7 +98,9 @@
 #define M_D3QU3_DEF_P3(name, type, oplist, deque_t, it_t, node_t)             \
   M_D3QU3_DEF_TYPE(name, type, oplist, deque_t, it_t, node_t)                 \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
-  M_D3QU3_DEF_CORE(name, type, oplist, deque_t, it_t, node_t)
+  M_D3QU3_DEF_CORE(name, type, oplist, deque_t, it_t, node_t)                 \
+  M_EMPLACE_QUEUE_DEF(name, deque_t, M_C(name, _emplace_back), oplist, M_D3QUE_EMPLACE_BACK_DEF) \
+  M_EMPLACE_QUEUE_DEF(name, deque_t, M_C(name, _emplace_front), oplist, M_D3QUE_EMPLACE_FRONT_DEF)
 
 /* Define the types.
    It is a linked list of buckets of the types,
@@ -1052,10 +1054,6 @@
     return ret;                                                               \
   }                                                                           \
   , /* no IN_SERIAL & INIT */ )                                               \
-                                                                              \
-  M_EMPLACE_QUEUE_DEF(name, deque_t, M_C(name, _emplace_back), oplist, M_D3QUE_EMPLACE_BACK_DEF) \
-  M_EMPLACE_QUEUE_DEF(name, deque_t, M_C(name, _emplace_front), oplist, M_D3QUE_EMPLACE_FRONT_DEF)
-
 
 /* Definition of the emplace_back function for deque */
 #define M_D3QUE_EMPLACE_BACK_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
@@ -1082,6 +1080,8 @@
     M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
   }
 
+
+/********************************* INTERNAL **********************************/
 
 /* Deferred evaluation for the oplist definition,
    so that all arguments are evaluated before further expansion */
@@ -1139,6 +1139,9 @@
    ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)              \
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                          \
    )
+
+
+/********************************* INTERNAL **********************************/
 
 #if M_USE_SMALL_NAME
 #define DEQUE_DEF M_DEQUE_DEF

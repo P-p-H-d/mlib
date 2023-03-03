@@ -90,7 +90,9 @@ M_BEGIN_PROTECTED_CODE
                        (__VA_ARGS__ )))
 
 
-/********************************** INTERNAL ************************************/
+/*****************************************************************************/
+/********************************** INTERNAL *********************************/
+/*****************************************************************************/
 
 // deferred evaluation of the input
 #define M_SNAPSH0T_OPLIST_P1(arg) M_SNAPSH0T_OPLIST_P2 arg
@@ -118,7 +120,7 @@ M_BEGIN_PROTECTED_CODE
    )
 
 
-/******************************** INTERNAL SPSC **********************************/
+/********************************** INTERNAL *********************************/
 
 /* Flag defining the atomic state of a snapshot:
  * - r: Index of the read buffer Range [0..2]
@@ -344,8 +346,7 @@ M_BEGIN_PROTECTED_CODE
   }                                                                           \
   
 
-
-/******************************** INTERNAL SPMC **********************************/
+/********************************** INTERNAL *********************************/
 
 #define M_SNAPSH0T_SPMC_INT_FLAG(w, n) ( ((w) << 1) | (n) )
 #define M_SNAPSH0T_SPMC_INT_FLAG_W(f)  ((f) >> 1)
@@ -589,6 +590,9 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
 }
 
+
+/********************************** INTERNAL *********************************/
+
 /* Contract of a SPMC snapshot.
    Nothing notable as it can be accessed concurrently */
 #define M_SNAPSH0T_SPMC_CONTRACT(snap) do {                                   \
@@ -705,11 +709,8 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
   }                                                                           \
                                                                               \
 
-//FIXME: Evaluate the needs for the methods _set_, _init_set.
 
-
-
-/******************************** INTERNAL MPMC **********************************/
+/********************************** INTERNAL *********************************/
 
 // MPMC is built upon SPMC
 
@@ -797,6 +798,8 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
 //FIXME: Evaluate the needs for the methods _set_, _init_set.
 
 M_END_PROTECTED_CODE
+
+/********************************** INTERNAL *********************************/
 
 #if M_USE_SMALL_NAME
 #define SNAPSHOT_SPSC_DEF M_SNAPSHOT_SPSC_DEF

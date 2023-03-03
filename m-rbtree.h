@@ -115,6 +115,8 @@
    )
 
 
+/********************************** INTERNAL *********************************/
+
 /* Max depth of the binary tree
    It is at worst twice the depth of a perfectly even tree with maximum elements.
    The maximum number of elements is the max of size_t.
@@ -1174,6 +1176,8 @@ typedef enum {
   , /* no in_serial */ )                                                      \
                                                                               \
 
+
+/********************************** INTERNAL *********************************/
 
 // TODO: specialized _sort shall do nothing, but shall check the requested order. How ?
 #if M_USE_SMALL_NAME

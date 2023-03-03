@@ -210,7 +210,7 @@ m_buff3r_number_dec(m_buff3r_number_ct n, unsigned int policy)
     return n->u --;
 }
 
-/*****************************************************************************/
+/********************************** INTERNAL *********************************/
 
 /* Test if the size is only run-time or build time */
 #define M_BUFF3R_IF_CTE_SIZE(m_size)  M_IF(M_BOOL(m_size))
@@ -748,7 +748,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
  }                                                                            \
 
 
-/*****************************************************************************/
+/********************************** INTERNAL *********************************/
 
 /* Definition of a a QUEUE for Many Produccer / Many Consummer
    for high bandwidth scenario:
@@ -984,8 +984,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   }                                                                           \
   
 
-
-/*****************************************************************************/
+/********************************** INTERNAL *********************************/
 
 /* Definition of a a QUEUE for Single Producer / Single Consummer
    for high bandwidth scenario:
@@ -1288,7 +1287,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   }                                                                           \
 
 
-/*****************************************************************************/
+/********************************** INTERNAL *********************************/
 
 /* Deferred evaluation for the definition,
    so that all arguments are evaluated before further expansion */
@@ -1320,7 +1319,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
    )
 
 
-/*****************************************************************************/
+/********************************** INTERNAL *********************************/
 
 #if M_USE_SMALL_NAME
 #define BUFFER_DEF M_BUFFER_DEF

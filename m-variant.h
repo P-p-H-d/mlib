@@ -27,9 +27,6 @@
 
 #include "m-core.h"
 
-
-/********************** External interface *************************/
-
 /* Define the variant type and functions.
    USAGE:
      VARIANT_DEF2(name, [(field1, type1, oplist1), (field2, type2, oplist2), ...] ) */
@@ -55,7 +52,9 @@
    M_VAR1ANT_OPLIST_P1((__VA_ARGS__ )))
 
 
-/********************************** INTERNAL ************************************/
+/*****************************************************************************/
+/********************************** INTERNAL *********************************/
+/*****************************************************************************/
 
 /* Contract of a variant. */
 #define M_VAR1ANT_CONTRACT(name, my) do {                                     \
@@ -753,6 +752,9 @@ static inline void                                                            \
     M_C(name, _init)(my);                                                     \
   }                                                                           \
 
+
+/********************************** INTERNAL *********************************/
+
 /* deferred evaluation of the oplist */
 #define M_VAR1ANT_OPLIST_P1(arg) M_VAR1ANT_OPLIST_P2 arg
 
@@ -790,6 +792,9 @@ static inline void                                                            \
    M_IF_METHOD(DEL, M_RET_ARG1(__VA_ARGS__,))(DEL(M_DELAY2(M_GET_DEL) M_RET_ARG1(__VA_ARGS__,)),), \
    )
 
+
+/********************************** INTERNAL *********************************/
+
 /* Macros for testing for method presence */
 #define M_VAR1ANT_TEST_METHOD_P2(method, f, t, op)                            \
   M_TEST_METHOD_P(method, op)
@@ -804,6 +809,9 @@ static inline void                                                            \
   M_APPLY(M_VAR1ANT_TEST_METHOD2_P2, M_PAIR_1 method, M_PAIR_2 method, M_OPFLAT trio)
 #define M_VAR1ANT_IF_ALL2(method1, method2,  ...)                             \
   M_IF(M_REDUCE2(M_VAR1ANT_TEST_METHOD2_P, M_AND, (method1, method2), __VA_ARGS__))
+
+
+/********************************** INTERNAL *********************************/
 
 #if M_USE_SMALL_NAME
 #define VARIANT_DEF2 M_VARIANT_DEF2

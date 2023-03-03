@@ -139,8 +139,9 @@
                       (__VA_ARGS__ )))
   
 
-
-/********************************** INTERNAL ************************************/
+/*****************************************************************************/
+/******************************** INTERNAL ***********************************/
+/*****************************************************************************/
 
 /* Deferred evaluation for the oplist definition,
    so that all arguments are evaluated before further expansion */
@@ -252,6 +253,7 @@
    )
 
 
+/******************************** INTERNAL ***********************************/
 
 /* Internal contract of a B+TREE of size 'N' for a node 'node' or root 'root' */
 #ifdef NDEBUG
@@ -297,7 +299,7 @@
     Worst case is when all nodes are only half full.
     Worst case is with the mininum size of a node (2)
     Maximum number of elements: SIZE_MAX = 2 ^ (CHAR_BIT*sizeof (size_t)) - 1
-  Height of such a tree if inferior to:
+    Height of such a tree if inferior to:
     Ceil(Log2(2 ^ (CHAR_BIT*sizeof (size_t)))) + 1
     "+ 1" due to final line composed of nodes.
  */
@@ -1484,6 +1486,8 @@
   }                                                                           \
   , /* no in_serial */ )                                                      \
 
+
+/******************************** INTERNAL ***********************************/
 
 #if M_USE_SMALL_NAME
 #define BPTREE_DEF2 M_BPTREE_DEF2

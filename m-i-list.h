@@ -72,7 +72,9 @@
                  (__VA_ARGS__ )))
 
 
-/********************************** INTERNAL ************************************/
+/*****************************************************************************/
+/******************************** INTERNAL ***********************************/
+/*****************************************************************************/
 
 /* Define the basic structure to be added in all objects. */
 typedef struct m_il1st_head_s {
@@ -122,6 +124,8 @@ typedef struct m_il1st_head_s {
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                          \
    )
 
+
+/******************************** INTERNAL ***********************************/
 
 /* Contract respected by all intrusive lists */
 #define M_IL1ST_CONTRACT(name, list) do {                                     \
@@ -664,6 +668,8 @@ typedef struct m_il1st_head_s {
     M_IL1ST_CONTRACT(name, list);                                             \
   }                                                                           \
 
+
+/******************************** INTERNAL ***********************************/
 
 #if M_USE_SMALL_NAME
 #define ILIST_INTERFACE M_ILIST_INTERFACE

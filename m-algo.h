@@ -92,7 +92,9 @@
   M_ALG0_INSERT_AT(contDst, M_GLOBAL_OPLIST(contDstOp), position, contSrc, M_GLOBAL_OPLIST(contSrcOp) )
 
 
-/********************************** INTERNAL ************************************/
+/*****************************************************************************/
+/******************************** INTERNAL ***********************************/
+/*****************************************************************************/
 
 /* Try to expand the algorithms */
 #define M_ALG0_DEF_P1(name, cont_oplist)                                      \
@@ -1039,6 +1041,7 @@
 // fast _uniq for array
 // _flatten (takes a set of containers and returns a new container containing all flatten objects)
 
+/******************************** INTERNAL ***********************************/
 
 #define M_ALG0_FOR_EACH(container, cont_oplist, func) do {                    \
     for M_EACH(_item, container, cont_oplist) {                               \
@@ -1052,6 +1055,8 @@
       }                                                                       \
   } while (0)
 
+
+/******************************** INTERNAL ***********************************/
 
 #define M_ALG0_TRANSFORM(contD, contDop, contS, contSop, func) do {           \
     M_CALL_RESET(contDop, contD);                                             \
@@ -1075,6 +1080,8 @@
     M_IF_METHOD(REVERSE, contDop) (M_CALL_REVERSE(contDop, contD);, )         \
   } while (0)
 
+
+/******************************** INTERNAL ***********************************/
 
 #define M_ALG0_EXTRACT(contDst, contDstOplist, contSrc, contSrcOplist)        \
   M_ALG0_EXTRACT_P1(contDst, M_GLOBAL_OPLIST(contDstOplist), contSrc, M_GLOBAL_OPLIST(contSrcOplist))
@@ -1126,6 +1133,8 @@
     M_IF_METHOD(REVERSE, contDstOplist) (M_CALL_REVERSE(contDstOplist, contDstOplist);, ) \
   } while (0)
 
+
+/******************************** INTERNAL ***********************************/
 
 #define M_ALG0_REDUCE_DISPATCH(dest, destOp, dest_t, cont, contOp,  ...)      \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
@@ -1202,6 +1211,8 @@
   } while (0)
 
 
+/******************************** INTERNAL ***********************************/
+
 #define M_ALG0_INSERT_AT(contDst, contDstOp, position, contSrc, contSrcOp) do { \
     M_GET_IT_TYPE contSrcOp _itSrc;                                           \
     M_GET_IT_TYPE contDstOp _itDst;                                           \
@@ -1214,6 +1225,8 @@
     }                                                                         \
   } while (0)
 
+
+/******************************** INTERNAL ***********************************/
 
 #if M_USE_SMALL_NAME
 #define ALGO_DEF M_ALGO_DEF

@@ -27,8 +27,6 @@
 
 #include "m-core.h"
 
-/********************** External interface *************************/
-
 /* Define the tuple type and functions.
    USAGE:
    TUPLE_DEF2(name, [(field1, type1[, oplist1]), (field2, type2[, oplist2]), ...] ) */
@@ -81,7 +79,9 @@ namespace m_lib {
 #endif
 
 
-/********************************** INTERNAL ************************************/
+/*****************************************************************************/
+/********************************** INTERNAL *********************************/
+/*****************************************************************************/
 
 /* Contract of a tuple. Nothing notable */
 #define M_TUPL3_CONTRACT(tup) do {                                            \
@@ -643,6 +643,8 @@ namespace m_lib {
   M_TUPL3_CALL_RESET(a, el1 -> M_TUPL3_GET_FIELD a);
 
 
+/********************************** INTERNAL *********************************/
+
 /* INIT_WITH macro enabling recursive INIT_WITH initialization
     tuple = { int, m_string_t, array<m_string_t> }
   USAGE:
@@ -696,6 +698,8 @@ namespace m_lib {
   M_TEST_METHOD_P(method, op)
 
 
+/********************************** INTERNAL *********************************/
+
 /* Macros for testing for the presence of a method in all the params */
 #define M_TUPL3_IF_ALL(method, ...)                                           \
   M_IF(M_REDUCE2(M_TUPL3_TEST_METHOD_P, M_AND, method, __VA_ARGS__))
@@ -747,6 +751,8 @@ namespace m_lib {
 /* Support for EMPLACE_TYPE in OPLIST. It refers the created internal type alias */
 #define M_TUPL3_OPLIST_SUBTYPE(name, num)                                     \
     M_C4(name, _type_, num, _ct)
+
+/********************************** INTERNAL *********************************/
 
 #if M_USE_SMALL_NAME
 #define TUPLE_DEF2 M_TUPLE_DEF2
