@@ -309,17 +309,25 @@
       return M_C(name, _array_equal_p)(p->array, q->array);                   \
     }                                                                         \
                                                                               \
-   static inline bool                                                         \
-   M_C(name, _erase)(prioqueue_t p, type x)                                   \
+   static inline size_t                                                       \
+   M_C(name, _i_find)(prioqueue_t p, type const x)                            \
    {                                                                          \
-     /* First pass: search for an item EQUAL to x */                          \
-     /* NOTE: An HASHMAP may be a good idea to optimize this pass. */         \
      size_t size = M_C(name, _array_size)(p->array);                          \
      size_t i = 0;                                                            \
      for(i = 0; i < size; i++) {                                              \
+       /* FIXME: Can we use CMP and the partial order to go faster? */        \
        if (M_CALL_EQUAL(oplist, *M_C(name, _array_cget)(p->array, i), x))     \
          break;                                                               \
      }                                                                        \
+     return i;                                                                \
+   }                                                                          \
+                                                                              \
+   static inline bool                                                         \
+   M_C(name, _erase)(prioqueue_t p, type const x)                             \
+   {                                                                          \
+     /* First pass: search for an item EQUAL to x */                          \
+     size_t size = M_C(name, _array_size)(p->array);                          \
+     size_t i = M_C(name, _i_find)(p, x);                                     \
      /* If x is not found, then stop */                                       \
      if (i >= size)                                                           \
        return false;                                                          \
@@ -349,11 +357,7 @@
      /* NOTE: xold can be the same pointer than xnew */                       \
      /* First pass: search for an item EQUAL to x */                          \
      size_t size = M_C(name, _array_size)(p->array);                          \
-     size_t i = 0;                                                            \
-     for(i = 0; i < size; i++) {                                              \
-       if (M_CALL_EQUAL(oplist, *M_C(name, _array_cget)(p->array, i), xold))  \
-         break;                                                               \
-     }                                                                        \
+     size_t i = M_C(name, _i_find)(p, xold);                                  \
      /* We shall have found the item */                                       \
      M_ASSERT (i < size);                                                     \
      /* Test if the position of the old data is further or nearer than the new */ \
