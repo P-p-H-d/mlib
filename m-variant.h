@@ -233,7 +233,7 @@
     switch (org->type) {                                                      \
     case M_C(name, _EMPTY): break;                                            \
       M_MAP2(M_VAR1ANT_DEFINE_INIT_SET_FUNC, name, __VA_ARGS__)               \
-    default: M_ASSERT(false); break;                                          \
+    default: M_ASSUME(false); break;                                          \
     }                                                                         \
   }
 
@@ -259,7 +259,7 @@
       switch (org->type) {                                                    \
       case M_C(name, _EMPTY): break;                                          \
         M_MAP2(M_VAR1ANT_DEFINE_SET_FUNC, name, __VA_ARGS__)                  \
-      default: M_ASSERT(false); break;                                        \
+      default: M_ASSUME(false); break;                                        \
       }                                                                       \
     }                                                                         \
   }
@@ -278,7 +278,7 @@
     switch (my->type) {                                                       \
     case M_C(name, _EMPTY): break;                                            \
       M_MAP2(M_VAR1ANT_DEFINE_CLEAR_FUNC, name,  __VA_ARGS__)                 \
-    default: M_ASSERT(false); break;                                          \
+    default: M_ASSUME(false); break;                                          \
     }                                                                         \
     my->type = M_C(name, _EMPTY);                                             \
   }
@@ -427,7 +427,7 @@ static inline void                                                            \
     switch (e1->type) {                                                       \
     case M_C(name, _EMPTY): break;                                            \
       M_MAP2(M_VAR1ANT_DEFINE_EQUAL_FUNC , name, __VA_ARGS__)                 \
-    default: M_ASSERT(false); break;                                          \
+    default: M_ASSUME(false); break;                                          \
     }                                                                         \
     return true;                                                              \
   }
@@ -449,7 +449,7 @@ static inline void                                                            \
     switch (e1->type) {                                                       \
     case M_C(name, _EMPTY): break;                                            \
       M_MAP2(M_VAR1ANT_DEFINE_HASH_FUNC , name, __VA_ARGS__)                  \
-    default: M_ASSERT(false); break;                                          \
+    default: M_ASSUME(false); break;                                          \
     }                                                                         \
     return M_HASH_FINAL (hash);                                               \
   }
@@ -469,7 +469,7 @@ static inline void                                                            \
     switch (el->type) {                                                       \
     case M_C(name, _EMPTY): break;                                            \
     M_MAP2(M_VAR1ANT_DEFINE_INIT_MOVE_FUNC , name, __VA_ARGS__)               \
-    default: M_ASSERT(false); break;                                          \
+    default: M_ASSUME(false); break;                                          \
     }                                                                         \
     org -> type = M_C(name, _EMPTY);                                          \
   }
@@ -522,7 +522,7 @@ static inline void                                                            \
       switch (el1->type) {                                                    \
       case M_C(name, _EMPTY): break;                                          \
         M_MAP2(M_VAR1ANT_DEFINE_INIT_SWAP_FUNC , name, __VA_ARGS__)           \
-      default: M_ASSERT(false); break;                                        \
+      default: M_ASSUME(false); break;                                        \
       }                                                                       \
     } else {                                                                  \
       M_C(name,_ct) tmp;                                                      \
@@ -560,7 +560,7 @@ static inline void                                                            \
     switch (el->type) {                                                       \
     case M_C(name, _EMPTY): func(str, "@EMPTY@"); break;                      \
       M_MAP2(M_VAR1ANT_DEFINE_GET_STR_FUNC , name, __VA_ARGS__)               \
-    default: M_ASSERT(false); break;                                          \
+    default: M_ASSUME(false); break;                                          \
     }                                                                         \
     m_string_push_back (str, '@');                                            \
   }
@@ -624,7 +624,7 @@ static inline void                                                            \
     switch (el->type) {                                                       \
     case M_C(name, _EMPTY): fprintf(f, "@EMPTY@"); break;                     \
       M_MAP2(M_VAR1ANT_DEFINE_OUT_STR_FUNC , name, __VA_ARGS__)               \
-    default: M_ASSERT(false); break;                                          \
+    default: M_ASSUME(false); break;                                          \
     }                                                                         \
     fputc ('@', f);                                                           \
   }
@@ -641,7 +641,7 @@ static inline void                                                            \
   static inline bool M_C(name, _in_str)(M_C(name,_ct) el,                     \
                                         FILE *f) {                            \
     M_VAR1ANT_CONTRACT(name, el);                                             \
-     M_ASSERT (f != NULL);                                                    \
+    M_ASSERT (f != NULL);                                                     \
     char variantTypeBuf[M_USE_IDENTIFIER_ALLOC+1];                            \
     M_C(name, _reset)(el);                                                    \
     if (fgetc(f) != '@') return false;                                        \
@@ -695,7 +695,7 @@ static inline void                                                            \
       return f->m_interface->write_variant_start(local, f, field_name, field_max, -1); \
       break;                                                                  \
     M_MAP2(M_VAR1ANT_DEFINE_OUT_SERIAL_FUNC , name, __VA_ARGS__)              \
-    default: M_ASSERT(false); break;                                          \
+    default: M_ASSUME(false); break;                                          \
     }                                                                         \
     ret |= f->m_interface->write_variant_end(local, f);                       \
     return ret & M_SERIAL_FAIL;                                               \
@@ -729,7 +729,7 @@ static inline void                                                            \
     el->type = (enum M_C(name, _enum))(id+1);                                 \
     switch (id+1) {                                                           \
       M_MAP2(M_VAR1ANT_DEFINE_IN_SERIAL_FUNC , name, __VA_ARGS__)             \
-    default: M_ASSERT(false); break;                                          \
+    default: M_ASSUME(false); break;                                          \
     }                                                                         \
     if (ret == M_SERIAL_OK_DONE)                                              \
       ret = f->m_interface->read_variant_end(local, f);                       \

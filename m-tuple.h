@@ -380,7 +380,7 @@ namespace m_lib {
       switch (i) {                                                            \
         case 0: return 0;                                                     \
         M_MAP2(M_TUPL3_DEFINE_CMP_ORDER_FUNC , name, __VA_ARGS__)             \
-      default: M_ASSERT(0);                                                   \
+      default: M_ASSUME(0);                                                   \
       }                                                                       \
     }                                                                         \
   }
@@ -584,7 +584,7 @@ namespace m_lib {
         M_ASSERT (index >= 0 && index < field_max);                           \
         switch (1+index) {                                                    \
           M_MAP2(M_TUPL3_DEFINE_IN_SERIAL_FUNC , name, __VA_ARGS__)           \
-        default: M_ASSERT(0);                                                 \
+        default: M_ASSUME(0);                                                 \
         }                                                                     \
         ret = (ret == M_SERIAL_OK_DONE) ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL; \
       }                                                                       \
