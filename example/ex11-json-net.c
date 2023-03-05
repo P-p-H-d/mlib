@@ -14,13 +14,15 @@ int main(void)
   string_t buffer;
   m_serial_return_code_t status;
 
+  /* Let's define a string 'buffer' that will receive the JSON representation of our message*/
   string_init(buffer);
+
   /* Encode our message */
   {
     SimpleMessage_t message;
     SimpleMessage_init(message);
     
-    /* Create a stream that will write to our buffer. */
+    /* Create a stream that will write to our string buffer. */
     m_serial_str_json_write_t stream;
     m_serial_str_json_write_init(stream, buffer);
         
@@ -43,6 +45,7 @@ int main(void)
   }
   
   /* Now we could transmit the message over network, store it in a file
+   * It is represented in a string 'buffer'
    * but we are doing it right now.
    */
   
