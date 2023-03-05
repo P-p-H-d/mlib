@@ -602,12 +602,16 @@ Other documented operators are:
 * REVERSE(obj) : Reverse the order of the items in the container 'obj'.
 * SEPARATOR() --> character: Return the character used to separate items for I/O methods (default is ',') (for internal use only).
 * EXT\_ALGO(name, container oplist, object oplist): Define additional algorithms functions specialized for the containers (for internal use only).
-* PROPERTIES() --> ( properties): Return internal properties of a container (for internal use only) in an oplist format.
+* PROPERTIES() --> ( properties): Return internal properties of a container in a recursive oplist format. Use M\_GET\_PROPERTY to get the property.
 * EMPLACE\_TYPE( ... ) : Specify the types usable for "emplacing" the object. See chapter 'emplace'.
 
 The operator names listed above shall not be defined as macro.
 
-More operators are expected.
+The following properties:
+* LET\_AS\_INIT\_WITH(1): Defined if the macro M\_LET shall always initialize the object with INIT\_WITH regardless of the given input. The value of the property is 1 (enabled) or 0 (disabled/default).
+* NOEXCEPT( (operator(1), ...) ): Defined for each operator of the object that don't raise any error. The value of the property is an oplist where each operator is associated to 1 (Operator won't raise any error) or 0 (Operator may raise some error).
+
+More operators and properties are expected.
 
 Example:
 
@@ -6255,14 +6259,16 @@ Example: M\_IF\_METHOD\_BOTH(HASH, oplist1, oplist2) (define function , )
 Perform a preprocessing M\_IF if the method exists for all oplist.
 Example: M\_IF\_METHOD\_ALL(HASH, oplist1, oplist2, oplist3) (define function, ) 
 
-##### M\_IPTR
+##### M\_GET\_PROPERTY(oplist, propname)
 
-By putting this after a method for an operator in the oplist,
-it specifies that the first argument of the method shall be a pointer
-to the destination type, rather than the type.
-See M\_API\_2 for an equivalent implementation.
+Return the content of the property named 'propname' as defined in the PROPERTIES field of the 'oplist',
+or 0 if it is not defined.
 
-OBSOLETE MACRO
+##### M\_TEST\_NOEXCEPT\_P(oplist, operator)
+
+Test if the operator has the property NOEXCEPT or not in the oplist.
+If this property is set to 1 for this operator, it means that there is a guarantee that the operator won't raise any error.
+If the operator has not this property or it is set to 0, it means that it may raise some error (default).
 
 ##### M\_DO\_INIT\_MOVE(oplist, dest, src)
 ##### M\_DO\_MOVE(oplist, dest, src)
