@@ -3315,6 +3315,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 
 // Properties only
 #define M_LET_AS_INIT_WITH_LET_AS_INIT_WITH(a) ,a,
+#define M_NOEXCEPT_NOEXCEPT(a) ,a,
 
 /* From an oplist - an unorded list of methods : like "INIT(mpz_init),CLEAR(mpz_clear),SET(mpz_set)" -
    Return the given method in the oplist or the default method.
@@ -3968,6 +3969,13 @@ m_core_parse2_enum (const char str[], const char **endptr)
    or 0, if it is not defined */
 #define M_GET_PROPERTY(oplist, propname)                                      \
   M_GET_METHOD (propname, 0, M_OPFLAT M_GET_PROPERTIES oplist)
+
+/* Test if the operator has the property NOEXCEPT or not in the oplist
+   If the operator has this property, it means that there is a guarantee that the operator won't raise any error.
+   If the operator has not this property, it means that it may raise some error.
+ */
+#define M_TEST_NOEXCEPT_P(oplist, operator)                              \
+  M_GET_METHOD (operator, 0, M_OPFLAT M_GET_PROPERTY(oplist, NOEXCEPT))
 
 /* Test if a method is present in an oplist.
    Return 0 (method is absent or disabled) or 1 (method is present and not disabled).
