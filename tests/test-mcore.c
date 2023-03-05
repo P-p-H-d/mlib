@@ -847,6 +847,12 @@ static void test_properties(void)
   assert( M_GET_PROPERTY (OP_PROP(), CLEAR ) == 0);
   assert( M_GET_PROPERTY (OP_PROP(), IT_TYPE ) == 2);
   assert( M_KEYWORD_P( M_GET_PROPERTY (OP_PROP(), INIT_WITH ), priority));
+
+#define OPLNOE (INIT(init), INIT_SET(init_set),                         \
+                PROPERTIES( (NOEXCEPT( (INIT(1), INIT_SET(0) ))) )      )
+  assert( M_TEST_NOEXCEPT_P(OPLNOE, INIT) == 1);
+  assert( M_TEST_NOEXCEPT_P(OPLNOE, INIT_SET) == 0);
+  assert( M_TEST_NOEXCEPT_P(OPLNOE, INIT_MOVE) == 0);
 }
 
 static int init3(int *p, int a, int b)
