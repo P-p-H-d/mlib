@@ -3315,7 +3315,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 
 // Properties only
 #define M_LET_AS_INIT_WITH_LET_AS_INIT_WITH(a) ,a,
-#define M_NOEXCEPT_NOEXCEPT(a) ,a,
+#define M_NOCLEAR_NOCLEAR(a) ,a,
 
 /* From an oplist - an unorded list of methods : like "INIT(mpz_init),CLEAR(mpz_clear),SET(mpz_set)" -
    Return the given method in the oplist or the default method.
@@ -3970,13 +3970,6 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_GET_PROPERTY(oplist, propname)                                      \
   M_GET_METHOD (propname, 0, M_OPFLAT M_GET_PROPERTIES oplist)
 
-/* Test if the operator has the property NOEXCEPT or not in the oplist
-   If the operator has this property, it means that there is a guarantee that the operator won't raise any error.
-   If the operator has not this property, it means that it may raise some error.
- */
-#define M_TEST_NOEXCEPT_P(oplist, operator)                              \
-  M_GET_METHOD (operator, 0, M_OPFLAT M_GET_PROPERTY(oplist, NOEXCEPT))
-
 /* Test if a method is present in an oplist.
    Return 0 (method is absent or disabled) or 1 (method is present and not disabled).
    NOTE: M_TEST_METHOD_P does not work if method is something within parenthesis (like OPLIST*)
@@ -4198,20 +4191,24 @@ m_core_parse2_enum (const char str[], const char **endptr)
   for(bool cont = true; cont ; /* unused */)                                  \
     M_MAP2(M_LETI_SINGLE, (cont, oplist), __VA_ARGS__)                        \
     for(;cont;cont = false)
-// 5. Dispatch the right LET in function of having or not arguments 
+// 5. Dispatch the right LET in function of having or not arguments with data = (cont, oplist)
 #define M_LETI_SINGLE(data, name)                                             \
   M_IF(M_PARENTHESIS_P(name))(M_LETI_SINGLE2_SET,M_LETI_SINGLE2)              \
          (M_PAIR_1 data, M_PAIR_2 data, name, M_RET_ARG1 name, M_SKIPI_1 name)
 // 6a. Define without argument ==> use the INIT operator
 #define M_LETI_SINGLE2(cont, oplist, name, ...)                               \
+  M_LET_TRY_INJECT_PRE(cont, oplist, name)                                    \
   for(M_GET_TYPE oplist name;                                                 \
       cont && (M_CALL_INIT(oplist, name), true);                              \
-      (M_CALL_CLEAR(oplist, name), cont = false))
+      (M_CALL_CLEAR(oplist, name), cont = false))                             \
+  M_LET_TRY_INJECT_POST(cont, oplist, name)
 // 6b. Define with arguments ==> use the INIT_SET or INIT_WITH operator (if defined).
 #define M_LETI_SINGLE2_SET(cont, oplist, params, name, ...)                   \
+  M_LET_TRY_INJECT_PRE(cont, oplist, name)                                    \
   for(M_GET_TYPE oplist name;                                                 \
       cont && (M_LETI_SINGLE2_INIT(oplist, name, __VA_ARGS__), true);         \
-      (M_CALL_CLEAR(oplist, name), cont = false))
+      (M_CALL_CLEAR(oplist, name), cont = false))                             \
+  M_LET_TRY_INJECT_POST(cont, oplist, name)
 // 6c. Use of INIT_SET or INIT_WITH.
 #define M_LETI_SINGLE2_INIT(oplist, name, ...)                                \
   M_IF_METHOD(INIT_WITH,oplist)(M_LETI_SINGLE3_INIT, M_CALL_INIT_SET)(oplist, name, __VA_ARGS__)
@@ -4222,6 +4219,9 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_LETI_SINGLE5_INIT(oplist, name, arg)                                \
   M_IF(M_PARENTHESIS_P( arg ) )(M_CALL_INIT_WITH, M_CALL_INIT_SET)(oplist, name, M_REMOVE_PARENTHESIS (arg))
 
+/* Dummy stubs that do nothing by default (overrided if needed by m-try) */
+#define M_LET_TRY_INJECT_PRE(cont, oplist, name)
+#define M_LET_TRY_INJECT_POST(cont, oplist, name)
 
 /* Transform the va list by adding their number as the first argument of
    the list.

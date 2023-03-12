@@ -609,7 +609,7 @@ The operator names listed above shall not be defined as macro.
 
 The following properties:
 * LET\_AS\_INIT\_WITH(1): Defined if the macro M\_LET shall always initialize the object with INIT\_WITH regardless of the given input. The value of the property is 1 (enabled) or 0 (disabled/default).
-* NOEXCEPT( (operator(1), ...) ): Defined for each operator of the object that don't raise any error. The value of the property is an oplist where each operator is associated to 1 (Operator won't raise any error) or 0 (Operator may raise some error).
+* NOCLEAR(1): Defined if the object CLEAR operator can be ommited (like for basic types or POD data). The value of the property is 1 (enabled) or 0 (disabled/default).
 
 More operators and properties are expected.
 
