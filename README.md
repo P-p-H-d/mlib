@@ -891,6 +891,7 @@ For example, a non exhaustive list is:
 * [NEDTRIES](https://github.com/ned14/nedtries)
 * [POTTERY](https://github.com/ludocode/pottery)
 * [QLIBC](http://wolkykim.github.io/qlibc/)
+* [SC](https://github.com/tezc/sc)
 * [SGLIB](http://sglib.sourceforge.net/)
 * [Smart pointer for GNUC](https://github.com/Snaipe/libcsptr)
 * [STB stretchy_buffer](https://github.com/nothings/stb)
