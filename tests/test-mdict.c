@@ -590,5 +590,6 @@ int main(void)
   test_it_oa();
   test_oa_str1();
   test_oa_str2();
+  testobj_final_check();
   exit(0);
 }

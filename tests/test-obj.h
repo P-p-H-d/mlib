@@ -39,6 +39,14 @@ typedef struct testobj_s {
   unsigned int *ptr;
 } testobj_t[1];
 
+int testobj_init_counter = 0;
+
+static inline void testobj_final_check(void)
+{
+  // All created testobj shall have been cleared at the end.
+  assert(testobj_init_counter == 0);
+}
+
 static inline void testobj_init(testobj_t z)
 {
   z->n = 1;
@@ -46,6 +54,7 @@ static inline void testobj_init(testobj_t z)
   z->ptr = (unsigned int*) calloc(1, sizeof(unsigned int));
   assert(z->ptr != NULL);
   z->allocated = true;
+  testobj_init_counter++;
 }
 
 static inline void testobj_clear(testobj_t z)
@@ -55,6 +64,8 @@ static inline void testobj_clear(testobj_t z)
   free(z->ptr);
   z->ptr = NULL;
   z->allocated = false;
+  testobj_init_counter--;
+  assert(testobj_init_counter >= 0);
 }
 
 static inline void testobj_init_set(testobj_t d, const testobj_t s)
@@ -65,6 +76,7 @@ static inline void testobj_init_set(testobj_t d, const testobj_t s)
   assert(d->ptr != NULL);
   memcpy(d->ptr, s->ptr, sizeof(unsigned int) * s->n);
   d->allocated = true;
+  testobj_init_counter++;
 }
 
 static inline void testobj_set(testobj_t d, const testobj_t s)
@@ -178,6 +190,7 @@ static inline void testobj_str(string_t str, const testobj_t z, bool append)
    PARSE_STR(testobj_parse_str),                                        \
    GET_STR(testobj_str),                                                \
    EQUAL(testobj_equal_p),                                              \
+   INIT_WITH(testobj_init_set_ui),                                      \
    EMPLACE_TYPE( LIST( (_ui, testobj_init_set_ui, unsigned int), (_str, testobj_init_set_str, const char *), ( /*empty*/, testobj_init_set, testobj_t) ) ) \
    )
 
@@ -193,6 +206,7 @@ static inline void testobj_str(string_t str, const testobj_t z, bool append)
    GET_STR(testobj_str),                                                \
    EQUAL(testobj_equal_p),                                              \
    CMP(testobj_cmp),                                                    \
+   INIT_WITH(testobj_init_set_ui),                                      \
    EMPLACE_TYPE( LIST( (_ui, testobj_init_set_ui, unsigned int), (_str, testobj_init_set_str, const char *), ( /*empty*/, testobj_init_set, testobj_t) ) ) \
    )
 

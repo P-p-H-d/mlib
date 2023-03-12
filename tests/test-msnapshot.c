@@ -407,6 +407,6 @@ int main(void)
   test_double();
   test_doubleSPMC();
   test_doubleMPMC();
+  testobj_final_check();
   exit(0);
 }
-

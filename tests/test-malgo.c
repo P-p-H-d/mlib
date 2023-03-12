@@ -724,5 +724,6 @@ int main(void)
   test_insert();
   test_string_utf8();
   test_fo();
+  testobj_final_check();
   exit(0);
 }

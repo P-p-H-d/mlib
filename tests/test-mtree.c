@@ -527,9 +527,10 @@ static void test_emplace(void)
 
 int main(void)
 {
-    test_basic();
-    test_gen();
-    test_io();
-    test_emplace();
-    return 0;
+  test_basic();
+  test_gen();
+  test_io();
+  test_emplace();
+  testobj_final_check();
+  return 0;
 }

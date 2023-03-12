@@ -548,5 +548,6 @@ int main(void)
   test_backward();
   test_double();
   test_remove();
+  testobj_final_check();
   exit(0);
 }

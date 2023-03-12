@@ -532,5 +532,6 @@ int main(void)
   test_double();
   test_from();
   test_z();
+  testobj_final_check();
   exit(0);
 }

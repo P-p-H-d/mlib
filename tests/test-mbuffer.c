@@ -661,5 +661,6 @@ int main(void)
   test_double1();
   test_double2();
   test_double3();
+  testobj_final_check();
   exit(0);
 }

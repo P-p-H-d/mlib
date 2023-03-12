@@ -297,6 +297,6 @@ int main(void)
   test_triple();
   test_io();
   test_double();
+  testobj_final_check();
   exit(0);
 }
-

@@ -947,5 +947,6 @@ int main(void)
   test_M_CSTR();
   test_properties();
   test_generic_api();
+  testobj_final_check();
   exit(0);
 }

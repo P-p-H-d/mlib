@@ -229,5 +229,6 @@ int main(void)
   test_double();
   test_double2();
   test_double_res();
+  testobj_final_check();
   exit(0);
 }

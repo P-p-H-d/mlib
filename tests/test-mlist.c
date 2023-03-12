@@ -751,6 +751,6 @@ int main(void)
   test_out_default_oplist();
   test_double();
   test_let_string();
+  testobj_final_check();
   exit(0);
 }
-

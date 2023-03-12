@@ -382,5 +382,6 @@ int main(void)
   test_double();
   test_it();
   test_io();
+  testobj_final_check();
   exit(0);
 }

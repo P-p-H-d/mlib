@@ -705,5 +705,6 @@ int main(void)
   test_multiset();
   test_double();
   test_emplace();
+  testobj_final_check();
   exit(0);
 }

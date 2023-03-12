@@ -288,5 +288,6 @@ int main(void)
   check_reset();
   check_chaining_tuple();
   test_double();
+  testobj_final_check();
   exit(0);
 }

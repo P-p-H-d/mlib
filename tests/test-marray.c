@@ -535,5 +535,6 @@ int main(void)
   test_str();
   test_double();
   test_cplusplus();
+  testobj_final_check();
   exit(0);
 }
