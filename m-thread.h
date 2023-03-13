@@ -480,7 +480,11 @@ static inline void m_once_call(m_once_t o, void (*func)(void))
   pthread_once(o,func);
 }
 
-#define M_THREAD_ATTR __thread
+#ifdef defined(__GNUC__)
+# define M_THREAD_ATTR __thread
+#else
+# define M_THREAD_ATTR  /* Not supported */
+#endif
 
 M_END_PROTECTED_CODE
 
