@@ -132,3 +132,22 @@ jobs:
              freebsd-version
              cd tests
              make check -j 2 CC="cc -std=c99 -Wno-unknown-warning-option -Werror" && make clean && make check -j 2 CC="cc -std=c11 -Wno-unknown-warning-option -Werror" LDFLAGS="-lstdthreads" && make clean
+
+    # The host should always be linux
+  build_aarch64:
+    runs-on: ubuntu-18.04
+    name: Build on aarch64
+    steps:
+      - uses: actions/checkout@v3
+      - uses: uraimo/run-on-arch-action@v2.5.0
+        name: Run commands on aarch64
+        id: make
+        with:
+          arch: aarch64
+          distro: bullseye
+          shell: /bin/sh
+          run: |
+            apt-get update -q -y
+            apt-get install -q -y  build-essential git gcc
+            lscpu
+            cd tests && make check -j 2 && make clean
