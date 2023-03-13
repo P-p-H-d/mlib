@@ -59,7 +59,7 @@
  * Start a protected section of code 'name' where all exceptions are catched
  * by the associated CATCH section.
  */
-#define M_TRY(name)                                             \
+#define M_TRY(name)                                                           \
   M_TRY_B( M_C(m_try_bool_, name), M_C(m_try_buf_, name), name)
 
 
@@ -77,14 +77,14 @@
  * Other arguments are integers or pointers stored in the exception.
  * error code shall be a constant positive integer.
  */
-#define M_THROW(...) do {                                               \
-    M_STATIC_ASSERT(M_RET_ARG1 (__VA_ARGS__) != 0,                      \
-                    M_LIB_NOT_A_CONSTANT_NON_NULL_INTEGER,              \
-                    "The error code shall be a non null constant");     \
-    M_STATIC_ASSERT(M_NARGS (__VA_ARGS__) <= 1+M_USE_MAX_EXCEPTION,     \
-                    M_LIB_TOO_MANY_ARGUMENTS,                           \
-                    "There are too many arguments for an exception.");  \
-    M_IF_NARGS_EQ1(__VA_ARGS__)(M_THROW_1, M_THROW_N)(__VA_ARGS__);     \
+#define M_THROW(...) do {                                                     \
+    M_STATIC_ASSERT(M_RET_ARG1 (__VA_ARGS__) != 0,                            \
+                    M_LIB_NOT_A_CONSTANT_NON_NULL_INTEGER,                    \
+                    "The error code shall be a non null constant");           \
+    M_STATIC_ASSERT(M_NARGS (__VA_ARGS__) <= 1+M_USE_MAX_EXCEPTION,           \
+                    M_LIB_TOO_MANY_ARGUMENTS,                                 \
+                    "There are too many arguments for an exception.");        \
+    M_IF_NARGS_EQ1(__VA_ARGS__)(M_THROW_1, M_THROW_N)(__VA_ARGS__);           \
   } while (0)
 
 
@@ -170,26 +170,26 @@ struct m_exception_s {
 
 // Define the CATCH block. If error_code is 0, it shall catch all errors.
 // NOTE: It will even catch non M*LIB errors.
-#define M_CATCH_B(name, error_code)                             \
-  M_IF(M_BOOL(error_code))                                      \
+#define M_CATCH_B(name, error_code)                                           \
+  M_IF(M_BOOL(error_code))                                                    \
   (catch (m_lib::m_exception_s<error_code> &name), catch (...))
 
 // No global to define in C++
 #define M_TRY_DEF_ONCE_B()   /* Nothing to do */
 
 // Reuse the try keyword of the C++
-#define M_TRY_B(cont, buf, exception)           \
+#define M_TRY_B(cont, buf, exception)                                         \
   try
 
 // Reuse the throw keyword of the C++
 // by throwing the type m_lib::m_exception_s<error_code>
-#define M_THROW_1(error_code)                                           \
+#define M_THROW_1(error_code)                                                 \
   throw m_lib::m_exception_s<error_code>{ error_code, __LINE__, 0, __FILE__, { 0 } }
 
 // Reuse the throw keyword of the C++
 // by throwing the type m_lib::m_exception_s<error_code>
-#define M_THROW_N(error_code, ...)                                      \
-  throw m_lib::m_exception_s<error_code>{ error_code, __LINE__,         \
+#define M_THROW_N(error_code, ...)                                            \
+  throw m_lib::m_exception_s<error_code>{ error_code, __LINE__,               \
       M_NARGS(__VA_ARGS__), __FILE__, { __VA_ARGS__ } }
 
 // Nothing to inject for a pre initialization of a M*LIB object
@@ -199,7 +199,7 @@ struct m_exception_s {
 // We create a C++ object with a destructor that will call the CLEAR operator of the M*LIB object
 // by using a lambda function.
 // If the CLEAR operator is called naturally, we disable the destructor of the C++ object.
-#define M_LET_TRY_INJECT_POST_B(cont, oplist, name)                     \
+#define M_LET_TRY_INJECT_POST_B(cont, oplist, name)                           \
   for(m_lib::m_regclear M_C(m_try_regclear_, name){[&](void) { M_CALL_CLEAR(oplist, name); } } \
         ; cont ; M_C(m_try_regclear_, name).disable() )
 
@@ -238,12 +238,12 @@ namespace m_lib {
 // associated to 'error_code' and provide 'name' as a pointer to the exception
 // if the exception matches the error code.
 // If error code is 0, it matches all errors.
-#define M_CATCH_B(name, error_code)                                     \
+#define M_CATCH_B(name, error_code)                                           \
   else if (m_catch( M_C(m_try_buf_, name), (error_code), &name))
 
 // Macro to add once in one source file to define theses global:
-#define M_TRY_DEF_ONCE_B()                                              \
-  M_THREAD_ATTR struct m_try_s *m_global_error_list;                    \
+#define M_TRY_DEF_ONCE_B()                                                    \
+  M_THREAD_ATTR struct m_try_s *m_global_error_list;                          \
   M_THREAD_ATTR struct m_exception_s m_global_exception;
 
 // Define the operator to define nested functions (GCC) or blocks (CLANG)
@@ -269,18 +269,18 @@ typedef struct m_try_s {
 
 // Define the TRY block.
 // Classic usage of the for trick to push destructor on the exit path.
-#define M_TRY_B(cont, buf, exception)                                   \
- for(bool cont = true ; cont ; cont = false)                            \
-   for(m_try_t buf ; cont ; m_try_clear(buf), cont = false )            \
+#define M_TRY_B(cont, buf, exception)                                         \
+ for(bool cont = true ; cont ; cont = false)                                  \
+   for(m_try_t buf ; cont ; m_try_clear(buf), cont = false )                  \
      for(const struct m_exception_s *exception = NULL; cont; cont = false, exception = exception) \
        if (m_try_init(buf))
 
 // Throw the error code
-#define M_THROW_1(error_code)                                           \
+#define M_THROW_1(error_code)                                                 \
   m_throw( &(const struct m_exception_s) { error_code, __LINE__, 0, __FILE__, { 0 } } )
 
 // Throw the error code
-#define M_THROW_N(error_code, ...)                                      \
+#define M_THROW_N(error_code, ...)                                            \
   m_throw( &(const struct m_exception_s) { error_code, __LINE__, M_NARGS(__VA_ARGS__), __FILE__, \
         { __VA_ARGS__ } } )
 
@@ -306,7 +306,7 @@ m_try_init(m_try_t state)
   m_global_error_list = state;
   // setjmp needs to be done in the MACRO.
 }
-#define m_try_init(s)                                           \
+#define m_try_init(s)                                                         \
   M_LIKELY ((m_try_init(s), setjmp(((s)->data.buf)) != 1))
 
 // Throw the given exception
@@ -424,22 +424,22 @@ m_try_clear_pre(m_try_t state)
 
 // M_LET Injection / pre initialization
 // Initialize the stack frame.
-#define M_LET_TRY_INJECT_PRE_B(cont, oplist, name)                      \
-  for(m_try_t M_C(m_try_state_, name); cont &&                          \
+#define M_LET_TRY_INJECT_PRE_B(cont, oplist, name)                            \
+  for(m_try_t M_C(m_try_state_, name); cont &&                                \
         m_try_init_pre(M_C(m_try_state_, name) ); )
 
 // M_LET Injection / post initialization
 // Save the function to call using
 #if M_USE_TRY_MECHANISM == 2
 // blocks (CLANG)
-#define M_LET_TRY_INJECT_POST_B(cont, oplist, name)                     \
-  for(m_try_init_post(M_C(m_try_state_, name),                          \
+#define M_LET_TRY_INJECT_POST_B(cont, oplist, name)                           \
+  for(m_try_init_post(M_C(m_try_state_, name),                                \
                       ^ void (void *_data) { M_GET_TYPE oplist *_t = _data; M_CALL_CLEAR(oplist, *_t); }, \
                       (void*) &name); cont; m_try_clear_pre(M_C(m_try_state_, name)) )
 #else
 // nested functions (GCC)
-#define M_LET_TRY_INJECT_POST_B(cont, oplist, name)                     \
-  for(m_try_init_post(M_C(m_try_state_, name),                          \
+#define M_LET_TRY_INJECT_POST_B(cont, oplist, name)                           \
+  for(m_try_init_post(M_C(m_try_state_, name),                                \
                       __extension__ ({ __extension__ void _callback (void *_data) { M_GET_TYPE oplist *_t = _data; M_CALL_CLEAR(oplist, *_t); } _callback; }), \
                       (void*) &name); cont; m_try_clear_pre(M_C(m_try_state_, name)) )
 #endif
@@ -466,7 +466,7 @@ m_try_init_post(m_try_t state)
   m_global_error_list = state;
 }
 // And call setjmp to register the position in the code.
-#define m_try_init_post(s)                                      \
+#define m_try_init_post(s)                                                    \
   M_LIKELY ((m_try_init_post(s), setjmp(((s)->data.buf)) != 1))
 
 // The object has been cleared.
@@ -479,16 +479,16 @@ m_try_clear_pre(m_try_t state)
 
 // M_LET Injection / pre initialization
 // Initialize the stack frame.
-#define M_LET_TRY_INJECT_PRE_B(cont, oplist, name)                     \
-  for(m_try_t M_C(m_try_state_, name); cont &&                         \
+#define M_LET_TRY_INJECT_PRE_B(cont, oplist, name)                            \
+  for(m_try_t M_C(m_try_state_, name); cont &&                                \
         m_try_init_pre(M_C(m_try_state_, name)); )
 
 // M_LET Injection / post initialization
 // Register the stack frame and tests for the longjmp.
 // In which case call the CLEAR operator, unstack the error list and rethrow the error.
-#define M_LET_TRY_INJECT_POST_B(cont, oplist, name)                     \
-  for( ; cont ; m_try_clear_pre(M_C(m_try_state_, name)))               \
-    if (m_try_init_post(M_C(m_try_state_, name))                        \
+#define M_LET_TRY_INJECT_POST_B(cont, oplist, name)                           \
+  for( ; cont ; m_try_clear_pre(M_C(m_try_state_, name)))                     \
+    if (m_try_init_post(M_C(m_try_state_, name))                              \
         || (M_CALL_CLEAR(oplist, name), m_try_clear_pre(M_C(m_try_state_, name)), m_rethrow(), false))
 
 #else
@@ -502,13 +502,13 @@ m_try_clear_pre(m_try_t state)
 // Macro injection for M_LET.
 // If the oplist defined NOCLEAR property, we won't register this variable for clear on exception
 #undef  M_LET_TRY_INJECT_PRE
-#define M_LET_TRY_INJECT_PRE(cont, oplist, name)                        \
-  M_IF(M_GET_PROPERTY(oplist, NOCLEAR))(M_EAT, M_LET_TRY_INJECT_PRE_B) \
+#define M_LET_TRY_INJECT_PRE(cont, oplist, name)                              \
+  M_IF(M_GET_PROPERTY(oplist, NOCLEAR))(M_EAT, M_LET_TRY_INJECT_PRE_B)        \
   (cont, oplist, name)
 
 #undef  M_LET_TRY_INJECT_POST
-#define M_LET_TRY_INJECT_POST(cont, oplist, name)                       \
-  M_IF(M_GET_PROPERTY(oplist, NOCLEAR))(M_EAT, M_LET_TRY_INJECT_POST_B) \
+#define M_LET_TRY_INJECT_POST(cont, oplist, name)                             \
+  M_IF(M_GET_PROPERTY(oplist, NOCLEAR))(M_EAT, M_LET_TRY_INJECT_POST_B)       \
   (cont, oplist, name)
 
 // In case of MEMORY FULL errors, throw an error instead of aborting.
