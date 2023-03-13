@@ -2947,7 +2947,7 @@ m_core_snprintf(char *str, size_t size, const char *format, ...)
 
 #define M_HASH_DECL(hash)   size_t hash = M_HASH_INIT ^ M_USE_HASH_SEED
 #define M_HASH_UP(hash,h)   do { hash = (size_t) M_HASH_CALC(hash, (h)); } while (0)
-#define M_HASH_FINAL(hash)  ( (hash) >> (sizeof(size_t)*CHAR_BIT/2) | (hash) )
+#define M_HASH_FINAL(hash)  ( (hash) >> (sizeof(size_t)*CHAR_BIT/2) ^ (hash) )
 
 /* Safe, efficient, and portable Rotate:
    It should be recognized by any compiler and generate a single roll instruction.
