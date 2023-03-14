@@ -66,7 +66,7 @@ for %%f in (test-*.c) do (
     REM Enable warnings and basic optimization
     REM Inform M*LIB to use Annex K by defining __STDC_WANT_LIB_EXT1__
     echo Compiling %%f with %compiler%
-    %compiler% /I.. /O2 /W3 /std:c++14 /Zc:__cplusplus /Zc:preprocessor /D__STDC_WANT_LIB_EXT1__ test.cpp > %%f.log 2>&1  || ( 
+    %compiler% /I.. /O2 /W3 /std:c++14 /Zc:__cplusplus /Zc:preprocessor /D__STDC_WANT_LIB_EXT1__ /EHsc test.cpp > %%f.log 2>&1  || ( 
         echo *** BUILD ERROR for %%f *** >> %%f.log
         type %%f.log 
         EXIT /B 1
