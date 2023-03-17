@@ -3577,6 +3577,8 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_REORDER_ARGLIST_FUNC_ARGPTR8(arglist)  , & M_RET_ARG9  arglist ,
 #define M_REORDER_ARGLIST_FUNC_ARGPTR9(arglist)  , & M_RET_ARG10  arglist ,
 
+#define M_REORDER_ARGLIST_FUNC_ID(arg)         , arg , M_EAT
+
 /* Perform the API translation of the return code depending
    on the given keyword (NONE, EQ, NEQ, ...).) */
 #define M_REORDER_RET_NONE(...)     /* Nothing */

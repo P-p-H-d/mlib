@@ -875,7 +875,7 @@ static void test_generic_api(void)
   assert( M_HEAD_2(18, 17, 0) == 17);
   assert( M_TAIL_2(18, 17, 8) == 8);
 
-#define GO1 (INIT(API( init3, ARG1, ARGPTR2, 17, 43 )))
+#define GO1 (INIT(API( init3, ARG1, ARGPTR2, 17, ID(-43) )))
 #define GO2 (INIT(API( init3, NONE, ARGPTR2, 0, ARG1 )))
 #define GO3 (EQUAL(API( cmp2, EQ(0), ARGPTR1, ARGPTR2 )))
 #define GO4 (EQUAL(API( cmp1, EQ(0), ARG1, ARG2 )))
