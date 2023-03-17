@@ -125,6 +125,7 @@ Other headers offering other functionality are:
 * [m-bitset.h](#m-bitset): header for creating bit set (or "packed array of bool"),
 * [m-algo.h](#m-algo): header for providing various generic algorithms to the previous containers.
 * [m-funcobj.h](#m-funcobj): header for creating function object (used by algorithm generation).
+* [m-try.h][#m-try): header for handling errors as exceptions,
 * [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator.
 * [m-worker.h](#m-worker): header for providing an easy pool of workers on separated threads to handle work orders, used for parallelism tasks.
 * [m-serial-json.h](#m-serial-json): header for importing / exporting the containers in [JSON format](https://en.wikipedia.org/wiki/JSON).
@@ -465,78 +466,77 @@ The final goal of the library is to be able to write code like this in pure C wh
 OPLIST
 ------
 
-An OPLIST is a fundamental notion of M\*LIB that hasn't be used in any other library.
+### Definition
+
+An OPLIST is a fundamental notion of M\*LIB that hasn't be seen in any other library.
 In order to know how to operate on a type, M\*LIB needs additional information
 as the compiler doesn't know how to handle properly any type (contrary to C++).
 This is done by giving an operator list (or oplist in short) to any macro that
-needs to handle the type. As such, an oplist as only meaning within a macro
-expansion. Fundamentally, this is the exposed interface of a type with documented
-operators using an associative array implemented with the only C preprocessor
-where the operators are the predefined keys and the methods are the values.
+needs to handle the type. As such, an oplist has only meaning within a macro.
+Fundamentally, this is the exposed interface of a type:
+that is to say the association of the operators defined by the library to the
+effective methods provided by the type, including their call interface.
+This association is done only with the C preprocessor.
 
-An oplist is an associative array of operator over methods in the following format:
+Therefore, an oplist is an associative array of operators to methods
+in the following format:
 
-(OPERATOR1(method1), OPERATOR2(method2), ...)
+```C
+     (OPERATOR1(method1), OPERATOR2(method2), ...)
+```
 
-The function 'method1' is used to handle 'OPERATOR1'.
+It starts with a parenthesis and ends with a parenthesis.
+Each association is separated by a comma.
+Each association is composed of a predefined operator (as defined below)
+a method (in parenthesis), and an optional API interface (see below).
+
+In the given example,
+the function 'method1' is used to handle 'OPERATOR1'.
 The function 'method2' is used to handle 'OPERATOR2'. etc.
-The order of the operator in this list is the priority order:
-in case the same operator appear multiple times in the list,
-the first one is the priority.
 
-The method of an operator in an oplist is a preprocessor expression
-that shall not contain a comma.
+In case the same operator appears multiple times in the list,
+the first apparition of the operator has priority,
+and its associated method will be used.
+This enables overloading of operators in oplist in case you want to inherit oplists.
 
-It is used to perform the association between the operation on a type
-and the function that performs this operation.
-Without an oplist, M\*LIB has no way to known how to deal with your type
-and will deal with it like a classic C type.
+The associated method in the oplist is a preprocessor expression
+that shall not contain a comma as first level.
 
-When you define an instance of a new container, you give the type oplist
-you want to use as the base of the container. This type oplist performs
-the association between the operators and the methods for the type.
-In function of the available interface of the oplist, the container definition macro
-function generates the interface of the container. You can then use this interface
-directly. You can also use the oplist of the container to chain this new interface
+An oplist has no real form from the C language point of view. It is just an abstraction
+that disappears after the macro expansion step of the preprocessing.
+If an oplist remains unprocessed after the C preprocessing, a compiler error will be generated.
+
+
+### Usage
+
+When you define an instance of a new container for a given type, you give the type oplist
+alongside the type for building the container.
+Some functions of the container may not be available in function of the provided interface of the oplist
+(for optional operators).
+Of if some mandatory operators are missing, a compiler error is generated.
+
+The generated container will also provide its own oplist, which will depends on all
+the oplists used to generate it. This oplist can also be used to generate new containers.
+
+You can therefore use the oplist of the container to chain this new interface
 with another container, creating container-of-container.
 ![oplist and definition](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/oplist.png)
 
-A function name can be followed by the token M\_IPTR in the oplist
-(for example: (INIT(init\_func M\_IPTR)) )
-to specify that the function accept as its *first* argument a pointer
-to the type rather than the type itself
-(aka the prototype is init\_func(type `*`) instead of init\_func(type)).
-If you use the '[1]' trick (see below), you won't need this.
-See also the API\_\* transformation call below for further transformation
-means of the calls.
 
-An oplist has no real form from a C language point of view. It is just an abstraction
-that disappears after the macro expansion step of the preprocessing.
+### Operators
 
-For each object / container, an oplist is needed. The following operators are
-usually expected for an object:
+The following operators are usually expected for an object:
 
 * INIT(obj): initialize the object 'obj' into a valid state (constructor).
-* INIT\_SET(obj, org): initialize the object 'obj' into the same state as the object 'org' (constructor).
-* SET(obj, org): set the initialized object 'obj' into the same state as the initialized object org (operator).
+* INIT\_SET(obj, org): initialize the object 'obj' into the same state as the object 'org' (copy constructor).
+* SET(obj, org): set the initialized object 'obj' into the same state as the initialized object org (copy operator).
 * CLEAR(obj): destroy the initialized object 'obj', releasing any attached memory (destructor). This method shall never fail.
 
-INIT, INIT\_SET & SET methods shall only fail due to ***memory errors***.
+INIT, INIT\_SET & SET methods should only fail due to ***memory errors***.
 
-Not all operators are needed within an oplist to handle a container.
-If some operator is missing, the associated default method of the operator is used.
-To use C integer or float types, the default constructors are perfectly fine:
-you may use M\_BASIC\_OPLIST to define the operator list of such types or you
-can just omit it.
-
-NOTE: An iterator doesn't have a constructor nor destructor methods.
-It should not allocate any memory. A reference to an object through
-an iterator is only valid until another reference is taken from the same
-container (potentially through another iterator),
-the iterator is moved. If the container is modified, all iterators
-of this container become invalid and shall not be used anymore
-except if the modifying operator provided itself an updated iterator.
-Some containers may lessen these constraints.
+Not all operators are needed for an oplist to handle a container.
+If some operator is missing, the associated default method of the operator is used if it exists.
+To use C integer or float types, the default constructors are perfectly fine.
 
 Other documented operators are:
 
@@ -606,36 +606,74 @@ Other documented operators are:
 * EMPLACE\_TYPE( ... ) : Specify the types usable for "emplacing" the object. See chapter 'emplace'.
 
 The operator names listed above shall not be defined as macro.
+More operators are expected.
 
-The following properties:
+NOTE: An iterator doesn't have a constructor nor destructor methods.
+It should not allocate any memory. A reference to an object through
+an iterator is only valid until another reference is taken from the same
+container (potentially through another iterator),
+the iterator is moved. If the container is modified, all iterators
+of this container become invalid and shall not be used anymore
+except if the modifying operator provided itself an updated iterator.
+Some containers may lessen these constraints.
+
+### Properties
+
+Properties can be stored in a sub-oplist format in the PROPERTIES operator.
+
+The following properties are defined:
 * LET\_AS\_INIT\_WITH(1): Defined if the macro M\_LET shall always initialize the object with INIT\_WITH regardless of the given input. The value of the property is 1 (enabled) or 0 (disabled/default).
 * NOCLEAR(1): Defined if the object CLEAR operator can be ommited (like for basic types or POD data). The value of the property is 1 (enabled) or 0 (disabled/default).
 
-More operators and properties are expected.
+More properties are expected.
 
-Example:
 
-        (INIT(mpz_init),SET(mpz_set),INIT_SET(mpz_init_set),CLEAR(mpz_clear))
+### Example:
 
-If there is two operations with the same name in an oplist, the left one has the priority. This enables partial overriding.
+Let's take the interface of the MPZ library:
+```C
+     void mpz_init(mpz_t z); // Constructor of the object z
+     void mpz_init_set(mpz_t z, const mpz_t s); // Copy Constructor of the object z
+     void mpz_set(mpz_t z, const mpz_t s); // Copy operator of the object z
+     void mpz_clear(mpz_t z); // Destructor of the object z
+```
+A basic oplist will be:
+
+```C
+        (INIT(mpz_init),SET(mpz_set),INIT_SET(mpz_init_set),CLEAR(mpz_clear),TYPE(mpz_t))
+```
+
+Much more complete oplist can be built for this type however, enabling much more powerful generation:
+See in the [example](https://github.com/P-p-H-d/mlib/blob/master/example/ex11-multi02.c)
+
+
+### Global namespace
 
 Oplist can be registered globally by defining, for the type 'type', a macro named
 M\_OPL\_ ## type () that expands to the oplist of the type.
-Only type without space in their name can be registered. A typedef of the type
-can be used instead through. This can simplify a lot OPLIST usage.
+Only type without any space in their name can be registered. A typedef of the type
+can be used instead instead, but this typedef shall be used everywhere.
 
 Example:
 
-        #define M_OPL_mpz_t() M_CLASSIC_OPLIST(mpz)
+```C
+        #define M_OPL_mpz_t() (INIT(mpz_init),SET(mpz_set),INIT_SET(mpz_init_set),CLEAR(mpz_clear),TYPE(mpz_t))
+```
 
-Within an OPLIST, you can also specify the needed low-level transformation to perform for the method.
-This is called API adaptation: it enables to transform the API requirements of the selected operator
-to the API provided by the given method.
+This can simplify a lot OPLIST usage and it is recommended.
+
+
+### API Interface Adaptation
+
+Within an OPLIST, you can also specify the needed low-level transformation to perform for calling your method.
+This is called API Interface Adaptation: it enables to transform the API requirements of the selected operator
+(which is very basic in general) to the API provided by the given method.
 Assuming that the method to call is called 'method' and the first argument of the operator is 'output',
-then the following default transformation are available:
+which interface is OPERATOR(output, ...)
+then the following predefined adaptation are available:
 
-* API\_0: method(output, ...)  /\* Default transformation API \*/
-* API\_1: method(oplist, output, ...) /\* Give oplist to the method \*/
+* API\_0: method(output, ...)  /\* No adaptation \*/
+* API\_1: method(oplist, output, ...) /\* No adaptation but gives the oplist to the method \*/
 * API\_2: method(&output, ...) /\* Pass by address the first argument (like with M\_IPTR) \*/
 * API\_3: method(oplist, &output, ...) /\* Pass by address the first argument (like with M\_IPTR) and give the oplist of the type \*/
 * API\_4 : output = method(...) /\* Pass by return value the first argument \*/
@@ -643,50 +681,62 @@ then the following default transformation are available:
 * API\_6 : method(&output, &...) /\* Pass by address the two first arguments \*/
 * API\_7:  method(oplist, &output, &...) /\* Pass by address the two first argument and give the oplist of the type \*/
 
-The API transformation to use shall be embedded in the OPLIST definition.
+The API Adaptation to use shall be embedded in the OPLIST definition.
 For example:
 
+```C
         (INIT(API_0(mpz_init)), SET(API_0(mpz_set)), INIT_SET(API_0(mpz_init_set)), CLEAR(API_0(mpz_clear)))
+```
 
+The default adaptation is API\_0 (i.e. no adaptation between operator interface and method interface).
+If an adaptation gives an oplist to the method, the method shall be implemented as macro.
 
-There were the predefined transformation rules.
 You can also describe the exact transformation to perform for calling the method:
-this is called generic API transformation.
+this is called Generic API Interface Adaptation (or GAIA).
 With this, you can add constant values to parameter of the method,
-reorder the parameters, pass then by pointers or change the return value.
+reorder the parameters as you wish, pass then by pointers, or even change the return value.
 
-The API transformation is described in the operator mapping with the method name.
+The API adaptation is also described in the operator mapping with the method name by using the API keyword.
 Usage in oplist:
 
-    , operator ( API( method, returncode, args...) ) ,
-
-* method is the method name (as like any other oplist)
+```C
+    , OPERATOR( API( method, returncode, args...) ) ,
+```
+Within the API keyword,
+* method is the pure method name (as like any other oplist)
 * returncode is the transformation to perform of the return code.
-It can be
-NONE (no transformation),
-VOID (cast to void),
-NEG (inverse the result),
-EQ(val)/NEQ(val)/LT(val)/GT(val)/LE(val)/GE(val) (compare the return code to the given value)
-ARG[1-9] (set the associated argument number of the operator to the return code)
 * args are the list of the arguments of the function. It can be:
-a constant,
-a variable name (probable global),
-ARG[1-9] (the associated argument number of the operator),
-ARGPTR[1-9] (the pointer of the associated argument number of the operator),
-OPLIST (the oplist)
+
+'returncode' can be
+* NONE (no transformation),
+* VOID (cast to void),
+* NEG (inverse the result),
+* EQ(val)/NEQ(val)/LT(val)/GT(val)/LE(val)/GE(val) (compare the return code to the given value)
+* ARG[1-9] (set the associated argument number of the operator to the return code)
+
+An argument can be:
+* a constant,
+* a variable name (probably global),
+* ARG[1-9] (the associated argument number of the operator),
+* ARGPTR[1-9] (the pointer of the associated argument number of the operator),
+* OPLIST (the oplist)
+
+Therefore it supports at most 9 arguments.
 
 Example:
 
      , EQUAL( API(mpz_cmp, EQ(0), ARG1, ARG2) ) , 
 
-This will transform a return value of 0 by the mpz\_cmp method into true for the EQUAL operator.
+This will transform a return value of 0 by the mpz\_cmp method into a boolean for the EQUAL operator.
 
 Another Example:
 
      , OUT_STR( API(mpz_out_str, VOID, ARG1, 10, ARG2) ) , 
 
-This will serialize the mpz\_t value in base 10 using the mpz\_out\_str method.
+This will serialize the mpz\_t value in base 10 using the mpz\_out\_str method, and discarding the return value.
 
+
+### Disable an operator
 
 An operator OP can be defined, omitted or disabled:
 
@@ -694,6 +744,8 @@ An operator OP can be defined, omitted or disabled:
 * ( OP(API\_N(f)) ): the function f is the method of the operator OP with the API transformation number N,
 * ( ): the operator OP is omitted, and the default global operation for OP is used (if it exists).
 * ( OP(0) ): the operator OP is disabled, and it can never be used.
+
+This can be usefull to disable an operator in an inherited oplist.
 
 
 ### Which OPLIST to use?
@@ -7612,6 +7664,79 @@ Clear the instance of the function.
 Return the interface object derived from this instance.
 This object can then be transmitted to any function
 that accept the generic interface (mainly \_call).
+
+
+### M-TRY
+
+This header is for [exception handling](https://en.wikipedia.org/wiki/Exception_handling).
+It provides basic functionnality for throwing exception and catching then.
+The setjmp and longjmp standard library functions are used to implement the try / catch / throw macro keywords.
+It doesn't support the finaly keyword.
+When building with a C++ compiler, theses macro keywords simply use the original C++ keyword in a way to match
+the specification below.
+
+Only one type of data is supported as exception. This is done to simplify the design and to force using exception
+as a general purpose error handlings. It should only be used for rare case of errors which cannot be dealt locally
+in the program being executed.
+
+In order to support [Resource Acquisition Is Initialization](https://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization)
+technique which frees resources using [destructor](https://en.wikipedia.org/wiki/Destructor_(computer_programming)),
+M\*LIB ensures that the destructors of all variables created using the keyword M\_LET are properly called on throwing exception.
+For this, different mechanisms are used to mark the objects and the CLEAR operator to be called on abnormal exceptions.
+This is done by injecting different information in the stack to be able to handle then.
+Therefore, contrary to C++, using exceptions in C will add a penalty performance to the program being executed in its nominal behavior.
+The exact cost depends on the mechanism used for RAII support.
+For GCC, it will use nested functions. For CLANG, it will use blocks (if compiled in blocks mode).
+Otherwise it uses a standard compliant way, which is the slowest.
+The variable which are not initialized through the macro M\_LET don't have their CLEAR method called on exceptions.
+
+A typical program will look like:
+
+    M_TRY(exception) {
+      M_LET(x, string_t) {
+        // ... do operation on x
+        // Throw a memory error of 1024 bytes.
+        M_THROW(M_ERROR_MEMORY, 1024);
+      }
+    } M_CATCH(exception, M_ERROR_MEMORY) {
+      printf("There is no enough memory to allocate %zu bytes.\n", (size_t) exception->data[0]);
+    }
+
+In this example, the destructor of 'x' will be called before catching the exception and resuming
+the program execution in the M\_CATCH block.
+
+You shall include this header before any other headers of M\*LIB, so that 
+it can configure the memory management of M\*LIB to throw exception on memory errors.
+It does it by redefining the default macro M\_MEMORY\_FULL accordingly.
+
+#### struct m\_exception\_s
+
+This is the exception type. It is composed of the following fields:
+
+* error\_code: The error code. It is used to identify the error that are raised the exception.
+* line: The line number where the error was detected.
+* filename: The filename (CSTR) where the error was detected.
+* n: Number of entries in 'error' table
+* error: an array of M\_USE\_MAX\_EXCEPTION elements.
+
+#### M\_TRY(name)
+
+Create a try block which name is 'name' that will catch errors and forward then to the associated catch block.
+If no catch block matches the error code raised, it will forward the error to the upper level try block.
+Until there is no longer any try block. In which case, it will terminate the program.
+
+#### M\_CATCH(name, error\_code)
+
+Define a catch block associated to the try block named 'name'.
+This catch block will be executed on throwing an exception which an error code matching error\_code.
+If error\_code is 0, it will catch all exceptions.
+Within the catch block, name will be a pointer to the exception object.
+
+#### M\_THROW(error\_code, ...)
+
+Throw the exception associated to the error\_code.
+error\_code shall be a positive integer constant.
+
 
 ### M-MEMPOOL
 
