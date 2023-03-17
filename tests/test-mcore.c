@@ -885,7 +885,7 @@ static void test_generic_api(void)
   int x = 0, y = 0;
   M_CALL_INIT(GO1, x, y);
   assert(x == 17);
-  assert(y == 43);
+  assert(y == -43);
 
   x = 89;
   M_CALL_INIT(GO2, x, y);
