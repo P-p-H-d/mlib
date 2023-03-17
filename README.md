@@ -555,7 +555,7 @@ Other documented operators are:
 * INC\_ALLOC(size\_t s) -> size\_t: Define the growing policy of an array (or equivalent structure). It returns a new allocation size based on the old allocation size ('s'). Default policy is to get the maximum between '2*s' and 16. NOTE: It doesn't check for overflow: if the returned value is lower than the old one, the user shall raise an overflow error.
 * INIT\_MOVE(objd, objc): Initialize 'objd' to the same state than 'objc' by stealing as much resources as possible from 'objc', and then clear 'objc' (constructor of objd + destructor of objc). It is semantically equivalent to calling INIT\_SET(objd,objc) then CLEAR(objc) but is usually way faster.  Contrary to the C++ choice of using "conservative move" semantic (you still need to call the destructor of a moved object in C++) M\*LIB implements a "destructive move" semantic (this enables better optimization). By default, all objects are assumed to be **trivially movable** (i.e. using memcpy to move an object is safe). Most C objects (even complex structure) are trivially movable and it is a very nice property to have (enabling better optimization). A notable exception are intrusive objects. If an object is not trivially movable, it shall provide an INIT\_MOVE method or disable the INIT\_MOVE method entirely (NOTE: Some containers may assume that the objects are trivially movable). An INIT\_MOVE operator shall not fail. Moved objects shall use the same memory allocator.
 * MOVE(objd, objc): Set 'objd' to the same state than 'objc' by stealing as resources as possible from 'objc' and then clear 'objc' (destructor of 'objc'). It is equivalent to calling SET(objd,objc) then CLEAR(objc) or CLEAR(objd) and then INIT\_MOVE(objd, objc). See INIT\_MOVE for details and constraints. TBC if this operator is really needed as calling CLEAR then INIT\_MOVE is what do all known implementation, and is efficient.
-* INIT\_WITH(obj, ...): Initialize the object 'obj' with the given variable set of arguments (constructor). The arguments can be of different types. It is up to the method of the object to decide how to initialize the object based on this initialization array. This operator is used by the M\_LET macro to initialize objects with their given values and this operator defines what the M\_LET macro supports. In C11, you can use M_INIT_WITH_THROUGH_EMPLACE_TYPE as method to automatically use the different emplace functions through a _Generic switch case.
+* INIT\_WITH(obj, ...): Initialize the object 'obj' with the given variable set of arguments (constructor). The arguments can be of different types. It is up to the method of the object to decide how to initialize the object based on this initialization array. This operator is used by the M\_LET macro to initialize objects with their given values and this operator defines what the M\_LET macro supports. In C11, you can use API\_1(M\_INIT\_WITH\_THROUGH\_EMPLACE\_TYPE) as method to automatically use the different emplace functions defined in EMPLACE\_TYPE through a _Generic switch case. The EMPLACE\_TYPE shall use the LIST format. See emplace chapter.
 * SWAP(objd, objc): Swap the states of the object 'objc' and the object 'objd'.  The objects shall use the same allocator.
 * RESET(obj): Reset the object to its initialized state (Emptying the object if it is a container object).
 * EMPTY\_P(obj) --> bool: Test if the container object is empty (true) or not.
@@ -787,11 +787,11 @@ There is no INIT operator (an argument is mandatary), no INIT\_SET operator.
 It is only possible to open a file from a filename.
 'FILE *' contains some space, so an alias is needed.
 There is an optional mode argument, which is a constant string, and isn't a valid preprocessing token.
-An oplist will therefore be:
+An oplist can therefore be:
 
 ```C
      typedef FILE *m_file_t;
-     #define M_OPL_m_file_t() (INIT_WITH(API(fopen, ARG1, ARG2, ID("wt"))),SET(0),INIT_SET(0),CLEAR(fclose),TYPE(m_file_t), EMPLACE_TYPE(API(fopen, ARG1, ARG2, ID("wt"))))
+     #define M_OPL_m_file_t() (INIT_WITH(API(fopen, ARG1, ARG2, ID("wt"))),SET(0),INIT_SET(0),CLEAR(fclose),TYPE(m_file_t))
 ```
 
 Since there is no INIT\_SET operator available, pretty much no container can work.
@@ -850,7 +850,7 @@ information about why abandonment is good software practice.
 
 It can however be overloaded to handle other policy for error handling like:
 
-* throwing an error (in that case, the user is responsible to free memory of the allocated objects - destructor can still be called),
+* throwing an error,
 * set a global error and handle it when the function returns,
 * other policy.
 
@@ -858,8 +858,47 @@ This function takes the size in bytes of the memory that has been tried to be al
 
 If needed, this macro shall be defined ***prior*** to instantiate the structure.
 
-NOTE: Throwing an error is not fully supported yet. Some help from the library
-is needed to avoid losing memory. See issue #15.
+
+
+Emplace construction
+--------------------
+
+For M\*LIB, 'emplace' means pushing a new object in the container,
+while not giving it a copy of the new object, but the parameters needed
+to construct this object.
+This is a shortcut to the pattern of creating the object with the arguments,
+pushing it in the container, and deleting the created object
+(even if using PUSH\_MOVE could simplify the design).
+
+The containers defining an emplace like method generate the emplace functions
+based on the provided EMPLACE\_TYPE of the oplist. If EMPLACE\_TYPE doesn't exist or is disabled, no emplace function is generated. Otherwise EMPLACE\_TYPE identifies
+which types can be used to construct the object and which methods to use to construct then:
+
+* EMPLACE\_TYPE( typeA ) means that the object can be constructed from 'typeA' using the method of the INIT_WITH operator. An emplace function without suffix will be generated.
+* EMPLACE\_TYPE( (typeA, typeB, ...) ) means that the object can be constructed from the lists of types 'typeA, typeB, ...' using the method of the INIT_WITH operator. An emplace function without suffix will be generated.
+* EMPLACE\_TYPE( LIST( (suffix, function, typeA, typeB, ...),  (suffix, function, typeA, typeB, ...), ...) means that the object can be constructed from all the provided lists of types 'typeA, typeB, ...' using the provided method 'function'. The 'function' is the method to call to construct the object from the list of types. It supports API transformation if needed. As many emplace function will be generated as there are constructor function. Each generated function will be generated by suffixing it with the provided 'suffix' (if suffix is empty, no suffix will be added).
+
+For example, for an ARRAY definition named vec, if there is such a definition of EMPLACE\_TYPE(const char *), it will generate a function vec\_emplace\_back(const char *). This function will take a const char * parameter, construct the object from it (for example a string\_t) then push the result back on the array.
+
+Another example, for an ARRAY definition named vec, if there is such a definition of EMPLACE\_TYPE( LIST( (_ui, mpz\_init\_set\_ui, unsigned int), (_si, mpz\_init\_set\_si, int) ) ), it will generate two functions vec\_emplace\_back\_ui(unsigned int) and vec\_emplace\_back\_si(int). Theses functions will take the (unsigned) int parameter, construct the object from it then push the result back on the array.
+
+If the container is an associative array, the name will be constructed as follow:
+        name\_emplace[\_key\_keysuffix][\_val\_valsuffix]
+where keysuffix (resp. valsuffix) is the emplace suffix of the key (resp. value) oplist.
+
+If you take once again the example of the FILE, a more complete oplist can be:
+
+```C
+     typedef FILE *m_file_t;
+     #define M_OPL_m_file_t() (INIT_WITH(API_1(M_INIT_WITH_THROUGH_EMPLACE_TYPE)),SET(0),INIT_SET(0),CLEAR(fclose),TYPE(m_file_t), \
+             EMPLACE_TYPE(LIST((_str, API(fopen, ARG1, ARG2, ID("wb")), char *))))
+```
+
+The INIT\_WITH operator will use the provided init methods in the EMPLACE\_TYPE.
+EMPLACE\_TYPE defines a \_str suffix method with a GAIA for fopen,
+and accepts a char * as argument.
+The GAIA specifies that the output (ARG1) is set as return value,
+ARG2 is given as the first argument, and a third constant argument is used.
 
 
 ERRORS & COMPILERS
@@ -923,32 +962,6 @@ Benchmarks
 All bench codes are available in the bench directory.
 The results are available [in a separate page](https://github.com/P-p-H-d/mlib/wiki/performance).
 
-
-Emplace construction
---------------------
-
-For M\*LIB, 'emplace' means pushing a new object in the container,
-while not giving it a copy of the new object, but the parameters needed
-to construct this object.
-This is a shortcut to the pattern of creating the object with the arguments,
-pushing it in the container, and deleting the created object
-(even if using PUSH\_MOVE could simplify the design).
-
-The containers defining an emplace like method generate the emplace functions
-based on the provided EMPLACE\_TYPE of the oplist. If EMPLACE\_TYPE doesn't exist or is disabled, no emplace function is generated. Otherwise EMPLACE\_TYPE identifies
-which types can be used to construct the object and which methods to use to construct then:
-
-* EMPLACE\_TYPE( typeA ) means that the object can be constructed from 'typeA' using the method of the INIT_WITH operator. An emplace function without suffix will be generated.
-* EMPLACE\_TYPE( (typeA, typeB, ...) ) means that the object can be constructed from the lists of types 'typeA, typeB, ...' using the method of the INIT_WITH operator. An emplace function without suffix will be generated.
-* EMPLACE\_TYPE( LIST( (suffix, function, typeA, typeB, ...),  (suffix, function, typeA, typeB, ...), ...) means that the object can be constructed from all the provided lists of types 'typeA, typeB, ...' using the provided method 'function'. The 'function' is the method to call to construct the object from the list of types. It supports API transformation if needed. As many emplace function will be generated as there are constructor function. Each generated function will be generated by suffixing it with the provided 'suffix' (if suffix is empty, no suffix will be added).
-
-For example, for an ARRAY definition named vec, if there is such a definition of EMPLACE\_TYPE(const char *), it will generate a function vec\_emplace\_back(const char *). This function will take a const char * parameter, construct the object from it (for example a string\_t) then push the result back on the array.
-
-Another example, for an ARRAY definition named vec, if there is such a definition of EMPLACE\_TYPE( LIST( (_ui, mpz\_init\_set\_ui, unsigned int), (_si, mpz\_init\_set\_si, int) ) ), it will generate two functions vec\_emplace\_back\_ui(unsigned int) and vec\_emplace\_back\_si(int). Theses functions will take the (unsigned) int parameter, construct the object from it then push the result back on the array.
-
-If the container is an associative array, the name will be constructed as follow:
-        name\_emplace[\_key\_keysuffix][\_val\_valsuffix]
-where keysuffix (resp. valsuffix) is the emplace suffix of the key (resp. value) oplist.
 
 External Reference
 ------------------

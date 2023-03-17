@@ -1,6 +1,27 @@
 *Long term issues*
 ------------------
 
+* TODO #28 : Separate generation of interface to implementation :ENHANCEMENT:
+
+Enable support for generating an interface only for the headers
+and an implementation only for the source code.
+
+Try to keep API compatibility
+==> Only modify renamed macro with M_ prefix by giving a new mandatory
+argument for such generation.
+ 
+* TODO #27 : Uniformization of m-buffer interface               :ENHANCEMENT:
+
+The m-buffer interface requires special argument to work:
+- size & policy for BUFFER,
+- policy only for the others.
+This is not uniform with the others generation macros and not uniform with each other.
+Moreover the others are the only one which can be used in a shared memory, so
+a fixed size will be good to have too for such interface.
+
+==> Uniformize the interface. How?
+==> Provide static size for all QUEUE.
+
 * TODO #26 : Hash-Map for huge objects                          :ENHANCEMENT:
 
 Specialize Hashmap for huge objects on supported hardware:
@@ -34,7 +55,7 @@ unsigned get_small_hash(int64_t x) {
 }
 #+END_SRC
 
-* TODO #25 : Support of error code model for error handling.    :ENHANCEMENT:
+* TODO #25 : Support of error return model for error handling.  :ENHANCEMENT:
 
 Find a way to support error return code for the API in case of allocation
 failure.
@@ -145,6 +166,21 @@ operators as it uses MOVE_DEFAULT which is not (fully compatible).
 ==> Analyse limitation and possible constraint usages.
 
 
+Being able to define a correct default for INIT_MOVE will be really good
+(compatible with trivial move copy).
+In such case, all INIT_MOVE & MOVE operators can be removed from oplist
+to only use the default, and theses operators can be disabled or defined
+only when really needed in the oplist.
+However creating a default INIT_MOVE macro seems problematic.
+If the type is typedef T t[1] then passing such an argument to a function, 
+will transform the argument to T*, and the type of the argument doesn't match
+what is expecting resulting in a move of the pointers, not a move of the design data.
+
+Defining a TYPE to this macro seems mandatory, but within restricting to C11
+(by using _Generic to detect such case),
+I don't see any way to define the macro.
+
+
 * TODO #20: New: Bucket priority queue                          :ENHANCEMENT:
 
 Add a new kind of priority queue. 
@@ -228,29 +264,6 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
  - singly or doubly or dual push?
  - needs to be logically deleted : needs a previous field
    (NULL if not logically deleted) ? TBC
-
-
-* TODO #15: Prologue / Epilogue for Constructor / Destructor for error handling :ENHANCEMENT:
-
-Constructor (and destructor) need to use user-defined prologue / epilogue.
-This is in order to register the constructed object into a proper Exception
-Handling Stack so that throwing exceptions may work reliably.
-
-Proposal:
-
-- M_CONSTRUCTOR_PROLOGUE(object, oplist);
-- M_CONSTRUCTOR_EPILOGUE(object, oplist);
-- M_DESTRUCTOR_PROLOGUE(object, oplist);
-- M_DESTRUCTOR_EPILOGUE(object, oplist);
-
-Object creation will need to add all sub-objects into the stack, 
-then unstack all to push instead the root object (which recursively remove them).
-
-See also http://freetype.sourceforge.net/david/reliable-c.html#cseh
-
-- How to handle like allocation of the object?
-- How to avoid calling the destructor multiple times? (It is needed?)
-- How the code can be factorized with RETCODE needs?
 
 
 * TODO #14: Memory allocation enhancement                       :ENHANCEMENT:
@@ -448,6 +461,27 @@ push always succeed and the queue always keep the youngest element.
    To simplify it, this interface could only support one kind of import/export
    per compilation unit.
 
+* DONE #15: Prologue / Epilogue for Constructor / Destructor for error handling :ENHANCEMENT:
+  
+Constructor (and destructor) need to use user-defined prologue / epilogue.
+This is in order to register the constructed object into a proper Exception
+Handling Stack so that throwing exceptions may work reliably.
+
+Proposal:
+
+- M_CONSTRUCTOR_PROLOGUE(object, oplist);
+- M_CONSTRUCTOR_EPILOGUE(object, oplist);
+- M_DESTRUCTOR_PROLOGUE(object, oplist);
+- M_DESTRUCTOR_EPILOGUE(object, oplist);
+
+Object creation will need to add all sub-objects into the stack, 
+then unstack all to push instead the root object (which recursively remove them).
+
+See also http://freetype.sourceforge.net/david/reliable-c.html#cseh
+
+- How to handle like allocation of the object?
+- How to avoid calling the destructor multiple times? (It is needed?)
+- How the code can be factorized with RETCODE needs?
 
 
 
