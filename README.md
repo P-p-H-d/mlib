@@ -717,6 +717,7 @@ Within the API keyword,
 An argument can be:
 * a constant,
 * a variable name (probably global),
+* ID( constant or variable), if the constant or variable is not a valid token,
 * ARG[1-9] (the associated argument number of the operator),
 * ARGPTR[1-9] (the pointer of the associated argument number of the operator),
 * OPLIST (the oplist)
@@ -771,6 +772,36 @@ exports all needed methods to handle generic input/output of int/floats
 
 This explains why JSON import/export is only available in C11 mode
 (See below chapter).
+
+
+### Advanced example
+
+Let's take a look at the interface of the FILE interface:
+```C
+     FILE *fopen(const char *filename, const char *mode);
+     fclose(FILE *f);
+```
+There is no INIT operator (an argument is mandatary), no INIT\_SET operator.
+It is only possible to open a file from a filename.
+'FILE *' contains some space, so an alias is needed.
+There is an optional mode argument, which is a constant string, and isn't a valid preprocessing token.
+An oplist will therefore be:
+
+```C
+     typedef FILE *m_file_t;
+     #define M_OPL_m_file_t() (INIT_WITH(API(fopen, ARG1, ARG2, ID("wt"))),SET(0),INIT_SET(0),CLEAR(fclose),TYPE(m_file_t), EMPLACE_TYPE(API(fopen, ARG1, ARG2, ID("wt"))))
+```
+
+Then you'll be able to use a writing text FILE using a M\_LET :
+
+```C
+    M_LET( (f, ("tmp.txt")), m_file_t) {
+      fprintf(f, "This is a tmp file.");
+    }
+```
+
+This is pretty useless, except if you enable exceptions...
+In which case, this enables you to close the file even if an exception is thrown.
 
 
 Memory Allocation
