@@ -32,7 +32,7 @@ static void test_throw(void)
     M_THROW(67, 56);
   } M_CATCH(protect, 67) {
     assert(protect->n == 1);
-    M_THROW(M_ERROR_MEMORY, protect->error[0], 4, 6, 8);
+    M_THROW(M_ERROR_MEMORY, protect->data[0], 4, 6, 8);
   }
 }
 
@@ -97,7 +97,7 @@ static void test1(void)
     } M_CATCH(test2, M_ERROR_ACCESS) {
       assert(flow++ == 6);
       assert(test2->n == 1);
-      assert(test2->error[0] == 12);
+      assert(test2->data[0] == 12);
     }
   } M_CATCH(test1, M_ERROR_MEMORY) {
     assert(0);
@@ -130,8 +130,8 @@ static void test1(void)
   }  M_CATCH(test1, 42) {
     assert(flow++ == 6);
     assert(test1->n == 2);
-    assert(test1->error[0] == 1);
-    assert(test1->error[1] == 3);
+    assert(test1->data[0] == 1);
+    assert(test1->data[1] == 3);
   }
   assert(flow ++ == 7);
 
@@ -192,10 +192,10 @@ static void test1(void)
   } M_CATCH(test1, M_ERROR_MEMORY) {
     assert(flow ++ == 4);
     assert(test1->n == 4);
-    assert(test1->error[0] == 56);
-    assert(test1->error[1] == 4);
-    assert(test1->error[2] == 6);
-    assert(test1->error[3] == 8);
+    assert(test1->data[0] == 56);
+    assert(test1->data[1] == 4);
+    assert(test1->data[2] == 6);
+    assert(test1->data[3] == 8);
   } M_CATCH(test1, 42) {
     assert(0);
   }

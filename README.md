@@ -125,7 +125,7 @@ Other headers offering other functionality are:
 * [m-bitset.h](#m-bitset): header for creating bit set (or "packed array of bool"),
 * [m-algo.h](#m-algo): header for providing various generic algorithms to the previous containers.
 * [m-funcobj.h](#m-funcobj): header for creating function object (used by algorithm generation).
-* [m-try.h][#m-try): header for handling errors as exceptions,
+* [m-try.h](#m-try): header for handling errors as exceptions,
 * [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator.
 * [m-worker.h](#m-worker): header for providing an easy pool of workers on separated threads to handle work orders, used for parallelism tasks.
 * [m-serial-json.h](#m-serial-json): header for importing / exporting the containers in [JSON format](https://en.wikipedia.org/wiki/JSON).
@@ -7750,8 +7750,10 @@ This is the exception type. It is composed of the following fields:
 * error\_code: The error code. It is used to identify the error that are raised the exception.
 * line: The line number where the error was detected.
 * filename: The filename (CSTR) where the error was detected.
-* n: Number of entries in 'error' table
-* error: an array of M\_USE\_MAX\_EXCEPTION elements.
+* n: Number of entries in 'data' table
+* data: an array of M\_USE\_MAX\_EXCEPTION elements.
+
+You can access the fields of the type directly.
 
 #### M\_TRY(name)
 
@@ -7775,6 +7777,7 @@ Throw the exception associated to the error\_code.
 error\_code shall be a positive integer constant.
 Additional arguments are used to fill in the error field of m\_exception\_s
 that is used to identify the cause of the exception.
+The line and filename fields of the exception are filled automatically by the macro.
 
 
 ### M-MEMPOOL

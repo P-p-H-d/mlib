@@ -123,7 +123,7 @@ struct m_exception_s {
   unsigned short line;                     // Line number where the error was detected
   unsigned short n;                        // Number of entries in 'error' table
   const char *filename;                    // filename  where the error was detected
-  intptr_t error[M_USE_MAX_EXCEPTION];     // Error specific data
+  intptr_t   data[M_USE_MAX_EXCEPTION];    // Specific data of the exception
 #ifdef __cplusplus
   m_exception_s<N> *operator->() { return this; }
 #endif
