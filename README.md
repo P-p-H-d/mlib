@@ -792,7 +792,8 @@ An oplist will therefore be:
      #define M_OPL_m_file_t() (INIT_WITH(API(fopen, ARG1, ARG2, ID("wt"))),SET(0),INIT_SET(0),CLEAR(fclose),TYPE(m_file_t), EMPLACE_TYPE(API(fopen, ARG1, ARG2, ID("wt"))))
 ```
 
-Then you'll be able to use a writing text FILE using a M\_LET :
+Since there is no INIT\_SET operator available, pretty much no container can work.
+However you'll be able to use a writing text FILE using a M\_LET :
 
 ```C
     M_LET( (f, ("tmp.txt")), m_file_t) {
