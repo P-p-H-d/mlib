@@ -111,7 +111,7 @@ The available containers of M\*LIB for thread synchronization are in the followi
 * [m-snapshot](#m-snapshot): header for creating 'snapshot' buffer for sharing synchronously big data (thread safe).
 * [m-shared.h](#m-shared): header for creating shared pointer of generic type.
 * [m-concurrent.h](#m-concurrent): header for transforming a container into a concurrent container.
-* [m-c-mempool.h]: WIP header for creating fast concurrent memory allocation.
+* m-c-mempool.h: WIP header for creating fast concurrent memory allocation.
 
 The following containers are intrusive (You need to modify your structure to add fields needed by the container) and are defined in:
 
@@ -129,7 +129,7 @@ Other headers offering other functionality are:
 * [m-worker.h](#m-worker): header for providing an easy pool of workers on separated threads to handle work orders, used for parallelism tasks.
 * [m-serial-json.h](#m-serial-json): header for importing / exporting the containers in [JSON format](https://en.wikipedia.org/wiki/JSON).
 * [m-serial-bin.h](#m-serial-bin): header for importing / exporting the containers in an adhoc fast binary format.
-* [m-genint.h]: internal header for generating unique integers in a concurrent context.
+* m-genint.h: internal header for generating unique integers in a concurrent context.
 * [m-core.h](#m-core): header for meta-programming with the C preprocessor (used by all other headers).
 
 Finally headers for compatibility with non C11 compilers:
