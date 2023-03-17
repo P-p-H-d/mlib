@@ -555,7 +555,7 @@ Other documented operators are:
 * INC\_ALLOC(size\_t s) -> size\_t: Define the growing policy of an array (or equivalent structure). It returns a new allocation size based on the old allocation size ('s'). Default policy is to get the maximum between '2*s' and 16. NOTE: It doesn't check for overflow: if the returned value is lower than the old one, the user shall raise an overflow error.
 * INIT\_MOVE(objd, objc): Initialize 'objd' to the same state than 'objc' by stealing as much resources as possible from 'objc', and then clear 'objc' (constructor of objd + destructor of objc). It is semantically equivalent to calling INIT\_SET(objd,objc) then CLEAR(objc) but is usually way faster.  Contrary to the C++ choice of using "conservative move" semantic (you still need to call the destructor of a moved object in C++) M\*LIB implements a "destructive move" semantic (this enables better optimization). By default, all objects are assumed to be **trivially movable** (i.e. using memcpy to move an object is safe). Most C objects (even complex structure) are trivially movable and it is a very nice property to have (enabling better optimization). A notable exception are intrusive objects. If an object is not trivially movable, it shall provide an INIT\_MOVE method or disable the INIT\_MOVE method entirely (NOTE: Some containers may assume that the objects are trivially movable). An INIT\_MOVE operator shall not fail. Moved objects shall use the same memory allocator.
 * MOVE(objd, objc): Set 'objd' to the same state than 'objc' by stealing as resources as possible from 'objc' and then clear 'objc' (destructor of 'objc'). It is equivalent to calling SET(objd,objc) then CLEAR(objc) or CLEAR(objd) and then INIT\_MOVE(objd, objc). See INIT\_MOVE for details and constraints. TBC if this operator is really needed as calling CLEAR then INIT\_MOVE is what do all known implementation, and is efficient.
-* INIT\_WITH(obj, ...): Initialize the object 'obj' with the given variable set of arguments (constructor). The arguments can be of different types. It is up to the method of the object to decide how to initialize the object based on this initialization array. This operator is used by the M\_LET macro to initialize objects with their given values and this operator defines what the M\_LET macro supports.
+* INIT\_WITH(obj, ...): Initialize the object 'obj' with the given variable set of arguments (constructor). The arguments can be of different types. It is up to the method of the object to decide how to initialize the object based on this initialization array. This operator is used by the M\_LET macro to initialize objects with their given values and this operator defines what the M\_LET macro supports. In C11, you can use M_INIT_WITH_THROUGH_EMPLACE_TYPE as method to automatically use the different emplace functions through a _Generic switch case.
 * SWAP(objd, objc): Swap the states of the object 'objc' and the object 'objd'.  The objects shall use the same allocator.
 * RESET(obj): Reset the object to its initialized state (Emptying the object if it is a container object).
 * EMPTY\_P(obj) --> bool: Test if the container object is empty (true) or not.
@@ -772,6 +772,8 @@ exports all needed methods to handle generic input/output of int/floats
 
 This explains why JSON import/export is only available in C11 mode
 (See below chapter).
+
+Basic usage of oplist is availble in the [example](https://github.com/P-p-H-d/mlib/blob/master/example/ex-array00.c)
 
 
 ### Advanced example
