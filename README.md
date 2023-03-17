@@ -7721,21 +7721,26 @@ This is the exception type. It is composed of the following fields:
 
 #### M\_TRY(name)
 
-Create a try block which name is 'name' that will catch errors and forward then to the associated catch block.
+Create a try block which name is 'name' that will catch thrown exception (if any)
+and forward then to the associated catch block of the same name.
+The try block will start just after the keyword, with a brace character.
 If no catch block matches the error code raised, it will forward the error to the upper level try block.
 Until there is no longer any try block. In which case, it will terminate the program.
 
 #### M\_CATCH(name, error\_code)
 
-Define a catch block associated to the try block named 'name'.
-This catch block will be executed on throwing an exception which an error code matching error\_code.
+Create a catch block associated to the try block named 'name'.
+The catch block will start just after the keyword, with a brace character.
+This catch block will be executed on throwing an exception with an error code matching error\_code.
 If error\_code is 0, it will catch all exceptions.
-Within the catch block, name will be a pointer to the exception object.
+Within the catch block, a pointer to the exception object of type m\_exception\_s is available through the 'name' variable.
 
-#### M\_THROW(error\_code, ...)
+#### M\_THROW(error\_code[, ...])
 
 Throw the exception associated to the error\_code.
 error\_code shall be a positive integer constant.
+Additional arguments are used to fill in the error field of m\_exception\_s
+that is used to identify the cause of the exception.
 
 
 ### M-MEMPOOL
