@@ -4387,7 +4387,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
     (M_INIT_WITH_EMPLACE_TYPE_2, M_INIT_WITH_NOT_AVAILABLE)                   \
     (oplist, dst, __VA_ARGS__)
 #define M_INIT_WITH_NOT_AVAILABLE(oplist, dst, ...)                           \
-  M_STATIC_FAILURE(M_LIB_ILLEGAL_EMPLACE_TYPE,                                \
+  M_STATIC_ASSERT(false, M_LIB_ILLEGAL_EMPLACE_TYPE,                          \
            "Cannot INIT_WITH through EMPLACE_TYPE, such operator is not provided in the given oplist: " #oplist)
 #define M_INIT_WITH_EMPLACE_TYPE_2(oplist, dst, ...)                          \
   M_INIT_WITH_EMPLACE_TYPE_3(M_GET_EMPLACE_TYPE oplist, oplist, dst, __VA_ARGS__)
@@ -4396,7 +4396,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
     (M_INIT_WITH_EMPLACE_TYPE_4, M_INIT_WITH_EMPLACE_TYPE_FAIL)               \
     (emplace_type, oplist, dst, __VA_ARGS__)
 #define M_INIT_WITH_EMPLACE_TYPE_FAIL(emplace_type, oplist, dst, ...)         \
-  M_STATIC_FAILURE(M_LIB_ILLEGAL_EMPLACE_TYPE,                                \
+  M_STATIC_ASSERT(false, M_LIB_ILLEGAL_EMPLACE_TYPE,                          \
            "Only LIST based EMPLACE_TYPE with explicit init_func (No INIT_WITH) are supported")
 #define M_INIT_WITH_EMPLACE_TYPE_4(emplace_type, oplist, dst, ...)            \
   _Generic( M_RET_ARG1( __VA_ARGS__, )                                        \
