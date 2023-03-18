@@ -4245,14 +4245,14 @@ m_core_parse2_enum (const char str[], const char **endptr)
              // code using p
      } // Here p is free
 */
-#define M_DEFER(clear)                                                        \
-  M_DEFER_INTERNAL(clear, m_var_ ## __LINE__)
+#define M_DEFER(...)                                                          \
+  M_DEFER_INTERNAL(m_var_ ## __LINE__, __VA_ARGS__)
 
-#define M_DEFER_INTERNAL(clear, cont)                                         \
+#define M_DEFER_INTERNAL(cont, ...)                                           \
   for(bool cont = true; cont; cont = false)                                   \
-    M_DEFER_TRY_INJECT_PRE(cont, clear)                                       \
-      for( (void) 0; cont ; (clear), cont = false)                            \
-        M_DEFER_TRY_INJECT_POST(cont, clear)                                  \
+    M_DEFER_TRY_INJECT_PRE(cont, __VA_ARGS__)                                 \
+      for( (void) 0; cont ; (__VA_ARGS__), cont = false)                      \
+        M_DEFER_TRY_INJECT_POST(cont, __VA_ARGS__)                            \
           for( (void) 0; cont; cont = false)
 
 // Theses macros will be overrided by m-try if needed.
@@ -4279,7 +4279,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_LET_IF_INTERNAL(init, test, clear, else_a, cont)                    \
   for(bool cont = true; cont; cont = false)                                   \
     for( init ; cont && ( (test) || (else_a, false) ); cont = false)          \
-      M_DEFER_INTERNAL(clear, M_C(cont, defer) )
+      M_DEFER_INTERNAL(M_C(cont, defer), clear )
 
 
 
