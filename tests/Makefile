@@ -158,6 +158,9 @@ gene-bitset:
 gene-dict:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -march=native -DNDEBUG -S tgen-mdict.c && less tgen-mdict.s
 
+gene-map:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -march=native -DNDEBUG -S tgen-mmap.c && less tgen-mmap.s
+
 gene-queue:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -march=native -DNDEBUG -S tgen-queue.c && less tgen-queue.s
 
