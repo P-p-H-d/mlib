@@ -203,6 +203,16 @@ struct m_exception_s {
   for(m_lib::m_regclear M_C(m_try_regclear_, name){[&](void) { M_CALL_CLEAR(oplist, name); } } \
         ; cont ; M_C(m_try_regclear_, name).disable() )
 
+// M_DEFER Injection / pre initialization
+#define M_DEFER_TRY_INJECT_PRE_B(cont, ...) /* Nothing to do */
+
+// M_DEFER Injection / post initialization
+// Register the stack frame and tests for the longjmp.
+// In which case call the 'clear' operations (...), unstack the error list and rethrow the error.
+#define M_DEFER_TRY_INJECT_POST_B(cont, ...)                                \
+  for(m_lib::m_regclear M_C(m_try_regclear_, cont){[&](void) { __VA_ARGS__; } }     \
+        ; cont ; M_C(m_try_regclear_, cont).disable() )
+
 // Definition of the C++ object wrapper
 // The registered function is called by the destructor,
 // except if the disable function has been called.
@@ -506,17 +516,17 @@ m_try_jump_final(m_try_t state)
 
 // M_DEFER Injection / pre initialization
 // Initialize the stack frame.
-#define M_DEFER_TRY_INJECT_PRE_B(cont, clear)                                 \
+#define M_DEFER_TRY_INJECT_PRE_B(cont, ...)                                   \
   for(m_try_t M_C(m_try_state_, cont); cont &&                                \
         m_try_jump_pre(M_C(m_try_state_, cont)); )
 
 // M_DEFER Injection / post initialization
 // Register the stack frame and tests for the longjmp.
 // In which case call the CLEAR operator, unstack the error list and rethrow the error.
-#define M_DEFER_TRY_INJECT_POST_B(cont, clear)                                \
+#define M_DEFER_TRY_INJECT_POST_B(cont, ...)                                  \
   for( ; cont ; m_try_jump_final(M_C(m_try_state_, cont)))                    \
     if (m_try_jump_post(M_C(m_try_state_, cont))                              \
-        || (clear , m_try_jump_final(M_C(m_try_state_, cont)), m_rethrow(), false))
+        || (__VA_ARGS__ , m_try_jump_final(M_C(m_try_state_, cont)), m_rethrow(), false))
 
 #endif /* cplusplus */
 
@@ -537,9 +547,9 @@ m_try_jump_final(m_try_t state)
 
 // Macro injection for M_DEFER.
 #undef  M_DEFER_TRY_INJECT_PRE
-#define M_DEFER_TRY_INJECT_PRE(cont, clear)  M_DEFER_TRY_INJECT_PRE_B(cont, clear)
+#define M_DEFER_TRY_INJECT_PRE(cont, ...)  M_DEFER_TRY_INJECT_PRE_B(cont, __VA_ARGS__)
 #undef  M_DEFER_TRY_INJECT_POST
-#define M_DEFER_TRY_INJECT_POST(cont, clear) M_DEFER_TRY_INJECT_POST_B(cont, clear)
+#define M_DEFER_TRY_INJECT_POST(cont, ...) M_DEFER_TRY_INJECT_POST_B(cont, __VA_ARGS__)
 
 
 // In case of MEMORY FULL errors, throw an error instead of aborting.
