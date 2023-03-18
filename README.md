@@ -662,6 +662,13 @@ Example:
 
 This can simplify a lot OPLIST usage and it is recommended.
 
+Each type a macro expects an oplist, you can give instead its type.
+This make the code much easier to read.
+There is one exception however: the macros that are used to build oplist
+(like ARRAY\_OPLIST) don't perform this simplification and the oplist of
+the basic type shall be given instead.
+This is due to limitation in the C preprocessing.
+
 
 ### API Interface Adaptation
 
@@ -690,6 +697,28 @@ For example:
 
 The default adaptation is API\_0 (i.e. no adaptation between operator interface and method interface).
 If an adaptation gives an oplist to the method, the method shall be implemented as macro.
+
+
+Let's take the interface of a pseudo library:
+```C
+     typedef struct { ... } obj_t;
+     obj_t *obj_init(void);                // Constructor of the object z
+     obj_t *obj_init_str(const char *str); // Constructor of the object z
+     obj_t *obj_clone(const obj_t *s);     // Copy Constructor of the object z
+     void obj_clear(obj_t *z);             // Destructor of the object z
+```
+The library returns a pointer to the object, so we need API_4 for these methods.
+There is no method for the SET operator available. However, we can use the macro M_SET_THROUGH_INIT_SET
+to emulate a SET semantics by using a combinaison of CLEAR+INIT_SET. This enables to support
+the type for array containers in particular. Or we can avoid this definition if we don't need it.
+A basic oplist will be:
+
+```C
+     (INIT(API_4(obj_init)),SET(API_1(M_SET_THROUGH_INIT_SET)),INIT_SET(API_4(obj_clone)),CLEAR(obj_clear),TYPE(obj_t *))
+```
+
+
+### Generic API Interface Adaptation
 
 You can also describe the exact transformation to perform for calling the method:
 this is called Generic API Interface Adaptation (or GAIA).
@@ -6373,8 +6402,23 @@ If the operator has not this property or it is set to 0, it means that it may ra
 ##### M\_DO\_INIT\_MOVE(oplist, dest, src)
 ##### M\_DO\_MOVE(oplist, dest, src)
 
-Perform an INIT\_MOVE/MOVE if present, or emulate it otherwise.
+Perform an INIT\_MOVE/MOVE if present, or emulate it otherwise (Internal macros).
 Note: default methods for INIT\_MOVE/MOVE are not robust enough yet.
+
+##### M\_INIT\_WITH\_THROUGH\_EMPLACE\_TYPE(oplist, dest, src)
+
+Use the provided EMPLACE\_TYPE of the oplist to emulate an INIT\_WITH operator.
+It transforms the different emplace types by a C11 _Generic switch in order to call the
+right initialization function in function of the type of argument.
+
+The EMPLACE\_TYPE shall use a LIST based format for listing the different emplace types.
+This method is compatible with C11 or above.
+This method shall be used with API\_1 adaptator.
+
+##### M\_SET\_THROUGH\_INIT\_SET(oplist, dest, src)
+
+Emulate the SET semantics using a combinaison of CLEAR and INIT\_SET of the given oplist.
+This method shall be used with API\_1 adaptator.
 
 ##### M\_GLOBAL\_OPLIST(a)
 
