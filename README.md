@@ -7813,8 +7813,8 @@ This is the exception type. It is composed of the following fields:
 * error\_code: The error code. It is used to identify the error that are raised the exception.
 * line: The line number where the error was detected.
 * filename: The filename (CSTR) where the error was detected.
-* n: Number of entries in 'data' table
-* data: an array of M\_USE\_MAX\_EXCEPTION elements.
+* num: Number of entries in 'context' table
+* context: an array of M\_USE\_MAX\_CONTEXT elements.
 
 You can access the fields of the type directly.
 

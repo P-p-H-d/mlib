@@ -81,7 +81,7 @@
     M_STATIC_ASSERT(M_RET_ARG1 (__VA_ARGS__) != 0,                            \
                     M_LIB_NOT_A_CONSTANT_NON_NULL_INTEGER,                    \
                     "The error code shall be a non null constant");           \
-    M_STATIC_ASSERT(M_NARGS (__VA_ARGS__) <= 1+M_USE_MAX_EXCEPTION,           \
+    M_STATIC_ASSERT(M_NARGS (__VA_ARGS__) <= 1+M_USE_MAX_CONTEXT,             \
                     M_LIB_TOO_MANY_ARGUMENTS,                                 \
                     "There are too many arguments for an exception.");        \
     M_IF_NARGS_EQ1(__VA_ARGS__)(M_THROW_1, M_THROW_N)(__VA_ARGS__);           \
@@ -89,10 +89,10 @@
 
 
 /*
- * Size of the extra data that are stored in an exception.
+ * Size of the context data that are stored in an exception.
  */
-#ifndef M_USE_MAX_EXCEPTION
-#define M_USE_MAX_EXCEPTION 5
+#ifndef M_USE_MAX_CONTEXT
+#define M_USE_MAX_CONTEXT 10
 #endif
 
 /*
@@ -121,9 +121,9 @@ template <unsigned int N>
 struct m_exception_s {
   unsigned   error_code;                   // Error code
   unsigned short line;                     // Line number where the error was detected
-  unsigned short n;                        // Number of entries in 'error' table
+  unsigned short num;                      // Number of entries in 'context' table
   const char *filename;                    // filename  where the error was detected
-  intptr_t   data[M_USE_MAX_EXCEPTION];    // Specific data of the exception
+  intptr_t    context[M_USE_MAX_CONTEXT];  // Specific context of the exception
 #ifdef __cplusplus
   m_exception_s<N> *operator->() { return this; }
 #endif

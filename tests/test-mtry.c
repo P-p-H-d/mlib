@@ -31,8 +31,8 @@ static void test_throw(void)
   M_TRY(protect) {
     M_THROW(67, 56);
   } M_CATCH(protect, 67) {
-    assert(protect->n == 1);
-    M_THROW(M_ERROR_MEMORY, protect->data[0], 4, 6, 8);
+    assert(protect->num == 1);
+    M_THROW(M_ERROR_MEMORY, protect->context[0], 4, 6, 8);
   }
 }
 
@@ -96,8 +96,8 @@ static void test1(void)
       assert(0);
     } M_CATCH(test2, M_ERROR_ACCESS) {
       assert(flow++ == 6);
-      assert(test2->n == 1);
-      assert(test2->data[0] == 12);
+      assert(test2->num == 1);
+      assert(test2->context[0] == 12);
     }
   } M_CATCH(test1, M_ERROR_MEMORY) {
     assert(0);
@@ -129,9 +129,9 @@ static void test1(void)
     assert(0);
   }  M_CATCH(test1, 42) {
     assert(flow++ == 6);
-    assert(test1->n == 2);
-    assert(test1->data[0] == 1);
-    assert(test1->data[1] == 3);
+    assert(test1->num == 2);
+    assert(test1->context[0] == 1);
+    assert(test1->context[1] == 3);
   }
   assert(flow ++ == 7);
 
@@ -191,11 +191,11 @@ static void test1(void)
     }
   } M_CATCH(test1, M_ERROR_MEMORY) {
     assert(flow ++ == 4);
-    assert(test1->n == 4);
-    assert(test1->data[0] == 56);
-    assert(test1->data[1] == 4);
-    assert(test1->data[2] == 6);
-    assert(test1->data[3] == 8);
+    assert(test1->num == 4);
+    assert(test1->context[0] == 56);
+    assert(test1->context[1] == 4);
+    assert(test1->context[2] == 6);
+    assert(test1->context[3] == 8);
   } M_CATCH(test1, 42) {
     assert(0);
   }
@@ -219,7 +219,7 @@ static void test1(void)
     assert(flow ++ == 3);
 #ifndef __cplusplus
     assert(test1->error_code == 23);
-    assert(test1->n == 0);
+    assert(test1->num == 0);
 #endif
   } 
   assert(flow ++ == 4);
