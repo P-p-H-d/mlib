@@ -382,13 +382,13 @@ m_try_clear(m_try_t state)
   }
 }
 
-// Implement the M_LET injection macros, so that the CLEAR operator is called on exception
-//
-#if M_USE_TRY_MECHANISM == 1
-# error M*LIB: Internal error. C++ back-end requested within C implementation.
 
-#elif M_USE_TRY_MECHANISM == 2 || M_USE_TRY_MECHANISM == 3
-// Use of CLANG blocks or GCC nested functions.
+// Implement the M_LET injection macros, so that the CLEAR operator is called on exception
+// Helper functions
+// Each mechanisme provide 3 helper functions:
+// * pre: which is called before the constructor
+// * post: which is called after the constructor
+// * final: which is called before the destructor.
 
 // We register a call to the CLEAR callback.
 // We don't modify m_global_error_list until we have successfully called the INIT operator
@@ -397,7 +397,7 @@ m_try_clear(m_try_t state)
 // of the object (if the INIT operator of the object calls other INIT operators of composed fields),
 // since partial initialization will be unstacked naturally by the composing object.
 static inline bool
-m_try_init_pre(m_try_t state)
+m_try_cb_pre(m_try_t state)
 {
   state->kind = M_STATE_CLEAR_CB;
   state->next = m_global_error_list;
@@ -406,7 +406,7 @@ m_try_init_pre(m_try_t state)
 
 // We register the function to call of the initialized object.
 static inline bool
-m_try_init_post(m_try_t state, void (M_TRY_FUNC_OPERATOR func)(void*), void *data)
+m_try_cb_post(m_try_t state, void (M_TRY_FUNC_OPERATOR func)(void*), void *data)
 {
   state->data.clear.func = func;
   state->data.clear.data = data;
@@ -414,45 +414,17 @@ m_try_init_post(m_try_t state, void (M_TRY_FUNC_OPERATOR func)(void*), void *dat
   return true;
 }
 
-// The object has been cleared.
+// The object will be cleared.
 // We can pop the stack frame of the errors.
 static inline void
-m_try_clear_pre(m_try_t state)
+m_try_cb_final(m_try_t state)
 {
   m_global_error_list = state->next;
 }
 
-// M_LET Injection / pre initialization
-// Initialize the stack frame.
-#define M_LET_TRY_INJECT_PRE_B(cont, oplist, name)                            \
-  for(m_try_t M_C(m_try_state_, name); cont &&                                \
-        m_try_init_pre(M_C(m_try_state_, name) ); )
-
-// M_LET Injection / post initialization
-// Save the function to call using
-#if M_USE_TRY_MECHANISM == 2
-// blocks (CLANG)
-#define M_LET_TRY_INJECT_POST_B(cont, oplist, name)                           \
-  for(m_try_init_post(M_C(m_try_state_, name),                                \
-                      ^ void (void *_data) { M_GET_TYPE oplist *_t = _data; M_CALL_CLEAR(oplist, *_t); }, \
-                      (void*) &name); cont; m_try_clear_pre(M_C(m_try_state_, name)) )
-#else
-// nested functions (GCC)
-#define M_LET_TRY_INJECT_POST_B(cont, oplist, name)                           \
-  for(m_try_init_post(M_C(m_try_state_, name),                                \
-                      __extension__ ({ __extension__ void _callback (void *_data) { M_GET_TYPE oplist *_t = _data; M_CALL_CLEAR(oplist, *_t); } _callback; }), \
-                      (void*) &name); cont; m_try_clear_pre(M_C(m_try_state_, name)) )
-#endif
-
-#elif M_USE_TRY_MECHANISM == 4
-// STD C compliant (without compiler extension): use of setjmp
-// This is the basic implementation in case of compiler unknown.
-// It uses setjmp/longjmp, and as such, is much slower than
-// other implementations.
-
 // Pre initialization function. Save the stack frame for a longjmp
 static inline bool
-m_try_init_pre(m_try_t state)
+m_try_jump_pre(m_try_t state)
 {
   state->kind = M_STATE_CLEAR_JMPBUF;
   state->next = m_global_error_list;
@@ -461,41 +433,92 @@ m_try_init_pre(m_try_t state)
 
 // Post initialization function. Register the stack frame for a longjmp
 static inline void
-m_try_init_post(m_try_t state)
+m_try_jump_post(m_try_t state)
 {
   m_global_error_list = state;
 }
 // And call setjmp to register the position in the code.
-#define m_try_init_post(s)                                                    \
-  M_LIKELY ((m_try_init_post(s), setjmp(((s)->data.buf)) != 1))
+#define m_try_jump_post(s)                                                    \
+  M_LIKELY ((m_try_jump_post(s), setjmp(((s)->data.buf)) != 1))
 
-// The object has been cleared.
+// The object will be cleared.
 // We can pop the stack frame of the errors.
 static inline void
-m_try_clear_pre(m_try_t state)
+m_try_jump_final(m_try_t state)
 {
   m_global_error_list = state->next;
 }
+
+
+// Implement the M_LET injection macros, so that the CLEAR operator is called on exception
+//
+#if M_USE_TRY_MECHANISM == 1
+# error M*LIB: Internal error. C++ back-end requested within C implementation.
+
+#elif M_USE_TRY_MECHANISM == 2
+// Use of CLANG blocks
+
+#define M_LET_TRY_INJECT_PRE_B(cont, oplist, name)                            \
+  for(m_try_t M_C(m_try_state_, name); cont &&                                \
+        m_try_cb_pre(M_C(m_try_state_, name) ); )
+
+#define M_LET_TRY_INJECT_POST_B(cont, oplist, name)                           \
+  for(m_try_cb_post(M_C(m_try_state_, name),                                  \
+                      ^ void (void *_data) { M_GET_TYPE oplist *_t = _data; M_CALL_CLEAR(oplist, *_t); }, \
+                      (void*) &name); cont; m_try_cb_final(M_C(m_try_state_, name)) )
+
+#elif M_USE_TRY_MECHANISM == 3
+// Use of GCC nested functions.
+
+#define M_LET_TRY_INJECT_PRE_B(cont, oplist, name)                            \
+  for(m_try_t M_C(m_try_state_, name); cont &&                                \
+        m_try_cb_pre(M_C(m_try_state_, name) ); )
+
+#define M_LET_TRY_INJECT_POST_B(cont, oplist, name)                           \
+  for(m_try_cb_post(M_C(m_try_state_, name),                                  \
+                      __extension__ ({ __extension__ void _callback (void *_data) { M_GET_TYPE oplist *_t = _data; M_CALL_CLEAR(oplist, *_t); } _callback; }), \
+                      (void*) &name); cont; m_try_cb_final(M_C(m_try_state_, name)) )
+
+#elif M_USE_TRY_MECHANISM == 4
+// STD C compliant (without compiler extension): use of setjmp
+// This is the basic implementation in case of compiler unknown.
+// It uses setjmp/longjmp, and as such, is much slower than
+// other implementations.
 
 // M_LET Injection / pre initialization
 // Initialize the stack frame.
 #define M_LET_TRY_INJECT_PRE_B(cont, oplist, name)                            \
   for(m_try_t M_C(m_try_state_, name); cont &&                                \
-        m_try_init_pre(M_C(m_try_state_, name)); )
+        m_try_jump_pre(M_C(m_try_state_, name)); )
 
 // M_LET Injection / post initialization
 // Register the stack frame and tests for the longjmp.
 // In which case call the CLEAR operator, unstack the error list and rethrow the error.
 #define M_LET_TRY_INJECT_POST_B(cont, oplist, name)                           \
-  for( ; cont ; m_try_clear_pre(M_C(m_try_state_, name)))                     \
-    if (m_try_init_post(M_C(m_try_state_, name))                              \
-        || (M_CALL_CLEAR(oplist, name), m_try_clear_pre(M_C(m_try_state_, name)), m_rethrow(), false))
+  for( ; cont ; m_try_jump_final(M_C(m_try_state_, name)))                    \
+    if (m_try_jump_post(M_C(m_try_state_, name))                              \
+        || (M_CALL_CLEAR(oplist, name), m_try_jump_final(M_C(m_try_state_, name)), m_rethrow(), false))
 
 #else
-#error M*LIB: Invalid value for M_USE_TRY_MECHANISM [1..4]
+# error M*LIB: Invalid value for M_USE_TRY_MECHANISM [1..4]
 #endif
 
-#endif
+
+// M_DEFER Injection / pre initialization
+// Initialize the stack frame.
+#define M_DEFER_TRY_INJECT_PRE_B(cont, clear)                                 \
+  for(m_try_t M_C(m_try_state_, cont); cont &&                                \
+        m_try_jump_pre(M_C(m_try_state_, cont)); )
+
+// M_DEFER Injection / post initialization
+// Register the stack frame and tests for the longjmp.
+// In which case call the CLEAR operator, unstack the error list and rethrow the error.
+#define M_DEFER_TRY_INJECT_POST_B(cont, clear)                                \
+  for( ; cont ; m_try_jump_final(M_C(m_try_state_, cont)))                    \
+    if (m_try_jump_post(M_C(m_try_state_, cont))                              \
+        || (clear , m_try_jump_final(M_C(m_try_state_, cont)), m_rethrow(), false))
+
+#endif /* cplusplus */
 
 /*****************************************************************************/
 
@@ -510,6 +533,14 @@ m_try_clear_pre(m_try_t state)
 #define M_LET_TRY_INJECT_POST(cont, oplist, name)                             \
   M_IF(M_GET_PROPERTY(oplist, NOCLEAR))(M_EAT, M_LET_TRY_INJECT_POST_B)       \
   (cont, oplist, name)
+
+
+// Macro injection for M_DEFER.
+#undef  M_DEFER_TRY_INJECT_PRE
+#define M_DEFER_TRY_INJECT_PRE(cont, clear)  M_DEFER_TRY_INJECT_PRE_B(cont, clear)
+#undef  M_DEFER_TRY_INJECT_POST
+#define M_DEFER_TRY_INJECT_POST(cont, clear) M_DEFER_TRY_INJECT_POST_B(cont, clear)
+
 
 // In case of MEMORY FULL errors, throw an error instead of aborting.
 #undef  M_MEMORY_FULL
