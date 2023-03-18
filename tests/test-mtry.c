@@ -356,6 +356,19 @@ static void test2(void)
     // Nothing to do
     assert(0);
   }
+
+  // Test of NOCLEAR property:
+  // Destructor is not called on exception.
+#define FAIL(a) ((void)a, assert(0))
+#define OPL (INIT(M_INIT_BASIC), TYPE(int), CLEAR(FAIL), PROPERTIES((NOCLEAR(1))))
+  M_TRY(test1) {
+    M_LET( obj, OPL) {
+      M_THROW(1);
+      assert(0);
+    }
+  } M_CATCH(test1, 1) {
+    // Nothing to do
+  }
 }
 
 int main(void)
