@@ -3796,7 +3796,7 @@ static inline size_t m_core_cstr_hash(const char str[])
   (INIT(M_INIT_BASIC), INIT_SET(M_SET_BASIC), SET(M_SET_BASIC),               \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_BASIC), CMP(M_CMP_BASIC),          \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
-   RESET(M_INIT_BASIC),                                                       \
+   RESET(M_INIT_BASIC), PROPERTIES( (NOCLEAR(1)) ),                           \
    ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
    MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                               \
@@ -3809,7 +3809,7 @@ static inline size_t m_core_cstr_hash(const char str[])
   (INIT(M_INIT_BASIC), INIT_SET(M_SET_BASIC), SET(M_SET_BASIC),               \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_BASIC), CMP(M_CMP_BASIC),          \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
-   RESET(M_INIT_BASIC),                                                       \
+   RESET(M_INIT_BASIC), PROPERTIES( (NOCLEAR(1)) ),                           \
    ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
    MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                               \
@@ -3822,7 +3822,7 @@ static inline size_t m_core_cstr_hash(const char str[])
   (INIT(M_INIT_BASIC), INIT_SET(M_SET_BASIC), SET(M_SET_BASIC),               \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_BASIC), CMP(M_CMP_BASIC),          \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
-   RESET(M_INIT_BASIC),                                                       \
+   RESET(M_INIT_BASIC), PROPERTIES( (NOCLEAR(1)) ),                           \
    ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
    MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT)                         )
@@ -4250,8 +4250,14 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 #define M_DEFER_INTERNAL(clear, cont)                                         \
   for(bool cont = true; cont; cont = false)                                   \
-    for( (void) 0; cont ; (clear), cont = false)                              \
-      for( (void) 0; cont; cont = false)                                      \
+    M_DEFER_TRY_INJECT_PRE(cont, clear)                                       \
+      for( (void) 0; cont ; (clear), cont = false)                            \
+        M_DEFER_TRY_INJECT_POST(cont, clear)                                  \
+          for( (void) 0; cont; cont = false)
+
+// Theses macros will be overrided by m-try if needed.
+#define M_DEFER_TRY_INJECT_PRE(cont, clear) /* Nothing */
+#define M_DEFER_TRY_INJECT_POST(cont, clear) /* Nothing */
 
 
 /* Declare a variable, initialize it, continue if the initialization succeeds,
