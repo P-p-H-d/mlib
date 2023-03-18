@@ -3757,7 +3757,6 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_MEMCMP2_A1_DEFAULT(a,b)  (M_CHECK_SAME(a[0], b[0]), memcmp(&(a[0]), &(b[0]), sizeof (a[0])))
 #define M_HASH_A1_DEFAULT(a)       (m_core_hash((const void*) &(a[0]), sizeof (a[0])) )
 
-
 /* Default oplist for plain structure */
 #define M_POD_OPLIST                                                          \
   (INIT(M_MEMSET_DEFAULT), INIT_SET(M_MEMCPY_DEFAULT), SET(M_MEMCPY_DEFAULT), \
@@ -4034,7 +4033,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
   M_AND(M_TEST_METHOD_P(M_PAIR_1 method_pair, oplist), M_TEST_METHOD_P(M_PAIR_2 method_pair, oplist))
 
 /* By putting this after a method in an oplist, we transform the argument list
-   so that the first argument becomes a pointer to the destination. */
+   so that the first argument becomes a pointer to the destination (OBSOLETE MACRO) */
 #define M_IPTR(...) ( & __VA_ARGS__ )
 
 /* Perform an INIT_MOVE if present, or emulate it using INIT_SET/CLEAR */
@@ -4054,6 +4053,10 @@ m_core_parse2_enum (const char str[], const char **endptr)
                                        M_CALL_CLEAR(oplist, (src))            \
                                    ));                                        \
   } while (0)
+
+/* Provide SET semantics through INIT_SET. Needs API_1 */
+#define M_SET_THROUGH_INIT_SET(oplist, dst, src)                              \
+  ( M_CALL_CLEAR(oplist, dst), M_CALL_INIT_SET(oplist, dst, src) )
 
 /* Test if the argument is an expression that looks like an oplist:
  * - the data are within parenthesis
