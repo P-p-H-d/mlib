@@ -969,8 +969,8 @@ In case of difficulties, debugging can be done by generating the preprocessed fi
 and check what's wrong in the preprocessed file:
 
 ```shell
-          cc -std=c99 -E test-file.c > test-file.i
-          perl -pi -e 's/;/;\n/g' test-file.i
+          cc -std=c99 -E test-file.c |grep -v '^#' > test-file.i
+          perl -i -e 's/;/;\n/g' test-file.i
           cc -std=c99 -c -Wall test-file.i
 ```
 
