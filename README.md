@@ -7800,6 +7800,11 @@ You shall include this header before any other headers of M\*LIB, so that
 it can configure the memory management of M\*LIB to throw exception on memory errors.
 It does it by redefining the default macro M\_MEMORY\_FULL accordingly.
 
+When using CLANG, you should add the following options to your compiler flags,
+otherwise it will compile in degraded mode:
+
+    -fblocks -lBlocksRuntime
+
 #### struct m\_exception\_s
 
 This is the exception type. It is composed of the following fields:
