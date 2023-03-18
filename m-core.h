@@ -4272,8 +4272,8 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 #define M_LET_IF_INTERNAL(init, test, clear, else_a, cont)                    \
   for(bool cont = true; cont; cont = false)                                   \
-    for( init ; cont && ( (test) || (else_a, false) ); (clear), cont = false) \
-      for( (void) 0; cont; cont = false)                                      \
+    for( init ; cont && ( (test) || (else_a, false) ); cont = false)          \
+      M_DEFER_INTERNAL(clear, M_C(cont, defer) )
 
 
 
