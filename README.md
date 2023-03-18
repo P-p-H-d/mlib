@@ -6545,15 +6545,16 @@ NOTE:
 The user code shall not perform a return or a goto (or longjmp) 
 outside the {} or a call to an exit function
 otherwise the clear\_code won't be called .
-However, you can use the break instruction to quit properly the block 
-(the clear\_code will be executed).
+You can use the break instruction to quit the block
+(the clear\_code will be executed) or you can use exception.
 You can chain the M\_LET\_IF macro to create several different variables.
 
 
-##### M\_DEFER(clear\_code)
+##### M\_DEFER(clear\_code[, ...])
 
 This macro registers the execution of 'clear\_code' when reaching 
 the further closing brace of the next block of instruction.
+clear_code shall be a valid expression.
 
 There shall be at most one M\_DEFER macro per line of source code.
 
@@ -6569,7 +6570,7 @@ The user code shall not perform a return or a goto (or longjmp)
 outside the {} or a call to an exit function
 otherwise the clear\_code won't be called.
 You can use the break instruction to quit the block
-(the clear\_code will be executed).
+(the clear\_code will be executed) or you can use exception.
 
 
 #### Memory / Error macros
