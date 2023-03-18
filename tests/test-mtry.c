@@ -360,7 +360,7 @@ static void test2(void)
   // Test of NOCLEAR property:
   // Destructor is not called on exception.
 #define FAIL(a) ((void)a, assert(0))
-#define OPL (INIT(M_INIT_BASIC), TYPE(int), CLEAR(FAIL), PROPERTIES((NOCLEAR(1))))
+#define OPL (INIT(M_INIT_BASIC), TYPE(int), CLEAR(FAIL), PROPERTIES((NOCLEAR(1))) )
   M_TRY(test1) {
     M_LET( obj, OPL) {
       M_THROW(1);
@@ -371,10 +371,62 @@ static void test2(void)
   }
 }
 
+static void test3(void)
+{
+  volatile int flow = 0;
+  volatile bool init = false;
+
+  flow = 0;
+  assert(flow ++ == 0);
+  M_TRY(test1) {
+    assert(flow ++ == 1);
+    M_DEFER( assert(flow++ == 3) ) {
+      assert(flow ++ == 2);
+    }
+  } M_CATCH(test1, M_ERROR_MEMORY) {
+    assert(0);
+  }
+  assert(flow ++ == 4);
+
+  flow = 0;
+  assert(flow ++ == 0);
+  M_TRY(test1) {
+    assert(flow ++ == 1);
+    init = true;
+    M_DEFER( init = false, assert(flow++ == 3) ) {
+      assert(init == true);
+      assert(flow ++ == 2);
+      M_THROW(1);
+    }
+  } M_CATCH(test1, 1) {
+    assert(init == false);
+    assert(flow ++ == 4);
+  }
+  assert(flow ++ == 5);
+  assert(init == false);
+
+  flow = 0;
+  assert(flow ++ == 0);
+  M_TRY(test1) {
+    assert(flow ++ == 1);
+    M_LET_IF(init = true, init == true, init = false) {
+      assert(init == true);
+      assert(flow ++ == 2);
+      M_THROW(1);
+    }
+  } M_CATCH(test1, 1) {
+    assert(init == false);
+    assert(flow ++ == 3);
+  }
+  assert(flow ++ == 4);
+  assert(init == false);
+}
+
 int main(void)
 {
   test1();
   test2();
+  test3();
   testobj_final_check();
   exit(0);
 }
