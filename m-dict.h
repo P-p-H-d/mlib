@@ -1676,7 +1676,7 @@ enum m_d1ct_oa_element_e {
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name,_erase)(dict_t dict, const key_type key)                           \
+  M_C(name,_erase)(dict_t dict, key_type const key)                           \
   {                                                                           \
     M_D1CT_OA_CONTRACT(dict);                                                 \
     /* NOTE: key can't be the representation of empty or deleted */           \
