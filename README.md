@@ -802,7 +802,7 @@ exports all needed methods to handle generic input/output of int/floats
 This explains why JSON import/export is only available in C11 mode
 (See below chapter).
 
-Basic usage of oplist is availble in the [example](https://github.com/P-p-H-d/mlib/blob/master/example/ex-array00.c)
+Basic usage of oplist is available in the [example](https://github.com/P-p-H-d/mlib/blob/master/example/ex-array00.c)
 
 
 ### Oplist inheritance
@@ -836,6 +836,9 @@ For example:
 MY\_INT\_OPLIST is a new oplist that handles integers but has disabled the operators HASH, CMP and EQUAL.
 The main interest is to disable the generation of optional methods of a container (since they are only
 expanded if the oplist provides some methods).
+
+Usage of inheritance and oplist is available in the [int example](https://github.com/P-p-H-d/mlib/blob/master/example/ex-dict05.c)
+and the [cstr example](https://github.com/P-p-H-d/mlib/blob/master/example/ex-dict06.c)
 
 
 ### Advanced example
