@@ -833,7 +833,7 @@ For example:
         M_OPEXTEND(M_BASIC_OPLIST, HASH(0), CMP(0), EQUAL(0))
 ```
 
-MY\_INT\_OPLIST is a new oplist that handles integers and has disabled the operators HASH, CMP and EQUAL.
+MY\_INT\_OPLIST is a new oplist that handles integers but has disabled the operators HASH, CMP and EQUAL.
 The main interest is to disable the generation of optional methods of a container (since they are only
 expanded if the oplist provides some methods).
 
