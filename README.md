@@ -805,6 +805,39 @@ This explains why JSON import/export is only available in C11 mode
 Basic usage of oplist is availble in the [example](https://github.com/P-p-H-d/mlib/blob/master/example/ex-array00.c)
 
 
+### Oplist inheritance
+
+Oplist can inherit from another one.
+This is useful when you want to customize some specific operators while keeping other ones by default.
+For example, internally M\_BOOL\_OPLIST inherits from M\_BASIC\_OPLIST.
+
+A typical example is if you want to provide the OOR\_SET and OOR\_EQUAL operators to a type
+so that it can be used in an OA dict.
+To do it, you use the M\_OPEXTEND macro. It takes as first argument the oplist you want to inherit with,
+and then you provide the additionals associations between operators to methods you want to add
+or override in the inherited oplist. For example:
+
+```C
+    int my_int_oor_set(char c) { return INT_MIN + c; }
+    bool my_int_oor_equal(int i1, int i2) { return i1 == i2; }
+
+    #define MY_INT_OPLIST                                                 \
+        M_OPEXTEND(M_BASIC_OPLIST, OOR_SET(API_4(my_int_oor_set)), OOR_EQUAL(my_int_oor_equal))
+```
+
+You can even inherit from another oplist to disable some operators in your new oplist.
+For example:
+
+```C
+    #define MY_INT_OPLIST                                                 \
+        M_OPEXTEND(M_BASIC_OPLIST, HASH(0), CMP(0), EQUAL(0))
+```
+
+MY\_INT\_OPLIST is a new oplist that handles integers and has disabled the operators HASH, CMP and EQUAL.
+The main interest is to disable the generation of optional methods of a container (since they are only
+expanded if the oplist provides some methods).
+
+
 ### Advanced example
 
 Let's take a look at the interface of the FILE interface:
