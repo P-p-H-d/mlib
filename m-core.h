@@ -80,11 +80,8 @@
 # define M_ASSUME(x) M_ASSERT(x)
 #elif defined(__GNUC__)                                                       \
   && (__GNUC__ * 100 + __GNUC_MINOR__) >= 408
-/* We test that the argument can properly be converted into a constant expression */
 # define M_ASSUME(x)                                                          \
-  (M_STATIC_ASSERT( __builtin_constant_p (!!(x) || !(x)),                     \
-                    M_LIB_NOT_A_CONSTANT, "Argument doesn't evaluate to a constant: " M_ASTR(x) ), \
-   (x) ? (void) 0 : __builtin_unreachable())
+  ( (x) ? (void) 0 : __builtin_unreachable())
 #elif defined(_MSC_VER)
 # define M_ASSUME(x) __assume(x)
 #else
