@@ -94,68 +94,59 @@ Components
 
 The following headers define containers that don't require the user structure to be modified:
 
-* [m-array.h](#m-array): header for creating array of generic type and of variable size,
+* [m-array.h](#m-array): header for creating dynamic array of generic type,
 * [m-list.h](#m-list): header for creating singly-linked list of generic type,
-* [m-deque.h](#m-deque): header for creating double-ended queue of generic type and of variable size,
-* [m-dict.h](#m-dict): header for creating generic dictionary or set of generic type (and of variable kind),
-* [m-rbtree.h](#m-rbtree): header for creating binary sorted tree of generic type,
-* [m-bptree.h](#m-bptree): header for creating B+TREE of generic type,
-* [m-tree.h](#m-tree): header for creating generic tree of generic type,
-* [m-tuple.h](#m-tuple): header for creating arbitrary tuple of generic type,
+* [m-deque.h](#m-deque): header for creating dynamic double-ended queue of generic type,
+* [m-dict.h](#m-dict): header for creating unordered associative array (through hashmap) or unordered set of generic type,
+* [m-rbtree.h](#m-rbtree): header for creating ordered set (through binary sorted tree) of generic type,
+* [m-bptree.h](#m-bptree): header for creating ordered map/set/multimap/multiset (through B+TREE) of generic type,
+* [m-tree.h](#m-tree): header for creating arbitrary tree of generic type,
+* [m-tuple.h](#m-tuple): header for creating arbitrary tuple of generic types,
 * [m-variant.h](#m-variant): header for creating arbitrary variant of generic type,
-* [m-prioqueue.h](#m-prioqueue): header for creating priority queue of generic type and of variable size,
+* [m-prioqueue.h](#m-prioqueue): header for creating dynamic priority queue of generic type.
 
 The available containers of M\*LIB for thread synchronization are in the following headers:
 
 * [m-buffer.h](#m-buffer): header for creating fixed-size queue (or stack) of generic type (multiple producer / multiple consumer),
-* [m-snapshot](#m-snapshot): header for creating 'snapshot' buffer for sharing synchronously big data (thread safe).
-* [m-shared.h](#m-shared): header for creating shared pointer of generic type.
-* [m-concurrent.h](#m-concurrent): header for transforming a container into a concurrent container.
+* [m-snapshot](#m-snapshot): header for creating 'atomic buffer' (through triple buffer) for sharing synchronously big data (thread safe),
+* [m-shared.h](#m-shared): header for creating shared pointer of generic type,
+* [m-concurrent.h](#m-concurrent): header for transforming a container into a concurrent container (thread safe),
 * m-c-mempool.h: WIP header for creating fast concurrent memory allocation.
 
 The following containers are intrusive (You need to modify your structure to add fields needed by the container) and are defined in:
 
 * [m-i-list.h](#m-i-list): header for creating doubly-linked intrusive list of generic type,
-* [m-i-shared.h](#m-i-shared): header for creating intrusive shared pointer of generic type (Thread Safe),
-
+* [m-i-shared.h](#m-i-shared): header for creating intrusive shared pointer of generic type (Thread Safe).
 
 Other headers offering other functionality are:
 
-* [m-string.h](#m-string): header for creating dynamic variable-length string,
-* [m-bitset.h](#m-bitset): header for creating bit set (or "packed array of bool"),
-* [m-algo.h](#m-algo): header for providing various generic algorithms to the previous containers.
-* [m-funcobj.h](#m-funcobj): header for creating function object (used by algorithm generation).
-* [m-try.h](#m-try): header for handling errors as exceptions,
-* [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator.
-* [m-worker.h](#m-worker): header for providing an easy pool of workers on separated threads to handle work orders, used for parallelism tasks.
-* [m-serial-json.h](#m-serial-json): header for importing / exporting the containers in [JSON format](https://en.wikipedia.org/wiki/JSON).
-* [m-serial-bin.h](#m-serial-bin): header for importing / exporting the containers in an adhoc fast binary format.
-* m-genint.h: internal header for generating unique integers in a concurrent context.
+* [m-string.h](#m-string): header for creating dynamic string of characters (UTF-8 support),
+* [m-bitset.h](#m-bitset): header for creating dynamic bitset (or "packed array of bool"),
+* [m-algo.h](#m-algo): header for providing various generic algorithms to the previous containers,
+* [m-funcobj.h](#m-funcobj): header for creating function object (used by algorithm generation),
+* [m-try.h](#m-try): header for handling errors by throwing exceptions,
+* [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator,
+* [m-worker.h](#m-worker): header for providing an easy pool of workers on separated threads to handle work orders (used for parallel tasks),
+* [m-serial-json.h](#m-serial-json): header for importing / exporting the containers in [JSON format](https://en.wikipedia.org/wiki/JSON),
+* [m-serial-bin.h](#m-serial-bin): header for importing / exporting the containers in an adhoc fast binary format,
+* m-genint.h: internal header for generating unique integers in a concurrent context,
 * [m-core.h](#m-core): header for meta-programming with the C preprocessor (used by all other headers).
 
 Finally headers for compatibility with non C11 compilers:
 
-* [m-atomic.h](#m-atomic): header for ensuring compatibility between C's stdatomic.h and C++'s atomic header. Provide also an implementation over mutex if nothing is available.
+* [m-atomic.h](#m-atomic): header for ensuring compatibility between C's stdatomic.h and C++'s atomic header (provide also its own implementation if nothing is available),
 * [m-thread.h](#m-thread): header for providing a very thin layer across multiple implementation of mutex/threads (C11/PTHREAD/WIN32).
 
-Each containers define their iterators.
+Each containers define their iterators (if it is meaningfull).
 
-All containers try to expose the same interface:
+All containers try to expose the same common interface:
 if the method name is the same, then it does the same thing
 and is used in the same way.
-In some rare case, the method has to be adapted to the container.
+In some rare case, the method is adapted to the container needs.
 
 Each header can be used separately from others: dependency between headers have been kept to the minimum.
 
 ![Dependence between headers](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/depend.png)
-
-A 'type' given to any macro can be either
-an integer, a float, a boolean, an enum, a named structure, a pointer to such types,
-or a typedef alias of any C type:
-in fact, the preprocessing concatenation between 'type' and 'variable' into
-'type variable' shall be a valid C expression.
-Therefore the 'type' cannot be a C array or a function pointer
-and you should use a typedef as an intermediary named type for such types.
 
 
 Build & Installation
@@ -1135,6 +1126,14 @@ A container takes as input the
 * name: it is a mandatory argument that is the prefix used to generate all functions and types,
 * type: it is a mandatory argument that the basic element of the container,
 * oplist: it is an optional argument that defines the methods associated to the type. The provided oplist (if provided) shall be the one that is associated to the type, otherwise it won't generate compilable code. If there is no oplist parameter provided, a globally registered oplist associated to the type is used if possible, or the basic oplist for basic C types is used. This oplist will be used to handle internally the objects of the container.
+
+The 'type' given to any templating macro can be either
+an integer, a float, a boolean, an enum, a named structure, a named union, a pointer to such types,
+or a typedef alias of any C type:
+in fact, the only constraint is that the preprocessing concatenation between 'type' and 'variable' into
+'type variable' shall be a valid C expression.
+Therefore the 'type' cannot be a C array or a function pointer
+and you shall use a typedef as an intermediary named type for such types.
 
 This generic interface is specified as follow:
 
