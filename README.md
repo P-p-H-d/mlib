@@ -643,7 +643,7 @@ See in the [example](https://github.com/P-p-H-d/mlib/blob/master/example/ex11-mu
 Oplist can be registered globally by defining, for the type 'type', a macro named
 M\_OPL\_ ## type () that expands to the oplist of the type.
 Only type without any space in their name can be registered. A typedef of the type
-can be used instead instead, but this typedef shall be used everywhere.
+can be used instead, but this typedef shall be used everywhere.
 
 Example:
 
