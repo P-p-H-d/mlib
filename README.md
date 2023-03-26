@@ -777,7 +777,7 @@ My type is:
 * a C Boolean: M\_BOOL\_OPLIST (M\_BASIC\_OPLIST also works partially),
 * a C integer or a C float: M\_BASIC\_OPLIST (it can also be omitted),
 * a C enumerate: M\_ENUM\_OPLIST,
-* a pointer to something (the contained do nothing on the pointed object): M\_PTR\_OPLIST,
+* a pointer to something (the container do nothing on the pointed object): M\_PTR\_OPLIST,
 * a plain structure that can be init/copy/compare with memset/memcpy/memcmp: M\_POD\_OPLIST,
 * a plain structure that is passed by reference using [1] and can be init,copy,compare with memset,memcpy,memcmp: M\_A1\_OPLIST,
 * a type that offers name\_init, name\_init\_set, name\_set, name\_clear methods: M\_CLASSIC\_OPLIST,
@@ -4972,10 +4972,10 @@ Reset the bitset (the bitset becomes empty but remains initialized).
 Push a new element into the back of the bitset 'array' 
 with the value 'value'.
 
-##### void bitset\_push\_at(bitset\_t array, size\_t key, const bool x)
+##### void bitset\_push\_at(bitset\_t array, size\_t key, const bool value)
 
 Push a new element into the position 'key' of the bitset 'array' 
-with the value 'value' contained within.
+with the value 'value'.
 'key' shall be a valid position of the array: 
 from 0 to the size of array (included).
 
