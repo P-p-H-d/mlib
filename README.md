@@ -653,12 +653,13 @@ Example:
 
 This can simplify a lot OPLIST usage and it is recommended.
 
-Each type a macro expects an oplist, you can give instead its type.
-This make the code much easier to read.
+Then each times a macro expects an oplist, you can give instead its type.
+This make the code much easier to read and understand.
+
 There is one exception however: the macros that are used to build oplist
 (like ARRAY\_OPLIST) don't perform this simplification and the oplist of
-the basic type shall be given instead.
-This is due to limitation in the C preprocessing.
+the basic type shall be given instead
+(This is due to limitation in the C preprocessing).
 
 
 ### API Interface Adaptation
