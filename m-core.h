@@ -4683,7 +4683,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
   static inline void                                                          \
   function_name(name_t v                                                      \
                 M_EMPLACE_LIST_TYPE_VAR(akey, key_emplace_type)               \
-                , M_C(name, _value_ct) val                                    \
+                , M_C(name, _value_ct) const val                              \
   ){                                                                          \
     M_C(name, _key_ct) key;                                                   \
     M_EMPLACE_CALL_FUNC(akey, key_init_func, key_oplist, key, key_emplace_type); \
@@ -4693,7 +4693,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 #define M_EMPLACE_ASS_ARRA1_VAL_GENE(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
   static inline void                                                          \
-  function_name(name_t v, M_C(name, _key_ct) key                              \
+  function_name(name_t v, M_C(name, _key_ct) const key                        \
                 M_EMPLACE_LIST_TYPE_VAR(aval, val_emplace_type)               \
   ){                                                                          \
     M_C(name, _value_ct) *val;                                                \
