@@ -242,9 +242,28 @@ static void test_init(void)
       assert (p != NULL);
       assert (string_equal_p(*p, str2));
     }
-
-    //assert (dict_str_hash (d2) != 0);
   }
+
+  M_LET( (d1, (STRING_CTE("H1"), STRING_CTE("EE")), (("H2"), ("EF"))),
+         DICT_OPLIST(dict_str, STRING_OPLIST, STRING_OPLIST)){
+    string_t * p = dict_str_get(d1, STRING_CTE("H1"));
+    assert( p != NULL );
+    assert(string_equal_str_p(*p, "EE"));
+    p = dict_str_get(d1, STRING_CTE("H2"));
+    assert( p != NULL );
+    assert(string_equal_str_p(*p, "EF"));
+  }
+
+  M_LET( (d1, (("H1"), STRING_CTE("EE")), (STRING_CTE("H2"), ("EF"))),
+         DICT_OPLIST(dict_str, STRING_OPLIST, STRING_OPLIST)){
+    string_t * p = dict_str_get(d1, STRING_CTE("H1"));
+    assert( p != NULL );
+    assert(string_equal_str_p(*p, "EE"));
+    p = dict_str_get(d1, STRING_CTE("H2"));
+    assert( p != NULL );
+    assert(string_equal_str_p(*p, "EF"));
+  }
+
 }
 
 // this test generates dict equal but with different physical representation
