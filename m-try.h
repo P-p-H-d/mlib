@@ -209,8 +209,8 @@ struct m_exception_s {
 // M_DEFER Injection / post initialization
 // Register the stack frame and tests for the longjmp.
 // In which case call the 'clear' operations (...), unstack the error list and rethrow the error.
-#define M_DEFER_TRY_INJECT_POST_B(cont, ...)                                \
-  for(m_lib::m_regclear M_C(m_try_regclear_, cont){[&](void) { __VA_ARGS__; } }     \
+#define M_DEFER_TRY_INJECT_POST_B(cont, ...)                                  \
+  for(m_lib::m_regclear M_C(m_try_regclear_, cont){[&](void) { __VA_ARGS__; } } \
         ; cont ; M_C(m_try_regclear_, cont).disable() )
 
 // Definition of the C++ object wrapper
