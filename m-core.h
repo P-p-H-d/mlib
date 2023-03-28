@@ -4374,12 +4374,34 @@ m_core_parse2_enum (const char str[], const char **endptr)
 /* Initialize the container 'dest' as per 'oplist' INIT operator
    and fill it with the given VA argument
    assumed to be pair (key,value) with the SET_KEY operator.
+   If key (resp. value) is itself in the form ( ) and the 
+   oplist defined an EMPLACE_TYPE operator, performs an emplace insertion
+   by construction an emplace call with no suffix.
 */
 #define M_INIT_KEY_VAI(oplist, dest, ...)                                     \
   (void)(M_GET_INIT oplist (dest) ,                                           \
-         M_MAP2_C(M_INIT_KEY_VAI_FUNC, (dest, M_GET_SET_KEY oplist) , __VA_ARGS__))
-#define M_INIT_KEY_VAI_FUNC(d, a)                                             \
-  M_PAIR_2 d (M_PAIR_1 d, M_PAIR_1 a, M_PAIR_2 a)
+         M_MAP2_C(M_INIT_KEY_VAI_FUNC_P1, (dest, oplist) , __VA_ARGS__))
+#define M_INIT_KEY_VAI_FUNC_P1(dst_op, a)                                     \
+  M_INIT_KEY_VAI_FUNC_P2(M_PAIR_1 dst_op, M_PAIR_2 dst_op, M_PAIR_1 a, M_PAIR_2 a)
+#define M_INIT_KEY_VAI_FUNC_P2(dst, oplist, key, value)                       \
+  M_IF(M_AND(M_PARENTHESIS_P(key), M_TEST_METHOD_P(EMPLACE_TYPE, M_GET_KEY_OPLIST oplist))) \
+  (M_INIT_KEY_VAI_FUNC_P2Y, M_INIT_KEY_VAI_FUNC_P2N)(dst, oplist, key, value)
+#define M_INIT_KEY_VAI_FUNC_P2Y(dst, oplist, key, value)                      \
+  M_IF(M_AND(M_PARENTHESIS_P(value), M_TEST_METHOD_P(EMPLACE_TYPE, M_GET_VALUE_OPLIST oplist))) \
+  (M_INIT_KEY_VAI_FUNC_P2YY, M_INIT_KEY_VAI_FUNC_P2YN)(dst, oplist, key, value)
+#define M_INIT_KEY_VAI_FUNC_P2N(dst, oplist, key, value)                      \
+  M_IF(M_AND(M_PARENTHESIS_P(value), M_TEST_METHOD_P(EMPLACE_TYPE, M_GET_VALUE_OPLIST oplist))) \
+  (M_INIT_KEY_VAI_FUNC_P2NY, M_INIT_KEY_VAI_FUNC_P2NN)(dst, oplist, key, value)
+#define M_INIT_KEY_VAI_FUNC_P2YY(dst, oplist, key, value)                     \
+  M_C(M_GET_NAME oplist, _emplace_key_val)                                    \
+  (dst, M_INIT_KEY_VAI_ID key, M_INIT_KEY_VAI_ID value)
+#define M_INIT_KEY_VAI_FUNC_P2YN(dst, oplist, key, value)                     \
+  M_C(M_GET_NAME oplist, _emplace_key)(dst, M_INIT_KEY_VAI_ID key, value)
+#define M_INIT_KEY_VAI_FUNC_P2NY(dst, oplist, key, value)                     \
+  M_C(M_GET_NAME oplist, _emplace_val)(dst, key, M_INIT_KEY_VAI_ID value)
+#define M_INIT_KEY_VAI_FUNC_P2NN(dst, oplist, key, value)                     \
+  M_CALL_SET_KEY(oplist, dst, key, value)
+#define M_INIT_KEY_VAI_ID(a) a
 
 
 /* Provide an INIT_WITH method that uses the EMPLACE_TYPE definition
