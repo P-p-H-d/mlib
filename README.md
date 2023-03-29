@@ -1012,6 +1012,10 @@ your compiler. There are often completely useless and misleading:
 * For GCC, uses -ftrack-macro-expansion=0
 * For CLANG, uses -fmacro-backtrace-limit=1
 
+Due to the unfortunate [weak](https://en.wikipedia.org/wiki/Strong_and_weak_typing#Pointers) nature of the C language for pointers,
+you should turn incompatible pointer type warning into an error in your compiler.
+For GCC / CLANG, uses -Werror=incompatible-pointer-types
+
 
 Benchmarks
 ----------
