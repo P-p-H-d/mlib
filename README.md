@@ -1355,6 +1355,18 @@ If the key is not found, it returns NULL.
 This pointer remains valid until the container is modified by another method.
 This pointer should not be stored in a global variable.
 
+##### type\_t *name\_get\_emplace(const name\_t container, args...) [for set-like]
+##### value\_type\_t * name\_get\_emplace\[suffix\](name\_t container, args...) [for associative array]
+
+Return a modifiable (resp. constant) pointer to
+the element associated to the key constructed from 'args' in the container.
+The selected element is the 'value' object associated to the 'key' object in the container
+for an associative array, or the element itself for a set.
+If the key is not found, it returns NULL.
+
+This pointer remains valid until the container is modified by another method.
+This pointer should not be stored in a global variable.
+
 ##### type\_t *name\_safe\_get(name\_t container, size\_t key) [for sequence]
 ##### type\_t *name\_safe\_get(name\_t container, const type\_t key) [for set]
 ##### value\_type\_t *name\_safe\_get(name\_t container, const key\_type\_t key) [for associative array]
