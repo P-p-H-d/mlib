@@ -4652,9 +4652,11 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF(isSet, name, name_t, key_oplist, val_oplist) \
   M_ID( M_C(M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF, isSet)(name, name_t, key_oplist, val_oplist) )
 #define M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF0(name, name_t, key_oplist, val_oplist) \
-  M_EMPLACE_ASS_ARRAY_DEF(name, name_t, M_C(name, _emplace), key_oplist, val_oplist, M_EMPLACE_ASS_ARRA1_BOTH_GENE, M_EMPLACE_ASS_ARRA1_KEY_GENE, M_EMPLACE_ASS_ARRA1_VAL_GENE)
+  M_EMPLACE_ASS_ARRAY_DEF(name, name_t, M_C(name, _emplace), key_oplist, val_oplist, M_EMPLACE_ASS_ARRA1_BOTH_GENE, M_EMPLACE_ASS_ARRA1_KEY_GENE, M_EMPLACE_ASS_ARRA1_VAL_GENE) \
+  M_EMPLACE_QUEUE_DEF(name, name_t, M_C(name, _get_emplace), key_oplist, M_EMPLACE_GET_GENE)
 #define M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF1(name, name_t, key_oplist, val_oplist) \
-  M_EMPLACE_QUEUE_DEF(name, name_t, M_C(name, _emplace), key_oplist, M_EMPLACE_QUEUE_GENE)
+  M_EMPLACE_QUEUE_DEF(name, name_t, M_C(name, _emplace), key_oplist, M_EMPLACE_QUEUE_GENE) \
+  M_EMPLACE_QUEUE_DEF(name, name_t, M_C(name, _get_emplace), key_oplist, M_EMPLACE_GET_GENE)
 
 
 /* Definition of the emplace_back function for associative arrays.
@@ -4718,6 +4720,22 @@ m_core_parse2_enum (const char str[], const char **endptr)
     M_CALL_CLEAR(oplist, data);                                               \
   }
 
+/* Definition of the get_emplace function for set / map.
+   It is defined here so that this definition is shared accross different
+   kind of kind of queue.
+   This definition is far from being efficient but works for the current interface.
+*/
+#define M_EMPLACE_GET_GENE(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
+  static inline M_C(name, _value_ct) *                                        \
+  function_name(name_t v                                                      \
+                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  {                                                                           \
+    M_GET_TYPE oplist data;                                                   \
+    M_EMPLACE_CALL_FUNC(a, init_func, oplist, data, exp_emplace_type);        \
+    M_C(name, _value_ct) *ret = M_C(name, _get)(v, data);                     \
+    M_CALL_CLEAR(oplist, data);                                               \
+    return ret;                                                               \
+  }
 
 
 /************************************************************/

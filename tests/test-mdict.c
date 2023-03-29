@@ -593,6 +593,16 @@ static void test_emplace (void)
   assert(ptr != NULL);
   assert(testobj_cmp_ui(*ptr, 190) == 0);
 
+  dict_mpz_emplace_key(d, "IT", *ptr);
+  ptr = dict_mpz_get_emplace(d, "IT");
+  assert(ptr != NULL);
+  assert(testobj_cmp_ui(*ptr, 190) == 0);
+
+  dict_mpz_emplace_key_val_str(d, "SHE", "189");
+  ptr = dict_mpz_get_emplace(d, "SHE");
+  assert(ptr != NULL);
+  assert(testobj_cmp_ui(*ptr, 189) == 0);
+
   string_clear(s);
   dict_mpz_clear(d);
 }
