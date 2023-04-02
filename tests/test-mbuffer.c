@@ -187,8 +187,18 @@ static void test_global(void)
     assert(j == i);
   }
   assert (buffer_uint_empty_p(g_buffB));
-  buffer_uint_clear(g_buffB);  
 
+  buffer_uint_set(g_buffB, g_buff);
+  buffer_uint_reset(g_buff);
+  assert (buffer_uint_empty_p(g_buff));
+  assert (buffer_uint_size(g_buff) == 0);
+  
+  buffer_uint_set(g_buff, g_buffB);
+  assert (!buffer_uint_empty_p(g_buff));
+  assert (!buffer_uint_full_p(g_buff));
+  assert (buffer_uint_size(g_buff) == 5);
+
+  buffer_uint_clear(g_buffB);
   buffer_uint_clear(g_buff);
 }
 
