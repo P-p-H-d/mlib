@@ -194,7 +194,7 @@ M_BEGIN_PROTECTED_CODE
   M_C(name, _init_new)(void)                                                  \
   {                                                                           \
     type *ptr = M_CALL_NEW(oplist, type);                                     \
-    if (ptr == NULL) {                                                        \
+    if (M_UNLIKELY_NOMEM (ptr == NULL)) {                                     \
       M_MEMORY_FULL(sizeof(type));                                            \
       return NULL;                                                            \
     }                                                                         \

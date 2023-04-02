@@ -425,6 +425,11 @@ M_BEGIN_PROTECTED_CODE
 #endif
 
 
+/* M_UNLIKELY used to test conditions that will trigger memory errors.
+   It is needed so that it can be disabled in coverage mode. */
+#define M_UNLIKELY_NOMEM(cond) M_UNLIKELY(cond)
+
+
 /***************************************************************/
 /****************** Preprocessing Times Macro ******************/
 /***************************************************************/

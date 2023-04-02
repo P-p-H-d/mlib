@@ -417,7 +417,7 @@
     M_STATIC_ASSERT(N >= 2, M_LIB_ILLEGAL_PARAM,                              \
           "Number of items per node shall be >= 2.");                         \
     node_t n = M_CALL_NEW(key_oplist, struct M_C(name, _node_s));             \
-    if (M_UNLIKELY (n == NULL)) {                                             \
+    if (M_UNLIKELY_NOMEM (n == NULL)) {                                       \
       M_MEMORY_FULL(sizeof (node_t));                                         \
       M_ASSERT (0);                                                           \
     }                                                                         \

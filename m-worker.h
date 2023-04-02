@@ -265,7 +265,7 @@ typedef struct m_worker_sync_s {
   {                                                                           \
     if (!m_work3r_queue_full_p(block->worker->queue_g)) {                     \
       struct M_C3(m_worker_, name, _s) *p = M_MEMORY_ALLOC ( struct M_C3(m_worker_, name, _s)); \
-      if (M_UNLIKELY(p == NULL)) {                                            \
+      if (M_UNLIKELY_NOMEM(p == NULL)) {                                      \
         M_MEMORY_FULL(sizeof (struct M_C3(m_worker_, name, _s)));             \
       }                                                                       \
       p->callback = callback;                                                 \
@@ -410,7 +410,7 @@ m_worker_init(m_worker_t g, int numWorker, unsigned int extraQueue, void (*reset
   M_ASSERT(numWorker >= 0);
   size_t numWorker_st = (size_t) numWorker;
   g->worker = M_MEMORY_REALLOC(m_work3r_thread_ct, NULL, numWorker_st);
-  if (g->worker == NULL) {
+  if (M_UNLIKELY_NOMEM (g->worker == NULL)) {
     M_MEMORY_FULL(sizeof (m_work3r_thread_ct) * numWorker_st);
     return;
   }

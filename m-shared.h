@@ -209,7 +209,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
       return;                                                                 \
     }                                                                         \
     ptr = M_CALL_NEW(oplist, struct M_C(name, _s));                           \
-    if (M_UNLIKELY (ptr == NULL)) {                                           \
+    if (M_UNLIKELY_NOMEM (ptr == NULL)) {                                     \
       M_MEMORY_FULL(sizeof(struct M_C(name, _s)));                            \
       return;                                                                 \
     }                                                                         \
@@ -227,7 +227,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     /* NOTE: Alloc 1 struct with both structures. */                          \
     struct M_C(name, combine_s) *p =                                          \
       M_CALL_NEW(oplist, struct M_C(name, combine_s));                        \
-    if (M_UNLIKELY (p == NULL)) {                                             \
+    if (M_UNLIKELY_NOMEM (p == NULL)) {                                       \
       M_MEMORY_FULL(sizeof(struct M_C(name, combine_s)));                     \
       return;                                                                 \
     }                                                                         \
@@ -419,7 +419,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     M_ASSERT(s != NULL);                                                      \
     M_ASSERT (n > 0 && n < UINT_MAX);                                         \
     s->buffer = M_CALL_REALLOC(oplist, M_C(name, _atype_ct), NULL, n);        \
-    if (M_UNLIKELY (s->buffer == NULL)) {                                     \
+    if (M_UNLIKELY_NOMEM (s->buffer == NULL)) {                               \
       M_MEMORY_FULL(sizeof(M_C(name, _atype_ct)) * n);                        \
       return;                                                                 \
     }                                                                         \

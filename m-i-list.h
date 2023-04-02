@@ -531,7 +531,7 @@ typedef struct m_il1st_head_s {
     M_IL1ST_CONTRACT(name, list);                                             \
     M_IL1ST_NODE_CONTRACT(it->current);                                       \
     type *p = M_CALL_NEW(oplist, type);                                       \
-    if (M_UNLIKELY (p == NULL)) {                                             \
+    if (M_UNLIKELY_NOMEM (p == NULL)) {                                       \
       M_MEMORY_FULL (sizeof (type));                                          \
       return ;                                                                \
     }                                                                         \

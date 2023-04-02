@@ -257,7 +257,7 @@ m_string_clear_get_cstr(m_string_t v)
     // Need to allocate a heap string to return the copy.
     size_t alloc = m_string_size(v)+1;
     char *ptr = M_MEMORY_REALLOC (char, NULL, alloc);
-    if (M_UNLIKELY (ptr == NULL)) {
+    if (M_UNLIKELY_NOMEM (ptr == NULL)) {
       M_MEMORY_FULL(sizeof (char) * alloc);
       return NULL;
     }
@@ -326,7 +326,7 @@ m_str1ng_fit2size (m_string_t v, size_t size_alloc)
     // Insufficient current allocation to store the new string
     // Perform an allocation on the heap.
     size_t alloc = size_alloc + size_alloc / 2;
-    if (M_UNLIKELY (alloc <= old_alloc)) {
+    if (M_UNLIKELY_NOMEM (alloc <= old_alloc)) {
       /* Overflow in alloc computation */
       M_MEMORY_FULL(sizeof (char) * alloc);
       // NOTE: Return is currently broken.
@@ -334,7 +334,7 @@ m_str1ng_fit2size (m_string_t v, size_t size_alloc)
       return NULL;
     }
     char *ptr = M_MEMORY_REALLOC (char, v->ptr, alloc);
-    if (M_UNLIKELY (ptr == NULL)) {
+    if (M_UNLIKELY_NOMEM (ptr == NULL)) {
       M_MEMORY_FULL(sizeof (char) * alloc);
       // NOTE: Return is currently broken.
       abort();
@@ -390,7 +390,7 @@ m_string_reserve(m_string_t v, size_t alloc)
     // If the string is stack allocated, v->ptr is NULL
     // and it will therefore perform the initial allocation
     char *ptr = M_MEMORY_REALLOC (char, v->ptr, alloc);
-    if (M_UNLIKELY (ptr == NULL) ) {
+    if (M_UNLIKELY_NOMEM (ptr == NULL) ) {
       M_MEMORY_FULL(sizeof (char) * alloc);
       return;
     }

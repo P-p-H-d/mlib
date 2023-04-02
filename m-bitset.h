@@ -125,7 +125,7 @@ m_bitset_set(m_bitset_t d, const m_bitset_t s)
     // Test if enough space in target
     if (s->size > M_B1TSET_FROM_ALLOC (d->alloc)) {
       m_b1tset_limb_ct *ptr = M_MEMORY_REALLOC (m_b1tset_limb_ct, d->ptr, needAlloc);
-      if (M_UNLIKELY (ptr == NULL)) {
+      if (M_UNLIKELY_NOMEM (ptr == NULL)) {
         M_MEMORY_FULL(needAlloc);
         return ;
       }
@@ -208,14 +208,14 @@ m_bitset_push_back (m_bitset_t v, bool x)
     // Compute the needed allocation.
     const size_t needAlloc = M_B1TSET_INC_ALLOC_SIZE(v->alloc);
     // Check for integer overflow
-    if (M_UNLIKELY (needAlloc <= v->alloc)) {
+    if (M_UNLIKELY_NOMEM (needAlloc <= v->alloc)) {
       M_MEMORY_FULL(needAlloc * sizeof(m_b1tset_limb_ct));
       return;
     }
     // Alloc memory
     m_b1tset_limb_ct *ptr = M_MEMORY_REALLOC (m_b1tset_limb_ct, v->ptr, needAlloc);
     // Check if success
-    if (M_UNLIKELY (ptr == NULL) ) {
+    if (M_UNLIKELY_NOMEM (ptr == NULL) ) {
       M_MEMORY_FULL(needAlloc * sizeof(m_b1tset_limb_ct));
       return;
     }
@@ -244,7 +244,7 @@ m_bitset_resize (m_bitset_t v, size_t size)
 {
   M_B1TSET_CONTRACT (v);
   // Check for overflow
-  if (M_UNLIKELY (size >= ((size_t)-1) - M_B1TSET_LIMB_BIT)) {
+  if (M_UNLIKELY_NOMEM (size >= ((size_t)-1) - M_B1TSET_LIMB_BIT)) {
     M_MEMORY_FULL((size_t) -1);
     return;
   }
@@ -253,7 +253,7 @@ m_bitset_resize (m_bitset_t v, size_t size)
   if (newAlloc > v->alloc) {
     // Allocate more limbs to store the bitset.
     m_b1tset_limb_ct *ptr = M_MEMORY_REALLOC (m_b1tset_limb_ct, v->ptr, newAlloc);
-    if (M_UNLIKELY (ptr == NULL) ) {
+    if (M_UNLIKELY_NOMEM (ptr == NULL) ) {
       M_MEMORY_FULL(newAlloc * sizeof(m_b1tset_limb_ct));
       return;
     }
@@ -305,7 +305,7 @@ m_bitset_reserve (m_bitset_t v, size_t alloc)
   } else {
     // Allocate more memory or reduce memory usage
     m_b1tset_limb_ct *ptr = M_MEMORY_REALLOC (m_b1tset_limb_ct, v->ptr, newAlloc);
-    if (M_UNLIKELY (ptr == NULL) ) {
+    if (M_UNLIKELY_NOMEM (ptr == NULL) ) {
       M_MEMORY_FULL(newAlloc * sizeof(m_b1tset_limb_ct));
       return;
     }

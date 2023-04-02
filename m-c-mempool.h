@@ -311,7 +311,7 @@ M_BEGIN_PROTECTED_CODE
   {                                                                           \
     M_C(name, _lf_node_t) * node;                                             \
     node = M_MEMORY_ALLOC(M_C(name, _lf_node_t));                             \
-    if (M_UNLIKELY(node == NULL)) {                                           \
+    if (M_UNLIKELY_NOMEM (node == NULL)) {                                    \
       M_MEMORY_FULL(sizeof(M_C(name, _lf_node_t)));                           \
       return NULL;                                                            \
     }                                                                         \
@@ -321,7 +321,7 @@ M_BEGIN_PROTECTED_CODE
     for(unsigned i = 0; i < initial; i++) {                                   \
       M_C(name, _slist_node_ct) *n;                                           \
       n = M_MEMORY_ALLOC(M_C(name, _slist_node_ct));                          \
-      if (M_UNLIKELY(n == NULL)) {                                            \
+      if (M_UNLIKELY_NOMEM (n == NULL)) {                                     \
         M_MEMORY_FULL(sizeof(M_C(name, _lf_node_t)));                         \
         return NULL;                                                          \
       }                                                                       \
@@ -465,7 +465,7 @@ M_BEGIN_PROTECTED_CODE
     const size_t max_thread =  gc_mem->max_thread;                            \
     /* Initialize the thread data of the mempool */                           \
     mem->thread_data = M_MEMORY_REALLOC(M_C(name, _lfmp_thread_ct), NULL, max_thread); \
-    if (mem->thread_data == NULL) {                                           \
+    if (M_UNLIKELY_NOMEM (mem->thread_data == NULL)) {                        \
       M_MEMORY_FULL(max_thread * sizeof(M_C(name, _lfmp_thread_ct)));         \
       return;                                                                 \
     }                                                                         \
@@ -588,7 +588,7 @@ m_gc_init(m_gc_t gc_mem, size_t max_thread)
   atomic_init(&gc_mem->ticket, 0UL);
   m_genint_init(gc_mem->thread_alloc, (unsigned int) max_thread);
   gc_mem->thread_data = M_MEMORY_REALLOC(m_gc_lfmp_thread_ct, NULL, max_thread);
-  if (gc_mem->thread_data == NULL) {
+  if (M_UNLIKELY_NOMEM (gc_mem->thread_data == NULL)) {
     M_MEMORY_FULL(max_thread * sizeof(m_gc_lfmp_thread_ct));
     return;
   }
@@ -758,7 +758,7 @@ m_vlapool_init(m_vlapool_t mem, m_gc_t gc_mem)
 
   /* Initialize the thread data of the vlapool */
   mem->thread_data = M_MEMORY_REALLOC(m_vlapool_lfmp_thread_ct, NULL, max_thread);
-  if (mem->thread_data == NULL) {
+  if (M_UNLIKELY_NOMEM (mem->thread_data == NULL)) {
     M_MEMORY_FULL(max_thread * sizeof(m_vlapool_lfmp_thread_ct));
     return;
   }

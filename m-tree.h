@@ -259,7 +259,7 @@ typedef int32_t m_tr33_index_t;
             return;                                                           \
         }                                                                     \
         /* Realloc the array */                                               \
-        if (M_UNLIKELY (alloc >= INT32_MAX)) {                                \
+        if (M_UNLIKELY_NOMEM (alloc >= INT32_MAX)) {                          \
             M_MEMORY_FULL(sizeof (struct M_C(name, _node_s)) * alloc);        \
             return;                                                           \
         }                                                                     \
@@ -269,7 +269,7 @@ typedef int32_t m_tr33_index_t;
            M_TR33_NO_NODE in some cases, performing branchless code. */       \
         struct M_C(name,_node_s)*ptr = tree->tab == NULL ? NULL : tree->tab-1;\
         ptr = M_CALL_REALLOC(oplist, struct M_C(name, _node_s), ptr, alloc+1);\
-        if (M_UNLIKELY (ptr == NULL) ) {                                      \
+        if (M_UNLIKELY_NOMEM (ptr == NULL) ) {                                \
             M_MEMORY_FULL(sizeof (struct M_C(name, _node_s)) * alloc);        \
             return;                                                           \
         }                                                                     \
@@ -313,7 +313,7 @@ typedef int32_t m_tr33_index_t;
             size_t alloc = M_CALL_INC_ALLOC(oplist, (size_t) tree->capacity); \
             /* Take into account if realloc is allowed */                     \
             alloc += tree->allow_realloc;                                     \
-            if (M_UNLIKELY (alloc >= INT32_MAX)) {                            \
+            if (M_UNLIKELY_NOMEM (alloc >= INT32_MAX)) {                      \
                 M_MEMORY_FULL(sizeof (struct M_C(name, _node_s)) * alloc);    \
                 return M_TR33_NO_NODE;                                        \
             }                                                                 \
@@ -323,7 +323,7 @@ typedef int32_t m_tr33_index_t;
             M_TR33_NO_NODE in some cases, performing branchless code. */      \
             struct M_C(name,_node_s)*ptr = tree->tab == NULL ? NULL : tree->tab-1; \
             ptr = M_CALL_REALLOC(oplist, struct M_C(name, _node_s), ptr, alloc+1); \
-            if (M_UNLIKELY (ptr == NULL) ) {                                  \
+            if (M_UNLIKELY_NOMEM (ptr == NULL) ) {                            \
                 M_MEMORY_FULL(sizeof (struct M_C(name, _node_s)) * alloc);    \
                 return M_TR33_NO_NODE;                                        \
             }                                                                 \
@@ -1122,7 +1122,7 @@ typedef int32_t m_tr33_index_t;
         } else {                                                              \
             struct M_C(name, _node_s) *ptr =                                  \
                 M_CALL_REALLOC(oplist, struct M_C(name, _node_s), NULL, alloc+1); \
-            if (M_UNLIKELY (ptr == NULL) ) {                                  \
+            if (M_UNLIKELY_NOMEM (ptr == NULL) ) {                            \
                 M_MEMORY_FULL(sizeof(struct M_C(name, _node_s)) * alloc);     \
                 return;                                                       \
             }                                                                 \

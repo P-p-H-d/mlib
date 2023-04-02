@@ -392,7 +392,7 @@ m_snapsh0t_mrsw_init(m_snapsh0t_mrsw_ct s, size_t n)
 
   // Initialize the counters to zero (no reader use it)
   atomic_uint *ptr = M_MEMORY_REALLOC (atomic_uint, NULL, n);
-  if (M_UNLIKELY (ptr == NULL)) {
+  if (M_UNLIKELY_NOMEM (ptr == NULL)) {
     M_MEMORY_FULL(sizeof (atomic_uint) * n);
     return;
   }
@@ -646,7 +646,7 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
     M_ASSERT (nReader > 0 && nReader <= M_SNAPSH0T_SPMC_MAX_READER);          \
     snap->data = M_CALL_REALLOC(oplist, M_C(name, _aligned_type_ct),          \
                                 NULL, nReader+M_SNAPSH0T_SPMC_EXTRA_BUFFER);  \
-    if (M_UNLIKELY (snap->data == NULL)) {                                    \
+    if (M_UNLIKELY_NOMEM (snap->data == NULL)) {                              \
       M_MEMORY_FULL(sizeof(M_C(name, _aligned_type_ct)) *                     \
                     (nReader+M_SNAPSH0T_SPMC_EXTRA_BUFFER));                  \
       return;                                                                 \

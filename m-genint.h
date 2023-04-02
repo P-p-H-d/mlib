@@ -110,7 +110,7 @@ m_genint_init(m_genint_t s, unsigned int n)
   const size_t alloc = (n + M_GEN1NT_LIMBSIZE - 1) / M_GEN1NT_LIMBSIZE;
   const unsigned int index  = n % M_GEN1NT_LIMBSIZE;
   atomic_ullong *ptr = M_MEMORY_REALLOC (atomic_ullong, NULL, alloc);
-  if (M_UNLIKELY (ptr == NULL)) {
+  if (M_UNLIKELY_NOMEM (ptr == NULL)) {
     M_MEMORY_FULL(alloc);
     return;
   }

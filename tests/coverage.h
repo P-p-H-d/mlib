@@ -124,6 +124,9 @@
 #define M_TR33_CONTRACT(...) (void)0
 #undef  M_TR33_IT_CONTRACT
 #define M_TR33_IT_CONTRACT(...) (void)0
+/* Overwrite M_UNLIKELY_NOMEM so that it can never fails, to avoid spurious coverage */
+#undef M_UNLIKELY_NOMEM
+#define M_UNLIKELY_NOMEM(...) 0
 /* For coverage build, do not expand other likes NULL, etc. */
 #undef M_STATIC_FAILURE
 #undef NULL

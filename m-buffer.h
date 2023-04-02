@@ -320,7 +320,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
                                                                               \
   M_BUFF3R_IF_CTE_SIZE(m_size)( /* Statically allocated */ ,                  \
     v->data = M_CALL_REALLOC(oplist, M_C(name, _el_ct), NULL, M_BUFF3R_SIZE(m_size)); \
-    if (v->data == NULL) {                                                    \
+  if (M_UNLIKELY_NOMEM (v->data == NULL)) {                                   \
       M_MEMORY_FULL (M_BUFF3R_SIZE(m_size)*sizeof(M_C(name, _el_ct)));        \
       return;                                                                 \
     }                                                                         \
@@ -907,7 +907,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
     atomic_init(&buffer->ConsoIdx, (unsigned int) size);                      \
     buffer->size = (unsigned int) size;                                       \
     buffer->Tab = M_CALL_REALLOC(oplist, M_C(name, _el_ct), NULL, size);      \
-    if (buffer->Tab == NULL) {                                                \
+    if (M_UNLIKELY_NOMEM (buffer->Tab == NULL)) {                             \
       M_MEMORY_FULL (size*sizeof(M_C(name, _el_ct) ));                        \
       return;                                                                 \
     }                                                                         \
@@ -1249,7 +1249,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
     atomic_init(&buffer->consoIdx, (unsigned int) size);                      \
     buffer->size = (unsigned int) size;                                       \
     buffer->Tab = M_CALL_REALLOC(oplist, M_C(name, _el_ct), NULL, size);      \
-    if (buffer->Tab == NULL) {                                                \
+    if (M_UNLIKELY_NOMEM (buffer->Tab == NULL)) {                             \
       M_MEMORY_FULL (size*sizeof(M_C(name, _el_ct) ));                        \
       return;                                                                 \
     }                                                                         \

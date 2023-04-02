@@ -276,7 +276,7 @@
     M_L1ST_CONTRACT(v);                                                       \
     struct M_C(name, _s) *next;                                               \
     next = M_C3(m_l1st_,name,_new)();                                         \
-    if (M_UNLIKELY (next == NULL)) {                                          \
+    if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
       M_MEMORY_FULL(sizeof (struct M_C(name, _s)));                           \
       return NULL;                                                            \
     }                                                                         \
@@ -491,7 +491,7 @@
     M_ASSERT (insertion_point != NULL);                                       \
     M_ASSERT(M_C(name, _sublist_p)(list, insertion_point));                   \
     struct M_C(name, _s) *next = M_C3(m_l1st_,name,_new)();                   \
-    if (M_UNLIKELY (next == NULL)) {                                          \
+    if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
       M_MEMORY_FULL(sizeof (struct M_C(name, _s)));                           \
       return;                                                                 \
     }                                                                         \
@@ -539,7 +539,7 @@
     while (it_org != NULL) {                                                  \
       next = M_C3(m_l1st_,name,_new)();                                       \
       *update_list = next;                                                    \
-      if (M_UNLIKELY (next == NULL)) {                                        \
+      if (M_UNLIKELY_NOMEM (next == NULL)) {                                  \
         M_MEMORY_FULL(sizeof (struct M_C(name, _s)));                         \
         /* FIXME: Partialy initialized list. What to do? */                   \
         return;                                                               \
@@ -1028,7 +1028,7 @@
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     struct M_C(name, _s) *next = M_C3(m_l1st_,name,_new)();                   \
-    if (M_UNLIKELY (next == NULL)) {                                          \
+    if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
       M_MEMORY_FULL(sizeof (struct M_C(name, _s)));                           \
       return NULL;                                                            \
     }                                                                         \
@@ -1140,7 +1140,7 @@
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     struct M_C(name, _s) *next = M_C3(m_l1st_,name,_new)();                   \
-    if (M_UNLIKELY (next == NULL)) {                                          \
+    if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
       M_MEMORY_FULL(sizeof (struct M_C(name, _s)));                           \
       return NULL;                                                            \
     }                                                                         \
@@ -1294,7 +1294,7 @@
     M_L1ST_DUAL_PUSH_CONTRACT(list);                                          \
     M_ASSERT (insertion_point != NULL);                                       \
     struct M_C(name, _s) *next = M_C3(m_l1st_,name,_new)();                   \
-    if (M_UNLIKELY (next == NULL)) {                                          \
+    if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
       M_MEMORY_FULL(sizeof (struct M_C(name, _s)));                           \
       return;                                                                 \
     }                                                                         \
@@ -1354,7 +1354,7 @@
     while (it_org != NULL) {                                                  \
       next = M_C3(m_l1st_,name,_new)();                                       \
       *update_list = next;                                                    \
-      if (M_UNLIKELY (next == NULL)) {                                        \
+      if (M_UNLIKELY_NOMEM (next == NULL)) {                                  \
         M_MEMORY_FULL(sizeof (struct M_C(name, _s)));                         \
         return;                                                               \
       }                                                                       \

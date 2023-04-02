@@ -175,7 +175,7 @@
   {                                                                           \
     size_t def = d->default_size;                                             \
     /* Test for overflow of the size computation */                           \
-    if (M_UNLIKELY (def > SIZE_MAX / sizeof (type) - sizeof(node_t))) {       \
+    if (M_UNLIKELY_NOMEM (def > SIZE_MAX / sizeof (type) - sizeof(node_t))) { \
       M_MEMORY_FULL(sizeof(node_t)+def * sizeof(type));                       \
       return NULL;                                                            \
     }                                                                         \
@@ -183,7 +183,7 @@
     node_t*n = (node_t*) (void*)                                              \
       M_CALL_REALLOC(oplist, char, NULL,                                      \
                      sizeof(node_t) + def * sizeof(type) );                   \
-    if (n==NULL) {                                                            \
+    if (M_UNLIKELY_NOMEM (n==NULL)) {                                         \
       M_MEMORY_FULL(sizeof(node_t)+def * sizeof(type));                       \
       return NULL;                                                            \
     }                                                                         \

@@ -454,7 +454,7 @@
     /* NOTE: Contract may not be fulfilled here */                            \
     size_t old_size = M_C(name, _array_list_pair_size)(map->table);           \
     size_t new_size = old_size * 2;                                           \
-    if (M_UNLIKELY (new_size <= old_size)) {                                  \
+    if (M_UNLIKELY_NOMEM (new_size <= old_size)) {                            \
       M_MEMORY_FULL((size_t)-1);                                              \
     }                                                                         \
     M_ASSERT (old_size > 1 && new_size > 1);                                  \
@@ -1312,7 +1312,7 @@ enum m_d1ct_oa_element_e {
     dict->count_delete = 0;                                                   \
     M_C3(m_d1ct_,name,_update_limit)(dict, M_D1CT_INITIAL_SIZE);              \
     dict->data = M_CALL_REALLOC(key_oplist, M_C(name, _pair_ct), NULL, M_D1CT_INITIAL_SIZE); \
-    if (dict->data == NULL) {                                                 \
+    if (M_UNLIKELY_NOMEM (dict->data == NULL)) {                              \
       M_MEMORY_FULL(sizeof (M_C(name, _pair_ct)) * M_D1CT_INITIAL_SIZE);      \
       return ;                                                                \
     }                                                                         \
@@ -1407,7 +1407,7 @@ enum m_d1ct_oa_element_e {
     /* resize can be called just to delete the items */                       \
     if (newSize > oldSize) {                                                  \
       data = M_CALL_REALLOC(key_oplist, M_C(name, _pair_ct), data, newSize);  \
-      if (M_UNLIKELY (data == NULL) ) {                                       \
+      if (M_UNLIKELY_NOMEM (data == NULL) ) {                                 \
         M_MEMORY_FULL(sizeof (M_C(name, _pair_ct)) * newSize);                \
         return ;                                                              \
       }                                                                       \
@@ -1526,7 +1526,7 @@ enum m_d1ct_oa_element_e {
       size_t newSize = dict->mask+1;                                          \
       if (dict->count > (dict->mask / 2)) {                                   \
         newSize += newSize;                                                   \
-        if (M_UNLIKELY (newSize <= dict->mask+1)) {                           \
+        if (M_UNLIKELY_NOMEM (newSize <= dict->mask+1)) {                     \
           M_MEMORY_FULL((size_t)-1);                                          \
         }                                                                     \
       }                                                                       \
@@ -1580,7 +1580,7 @@ enum m_d1ct_oa_element_e {
       size_t newSize = dict->mask+1;                                          \
       if (dict->count > (dict->mask / 2)) {                                   \
         newSize += newSize;                                                   \
-        if (M_UNLIKELY (newSize <= dict->mask+1)) {                           \
+        if (M_UNLIKELY_NOMEM (newSize <= dict->mask+1)) {                     \
           M_MEMORY_FULL((size_t)-1);                                          \
         }                                                                     \
       }                                                                       \
@@ -1722,7 +1722,7 @@ enum m_d1ct_oa_element_e {
     map->upper_limit  = org->upper_limit;                                     \
     map->lower_limit  = org->lower_limit;                                     \
     map->data = M_CALL_REALLOC(key_oplist, M_C(name, _pair_ct), NULL, map->mask+1); \
-    if (map->data == NULL) {                                                  \
+    if (M_UNLIKELY_NOMEM (map->data == NULL)) {                               \
       M_MEMORY_FULL(sizeof (M_C(name, _pair_ct)) * (map->mask+1));            \
       return ;                                                                \
     }                                                                         \
@@ -1958,7 +1958,7 @@ enum m_d1ct_oa_element_e {
        that no reallocation of the hash map occurs up to capacity */          \
     size = (size_t) m_core_roundpow2 ((uint64_t) ((double) capacity * (1.0 / coeff_up))); \
     /* Test for overflow of the computation */                                \
-    if (M_UNLIKELY (size < capacity)) {                                       \
+    if (M_UNLIKELY_NOMEM (size < capacity)) {                                 \
       M_MEMORY_FULL((size_t)-1);                                              \
     }                                                                         \
     M_ASSERT (M_POWEROF2_P(size));                                            \
