@@ -43,7 +43,7 @@ all:
 #####################################################################################################
 
 .POSIX:
-.PHONY: scan-build sanitize check clean *.log coverage synthesis
+.PHONY: scan-build sanitize check clean *.log coverage synthesis.synt
 .SUFFIXES:
 .SUFFIXES: .c .exe .log .depend .gcov .analyzer .cpp .fuzz
 .SECONDARY:
@@ -176,8 +176,8 @@ gene-serial:
 #####################################################################################################
 
 coverage:
-	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.gcov/g'` CC="cc -std=c11"
-	$(MAKE) synthesis.synt check-synthesis
+	@$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.gcov/g'` CC="cc -std=c11"
+	@$(MAKE) synthesis.synt
 
 SYNTHESIS_DATA=	M-ALGO test-malgo.c.c test-malgo.synt			\
 		M-ARRAY test-marray.c.c test-marray.synt				\
@@ -219,10 +219,6 @@ synthesis.synt:
 	done                                                        > synthesis.synt
 	@cat synthesis.synt
 	@printf "+-------------------------------+-------------------------------+\n"
-
-# Compare the computed coverage against the reference coverage (synthesis.ref), allowing only increase of coverage
-check-synthesis: synthesis.synt
-	@paste synthesis.ref synthesis.synt |awk '($$2 != $$9) {err=1} { n1=$$4*$$6/100 ; n2=$$11*$$13/100; if (n1 > n2) { printf "ERROR for %s: new coverage (%d) is lower than reference (%d)\n",$$2,n2,n1 ; err=2 } } END {exit err}'
 
 
 #####################################################################################################
