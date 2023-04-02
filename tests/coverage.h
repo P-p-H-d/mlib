@@ -41,54 +41,96 @@
 */
    
 #ifdef WITHIN_COVERAGE
-/* For coverage build, do not expand the
-   typical macros assert, NULL, etc. */
+/* For coverage build, expand the typical macros assert, avoid expanding then
+   to not disturb coverage measurement */
 #undef assert
-#undef M_ASSERT
-#undef M_ASSERT_SLOW
-#undef M_ASSERT_INIT
-#undef M_ASSERT_INDEX
+#undef  M_ASSERT
+#define M_ASSERT(...) (void)0
+#undef  M_ASSERT_SLOW
+#define M_ASSERT_SLOW(...) (void)0
+#undef  M_ASSERT_INIT
+#define M_ASSERT_INIT(...) (void)0
+#undef  M_ASSERT_INDEX
+#define M_ASSERT_INDEX(...) (void)0
+#undef  M_ASSUME
+#define M_ASSUME(...) (void)0
+#undef  M_STATIC_ASSERT
+#define M_STATIC_ASSERT(...) (void)0
+#undef  M_ARRA4_CONTRACT
+#define M_ARRA4_CONTRACT(...) (void)0
+#undef  M_B1TSET_CONTRACT
+#define M_B1TSET_CONTRACT(...) (void)0
+#undef  M_BPTR33_NODE_CONTRACT
+#define M_BPTR33_NODE_CONTRACT(...) (void)0
+#undef  M_BPTR33_CONTRACT
+#define M_BPTR33_CONTRACT(...) (void)0
+#undef  M_BUFF3R_CONTRACT
+#define M_BUFF3R_CONTRACT(...) (void)0
+#undef  M_BUFF3R_PROTECTED_CONTRACT
+#define M_BUFF3R_PROTECTED_CONTRACT(...) (void)0
+#undef  M_QU3UE_MPMC_CONTRACT
+#define M_QU3UE_MPMC_CONTRACT(...) (void)0
+#undef  M_QU3UE_MPMC_CONTRACT
+#define M_QU3UE_MPMC_CONTRACT(...) (void)0
+#undef  M_QU3UE_SPSC_CONTRACT
+#define M_QU3UE_SPSC_CONTRACT(...) (void)0
+#undef  M_C0NCURRENT_CONTRACT
+#define M_C0NCURRENT_CONTRACT(...) (void)0
+#undef  M_D3QU3_CONTRACT
+#define M_D3QU3_CONTRACT(...) (void)0
+#undef  M_D1CT_CONTRACT
+#define M_D1CT_CONTRACT(...) (void)0
+#undef  M_D1CT_OA_CONTRACT
+#define M_D1CT_OA_CONTRACT(...) (void)0
+#undef  M_GEN1NT_CONTRACT
+#define M_GEN1NT_CONTRACT(...) (void)0
+#undef  M_IL1ST_CONTRACT
+#define M_IL1ST_CONTRACT(...) (void)0
+#undef  M_IL1ST_NODE_CONTRACT
+#define M_IL1ST_NODE_CONTRACT(...) (void)0
+#undef  M_L1ST_CONTRACT
+#define M_L1ST_CONTRACT(...) (void)0
+#undef  M_L1ST_DUAL_PUSH_CONTRACT
+#define M_L1ST_DUAL_PUSH_CONTRACT(...) (void)0
+#undef  M_M3MPOOL_CONTRACT
+#define M_M3MPOOL_CONTRACT(...) (void)0
+#undef  M_RBTR33_CONTRACT
+#define M_RBTR33_CONTRACT(...) (void)0
+#undef  M_RBTR33_CONTRACT_NODE
+#define M_RBTR33_CONTRACT_NODE(...) (void)0
+#undef  M_SHAR3D_CONTRACT
+#define M_SHAR3D_CONTRACT(...) (void)0
+#undef  M_SHAR3D_RESOURCE_CONTRACT
+#define M_SHAR3D_RESOURCE_CONTRACT(...) (void)0
+#undef  M_SNAPSH0T_SPSC_FLAGS_CONTRACT
+#define M_SNAPSH0T_SPSC_FLAGS_CONTRACT(...) (void)0
+#undef  M_SNAPSH0T_SPSC_CONTRACT
+#define M_SNAPSH0T_SPSC_CONTRACT(...) (void)0
+#undef  M_SNAPSH0T_SPMC_INT_CONTRACT
+#define M_SNAPSH0T_SPMC_INT_CONTRACT(...) (void)0
+#undef  M_SNAPSH0T_SPMC_CONTRACT
+#define M_SNAPSH0T_SPMC_CONTRACT(...) (void)0
+#undef  M_STR1NG_CONTRACT
+#define M_STR1NG_CONTRACT(...) (void)0
+#undef  M_BOUNDED_STR1NG_CONTRACT
+#define M_BOUNDED_STR1NG_CONTRACT(...) (void)0
+#undef  M_TUPL3_CONTRACT
+#define M_TUPL3_CONTRACT(...) (void)0
+#undef  M_VAR1ANT_CONTRACT
+#define M_VAR1ANT_CONTRACT(...) (void)0
+#undef  M_TR33_NODE_CONTRACT
+#define M_TR33_NODE_CONTRACT(...) (void)0
+#undef  M_TR33_CONTRACT
+#define M_TR33_CONTRACT(...) (void)0
+#undef  M_TR33_IT_CONTRACT
+#define M_TR33_IT_CONTRACT(...) (void)0
+/* For coverage build, do not expand other likes NULL, etc. */
 #undef M_STATIC_FAILURE
-#undef M_STATIC_ASSERT
-#undef M_ASSUME
 #undef NULL
 #undef M_LIKELY
 #undef M_UNLIKELY
 #undef M_MEMORY_FULL
 #undef M_SWAP
-#undef M_ARRA4_CONTRACT
-#undef M_B1TSET_CONTRACT
-#undef M_BPTR33_NODE_CONTRACT
-#undef M_BPTR33_NODE_CONTRACT
-#undef M_BPTR33_CONTRACT
-#undef M_BUFF3R_CONTRACT
-#undef M_BUFF3R_PROTECTED_CONTRACT
-#undef M_QU3UE_MPMC_CONTRACT
-#undef M_QU3UE_MPMC_CONTRACT
-#undef M_QU3UE_SPSC_CONTRACT
-#undef M_QU3UE_SPSC_CONTRACT
-#undef M_C0NCURRENT_CONTRACT
-#undef M_D3QU3_CONTRACT
-#undef M_D1CT_CONTRACT
-#undef M_D1CT_OA_CONTRACT
-#undef M_GEN1NT_CONTRACT
-#undef M_IL1ST_CONTRACT
-#undef M_IL1ST_NODE_CONTRACT
-#undef M_L1ST_CONTRACT
-#undef M_L1ST_DUAL_PUSH_CONTRACT
-#undef M_M3MPOOL_CONTRACT
-#undef M_RBTR33_CONTRACT
-#undef M_RBTR33_CONTRACT_NODE
-#undef M_SHAR3D_CONTRACT
-#undef M_SHAR3D_RESOURCE_CONTRACT
-#undef M_SNAPSH0T_SPSC_FLAGS_CONTRACT
-#undef M_SNAPSH0T_SPSC_CONTRACT
-#undef M_SNAPSH0T_SPMC_INT_CONTRACT
-#undef M_SNAPSH0T_SPMC_CONTRACT
-#undef M_STR1NG_CONTRACT
-#undef M_BOUNDED_STR1NG_CONTRACT
-#undef M_TUPL3_CONTRACT
-#undef M_VAR1ANT_CONTRACT
 #undef NDEBUG
 #undef atomic_init
 #undef atomic_load
@@ -101,9 +143,6 @@
 #undef M_ASSIGN_CAST
 #undef M_CHECK_DEFAULT_TYPE
 #undef M_CHECK_SAME
-#undef M_TR33_NODE_CONTRACT
-#undef M_TR33_CONTRACT
-#undef M_TR33_IT_CONTRACT
 #else
 /* For normal builds, empty macros which does nothing */
 #define START_COVERAGE
