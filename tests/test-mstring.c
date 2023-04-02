@@ -22,6 +22,9 @@
 */
 
 #define M_USE_ADDITIONAL_CHECKS 1
+#include "m-core.h"
+#include "coverage.h"
+
 #include "m-string.h"
 
 BOUNDED_STRING_DEF(string16, 16)

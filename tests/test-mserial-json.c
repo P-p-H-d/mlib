@@ -20,12 +20,14 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include "m-serial-json.h"
 #include "m-tuple.h"
 #include "m-array.h"
 #include "m-variant.h"
 #include "m-list.h"
 #include "m-dict.h"
+#include "coverage.h"
+
+#include "m-serial-json.h"
 
 // Serial json is not supported for standard types if not C11
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L  

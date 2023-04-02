@@ -40,10 +40,9 @@
    It'll contain the macro expanded & annotated.
 */
    
-#ifdef WITHIN_COVERAGE
+#if defined(WITHIN_COVERAGE) || defined (BUILD_COVERAGE)
 /* For coverage build, expand the typical macros assert, avoid expanding then
    to not disturb coverage measurement */
-#undef assert
 #undef  M_ASSERT
 #define M_ASSERT(...) (void)0
 #undef  M_ASSERT_SLOW
@@ -127,7 +126,11 @@
 /* Overwrite M_UNLIKELY_NOMEM so that it can never fails, to avoid spurious coverage */
 #undef M_UNLIKELY_NOMEM
 #define M_UNLIKELY_NOMEM(...) 0
+#endif
+
+#ifdef WITHIN_COVERAGE
 /* For coverage build, do not expand other likes NULL, etc. */
+#undef assert
 #undef M_STATIC_FAILURE
 #undef NULL
 #undef M_LIKELY

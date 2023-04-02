@@ -23,6 +23,8 @@
 #include <stdio.h>
 #include "m-thread.h"
 #include "m-atomic.h"
+#include "m-core.h"
+#include "coverage.h"
 
 #include "m-genint.h"
 
