@@ -973,7 +973,7 @@ m_string_replace_all_cstr (m_string_t v, const char str1[], const char str2[])
 {
   size_t str1_l = strlen(str1);
   size_t str2_l = strlen(str2);
-  assert(str1_l > 0);
+  M_ASSERT(str1_l > 0);
   if (str1_l >= str2_l) {
     m_str1ng_replace_all_cstr_1ge2(v, str1, str1_l, str2, str2_l );
   } else {
@@ -986,8 +986,8 @@ m_string_replace_all (m_string_t v, const m_string_t str1, const m_string_t str2
 {
   size_t str1_l = m_string_size(str1);
   size_t str2_l = m_string_size(str2);
-  assert(str1_l > 0);
-  assert(str2_l > 0);
+  M_ASSERT(str1_l > 0);
+  M_ASSERT(str2_l > 0);
   if (str1_l >= str2_l) {
     m_str1ng_replace_all_cstr_1ge2(v, m_string_get_cstr(str1), str1_l, m_string_get_cstr(str2), str2_l );
   } else {
@@ -1173,7 +1173,7 @@ m_string_fgets(m_string_t v, FILE *f, m_string_fgets_t arg)
     retcode = true; /* Something has been read */
     // fgets doesn't return the number of characters read, so we need to count.
     size += strlen(&ptr[size]);
-    assert(size >= 1);
+    M_ASSERT(size >= 1);
     if (arg != M_STRING_READ_FILE && ptr[size-1] == '\n') {
       if (arg == M_STRING_READ_PURE_LINE) {
         size --;
