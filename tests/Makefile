@@ -70,7 +70,7 @@ all:
 	cat $<.first.c $<.middle.c $<.end.c > $<.c
 	$(CC) $(CPPFLAGS) -ftest-coverage -fprofile-arcs -O -g $<.c -o $<.exe $(LDFLAGS)
 	$(LOG_COMPILER) ./$<.exe
-	LANG=C gcov $<.gcno >  `basename $< .c`.synt
+	LANG=C gcov -b $<.gcno >  `basename $< .c`.synt
 	cat `basename $< .c`.synt
 	mv $<.c.gcov `basename $< .c`.gcov
 	$(RM) $<.first.c $<.end.c $<.middle.c $<.c $<.exe
