@@ -32,10 +32,6 @@ typedef struct test_s {
   ILIST_INTERFACE (ilist_free, struct test_s);
 } test_t;
 
-static inline int test_cmp(const test_t *i1, const test_t *i2)
-{
-  return i1->n < i2->n ? -1 : i1->n > i2->n;
-}
 static inline bool test_equal_p(const test_t *i1, const test_t *i2)
 {
   return i1->n == i2->n;
@@ -43,7 +39,7 @@ static inline bool test_equal_p(const test_t *i1, const test_t *i2)
 
 #include "coverage.h"
 START_COVERAGE
-ILIST_DEF(ilist_tname, test_t, M_OPEXTEND(M_POD_OPLIST, CMP(API_6(test_cmp)), EQUAL(API_6(test_equal_p))))
+ILIST_DEF(ilist_tname, test_t, M_OPEXTEND(M_POD_OPLIST, EQUAL(API_6(test_equal_p))))
 END_COVERAGE
 
 ILIST_DEF(ilist_free, test_t, (DEL(free)))
