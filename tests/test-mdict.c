@@ -127,6 +127,18 @@ static void check_io(void)
     assert (*sp == 0);
     assert (dict_str_equal_p(dict, dict2));
 
+    string_set_str (str, "{ \"LICENCE\" :\"BSD3\" , \"AUTHOR\" :\"PP\" }");
+    b = dict_str_parse_str(dict2, string_get_cstr(str), &sp);
+    assert (b);
+    assert (*sp == 0);
+    assert (dict_str_equal_p(dict, dict2));
+
+    string_set_str (str, " { \"LICENCE\" : \"BSD3\" , \"AUTHOR\" :\"PP\" } ");
+    b = dict_str_parse_str(dict2, string_get_cstr(str), &sp);
+    assert (b);
+    assert (*sp == ' ');
+    assert (dict_str_equal_p(dict, dict2));
+   
     FILE *f = m_core_fopen ("a-mdict.dat", "wt");
     if (!f) abort();
     dict_str_out_str(f, dict);
@@ -137,6 +149,31 @@ static void check_io(void)
     assert (b == true);
     assert (dict_str_equal_p (dict, dict2));
     fclose (f);
+
+    f = m_core_fopen ("a-mdict.dat", "wt");
+    if (!f) abort();
+    fprintf (f, " { \"LICENCE\" : \"BSD3\" , \"AUTHOR\" :\"PP\" } ");
+    fclose (f);
+    f = m_core_fopen ("a-mdict.dat", "rt");
+    if (!f) abort();
+    b = dict_str_in_str(dict2, f);
+    assert (b == true);
+    assert (dict_str_equal_p (dict, dict2));
+    fclose (f);
+    
+    string_set_str (str, " { } ");
+    b = dict_str_parse_str(dict2, string_get_cstr(str), &sp);
+    assert (b);
+    assert (*sp == ' ');
+    assert (dict_str_size(dict2) == 0);
+
+    string_set_str (str, " [ } ");
+    b = dict_str_parse_str(dict2, string_get_cstr(str), &sp);
+    assert (!b);
+
+    string_set_str (str, " { ] ");
+    b = dict_str_parse_str(dict2, string_get_cstr(str), &sp);
+    assert (!b);
   }
 }
 
