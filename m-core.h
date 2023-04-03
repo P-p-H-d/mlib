@@ -2621,7 +2621,27 @@ M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_float, float, "%f")
 M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_double, double, "%lf")
 M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ldouble, long double, "%Lf")
 
-#endif
+/* Return the next character (like fgetc) which is not a space character */
+static inline int m_core_fgetc_nospace(FILE *f)
+{
+  int c;
+  do {
+    c = fgetc(f);
+  } while (c != EOF && isspace(c));
+  return c;
+}
+
+#endif /* End of stdio definitions */
+
+/* Return the next character (like fgetc) which is not a space character */
+static inline char m_core_str_nospace(const char **str)
+{
+  char c;
+  do {
+    c = *((*str)++);
+  } while (isspace((unsigned char) c));
+  return c;
+}
 
 /* Transform a C variable into a m_string_t (needs m-string.h) */
 #define M_GET_STRING_ARG(str, x, append)                                      \
