@@ -400,7 +400,8 @@ static void test5(void)
   }
   assert (i == 600);
 
-  btree_erase (b, 500);
+  bool r = btree_erase (b, 500);
+  assert(r);
   i = 501;
   for(btree_it_from(it, b, 500); !btree_it_until_p(it, 600); btree_next(it)) {
     const btree_itref_t *item = btree_cref(it);
@@ -413,6 +414,25 @@ static void test5(void)
   btree_it_from(it, b, 1000);
   assert (btree_end_p(it));
   assert (btree_it_until_p(it, 1001));
+
+  // Remove all even integers
+  for(i = 0 ; i < 1000; i+=2) {
+    r = btree_erase(b, i);
+    assert(r || i == 500);
+  }
+
+  for(i = 0; i < 100; i++) {
+    for(int j = i ; j < 100; j ++) {
+      int k = i;
+      for(btree_it_from(it, b, i); !btree_it_until_p(it, j); btree_next(it)) {
+        const btree_itref_t *item = btree_cref(it);
+        int expect = k/2*2+1;
+        assert (*item->key_ptr == expect);
+        assert (*item->value_ptr == 1000*expect);
+        k+=2;
+      }
+    }
+  }
 	  
   btree_clear(b);
 }
