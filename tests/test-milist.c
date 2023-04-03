@@ -32,10 +32,18 @@ typedef struct test_s {
   ILIST_INTERFACE (ilist_free, struct test_s);
 } test_t;
 
+static inline int test_cmp(const test_t *i1, const test_t *i2)
+{
+  return i1->n < i2->n ? -1 : i1->n > i2->n;
+}
+static inline bool test_equal_p(const test_t *i1, const test_t *i2)
+{
+  return i1->n == i2->n;
+}
 
 #include "coverage.h"
 START_COVERAGE
-ILIST_DEF(ilist_tname, test_t, M_POD_OPLIST)
+ILIST_DEF(ilist_tname, test_t, M_OPEXTEND(M_POD_OPLIST, CMP(API_6(test_cmp)), EQUAL(API_6(test_equal_p))))
 END_COVERAGE
 
 ILIST_DEF(ilist_free, test_t, (DEL(free)))
@@ -88,6 +96,7 @@ static void test(void)
   assert (ilist_tname_end_p(it2));
   assert (ilist_tname_last_p(it2));
   assert (!ilist_tname_it_equal_p(it1, it2));
+  assert (ilist_tname_it_equal_p(it1, it1));
   for(ilist_tname_it_set(it2, it1) ; !ilist_tname_end_p(it2) ; ilist_tname_previous(it2)) {
     const test_t *item = ilist_tname_cref(it2);
     n--;
@@ -117,7 +126,9 @@ static void test(void)
   
   for M_EACH(item, list, ILIST_OPLIST(ilist_tname)) {
       (void)item;
-      assert(false);
+      if (M_UNLIKELY_NOMEM(1)) {
+        assert(false);
+      }
     }
 
   ilist_tname_push_back (list, &x3);
@@ -142,7 +153,7 @@ static void test(void)
   ilist_tname_clear(list);
 }
 
-#define NUM 10
+#define NUM 100
 static void test2(void)
 {
   test_t x[NUM];
@@ -155,6 +166,7 @@ static void test2(void)
     assert (ilist_tname_size(list1) == NUM);
     assert (ilist_tname_size(list2) == 0);
     assert (ilist_tname_equal_p(list1, list2) == false);
+    assert (ilist_tname_equal_p(list1, list1) == true);
     ilist_tname_it_t it;
     ilist_tname_it (it, list1);
     for(int i = 0; i < NUM; i++) {
@@ -193,7 +205,6 @@ static void test2(void)
         assert (n == item->n);
       }
     assert (n == 0);
-    
   }
   M_LET(list1, list2, ILIST_OPLIST(ilist_tname)) {
     for(int i = 0; i < NUM; i++)
@@ -204,6 +215,7 @@ static void test2(void)
     for(int i = NUM/2; i < NUM; i++) {
       ilist_tname_push_back(list2, &x[i]);
     }
+    assert (ilist_tname_equal_p(list1, list2) == false);
     ilist_tname_splice(list1, list2);
     assert (ilist_tname_size(list1) == NUM);
     assert (ilist_tname_size(list2) == 0);
@@ -223,6 +235,17 @@ static void test2(void)
         n++;
       }
     assert (n == NUM);
+  }
+  M_LET(list1, list2, ILIST_OPLIST(ilist_tname)) {
+    for(int i = 0; i < NUM/2; i++) {
+      x[i].n = i;
+      x[i+NUM/2].n = i;
+    }
+    for(int i = 0; i < NUM/2; i++) {
+      ilist_tname_push_back(list1, &x[i]);
+      ilist_tname_push_back(list2, &x[i+NUM/2]);
+    }
+    assert (ilist_tname_equal_p(list1, list2) == true);
   }
 }
 

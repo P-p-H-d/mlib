@@ -34,10 +34,16 @@ typedef struct ishared_s {
     int data[100];
 } ishared_t[1];
 
+static bool ishared_init_sleep = false;
+
 static void ishared_init_data(struct ishared_s *x)
 {
     for(int i = 0 ; i < 100; i++)
         x->data[i] = i * i;
+    if (ishared_init_sleep) {
+      // Slow down init
+      m_thread_sleep(100);
+    }
 }
 
 static void ishared_test(struct ishared_s *x)
@@ -94,7 +100,6 @@ static struct ishared_s g_var = {
 static void test_static(void)
 {
     ishared2_t p1, p2;
-
     p1 = ishared2_init_once(NULL);
     assert(p1 == NULL);
     p1 = ishared2_init_once(&g_var);
@@ -129,12 +134,14 @@ static void test_shared(void)
 {
     m_thread_t id[MAX_THREAD];
 
+    ishared_init_sleep = true;
     for(int i = 0; i < MAX_THREAD; i++) {
         m_thread_create(id[i], func, (void*) (intptr_t) i);
     }
     for(int i = 0; i < MAX_THREAD; i++) {
         m_thread_join(id[i]);
     }
+    ishared_init_sleep = false;
 }
 
 int main(void)
