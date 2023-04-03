@@ -492,6 +492,14 @@ static void test_init_oa(void)
         for(int i = 1; i < max; i++) {
           *dict_oa_int_safe_get (d1, 1000+i) = -3;
         }
+        for(int i = 1; i < del; i++) {
+          assert (*dict_oa_int_safe_get (d1, 1000+i) == -3);
+          b = dict_oa_int_erase (d1, 1000+i);
+          assert (b);
+        }
+        for(int i = 1; i < max; i++) {
+          *dict_oa_int_safe_get (d1, 1000+i) = -3;
+        }
         for(int i = 1; i < max; i++) {
           assert (*dict_oa_int_get (d1, 1000+i) == -3);
           b = dict_oa_int_erase (d1, 1000+i);
@@ -678,6 +686,28 @@ static void test_emplace (void)
   dict_mpz_clear(d);
 }
 
+static void test_coverage(void)
+{
+  // Call of the utilities functions, so that they do not impact the coverage
+  dict_oa_int_array_pair_t v;
+  dict_oa_int_array_pair_init(v);
+  dict_oa_int_pair_ct arg = { 23, 23 };
+  dict_oa_int_array_pair_push_back(v, arg);
+  dict_oa_int_array_pair_reset(v);
+  dict_oa_int_array_pair_clear(v);
+
+  dict_str_array_list_pair_t d1, d2;
+  dict_str_array_list_pair_init(d1);
+  dict_str_array_list_pair_init(d2);
+  dict_str_list_pair_t list;
+  dict_str_list_pair_init(list);
+  dict_str_array_list_pair_push_back(d1, list);
+  dict_str_array_list_pair_set(d1, d2);
+  dict_str_list_pair_clear(list);
+  dict_str_array_list_pair_clear(d1);
+  dict_str_array_list_pair_clear(d2);
+}
+
 int main(void)
 {
   test1();
@@ -691,5 +721,6 @@ int main(void)
   test_oa_str1();
   test_oa_str2();
   testobj_final_check();
+  test_coverage();
   exit(0);
 }
