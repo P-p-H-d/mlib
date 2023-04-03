@@ -465,6 +465,40 @@ static void test_init_oa(void)
       b = dict_oa_int_erase (d1, 2*i);
       assert (b);
     }
+    for(int max = 1000; max < 10000; max+= 500) {
+      for(int del = max/2 ; del < max ; del += 100) {
+        for(int i = 1; i < max; i++) {
+          dict_oa_int_set_at(d1, 1000+i, -1);
+          assert (*dict_oa_int_get (d1, 1000+i) == -1);
+          dict_oa_int_set_at(d1, 1000+i, -2);
+          assert (*dict_oa_int_get (d1, 1000+i) == -2);
+        }
+        for(int i = 1; i < del; i++) {
+          assert (*dict_oa_int_get (d1, 1000+i) == -2);
+          assert (*dict_oa_int_safe_get (d1, 1000+i) == -2);
+          b = dict_oa_int_erase (d1, 1000+i);
+          assert (b);
+        }
+        for(int i = 1; i < max; i++) {
+          dict_oa_int_set_at(d1, 1000+i, -2);
+          assert (*dict_oa_int_get (d1, 1000+i) == -2);
+        }
+        for(int i = 1; i < max; i++) {
+          assert (*dict_oa_int_get (d1, 1000+i) == -2);
+          assert (*dict_oa_int_safe_get (d1, 1000+i) == -2);
+          b = dict_oa_int_erase (d1, 1000+i);
+          assert (b);
+        }
+        for(int i = 1; i < max; i++) {
+          *dict_oa_int_safe_get (d1, 1000+i) = -3;
+        }
+        for(int i = 1; i < max; i++) {
+          assert (*dict_oa_int_get (d1, 1000+i) == -3);
+          b = dict_oa_int_erase (d1, 1000+i);
+          assert (b);
+        }
+      }
+    }
     assert (dict_oa_int_size (d1) == 1);
     dict_oa_int_swap (d1, d2);
     assert (dict_oa_int_size (d1) == 100);
