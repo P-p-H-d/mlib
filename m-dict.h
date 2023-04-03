@@ -837,30 +837,33 @@
     M_ASSERT (str != NULL);                                                   \
     M_C(name, _reset)(dict);                                                  \
     bool success = false;                                                     \
-    int c = *str++;                                                           \
-    if (M_UNLIKELY (c != '{')) goto exit;                                     \
-    c = *str++;                                                               \
+    int c = m_core_str_nospace(&str);                                         \
+    if (M_UNLIKELY (c != '{')) { goto exit; }                                 \
+    c = m_core_str_nospace(&str);                                             \
     if (M_UNLIKELY (c == '}')) { success = true; goto exit;}                  \
-    if (M_UNLIKELY (c == 0)) goto exit;                                       \
+    if (M_UNLIKELY (c == 0))   { goto exit; }                                 \
     str--;                                                                    \
     key_type key;                                                             \
     M_IF(isSet)( ,value_type value);                                          \
     M_CALL_INIT(key_oplist, key);                                             \
-    M_CALL_INIT(value_oplist, value);                                         \
+    M_IF(isSet)( , M_CALL_INIT(value_oplist, value) );                        \
     do {                                                                      \
-      while (isspace((int) *str)) str++;                                      \
+      c = m_core_str_nospace(&str);                                           \
+      str--;                                                                  \
       bool b = M_CALL_PARSE_STR(key_oplist, key, str, &str);                  \
       M_IF(isSet)(                                                            \
                   if (b == false) { goto exit_clear; }                        \
                   M_C(name, _push)(dict, key);                                \
                   ,                                                           \
-                  do { c = *str++; } while (isspace(c));                      \
+                  c = m_core_str_nospace(&str);                               \
                   if (b == false || c != ':') { goto exit_clear; }            \
+                  c = m_core_str_nospace(&str);                               \
+                  str--;                                                      \
                   b = M_CALL_PARSE_STR(value_oplist, value, str, &str);       \
                   if (b == false) { goto exit_clear; }                        \
                   M_C(name, _set_at)(dict, key, value);                       \
                 )                                                             \
-      do { c = *str++; } while (isspace(c));                                  \
+      c = m_core_str_nospace(&str);                                           \
     } while (c == ',');                                                       \
     success = (c == '}');                                                     \
   exit_clear:                                                                 \
@@ -878,39 +881,37 @@
   {                                                                           \
     M_ASSERT (file != NULL);                                                  \
     M_C(name, _reset)(dict);                                                  \
-    int c = fgetc(file);                                                      \
+    int c = m_core_fgetc_nospace(file);                                       \
     if (M_UNLIKELY (c != '{')) return false;                                  \
-    c = fgetc(file);                                                          \
-    if (M_UNLIKELY (c == '}')) return true;                                   \
+    c = m_core_fgetc_nospace(file);                                           \
+    if (M_UNLIKELY(c == '}')) return true;                                    \
     if (M_UNLIKELY (c == EOF)) return true;                                   \
     ungetc(c, file);                                                          \
     key_type key;                                                             \
+    M_IF(isSet)( ,value_type value);                                          \
     M_CALL_INIT(key_oplist, key);                                             \
-    M_IF(isSet)(,                                                             \
-                value_type value;                                             \
-                M_CALL_INIT(value_oplist, value);                             \
-                )                                                             \
+    M_IF(isSet)( , M_CALL_INIT(value_oplist, value) );                        \
     do {                                                                      \
-      do { c = fgetc(file); } while (isspace(c));                             \
+      c = m_core_fgetc_nospace(file);                                         \
       ungetc(c, file);                                                        \
       bool b = M_CALL_IN_STR(key_oplist, key, file);                          \
       M_IF(isSet)(                                                            \
                   if (b == false) { break; }                                  \
                   M_C(name, _push)(dict, key);                                \
                   ,                                                           \
-                  do { c = fgetc(file); } while (isspace(c));                 \
+                  c = m_core_fgetc_nospace(file);                             \
                   if (b == false || c == EOF) { break; }                      \
                   if (c != ':') { c = 0; break; }                             \
+                  c = m_core_fgetc_nospace(file);                             \
+                  ungetc(c, file);                                            \
                   b = M_CALL_IN_STR(value_oplist, value, file);               \
                   if (b == false) { c = 0; break; }                           \
                   M_C(name, _set_at)(dict, key, value);                       \
                                                                         )     \
-      do { c = fgetc(file); } while (isspace(c));                             \
+      c = m_core_fgetc_nospace(file);                                         \
     } while (c == ',');                                                       \
     M_CALL_CLEAR(key_oplist, key);                                            \
-    M_IF(isSet)(,                                                             \
-                M_CALL_CLEAR(value_oplist, value);                            \
-                )                                                             \
+    M_IF(isSet)(, M_CALL_CLEAR(value_oplist, value); )                        \
     return c == '}';                                                          \
   }                                                                           \
   , /* no IN_STR */ )                                                         \
