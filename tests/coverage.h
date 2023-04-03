@@ -149,6 +149,7 @@
 #undef M_ASSIGN_CAST
 #undef M_CHECK_DEFAULT_TYPE
 #undef M_CHECK_SAME
+#undef isspace
 #else
 /* For normal builds, empty macros which does nothing */
 #define START_COVERAGE
