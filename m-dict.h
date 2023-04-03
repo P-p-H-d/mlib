@@ -893,21 +893,22 @@
     M_IF(isSet)( , M_CALL_INIT(value_oplist, value) );                        \
     do {                                                                      \
       c = m_core_fgetc_nospace(file);                                         \
+      if (M_UNLIKELY (c == EOF)) { break; }                                   \
       ungetc(c, file);                                                        \
       bool b = M_CALL_IN_STR(key_oplist, key, file);                          \
       M_IF(isSet)(                                                            \
-                  if (b == false) { break; }                                  \
+                  if (M_UNLIKELY (b == false)) { break; }                     \
                   M_C(name, _push)(dict, key);                                \
-                  ,                                                           \
+      ,                                                                       \
                   c = m_core_fgetc_nospace(file);                             \
-                  if (b == false || c == EOF) { break; }                      \
-                  if (c != ':') { c = 0; break; }                             \
+                  if (M_UNLIKELY (b == false || c != ':')) { c = 0; break; }  \
                   c = m_core_fgetc_nospace(file);                             \
+                  if (M_UNLIKELY (c == EOF)) { break; }                       \
                   ungetc(c, file);                                            \
                   b = M_CALL_IN_STR(value_oplist, value, file);               \
-                  if (b == false) { c = 0; break; }                           \
+                  if (M_UNLIKELY (b == false)) { c = 0; break; }              \
                   M_C(name, _set_at)(dict, key, value);                       \
-                                                                        )     \
+      )                                                                       \
       c = m_core_fgetc_nospace(file);                                         \
     } while (c == ',');                                                       \
     M_CALL_CLEAR(key_oplist, key);                                            \
