@@ -2621,7 +2621,8 @@ M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_float, float, "%f")
 M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_double, double, "%lf")
 M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ldouble, long double, "%Lf")
 
-/* Return the next character (like fgetc) which is not a space character */
+/* Return the next character (like fgetc) which is not a space character
+   and advance the FILE stream accordingly */
 static inline int m_core_fgetc_nospace(FILE *f)
 {
   int c;
@@ -2633,7 +2634,8 @@ static inline int m_core_fgetc_nospace(FILE *f)
 
 #endif /* End of stdio definitions */
 
-/* Return the next character (like fgetc) which is not a space character */
+/* Return the next character (like fgetc) which is not a space character
+   and advance the string stream accordingly */
 static inline char m_core_str_nospace(const char **str)
 {
   char c;
