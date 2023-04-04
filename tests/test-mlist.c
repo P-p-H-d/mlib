@@ -224,6 +224,22 @@ static void test_uint(void)
       s --;
     }
 
+  for(unsigned i = 10; i < 21; i++)
+    list_uint_push_back (v, i);
+  list_uint_it (u, v);
+  list_uint_next(u);
+  list_uint_it_end (u2, v2);
+  for(unsigned i = 0; i < 10; i++) {
+    list_uint_splice_at (v2, u2, v, u);
+  }
+  assert (list_uint_size(v) == 1);
+  assert (list_uint_size (v2) == 20);
+  s = 19.0;
+  for M_EACH(item, v2, LIST_UINT_OPLIST) {
+      assert (*item == s);
+      s -= 1.0;
+  }
+
   list_uint_clear(v);
   list_uint_clear(v2);
 }
@@ -243,9 +259,17 @@ static void test_mpz(void)
   testobj_set_ui (z, 2);
   list_mpz_push_back(v, z);
   assert (list_mpz_empty_p(v) == false);
+  assert (list_mpz_size(v) == 1);
 
   list_mpz_pop_back(&x, v);
   assert( testobj_equal_p (x, z));
+  assert (list_mpz_empty_p(v) == true);
+  assert (list_mpz_size(v) == 0);
+
+  list_mpz_push_back(v, z);
+  assert (list_mpz_empty_p(v) == false);
+  assert (list_mpz_size(v) == 1);
+  list_mpz_pop_back(NULL, v);
   assert (list_mpz_empty_p(v) == true);
   assert (list_mpz_size(v) == 0);
 
@@ -639,6 +663,22 @@ static void test_dual_it1(void)
   assert (list2_double_empty_p(list));
   assert (list2_double_size (list2) == 10);
   double s = 9.0;
+  for M_EACH(item, list2, LIST2_DOUBLE_OPLIST) {
+      assert (*item == s);
+      s -= 1.0;
+    }
+
+  for(double i = 10; i < 21; i++)
+    list2_double_push_back (list, i);
+  list2_double_it (it, list);
+  list2_double_next(it);
+  list2_double_it_end (it2, list2);
+  for(double i = 0; i < 10; i++) {
+    list2_double_splice_at (list2, it2, list, it);
+  }
+  assert (list2_double_size(list) == 1);
+  assert (list2_double_size (list2) == 20);
+  s = 19.0;
   for M_EACH(item, list2, LIST2_DOUBLE_OPLIST) {
       assert (*item == s);
       s -= 1.0;
