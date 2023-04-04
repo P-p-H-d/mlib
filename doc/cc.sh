@@ -12,5 +12,5 @@ while test $# -gt 0 ; do
     shift
 done
 cc $param1 -E |grep -v '^#' > ${name}      \
-    && perl -i -e  's/;/;\n/g' ${name}    \
+    && perl -pi -e  's/\;/\;\n/g' ${name}    \
     && cc $param2 ${name}
