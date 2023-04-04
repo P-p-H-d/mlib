@@ -613,6 +613,8 @@
     M_ASSERT (M_C(name, _sublist_p)(olist, opos));                            \
     /* Remove the item 'opos' from the list 'olist' */                        \
     struct M_C(name, _s) *current = opos->current;                            \
+    /* current shall reference a valid element of the list */                 \
+    M_ASSERT (current != NULL);                                               \
     struct M_C(name, _s) *next    = current->next;                            \
     if (opos->previous == NULL) {                                             \
       *olist = next;                                                          \
@@ -1432,6 +1434,8 @@
     M_ASSERT (npos != NULL && opos != NULL);                                  \
     /* First remove the item 'opos' from the list 'olist' */                  \
     struct M_C(name, _s) *current = opos->current;                            \
+    /* It shall refer a valid argument in the list */                         \
+    M_ASSERT(current != NULL);                                                \
     struct M_C(name, _s) *next    = current->next;                            \
     if (opos->previous == NULL) {                                             \
       olist->back = next;                                                     \
