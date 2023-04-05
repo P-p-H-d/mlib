@@ -174,6 +174,22 @@ static void check_io(void)
     string_set_str (str, " { ] ");
     b = dict_str_parse_str(dict2, string_get_cstr(str), &sp);
     assert (!b);
+
+    string_set_str (str, " {  \"LICENCE\" : \"BSD3\" ");
+    b = dict_str_parse_str(dict2, string_get_cstr(str), &sp);
+    assert (!b);
+
+    string_set_str (str, " {  \"LICENCE\" :");
+    b = dict_str_parse_str(dict2, string_get_cstr(str), &sp);
+    assert (!b);
+
+    string_set_str (str, " {  \"LICENCE\"");
+    b = dict_str_parse_str(dict2, string_get_cstr(str), &sp);
+    assert (!b);
+
+    string_set_str (str, " { ");
+    b = dict_str_parse_str(dict2, string_get_cstr(str), &sp);
+    assert (!b);
   }
 }
 

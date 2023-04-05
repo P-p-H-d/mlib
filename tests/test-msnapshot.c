@@ -38,7 +38,7 @@ typedef struct {
 } data_t;
 
 static void data_crc(data_t *p) { p->p = 0-p->n; p->c = ~p->n; }
-static void data_init(data_t *p) { p->n = 0; p->spare1 = 0; p->spare2 = 0; data_crc(p); p->v = calloc(1, 1); assert(p->v); }
+static void data_init(data_t *p) { p->n = 0; p->spare1 = 0; p->spare2 = 0; data_crc(p); p->v = calloc(1, 1); assert(p->v != NULL); }
 static void data_valid_p(const data_t *p) { assert (p->n == (0-p->p) && p->n == ~p->c); }
 static void data_clear(data_t *p) { free(p->v); }
 static void data_set(data_t *p, data_t o) { p->n = o.n; data_crc(p); }

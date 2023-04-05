@@ -277,6 +277,14 @@ static void test_mpz(void)
     assert(b);
     assert(strcmp(sp, "") == 0);
     assert(array_mpz_equal_p(array1, array2));
+
+    b = array_mpz_parse_str(array2, "[", &sp);
+    assert(!b);
+    b = array_mpz_parse_str(array2, "[17,", &sp);
+    assert(!b);
+    b = array_mpz_parse_str(array2, "[17,18", &sp);
+    assert(!b);
+
     // NOTE: Not the same order than list...
     }
 
