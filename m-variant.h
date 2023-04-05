@@ -232,6 +232,7 @@
     my->type = org->type;                                                     \
     switch (org->type) {                                                      \
       M_MAP2(M_VAR1ANT_DEFINE_INIT_SET_FUNC, name, __VA_ARGS__)               \
+      case M_C(name, _EMPTY): /* fallthrough */                               \
       default: M_ASSUME(org->type == M_C(name, _EMPTY)); break;               \
     }                                                                         \
   }
@@ -257,6 +258,7 @@
       /* Same type: optimize the set */                                       \
       switch (org->type) {                                                    \
         M_MAP2(M_VAR1ANT_DEFINE_SET_FUNC, name, __VA_ARGS__)                  \
+        case M_C(name, _EMPTY): /* fallthrough */                             \
         default: M_ASSUME(org->type == M_C(name, _EMPTY)); break;             \
       }                                                                       \
     }                                                                         \
@@ -275,6 +277,7 @@
     M_VAR1ANT_CONTRACT(name, my);                                             \
     switch (my->type) {                                                       \
       M_MAP2(M_VAR1ANT_DEFINE_CLEAR_FUNC, name,  __VA_ARGS__)                 \
+      case M_C(name, _EMPTY): /* fallthrough */                               \
       default: M_ASSUME(my->type == M_C(name, _EMPTY)); break;                \
     }                                                                         \
     my->type = M_C(name, _EMPTY);                                             \
