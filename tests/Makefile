@@ -68,7 +68,7 @@ all:
 	awk '  printit { print } /END_COVERAGE/ { printit=1}' $< > $<.end.c
 	$(CC) $(CPPFLAGS) -E -DNDEBUG -DWITHIN_COVERAGE $< |grep -v '^#' |awk ' /END_COVERAGE/ { printit=0} printit { print } /START_COVERAGE/ { printit=1 }' |perl -p -e "s/;(?![\"'])/;\n/g ; s/}(?![\"'])/}\n/g ; s/{(?![\"'])/{\n/g" > $<.middle.c
 	cat $<.first.c $<.middle.c $<.end.c > $<.c
-	$(CC) $(CPPFLAGS) -DBUILD_COVERAGE -ftest-coverage -fprofile-arcs -O -g $<.c -o $<.exe $(LDFLAGS)
+	$(CC) $(CPPFLAGS) -DBUILD_COVERAGE -ftest-coverage -fprofile-arcs -O0 -g $<.c -o $<.exe $(LDFLAGS)
 	$(LOG_COMPILER) ./$<.exe
 	LANG=C gcov -b $<.gcno >  `basename $< .c`.synt
 	cat `basename $< .c`.synt
