@@ -43,3 +43,7 @@ config
 .vs
 tmp-serial.*
 *~
+*.gcda
+*.gcno
+*.gcov
+*.synt
