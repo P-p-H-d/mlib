@@ -150,6 +150,14 @@
 #undef M_CHECK_DEFAULT_TYPE
 #undef M_CHECK_SAME
 #undef isspace
+#elif defined(BUILD_COVERAGE)
+// Overload assert to avoid polluting final branch coverage
+// No need to provide debug outputs. Just abort in case of error.
+#undef assert
+static void assert(int cond)
+{
+   if (!cond) abort();
+}
 #else
 /* For normal builds, empty macros which does nothing */
 #define START_COVERAGE
