@@ -314,6 +314,73 @@ static void test_mpz(void)
   assert (list_mpz_equal_p (v, list2));
   list_mpz_clear(list2);
 
+  f = m_core_fopen ("a-mlist.dat", "wt");
+  if (!f) abort();
+  fprintf(f, "[");
+  fclose (f);
+  list_mpz_init(list2);
+  f = m_core_fopen ("a-mlist.dat", "rt");
+  b = list_mpz_in_str (list2, f);
+  assert (b == false);
+  fclose(f);
+  list_mpz_clear(list2);
+
+  f = m_core_fopen ("a-mlist.dat", "wt");
+  if (!f) abort();
+  fprintf(f, "[17");
+  fclose (f);
+  list_mpz_init(list2);
+  f = m_core_fopen ("a-mlist.dat", "rt");
+  b = list_mpz_in_str (list2, f);
+  assert (b == false);
+  fclose(f);
+  list_mpz_clear(list2);
+
+  f = m_core_fopen ("a-mlist.dat", "wt");
+  if (!f) abort();
+  fprintf(f, "[17,");
+  fclose (f);
+  list_mpz_init(list2);
+  f = m_core_fopen ("a-mlist.dat", "rt");
+  b = list_mpz_in_str (list2, f);
+  assert (b == false);
+  fclose(f);
+  list_mpz_clear(list2);
+
+  f = m_core_fopen ("a-mlist.dat", "wt");
+  if (!f) abort();
+  fprintf(f, "[17,18");
+  fclose (f);
+  list_mpz_init(list2);
+  f = m_core_fopen ("a-mlist.dat", "rt");
+  b = list_mpz_in_str (list2, f);
+  assert (b == false);
+  fclose(f);
+  list_mpz_clear(list2);
+
+  f = m_core_fopen ("a-mlist.dat", "wt");
+  if (!f) abort();
+  fprintf(f, "]");
+  fclose (f);
+  list_mpz_init(list2);
+  f = m_core_fopen ("a-mlist.dat", "rt");
+  b = list_mpz_in_str (list2, f);
+  assert (b == false);
+  fclose(f);
+  list_mpz_clear(list2);
+
+  f = m_core_fopen ("a-mlist.dat", "wt");
+  if (!f) abort();
+  fprintf(f, "[]");
+  fclose (f);
+  list_mpz_init(list2);
+  f = m_core_fopen ("a-mlist.dat", "rt");
+  b = list_mpz_in_str (list2, f);
+  assert (b == true);
+  fclose(f);
+  assert(list_mpz_empty_p(list2));
+  list_mpz_clear(list2);
+
   list_mpz_reset(v);
   list_mpz_init(list2);
   M_LET(str, STRING_OPLIST) {
@@ -346,6 +413,20 @@ static void test_mpz(void)
     assert(b);
     assert(strcmp(sp, "") == 0);
     assert(list_mpz_equal_p(v, list2));
+    assert(list_mpz_equal_p(v, v));
+    assert(list_mpz_equal_p(list2, list2));
+
+    b = list_mpz_parse_str(list2, "[17,18", &sp);
+    assert(!b);
+
+    b = list_mpz_parse_str(list2, "[17,", &sp);
+    assert(!b);
+
+    b = list_mpz_parse_str(list2, "[17", &sp);
+    assert(!b);
+
+    b = list_mpz_parse_str(list2, "[", &sp);
+    assert(!b);
   }
   
   list_mpz_clear(v);
@@ -469,6 +550,10 @@ static void test_dual_push1(void)
   }
   list2_double_init_set (list2, list);
   assert(list2_double_equal_p(list, list2));
+  assert(list2_double_equal_p(list, list));
+  list2_double_push_back(list, 17.0);
+  assert(!list2_double_equal_p(list, list2));
+  list2_double_pop_back(NULL, list);
 
   list2_double_reverse(list2);
   for(double e = 0.0; e < 1024.0 ; e += 1.0) {

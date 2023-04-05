@@ -245,6 +245,67 @@ static void test_mpz(void)
   assert (array_mpz_equal_p (array1, array2));
   fclose(f);
 
+  f = m_core_fopen ("a-marray.dat", "wt");
+  if (!f) abort();
+  fprintf(f, "array");
+  fclose (f);
+  f = m_core_fopen ("a-marray.dat", "rt");
+  if (!f) abort();
+  b = array_mpz_in_str (array2, f);
+  assert (b == false);
+  fclose(f);
+
+  f = m_core_fopen ("a-marray.dat", "wt");
+  if (!f) abort();
+  fprintf(f, "[");
+  fclose (f);
+  f = m_core_fopen ("a-marray.dat", "rt");
+  if (!f) abort();
+  b = array_mpz_in_str (array2, f);
+  assert (b == false);
+  fclose(f);
+
+  f = m_core_fopen ("a-marray.dat", "wt");
+  if (!f) abort();
+  fprintf(f, "[17");
+  fclose (f);
+  f = m_core_fopen ("a-marray.dat", "rt");
+  if (!f) abort();
+  b = array_mpz_in_str (array2, f);
+  assert (b == false);
+  fclose(f);
+
+  f = m_core_fopen ("a-marray.dat", "wt");
+  if (!f) abort();
+  fprintf(f, "[17,");
+  fclose (f);
+  f = m_core_fopen ("a-marray.dat", "rt");
+  if (!f) abort();
+  b = array_mpz_in_str (array2, f);
+  assert (b == false);
+  fclose(f);
+
+  f = m_core_fopen ("a-marray.dat", "wt");
+  if (!f) abort();
+  fprintf(f, "[17,18");
+  fclose (f);
+  f = m_core_fopen ("a-marray.dat", "rt");
+  if (!f) abort();
+  b = array_mpz_in_str (array2, f);
+  assert (b == false);
+  fclose(f);
+
+  f = m_core_fopen ("a-marray.dat", "wt");
+  if (!f) abort();
+  fprintf(f, "[]");
+  fclose (f);
+  f = m_core_fopen ("a-marray.dat", "rt");
+  if (!f) abort();
+  b = array_mpz_in_str (array2, f);
+  assert (b == true);
+  fclose(f);
+  assert(array_mpz_empty_p(array2));
+  
   array_mpz_reset(array1);
 
   M_LET(str, STRING_OPLIST) {
@@ -277,6 +338,12 @@ static void test_mpz(void)
     assert(b);
     assert(strcmp(sp, "") == 0);
     assert(array_mpz_equal_p(array1, array2));
+
+    array_mpz_push_back(array1, z);
+    assert(!array_mpz_equal_p(array1, array2));
+    testobj_set_ui (z, 43);
+    array_mpz_push_back(array2, z);
+    assert(!array_mpz_equal_p(array1, array2));
 
     b = array_mpz_parse_str(array2, "[", &sp);
     assert(!b);
@@ -408,6 +475,10 @@ static void test_d(void)
   
   array_uint_init_set (a2, a1);
   assert (array_uint_equal_p (a2, a1));
+  array_uint_push_back(a2, 890);
+  assert (!array_uint_equal_p (a2, a1));
+  array_uint_push_back(a1, 891);
+  assert (!array_uint_equal_p (a2, a1));
 
   size_t h = array_uint_hash(a2);
   assert (h != 0);

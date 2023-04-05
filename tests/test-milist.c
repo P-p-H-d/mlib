@@ -120,12 +120,7 @@ static void test(void)
   assert (ilist_tname_size(list) == 0);
   assert (ilist_tname_empty_p(list));
   
-  for M_EACH(item, list, ILIST_OPLIST(ilist_tname)) {
-      (void)item;
-      if (M_UNLIKELY_NOMEM(1)) {
-        assert(false);
-      }
-    }
+  for M_EACH(item, list, ILIST_OPLIST(ilist_tname)) ( (void)item, assert(false) );
 
   ilist_tname_push_back (list, &x3);
   assert (ilist_tname_size (list) == 1);
