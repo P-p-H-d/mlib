@@ -231,9 +231,8 @@
     M_VAR1ANT_CONTRACT(name, org);                                            \
     my->type = org->type;                                                     \
     switch (org->type) {                                                      \
-    case M_C(name, _EMPTY): break;                                            \
       M_MAP2(M_VAR1ANT_DEFINE_INIT_SET_FUNC, name, __VA_ARGS__)               \
-    default: M_ASSUME(false); break;                                          \
+      default: M_ASSUME(org->type == M_C(name, _EMPTY)); break;               \
     }                                                                         \
   }
 
@@ -257,9 +256,8 @@
     } else {                                                                  \
       /* Same type: optimize the set */                                       \
       switch (org->type) {                                                    \
-      case M_C(name, _EMPTY): break;                                          \
         M_MAP2(M_VAR1ANT_DEFINE_SET_FUNC, name, __VA_ARGS__)                  \
-      default: M_ASSUME(false); break;                                        \
+        default: M_ASSUME(org->type == M_C(name, _EMPTY)); break;             \
       }                                                                       \
     }                                                                         \
   }
@@ -276,9 +274,8 @@
   static inline void M_C(name, _clear)(M_C(name,_ct) my) {                    \
     M_VAR1ANT_CONTRACT(name, my);                                             \
     switch (my->type) {                                                       \
-    case M_C(name, _EMPTY): break;                                            \
       M_MAP2(M_VAR1ANT_DEFINE_CLEAR_FUNC, name,  __VA_ARGS__)                 \
-    default: M_ASSUME(false); break;                                          \
+      default: M_ASSUME(my->type == M_C(name, _EMPTY)); break;                \
     }                                                                         \
     my->type = M_C(name, _EMPTY);                                             \
   }
