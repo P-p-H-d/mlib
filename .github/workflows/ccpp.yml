@@ -135,7 +135,7 @@ jobs:
 
     # The host should always be linux
   build_aarch64:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     name: Build on aarch64
     steps:
       - uses: actions/checkout@v3
