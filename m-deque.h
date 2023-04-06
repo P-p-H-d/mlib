@@ -826,17 +826,15 @@
     const size_t index0 = d->front->index;                                    \
     size_t count = 0;                                                         \
     /* This loop is in log(N) since the size increase exponentially.*/        \
-    for(node_t *n = d->front->node;                                           \
-        n != NULL ;                                                           \
+    for(node_t *n = d->front->node; true ;                                    \
         n = (n == d->back->node) ? NULL :                                     \
           M_C(name, _node_list_next_obj)(d->list, n) ){                       \
+      M_ASSERT(n != NULL);                                                    \
       if (index0 + key < count + n->size) {                                   \
         return &n->data[index0 + key - count];                                \
       }                                                                       \
       count += n->size;                                                       \
     }                                                                         \
-    M_ASSERT(false);                                                          \
-    return NULL;                                                              \
   }                                                                           \
                                                                               \
   static inline type const *                                                  \

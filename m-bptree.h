@@ -926,12 +926,13 @@
   {                                                                           \
     M_ASSERT (!M_C(name, _is_leaf)(parent));                                  \
     const int num = M_C(name, _get_num)(parent);                              \
-    for(int i = 0; i <= num; i++) {                                           \
+    int i = 0;                                                                \
+    while (true) {                                                            \
+      M_ASSERT(i <= num);                                                     \
       if (parent->kind.node[i] == child)                                      \
         return i;                                                             \
+      i++;                                                                    \
     }                                                                         \
-    M_ASSERT(false);                                                          \
-    return -1; /* unreachable */                                              \
   }                                                                           \
                                                                               \
   static inline bool M_C(name, _erase)(tree_t b, key_t const key)             \
