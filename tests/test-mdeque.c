@@ -234,8 +234,15 @@ static void test_set(void)
       deque_push_back(d, i);
     assert (!deque_equal_p(d, e));
     deque_set(e, d);
-    deque_set (e, e);
+    deque_set(e, e);
     assert (deque_size(e) == deque_size (d));
+    assert (deque_equal_p(d, e));
+    deque_push_back(d, 15);
+    deque_push_back(e, 16);
+    assert (!deque_equal_p(d, e));
+    deque_pop_back(NULL, d);
+    deque_pop_back(NULL, e);
+    assert (deque_equal_p(d, e));
     deque_it_t it1, it2;
     for(deque_it(it1, e), deque_it (it2, d) ;
 	!deque_end_p (it1) && !deque_end_p (it2) ;

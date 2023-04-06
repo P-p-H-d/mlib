@@ -333,6 +333,16 @@ static void test4(void)
   assert(btree_size(b1) == 0);
   assert (btree_equal_p(b1, b2));
 
+  btree_set_at(b1, 0, 1);
+  btree_set_at(b2, 0, 2);
+  assert (!btree_equal_p(b1, b2));
+
+  btree_set_at(b1, 0, 1);
+  btree_set_at(b2, 1, 1);
+  bool b = btree_erase(b2, 0);
+  assert( b );
+  assert (!btree_equal_p(b1, b2));
+
   btree_clear(b1);
   btree_clear(b2);
 

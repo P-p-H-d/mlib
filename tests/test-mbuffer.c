@@ -568,7 +568,12 @@ static void test_spsc(void)
   b = squeue_uint_pop(&j, q);
   assert(b);
   assert(j == 65536);
-  
+  do {
+      l = 189;
+      b = squeue_uint_push_move(q, &l);
+  } while (b);
+  assert( squeue_uint_size(q) == 256);
+
   squeue_uint_clear(q);
 }
 
