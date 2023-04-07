@@ -73,11 +73,7 @@ static void test_uint(void)
 
   int k = 0;
   assert(rbtree_uint_size(tree) == 0);
-  for M_EACH(item, tree, UINT_OPLIST) {
-      assert(item != NULL);
-      assert (false);
-      k ++;
-    }
+  for M_EACH(item, tree, UINT_OPLIST) ((void)item, assert (false));
   assert(k == 0);
 
   rbtree_uint_push(tree, 10);
@@ -259,11 +255,13 @@ static void test_uint(void)
       assert (ptr == NULL);
     }
     for(unsigned int i = 1; i < num; i+=3) {
-      b = rbtree_uint_pop_at(NULL, tree2, i);
+      unsigned j;
+      b = rbtree_uint_pop_at(&j, tree2, i);
       assert(b);
+      assert(i == j);
       ptr = rbtree_uint_get(tree2, i);
       assert (ptr == NULL);
-    }    
+    }
   }
 
   rbtree_uint_init (tree);
@@ -371,6 +369,72 @@ static void test_io(void)
     assert(b);
     assert(*sp == 0);
     assert(rbtree_uint_equal_p(tree1, tree2));
+
+    rbtree_uint_push(tree1, 45678);
+    assert(!rbtree_uint_equal_p(tree1, tree2));
+    rbtree_uint_push(tree2, 45679);
+    assert(!rbtree_uint_equal_p(tree1, tree2));
+
+    f = m_core_fopen ("a-mrbtree.dat", "wt");
+    if (!f) abort();
+    fprintf(f, "[]");
+    fclose (f);
+    f = m_core_fopen ("a-mrbtree.dat", "rt");
+    if (!f) abort();
+    b = rbtree_uint_in_str (tree2, f);
+    assert (b == true);
+    assert (rbtree_uint_empty_p (tree2));
+    fclose(f);
+
+    f = m_core_fopen ("a-mrbtree.dat", "wt");
+    if (!f) abort();
+    fprintf(f, "{}");
+    fclose (f);
+    f = m_core_fopen ("a-mrbtree.dat", "rt");
+    if (!f) abort();
+    b = rbtree_uint_in_str (tree2, f);
+    assert (b == false);
+    fclose(f);
+
+    f = m_core_fopen ("a-mrbtree.dat", "wt");
+    if (!f) abort();
+    fprintf(f, "[");
+    fclose (f);
+    f = m_core_fopen ("a-mrbtree.dat", "rt");
+    if (!f) abort();
+    b = rbtree_uint_in_str (tree2, f);
+    assert (b == false);
+    fclose(f);
+
+    f = m_core_fopen ("a-mrbtree.dat", "wt");
+    if (!f) abort();
+    fprintf(f, "[17");
+    fclose (f);
+    f = m_core_fopen ("a-mrbtree.dat", "rt");
+    if (!f) abort();
+    b = rbtree_uint_in_str (tree2, f);
+    assert (b == false);
+    fclose(f);
+
+    f = m_core_fopen ("a-mrbtree.dat", "wt");
+    if (!f) abort();
+    fprintf(f, "[17,");
+    fclose (f);
+    f = m_core_fopen ("a-mrbtree.dat", "rt");
+    if (!f) abort();
+    b = rbtree_uint_in_str (tree2, f);
+    assert (b == false);
+    fclose(f);
+
+    f = m_core_fopen ("a-mrbtree.dat", "wt");
+    if (!f) abort();
+    fprintf(f, "[17,18");
+    fclose (f);
+    f = m_core_fopen ("a-mrbtree.dat", "rt");
+    if (!f) abort();
+    b = rbtree_uint_in_str (tree2, f);
+    assert (b == false);
+    fclose(f);
   }  
 }
 
@@ -489,10 +553,7 @@ static void test_from(void)
 
   // From higher than all elements in the tree ==> no iterator.
   k = 0;
-  for( rbtree_uint_it_from(it, tree, 11); rbtree_uint_it_while_p(it, 17); rbtree_uint_next(it)) {
-    assert (k < 2);
-    k++;
-  }
+  for( rbtree_uint_it_from(it, tree, 11); rbtree_uint_it_while_p(it, 17); rbtree_uint_next(it)) k++;
   assert(k == 0);
 
   rbtree_uint_clear(tree);
