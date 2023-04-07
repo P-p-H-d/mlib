@@ -114,7 +114,7 @@
   {                                                                           \
     mem->free_list = NULL;                                                    \
     mem->current_segment = M_MEMORY_ALLOC(M_C(name,_segment_ct));             \
-    if (mem->current_segment == NULL) {                                       \
+    if (M_UNLIKELY_NOMEM(mem->current_segment == NULL)) {                     \
       M_MEMORY_FULL(sizeof (M_C(name,_segment_ct)));                          \
       return;                                                                 \
     }                                                                         \
@@ -156,7 +156,7 @@
     /* If segment is full, allocate a new one from the system */              \
     if (M_UNLIKELY (count >= M_USE_MEMPOOL_MAX_PER_SEGMENT(type))) {          \
       M_C(name,_segment_ct) *new_segment = M_MEMORY_ALLOC (M_C(name,_segment_ct)); \
-      if (M_UNLIKELY (new_segment == NULL)) {                                 \
+      if (M_UNLIKELY_NOMEM (new_segment == NULL)) {                           \
         M_MEMORY_FULL(sizeof (M_C(name,_segment_ct)));                        \
         return NULL;                                                          \
       }                                                                       \

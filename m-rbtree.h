@@ -320,7 +320,7 @@ typedef enum {
     /* If there is no root node, create a new node */                         \
     if (n == NULL) {                                                          \
       n = M_C3(m_rbtr33_,name,_new)();                                        \
-      if (M_UNLIKELY (n == NULL)) {                                           \
+      if (M_UNLIKELY_NOMEM (n == NULL)) {                                     \
         M_MEMORY_FULL(sizeof (node_t));                                       \
         return;                                                               \
       }                                                                       \
@@ -361,7 +361,7 @@ typedef enum {
     }                                                                         \
     /* Create new node to store the data */                                   \
     n = M_C3(m_rbtr33_,name,_new)();                                          \
-    if (M_UNLIKELY (n == NULL) ) {                                            \
+    if (M_UNLIKELY_NOMEM (n == NULL) ) {                                      \
       M_MEMORY_FULL (sizeof (node_t));                                        \
       return;                                                                 \
     }                                                                         \
@@ -692,7 +692,7 @@ typedef enum {
   {                                                                           \
     if (o == NULL) return NULL;                                               \
     node_t *n = M_C3(m_rbtr33_,name,_new)();                                  \
-    if (M_UNLIKELY (n == NULL) ) {                                            \
+    if (M_UNLIKELY_NOMEM (n == NULL) ) {                                      \
       M_MEMORY_FULL (sizeof (node_t));                                        \
       return NULL;                                                            \
     }                                                                         \
@@ -795,7 +795,7 @@ typedef enum {
                                                                               \
   M_IF_DEBUG(                                                                 \
   /* Compute the depth of a node */                                           \
-  static size_t                                                               \
+  static inline size_t                                                        \
   M_C3(m_rbtr33_,name,_compute_depth)(const node_t *n)                        \
   {                                                                           \
     if (n == NULL) return 1;                                                  \
