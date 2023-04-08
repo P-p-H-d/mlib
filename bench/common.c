@@ -235,7 +235,7 @@ test(const char library[], size_t n, const config_func_t functions[], int argc, 
     sprintf(filename, "plot-%s-%d.dat", library, arg.test_function);
     graph_file = fopen(filename, "wt");
     if (!graph_file) {
-      fprintf(stderr, "ERROR: Cannot create plot.dat\n");
+      fprintf(stderr, "ERROR: Cannot create the file '%s'\n", filename);
       exit(-2);
     }
     fprintf(graph_file, "# plotting %s-%d : %s\n# N T", library, arg.test_function, functions[i].funcname);
@@ -271,6 +271,8 @@ test(const char library[], size_t n, const config_func_t functions[], int argc, 
 	avg /= arg.repeat;
 	variance = (variance - arg.repeat * avg * avg) / (arg.repeat - 1);
 	ba = get_best_within(arg.repeat, measure, 1. + arg.within);
+      } else {
+        ba = avg;
       }
       
       // The average value shall be around best_within (and greater)
