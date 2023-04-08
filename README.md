@@ -457,33 +457,31 @@ Performance
 -----------
 
 M\*LIB performance is compared to the one of GNU C++ STL (v10.2) in the following graphs.
-Each graph is presented in non-logarithmic and logarithmic scale to better realize.
+Each graph is presented first in linear scale and then in logarithmic scale to better realize the differences.
 M\*LIB is on par with the STL or even faster.
+
+All used bench codes are available in the bench directory.
+The results for several different libraries are also available [in a separate page](https://github.com/P-p-H-d/mlib/wiki/performance).
 
 #### Singly List
 
 ![Singly List performance](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/bench-list.png)
-![Singly List performance - Log Scale](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/bench-list.png)
+![Singly List performance - Log Scale](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/bench-list-log.png)
 
 #### Array
 
 ![Array performance](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/bench-array.png)
-![Array performance - Log Scale](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/bench-array.png)
+![Array performance - Log Scale](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/bench-array-log.png)
 
 #### Unordered Map
 
 ![Unordered Map performance](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/bench-umap.png)
-![Unordered Map performance - Log Scale](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/bench-umap.png)
+![Unordered Map performance - Log Scale](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/bench-umap-log.png)
 
 #### Ordered Set
 
 ![Ordered Set performance](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/bench-oset.png)
-![Ordered Set performance - Log Scale](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/bench-oset.png)
-
-#### Bench source
-
-All used bench codes are available in the bench directory.
-The results for several libraries are available [in a separate page](https://github.com/P-p-H-d/mlib/wiki/performance).
+![Ordered Set performance - Log Scale](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/bench-oset-log.png)
 
 
 
