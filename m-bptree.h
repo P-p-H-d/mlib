@@ -925,10 +925,9 @@
   M_C(name, _search_for_node)(node_t parent, node_t child)                    \
   {                                                                           \
     M_ASSERT (!M_C(name, _is_leaf)(parent));                                  \
-    const int num = M_C(name, _get_num)(parent);                              \
     int i = 0;                                                                \
     while (true) {                                                            \
-      M_ASSERT(i <= num);                                                     \
+      M_ASSERT(i <= M_C(name, _get_num)(parent));                             \
       if (parent->kind.node[i] == child)                                      \
         return i;                                                             \
       i++;                                                                    \
