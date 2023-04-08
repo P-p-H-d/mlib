@@ -453,6 +453,39 @@ The final goal of the library is to be able to write code like this in pure C wh
         }
 ```
 
+Performance
+-----------
+
+M\*LIB performance is compared to the one of GNU C++ STL (v10.2) in the following graphs.
+Each graph is presented in non-logarithmic and logarithmic scale to better realize.
+M\*LIB is on par with the STL or even faster.
+
+#### Singly List
+
+![Singly List performance](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/bench-list.png)
+![Singly List performance - Log Scale](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/bench-list.png)
+
+#### Array
+
+![Array performance](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/bench-array.png)
+![Array performance - Log Scale](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/bench-array.png)
+
+#### Unordered Map
+
+![Unordered Map performance](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/bench-umap.png)
+![Unordered Map performance - Log Scale](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/bench-umap.png)
+
+#### Ordered Set
+
+![Ordered Set performance](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/bench-oset.png)
+![Ordered Set performance - Log Scale](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/bench-oset.png)
+
+#### Bench source
+
+All used bench codes are available in the bench directory.
+The results for several libraries are available [in a separate page](https://github.com/P-p-H-d/mlib/wiki/performance).
+
+
 
 OPLIST
 ------
@@ -1016,12 +1049,6 @@ Due to the unfortunate [weak](https://en.wikipedia.org/wiki/Strong_and_weak_typi
 you should turn incompatible pointer type warning into an error in your compiler.
 For GCC / CLANG, uses -Werror=incompatible-pointer-types
 
-
-Benchmarks
-----------
-
-All bench codes are available in the bench directory.
-The results are available [in a separate page](https://github.com/P-p-H-d/mlib/wiki/performance).
 
 
 External Reference
