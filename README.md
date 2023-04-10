@@ -332,8 +332,8 @@ We can also write the same example shorter:
     #include <gmp.h>
     #include "m-array.h"
     
-    // Register the oplist of a mpz_t. It is a classic oplist.
-    #define M_OPL_mpz_t() M_CLASSIC_OPLIST(mpz)
+    // Register the oplist of a mpz_t.
+    #define M_OPL_mpz_t() (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear))
     // Define an instance of an array of mpz_t (both type and function)
     ARRAY_DEF(array_mpz, mpz_t)
     // Register the oplist of the created instance of array of mpz_t
