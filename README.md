@@ -938,8 +938,8 @@ information about why abandonment is good software practice.
 
 It can however be overloaded to handle other policy for error handling like:
 
-* throwing an error,
-* set a global error and handle it when the function returns,
+* throwing an error (See header [m-try](#m-try) for defining exceptions with M\*LIB),
+* set a global error and handle it when the function returns [planned, not possible yet],
 * other policy.
 
 This function takes the size in bytes of the memory that has been tried to be allocated.
