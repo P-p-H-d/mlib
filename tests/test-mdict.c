@@ -161,6 +161,107 @@ static void check_io(void)
     assert (dict_str_equal_p (dict, dict2));
     fclose (f);
     
+    f = m_core_fopen ("a-mdict.dat", "wt");
+    if (!f) abort();
+    fprintf (f, "AA");
+    fclose (f);
+    f = m_core_fopen ("a-mdict.dat", "rt");
+    if (!f) abort();
+    b = dict_str_in_str(dict2, f);
+    assert (!b);
+    fclose (f);
+
+    f = m_core_fopen ("a-mdict.dat", "wt");
+    if (!f) abort();
+    fprintf (f, "{");
+    fclose (f);
+    f = m_core_fopen ("a-mdict.dat", "rt");
+    if (!f) abort();
+    b = dict_str_in_str(dict2, f);
+    assert (!b);
+    fclose (f);
+
+    f = m_core_fopen ("a-mdict.dat", "wt");
+    if (!f) abort();
+    fprintf (f, "{}");
+    fclose (f);
+    f = m_core_fopen ("a-mdict.dat", "rt");
+    if (!f) abort();
+    b = dict_str_in_str(dict2, f);
+    assert (b);
+    assert(dict_str_empty_p(dict2));
+    fclose (f);
+
+    f = m_core_fopen ("a-mdict.dat", "wt");
+    if (!f) abort();
+    fprintf (f, "{\"X\"");
+    fclose (f);
+    f = m_core_fopen ("a-mdict.dat", "rt");
+    if (!f) abort();
+    b = dict_str_in_str(dict2, f);
+    assert (!b);
+    fclose (f);
+
+    f = m_core_fopen ("a-mdict.dat", "wt");
+    if (!f) abort();
+    fprintf (f, "{\"X\",");
+    fclose (f);
+    f = m_core_fopen ("a-mdict.dat", "rt");
+    if (!f) abort();
+    b = dict_str_in_str(dict2, f);
+    assert (!b);
+    fclose (f);
+
+    f = m_core_fopen ("a-mdict.dat", "wt");
+    if (!f) abort();
+    fprintf (f, "{X:T}");
+    fclose (f);
+    f = m_core_fopen ("a-mdict.dat", "rt");
+    if (!f) abort();
+    b = dict_str_in_str(dict2, f);
+    assert (!b);
+    fclose (f);
+
+    f = m_core_fopen ("a-mdict.dat", "wt");
+    if (!f) abort();
+    fprintf (f, "{\"X\":");
+    fclose (f);
+    f = m_core_fopen ("a-mdict.dat", "rt");
+    if (!f) abort();
+    b = dict_str_in_str(dict2, f);
+    assert (!b);
+    fclose (f);
+
+    f = m_core_fopen ("a-mdict.dat", "wt");
+    if (!f) abort();
+    fprintf (f, "{\"X\":Y");
+    fclose (f);
+    f = m_core_fopen ("a-mdict.dat", "rt");
+    if (!f) abort();
+    b = dict_str_in_str(dict2, f);
+    assert (!b);
+    fclose (f);
+
+    f = m_core_fopen ("a-mdict.dat", "wt");
+    if (!f) abort();
+    fprintf (f, "{\"X\":\"Y\"");
+    fclose (f);
+    f = m_core_fopen ("a-mdict.dat", "rt");
+    if (!f) abort();
+    b = dict_str_in_str(dict2, f);
+    assert (!b);
+    fclose (f);
+
+    f = m_core_fopen ("a-mdict.dat", "wt");
+    if (!f) abort();
+    fprintf (f, "{\"X\":\"Y\",");
+    fclose (f);
+    f = m_core_fopen ("a-mdict.dat", "rt");
+    if (!f) abort();
+    b = dict_str_in_str(dict2, f);
+    assert (!b);
+    fclose (f);
+
     string_set_str (str, " { } ");
     b = dict_str_parse_str(dict2, string_get_cstr(str), &sp);
     assert (b);
@@ -295,6 +396,15 @@ static void test_init(void)
       assert (p != NULL);
       assert (string_equal_p(*p, str2));
     }
+
+    dict_str_reset(d1);
+    dict_str_reset(d2);
+    assert (dict_str_equal_p (d2, d1));
+    dict_str_set_at (d1, STRING_CTE("X"), STRING_CTE("2"));
+    dict_str_set_at (d2, STRING_CTE("X"), STRING_CTE("3"));
+    assert (!dict_str_equal_p (d2, d1));
+    dict_str_set_at (d2, STRING_CTE("X"), STRING_CTE("2"));
+    assert (dict_str_equal_p (d2, d1));
   }
 
   M_LET( (d1, (STRING_CTE("H1"), STRING_CTE("EE")), (("H2"), ("EF"))),
@@ -447,12 +557,20 @@ static void test_oa(void)
 static void test_init_oa(void)
 {
   M_LET(d1, d2, DICT_OPLIST(dict_oa_int, M_BASIC_OPLIST, M_BASIC_OPLIST)){
+    assert (dict_oa_int_equal_p (d2, d1));
+    bool b= dict_oa_int_erase (d1, 17);
+    assert(!b);
     for(int i = 0; i < 100; i++) {
       dict_oa_int_set_at (d1, 2*i, 2*i+1);
     }
     assert (dict_oa_int_size (d1) == 100);
+    b= dict_oa_int_erase (d1, 17);
+    assert(!b);
     dict_oa_int_set_at (d1, 17, 42);
-    dict_oa_int_erase (d1, 17);
+    b= dict_oa_int_erase (d1, 17);
+    assert(b);
+    b= dict_oa_int_erase (d1, 17);
+    assert(!b);
     dict_oa_int_t d3;
     dict_oa_int_init_set (d3, d1);
     assert (dict_oa_int_equal_p (d3, d1));
@@ -462,6 +580,7 @@ static void test_init_oa(void)
     assert (*dict_oa_int_get (d2, 10) == 11);
     assert (dict_oa_int_equal_p (d2, d1));
     assert (dict_oa_int_equal_p (d2, d3));
+    assert (dict_oa_int_equal_p (d1, d3));
     dict_oa_int_clear (d3);
 
     dict_oa_int_set_at (d1, -10, -20);
@@ -472,7 +591,7 @@ static void test_init_oa(void)
     assert (*dict_oa_int_get (d1, -10) == -22);
 
     assert (!dict_oa_int_equal_p (d2, d1));
-    bool b = dict_oa_int_erase (d1, 0);
+    b = dict_oa_int_erase (d1, 0);
     assert (dict_oa_int_size (d1) == 100);
     assert (b);
     assert (!dict_oa_int_equal_p (d2, d1));
@@ -542,7 +661,14 @@ static void test_init_oa(void)
     dict_oa_int_reset (d2);
     assert (dict_oa_int_size (d2) == 0);
 
-    //assert (dict_oa_int_hash (d2) != 0);
+    dict_oa_int_reset(d1);
+    dict_oa_int_reset(d2);
+    dict_oa_int_set_at(d1, 1, 2);
+    assert (!dict_oa_int_equal_p (d1, d2));
+    dict_oa_int_set_at(d2, 1, 2);
+    assert (dict_oa_int_equal_p (d1, d2));
+    dict_oa_int_set_at(d2, 1, 3);
+    assert (!dict_oa_int_equal_p (d1, d2));
   }
   M_LET( (d1, (1, 2), (2, 3), (4, 5)), (d2, (1, 3), (4, 7), (10, 14)), (r1, (1, 5), (2, 3), (4, 12), (10, 14) ), DICT_OPLIST(dict_oa_int, M_BASIC_OPLIST, M_BASIC_OPLIST)) {
     dict_oa_int_splice(d1, d2);
