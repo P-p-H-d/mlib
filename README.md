@@ -1380,7 +1380,7 @@ If the key is not found, it returns NULL.
 This pointer remains valid until the container is modified by another method.
 This pointer should not be stored in a global variable.
 
-##### type\_t *name\_get\_emplace(const name\_t container, args...) [for set-like]
+##### type\_t *name\_get\_emplace\[suffix\](const name\_t container, args...) [for set-like]
 ##### value\_type\_t * name\_get\_emplace\[suffix\](name\_t container, args...) [for associative array]
 
 Return a modifiable (resp. constant) pointer to
@@ -1443,7 +1443,7 @@ Extend or reduce the capacity of the 'container' to a rounded value based on 'ca
 If the given capacity is below the current size of the container, 
 the capacity is set to a rounded value based on the size of the container.
 Therefore a capacity of 0 can be used to perform a shrink-to-fit operation on the container,
-i.e. reducing the container allocation to the maximum.
+i.e. reducing the container usage to the minimum possible allocation.
 
 ##### void name\_it(name\_it\_t it, const name\_t container)
 
@@ -1533,7 +1533,7 @@ and set 'container' to this representation.
 It returns true if success, false otherwise.
 If endp is not NULL, it sets '*endp' to the pointer of the first character not
 decoded by the function (or where the parsing fails).
-This method is only created only if the GET\_STR & INIT methods are provided.
+This method is only created only if the PARSE\_STR & INIT methods are provided.
 
 It is ensured that the container gets from parsing a formatted string representation
 gets from name\_get\_str and the original container are equal.
@@ -1561,7 +1561,7 @@ Output the container 'container' into the serializing object 'serial'.
 How and where it is output depends on the serializing object.
 It returns M\_SERIAL\_OK\_DONE in case of success,
 or M\_SERIAL\_FAILURE in case of failure.
-In case of failure, the serializing object is in an unspecified state.
+In case of failure, the serializing object is in an unspecified but valid state.
 This method is only created only if the OUT\_SERIAL methods is provided.
 
 ##### m\_serial\_return\_code\_t name\_in\_serial(name\_t container, m\_serial\_read\_t serial)
@@ -1570,11 +1570,12 @@ Read from the serializing object 'serial' a representation of a container
 and set 'container' to this representation.
 It returns M\_SERIAL\_OK\_DONE in case of success,
 or M\_SERIAL\_FAILURE in case of failure.
-In case of failure, the serializing object is in an unspecified state.
+In case of failure, the serializing object is in an unspecified but valid state.
 This method is only created only if the IN\_SERIAL & INIT methods are provided.
 
 It is ensured that the container gets from parsing a representation
-gets from name\_out\_serial and the original container are equal.
+gets from name\_out\_serial and the original container are equal (using the same type of serialization object).
+
 
 ### M-LIST
 
@@ -2543,6 +2544,7 @@ The following methods of the generic interface are defined (See generic interfac
 * size\_t name\_size(const name\_t dict)
 * bool name\empty\_p(const name\_t dict)
 * value\_type \*name\_get(const name\_t dict, const key\_type key)
+* value\_type\_t * name\_get\_emplace\[suffix\](name\_t container, args...)
 * value\_type *name\_safe\_get(name\_t dict, const key\_type key)
 * void name\_set\_at(name\_t dict, const key\_type key, const value\_type value)   [for associative array]
 * void name\_push(name\_t dict, const key\_type key)       [for dictionary set]
