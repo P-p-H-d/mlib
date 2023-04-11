@@ -1222,7 +1222,9 @@ typedef int32_t m_tr33_index_t;
         it_t it1 = M_C(name, _it)(t1);                                        \
         it_t it2 = M_C(name, _it)(t2);                                        \
         while (!M_C(name, _end_p)(it1)) {                                     \
-            if (M_C(name, _end_p)(it2)) return false;                         \
+            /* Since both trees have the same size,                           \
+               both iterators shall end at the same time. */                  \
+            M_ASSERT(!M_C(name, _end_p)(it2));                                \
             bool b = M_CALL_EQUAL(oplist, *M_C(name, _cref)(it1), *M_C(name, _cref)(it2)); \
             if (!b) return false;                                             \
             /* First go down, if impossible go right */                       \
@@ -1253,7 +1255,8 @@ typedef int32_t m_tr33_index_t;
             do_continue:                                                      \
             continue;                                                         \
         }                                                                     \
-        return M_C(name, _end_p)(it2);                                        \
+        M_ASSERT(M_C(name, _end_p)(it2));                                     \
+        return true;                                                          \
     }                                                                         \
     , /* No EQUAL */ )                                                        \
                                                                               \
