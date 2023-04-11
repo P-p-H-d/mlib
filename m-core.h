@@ -2690,7 +2690,7 @@ m_core_parse_bool (bool *ptr, const char str[], const char **endptr)
   char c = *str++;
   *ptr = (c == '1');
   if (endptr != NULL) { *endptr = str; }
-  return (c == '0' || c == '1');
+  return (c == '0') || (c == '1');
 }
 
 #define M_PARSE_DEFAULT_TYPE_DEF(name, type, parse_func, extra_arg)           \
