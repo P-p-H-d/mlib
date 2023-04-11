@@ -185,7 +185,7 @@ SYNTHESIS_DATA=	M-ALGO test-malgo.c.c test-malgo.synt			\
 		M-BBPTREE test-mbptree.c test-mbptree.synt				\
 		M-BUFFER test-mbuffer.c.c test-mbuffer.synt				\
 		M-CONCURRENT test-mconcurrent.c.c test-mconcurrent.synt	\
-		M-CORE test-mcore.c.c test-mcore.synt					\
+		M-CORE ../m-core.h test-mcore.synt					    \
 		M-DEQUE test-mdeque.c.c test-mdeque.synt				\
 		M-DICT test-mdict.c.c test-mdict.synt					\
 		M-FUNCOBJ test-mfuncobj.c.c test-mfuncobj.synt			\
