@@ -21,8 +21,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <stdio.h>
-#include "m-try.h"
 #include "test-obj.h"
+#include "coverage.h"
+
+#include "m-try.h"
 
 M_TRY_DEF_ONCE()
 

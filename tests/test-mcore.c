@@ -23,6 +23,7 @@
 
 #include <stdbool.h>
 #include <assert.h>
+#include "coverage.h"
 #include "test-obj.h"
 
 #include "m-core.h"
@@ -538,8 +539,8 @@ static void test_oplist(void)
   assert (!M_TEST_DISABLED_METHOD_P(INIT, ()));
 
 #define M_OPL_op() (INIT(1), CLEAR(0))
-  assert(M_GET_INIT M_GLOBAL_OPLIST(op));         
-  assert(!M_GET_INIT M_GLOBAL_OPLIST(aop));
+  assert(M_ID (M_GET_INIT M_GLOBAL_OPLIST(op)));         
+  assert(M_ID (!M_GET_INIT M_GLOBAL_OPLIST(aop)));
 
 #define MAKE_OPLIST(op) (OPLIST(M_GLOBAL_OPLIST_OR_DEF(op)()))
 #define M_OPL_uint() (INIT(0), CLEAR(1))
@@ -552,13 +553,13 @@ static void test_oplist(void)
   assert (A1);
 
 #define A5   (NAME(1))
-  assert (M_GET_NAME A5);
+  assert (M_ID (M_GET_NAME A5));
 
 #define A6  (NAME(A6), INIT_WITH(API_1(M_INIT_WITH_NVAR)))
 #define A6_init_with_1(x) 1
 #define A6_init_with_2(x, y) 0
-  assert (M_CALL_INIT_WITH (A6, 0));
-  assert (!M_CALL_INIT_WITH (A6, 0, 0));
+  assert (M_ID(M_CALL_INIT_WITH (A6, 0)));
+  assert (M_ID(!M_CALL_INIT_WITH (A6, 0, 0)));
 }
 
 static void test_cast(void)
@@ -633,52 +634,96 @@ static void test_parse_standard_c_type(void)
 {
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
   char c = 0;
+  const char *endp;
   M_PARSE_DEFAULT_TYPE(&c, "C", NULL);
   assert (c == 'C');
+  M_PARSE_DEFAULT_TYPE(&c, "D", &endp);
+  assert (c == 'D');
+  assert (*endp == 0);
+
+  bool b = false;
+  M_PARSE_DEFAULT_TYPE(&b, "1", NULL);
+  assert (b == true);
+  M_PARSE_DEFAULT_TYPE(&b, "0", &endp);
+  assert (b == false);
+  assert (*endp == 0);
 
   short s = 0;
   M_PARSE_DEFAULT_TYPE(&s, "-2", NULL);
   assert (s == -2);
+  M_PARSE_DEFAULT_TYPE(&s, "3", &endp);
+  assert (s == 3);
+  assert (*endp == 0);
 
   int i = 0;
   M_PARSE_DEFAULT_TYPE(&i, "2", NULL);
   assert (i == 2);
+  M_PARSE_DEFAULT_TYPE(&i, "-3", &endp);
+  assert (i == -3);
+  assert (*endp == 0);
   
   long l  = 0;
   M_PARSE_DEFAULT_TYPE(&l, "1742", NULL);
   assert (l == 1742);
+  M_PARSE_DEFAULT_TYPE(&l, "-421742", &endp);
+  assert (l == -421742);
+  assert (*endp == 0);
   
   long long ll  = 0;
   M_PARSE_DEFAULT_TYPE(&ll, "-1742548676843540", NULL);
   assert (ll == -1742548676843540LL);
+  M_PARSE_DEFAULT_TYPE(&ll, "1742548676843541", &endp);
+  assert (ll == 1742548676843541LL);
+  assert (*endp == 0);
 
   unsigned short us = 0;
   M_PARSE_DEFAULT_TYPE(&us, "3", NULL);
   assert (us == 3);
+  M_PARSE_DEFAULT_TYPE(&us, "5", &endp);
+  assert (us == 5);
+  assert (*endp == 0);
 
   unsigned int ui = 0;
   M_PARSE_DEFAULT_TYPE(&ui, "2", NULL);
   assert (ui == 2);
+  M_PARSE_DEFAULT_TYPE(&ui, "25", &endp);
+  assert (ui == 25);
+  assert (*endp == 0);
   
   unsigned long ul  = 0;
   M_PARSE_DEFAULT_TYPE(&ul, "1742", NULL);
   assert (ul == 1742);
+  M_PARSE_DEFAULT_TYPE(&ul, "17412", &endp);
+  assert (ul == 17412);
+  assert (*endp == 0);
   
   unsigned long long ull  = 0;
   M_PARSE_DEFAULT_TYPE(&ull, "1742548676843540", NULL);
   assert (ull == 1742548676843540ULL);
+  M_PARSE_DEFAULT_TYPE(&ull, "1742548676843541", &endp);
+  assert (ull == 1742548676843541ULL);
+  assert (*endp == 0);
   
   float f;
   M_PARSE_DEFAULT_TYPE(&f, "-0.5", NULL);
   assert (f == -0.5);
+  M_PARSE_DEFAULT_TYPE(&f, "4.5", &endp);
+  assert (f == 4.5);
+  assert (*endp == 0);
 
   double d;
   M_PARSE_DEFAULT_TYPE(&d, "2.5", NULL);
   assert (d == 2.5);
+  M_PARSE_DEFAULT_TYPE(&d, "-3.5", &endp);
+  assert (d == -3.5);
+  assert (*endp == 0);
   
   long double ld;
   M_PARSE_DEFAULT_TYPE(&ld, "2.5", NULL);
   assert (ld == 2.5);
+  M_PARSE_DEFAULT_TYPE(&ld, "-5.5", &endp);
+  assert (ld == -5.5);
+  assert (*endp == 0);
 #endif
 }
 
