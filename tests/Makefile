@@ -209,16 +209,21 @@ SYNTHESIS_DATA=	M-ALGO test-malgo.c.c test-malgo.synt			\
 		M-WORKER ../m-worker.h test-mworker.synt		
 
 synthesis.synt:
-	@printf "+-------------------------------+-------------------------------+\n"
+	@printf "+------------------+------------------+------------------+------------------+\n"
+	@printf "|    Functions     | Instruction Cov. |   Decision Cov.  |     MCDC Cov.    |\n"
+	@printf "+------------------+------------------+------------------+------------------+\n"
 	@for i in $(SYNTHESIS_DATA) ; do 							\
 	if test "$$j" = "" ; then j=$$i ; continue ; fi;			\
 	if test "$$k" = "" ; then k=$$i ; continue ; fi;			\
-	printf "|\t%16.16s\t|\t%16.16s\t|\n"	"$$j"	"`grep -v Creating $$i|grep $$k -F -A1 |tail -1|cut -f2 -d':'`"; 	\
+	printf "| %16.16s | %16.16s | %16.16s | %16.16s |\n"	"$$j"	\
+	"`grep -v Creating $$i|grep $$k -F -A1 |tail -1|cut -f2 -d':'`" 	\
+	"`grep -v Creating $$i|grep $$k -F -A2 |tail -1|cut -f2 -d':'`" 	\
+	"`grep -v Creating $$i|grep $$k -F -A3 |tail -1|cut -f2 -d':'`"; 	\
 	j="";														\
 	k="";														\
 	done                                                        > synthesis.synt
 	@cat synthesis.synt
-	@printf "+-------------------------------+-------------------------------+\n"
+	@printf "+------------------+------------------+------------------+------------------+\n"
 
 
 #####################################################################################################
