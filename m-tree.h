@@ -942,6 +942,7 @@ typedef int32_t m_tr33_index_t;
     M_C(name, _lca)(it_t it1, it_t it2) {                                     \
         M_TR33_IT_CONTRACT(it1, true);                                        \
         M_TR33_IT_CONTRACT(it2, true);                                        \
+        M_ASSERT(it1.tree == it2.tree);                                       \
         /* Compute the Lowest Common Ancestor in linear time */               \
         int32_t d1 = M_C(name, _depth)(it1);                                  \
         int32_t d2 = M_C(name, _depth)(it2);                                  \
@@ -961,10 +962,8 @@ typedef int32_t m_tr33_index_t;
             b = M_C(name, _it_up)(&it1);                                      \
             b = M_C(name, _it_up)(&it2);                                      \
         }                                                                     \
-        /* If we went back to the root node, and cannot find a common node */ \
-        if (b == false) {                                                     \
-            it1.index = M_TR33_NO_NODE;                                       \
-        }                                                                     \
+        /* If we went back to the root node, we must have found a common node*/ \
+        M_ASSERT(b);                                                          \
         return it1;                                                           \
     }                                                                         \
                                                                               \
