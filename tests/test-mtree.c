@@ -490,13 +490,29 @@ static void test_io(void)
     assert(b);
     assert(*sp == 0);
     assert(tree_equal_p(t1, t2));
+
+    string_set_str(s, "[{1,[{0,[{1,[{3},{5,[{2}]},{4,[{9},{7,[{8}]},{0},{6}]}]}]}]}]");
+    for(size_t i = 0; i < string_size(s); i++) {
+      string_set_str(s, "[{1,[{0,[{1,[{3},{5,[{2}]},{4,[{9},{7,[{8}]},{0},{6}]}]}]}]}]");
+      string_replace_at(s, i, 1, "");
+      b = tree_parse_str(t2, string_get_cstr(s), &sp);
+      assert(!b);
+      f = m_core_fopen ("a-mtree.dat", "wt");
+      if (!f) abort();
+      fprintf(f, "%s", string_get_cstr(s));
+      fclose (f);
+      f = m_core_fopen ("a-mtree.dat", "rt");
+      if (!f) abort();
+      b = tree_in_str (t2, f);
+      assert(!b);
+      fclose(f);
+    }
   }
 
   f = m_core_fopen ("a-mtree.dat", "wt");
   if (!f) abort();
   tree_out_str(f, t1);
   fclose (f);
-
   f = m_core_fopen ("a-mtree.dat", "rt");
   if (!f) abort();
   b = tree_in_str (t2, f);

@@ -276,6 +276,16 @@ static void test0(void)
   string_replace_all(s1, s1, s2);
   assert( string_equal_str_p(s1, "WORLD"));
 
+  string_set_str(s1, "HE");
+  string_set_str(s2, "SHE");
+  string_replace_all(s1, s1, s2);
+  assert( string_equal_str_p(s1, "SHE"));
+
+  string_set_str(s1, "SHE");
+  string_set_str(s2, "HE");
+  string_replace_all(s1, s1, s2);
+  assert( string_equal_str_p(s1, "HE"));
+
   string_printf (s1, "");
   assert (string_cmp_str (s1, "") == 0);
   assert (string_size (s1) == 0);

@@ -374,6 +374,27 @@ static void test_io(void)
   string_clear(str);
 }
 
+// Test of internal functions, used only for reaching 100% coverage
+static void test_coverage(void)
+{
+  int_pqueue_array_t a, b;
+  int_pqueue_array_init(a);
+  int_pqueue_array_init(b);
+  int_pqueue_array_push_back(a, 12);
+  int_pqueue_array_push_back(b, 12);
+  int_pqueue_array_push_back(b, 12);
+  int_pqueue_array_set(a,b);
+  int_pqueue_array_clear(a);
+  int_pqueue_array_clear(b);
+
+  int_pqueue_array_init(a);
+  int_pqueue_array_init(b);
+  int_pqueue_array_push_back(a, 12);
+  int_pqueue_array_set(a,b);
+  int_pqueue_array_clear(a);
+  int_pqueue_array_clear(b);
+}
+
 int main(void)
 {
   test1();
@@ -382,6 +403,7 @@ int main(void)
   test_double();
   test_it();
   test_io();
+  test_coverage();
   testobj_final_check();
   exit(0);
 }
