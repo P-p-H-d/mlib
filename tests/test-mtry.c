@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+# if !defined(__cplusplus)
 // The test shall finish with a raise fatal.
 #define M_RAISE_FATAL(...) do {                                         \
     if (test_final_in_progress == true) {                               \
@@ -35,6 +36,7 @@
 
 // Is false by default.
 static bool test_final_in_progress;
+#endif
 
 #include "test-obj.h"
 #include "coverage.h"
@@ -442,8 +444,12 @@ static void test3(void)
 static void test_final(void)
 {
   // Throw without a try block shall raise the M_RAISE_FATAL macro
+# if !defined(__cplusplus)
   test_final_in_progress = true;
   M_THROW(1);
+#else
+  exit(0);
+#endif
 }
 
 int main(void)
