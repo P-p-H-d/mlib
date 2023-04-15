@@ -21,6 +21,21 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <stdio.h>
+#include <stdbool.h>
+
+// The test shall finish with a raise fatal.
+#define M_RAISE_FATAL(...) do {                                         \
+    if (test_final_in_progress == true) {                               \
+      exit(0);                                                          \
+    } else {                                                            \
+      fprintf(stderr, "ERROR(M*LIB): " __VA_ARGS__);                    \
+      abort();                                                          \
+    }                                                                   \
+  } while (0)
+
+// Is false by default.
+static bool test_final_in_progress;
+
 #include "test-obj.h"
 #include "coverage.h"
 
@@ -424,11 +439,19 @@ static void test3(void)
   assert(init == false);
 }
 
+static void test_final(void)
+{
+  // Throw without a try block shall raise the M_RAISE_FATAL macro
+  test_final_in_progress = true;
+  M_THROW(1);
+}
+
 int main(void)
 {
   test1();
   test2();
   test3();
   testobj_final_check();
-  exit(0);
+  test_final();
+  exit(1); // Shall not be reached.
 }
