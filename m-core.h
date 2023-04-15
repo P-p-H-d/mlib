@@ -121,6 +121,14 @@
 # define M_ATTR_EXTENSION
 #endif
 
+/* Extension attribute for no return function */
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+# define M_ATTR_NO_RETURN _Noreturn
+#elif defined(__GNUC__)
+# define M_ATTR_NO_RETURN  __attribute__ ((noreturn))
+#else
+# define M_ATTR_NO_RETURN 
+#endif
 
 /* Ignore some warnings detected by some compilers in the library.
  * Whatever we do, there is some warnings that cannot be fixed.
