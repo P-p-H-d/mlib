@@ -320,8 +320,7 @@ m_try_init(m_try_t state)
   M_LIKELY ((m_try_init(s), setjmp(((s)->data.buf)) != 1))
 
 // Throw the given exception
-// TODO: attribute no return
-static inline void
+static inline M_ATTR_NO_RETURN void
 m_throw(const struct m_exception_s *exception)
 {
   // Analyze the error list to see what has been registered
@@ -353,7 +352,7 @@ m_throw(const struct m_exception_s *exception)
 }
 
 // Rethrow the error
-static inline void
+static inline M_ATTR_NO_RETURN void
 m_rethrow(void)
 {
   M_ASSERT(m_global_error_list != NULL);
