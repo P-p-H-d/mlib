@@ -243,10 +243,11 @@ namespace m_lib {
  */
 #else
 
-#if (M_USE_TRY_MECHANISM == 2) || (M_USE_TRY_MECHANISM == 3)
-// Use of builtin setjmp / longjmp
+#if (M_USE_TRY_MECHANISM == 3)
+// Use of builtin setjmp / longjmp for GCC
 // There are at least twice faster at worst, and reduce stack consumption
 // See https://gcc.gnu.org/onlinedocs/gcc/Nonlocal-Gotos.html
+// CLANG doesn't support these builtins officialy (https://groups.google.com/g/llvm-dev/c/9QgfdW23K8M)
 #define m_try_setjmp(x)     __builtin_setjmp(x)
 #define m_try_longjmp(x,v)  __builtin_longjmp(x, v)
 typedef intptr_t           m_try_jmp_buf[5];
