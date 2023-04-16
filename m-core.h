@@ -4278,7 +4278,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
      } // Here p is free
 */
 #define M_DEFER(...)                                                          \
-  M_DEFER_INTERNAL(m_var_ ## __LINE__, __VA_ARGS__)
+  M_DEFER_INTERNAL(M_C(m_var_, __LINE__), __VA_ARGS__)
 
 #define M_DEFER_INTERNAL(cont, ...)                                           \
   for(bool cont = true; cont; cont = false)                                   \
