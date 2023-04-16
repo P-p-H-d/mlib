@@ -126,9 +126,20 @@
 # define M_ATTR_NO_RETURN _Noreturn
 #elif defined(__GNUC__)
 # define M_ATTR_NO_RETURN  __attribute__ ((noreturn))
+#elif defined(_MSC_VER)
+# define M_ATTR_NO_RETURN  __declspec(noreturn)
 #else
 # define M_ATTR_NO_RETURN 
 #endif
+
+/* The cold attribute on functions is used to inform the compiler
+   that the function is unlikely to be executed. */
+#if defined(__GNUC__)
+# define M_ATTR_COLD_FUNCTION    __attribute__ ((cold))
+#else
+# define M_ATTR_COLD_FUNCTION
+#endif
+
 
 /* Ignore some warnings detected by some compilers in the library.
  * Whatever we do, there is some warnings that cannot be fixed.
