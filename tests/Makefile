@@ -170,6 +170,8 @@ gene-string:
 gene-serial:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -march=native -DNDEBUG -S -std=c11 tgen-mserial.c && less tgen-mserial.s
 
+gene-try:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -march=native -DNDEBUG -S -std=c11 tgen-try.c && less tgen-try.s
 
 #####################################################################################################
 # Coverage
