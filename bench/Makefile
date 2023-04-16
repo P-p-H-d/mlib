@@ -39,7 +39,7 @@ pgo:
 
 #########################################################################
 
-container: bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-cmc bench-sparsepp bench-densehashmap bench-collectionc bench-tommyds bench-flathashmap bench-emilib bench-emhash bench-hopscotchmap bench-uthash bench-qlibc bench-libsrt bench-nedtries bench-rigtorp-hashmap bench-ctl bench-stc bench-pottery
+container: bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-cmc bench-sparsepp bench-densehashmap bench-collectionc bench-tommyds bench-flathashmap bench-emilib bench-emhash bench-hopscotchmap bench-uthash bench-qlibc bench-libsrt bench-nedtries bench-rigtorp-hashmap bench-ctl bench-stc bench-pottery bench-CC
 	@echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
 queue: bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost bench-rigtorp-mpmc-queue
@@ -387,6 +387,17 @@ bench-pottery0:
 	@./bench-pottery.exe 40
 	@./bench-pottery.exe 41
 	@./bench-pottery.exe 50
+
+# CCLIB shall point to the source directory of CC (where the headers are)
+bench-CC:
+	@if test -n "$${CCLIB}" ; then $(MAKE) bench-CC0 ; else echo "Nothing to be done for CC." ; fi
+
+bench-CC0:
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I $${CCLIB}/ bench-CC.c common.c -o bench-CC.exe
+	@./bench-CC.exe 10
+	@./bench-CC.exe 20
+	@./bench-CC.exe 40
+	@./bench-CC.exe 41
 
 ############################################################################
 
