@@ -1084,6 +1084,9 @@ Due to the unfortunate [weak](https://en.wikipedia.org/wiki/Strong_and_weak_typi
 you should turn incompatible pointer type warning into an error in your compiler.
 For GCC / CLANG, uses -Werror=incompatible-pointer-types
 
+For MS Visual C++ compiler , you need the following options:
+
+      /Zc:__cplusplus /Zc:preprocessor /D__STDC_WANT_LIB_EXT1__ /EHsc
 
 
 ## External Reference
@@ -7876,10 +7879,12 @@ that accept the generic interface (mainly \_call).
 
 This header is for [exception handling](https://en.wikipedia.org/wiki/Exception_handling).
 It provides basic functionnality for throwing exception and catching then.
-The setjmp and longjmp standard library functions are used to implement the try / catch / throw macro keywords.
+The setjmp and longjmp standard library functions (or some variants) are used to implement the try / catch / throw macro keywords.
 It doesn't support the finaly keyword.
 When building with a C++ compiler, theses macro keywords simply use the original C++ keyword in a way to match
 the specification below.
+
+The whole program shall be compiled with the same exact compiler and the same target architecture.
 
 Only one type of data is supported as exception. This is done to simplify the design and to force using exception
 as a general purpose error handlings. It should only be used for rare case of errors which cannot be dealt locally
