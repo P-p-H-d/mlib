@@ -25,7 +25,6 @@
 #ifndef MSTARLIB_TRY_H
 #define MSTARLIB_TRY_H
 
-#include <setjmp.h>
 #include "m-core.h"
 #include "m-thread.h"
 
@@ -244,6 +243,22 @@ namespace m_lib {
  */
 #else
 
+#if (M_USE_TRY_MECHANISM == 2) || (M_USE_TRY_MECHANISM == 3)
+// Use of builtin setjmp / longjmp
+// There are at least twice faster at worst, and reduce stack consumption
+// See https://gcc.gnu.org/onlinedocs/gcc/Nonlocal-Gotos.html
+#define m_try_setjmp(x)     __builtin_setjmp(x)
+#define m_try_longjmp(x,v)  __builtin_longjmp(x, v)
+typedef intptr_t           m_try_jmp_buf[5];
+#define m_try_jmp_buf      m_try_jmp_buf
+#else
+// C compliant setjmp
+#include <setjmp.h>
+#define m_try_setjmp(x)     setjmp(x)
+#define m_try_longjmp(x,v)  longjmp(x, v)
+#define m_try_jmp_buf       jmp_buf
+#endif
+
 // Define the CATCH block associated to the 'name' TRY to catch the exception
 // associated to 'error_code' and provide 'name' as a pointer to the exception
 // if the exception matches the error code.
@@ -272,7 +287,7 @@ typedef struct m_try_s {
          M_STATE_CLEAR_JMPBUF, M_STATE_CLEAR_CB } kind;
   struct m_try_s *next;
   union {
-    jmp_buf buf;
+    m_try_jmp_buf buf;
     struct { void (M_TRY_FUNC_OPERATOR func)(void*); void *data; } clear;
   } data;
 } m_try_t[1];
@@ -317,10 +332,11 @@ m_try_init(m_try_t state)
   // setjmp needs to be done in the MACRO.
 }
 #define m_try_init(s)                                                         \
-  M_LIKELY ((m_try_init(s), setjmp(((s)->data.buf)) != 1))
+  M_LIKELY ((m_try_init(s), m_try_setjmp(((s)->data.buf)) != 1))
 
 // Throw the given exception
-static inline M_ATTR_NO_RETURN void
+// This function should be rarely called.
+static inline M_ATTR_NO_RETURN M_ATTR_COLD_FUNCTION void
 m_throw(const struct m_exception_s *exception)
 {
   // Analyze the error list to see what has been registered
@@ -340,7 +356,7 @@ m_throw(const struct m_exception_s *exception)
       m_exception_set(&m_global_exception, exception);
       e->kind = M_STATE_EXCEPTION_IN_PROGRESS;
       m_global_error_list = e;
-      longjmp(e->data.buf, 1);
+      m_try_longjmp(e->data.buf, 1);
     }
     // Next stack frame
     e = e->next;
@@ -352,7 +368,7 @@ m_throw(const struct m_exception_s *exception)
 }
 
 // Rethrow the error
-static inline M_ATTR_NO_RETURN void
+static inline void
 m_rethrow(void)
 {
   M_ASSERT(m_global_error_list != NULL);
@@ -387,7 +403,7 @@ m_try_clear(m_try_t state)
   if (M_UNLIKELY (state->kind == M_STATE_EXCEPTION_IN_PROGRESS)) {
     // There was no catch for this error.
     // Forward it to the upper level.
-    m_rethrow();
+     m_rethrow();
   }
 }
 
@@ -448,7 +464,7 @@ m_try_jump_post(m_try_t state)
 }
 // And call setjmp to register the position in the code.
 #define m_try_jump_post(s)                                                    \
-  M_LIKELY ((m_try_jump_post(s), setjmp(((s)->data.buf)) != 1))
+  M_LIKELY ((m_try_jump_post(s), m_try_setjmp(((s)->data.buf)) != 1))
 
 // The object will be cleared.
 // We can pop the stack frame of the errors.
