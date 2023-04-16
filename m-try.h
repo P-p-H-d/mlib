@@ -266,11 +266,6 @@ typedef intptr_t           m_try_jmp_buf[5];
 #define M_CATCH_B(name, error_code)                                           \
   else if (m_catch( M_C(m_try_buf_, name), (error_code), &name))
 
-// Macro to add once in one source file to define theses global:
-#define M_TRY_DEF_ONCE_B()                                                    \
-  M_THREAD_ATTR struct m_try_s *m_global_error_list;                          \
-  M_THREAD_ATTR struct m_exception_s m_global_exception;
-
 // Define the operator to define nested functions (GCC) or blocks (CLANG)
 #if M_USE_TRY_MECHANISM == 2
 # define M_TRY_FUNC_OPERATOR ^
@@ -309,10 +304,6 @@ typedef struct m_try_s {
   m_throw( &(const struct m_exception_s) { error_code, __LINE__, M_NARGS(__VA_ARGS__), __FILE__, \
         { __VA_ARGS__ } } )
 
-// The global thread attribute variables.
-extern M_THREAD_ATTR struct m_try_s *m_global_error_list;
-extern M_THREAD_ATTR struct m_exception_s m_global_exception;
-
 // Copy an exception to another.
 static inline void
 m_exception_set(struct m_exception_s *out, const struct m_exception_s *in)
@@ -322,50 +313,47 @@ m_exception_set(struct m_exception_s *out, const struct m_exception_s *in)
   }
 }
 
-// Initialize the state to a TRY state.
-static inline void
-m_try_init(m_try_t state)
-{
-  state->kind = M_STATE_TRY;
-  state->next = m_global_error_list;
-  m_global_error_list = state;
-  // setjmp needs to be done in the MACRO.
-}
-#define m_try_init(s)                                                         \
-  M_LIKELY ((m_try_init(s), m_try_setjmp(((s)->data.buf)) != 1))
+// The global thread attribute variables and functions.
+extern M_THREAD_ATTR struct m_try_s *m_global_error_list;
+extern M_THREAD_ATTR struct m_exception_s m_global_exception;
+extern M_ATTR_NO_RETURN M_ATTR_COLD_FUNCTION void m_throw(const struct m_exception_s *exception);
 
-// Throw the given exception
-// This function should be rarely called.
-static inline M_ATTR_NO_RETURN M_ATTR_COLD_FUNCTION void
-m_throw(const struct m_exception_s *exception)
-{
-  // Analyze the error list to see what has been registered
-  struct m_try_s *e = m_global_error_list;
-  while (e != NULL) {
-    // A CLEAR operator has been registered
-    // Call it
-    if (e->kind == M_STATE_CLEAR_CB) {
-      e->data.clear.func(e->data.clear.data);
-    }
-    else {
-      // A JUMP command has been registered.
-      // Either due to the M_TRY block
-      // or because of the jump to the CLEAR operator of the object to clear.
-      M_ASSERT(e->kind == M_STATE_TRY || e->kind == M_STATE_CLEAR_JMPBUF);
-      // If the exception is already m_global_exception, it won't be copied
-      m_exception_set(&m_global_exception, exception);
-      e->kind = M_STATE_EXCEPTION_IN_PROGRESS;
-      m_global_error_list = e;
-      m_try_longjmp(e->data.buf, 1);
-    }
-    // Next stack frame
-    e = e->next;
+// Macro to add once in one source file to define theses global:
+#define M_TRY_DEF_ONCE_B()                                                    \
+  M_THREAD_ATTR struct m_try_s *m_global_error_list;                          \
+  M_THREAD_ATTR struct m_exception_s m_global_exception;                      \
+                                                                              \
+  /* Throw the given exception                                                \
+     This function should be rarely called. */                                \
+  M_ATTR_NO_RETURN M_ATTR_COLD_FUNCTION void                                  \
+  m_throw(const struct m_exception_s *exception)                              \
+  {                                                                           \
+    /* Analyze the error list to see what has been registered */              \
+    struct m_try_s *e = m_global_error_list;                                  \
+    while (e != NULL) {                                                       \
+      /* A CLEAR operator has been registered: call it */                     \
+      if (e->kind == M_STATE_CLEAR_CB) {                                      \
+        e->data.clear.func(e->data.clear.data);                               \
+      }                                                                       \
+      else {                                                                  \
+        /* A JUMP command has been registered.                                \
+         * Either due to the M_TRY block or                                   \
+         * because of the jump to the CLEAR operator of the object to clear. */ \
+        M_ASSERT(e->kind == M_STATE_TRY || e->kind == M_STATE_CLEAR_JMPBUF);  \
+        /* If the exception is already m_global_exception, it won't be copied */ \
+        m_exception_set(&m_global_exception, exception);                      \
+        e->kind = M_STATE_EXCEPTION_IN_PROGRESS;                              \
+        m_global_error_list = e;                                              \
+        m_try_longjmp(e->data.buf, 1);                                        \
+      }                                                                       \
+      /* Next stack frame */                                                  \
+      e = e->next;                                                            \
+    }                                                                         \
+    /* No exception found.                                                    \
+       Display the information and halt program . */                          \
+    M_RAISE_FATAL("Exception '%u' raised by (%s:%d) is not catched. Program aborted.\n", \
+                  exception->error_code, exception->filename, exception->line); \
   }
-  // No exception found.
-  // Display the information.
-  M_RAISE_FATAL("Exception '%u' raised by (%s:%d) is not catched. Program aborted.\n",
-                exception->error_code, exception->filename, exception->line);
-}
 
 // Rethrow the error
 static inline void
@@ -392,6 +380,18 @@ m_catch(m_try_t state, unsigned error_code, const struct m_exception_s **excepti
   m_global_error_list = state->next;
   return true;
 }
+
+// Initialize the state to a TRY state.
+static inline void
+m_try_init(m_try_t state)
+{
+  state->kind = M_STATE_TRY;
+  state->next = m_global_error_list;
+  m_global_error_list = state;
+  // setjmp needs to be done in the MACRO.
+}
+#define m_try_init(s)                                                         \
+  M_LIKELY ((m_try_init(s), m_try_setjmp(((s)->data.buf)) != 1))
 
 // Disable the current TRY block.
 static inline void
