@@ -9,7 +9,27 @@ and an implementation only for the source code.
 Try to keep API compatibility
 ==> Only modify renamed macro with M_ prefix by giving a new mandatory
 argument for such generation.
- 
+
+This argument is a generation parametric argument.
+oplist is a parameter that define the property of the contained type.
+It could be used to pass this information but it will be an abuse of interface.
+Another argument is needed.
+
+Used arguments to parameter generation not related to the contained type:
+
+- memory interface (NEW / DEL / ...)
+- queue policy
+- fixed size for queue
+- generate static inline, public (extern) or private (define) functions.
+- name of the type.
+- name of the iterator
+- name of the iterated element.
+- ...
+
+Use another oplist as argument for M_.._DEF_AS?
+
+ M_BUFFER_DEF_AS(name, (TYPE(toto), FIXED_SIZE(10), POLICY(STACK), INTERFACE(header)), int, M_BASIC_OPLIST)
+
 * TODO #27 : Uniformization of m-buffer interface               :ENHANCEMENT:
 
 The m-buffer interface requires special argument to work:
@@ -176,9 +196,8 @@ If the type is typedef T t[1] then passing such an argument to a function,
 will transform the argument to T*, and the type of the argument doesn't match
 what is expecting resulting in a move of the pointers, not a move of the design data.
 
-Defining a TYPE to this macro seems mandatory, but within restricting to C11
-(by using _Generic to detect such case),
-I don't see any way to define the macro.
+Defining a TYPE to this macro seems mandatory, but without C11 _Generic
+I don't see any way to define such macro.
 
 
 * TODO #20: New: Bucket priority queue                          :ENHANCEMENT:
