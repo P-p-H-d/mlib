@@ -20,6 +20,7 @@ Used arguments to parameter generation not related to the contained type:
 - memory interface (NEW / DEL / ...)
 - queue policy
 - fixed size for queue
+- fixed node size for B+Tree
 - generate static inline, public (extern) or private (define) functions.
 - name of the type.
 - name of the iterator
