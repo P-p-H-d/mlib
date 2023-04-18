@@ -1239,16 +1239,24 @@ typedef int32_t m_tr33_index_t;
             }                                                                 \
             /* If impossible, move up and then right until impossible */      \
             while (M_C(name, _it_up)(&it1)) {                                 \
+                /* Both iterators have move down the same tree by the same    \
+                   amount. Therefore if we can move up one iterator, we can   \
+                   move the other one up too*/                                \
                 b = M_C(name, _it_up)(&it2);                                  \
-                if (!b) return false;                                         \
+                M_ASSERT (b);                                                 \
                 if (M_C(name, _it_right)(&it1)) {                             \
+                    /* it2 right child may not exist */                       \
                     b = M_C(name, _it_right)(&it2);                           \
                     if (!b) return false;                                     \
                     goto do_continue;                                         \
                 }                                                             \
             }                                                                 \
-            b = M_C(name, _it_up)(&it2);                                      \
-            if (b) return false;                                              \
+            /* Both tree have the same size and the same "local" depth        \
+               Since there is no longer any node up iterator it1,             \
+               there shall not be any node for iterator it2 (same size        \
+               same depth)                                                    \
+             */                                                               \
+            M_ASSERT( M_C(name, _it_up)(&it2) == false);                      \
             return true;                                                      \
             /* Reach end of tree */                                           \
             do_continue:                                                      \
