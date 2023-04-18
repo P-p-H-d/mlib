@@ -384,6 +384,9 @@ static void test_coverage(void)
   int_pqueue_array_push_back(b, 12);
   int_pqueue_array_push_back(b, 12);
   int_pqueue_array_set(a,b);
+  int_pqueue_array_push_back(a, 13);
+  int_pqueue_array_push_back(b, 14);
+  assert(!int_pqueue_array_equal_p(a, b));
   int_pqueue_array_clear(a);
   int_pqueue_array_clear(b);
 

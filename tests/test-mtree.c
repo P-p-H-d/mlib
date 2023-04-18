@@ -424,6 +424,24 @@ static void test_gen(void)
   tree_init_move(t0, t);
   tree_init_set(t, t0);
   assert(tree_equal_p(t, t0));
+  for(size_t i = 0; i < tree_size(t0); i++) {
+    tree_set(t, t0);
+    size_t j = 0;
+    for(tree_it_t it = tree_it(t); j <= i && !tree_end_p(it); tree_next(&it), j++) {
+      if (i ==j)
+        *tree_ref(it) = 147852369;
+    }
+    assert(!tree_equal_p(t, t0));
+    tree_set(t, t0);
+    j = 0;
+    for(tree_it_t it = tree_it(t); j <= i && !tree_end_p(it); tree_next(&it), j++) {
+      if (i ==j)
+        tree_remove(it);
+    }
+    tree_insert_right(tree_it(t), 185555569);
+    assert(!tree_equal_p(t, t0));
+    assert(!tree_equal_p(t0, t));
+  }
   tree_move(t, t0);
   tree_clear(t);
 }
