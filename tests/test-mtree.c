@@ -424,17 +424,42 @@ static void test_gen(void)
   tree_init_move(t0, t);
   tree_init_set(t, t0);
   assert(tree_equal_p(t, t0));
+
+  tree_set(t, t0);
+  tree_it_t it;
+  for(size_t i = 1; i < tree_size(t0); i++) {
+    it = tree_it(t);
+    tree_next(&it);
+    bool b = tree_remove(it);
+    assert(b);
+    assert(tree_size(t)== tree_size(t0) - i);
+  }
+  bool b = tree_remove(tree_it(t));
+  assert(b);
+  assert(tree_size(t)== 0);
+
+  tree_set(t, t0);
+  for(size_t i = 1; i < tree_size(t0); i++) {
+    it = tree_it(t);
+    b = tree_remove(it);
+    assert(b);
+    assert(tree_size(t)== tree_size(t0) - i);
+  }
+  b = tree_remove(tree_it(t));
+  assert(b);
+  assert(tree_size(t)== 0);
+
   for(size_t i = 0; i < tree_size(t0); i++) {
     tree_set(t, t0);
     size_t j = 0;
-    for(tree_it_t it = tree_it(t); j <= i && !tree_end_p(it); tree_next(&it), j++) {
+    for(it = tree_it(t); j <= i && !tree_end_p(it); tree_next(&it), j++) {
       if (i ==j)
         *tree_ref(it) = 147852369;
     }
     assert(!tree_equal_p(t, t0));
     tree_set(t, t0);
     j = 0;
-    for(tree_it_t it = tree_it(t); j <= i && !tree_end_p(it); tree_next(&it), j++) {
+    for(it = tree_it(t); j <= i && !tree_end_p(it); tree_next(&it), j++) {
       if (i ==j)
         tree_remove(it);
     }
@@ -442,6 +467,7 @@ static void test_gen(void)
     assert(!tree_equal_p(t, t0));
     assert(!tree_equal_p(t0, t));
   }
+
   tree_move(t, t0);
   tree_clear(t);
 }

@@ -759,6 +759,8 @@ typedef int32_t m_tr33_index_t;
             if (parent >= 0 && it.tree->tab[parent].child == it.index) {      \
                 M_ASSERT(left == M_TR33_NO_NODE);                             \
                 it.tree->tab[parent].child = right;                           \
+            } else if (parent == M_TR33_ROOT_NODE) {                          \
+                it.tree->root_index = right;                                  \
             }                                                                 \
         } else {                                                              \
             /* Merge the child with the current siblings */                   \
@@ -782,6 +784,8 @@ typedef int32_t m_tr33_index_t;
             if (parent >= 0 && it.tree->tab[parent].child == it.index) {      \
                 M_ASSERT(left == M_TR33_NO_NODE);                             \
                 it.tree->tab[parent].child = child;                           \
+            } else if (parent == M_TR33_ROOT_NODE) {                          \
+                it.tree->root_index = child;                                  \
             }                                                                 \
         }                                                                     \
         /* Free the node to the allocator */                                  \
