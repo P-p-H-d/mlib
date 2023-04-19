@@ -833,6 +833,7 @@ typedef int32_t m_tr33_index_t;
         right  = it.tree->tab[it.index].right;                                \
         /* Test if No child for this node */                                  \
         if (child == M_TR33_NO_NODE) {                                        \
+            remove_child_no_node:                                             \
             /* Remove node from sibling */                                    \
             it.tree->tab[left].right = right;                                 \
             it.tree->tab[right].left = left;                                  \
@@ -852,6 +853,7 @@ typedef int32_t m_tr33_index_t;
                 child  = it.tree->tab[it.index].child;                        \
                 left   = it.tree->tab[it.index].left;                         \
                 right  = it.tree->tab[it.index].right;                        \
+                if (child == M_TR33_NO_NODE) { goto remove_child_no_node; }   \
             }                                                                 \
             /* Merge the child with the current siblings */                   \
             /* Compute the range of childs & update their parent */           \
@@ -874,9 +876,8 @@ typedef int32_t m_tr33_index_t;
             if (parent >= 0 && it.tree->tab[parent].child == it.index) {      \
                 M_ASSERT(left == M_TR33_NO_NODE);                             \
                 it.tree->tab[parent].child = child;                           \
-            } else if (parent == M_TR33_ROOT_NODE) {                          \
-                it.tree->root_index = child;                                  \
             }                                                                 \
+            M_ASSERT (parent != M_TR33_ROOT_NODE);                            \
         }                                                                     \
         /* Free the node to the allocator */                                  \
         M_C3(m_tr33_, name, _free_node)(it.tree, it.index);                   \
