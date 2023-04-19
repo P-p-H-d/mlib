@@ -4773,7 +4773,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 */
 #define M_EMPLACE_GET_GENE(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
   static inline M_C(name, _value_ct) *                                        \
-  function_name(name_t v                                                      \
+  function_name(name_t const v                                                \
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
     M_GET_TYPE oplist data;                                                   \
