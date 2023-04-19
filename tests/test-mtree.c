@@ -460,10 +460,15 @@ static void test_gen(void)
     tree_set(t, t0);
     j = 0;
     for(it = tree_it(t); j <= i && !tree_end_p(it); tree_next(&it), j++) {
-      if (i ==j)
+      if (i ==j) {
         tree_remove(it);
+        break;
+      }
     }
-    tree_insert_right(tree_it(t), 185555569);
+    it = tree_it(t);
+    while (tree_it_down(&it)) ;
+    while (tree_it_right(&it)) ;
+    tree_insert_right(it, 185555569);
     assert(!tree_equal_p(t, t0));
     assert(!tree_equal_p(t0, t));
   }
