@@ -847,7 +847,7 @@ typedef int32_t m_tr33_index_t;
         } else {                                                              \
             if (M_UNLIKELY(it.index == it.tree->root_index)) {                \
                 /* complex case. Swap root with its first child */            \
-                it_t it_child = {.tree = it.tree, .index = child };           \
+                it_t it_child = { it.tree, child };                           \
                 M_C(name, _swap_at)(it, it_child, false);                     \
                 parent = it.tree->tab[it.index].parent;                       \
                 child  = it.tree->tab[it.index].child;                        \
