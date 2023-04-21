@@ -293,8 +293,9 @@ m_ser1al_json_read_skip (FILE *f)
 {
   int c;
   do {
+    // c is an int, and is the value of the character read as unsigned char
     c = fgetc(f);
-  } while (isspace(c));
+  } while (c != EOF && isspace(c));
   return c;
 }
 
