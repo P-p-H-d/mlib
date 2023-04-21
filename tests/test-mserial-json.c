@@ -262,13 +262,433 @@ static void test_out_str_fill(void)
   string_clear(f);
 }
 
+static void test_out_error(void)
+{
+  m_serial_read_t  in;
+  m_serial_return_code_t ret;
+  my2_t el;
+  my2_init(el);
+  
+  FILE *f = m_core_fopen("a-mjson.dat", "wt");
+  if (!f) abort();
+  fprintf(f,
+          "\n   ");
+  fclose(f);
+  f = m_core_fopen ("a-mjson.dat", "rt");
+  if (!f) abort();
+  m_serial_json_read_init(in, f);
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_json_read_clear(in);
+  fclose(f);
+
+  f = m_core_fopen("a-mjson.dat", "wt");
+  if (!f) abort();
+  fprintf(f,
+          "[{\n"
+          " \"activated\":false,\n"
+          "\"data\":   {\n"
+          "       \"valb\":  -2.300000 , \n"
+          "\"vale\": [1,2,3],\n"
+          "\"valg\": [1,2,3,4,5,6],\n"
+          "\"valh\": { \"jane\": 3, \"steeve\": -4 },\n"
+          "\"valf\": { \"is_bool\": true },\n"
+          "              \"vala\":1742,\n"
+          " \"vald\": \"This is a test\",\n"
+          "\"vali\": 3,"
+          "    \"valc\": true   }");
+  fclose(f);
+  f = m_core_fopen ("a-mjson.dat", "rt");
+  if (!f) abort();
+  m_serial_json_read_init(in, f);
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_json_read_clear(in);
+  fclose(f);
+
+  f = m_core_fopen("a-mjson.dat", "wt");
+  if (!f) abort();
+  fprintf(f,
+          "{\n"
+          " \"activated22\":false,\n"
+          "\"data\":   {\n"
+          "       \"valb\":  -2.300000 , \n"
+          "\"vale\": [1,2,3],\n"
+          "\"valg\": [1,2,3,4,5,6],\n"
+          "\"valh\": { \"jane\": 3, \"steeve\": -4 },\n"
+          "\"valf\": { \"is_bool\": true },\n"
+          "              \"vala\":1742,\n"
+          " \"vald\": \"This is a test\",\n"
+          "\"vali\": 3,"
+          "    \"valc\": true   }");
+  fclose(f);
+  f = m_core_fopen ("a-mjson.dat", "rt");
+  if (!f) abort();
+  m_serial_json_read_init(in, f);
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_json_read_clear(in);
+  fclose(f);
+
+  f = m_core_fopen("a-mjson.dat", "wt");
+  if (!f) abort();
+  fprintf(f,
+          "{\n"
+          " \"\":false,\n"
+          "\"data\":   {\n"
+          "       \"valb\":  -2.300000 , \n"
+          "\"vale\": [1,2,3],\n"
+          "\"valg\": [1,2,3,4,5,6],\n"
+          "\"valh\": { \"jane\": 3, \"steeve\": -4 },\n"
+          "\"valf\": { \"is_bool\": true },\n"
+          "              \"vala\":1742,\n"
+          " \"vald\": \"This is a test\",\n"
+          "\"vali\": 3,"
+          "    \"valc\": true   }");
+  fclose(f);
+  f = m_core_fopen ("a-mjson.dat", "rt");
+  if (!f) abort();
+  m_serial_json_read_init(in, f);
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_json_read_clear(in);
+  fclose(f);
+
+  f = m_core_fopen("a-mjson.dat", "wt");
+  if (!f) abort();
+  fprintf(f,
+          "{\n"
+          " \"}");
+  fclose(f);
+  f = m_core_fopen ("a-mjson.dat", "rt");
+  if (!f) abort();
+  m_serial_json_read_init(in, f);
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_json_read_clear(in);
+  fclose(f);
+
+  f = m_core_fopen("a-mjson.dat", "wt");
+  if (!f) abort();
+  fprintf(f,
+          "{\n"
+          " \"activated\":ealse,\n"
+          "\"data\":   {\n"
+          "       \"valb\":  -2.300000 , \n"
+          "\"vale\": [1,2,3],\n"
+          "\"valg\": [1,2,3,4,5,6],\n"
+          "\"valh\": { \"jane\": 3, \"steeve\": -4 },\n"
+          "\"valf\": { \"is_bool\": true },\n"
+          "              \"vala\":1742,\n"
+          " \"vald\": \"This is a test\",\n"
+          "\"vali\": 3,"
+          "    \"valc\": true   }");
+  fclose(f);
+  f = m_core_fopen ("a-mjson.dat", "rt");
+  if (!f) abort();
+  m_serial_json_read_init(in, f);
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_json_read_clear(in);
+  fclose(f);
+
+  f = m_core_fopen("a-mjson.dat", "wt");
+  if (!f) abort();
+  fprintf(f,
+          "{\n"
+          " \"activated\":false,\n"
+          "\"data\":   {\n"
+          "       \"valb\":  -2.300000 , \n"
+          "\"vale\": [1,2,3],\n"
+          "\"valg\": [1,2,3,4,5,6],\n"
+          "\"valh\": { \"jane\": 3, \"steeve\": -4 },\n"
+          "\"valf\": { \"is_tmp\": true },\n"
+          "              \"vala\":1742,\n"
+          " \"vald\": \"This is a test\",\n"
+          "\"vali\": 3,"
+          "    \"valc\": true   } }");
+  fclose(f);
+  f = m_core_fopen ("a-mjson.dat", "rt");
+  if (!f) abort();
+  m_serial_json_read_init(in, f);
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_json_read_clear(in);
+  fclose(f);
+
+  f = m_core_fopen("a-mjson.dat", "wt");
+  if (!f) abort();
+  fprintf(f,
+          "{\n"
+          " \"activated\":false,\n"
+          "\"data\":   {\n"
+          "       \"valb\":  -2.300000 , \n"
+          "\"vale\": [1,2,3],\n"
+          "\"valg\": [1,2,3,4,5,6], }\n");
+  fclose(f);
+  f = m_core_fopen ("a-mjson.dat", "rt");
+  if (!f) abort();
+  m_serial_json_read_init(in, f);
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_json_read_clear(in);
+  fclose(f);
+
+  f = m_core_fopen("a-mjson.dat", "wt");
+  if (!f) abort();
+  fprintf(f,
+          "{\n"
+          " \"activated\":false,\n"
+          "\"data\":   {\n"
+          "       \"valb\":  -2.300000 , \n"
+          "\"vale\": [1,2,3],\n"
+          "\"valg\": [1,2,3,4,5,6],\n"
+          "\"valh\": { \"jane\": 3, \"steeve\": -4 },\n"
+          "\"valf\": { \"is_bool\": true },\n"
+          "              \"vala\":1742,\n"
+          " \"vald\": \"This is a test\",\n"
+          "\"vali\": 3,"
+          "    \"valc\": true   }");
+  fclose(f);
+  f = m_core_fopen ("a-mjson.dat", "rt");
+  if (!f) abort();
+  m_serial_json_read_init(in, f);
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_json_read_clear(in);
+  fclose(f);
+
+  my2_clear(el);
+}
+
+static void test_out_str_error(void)
+{
+  m_serial_read_t  in;
+  m_serial_return_code_t ret;
+  my2_t el;
+  string_t s;
+  my2_init(el);
+  string_init(s);
+
+  string_set_str(s, 
+          "\n   ");
+  m_serial_str_json_read_init(in, string_get_cstr(s));
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_str_json_read_clear(in);
+
+  string_set_str(s, 
+          "[{\n"
+          " \"activated\":false,\n"
+          "\"data\":   {\n"
+          "       \"valb\":  -2.300000 , \n"
+          "\"vale\": [1,2,3],\n"
+          "\"valg\": [1,2,3,4,5,6],\n"
+          "\"valh\": { \"jane\": 3, \"steeve\": -4 },\n"
+          "\"valf\": { \"is_bool\": true },\n"
+          "              \"vala\":1742,\n"
+          " \"vald\": \"This is a test\",\n"
+          "\"vali\": 3,"
+          "    \"valc\": true   }");
+  m_serial_str_json_read_init(in, string_get_cstr(s));
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_str_json_read_clear(in);
+
+  string_set_str(s, 
+          "{\n"
+          " \"activated22\":false,\n"
+          "\"data\":   {\n"
+          "       \"valb\":  -2.300000 , \n"
+          "\"vale\": [1,2,3],\n"
+          "\"valg\": [1,2,3,4,5,6],\n"
+          "\"valh\": { \"jane\": 3, \"steeve\": -4 },\n"
+          "\"valf\": { \"is_bool\": true },\n"
+          "              \"vala\":1742,\n"
+          " \"vald\": \"This is a test\",\n"
+          "\"vali\": 3,"
+          "    \"valc\": true   }");
+  m_serial_str_json_read_init(in, string_get_cstr(s));
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_str_json_read_clear(in);
+
+  string_set_str(s, 
+          "{\n"
+          " \"\":false,\n"
+          "\"data\":   {\n"
+          "       \"valb\":  -2.300000 , \n"
+          "\"vale\": [1,2,3],\n"
+          "\"valg\": [1,2,3,4,5,6],\n"
+          "\"valh\": { \"jane\": 3, \"steeve\": -4 },\n"
+          "\"valf\": { \"is_bool\": true },\n"
+          "              \"vala\":1742,\n"
+          " \"vald\": \"This is a test\",\n"
+          "\"vali\": 3,"
+          "    \"valc\": true   }");
+  m_serial_str_json_read_init(in, string_get_cstr(s));
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_str_json_read_clear(in);
+
+  string_set_str(s, 
+          "{\n"
+          " \"}");
+  m_serial_str_json_read_init(in, string_get_cstr(s));
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_str_json_read_clear(in);
+
+  string_set_str(s, 
+          "{\n"
+          " \"activated\":ealse,\n"
+          "\"data\":   {\n"
+          "       \"valb\":  -2.300000 , \n"
+          "\"vale\": [1,2,3],\n"
+          "\"valg\": [1,2,3,4,5,6],\n"
+          "\"valh\": { \"jane\": 3, \"steeve\": -4 },\n"
+          "\"valf\": { \"is_bool\": true },\n"
+          "              \"vala\":1742,\n"
+          " \"vald\": \"This is a test\",\n"
+          "\"vali\": 3,"
+          "    \"valc\": true   }");
+  m_serial_str_json_read_init(in, string_get_cstr(s));
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_str_json_read_clear(in);
+
+  string_set_str(s, 
+          "{\n"
+          " \"activated\":false,\n"
+          "\"data\":   {\n"
+          "       \"valb\":  -2.300000 , \n"
+          "\"vale\": [1,2,3],\n"
+          "\"valg\": [1,2,3,4,5,6],\n"
+          "\"valh\": { \"jane\": 3, \"steeve\": -4 },\n"
+          "\"valf\": { \"is_tmp\": true },\n"
+          "              \"vala\":1742,\n"
+          " \"vald\": \"This is a test\",\n"
+          "\"vali\": 3,"
+          "    \"valc\": true   } }");
+  m_serial_str_json_read_init(in, string_get_cstr(s));
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_str_json_read_clear(in);
+
+  string_set_str(s, 
+          "{\n"
+          " \"activated\":false,\n"
+          "\"data\":   {\n"
+          "       \"valb\":  -2.300000 , \n"
+          "\"vale\": [1,2,3],\n"
+          "\"valg\": [1,2,3,4,5,6], }\n");
+  m_serial_str_json_read_init(in, string_get_cstr(s));
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_str_json_read_clear(in);
+
+  string_set_str(s, 
+          "{\n"
+          " \"activated\":false,\n"
+          "\"data\":   {\n"
+          "       \"valb\":  -2.300000 , \n"
+          "\"vale\": [1,2,3],\n"
+          "\"valg\": [1,2,3,4,5,6],\n"
+          "\"valh\": { \"jane\": 3, \"steeve\": -4 },\n"
+          "\"valf\": { \"is_bool\": true },\n"
+          "              \"vala\":1742,\n"
+          " \"vald\": \"This is a test\",\n"
+          "\"vali\": 3,"
+          "    \"valc\": true   }");
+  m_serial_str_json_read_init(in, string_get_cstr(s));
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_str_json_read_clear(in);
+
+  string_set_str(s, 
+          "{\n"
+          " \"activatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivatedactivated\":false,\n"
+          "\"data\":   {\n"
+          "       \"valb\":  -2.300000 , \n"
+          "\"vale\": [1,2,3],\n"
+          "\"valg\": [1,2,3,4,5,6],\n"
+          "\"valh\": { \"jane\": 3, \"steeve\": -4 },\n"
+          "\"valf\": { \"is_bool\": true },\n"
+          "              \"vala\":1742,\n"
+          " \"vald\": \"This is a test\",\n"
+          "\"vali\": 3,"
+          "    \"valc\": true   } }");
+  m_serial_str_json_read_init(in, string_get_cstr(s));
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_str_json_read_clear(in);
+
+  string_set_str(s, 
+          "{\n"
+          " \"activated\":false,\n"
+          "\"data\":   {\n"
+          "       \"valb\":  -2.300000 , \n"
+          "\"vale\": (1,2,3),\n"
+          "\"valg\": [1,2,3,4,5,6],\n"
+          "\"valh\": { \"jane\": 3, \"steeve\": -4 },\n"
+          "\"valf\": { \"is_bool\": true },\n"
+          "              \"vala\":1742,\n"
+          " \"vald\": \"This is a test\",\n"
+          "\"vali\": 3,"
+          "    \"valc\": true   }}");
+  m_serial_str_json_read_init(in, string_get_cstr(s));
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_str_json_read_clear(in);
+
+  string_set_str(s, 
+          "{\n"
+          " \"activated\":false,\n"
+          "\"data\":   {\n"
+          "       \"valb\":  -2.300000 , \n"
+          "\"vale\": [1,2,3],\n"
+          "\"valg\": [1,2,3,4,5,6],\n"
+          "\"valh\": [ \"jane\": 3, \"steeve\": -4 ],\n"
+          "\"valf\": { \"is_bool\": true },\n"
+          "              \"vala\":1742,\n"
+          " \"vald\": \"This is a test\",\n"
+          "\"vali\": 3,"
+          "    \"valc\": true   } }");
+  m_serial_str_json_read_init(in, string_get_cstr(s));
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_str_json_read_clear(in);
+
+  string_set_str(s, 
+          "{\n"
+          " \"activated\":false,\n"
+          "\"data\":   {\n"
+          "       \"valb\":  -2.300000 , \n"
+          "\"vale\": [1,2,3],\n"
+          "\"valg\": [1,2,3,4,5,6],\n"
+          "\"valh\": { \"jane\": 3, \"steeve\": -4 },\n"
+          "\"valf\": [] \"is_bool\": true },\n"
+          "              \"vala\":1742,\n"
+          " \"vald\": \"This is a test\",\n"
+          "\"vali\": 3,"
+          "    \"valc\": true   }");
+  m_serial_str_json_read_init(in, string_get_cstr(s));
+  ret = my2_in_serial(el, in);
+  assert (ret == M_SERIAL_FAIL);
+  m_serial_str_json_read_clear(in);
+
+  my2_clear(el);
+  string_clear(s);
+}
 
 int main(void)
 {
   test_out_empty();
   test_out_fill();
+  test_out_error();
   test_out_str_empty();
   test_out_str_fill();
+  test_out_str_error();
   exit(0);    
 }
 
