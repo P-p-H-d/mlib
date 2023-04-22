@@ -21,6 +21,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <stdlib.h>
+
 /* Coverage helper header.
    Computing coverage for a generic macro expansing library is not trivial
    as there is no tool to do it normally.
