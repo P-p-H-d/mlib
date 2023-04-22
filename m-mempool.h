@@ -42,7 +42,7 @@
      mempool_uint_clear(m); // Give back memory to system
 */
 #define M_MEMPOOL_DEF(name, type)                                             \
-  M_MEMPOOL_DEF_AS(name, M_C(name,_t), type)
+  M_MEMPOOL_DEF_AS(name, M_F(name,_t), type)
 
 
 /* Fast, fixed Size, thread unsafe allocator based on memory region.
@@ -84,25 +84,25 @@
                                                                               \
   /* Define the type of element in a segment of the mempool.                  \
     Either it is the basic type or a pointer to another one.  */              \
-  typedef union M_C(name,_union_s) {                                          \
+  typedef union M_F(name,_union_s) {                                          \
     type t;                                                                   \
-    union M_C(name,_union_s) *next;                                           \
-  } M_C(name,_union_ct);                                                      \
+    union M_F(name,_union_s) *next;                                           \
+  } M_F(name,_union_ct);                                                      \
                                                                               \
   /* Define a segment of a mempool.                                           \
     It is an array of basic type, each segment is in a linked list */         \
-  typedef struct M_C(name,_segment_s) {                                       \
+  typedef struct M_F(name,_segment_s) {                                       \
     unsigned int count;                                                       \
-    struct M_C(name,_segment_s) *next;                                        \
-    M_C(name,_union_ct)        tab[M_USE_MEMPOOL_MAX_PER_SEGMENT(type)];      \
-  } M_C(name,_segment_ct);                                                    \
+    struct M_F(name,_segment_s) *next;                                        \
+    M_F(name,_union_ct)        tab[M_USE_MEMPOOL_MAX_PER_SEGMENT(type)];      \
+  } M_F(name,_segment_ct);                                                    \
                                                                               \
   /* Define a mempool.                                                        \
     It is a pointer to the first free object within the segments              \
     and the segments themselves           */                                  \
-  typedef struct M_C(name, _s) {                                              \
-    M_C(name,_union_ct)   *free_list;                                         \
-    M_C(name,_segment_ct) *current_segment;                                   \
+  typedef struct M_F(name, _s) {                                              \
+    M_F(name,_union_ct)   *free_list;                                         \
+    M_F(name,_segment_ct) *current_segment;                                   \
   } name_t[1];                                                                \
 
 
@@ -110,12 +110,12 @@
 #define M_M3MPOOL_DEF_CORE(name, type, name_t)                                \
                                                                               \
   static inline void                                                          \
-  M_C(name,_init)(name_t mem)                                                 \
+  M_F(name,_init)(name_t mem)                                                 \
   {                                                                           \
     mem->free_list = NULL;                                                    \
-    mem->current_segment = M_MEMORY_ALLOC(M_C(name,_segment_ct));             \
+    mem->current_segment = M_MEMORY_ALLOC(M_F(name,_segment_ct));             \
     if (M_UNLIKELY_NOMEM(mem->current_segment == NULL)) {                     \
-      M_MEMORY_FULL(sizeof (M_C(name,_segment_ct)));                          \
+      M_MEMORY_FULL(sizeof (M_F(name,_segment_ct)));                          \
       return;                                                                 \
     }                                                                         \
     mem->current_segment->next = NULL;                                        \
@@ -124,12 +124,12 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name,_clear)(name_t mem)                                                \
+  M_F(name,_clear)(name_t mem)                                                \
   {                                                                           \
     M_M3MPOOL_CONTRACT(mem, type);                                            \
-    M_C(name,_segment_ct) *segment = mem->current_segment;                    \
+    M_F(name,_segment_ct) *segment = mem->current_segment;                    \
     while (segment != NULL) {                                                 \
-      M_C(name,_segment_ct) *next = segment->next;                            \
+      M_F(name,_segment_ct) *next = segment->next;                            \
       M_MEMORY_DEL (segment);                                                 \
       segment = next;                                                         \
     }                                                                         \
@@ -139,25 +139,25 @@
   }                                                                           \
                                                                               \
   static inline type *                                                        \
-  M_C(name,_alloc)(name_t mem)                                                \
+  M_F(name,_alloc)(name_t mem)                                                \
   {                                                                           \
     M_M3MPOOL_CONTRACT(mem, type);                                            \
     /* Test if one object is in the free list */                              \
-    M_C(name,_union_ct) *ret = mem->free_list;                                \
+    M_F(name,_union_ct) *ret = mem->free_list;                                \
     if (ret != NULL) {                                                        \
       /* Yes, so return it, and pop it from the free list */                  \
       mem->free_list = ret->next;                                             \
       return &ret->t;                                                         \
     }                                                                         \
     /* No cheap free object exist. Test within a segment */                   \
-    M_C(name,_segment_ct) *segment = mem->current_segment;                    \
+    M_F(name,_segment_ct) *segment = mem->current_segment;                    \
     M_ASSERT(segment != NULL);                                                \
     unsigned int count = segment->count;                                      \
     /* If segment is full, allocate a new one from the system */              \
     if (M_UNLIKELY (count >= M_USE_MEMPOOL_MAX_PER_SEGMENT(type))) {          \
-      M_C(name,_segment_ct) *new_segment = M_MEMORY_ALLOC (M_C(name,_segment_ct)); \
+      M_F(name,_segment_ct) *new_segment = M_MEMORY_ALLOC (M_F(name,_segment_ct)); \
       if (M_UNLIKELY_NOMEM (new_segment == NULL)) {                           \
-        M_MEMORY_FULL(sizeof (M_C(name,_segment_ct)));                        \
+        M_MEMORY_FULL(sizeof (M_F(name,_segment_ct)));                        \
         return NULL;                                                          \
       }                                                                       \
       new_segment->next = segment;                                            \
@@ -174,12 +174,12 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name,_free)(name_t mem, type *ptr)                                      \
+  M_F(name,_free)(name_t mem, type *ptr)                                      \
   {                                                                           \
     M_M3MPOOL_CONTRACT(mem, type);                                            \
     /* NOTE: Unsafe cast: suppose that the given pointer                      \
        was allocated by the previous alloc function. */                       \
-    M_C(name,_union_ct) *ret = (M_C(name,_union_ct) *)(uintptr_t)ptr;         \
+    M_F(name,_union_ct) *ret = (M_F(name,_union_ct) *)(uintptr_t)ptr;         \
     /* Add the object back in the free list */                                \
     ret->next = mem->free_list;                                               \
     mem->free_list = ret;                                                     \

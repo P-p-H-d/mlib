@@ -5785,6 +5785,18 @@ It is currently 52 (even if some local macros may have increased this limit).
 
 Return a symbol corresponding to the concatenation of the input arguments.
 
+##### M\_F(base, suffix)
+
+Return a function name corresponding to the concatenation of the input arguments.
+In developer mode, it can be overrided before inclusion of any header to support user customization of suffix. 
+To do this you need to define M\_F as M\_OVERRIDE\_F, then define as many suffix macros as needed. As suffix macro shall be named M_OVERRIDE_ ## suffix () and each generated suffix shall start with a comma (preliminary interface).
+
+Example:
+
+        #define M_F(a,b) M_OVERRIDE_F(a,b)
+        #define M_OVERRIDE__clear() , _cleanup ,
+        #include "m-core.h"
+
 ##### M\_INC(number)
 
 Increment the number given as argument and return 

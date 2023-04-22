@@ -31,7 +31,7 @@
    USAGE:
    TUPLE_DEF2(name, [(field1, type1[, oplist1]), (field2, type2[, oplist2]), ...] ) */
 #define M_TUPLE_DEF2(name, ...)                                               \
-  M_TUPLE_DEF2_AS(name, M_C(name,_t), __VA_ARGS__)
+  M_TUPLE_DEF2_AS(name, M_F(name,_t), __VA_ARGS__)
 
 
 /* Define the tuple type and functions
@@ -151,7 +151,7 @@ namespace m_lib {
   M_TUPL3_IF_ALL(RESET, __VA_ARGS__)(M_TUPL3_DEFINE_RESET(name, __VA_ARGS__),)
 
 /* Provide order for _cmp_order */
-#define M_TUPL3_ORDER_CONVERT(name, x) M_C(name, M_C(M_TUPL3_ORDER_CONVERT_, x))
+#define M_TUPL3_ORDER_CONVERT(name, x) M_F(name, M_C(M_TUPL3_ORDER_CONVERT_, x))
 #define M_TUPL3_ORDER_CONVERT_ASC(x)   M_C3(_,x,_value)
 #define M_TUPL3_ORDER_CONVERT_DSC(x)   M_C3(_,x,_value)*-1
 
@@ -201,14 +201,14 @@ namespace m_lib {
 
 /* Define the type of a tuple */
 #define M_TUPL3_DEFINE_TYPE(name, name_t, ...)                                \
-  typedef struct M_C(name, _s) {                                              \
+  typedef struct M_F(name, _s) {                                              \
     M_MAP(M_TUPL3_DEFINE_RECUR_TYPE_ELE , __VA_ARGS__)                        \
   } name_t[1];                                                                \
                                                                               \
-  typedef struct M_C(name, _s) *M_C(name, _ptr);                              \
-  typedef const struct M_C(name, _s) *M_C(name, _srcptr);                     \
+  typedef struct M_F(name, _s) *M_F(name, _ptr);                              \
+  typedef const struct M_F(name, _s) *M_F(name, _srcptr);                     \
   /* Define internal type for oplist */                                       \
-  typedef name_t M_C(name, _ct);                                              \
+  typedef name_t M_F(name, _ct);                                              \
   /* Save constant as the number of arguments (internal) */                   \
   typedef enum {                                                              \
     M_C3(m_tupl3_, name, _num_args) = M_NARGS(__VA_ARGS__)                    \
@@ -225,9 +225,9 @@ namespace m_lib {
 /* Define the basic enumerate, identifying a parameter */
 #define M_TUPL3_DEFINE_ENUM(name, ...)                                        \
   typedef enum {                                                              \
-    M_C(name, _first_one_val),                                                \
+    M_F(name, _first_one_val),                                                \
     M_MAP2_C(M_TUPL3_DEFINE_ENUM_ELE , name, __VA_ARGS__)                     \
-  } M_C(name,_field_e);
+  } M_F(name,_field_e);
 
 #define M_TUPL3_DEFINE_ENUM_ELE(name, a)                                      \
   M_C4(name, _, M_TUPL3_GET_FIELD a, _value)
@@ -242,7 +242,7 @@ namespace m_lib {
 
 /* Define the INIT method calling the INIT method for all params */
 #define M_TUPL3_DEFINE_INIT(name, ...)                                        \
-  static inline void M_C(name, _init)(M_C(name,_ct) my) {                     \
+  static inline void M_F(name, _init)(M_F(name,_ct) my) {                     \
     M_MAP(M_TUPL3_DEFINE_INIT_FUNC , __VA_ARGS__)                             \
   }
 
@@ -251,7 +251,7 @@ namespace m_lib {
 
 /* Define the INIT_SET method calling the INIT_SET method for all params */
 #define M_TUPL3_DEFINE_INIT_SET(name, ...)                                    \
-  static inline void M_C(name, _init_set)(M_C(name,_ct) my , M_C(name,_ct) const org) { \
+  static inline void M_F(name, _init_set)(M_F(name,_ct) my , M_F(name,_ct) const org) { \
     M_TUPL3_CONTRACT(org);                                                    \
     M_MAP(M_TUPL3_DEFINE_INIT_SET_FUNC , __VA_ARGS__)                         \
   }
@@ -260,7 +260,7 @@ namespace m_lib {
 
 /* Define the INIT_WITH method calling the INIT_SET method for all params. */
 #define M_TUPL3_DEFINE_INIT_SET2(name, ...)                                   \
-  static inline void M_C(name, _init_emplace)(M_C(name,_ct) my                \
+  static inline void M_F(name, _init_emplace)(M_F(name,_ct) my                \
                       M_MAP(M_TUPL3_DEFINE_INIT_SET2_PROTO, __VA_ARGS__)      \
                                            ) {                                \
     M_MAP(M_TUPL3_DEFINE_INIT_SET2_FUNC , __VA_ARGS__)                        \
@@ -275,8 +275,8 @@ namespace m_lib {
 
 /* Define the SET method calling the SET method for all params. */
 #define M_TUPL3_DEFINE_SET(name, ...)                                         \
-  static inline void M_C(name, _set)(M_C(name,_ct) my ,                       \
-                                     M_C(name,_ct) const org) {               \
+  static inline void M_F(name, _set)(M_F(name,_ct) my ,                       \
+                                     M_F(name,_ct) const org) {               \
     M_TUPL3_CONTRACT(my);                                                     \
     M_TUPL3_CONTRACT(org);                                                    \
     M_MAP(M_TUPL3_DEFINE_SET_FUNC , __VA_ARGS__)                              \
@@ -288,7 +288,7 @@ namespace m_lib {
 
 /* Define the SET_WITH method calling the SET method for all params. */
 #define M_TUPL3_DEFINE_SET2(name, ...)                                        \
-  static inline void M_C(name, _emplace)(M_C(name,_ct) my                     \
+  static inline void M_F(name, _emplace)(M_F(name,_ct) my                     \
                       M_MAP(M_TUPL3_DEFINE_SET2_PROTO, __VA_ARGS__)           \
                                            ) {                                \
     M_TUPL3_CONTRACT(my);                                                     \
@@ -303,7 +303,7 @@ namespace m_lib {
 
 /* Define the CLEAR method calling the CLEAR method for all params. */
 #define M_TUPL3_DEFINE_CLEAR(name, ...)                                       \
-  static inline void M_C(name, _clear)(M_C(name,_ct) my) {                    \
+  static inline void M_F(name, _clear)(M_F(name,_ct) my) {                    \
     M_TUPL3_CONTRACT(my);                                                     \
     M_MAP(M_TUPL3_DEFINE_CLEAR_FUNC , __VA_ARGS__)                            \
   }
@@ -318,18 +318,18 @@ namespace m_lib {
 
 #define M_TUPL3_DEFINE_GETTER_FIELD_PROTO(name, num, a)                       \
   static inline M_TUPL3_GET_TYPE a * M_C3(name, _get_at_, M_TUPL3_GET_FIELD a) \
-       (M_C(name,_ct) my) {                                                   \
+       (M_F(name,_ct) my) {                                                   \
     M_TUPL3_CONTRACT(my);                                                     \
     return &(my->M_TUPL3_GET_FIELD a);                                        \
   }                                                                           \
   static inline M_TUPL3_GET_TYPE a const * M_C3(name, _cget_at_, M_TUPL3_GET_FIELD a) \
-    (M_C(name,_ct) const my) {                                                \
+    (M_F(name,_ct) const my) {                                                \
     M_TUPL3_CONTRACT(my);                                                     \
     return &(my->M_TUPL3_GET_FIELD a);                                        \
   }                                                                           \
   /* Same but uses numerical index for accessing the field (internal) */      \
   static inline M_TUPL3_GET_TYPE a * M_C4(m_tupl3_, name, _get_at_, num)      \
-       (M_C(name,_ct) my) {                                                   \
+       (M_F(name,_ct) my) {                                                   \
     return &(my->M_TUPL3_GET_FIELD a);                                        \
   }                                                                           \
 
@@ -340,7 +340,7 @@ namespace m_lib {
 
 #define M_TUPL3_DEFINE_SETTER_FIELD_PROTO(name, a)                            \
   static inline void M_C3(name, _set_, M_TUPL3_GET_FIELD a)                   \
-       (M_C(name,_ct) my, M_TUPL3_GET_TYPE a const M_TUPL3_GET_FIELD a) {     \
+       (M_F(name,_ct) my, M_TUPL3_GET_TYPE a const M_TUPL3_GET_FIELD a) {     \
     M_TUPL3_CONTRACT(my);                                                     \
     M_TUPL3_CALL_SET(a, my ->M_TUPL3_GET_FIELD a, M_TUPL3_GET_FIELD a);       \
   }
@@ -348,8 +348,8 @@ namespace m_lib {
 
 /* Define the CMP method by calling CMP methods for all params. */
 #define M_TUPL3_DEFINE_CMP(name, ...)                                         \
-  static inline int M_C(name, _cmp)(M_C(name,_ct) const e1 ,                  \
-                                    M_C(name,_ct) const e2) {                 \
+  static inline int M_F(name, _cmp)(M_F(name,_ct) const e1 ,                  \
+                                    M_F(name,_ct) const e2) {                 \
     int i;                                                                    \
     M_TUPL3_CONTRACT(e1);                                                     \
     M_TUPL3_CONTRACT(e2);                                                     \
@@ -369,8 +369,8 @@ namespace m_lib {
    FIXME: All oplists shall define the CMP operator or at least one?
 */
 #define M_TUPL3_DEFINE_CMP_ORDER(name, ...)                                   \
-  static inline int M_C(name, _cmp_order)(M_C(name,_ct) const e1 ,            \
-                                          M_C(name,_ct) const e2,             \
+  static inline int M_F(name, _cmp_order)(M_F(name,_ct) const e1 ,            \
+                                          M_F(name,_ct) const e2,             \
                                           const int order[]) {                \
     int i, r;                                                                 \
     M_TUPL3_CONTRACT(e1);                                                     \
@@ -403,8 +403,8 @@ namespace m_lib {
   )
 
 #define M_TUPL3_DEFINE_CMP_FIELD_FUNC(name, field, func_cmp, oplist)          \
-  static inline int M_C3(name, _cmp_, field)(M_C(name,_ct) const e1 ,         \
-                                             M_C(name,_ct) const e2) {        \
+  static inline int M_C3(name, _cmp_, field)(M_F(name,_ct) const e1 ,         \
+                                             M_F(name,_ct) const e2) {        \
     M_TUPL3_CONTRACT(e1);                                                     \
     M_TUPL3_CONTRACT(e2);                                                     \
     return M_APPLY_API(func_cmp, oplist, e1 -> field , e2 -> field );         \
@@ -413,8 +413,8 @@ namespace m_lib {
 
 /* Define a EQUAL method by calling the EQUAL methods  for all params */
 #define M_TUPL3_DEFINE_EQUAL(name, ...)                                       \
-  static inline bool M_C(name, _equal_p)(M_C(name,_ct) const e1 ,             \
-                                         M_C(name,_ct) const e2) {            \
+  static inline bool M_F(name, _equal_p)(M_F(name,_ct) const e1 ,             \
+                                         M_F(name,_ct) const e2) {            \
     bool b;                                                                   \
     M_TUPL3_CONTRACT(e1);                                                     \
     M_TUPL3_CONTRACT(e2);                                                     \
@@ -431,7 +431,7 @@ namespace m_lib {
 
 /* Define a HASH method by calling the HASH methods  for all params */
 #define M_TUPL3_DEFINE_HASH(name, ...)                                        \
-  static inline size_t M_C(name, _hash)(M_C(name,_ct) const e1) {             \
+  static inline size_t M_F(name, _hash)(M_F(name,_ct) const e1) {             \
     M_TUPL3_CONTRACT(e1);                                                     \
     M_HASH_DECL(hash);                                                        \
     M_MAP(M_TUPL3_DEFINE_HASH_FUNC_P0, __VA_ARGS__)                           \
@@ -446,8 +446,8 @@ namespace m_lib {
 
 /* Define a GET_STR method by calling the GET_STR methods for all params */
 #define M_TUPL3_DEFINE_GET_STR(name, ...)                                     \
-  static inline void M_C(name, _get_str)(m_string_t str,                      \
-                                         M_C(name,_ct) const el,              \
+  static inline void M_F(name, _get_str)(m_string_t str,                      \
+                                         M_F(name,_ct) const el,              \
                                          bool append) {                       \
     bool comma = false;                                                       \
     M_TUPL3_CONTRACT(el);                                                     \
@@ -465,8 +465,8 @@ namespace m_lib {
 
 /* Define a OUT_STR method by calling the OUT_STR methods for all params */
 #define M_TUPL3_DEFINE_OUT_STR(name, ...)                                     \
-  static inline void M_C(name, _out_str)(FILE *f,                             \
-                                         M_C(name,_ct) const el) {            \
+  static inline void M_F(name, _out_str)(FILE *f,                             \
+                                         M_F(name,_ct) const el) {            \
     bool comma = false;                                                       \
     M_TUPL3_CONTRACT(el);                                                     \
     M_ASSERT (f != NULL);                                                     \
@@ -483,7 +483,7 @@ namespace m_lib {
 
 /* Define a IN_STR method by calling the IN_STR methods for all params */
 #define M_TUPL3_DEFINE_IN_STR(name, ...)                                      \
-  static inline bool M_C(name, _in_str)(M_C(name,_ct) el, FILE *f) {          \
+  static inline bool M_F(name, _in_str)(M_F(name,_ct) el, FILE *f) {          \
     bool comma = false;                                                       \
     M_TUPL3_CONTRACT(el);                                                     \
     M_ASSERT (f != NULL);                                                     \
@@ -506,7 +506,7 @@ namespace m_lib {
 
 /* Define a PARSE_STR method by calling the PARSE_STR methods for all params */
 #define M_TUPL3_DEFINE_PARSE_STR(name, ...)                                   \
-  static inline bool M_C(name, _parse_str)(M_C(name,_ct) el,                  \
+  static inline bool M_F(name, _parse_str)(M_F(name,_ct) el,                  \
                                         const char str[],                     \
                                         const char **endptr) {                \
     M_TUPL3_CONTRACT(el);                                                     \
@@ -541,8 +541,8 @@ namespace m_lib {
 /* Define a OUT_SERIAL method by calling the OUT_SERIAL methods for all params */
 #define M_TUPL3_DEFINE_OUT_SERIAL(name, ...)                                  \
   static inline m_serial_return_code_t                                        \
-  M_C(name, _out_serial)(m_serial_write_t f,                                  \
-                         M_C(name,_ct) const el) {                            \
+  M_F(name, _out_serial)(m_serial_write_t f,                                  \
+                         M_F(name,_ct) const el) {                            \
     M_TUPL3_CONTRACT(el);                                                     \
     M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     const int field_max = M_NARGS(__VA_ARGS__);                               \
@@ -568,7 +568,7 @@ namespace m_lib {
 /* Define a IN_SERIAL method by calling the IN_SERIAL methods for all params */
 #define M_TUPL3_DEFINE_IN_SERIAL(name, ...)                                   \
   static inline m_serial_return_code_t                                        \
-  M_C(name, _in_serial)(M_C(name,_ct) el, m_serial_read_t f) {                \
+  M_F(name, _in_serial)(M_F(name,_ct) el, m_serial_read_t f) {                \
     M_TUPL3_CONTRACT(el);                                                     \
     M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     int index = -1;                                                           \
@@ -600,7 +600,7 @@ namespace m_lib {
 
 /* Define a INIT_MOVE method by calling the INIT_MOVE methods for all params */
 #define M_TUPL3_DEFINE_INIT_MOVE(name, ...)                                   \
-  static inline void M_C(name, _init_move)(M_C(name,_ct) el, M_C(name,_ct) org) { \
+  static inline void M_F(name, _init_move)(M_F(name,_ct) el, M_F(name,_ct) org) { \
     M_TUPL3_CONTRACT(el);                                                     \
     M_MAP(M_TUPL3_DEFINE_INIT_MOVE_FUNC , __VA_ARGS__)                        \
   }
@@ -611,7 +611,7 @@ namespace m_lib {
 
 /* Define a MOVE method by calling the MOVE methods for all params */
 #define M_TUPL3_DEFINE_MOVE(name, ...)                                        \
- static inline void M_C(name, _move)(M_C(name,_ct) el, M_C(name,_ct) org) {   \
+ static inline void M_F(name, _move)(M_F(name,_ct) el, M_F(name,_ct) org) {   \
     M_TUPL3_CONTRACT(el);                                                     \
     M_MAP(M_TUPL3_DEFINE_MOVE_FUNC , __VA_ARGS__)                             \
  }
@@ -622,7 +622,7 @@ namespace m_lib {
 
 /* Define a SWAP method by calling the SWAP methods for all params */
 #define M_TUPL3_DEFINE_SWAP(name, ...)                                        \
-  static inline void M_C(name, _swap)(M_C(name,_ct) el1, M_C(name,_ct) el2) { \
+  static inline void M_F(name, _swap)(M_F(name,_ct) el1, M_F(name,_ct) el2) { \
     M_TUPL3_CONTRACT(el1);                                                    \
     M_TUPL3_CONTRACT(el2);                                                    \
     M_MAP(M_TUPL3_DEFINE_SWAP_FUNC , __VA_ARGS__)                             \
@@ -634,7 +634,7 @@ namespace m_lib {
 
 /* Define a RESET method by calling the RESET methods for all params */
 #define M_TUPL3_DEFINE_RESET(name, ...)                                       \
-  static inline void M_C(name, _reset)(M_C(name,_ct) el1) {                   \
+  static inline void M_F(name, _reset)(M_F(name,_ct) el1) {                   \
     M_TUPL3_CONTRACT(el1);                                                    \
     M_MAP(M_TUPL3_DEFINE_RESET_FUNC , __VA_ARGS__)                            \
   }                                                                           \
@@ -671,7 +671,7 @@ namespace m_lib {
   M_IF(M_NOTEQUAL( M_NARGS oplist_arglist, M_NARGS (__VA_ARGS__)))            \
     (M_TUPL3_INIT_WITH_P1_FUNC, M_TUPL3_INIT_WITH_P1_MACRO)(name, oplist_arglist, dest, __VA_ARGS__)
 #define M_TUPL3_INIT_WITH_P1_FUNC(name, oplist_arglist, dest, ...)            \
-  M_C(name, _init_emplace)(dest, __VA_ARGS__)
+  M_F(name, _init_emplace)(dest, __VA_ARGS__)
 #define M_TUPL3_INIT_WITH_P1_MACRO(name, oplist_arglist, dest, ...)           \
   ( M_STATIC_ASSERT( M_NARGS oplist_arglist == M_C3(m_tupl3_, name, _num_args), M_LIB_DIMENSION_ERROR, "The number of oplists given to TUPLE_OPLIST don't match the number of oplists used to create the tuple." ), \
     M_STATIC_ASSERT( M_NARGS(__VA_ARGS__) == M_C3(m_tupl3_, name, _num_args), M_LIB_DIMENSION_ERROR, "Missing / Too many arguments for tuple"), \
@@ -721,27 +721,27 @@ namespace m_lib {
 
 /* Define the TUPLE oplist */
 #define M_TUPL3_OPLIST_P3(name, ...)                                          \
-  (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_C(name,_init)),),                \
-   INIT_SET(M_C(name, _init_set)),                                            \
+  (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_F(name,_init)),),                \
+   INIT_SET(M_F(name, _init_set)),                                            \
    INIT_WITH(API_1(M_TUPL3_INIT_WITH)),                                       \
-   SET(M_C(name,_set)),                                                       \
-   CLEAR(M_C(name, _clear)),                                                  \
+   SET(M_F(name,_set)),                                                       \
+   CLEAR(M_F(name, _clear)),                                                  \
    NAME(name),                                                                \
-   TYPE(M_C(name,_ct)),                                                       \
+   TYPE(M_F(name,_ct)),                                                       \
    OPLIST( (__VA_ARGS__) ),                                                   \
-   M_IF_METHOD_ALL(CMP, __VA_ARGS__)(CMP(M_C(name, _cmp)),),                  \
-   M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_C(name, _hash)),),               \
-   M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)(EQUAL(M_C(name, _equal_p)),),          \
-   M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(M_C(name, _get_str)),),      \
-   M_IF_METHOD_ALL(PARSE_STR, __VA_ARGS__)(PARSE_STR(M_C(name, _parse_str)),), \
-   M_IF_METHOD_ALL(IN_STR, __VA_ARGS__)(IN_STR(M_C(name, _in_str)),),         \
-   M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_C(name, _out_str)),),      \
-   M_IF_METHOD_ALL(IN_SERIAL, __VA_ARGS__)(IN_SERIAL(M_C(name, _in_serial)),), \
-   M_IF_METHOD_ALL(OUT_SERIAL, __VA_ARGS__)(OUT_SERIAL(M_C(name, _out_serial)),), \
-   M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(INIT_MOVE(M_C(name, _init_move)),), \
-   M_IF_METHOD_ALL(MOVE, __VA_ARGS__)(MOVE(M_C(name, _move)),),               \
-   M_IF_METHOD_ALL(SWAP, __VA_ARGS__)(SWAP(M_C(name, _swap)),),               \
-   M_IF_METHOD_ALL(RESET, __VA_ARGS__)(RESET(M_C(name, _reset)),),            \
+   M_IF_METHOD_ALL(CMP, __VA_ARGS__)(CMP(M_F(name, _cmp)),),                  \
+   M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_F(name, _hash)),),               \
+   M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)(EQUAL(M_F(name, _equal_p)),),          \
+   M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(M_F(name, _get_str)),),      \
+   M_IF_METHOD_ALL(PARSE_STR, __VA_ARGS__)(PARSE_STR(M_F(name, _parse_str)),), \
+   M_IF_METHOD_ALL(IN_STR, __VA_ARGS__)(IN_STR(M_F(name, _in_str)),),         \
+   M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_F(name, _out_str)),),      \
+   M_IF_METHOD_ALL(IN_SERIAL, __VA_ARGS__)(IN_SERIAL(M_F(name, _in_serial)),), \
+   M_IF_METHOD_ALL(OUT_SERIAL, __VA_ARGS__)(OUT_SERIAL(M_F(name, _out_serial)),), \
+   M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(INIT_MOVE(M_F(name, _init_move)),), \
+   M_IF_METHOD_ALL(MOVE, __VA_ARGS__)(MOVE(M_F(name, _move)),),               \
+   M_IF_METHOD_ALL(SWAP, __VA_ARGS__)(SWAP(M_F(name, _swap)),),               \
+   M_IF_METHOD_ALL(RESET, __VA_ARGS__)(RESET(M_F(name, _reset)),),            \
    M_IF_METHOD(NEW, M_RET_ARG1(__VA_ARGS__,))(NEW(M_DELAY2(M_GET_NEW) M_RET_ARG1(__VA_ARGS__,)),), \
    M_IF_METHOD(REALLOC, M_RET_ARG1(__VA_ARGS__,))(REALLOC(M_DELAY2(M_GET_REALLOC) M_RET_ARG1(__VA_ARGS__,)),), \
    M_IF_METHOD(DEL, M_RET_ARG1(__VA_ARGS__,))(DEL(M_DELAY2(M_GET_DEL) M_RET_ARG1(__VA_ARGS__,)),), \

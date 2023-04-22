@@ -30,7 +30,7 @@
 /* Define a deque of a given type and its associated functions.
    USAGE: DEQUE_DEF(name, type [, oplist_of_the_type]) */
 #define M_DEQUE_DEF(name, ...)                                                \
-  M_DEQUE_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
+  M_DEQUE_DEF_AS(name, M_F(name,_t), M_F(name,_it_t), __VA_ARGS__)
 
 
 /* Define a deque of a given type and its associated functions.
@@ -39,8 +39,8 @@
 #define M_DEQUE_DEF_AS(name, name_t, it_t, ...)                               \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_D3QU3_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
-                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t, M_C(name, _node_ct) ), \
-                 (name, __VA_ARGS__,                                        name_t, it_t, M_C(name, _node_ct)))) \
+                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t, M_F(name, _node_ct) ), \
+                 (name, __VA_ARGS__,                                        name_t, it_t, M_F(name, _node_ct)))) \
   M_END_PROTECTED_CODE
 
 
@@ -91,16 +91,16 @@
    - name: prefix to be used
    - type: type of the elements of the deque
    - oplist: oplist of the type of the elements of the container
-   - deque_t: alias for M_C(name, _t) [ type of the container ]
-   - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
+   - deque_t: alias for M_F(name, _t) [ type of the container ]
+   - it_t: alias for M_F(name, _it_t) [ iterator of the container ]
    - node_t: alias for node_t [ node ]
  */
 #define M_D3QU3_DEF_P3(name, type, oplist, deque_t, it_t, node_t)             \
   M_D3QU3_DEF_TYPE(name, type, oplist, deque_t, it_t, node_t)                 \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
   M_D3QU3_DEF_CORE(name, type, oplist, deque_t, it_t, node_t)                 \
-  M_EMPLACE_QUEUE_DEF(name, deque_t, M_C(name, _emplace_back), oplist, M_D3QUE_EMPLACE_BACK_DEF) \
-  M_EMPLACE_QUEUE_DEF(name, deque_t, M_C(name, _emplace_front), oplist, M_D3QUE_EMPLACE_FRONT_DEF)
+  M_EMPLACE_QUEUE_DEF(name, deque_t, M_F(name, _emplace_back), oplist, M_D3QUE_EMPLACE_BACK_DEF) \
+  M_EMPLACE_QUEUE_DEF(name, deque_t, M_F(name, _emplace_front), oplist, M_D3QUE_EMPLACE_FRONT_DEF)
 
 /* Define the types.
    It is a linked list of buckets of the types,
@@ -114,8 +114,8 @@
 */
 #define M_D3QU3_DEF_TYPE(name, type, oplist, deque_t, it_t, node_t)           \
                                                                               \
-  typedef struct M_C(name, _node_s) {                                         \
-    ILIST_INTERFACE(M_C(name, _node_list), struct M_C(name, _node_s));        \
+  typedef struct M_F(name, _node_s) {                                         \
+    ILIST_INTERFACE(M_F(name, _node_list), struct M_F(name, _node_s));        \
     size_t size;                                                              \
     type  data[M_MIN_FLEX_ARRAY_SIZE];                                        \
   } node_t;                                                                   \
@@ -127,13 +127,13 @@
      The interfaces are compatible.                                           \
   */                                                                          \
   /* FIXME: How can I separate public types and private implementation? */    \
-  ILIST_DEF(M_C(name, _node_list), node_t, (DEL(M_GET_FREE oplist)) )         \
+  ILIST_DEF(M_F(name, _node_list), node_t, (DEL(M_GET_FREE oplist)) )         \
                                                                               \
   /* Define an internal iterator */                                           \
-  typedef struct M_C(name, _it2_s) {                                          \
+  typedef struct M_F(name, _it2_s) {                                          \
     node_t *node;                                                             \
     size_t        index;                                                      \
-  } M_C(name, _it2_ct)[1];                                                    \
+  } M_F(name, _it2_ct)[1];                                                    \
                                                                               \
   /* Define the deque type:                                                   \
      - 'list' if the list of buckets containing the objects.                  \
@@ -142,29 +142,29 @@
      - 'default_size' is the size used for the creation of a new bucket       \
      - 'count' is the number of elements in the container.                    \
   */                                                                          \
-  typedef struct M_C(name, _s) {                                              \
-    M_C(name, _node_list_t) list;                                             \
-    M_C(name, _it2_ct)      front;                                            \
-    M_C(name, _it2_ct)      back;                                             \
+  typedef struct M_F(name, _s) {                                              \
+    M_F(name, _node_list_t) list;                                             \
+    M_F(name, _it2_ct)      front;                                            \
+    M_F(name, _it2_ct)      back;                                             \
     size_t                  default_size;                                     \
     size_t                  count;                                            \
   } deque_t[1];                                                               \
                                                                               \
   /* Define pointer alias */                                                  \
-  typedef struct M_C(name, _s) *M_C(name, _ptr);                              \
-  typedef const struct M_C(name, _s) *M_C(name, _srcptr);                     \
+  typedef struct M_F(name, _s) *M_F(name, _ptr);                              \
+  typedef const struct M_F(name, _s) *M_F(name, _srcptr);                     \
                                                                               \
   /* Define the iterator object */                                            \
-  typedef struct M_C(name, _it_s) {                                           \
+  typedef struct M_F(name, _it_s) {                                           \
     node_t *node;                                                             \
     size_t        index;                                                      \
-    const struct M_C(name, _s) *deque;                                        \
+    const struct M_F(name, _s) *deque;                                        \
   } it_t[1];                                                                  \
                                                                               \
   /* Define internal types for oplist */                                      \
-  typedef deque_t M_C(name, _ct);                                             \
-  typedef type    M_C(name, _subtype_ct);                                     \
-  typedef it_t    M_C(name, _it_ct);                                          \
+  typedef deque_t M_F(name, _ct);                                             \
+  typedef type    M_F(name, _subtype_ct);                                     \
+  typedef it_t    M_F(name, _it_ct);                                          \
 
 /* Define the core functions */
 #define M_D3QU3_DEF_CORE(name, type, oplist, deque_t, it_t, node_t)           \
@@ -189,7 +189,7 @@
     }                                                                         \
     /* Initialize the node */                                                 \
     n->size = def;                                                            \
-    M_C(name, _node_list_init_field)(n);                                      \
+    M_F(name, _node_list_init_field)(n);                                      \
     /* Increase the next bucket allocation */                                 \
     /* Do not increase it too much if there are few items */                  \
     def = M_MIN(def, d->count);                                               \
@@ -199,14 +199,14 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init)(deque_t d)                                                 \
+  M_F(name, _init)(deque_t d)                                                 \
   {                                                                           \
-    M_C(name, _node_list_init)(d->list);                                      \
+    M_F(name, _node_list_init)(d->list);                                      \
     d->default_size = M_USE_DEQUE_DEFAULT_SIZE;                               \
     d->count        = 0;                                                      \
     node_t *n = M_C3(m_d3qu3_,name,_new_node)(d);                             \
     if (n == NULL) return;                                                    \
-    M_C(name, _node_list_push_back)(d->list, n);                              \
+    M_F(name, _node_list_push_back)(d->list, n);                              \
     d->front->node  = n;                                                      \
     d->front->index = M_USE_DEQUE_DEFAULT_SIZE/2;                             \
     d->back->node   = n;                                                      \
@@ -215,14 +215,14 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _reset)(deque_t d)                                                \
+  M_F(name, _reset)(deque_t d)                                                \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     node_t *min_node = NULL;                                                  \
     for(node_t *n = d->front->node;                                           \
         n != NULL ;                                                           \
         n = (n == d->back->node) ? NULL :                                     \
-          M_C(name, _node_list_next_obj)(d->list, n) ){                       \
+          M_F(name, _node_list_next_obj)(d->list, n) ){                       \
       size_t min = n == d->front->node ? d->front->index : 0;                 \
       size_t max = n == d->back->node ? d->back->index : n->size;             \
       for(size_t i = min; i < max; i++) {                                     \
@@ -240,12 +240,12 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clear)(deque_t d)                                                \
+  M_F(name, _clear)(deque_t d)                                                \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
-    M_C(name, _reset)(d);                                                     \
+    M_F(name, _reset)(d);                                                     \
     /* We have registered the delete operator to clear all objects */         \
-    M_C(name, _node_list_clear)(d->list);                                     \
+    M_F(name, _node_list_clear)(d->list);                                     \
     /* It is safer to clean some variables */                                 \
     d->front->node  = NULL;                                                   \
     d->back->node   = NULL;                                                   \
@@ -253,19 +253,19 @@
   }                                                                           \
                                                                               \
   static inline type *                                                        \
-  M_C(name, _push_back_raw)(deque_t d)                                        \
+  M_F(name, _push_back_raw)(deque_t d)                                        \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     node_t *n = d->back->node;                                                \
     size_t index = d->back->index;                                            \
     if (M_UNLIKELY (n->size <= index)) {                                      \
       /* try to get an already allocated node */                              \
-      n = M_C(name, _node_list_next_obj)(d->list, n);                         \
+      n = M_F(name, _node_list_next_obj)(d->list, n);                         \
       if (n == NULL) {                                                        \
         /* No node exists, allocate a new one */                              \
         n = M_C3(m_d3qu3_,name,_new_node)(d);                                 \
         if (M_UNLIKELY (n == NULL)) return NULL;                              \
-        M_C(name, _node_list_push_back)(d->list, n);                          \
+        M_F(name, _node_list_push_back)(d->list, n);                          \
       }                                                                       \
       d->back->node = n;                                                      \
       index = 0;                                                              \
@@ -280,15 +280,15 @@
                                                                               \
   /* Internal, for INIT_WITH */                                               \
   static inline type *                                                        \
-  M_C(name, _push_raw)(deque_t d)                                             \
+  M_F(name, _push_raw)(deque_t d)                                             \
   {                                                                           \
-    return M_C(name, _push_back_raw)(d);                                      \
+    return M_F(name, _push_back_raw)(d);                                      \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _push_back)(deque_t d, type const x)                              \
+  M_F(name, _push_back)(deque_t d, type const x)                              \
   {                                                                           \
-    type *p = M_C(name, _push_back_raw)(d);                                   \
+    type *p = M_F(name, _push_back_raw)(d);                                   \
     if (M_LIKELY(p != NULL)) {                                                \
       M_CALL_INIT_SET(oplist, *p, x);                                         \
     }                                                                         \
@@ -296,9 +296,9 @@
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
   static inline type *                                                        \
-  M_C(name, _push_back_new)(deque_t d)                                        \
+  M_F(name, _push_back_new)(deque_t d)                                        \
   {                                                                           \
-    type *p = M_C(name, _push_back_raw)(d);                                   \
+    type *p = M_F(name, _push_back_raw)(d);                                   \
     if (M_LIKELY(p != NULL)) {                                                \
       M_CALL_INIT(oplist, *p);                                                \
     }                                                                         \
@@ -307,17 +307,17 @@
   , )                                                                         \
                                                                               \
   static inline void                                                          \
-  M_C(name, _push_back_move)(deque_t d, type *x)                              \
+  M_F(name, _push_back_move)(deque_t d, type *x)                              \
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
-    type *p = M_C(name, _push_back_raw)(d);                                   \
+    type *p = M_F(name, _push_back_raw)(d);                                   \
     if (M_UNLIKELY(p == NULL))                                                \
       return;                                                                 \
     M_DO_INIT_MOVE (oplist, *p, *x);                                          \
   }                                                                           \
                                                                               \
   static inline type*                                                         \
-  M_C(name, _push_front_raw)(deque_t d)                                       \
+  M_F(name, _push_front_raw)(deque_t d)                                       \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     node_t *n = d->front->node;                                               \
@@ -325,11 +325,11 @@
     index --;                                                                 \
     /* If overflow */                                                         \
     if (M_UNLIKELY (n->size <= index)) {                                      \
-      n = M_C(name, _node_list_previous_obj)(d->list, n);                     \
+      n = M_F(name, _node_list_previous_obj)(d->list, n);                     \
       if (n == NULL) {                                                        \
         n = M_C3(m_d3qu3_,name,_new_node)(d);                                 \
         if (M_UNLIKELY (n == NULL)) return NULL;                              \
-        M_C(name, _node_list_push_front)(d->list, n);                         \
+        M_F(name, _node_list_push_front)(d->list, n);                         \
       }                                                                       \
       d->front->node = n;                                                     \
       index = n->size -1;                                                     \
@@ -342,9 +342,9 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _push_front)(deque_t d, type const x)                             \
+  M_F(name, _push_front)(deque_t d, type const x)                             \
   {                                                                           \
-    type *p = M_C(name, _push_front_raw)(d);                                  \
+    type *p = M_F(name, _push_front_raw)(d);                                  \
     if (M_LIKELY(p != NULL)) {                                                \
       M_CALL_INIT_SET(oplist, *p, x);                                         \
     }                                                                         \
@@ -352,9 +352,9 @@
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
   static inline type *                                                        \
-  M_C(name, _push_front_new)(deque_t d)                                       \
+  M_F(name, _push_front_new)(deque_t d)                                       \
   {                                                                           \
-    type *p = M_C(name, _push_front_raw)(d);                                  \
+    type *p = M_F(name, _push_front_raw)(d);                                  \
     if (M_LIKELY(p != NULL)) {                                                \
       M_CALL_INIT(oplist, *p);                                                \
     }                                                                         \
@@ -363,17 +363,17 @@
   ,)                                                                          \
                                                                               \
   static inline void                                                          \
-  M_C(name, _push_front_move)(deque_t d, type *x)                             \
+  M_F(name, _push_front_move)(deque_t d, type *x)                             \
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
-    type *p = M_C(name, _push_front_raw)(d);                                  \
+    type *p = M_F(name, _push_front_raw)(d);                                  \
     if (M_UNLIKELY(p == NULL))                                                \
       return;                                                                 \
     M_DO_INIT_MOVE (oplist, *p, *x);                                          \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _pop_back)(type *ptr, deque_t d)                                  \
+  M_F(name, _pop_back)(type *ptr, deque_t d)                                  \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT(d->count > 0);                                                   \
@@ -384,13 +384,13 @@
       /* If there is a next node,                                             \
          pop the back node and push it back to the front. This                \
          reduce the used memory if the deque is used as a FIFO queue.*/       \
-      node_t *next = M_C(name, _node_list_next_obj)(d->list, n);              \
+      node_t *next = M_F(name, _node_list_next_obj)(d->list, n);              \
       if (next != NULL) {                                                     \
-        next = M_C(name, _node_list_pop_back)(d->list);                       \
+        next = M_F(name, _node_list_pop_back)(d->list);                       \
         M_ASSERT (next != n);                                                 \
-        M_C(name, _node_list_push_front)(d->list, next);                      \
+        M_F(name, _node_list_push_front)(d->list, next);                      \
       }                                                                       \
-      n = M_C(name, _node_list_previous_obj)(d->list, n);                     \
+      n = M_F(name, _node_list_previous_obj)(d->list, n);                     \
       M_ASSERT (n != NULL && n->size > 1);                                    \
       d->back->node = n;                                                      \
       index = n->size-1;                                                      \
@@ -409,17 +409,17 @@
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
   static inline void                                                          \
-  M_C(name, _pop_back_move)(type *ptr, deque_t d)                             \
+  M_F(name, _pop_back_move)(type *ptr, deque_t d)                             \
   {                                                                           \
     M_ASSERT(ptr != NULL);                                                    \
     /* Note: Lazy implementation. Can be improved if needed */                \
     M_CALL_INIT(oplist, *ptr);                                                \
-    M_C(name, _pop_back)(ptr, d);                                             \
+    M_F(name, _pop_back)(ptr, d);                                             \
   }                                                                           \
   , )                                                                         \
                                                                               \
   static inline void                                                          \
-  M_C(name, _pop_front)(type *ptr, deque_t d)                                 \
+  M_F(name, _pop_front)(type *ptr, deque_t d)                                 \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT(d->count > 0);                                                   \
@@ -437,14 +437,14 @@
       /* If there is a previous node,                                         \
          pop the front node and push it back to the back. This                \
          recycles the used memory if the deque is used as a FIFO queue.*/     \
-      node_t *prev = M_C(name, _node_list_previous_obj)(d->list, n);          \
+      node_t *prev = M_F(name, _node_list_previous_obj)(d->list, n);          \
       if (prev != NULL) {                                                     \
-        prev = M_C(name, _node_list_pop_front)(d->list);                      \
+        prev = M_F(name, _node_list_pop_front)(d->list);                      \
         M_ASSERT (prev != n);                                                 \
-        M_C(name, _node_list_push_back)(d->list, prev);                       \
+        M_F(name, _node_list_push_back)(d->list, prev);                       \
       }                                                                       \
       /* Update front iterator to point to the next object */                 \
-      n = M_C(name, _node_list_next_obj)(d->list, n);                         \
+      n = M_F(name, _node_list_next_obj)(d->list, n);                         \
       if (M_UNLIKELY(n == NULL)) {                                            \
         /* No next obj.                                                       \
            It is only possible if there was only 1 element */                 \
@@ -465,24 +465,24 @@
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
   static inline void                                                          \
-  M_C(name, _pop_front_move)(type *ptr, deque_t d)                            \
+  M_F(name, _pop_front_move)(type *ptr, deque_t d)                            \
   {                                                                           \
     M_ASSERT(ptr != NULL);                                                    \
     /* Note: Lazy implementation */                                           \
     M_CALL_INIT(oplist, *ptr);                                                \
-    M_C(name, _pop_front)(ptr, d);                                            \
+    M_F(name, _pop_front)(ptr, d);                                            \
   }                                                                           \
   ,)                                                                          \
                                                                               \
   static inline type *                                                        \
-  M_C(name, _back)(const deque_t d)                                           \
+  M_F(name, _back)(const deque_t d)                                           \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT (d->count > 0);                                                  \
     size_t i = d->back->index;                                                \
     node_t *n = d->back->node;                                                \
     if (M_UNLIKELY (i == 0)) {                                                \
-      n = M_C(name, _node_list_previous_obj)(d->list, n);                     \
+      n = M_F(name, _node_list_previous_obj)(d->list, n);                     \
       M_ASSERT (n != NULL);                                                   \
       i = n->size;                                                            \
     }                                                                         \
@@ -490,7 +490,7 @@
   }                                                                           \
                                                                               \
   static inline type *                                                        \
-  M_C(name, _front)(const deque_t d)                                          \
+  M_F(name, _front)(const deque_t d)                                          \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT (d->count > 0);                                                  \
@@ -500,55 +500,55 @@
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_C(name, _size)(const deque_t d)                                           \
+  M_F(name, _size)(const deque_t d)                                           \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     return d->count;                                                          \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_C(name, _capacity_back)(const deque_t v)                                  \
+  M_F(name, _capacity_back)(const deque_t v)                                  \
   {                                                                           \
     M_D3QU3_CONTRACT(v);                                                      \
     size_t s = 0;                                                             \
-    for(node_t *n = M_C(name, _node_list_back)(v->list);                      \
+    for(node_t *n = M_F(name, _node_list_back)(v->list);                      \
         n != NULL ;                                                           \
         n = (n == v->back->node) ? NULL :                                     \
-          M_C(name, _node_list_previous_obj)(v->list, n) ){                   \
+          M_F(name, _node_list_previous_obj)(v->list, n) ){                   \
       s += (n == v->back->node ? v->back->index : n->size);                   \
     }                                                                         \
     return s;                                                                 \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_C(name, _capacity_front)(const deque_t v)                                 \
+  M_F(name, _capacity_front)(const deque_t v)                                 \
   {                                                                           \
     M_D3QU3_CONTRACT(v);                                                      \
     size_t s = 0;                                                             \
-    for(node_t *n = M_C(name, _node_list_front)(v->list);                     \
+    for(node_t *n = M_F(name, _node_list_front)(v->list);                     \
         n != NULL ;                                                           \
         n = (n == v->front->node) ? NULL :                                    \
-          M_C(name, _node_list_next_obj)(v->list, n) ){                       \
+          M_F(name, _node_list_next_obj)(v->list, n) ){                       \
       s += n->size - (n == v->front->node ? v->front->index : 0);             \
     }                                                                         \
     return s;                                                                 \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_C(name, _capacity)(const deque_t v)                                       \
+  M_F(name, _capacity)(const deque_t v)                                       \
   {                                                                           \
-    return M_C(name, _capacity_back)(v)+M_C(name, _capacity_front)(v);        \
+    return M_F(name, _capacity_back)(v)+M_F(name, _capacity_front)(v);        \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _empty_p)(const deque_t d)                                        \
+  M_F(name, _empty_p)(const deque_t d)                                        \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     return d->count == 0;                                                     \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _it)(it_t it, const deque_t d)                                    \
+  M_F(name, _it)(it_t it, const deque_t d)                                    \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT (it != NULL);                                                    \
@@ -558,7 +558,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _it_last)(it_t it, const deque_t d)                               \
+  M_F(name, _it_last)(it_t it, const deque_t d)                               \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT (it != NULL);                                                    \
@@ -566,14 +566,14 @@
     it->index = d->back->index - 1;                                           \
     it->deque = d;                                                            \
     if (M_UNLIKELY (it->index >= it->node->size)) {                           \
-      it->node = M_C(name, _node_list_previous_obj)(d->list, it->node);       \
+      it->node = M_F(name, _node_list_previous_obj)(d->list, it->node);       \
       M_ASSERT (it->node != NULL && it->node->size > 1);                      \
       it->index = it->node->size-1;                                           \
     }                                                                         \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _it_end)(it_t it, const deque_t d)                                \
+  M_F(name, _it_end)(it_t it, const deque_t d)                                \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT (it != NULL);                                                    \
@@ -583,7 +583,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _it_set)(it_t it1, const it_t it2)                                \
+  M_F(name, _it_set)(it_t it1, const it_t it2)                                \
   {                                                                           \
     M_ASSERT (it1 != NULL);                                                   \
     M_ASSERT (it2 != NULL);                                                   \
@@ -593,7 +593,7 @@
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _end_p)(it_t it)                                                  \
+  M_F(name, _end_p)(it_t it)                                                  \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
     return (it->node == it->deque->back->node                                 \
@@ -603,13 +603,13 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _next)(it_t it)                                                   \
+  M_F(name, _next)(it_t it)                                                   \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
     node_t *n = it->node;                                                     \
     it->index ++;                                                             \
     if (M_UNLIKELY (it->index >= n->size)) {                                  \
-      n = M_C(name, _node_list_next_obj)(it->deque->list, n);                 \
+      n = M_F(name, _node_list_next_obj)(it->deque->list, n);                 \
       if (M_UNLIKELY (n == NULL || it->node == it->deque->back->node)) {      \
         /* Point to 'end' (can't undo it) */                                  \
         it->node  = it->deque->back->node;                                    \
@@ -622,13 +622,13 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _previous)(it_t it)                                               \
+  M_F(name, _previous)(it_t it)                                               \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
     node_t *n = it->node;                                                     \
     it->index --;                                                             \
     if (M_UNLIKELY (it->index >= n->size)) {                                  \
-      n = M_C(name, _node_list_previous_obj)(it->deque->list, n);             \
+      n = M_F(name, _node_list_previous_obj)(it->deque->list, n);             \
       if (M_UNLIKELY (n == NULL || it->node == it->deque->front->node)) {     \
         /* Point to 'end' (can't undo it) */                                  \
         it->node  = it->deque->back->node;                                    \
@@ -641,17 +641,17 @@
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _last_p)(it_t it)                                                 \
+  M_F(name, _last_p)(it_t it)                                                 \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
     it_t it2;                                                                 \
-    M_C(name, _it_set)(it2, it);                                              \
-    M_C(name, _next)(it2);                                                    \
-    return M_C(name, _end_p)(it2);                                            \
+    M_F(name, _it_set)(it2, it);                                              \
+    M_F(name, _next)(it2);                                                    \
+    return M_F(name, _end_p)(it2);                                            \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _it_equal_p)(it_t it1, const it_t it2)                            \
+  M_F(name, _it_equal_p)(it_t it1, const it_t it2)                            \
   {                                                                           \
     M_ASSERT (it1 != NULL);                                                   \
     M_ASSERT (it2 != NULL);                                                   \
@@ -661,7 +661,7 @@
   }                                                                           \
                                                                               \
   static inline type *                                                        \
-  M_C(name, _ref)(it_t it)                                                    \
+  M_F(name, _ref)(it_t it)                                                    \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
     M_ASSERT (it->index < it->node->size);                                    \
@@ -669,7 +669,7 @@
   }                                                                           \
                                                                               \
   static inline type const *                                                  \
-  M_C(name, _cref)(it_t it)                                                   \
+  M_F(name, _cref)(it_t it)                                                   \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
     M_ASSERT (it->index < it->node->size);                                    \
@@ -677,7 +677,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _remove)(deque_t d, it_t it)                                      \
+  M_F(name, _remove)(deque_t d, it_t it)                                      \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT (it != NULL && it->node != NULL);                                \
@@ -700,7 +700,7 @@
       if (M_UNLIKELY (d->front->index == n->size -1)) {                       \
         /* Node 'smart' deletion (single element) */                          \
         /* Update front iterator to point to the next object */               \
-        n = M_C(name, _node_list_next_obj)(d->list, n);                       \
+        n = M_F(name, _node_list_next_obj)(d->list, n);                       \
         /* We must have a next element, as we have a different back node      \
            than the front node. */                                            \
         M_ASSERT (n != NULL);                                                 \
@@ -714,16 +714,16 @@
                 sizeof(type) * (it->index - d->front->index));                \
         d->front->index ++;                                                   \
         /* The iterator shall reference the next element */                   \
-        M_C(name, _next)(it);                                                 \
+        M_F(name, _next)(it);                                                 \
       }                                                                       \
     } else {                                                                  \
       /* Nether front or end node */                                          \
       if (M_UNLIKELY(n->size == 1)) {                                         \
         /* The iterator shall reference the next element */                   \
-        M_C(name, _next)(it);                                                 \
+        M_F(name, _next)(it);                                                 \
         /* Node deletion */                                                   \
         M_ASSERT(d->count > 1);                                               \
-        M_C(name, _node_list_unlink)(n);                                      \
+        M_F(name, _node_list_unlink)(n);                                      \
         M_CALL_FREE(oplist, n);                                               \
       } else {                                                                \
         memmove(&n->data[it->index], &n->data[it->index+1],                   \
@@ -732,7 +732,7 @@
         n->size --;                                                           \
         /* The iterator points to the next element                            \
            except if it was the last one*/                                    \
-        if (M_UNLIKELY(it->index >= n->size)) M_C(name, _next)(it);           \
+        if (M_UNLIKELY(it->index >= n->size)) M_F(name, _next)(it);           \
       }                                                                       \
     }                                                                         \
     d->count--;                                                               \
@@ -740,25 +740,25 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init_set)(deque_t d, const deque_t src)                          \
+  M_F(name, _init_set)(deque_t d, const deque_t src)                          \
   {                                                                           \
     M_D3QU3_CONTRACT(src);                                                    \
     M_ASSERT (d != NULL);                                                     \
-    M_C(name, _node_list_init)(d->list);                                      \
+    M_F(name, _node_list_init)(d->list);                                      \
     d->default_size = M_USE_DEQUE_DEFAULT_SIZE + src->count;                  \
     d->count        = src->count;                                             \
     node_t *n = M_C3(m_d3qu3_,name,_new_node)(d);                             \
     if (n == NULL) return;                                                    \
     d->default_size /= 2;                                                     \
-    M_C(name, _node_list_push_back)(d->list, n);                              \
+    M_F(name, _node_list_push_back)(d->list, n);                              \
     d->front->node  = n;                                                      \
     d->front->index = M_USE_DEQUE_DEFAULT_SIZE/2;                             \
     d->back->node   = n;                                                      \
     d->back->index  = M_USE_DEQUE_DEFAULT_SIZE/2 + src->count;                \
     it_t it;                                                                  \
     size_t i = M_USE_DEQUE_DEFAULT_SIZE/2;                                    \
-    for(M_C(name, _it)(it, src); !M_C(name, _end_p)(it) ; M_C(name, _next)(it)) { \
-      type const *obj = M_C(name, _cref)(it);                                 \
+    for(M_F(name, _it)(it, src); !M_F(name, _end_p)(it) ; M_F(name, _next)(it)) { \
+      type const *obj = M_F(name, _cref)(it);                                 \
       M_CALL_INIT_SET(oplist, n->data[i], *obj);                              \
       i++;                                                                    \
       M_ASSERT (i <= d->back->index);                                         \
@@ -767,21 +767,21 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _set)(deque_t d, deque_t const src)                               \
+  M_F(name, _set)(deque_t d, deque_t const src)                               \
   {                                                                           \
     if (M_UNLIKELY (src == d))                                                \
       return;                                                                 \
     /* TODO: Reuse memory of d! */                                            \
-    M_C(name, _clear)(d);                                                     \
-    M_C(name, _init_set)(d, src);                                             \
+    M_F(name, _clear)(d);                                                     \
+    M_F(name, _init_set)(d, src);                                             \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init_move)(deque_t d, deque_t src)                               \
+  M_F(name, _init_move)(deque_t d, deque_t src)                               \
   {                                                                           \
     M_D3QU3_CONTRACT(src);                                                    \
     M_ASSERT (d!= NULL);                                                      \
-    M_C(name,_node_list_init_move)(d->list, src->list);                       \
+    M_F(name,_node_list_init_move)(d->list, src->list);                       \
     d->front->node  = src->front->node;                                       \
     d->front->index = src->front->index;                                      \
     d->back->node   = src->back->node;                                        \
@@ -793,21 +793,21 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _move)(deque_t d, deque_t src)                                    \
+  M_F(name, _move)(deque_t d, deque_t src)                                    \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_D3QU3_CONTRACT(src);                                                    \
-    M_C(name, _clear)(d);                                                     \
-    M_C(name, _init_move)(d, src);                                            \
+    M_F(name, _clear)(d);                                                     \
+    M_F(name, _init_move)(d, src);                                            \
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _swap)(deque_t d, deque_t e)                                      \
+  M_F(name, _swap)(deque_t d, deque_t e)                                      \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_D3QU3_CONTRACT(e);                                                      \
-    M_C(name, _node_list_swap) (d->list, e->list);                            \
+    M_F(name, _node_list_swap) (d->list, e->list);                            \
     M_SWAP(node_t *, d->front->node, e->front->node);                         \
     M_SWAP(node_t *, d->back->node, e->back->node);                           \
     M_SWAP(size_t, d->front->index, e->front->index);                         \
@@ -819,7 +819,7 @@
   }                                                                           \
                                                                               \
   static inline type*                                                         \
-  M_C(name, _get)(deque_t d, size_t key)                                      \
+  M_F(name, _get)(deque_t d, size_t key)                                      \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT_INDEX (key, d->count);                                           \
@@ -828,7 +828,7 @@
     /* This loop is in log(N) since the size increase exponentially.*/        \
     for(node_t *n = d->front->node; true ;                                    \
         n = (n == d->back->node) ? NULL :                                     \
-          M_C(name, _node_list_next_obj)(d->list, n) ){                       \
+          M_F(name, _node_list_next_obj)(d->list, n) ){                       \
       M_ASSERT(n != NULL);                                                    \
       if (index0 + key < count + n->size) {                                   \
         return &n->data[index0 + key - count];                                \
@@ -838,24 +838,24 @@
   }                                                                           \
                                                                               \
   static inline type const *                                                  \
-  M_C(name, _cget)(deque_t d, size_t key)                                     \
+  M_F(name, _cget)(deque_t d, size_t key)                                     \
   {                                                                           \
-    return M_CONST_CAST(type, M_C(name, _get)(d, key));                       \
+    return M_CONST_CAST(type, M_F(name, _get)(d, key));                       \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _set_at)(deque_t d, size_t key, type const x)                     \
+  M_F(name, _set_at)(deque_t d, size_t key, type const x)                     \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT_INDEX (key, d->count);                                           \
-    type *p = M_C(name, _get)(d, key);                                        \
+    type *p = M_F(name, _get)(d, key);                                        \
     M_CALL_SET(oplist, *p, x);                                                \
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
   M_IF_METHOD(EQUAL, oplist)(                                                 \
   static inline bool                                                          \
-  M_C(name, _equal_p)(const deque_t d1, const deque_t d2)                     \
+  M_F(name, _equal_p)(const deque_t d1, const deque_t d2)                     \
   {                                                                           \
     M_D3QU3_CONTRACT(d1);                                                     \
     M_D3QU3_CONTRACT(d2);                                                     \
@@ -863,28 +863,28 @@
       return false;                                                           \
     it_t it1;                                                                 \
     it_t it2;                                                                 \
-    for(M_C(name, _it)(it1, d1), M_C(name,_it)(it2, d2);                      \
-        !M_C(name, _end_p)(it1) ;                                             \
-        M_C(name, _next)(it1), M_C(name, _next)(it2)) {                       \
-      type const *obj1 = M_C(name, _cref)(it1);                               \
-      type const *obj2 = M_C(name, _cref)(it2);                               \
+    for(M_F(name, _it)(it1, d1), M_F(name,_it)(it2, d2);                      \
+        !M_F(name, _end_p)(it1) ;                                             \
+        M_F(name, _next)(it1), M_F(name, _next)(it2)) {                       \
+      type const *obj1 = M_F(name, _cref)(it1);                               \
+      type const *obj2 = M_F(name, _cref)(it2);                               \
       if (M_CALL_EQUAL(oplist, *obj1, *obj2) == false)                        \
         return false;                                                         \
     }                                                                         \
-    M_ASSERT (M_C(name, _end_p)(it2));                                        \
+    M_ASSERT (M_F(name, _end_p)(it2));                                        \
     return true;                                                              \
   }                                                                           \
   , /* NO EQUAL */)                                                           \
                                                                               \
   M_IF_METHOD(HASH, oplist)(                                                  \
   static inline size_t                                                        \
-  M_C(name, _hash)(const deque_t d)                                           \
+  M_F(name, _hash)(const deque_t d)                                           \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_HASH_DECL(hash);                                                        \
     it_t it;                                                                  \
-    for(M_C(name, _it)(it, d); !M_C(name, _end_p)(it); M_C(name, _next)(it)) { \
-      type const *obj = M_C(name, _cref)(it);                                 \
+    for(M_F(name, _it)(it, d); !M_F(name, _end_p)(it); M_F(name, _next)(it)) { \
+      type const *obj = M_F(name, _cref)(it);                                 \
       M_HASH_UP (hash, M_CALL_HASH(oplist, *obj));                            \
     }                                                                         \
     return M_HASH_FINAL(hash);                                                \
@@ -893,13 +893,13 @@
                                                                               \
   M_IF_METHOD(SWAP, oplist)(                                                  \
   static inline void                                                          \
-  M_C(name, _swap_at)(deque_t d, size_t i, size_t j)                          \
+  M_F(name, _swap_at)(deque_t d, size_t i, size_t j)                          \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT_INDEX (i, d->count);                                             \
     M_ASSERT_INDEX (j, d->count);                                             \
-    type *obj1 = M_C(name, _get)(d, i);                                       \
-    type *obj2 = M_C(name, _get)(d, j);                                       \
+    type *obj1 = M_F(name, _get)(d, i);                                       \
+    type *obj2 = M_F(name, _get)(d, j);                                       \
     M_CALL_SWAP(oplist, *obj1, *obj2);                                        \
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
@@ -907,17 +907,17 @@
                                                                               \
   M_IF_METHOD(GET_STR, oplist)(                                               \
   static inline void                                                          \
-  M_C(name, _get_str)(m_string_t str, deque_t const deque, bool append)       \
+  M_F(name, _get_str)(m_string_t str, deque_t const deque, bool append)       \
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
     (append ? m_string_cat_cstr : m_string_set_cstr) (str, "[");              \
     it_t it;                                                                  \
-    for (M_C(name, _it)(it, deque) ;                                          \
-         !M_C(name, _end_p)(it);                                              \
-         M_C(name, _next)(it)){                                               \
-      type const *item = M_C(name, _cref)(it);                                \
+    for (M_F(name, _it)(it, deque) ;                                          \
+         !M_F(name, _end_p)(it);                                              \
+         M_F(name, _next)(it)){                                               \
+      type const *item = M_F(name, _cref)(it);                                \
       M_CALL_GET_STR(oplist, str, *item, true);                               \
-      if (!M_C(name, _last_p)(it))                                            \
+      if (!M_F(name, _last_p)(it))                                            \
         m_string_push_back (str, M_GET_SEPARATOR oplist);                     \
     }                                                                         \
     m_string_push_back (str, ']');                                            \
@@ -926,18 +926,18 @@
                                                                               \
   M_IF_METHOD(OUT_STR, oplist)(                                               \
   static inline void                                                          \
-  M_C(name, _out_str)(FILE *file, const deque_t deque)                        \
+  M_F(name, _out_str)(FILE *file, const deque_t deque)                        \
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
     M_ASSERT (file != NULL);                                                  \
     fputc ('[', file);                                                        \
     it_t it;                                                                  \
-    for (M_C(name, _it)(it, deque) ;                                          \
-         !M_C(name, _end_p)(it);                                              \
-         M_C(name, _next)(it)) {                                              \
-      type const *item = M_C(name, _cref)(it);                                \
+    for (M_F(name, _it)(it, deque) ;                                          \
+         !M_F(name, _end_p)(it);                                              \
+         M_F(name, _next)(it)) {                                              \
+      type const *item = M_F(name, _cref)(it);                                \
       M_CALL_OUT_STR(oplist, file, *item);                                    \
-      if (!M_C(name, _last_p)(it))                                            \
+      if (!M_F(name, _last_p)(it))                                            \
         fputc (M_GET_SEPARATOR oplist, file);                                 \
     }                                                                         \
     fputc (']', file);                                                        \
@@ -946,11 +946,11 @@
                                                                               \
   M_IF_METHOD2(PARSE_STR, INIT, oplist)(                                      \
   static inline bool                                                          \
-  M_C(name, _parse_str)(deque_t deque, const char str[], const char **endp)   \
+  M_F(name, _parse_str)(deque_t deque, const char str[], const char **endp)   \
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
     M_ASSERT (str != NULL);                                                   \
-    M_C(name,_reset)(deque);                                                  \
+    M_F(name,_reset)(deque);                                                  \
     bool success = false;                                                     \
     int c = *str++;                                                           \
     if (M_UNLIKELY (c != '[')) goto exit;                                     \
@@ -964,7 +964,7 @@
       bool b = M_CALL_PARSE_STR(oplist, item, str, &str);                     \
       do { c = *str++; } while (isspace(c));                                  \
       if (b == false || c == 0) { goto exit_clear; }                          \
-      M_C(name, _push_back)(deque, item);                                     \
+      M_F(name, _push_back)(deque, item);                                     \
     } while (c == M_GET_SEPARATOR oplist);                                    \
     M_D3QU3_CONTRACT(deque);                                                  \
     success = (c == ']');                                                     \
@@ -978,11 +978,11 @@
                                                                               \
   M_IF_METHOD2(IN_STR, INIT, oplist)(                                         \
   static inline bool                                                          \
-  M_C(name, _in_str)(deque_t deque, FILE *file)                               \
+  M_F(name, _in_str)(deque_t deque, FILE *file)                               \
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
     M_ASSERT (file != NULL);                                                  \
-    M_C(name,_reset)(deque);                                                  \
+    M_F(name,_reset)(deque);                                                  \
     int c = fgetc(file);                                                      \
     if (M_UNLIKELY (c != '[')) return false;                                  \
     c = fgetc(file);                                                          \
@@ -995,7 +995,7 @@
       bool b = M_CALL_IN_STR(oplist, item, file);                             \
       do { c = fgetc(file); } while (isspace(c));                             \
       if (b == false || c == EOF) { break; }                                  \
-      M_C(name, _push_back)(deque, item);                                     \
+      M_F(name, _push_back)(deque, item);                                     \
     } while (c == M_GET_SEPARATOR oplist);                                    \
     M_CALL_CLEAR(oplist, item);                                               \
     M_D3QU3_CONTRACT(deque);                                                  \
@@ -1005,7 +1005,7 @@
                                                                               \
   M_IF_METHOD(OUT_SERIAL, oplist)(                                            \
   static inline m_serial_return_code_t                                        \
-  M_C(name, _out_serial)(m_serial_write_t f, const deque_t deque)             \
+  M_F(name, _out_serial)(m_serial_write_t f, const deque_t deque)             \
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
     M_ASSERT (f != NULL && f->m_interface != NULL);                           \
@@ -1013,11 +1013,11 @@
     m_serial_return_code_t ret;                                               \
     bool first_done = false;                                                  \
     ret = f->m_interface->write_array_start(local, f, deque->count);          \
-    M_C(name, _it_ct) it;                                                     \
-    for (M_C(name, _it)(it, deque) ;                                          \
-         !M_C(name, _end_p)(it);                                              \
-         M_C(name, _next)(it)){                                               \
-      type const *item = M_C(name, _cref)(it);                                \
+    M_F(name, _it_ct) it;                                                     \
+    for (M_F(name, _it)(it, deque) ;                                          \
+         !M_F(name, _end_p)(it);                                              \
+         M_F(name, _next)(it)){                                               \
+      type const *item = M_F(name, _cref)(it);                                \
       if (first_done)                                                         \
         ret |= f->m_interface->write_array_next(local, f);                    \
       ret |= M_CALL_OUT_SERIAL(oplist, f, *item);                             \
@@ -1030,14 +1030,14 @@
                                                                               \
   M_IF_METHOD2(IN_SERIAL, INIT, oplist)(                                      \
   static inline m_serial_return_code_t                                        \
-  M_C(name, _in_serial)(deque_t deque, m_serial_read_t f)                     \
+  M_F(name, _in_serial)(deque_t deque, m_serial_read_t f)                     \
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
     M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
     size_t estimated_size = 0;                                                \
-    M_C(name,_reset)(deque);                                                  \
+    M_F(name,_reset)(deque);                                                  \
     ret = f->m_interface->read_array_start(local, f, &estimated_size);        \
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;                 \
     type item;                                                                \
@@ -1045,7 +1045,7 @@
     do {                                                                      \
       ret = M_CALL_IN_SERIAL(oplist, item, f);                                \
       if (ret != M_SERIAL_OK_DONE) { break; }                                 \
-      M_C(name, _push_back)(deque, item);                                     \
+      M_F(name, _push_back)(deque, item);                                     \
       ret = f->m_interface->read_array_next(local, f);                        \
     } while (ret == M_SERIAL_OK_CONTINUE);                                    \
     M_CALL_CLEAR(oplist, item);                                               \
@@ -1059,7 +1059,7 @@
   function_name(name_t v                                                      \
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
-    M_C(name, _subtype_ct) *data = M_C(name, _push_back_raw)(v);              \
+    M_F(name, _subtype_ct) *data = M_F(name, _push_back_raw)(v);              \
     if (M_UNLIKELY (data == NULL) )                                           \
       return;                                                                 \
     M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
@@ -1072,7 +1072,7 @@
   function_name(name_t v                                                      \
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
-    M_C(name, _subtype_ct) *data = M_C(name, _push_front_raw)(v);             \
+    M_F(name, _subtype_ct) *data = M_F(name, _push_front_raw)(v);             \
     if (M_UNLIKELY (data == NULL) )                                           \
       return;                                                                 \
     M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
@@ -1095,44 +1095,44 @@
 
 /* OPLIST definition of a deque */
 #define M_D3QU3_OPLIST_P3(name, oplist)                                       \
-  (INIT(M_C(name, _init))                                                     \
-   ,INIT_SET(M_C(name, _init_set))                                            \
+  (INIT(M_F(name, _init))                                                     \
+   ,INIT_SET(M_F(name, _init_set))                                            \
    ,INIT_WITH(API_1(M_INIT_WITH_VAI))                                         \
-   ,SET(M_C(name, _set))                                                      \
-   ,CLEAR(M_C(name, _clear))                                                  \
-   ,INIT_MOVE(M_C(name, _init_move))                                          \
-   ,MOVE(M_C(name, _move))                                                    \
-   ,SWAP(M_C(name, _swap))                                                    \
+   ,SET(M_F(name, _set))                                                      \
+   ,CLEAR(M_F(name, _clear))                                                  \
+   ,INIT_MOVE(M_F(name, _init_move))                                          \
+   ,MOVE(M_F(name, _move))                                                    \
+   ,SWAP(M_F(name, _swap))                                                    \
    ,NAME(name)                                                                \
-   ,TYPE(M_C(name,_ct))                                                       \
-   ,SUBTYPE(M_C(name, _subtype_ct))                                           \
-   ,EMPTY_P(M_C(name,_empty_p))                                               \
-   ,IT_TYPE(M_C(name,_it_ct))                                                 \
-   ,IT_FIRST(M_C(name,_it))                                                   \
-   ,IT_LAST(M_C(name,_it_last))                                               \
-   ,IT_END(M_C(name,_it_end))                                                 \
-   ,IT_SET(M_C(name,_it_set))                                                 \
-   ,IT_END_P(M_C(name,_end_p))                                                \
-   ,IT_LAST_P(M_C(name,_last_p))                                              \
-   ,IT_EQUAL_P(M_C(name,_it_equal_p))                                         \
-   ,IT_NEXT(M_C(name,_next))                                                  \
-   ,IT_PREVIOUS(M_C(name,_previous))                                          \
-   ,IT_REF(M_C(name,_ref))                                                    \
-   ,IT_CREF(M_C(name,_cref))                                                  \
-   ,IT_REMOVE(M_C(name,_remove))                                              \
-   ,RESET(M_C(name,_reset))                                                   \
-   ,GET_SIZE(M_C(name, _size))                                                \
-   ,PUSH(M_C(name,_push_back))                                                \
-   ,POP(M_C(name,_pop_back))                                                  \
+   ,TYPE(M_F(name,_ct))                                                       \
+   ,SUBTYPE(M_F(name, _subtype_ct))                                           \
+   ,EMPTY_P(M_F(name,_empty_p))                                               \
+   ,IT_TYPE(M_F(name,_it_ct))                                                 \
+   ,IT_FIRST(M_F(name,_it))                                                   \
+   ,IT_LAST(M_F(name,_it_last))                                               \
+   ,IT_END(M_F(name,_it_end))                                                 \
+   ,IT_SET(M_F(name,_it_set))                                                 \
+   ,IT_END_P(M_F(name,_end_p))                                                \
+   ,IT_LAST_P(M_F(name,_last_p))                                              \
+   ,IT_EQUAL_P(M_F(name,_it_equal_p))                                         \
+   ,IT_NEXT(M_F(name,_next))                                                  \
+   ,IT_PREVIOUS(M_F(name,_previous))                                          \
+   ,IT_REF(M_F(name,_ref))                                                    \
+   ,IT_CREF(M_F(name,_cref))                                                  \
+   ,IT_REMOVE(M_F(name,_remove))                                              \
+   ,RESET(M_F(name,_reset))                                                   \
+   ,GET_SIZE(M_F(name, _size))                                                \
+   ,PUSH(M_F(name,_push_back))                                                \
+   ,POP(M_F(name,_pop_back))                                                  \
    ,OPLIST(oplist)                                                            \
-   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),)               \
-   ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),)         \
-   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),)               \
-   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),)                  \
-   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)),)      \
-   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)),)         \
-   ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),)                   \
-   ,M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)                        \
+   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, _get_str)),)               \
+   ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, _parse_str)),)         \
+   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, _out_str)),)               \
+   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, _in_str)),)                  \
+   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, _out_serial)),)      \
+   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, _in_serial)),)         \
+   ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, _equal_p)),)                   \
+   ,M_IF_METHOD(HASH, oplist)(HASH(M_F(name, _hash)),)                        \
    ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                          \
    ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)              \
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                          \

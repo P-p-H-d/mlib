@@ -1882,7 +1882,7 @@ m_string_utf8_p(m_string_t str)
 /* Define the split & the join functions 
    in case of usage with the algorithm module */
 #define M_STR1NG_SPLIT(name, oplist, type_oplist)                             \
-  static inline void M_C(name, _split)(M_GET_TYPE oplist cont,                \
+  static inline void M_F(name, _split)(M_GET_TYPE oplist cont,                \
                                    const m_string_t str, const char sep)      \
   {                                                                           \
     size_t begin = 0;                                                         \
@@ -1912,7 +1912,7 @@ m_string_utf8_p(m_string_t str)
     m_string_clear(tmp);                                                      \
   }                                                                           \
                                                                               \
-  static inline void M_C(name, _join)(m_string_t dst, M_GET_TYPE oplist cont, \
+  static inline void M_F(name, _join)(m_string_t dst, M_GET_TYPE oplist cont, \
                                       const m_string_t str)                   \
   {                                                                           \
     bool init_done = false;                                                   \
@@ -2163,29 +2163,29 @@ namespace m_lib {
  */
 #define M_BOUNDED_STRING_DEF(name, max_size)                                  \
   M_BEGIN_PROTECTED_CODE                                                      \
-  M_BOUNDED_STR1NG_DEF_P2(name, max_size, M_C(name, _t) )                     \
+  M_BOUNDED_STR1NG_DEF_P2(name, max_size, M_F(name, _t) )                     \
   M_END_PROTECTED_CODE
 
 /* Define the OPLIST of a BOUNDED_STRING */
 #define M_BOUNDED_STRING_OPLIST(name)                                         \
-  (INIT(M_C(name,_init)),                                                     \
-   INIT_SET(M_C(name,_init_set)),                                             \
-   SET(M_C(name,_set)),                                                       \
-   CLEAR(M_C(name,_clear)),                                                   \
+  (INIT(M_F(name,_init)),                                                     \
+   INIT_SET(M_F(name,_init_set)),                                             \
+   SET(M_F(name,_set)),                                                       \
+   CLEAR(M_F(name,_clear)),                                                   \
    NAME(name),                                                                \
    INIT_WITH( API_1(M_BOUNDED_STR1NG_INIT_WITH)),                             \
-   HASH(M_C(name,_hash)),                                                     \
-   EQUAL(M_C(name,_equal_p)),                                                 \
-   CMP(M_C(name,_cmp)),                                                       \
-   TYPE(M_C(name,_ct)),                                                       \
-   OOR_EQUAL(M_C(name,_oor_equal_p)),                                         \
-   OOR_SET(M_C(name, _oor_set)),                                              \
-   PARSE_STR(M_C(name,_parse_str)),                                           \
-   GET_STR(M_C(name,_get_str)),                                               \
-   OUT_STR(M_C(name,_out_str)),                                               \
-   IN_STR(M_C(name,_in_str)),                                                 \
-   OUT_SERIAL(M_C(name,_out_serial)),                                         \
-   IN_SERIAL(M_C(name,_in_serial)),                                           \
+   HASH(M_F(name,_hash)),                                                     \
+   EQUAL(M_F(name,_equal_p)),                                                 \
+   CMP(M_F(name,_cmp)),                                                       \
+   TYPE(M_F(name,_ct)),                                                       \
+   OOR_EQUAL(M_F(name,_oor_equal_p)),                                         \
+   OOR_SET(M_F(name, _oor_set)),                                              \
+   PARSE_STR(M_F(name,_parse_str)),                                           \
+   GET_STR(M_F(name,_get_str)),                                               \
+   OUT_STR(M_F(name,_out_str)),                                               \
+   IN_STR(M_F(name,_in_str)),                                                 \
+   OUT_SERIAL(M_F(name,_out_serial)),                                         \
+   IN_SERIAL(M_F(name,_in_serial)),                                           \
    )
 
 /************************** INTERNAL ***********************************/
@@ -2201,17 +2201,17 @@ namespace m_lib {
 #define M_BOUNDED_STR1NG_DEF_P2(name, max_size, bounded_t)                    \
                                                                               \
   /* Define of an array with one more to store the final nul char */          \
-  typedef char M_C(name, _array_t)[max_size+1];                               \
+  typedef char M_F(name, _array_t)[max_size+1];                               \
                                                                               \
-  typedef struct M_C(name, _s) {                                              \
+  typedef struct M_F(name, _s) {                                              \
     char s[max_size+1];                                                       \
   } bounded_t[1];                                                             \
                                                                               \
   /* Internal types for oplist */                                             \
-  typedef bounded_t M_C(name, _ct);                                           \
+  typedef bounded_t M_F(name, _ct);                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init)(bounded_t s)                                               \
+  M_F(name, _init)(bounded_t s)                                               \
   {                                                                           \
     M_ASSERT(s != NULL);                                                      \
     M_STATIC_ASSERT(max_size >= 1, M_LIB_INTERNAL, "M*LIB: max_size parameter shall be greater than 0."); \
@@ -2221,7 +2221,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clear)(bounded_t s)                                              \
+  M_F(name, _clear)(bounded_t s)                                              \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     /* Make the object illegal to be able to detect use after free */         \
@@ -2229,7 +2229,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _reset)(bounded_t s)                                              \
+  M_F(name, _reset)(bounded_t s)                                              \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     s->s[0] = 0;                                                              \
@@ -2237,14 +2237,14 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_C(name, _size)(const bounded_t s)                                         \
+  M_F(name, _size)(const bounded_t s)                                         \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     return strlen(s->s);                                                      \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_C(name, _capacity)(const bounded_t s)                                     \
+  M_F(name, _capacity)(const bounded_t s)                                     \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     (void)s; /* unused */                                                     \
@@ -2252,7 +2252,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline char                                                          \
-  M_C(name, _get_char)(const bounded_t s, size_t index)                       \
+  M_F(name, _get_char)(const bounded_t s, size_t index)                       \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     M_ASSERT_INDEX(index, max_size);                                          \
@@ -2260,14 +2260,14 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _empty_p)(const bounded_t s)                                      \
+  M_F(name, _empty_p)(const bounded_t s)                                      \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     return s->s[0] == 0;                                                      \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _set_cstr)(bounded_t s, const char str[])                         \
+  M_F(name, _set_cstr)(bounded_t s, const char str[])                         \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     m_core_strncpy(s->s, max_size+1, str, max_size);                          \
@@ -2276,7 +2276,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _set_cstrn)(bounded_t s, const char str[], size_t n)              \
+  M_F(name, _set_cstrn)(bounded_t s, const char str[], size_t n)              \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     M_ASSERT(str != NULL);                                                    \
@@ -2287,46 +2287,46 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline const char *                                                  \
-  M_C(name, _get_cstr)(const bounded_t s)                                     \
+  M_F(name, _get_cstr)(const bounded_t s)                                     \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     return s->s;                                                              \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _set)(bounded_t s, const bounded_t str)                           \
+  M_F(name, _set)(bounded_t s, const bounded_t str)                           \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     M_BOUNDED_STR1NG_CONTRACT(str, max_size);                                 \
-    M_C(name, _set_cstr)(s, str->s);                                          \
+    M_F(name, _set_cstr)(s, str->s);                                          \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _set_n)(bounded_t s, const bounded_t str,                         \
+  M_F(name, _set_n)(bounded_t s, const bounded_t str,                         \
                     size_t offset, size_t length)                             \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     M_BOUNDED_STR1NG_CONTRACT(str, max_size);                                 \
     M_ASSERT_INDEX (offset, max_size+1);                                      \
-    M_C(name, _set_cstrn)(s, str->s+offset, length);                          \
+    M_F(name, _set_cstrn)(s, str->s+offset, length);                          \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init_set)(bounded_t s, const bounded_t str)                      \
+  M_F(name, _init_set)(bounded_t s, const bounded_t str)                      \
   {                                                                           \
-    M_C(name,_init)(s);                                                       \
-    M_C(name,_set)(s, str);                                                   \
+    M_F(name,_init)(s);                                                       \
+    M_F(name,_set)(s, str);                                                   \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init_set_cstr)(bounded_t s, const char str[])                    \
+  M_F(name, _init_set_cstr)(bounded_t s, const char str[])                    \
   {                                                                           \
-    M_C(name,_init)(s);                                                       \
-    M_C(name,_set_cstr)(s, str);                                              \
+    M_F(name,_init)(s);                                                       \
+    M_F(name,_set_cstr)(s, str);                                              \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _cat_cstr)(bounded_t s, const char str[])                         \
+  M_F(name, _cat_cstr)(bounded_t s, const char str[])                         \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     M_ASSERT (str != NULL);                                                   \
@@ -2335,14 +2335,14 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _cat)(bounded_t s, const bounded_t  str)                          \
+  M_F(name, _cat)(bounded_t s, const bounded_t  str)                          \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(str, max_size);                                 \
-    M_C(name, _cat_cstr)(s, str->s);                                          \
+    M_F(name, _cat_cstr)(s, str->s);                                          \
   }                                                                           \
                                                                               \
   static inline int                                                           \
-  M_C(name, _cmp_cstr)(const bounded_t s, const char str[])                   \
+  M_F(name, _cmp_cstr)(const bounded_t s, const char str[])                   \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     M_ASSERT(str != NULL);                                                    \
@@ -2350,7 +2350,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline int                                                           \
-  M_C(name, _cmp)(const bounded_t s, const bounded_t str)                     \
+  M_F(name, _cmp)(const bounded_t s, const bounded_t str)                     \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     M_BOUNDED_STR1NG_CONTRACT(str, max_size);                                 \
@@ -2358,7 +2358,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _equal_cstr_p)(const bounded_t s, const char str[])               \
+  M_F(name, _equal_cstr_p)(const bounded_t s, const char str[])               \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     M_ASSERT(str != NULL);                                                    \
@@ -2366,14 +2366,14 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _equal_p)(const bounded_t s, const bounded_t str)                 \
+  M_F(name, _equal_p)(const bounded_t s, const bounded_t str)                 \
   {                                                                           \
     /* _equal_p may be called in context OOR. So contract cannot be verified */ \
     return (s->s[max_size] == str->s[max_size]) & (strcmp(s->s, str->s) == 0); \
   }                                                                           \
                                                                               \
   static inline int                                                           \
-  M_C(name, _printf)(bounded_t s, const char format[], ...)                   \
+  M_F(name, _printf)(bounded_t s, const char format[], ...)                   \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     M_ASSERT(format != NULL);                                                 \
@@ -2386,7 +2386,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline int                                                           \
-  M_C(name, _cat_printf)(bounded_t s, const char format[], ...)               \
+  M_F(name, _cat_printf)(bounded_t s, const char format[], ...)               \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     M_ASSERT(format != NULL);                                                 \
@@ -2401,7 +2401,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _fgets)(bounded_t s, FILE *f, m_string_fgets_t arg)               \
+  M_F(name, _fgets)(bounded_t s, FILE *f, m_string_fgets_t arg)               \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     M_ASSERT(f != NULL);                                                      \
@@ -2417,7 +2417,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _fputs)(FILE *f, const bounded_t s)                               \
+  M_F(name, _fputs)(FILE *f, const bounded_t s)                               \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     M_ASSERT(f != NULL);                                                      \
@@ -2425,7 +2425,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_C(name, _hash)(const bounded_t s)                                         \
+  M_F(name, _hash)(const bounded_t s)                                         \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     /* Cannot use m_core_hash: alignment not sufficent */                     \
@@ -2433,7 +2433,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _oor_equal_p)(const bounded_t s, unsigned char n)                 \
+  M_F(name, _oor_equal_p)(const bounded_t s, unsigned char n)                 \
   {                                                                           \
     /* s may be invalid contract */                                           \
     M_ASSERT (s != NULL);                                                     \
@@ -2442,7 +2442,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _oor_set)(bounded_t s, unsigned char n)                           \
+  M_F(name, _oor_set)(bounded_t s, unsigned char n)                           \
   {                                                                           \
     /* s may be invalid contract */                                           \
     M_ASSERT (s != NULL);                                                     \
@@ -2451,7 +2451,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _get_str)(m_string_t v, const bounded_t s, bool append)           \
+  M_F(name, _get_str)(m_string_t v, const bounded_t s, bool append)           \
   {                                                                           \
     M_STR1NG_CONTRACT(v);                                                     \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
@@ -2465,7 +2465,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _out_str)(FILE *f, const bounded_t s)                             \
+  M_F(name, _out_str)(FILE *f, const bounded_t s)                             \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     M_ASSERT(f != NULL);                                                      \
@@ -2479,7 +2479,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _in_str)(bounded_t v, FILE *f)                                    \
+  M_F(name, _in_str)(bounded_t v, FILE *f)                                    \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(v, max_size);                                   \
     M_ASSERT(f != NULL);                                                      \
@@ -2492,7 +2492,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _parse_str)(bounded_t v, const char str[], const char **endptr)   \
+  M_F(name, _parse_str)(bounded_t v, const char str[], const char **endptr)   \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(v, max_size);                                   \
     M_ASSERT(str != NULL);                                                    \
@@ -2505,7 +2505,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline m_serial_return_code_t                                        \
-  M_C(name, _out_serial)(m_serial_write_t serial, const bounded_t v)          \
+  M_F(name, _out_serial)(m_serial_write_t serial, const bounded_t v)          \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(v, max_size);                                   \
     M_ASSERT (serial != NULL && serial->m_interface != NULL);                 \
@@ -2513,7 +2513,7 @@ namespace m_lib {
   }                                                                           \
                                                                               \
   static inline m_serial_return_code_t                                        \
-  M_C(name, _in_serial)(bounded_t v, m_serial_read_t serial)                  \
+  M_F(name, _in_serial)(bounded_t v, m_serial_read_t serial)                  \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(v, max_size);                                   \
     M_ASSERT (serial != NULL && serial->m_interface != NULL);                 \
@@ -2535,7 +2535,7 @@ namespace m_lib {
    See above */
 #ifndef __cplusplus
 #define M_BOUNDED_STRING_CTE(name, string)                                    \
-  ((const struct M_C(name, _s) *)((M_C(name, _array_t)){string}))
+  ((const struct M_F(name, _s) *)((M_F(name, _array_t)){string}))
 #else
 namespace m_lib {
   template <unsigned int N>
@@ -2549,7 +2549,7 @@ namespace m_lib {
     };
 }
 #define M_BOUNDED_STRING_CTE(name, string)                                    \
-  ((const struct M_C(name, _s) *)(m_lib::m_bounded_string<sizeof (M_C(name, _t))>(string).s))
+  ((const struct M_F(name, _s) *)(m_lib::m_bounded_string<sizeof (M_F(name, _t))>(string).s))
 #endif
 
 

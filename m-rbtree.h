@@ -30,7 +30,7 @@
 /* Define a Red/Black binary tree of a given type.
    USAGE: RBTREE_DEF(name, type [, oplist_of_the_type]) */
 #define M_RBTREE_DEF(name, ...)                                               \
-  M_RBTREE_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
+  M_RBTREE_DEF_AS(name, M_F(name,_t), M_F(name,_it_t), __VA_ARGS__)
 
 
 /* Define a Red/Black binary tree of a given type
@@ -39,8 +39,8 @@
 #define M_RBTREE_DEF_AS(name, name_t, it_t, ...)                              \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_RBTR33_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                 \
-              ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, M_C(name, _node_ct), it_t ), \
-               (name, __VA_ARGS__,                                        name_t, M_C(name, _node_ct), it_t ))) \
+              ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, M_F(name, _node_ct), it_t ), \
+               (name, __VA_ARGS__,                                        name_t, M_F(name, _node_ct), it_t ))) \
   M_END_PROTECTED_CODE
 
 
@@ -72,43 +72,43 @@
    NOTE: IT_REF is not exported so that the container appears as not modifiable
    by algorithm.*/
 #define M_RBTR33_OPLIST_P3(name, oplist)                                      \
-  (INIT(M_C(name, _init)),                                                    \
-   INIT_SET(M_C(name, _init_set)),                                            \
+  (INIT(M_F(name, _init)),                                                    \
+   INIT_SET(M_F(name, _init_set)),                                            \
    INIT_WITH(API_1(M_INIT_EMPLACE_VAI)),                                      \
-   SET(M_C(name, _set)),                                                      \
-   CLEAR(M_C(name, _clear)),                                                  \
-   INIT_MOVE(M_C(name, _init_move)),                                          \
-   MOVE(M_C(name, _move)),                                                    \
-   SWAP(M_C(name, _swap)),                                                    \
+   SET(M_F(name, _set)),                                                      \
+   CLEAR(M_F(name, _clear)),                                                  \
+   INIT_MOVE(M_F(name, _init_move)),                                          \
+   MOVE(M_F(name, _move)),                                                    \
+   SWAP(M_F(name, _swap)),                                                    \
    NAME(name),                                                                \
-   TYPE(M_C(name,_ct)),                                                       \
-   SUBTYPE(M_C(name, _subtype_ct)),                                           \
-   EMPTY_P(M_C(name,_empty_p)),                                               \
-   GET_SIZE(M_C(name, _size)),                                                \
-   IT_TYPE(M_C(name, _it_ct)),                                                \
-   IT_FIRST(M_C(name,_it)),                                                   \
-   IT_SET(M_C(name,_it_set)),                                                 \
-   IT_LAST(M_C(name,_it_last)),                                               \
-   IT_END(M_C(name,_it_end)),                                                 \
-   IT_END_P(M_C(name,_end_p)),                                                \
-   IT_LAST_P(M_C(name,_last_p)),                                              \
-   IT_EQUAL_P(M_C(name,_it_equal_p)),                                         \
-   IT_NEXT(M_C(name,_next)),                                                  \
-   IT_PREVIOUS(M_C(name,_previous)),                                          \
-   IT_CREF(M_C(name,_cref)),                                                  \
-   IT_REMOVE(M_C(name,_remove)),                                              \
-   RESET(M_C(name,_reset)),                                                   \
-   PUSH(M_C(name,_push)),                                                     \
-   GET_MIN(M_C(name,_min)),                                                   \
-   GET_MAX(M_C(name,_max)),                                                   \
-   M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),),               \
-   M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),),         \
-   M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),),               \
-   M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),),                  \
-   M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)),),      \
-   M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)),),         \
-   M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),),                   \
-   M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)                         \
+   TYPE(M_F(name,_ct)),                                                       \
+   SUBTYPE(M_F(name, _subtype_ct)),                                           \
+   EMPTY_P(M_F(name,_empty_p)),                                               \
+   GET_SIZE(M_F(name, _size)),                                                \
+   IT_TYPE(M_F(name, _it_ct)),                                                \
+   IT_FIRST(M_F(name,_it)),                                                   \
+   IT_SET(M_F(name,_it_set)),                                                 \
+   IT_LAST(M_F(name,_it_last)),                                               \
+   IT_END(M_F(name,_it_end)),                                                 \
+   IT_END_P(M_F(name,_end_p)),                                                \
+   IT_LAST_P(M_F(name,_last_p)),                                              \
+   IT_EQUAL_P(M_F(name,_it_equal_p)),                                         \
+   IT_NEXT(M_F(name,_next)),                                                  \
+   IT_PREVIOUS(M_F(name,_previous)),                                          \
+   IT_CREF(M_F(name,_cref)),                                                  \
+   IT_REMOVE(M_F(name,_remove)),                                              \
+   RESET(M_F(name,_reset)),                                                   \
+   PUSH(M_F(name,_push)),                                                     \
+   GET_MIN(M_F(name,_min)),                                                   \
+   GET_MAX(M_F(name,_max)),                                                   \
+   M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, _get_str)),),               \
+   M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, _parse_str)),),         \
+   M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, _out_str)),),               \
+   M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, _in_str)),),                  \
+   M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, _out_serial)),),      \
+   M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, _in_serial)),),         \
+   M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, _equal_p)),),                   \
+   M_IF_METHOD(HASH, oplist)(HASH(M_F(name, _hash)),)                         \
    ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                          \
    ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)              \
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                          \
@@ -183,7 +183,7 @@ typedef enum {
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
   M_RBTR33_DEF_CORE(name, type, oplist, tree_t, node_t, it_t)                 \
   M_RBTR33_DEF_IO(name, type, oplist, tree_t, node_t, it_t)                   \
-  M_EMPLACE_QUEUE_DEF(name, tree_t, M_C(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
+  M_EMPLACE_QUEUE_DEF(name, tree_t, M_F(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
 
 /* Define the types associated to a R/B Tree */
 #define M_RBTR33_DEF_TYPE(name, type, oplist, tree_t, node_t, it_t)           \
@@ -191,48 +191,48 @@ typedef enum {
   /* Node of Red/Black tree.                                                  \
      Each node has up to two child, a color (Red or black)                    \
      and the data stored in it */                                             \
-  typedef struct M_C(name, _node_s) {                                         \
-    struct M_C(name, _node_s) *child[2];                                      \
+  typedef struct M_F(name, _node_s) {                                         \
+    struct M_F(name, _node_s) *child[2];                                      \
     type data;                                                                \
     m_rbtr33_color_e color;                                                   \
   } node_t;                                                                   \
                                                                               \
   /* Define the Red/Black tree */                                             \
-  typedef struct M_C(name, _s) {                                              \
+  typedef struct M_F(name, _s) {                                              \
     size_t size;    /* Number of elements in the tree */                      \
     node_t *node;   /* Root node of the tree */                               \
   } tree_t[1];                                                                \
-  typedef struct M_C(name, _s) *M_C(name, _ptr);                              \
-  typedef const struct M_C(name, _s) *M_C(name, _srcptr);                     \
+  typedef struct M_F(name, _s) *M_F(name, _ptr);                              \
+  typedef const struct M_F(name, _s) *M_F(name, _srcptr);                     \
                                                                               \
   /* Iterator on a tree. The iterator stores the full path to the             \
   current node through all its parents and its depth */                       \
-  typedef struct M_C(name, _it_s) {                                           \
+  typedef struct M_F(name, _it_s) {                                           \
     node_t *stack[M_RBTR33_MAX_STACK];                                        \
     int8_t  which[M_RBTR33_MAX_STACK];                                        \
     unsigned int cpt;                                                         \
   } it_t[1];                                                                  \
                                                                               \
   /* Definition of the alias used by the oplists */                           \
-  typedef type   M_C(name, _subtype_ct);                                      \
-  typedef tree_t M_C(name, _ct);                                              \
-  typedef it_t   M_C(name, _it_ct);                                           \
+  typedef type   M_F(name, _subtype_ct);                                      \
+  typedef tree_t M_F(name, _ct);                                              \
+  typedef it_t   M_F(name, _it_ct);                                           \
 
 /* Define the mempool encapsulation */
 #define M_RBTR33_DEF_MEMPOOL(name, type, oplist, tree_t, node_t, it_t)        \
   /* Link with fast memory allocator if requested */                          \
   M_IF_METHOD(MEMPOOL, oplist)(                                               \
     /* Definition of the memory pool of this kind of node */                  \
-    MEMPOOL_DEF(M_C(name, _mempool), node_t)                                  \
+    MEMPOOL_DEF(M_F(name, _mempool), node_t)                                  \
     /* Definition of the global variable used to reference this pool */       \
-    M_GET_MEMPOOL_LINKAGE oplist M_C(name, _mempool_t) M_GET_MEMPOOL oplist;  \
+    M_GET_MEMPOOL_LINKAGE oplist M_F(name, _mempool_t) M_GET_MEMPOOL oplist;  \
     /* Allocator function */                                                  \
     static inline node_t *M_C3(m_rbtr33_,name,_new)(void) {                   \
-      return M_C(name, _mempool_alloc)(M_GET_MEMPOOL oplist);                 \
+      return M_F(name, _mempool_alloc)(M_GET_MEMPOOL oplist);                 \
     }                                                                         \
     /* Deallocator function */                                                \
     static inline void M_C3(m_rbtr33_,name,_del)(node_t *ptr) {               \
-      M_C(name, _mempool_free)(M_GET_MEMPOOL oplist, ptr);                    \
+      M_F(name, _mempool_free)(M_GET_MEMPOOL oplist, ptr);                    \
     }                                                                         \
                                                                               \
     , /* No mempool allocation */                                             \
@@ -249,7 +249,7 @@ typedef enum {
 #define M_RBTR33_DEF_CORE(name, type, oplist, tree_t, node_t, it_t)           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init)(tree_t tree)                                               \
+  M_F(name, _init)(tree_t tree)                                               \
   {                                                                           \
     M_ASSERT (tree != NULL);                                                  \
     tree->size = 0;                                                           \
@@ -258,7 +258,7 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _reset)(tree_t tree)                                              \
+  M_F(name, _reset)(tree_t tree)                                              \
   {                                                                           \
     M_RBTR33_CONTRACT(tree);                                                  \
     node_t *stack[M_RBTR33_MAX_STACK];                                        \
@@ -303,14 +303,14 @@ typedef enum {
    }                                                                          \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clear)(tree_t tree)                                              \
+  M_F(name, _clear)(tree_t tree)                                              \
   {                                                                           \
     /* Nothing more than clean the tree as everything is cleared */           \
-    M_C(name, _reset)(tree);                                                  \
+    M_F(name, _reset)(tree);                                                  \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _push)(tree_t tree, type const data)                              \
+  M_F(name, _push)(tree_t tree, type const data)                              \
   {                                                                           \
     M_RBTR33_CONTRACT(tree);                                                  \
     node_t *tab[M_RBTR33_MAX_STACK];                                          \
@@ -436,7 +436,7 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_C(name, _size)(const tree_t tree)                                         \
+  M_F(name, _size)(const tree_t tree)                                         \
   {                                                                           \
     M_RBTR33_CONTRACT (tree);                                                 \
     return tree->size;                                                        \
@@ -466,19 +466,19 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _it)(it_t it, const tree_t tree)                                  \
+  M_F(name, _it)(it_t it, const tree_t tree)                                  \
   {                                                                           \
     M_C3(m_rbtr33_,name,_it)(it, tree, 0);                                    \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _it_last)(it_t it, const tree_t tree)                             \
+  M_F(name, _it_last)(it_t it, const tree_t tree)                             \
   {                                                                           \
     M_C3(m_rbtr33_,name,_it)(it, tree, 1);                                    \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _it_end)(it_t it, const tree_t tree)                              \
+  M_F(name, _it_end)(it_t it, const tree_t tree)                              \
   {                                                                           \
     M_RBTR33_CONTRACT (tree);                                                 \
     M_ASSERT (it != NULL);                                                    \
@@ -487,14 +487,14 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _it_set)(it_t it, const it_t ref)                                 \
+  M_F(name, _it_set)(it_t it, const it_t ref)                                 \
   {                                                                           \
     M_ASSERT (it != NULL && ref != NULL);                                     \
     *it = *ref;                                                               \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _end_p)(const it_t it)                                            \
+  M_F(name, _end_p)(const it_t it)                                            \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
     return it->cpt == 0;                                                      \
@@ -534,19 +534,19 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _next)(it_t it)                                                   \
+  M_F(name, _next)(it_t it)                                                   \
   {                                                                           \
     M_C3(m_rbtr33_,name,_next)(it, 0);                                        \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _previous)(it_t it)                                               \
+  M_F(name, _previous)(it_t it)                                               \
   {                                                                           \
     M_C3(m_rbtr33_,name,_next)(it, 1);                                        \
   }                                                                           \
                                                                               \
   static inline type *                                                        \
-  M_C(name, _ref)(const it_t it)                                              \
+  M_F(name, _ref)(const it_t it)                                              \
   {                                                                           \
     M_ASSERT(it != NULL);                                                     \
     /* There shall be at least one element */                                 \
@@ -556,13 +556,13 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline type const *                                                  \
-  M_C(name, _cref)(const it_t it)                                             \
+  M_F(name, _cref)(const it_t it)                                             \
   {                                                                           \
-    return M_CONST_CAST(type, M_C(name, _ref)(it));                           \
+    return M_CONST_CAST(type, M_F(name, _ref)(it));                           \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _it_equal_p)(const it_t it1, const it_t it2)                      \
+  M_F(name, _it_equal_p)(const it_t it1, const it_t it2)                      \
   {                                                                           \
     M_ASSERT(it1 != NULL && it2 != NULL);                                     \
     /* There can be no element */                                             \
@@ -573,7 +573,7 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _it_from)(it_t it, const tree_t tree, type const data)            \
+  M_F(name, _it_from)(it_t it, const tree_t tree, type const data)            \
   {                                                                           \
     M_RBTR33_CONTRACT (tree);                                                 \
     M_ASSERT (it != NULL);                                                    \
@@ -597,12 +597,12 @@ typedef enum {
     /* The iterator found may be strictly lower than data.                    \
        In this case, go to the next element */                                \
     if (cmp < 0) {                                                            \
-      M_C(name, _next)(it);                                                   \
+      M_F(name, _next)(it);                                                   \
     }                                                                         \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _it_until_p)(it_t it, type const data)                            \
+  M_F(name, _it_until_p)(it_t it, type const data)                            \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
     if (M_UNLIKELY(it->cpt == 0)) return true;                                \
@@ -613,7 +613,7 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _it_while_p)(it_t it, type const data)                            \
+  M_F(name, _it_while_p)(it_t it, type const data)                            \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
     if (M_UNLIKELY(it->cpt == 0)) return false;                               \
@@ -624,7 +624,7 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline type *                                                        \
-  M_C(name, _min)(const tree_t tree)                                          \
+  M_F(name, _min)(const tree_t tree)                                          \
   {                                                                           \
     M_RBTR33_CONTRACT (tree);                                                 \
     node_t *n = tree->node;                                                   \
@@ -637,7 +637,7 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline type *                                                        \
-  M_C(name, _max)(const tree_t tree)                                          \
+  M_F(name, _max)(const tree_t tree)                                          \
   {                                                                           \
     M_RBTR33_CONTRACT (tree);                                                 \
     node_t *n = tree->node;                                                   \
@@ -650,19 +650,19 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline type const *                                                  \
-  M_C(name, _cmin)(const tree_t tree)                                         \
+  M_F(name, _cmin)(const tree_t tree)                                         \
   {                                                                           \
-    return M_CONST_CAST(type, M_C(name, _min)(tree));                         \
+    return M_CONST_CAST(type, M_F(name, _min)(tree));                         \
   }                                                                           \
                                                                               \
   static inline type const *                                                  \
-  M_C(name, _cmax)(const tree_t tree)                                         \
+  M_F(name, _cmax)(const tree_t tree)                                         \
   {                                                                           \
-    return M_CONST_CAST(type, M_C(name, _max)(tree));                         \
+    return M_CONST_CAST(type, M_F(name, _max)(tree));                         \
   }                                                                           \
                                                                               \
   static inline type *                                                        \
-  M_C(name, _get)(const tree_t tree, type const data)                         \
+  M_F(name, _get)(const tree_t tree, type const data)                         \
   {                                                                           \
     M_RBTR33_CONTRACT (tree);                                                 \
     node_t *n = tree->node;                                                   \
@@ -681,9 +681,9 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline type const *                                                  \
-  M_C(name, _cget)(const tree_t tree, type const data)                        \
+  M_F(name, _cget)(const tree_t tree, type const data)                        \
   {                                                                           \
-    return M_CONST_CAST(type, M_C(name, _get)(tree, data));                   \
+    return M_CONST_CAST(type, M_F(name, _get)(tree, data));                   \
   }                                                                           \
                                                                               \
   /* Create a copy of the given node (recursively) */                         \
@@ -704,7 +704,7 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init_set)(tree_t tree, const tree_t ref)                         \
+  M_F(name, _init_set)(tree_t tree, const tree_t ref)                         \
   {                                                                           \
     M_RBTR33_CONTRACT (ref);                                                  \
     M_ASSERT (tree != NULL && tree != ref);                                   \
@@ -715,17 +715,17 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _set)(tree_t tree, const tree_t ref)                              \
+  M_F(name, _set)(tree_t tree, const tree_t ref)                              \
   {                                                                           \
     M_RBTR33_CONTRACT (tree);                                                 \
     M_RBTR33_CONTRACT (ref);                                                  \
     if (tree == ref) return;                                                  \
-    M_C(name,_clear)(tree);                                                   \
-    M_C(name,_init_set)(tree, ref);                                           \
+    M_F(name,_clear)(tree);                                                   \
+    M_F(name,_init_set)(tree, ref);                                           \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init_move)(tree_t tree, tree_t ref)                              \
+  M_F(name, _init_move)(tree_t tree, tree_t ref)                              \
   {                                                                           \
     M_RBTR33_CONTRACT (ref);                                                  \
     M_ASSERT (tree != NULL && tree != ref);                                   \
@@ -737,18 +737,18 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _move)(tree_t tree, tree_t ref)                                   \
+  M_F(name, _move)(tree_t tree, tree_t ref)                                   \
   {                                                                           \
     M_RBTR33_CONTRACT (tree);                                                 \
     M_RBTR33_CONTRACT (ref);                                                  \
     M_ASSERT (tree != ref);                                                   \
-    M_C(name,_clear)(tree);                                                   \
-    M_C(name,_init_move)(tree, ref);                                          \
+    M_F(name,_clear)(tree);                                                   \
+    M_F(name,_init_move)(tree, ref);                                          \
     M_RBTR33_CONTRACT (tree);                                                 \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _swap)(tree_t tree1, tree_t tree2)                                \
+  M_F(name, _swap)(tree_t tree1, tree_t tree2)                                \
   {                                                                           \
     M_RBTR33_CONTRACT (tree1);                                                \
     M_RBTR33_CONTRACT (tree2);                                                \
@@ -759,7 +759,7 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _empty_p)(const tree_t tree)                                      \
+  M_F(name, _empty_p)(const tree_t tree)                                      \
   {                                                                           \
     M_RBTR33_CONTRACT (tree);                                                 \
     return tree->size == 0;                                                   \
@@ -805,7 +805,7 @@ typedef enum {
   )                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _pop_at)(type *data_ptr, tree_t tree, type const key)             \
+  M_F(name, _pop_at)(type *data_ptr, tree_t tree, type const key)             \
   {                                                                           \
     M_RBTR33_CONTRACT (tree);                                                 \
     node_t *tab[M_RBTR33_MAX_STACK];                                          \
@@ -964,22 +964,22 @@ typedef enum {
     return true;                                                              \
   }                                                                           \
                                                                               \
-  static inline void M_C(name,_remove)(tree_t t, it_t it)                     \
+  static inline void M_F(name,_remove)(tree_t t, it_t it)                     \
   {                                                                           \
     /* Not optimum: another search in the tree is performed */                \
     type data;                                                                \
-    M_CALL_INIT_SET(oplist, data, *M_C(name,_cref)(it));                      \
-    M_C(name,_next)(it);                                                      \
-    M_C(name, _pop_at)(NULL, t, data);                                        \
+    M_CALL_INIT_SET(oplist, data, *M_F(name,_cref)(it));                      \
+    M_F(name,_next)(it);                                                      \
+    M_F(name, _pop_at)(NULL, t, data);                                        \
     /* We have changed the tree: the iterator is partialy invalid */          \
-    if (!M_C(name, _end_p)(it)) {                                             \
-      M_C(name, _it_from)(it, t, *M_C(name,_cref)(it));                       \
+    if (!M_F(name, _end_p)(it)) {                                             \
+      M_F(name, _it_from)(it, t, *M_F(name,_cref)(it));                       \
     }                                                                         \
     M_CALL_CLEAR(oplist, data);                                               \
   }                                                                           \
                                                                               \
   M_IF_METHOD(EQUAL, oplist)(                                                 \
-  static inline bool M_C(name,_equal_p)(const tree_t t1, const tree_t t2) {   \
+  static inline bool M_F(name,_equal_p)(const tree_t t1, const tree_t t2) {   \
     M_RBTR33_CONTRACT(t1);                                                    \
     M_RBTR33_CONTRACT(t2);                                                    \
     if (t1->size != t2->size) return false;                                   \
@@ -989,34 +989,34 @@ typedef enum {
        structuraly different but functionnaly equal (you get this by          \
        constructing the tree in a different way). We have to                  \
        compare the ordered value within the tree. */                          \
-    M_C(name, _it)(it1, t1);                                                  \
-    M_C(name, _it)(it2, t2);                                                  \
-    while (!M_C(name, _end_p)(it1)                                            \
-           && !M_C(name, _end_p)(it2)) {                                      \
-      type const *ref1 = M_C(name, _cref)(it1);                               \
-      type const *ref2 = M_C(name, _cref)(it2);                               \
+    M_F(name, _it)(it1, t1);                                                  \
+    M_F(name, _it)(it2, t2);                                                  \
+    while (!M_F(name, _end_p)(it1)                                            \
+           && !M_F(name, _end_p)(it2)) {                                      \
+      type const *ref1 = M_F(name, _cref)(it1);                               \
+      type const *ref2 = M_F(name, _cref)(it2);                               \
       if (M_CALL_EQUAL(oplist, *ref1, *ref2) == false)                        \
         return false;                                                         \
-      M_C(name, _next)(it1);                                                  \
-      M_C(name, _next)(it2);                                                  \
+      M_F(name, _next)(it1);                                                  \
+      M_F(name, _next)(it2);                                                  \
     }                                                                         \
-    return M_C(name, _end_p)(it1)                                             \
-      && M_C(name, _end_p)(it2);                                              \
+    return M_F(name, _end_p)(it1)                                             \
+      && M_F(name, _end_p)(it2);                                              \
   }                                                                           \
   , /* NO EQUAL METHOD */ )                                                   \
                                                                               \
   M_IF_METHOD(HASH, oplist)(                                                  \
-  static inline size_t M_C(name,_hash)(const tree_t t1) {                     \
+  static inline size_t M_F(name,_hash)(const tree_t t1) {                     \
     M_RBTR33_CONTRACT(t1);                                                    \
     M_HASH_DECL(hash);                                                        \
     /* NOTE: We can't compute the hash directly for the same reason           \
        than for EQUAL operator. */                                            \
     it_t it1;                                                                 \
-    M_C(name, _it)(it1, t1);                                                  \
-    while (!M_C(name, _end_p)(it1)) {                                         \
-      type const *ref1 = M_C(name, _cref)(it1);                               \
+    M_F(name, _it)(it1, t1);                                                  \
+    while (!M_F(name, _end_p)(it1)) {                                         \
+      type const *ref1 = M_F(name, _cref)(it1);                               \
       M_HASH_UP(hash, M_CALL_HASH(oplist, *ref1));                            \
-      M_C(name, _next)(it1);                                                  \
+      M_F(name, _next)(it1);                                                  \
     }                                                                         \
     return M_HASH_FINAL (hash);                                               \
   }                                                                           \
@@ -1025,7 +1025,7 @@ typedef enum {
 /* Define the I/O functions */
 #define M_RBTR33_DEF_IO(name, type, oplist, tree_t, node_t, it_t)             \
   M_IF_METHOD(GET_STR, oplist)(                                               \
-  static inline void M_C(name, _get_str)(m_string_t str,                      \
+  static inline void M_F(name, _get_str)(m_string_t str,                      \
                                          tree_t const t1, bool append) {      \
     M_RBTR33_CONTRACT(t1);                                                    \
     M_ASSERT(str != NULL);                                                    \
@@ -1033,14 +1033,14 @@ typedef enum {
     /* NOTE: The print is really naive, and not really efficient */           \
     bool commaToPrint = false;                                                \
     it_t it1;                                                                 \
-    M_C(name, _it)(it1, t1);                                                  \
-    while (!M_C(name, _end_p)(it1)) {                                         \
+    M_F(name, _it)(it1, t1);                                                  \
+    while (!M_F(name, _end_p)(it1)) {                                         \
       if (commaToPrint)                                                       \
         m_string_push_back (str, M_GET_SEPARATOR oplist);                     \
       commaToPrint = true;                                                    \
-      type const *ref1 = M_C(name, _cref)(it1);                               \
+      type const *ref1 = M_F(name, _cref)(it1);                               \
       M_CALL_GET_STR(oplist, str, *ref1, true);                               \
-      M_C(name, _next)(it1);                                                  \
+      M_F(name, _next)(it1);                                                  \
     }                                                                         \
     m_string_push_back (str, ']');                                            \
   }                                                                           \
@@ -1048,20 +1048,20 @@ typedef enum {
                                                                               \
   M_IF_METHOD(OUT_STR, oplist)(                                               \
   static inline void                                                          \
-  M_C(name, _out_str)(FILE *file, tree_t const rbtree)                        \
+  M_F(name, _out_str)(FILE *file, tree_t const rbtree)                        \
   {                                                                           \
     M_RBTR33_CONTRACT(rbtree);                                                \
     M_ASSERT (file != NULL);                                                  \
     fputc ('[', file);                                                        \
     it_t it;                                                                  \
     bool commaToPrint = false;                                                \
-    for (M_C(name, _it)(it, rbtree) ;                                         \
-         !M_C(name, _end_p)(it);                                              \
-         M_C(name, _next)(it)){                                               \
+    for (M_F(name, _it)(it, rbtree) ;                                         \
+         !M_F(name, _end_p)(it);                                              \
+         M_F(name, _next)(it)){                                               \
       if (commaToPrint)                                                       \
         fputc (M_GET_SEPARATOR oplist, file);                                 \
       commaToPrint = true;                                                    \
-      type const *item = M_C(name, _cref)(it);                                \
+      type const *item = M_F(name, _cref)(it);                                \
       M_CALL_OUT_STR(oplist, file, *item);                                    \
     }                                                                         \
     fputc (']', file);                                                        \
@@ -1070,11 +1070,11 @@ typedef enum {
                                                                               \
   M_IF_METHOD(PARSE_STR, oplist)(                                             \
   static inline bool                                                          \
-  M_C(name, _parse_str)(tree_t rbtree, const char str[], const char **endp)   \
+  M_F(name, _parse_str)(tree_t rbtree, const char str[], const char **endp)   \
   {                                                                           \
     M_RBTR33_CONTRACT(rbtree);                                                \
     M_ASSERT (str != NULL);                                                   \
-    M_C(name,_reset)(rbtree);                                                 \
+    M_F(name,_reset)(rbtree);                                                 \
     bool success = false;                                                     \
     int c = *str++;                                                           \
     if (M_UNLIKELY (c != '[')) goto exit;                                     \
@@ -1088,7 +1088,7 @@ typedef enum {
       bool b = M_CALL_PARSE_STR(oplist, item, str, &str);                     \
       do { c = *str++; } while (isspace(c));                                  \
       if (b == false || c == 0) goto exit_clear;                              \
-      M_C(name, _push)(rbtree, item);                                         \
+      M_F(name, _push)(rbtree, item);                                         \
     } while (c == M_GET_SEPARATOR oplist);                                    \
     success = (c == ']');                                                     \
   exit_clear:                                                                 \
@@ -1101,11 +1101,11 @@ typedef enum {
                                                                               \
   M_IF_METHOD(IN_STR, oplist)(                                                \
   static inline bool                                                          \
-  M_C(name, _in_str)(tree_t rbtree, FILE *file)                               \
+  M_F(name, _in_str)(tree_t rbtree, FILE *file)                               \
   {                                                                           \
     M_RBTR33_CONTRACT(rbtree);                                                \
     M_ASSERT (file != NULL);                                                  \
-    M_C(name,_reset)(rbtree);                                                 \
+    M_F(name,_reset)(rbtree);                                                 \
     int c = fgetc(file);                                                      \
     if (M_UNLIKELY (c != '[')) return false;                                  \
     c = fgetc(file);                                                          \
@@ -1118,7 +1118,7 @@ typedef enum {
       bool b = M_CALL_IN_STR(oplist, item, file);                             \
       do { c = fgetc(file); } while (isspace(c));                             \
       if (b == false || c == EOF) break;                                      \
-      M_C(name, _push)(rbtree, item);                                         \
+      M_F(name, _push)(rbtree, item);                                         \
     } while (c == M_GET_SEPARATOR oplist);                                    \
     M_CALL_CLEAR(oplist, item);                                               \
     return c == ']';                                                          \
@@ -1127,20 +1127,20 @@ typedef enum {
                                                                               \
   M_IF_METHOD(OUT_SERIAL, oplist)(                                            \
   static inline m_serial_return_code_t                                        \
-  M_C(name, _out_serial)(m_serial_write_t f, tree_t const t1)                 \
+  M_F(name, _out_serial)(m_serial_write_t f, tree_t const t1)                 \
   {                                                                           \
     M_RBTR33_CONTRACT(t1);                                                    \
     M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
-    M_C(name, _subtype_ct) const *item;                                       \
+    M_F(name, _subtype_ct) const *item;                                       \
     bool first_done = false;                                                  \
     it_t it;                                                                  \
     ret = f->m_interface->write_array_start(local, f, t1->size);              \
-    for (M_C(name, _it)(it, t1) ;                                             \
-         !M_C(name, _end_p)(it);                                              \
-         M_C(name, _next)(it)){                                               \
-      item = M_C(name, _cref)(it);                                            \
+    for (M_F(name, _it)(it, t1) ;                                             \
+         !M_F(name, _end_p)(it);                                              \
+         M_F(name, _next)(it)){                                               \
+      item = M_F(name, _cref)(it);                                            \
       if (first_done)                                                         \
         ret |= f->m_interface->write_array_next(local, f);                    \
       ret |= M_CALL_OUT_SERIAL(oplist, f, *item);                             \
@@ -1153,7 +1153,7 @@ typedef enum {
                                                                               \
   M_IF_METHOD(IN_SERIAL, oplist)(                                             \
   static inline m_serial_return_code_t                                        \
-  M_C(name, _in_serial)(tree_t t1, m_serial_read_t f)                         \
+  M_F(name, _in_serial)(tree_t t1, m_serial_read_t f)                         \
   {                                                                           \
     M_RBTR33_CONTRACT(t1);                                                    \
     M_ASSERT (f != NULL && f->m_interface != NULL);                           \
@@ -1161,14 +1161,14 @@ typedef enum {
     m_serial_return_code_t ret;                                               \
     size_t estimated_size = 0;                                                \
     type key;                                                                 \
-    M_C(name,_reset)(t1);                                                     \
+    M_F(name,_reset)(t1);                                                     \
     ret = f->m_interface->read_array_start(local, f, &estimated_size);        \
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;                 \
     M_CALL_INIT(oplist, key);                                                 \
     do {                                                                      \
       ret = M_CALL_IN_SERIAL(oplist, key, f);                                 \
       if (ret != M_SERIAL_OK_DONE) { break; }                                 \
-      M_C(name, _push)(t1, key);                                              \
+      M_F(name, _push)(t1, key);                                              \
     } while ((ret = f->m_interface->read_array_next(local, f)) == M_SERIAL_OK_CONTINUE); \
     M_CALL_CLEAR(oplist, key);                                                \
     return ret;                                                               \

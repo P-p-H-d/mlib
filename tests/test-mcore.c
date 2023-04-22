@@ -24,9 +24,19 @@
 #include <stdbool.h>
 #include <assert.h>
 #include "coverage.h"
+
+// Override M_F for testing purpose
+#define M_F(a,b) M_OVERRIDE_F(a,b)
+#define M_OVERRIDE__method() , _get_method ,
+#define M_OVERRIDE__method2() , _get_method2
+#include "m-core.h"
+
 #include "test-obj.h"
 
-#include "m-core.h"
+static bool tmp_init(void) { return true; }
+static bool tmp_get_method(void) { return true; }
+static bool tmp_get_method2(void) { return true; }
+static bool tmp_clear(void) { return true; }
 
 static void test_cat(void)
 {
@@ -42,6 +52,10 @@ static void test_cat(void)
 
   assert (M_C5_EMPTY(A,a,n,d,B));
   assert (M_C5_EMPTY(Aand,,,,B));
+  assert( M_F(tmp, _init)());
+  assert( M_F(tmp, _method)());
+  assert( M_F(tmp, _method2)());
+  assert( M_F(tmp, _clear)());
 }
 
 static void test_power2(void)

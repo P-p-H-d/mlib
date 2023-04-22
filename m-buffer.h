@@ -56,7 +56,7 @@ typedef enum {
    otherwise the size will be a compile time constant.
    USAGE: BUFFER_DEF(name, type, size_of_buffer_or_0, policy[, oplist]) */
 #define M_BUFFER_DEF(name, type, m_size, ... )                                \
-  M_BUFFER_DEF_AS(name, M_C(name, _t), type, m_size, __VA_ARGS__)
+  M_BUFFER_DEF_AS(name, M_F(name, _t), type, m_size, __VA_ARGS__)
 
 
 /* Define a lock based buffer
@@ -85,7 +85,7 @@ typedef enum {
    USAGE: QUEUE_MPMC_DEF(name, type, policy, [oplist of type])
 */
 #define M_QUEUE_MPMC_DEF(name, type, ...)                                     \
-  M_QUEUE_MPMC_DEF_AS(name, M_C(name,_t), type, __VA_ARGS__)
+  M_QUEUE_MPMC_DEF_AS(name, M_F(name,_t), type, __VA_ARGS__)
 
 
 /* Define a nearly lock-free queue for Many Producer Many Consummer
@@ -110,7 +110,7 @@ typedef enum {
    USAGE: QUEUE_SPSC_DEF(name, type, policy, [oplist of type])
 */
 #define M_QUEUE_SPSC_DEF(name, type, ...)                                     \
-  M_QUEUE_SPSC_DEF_AS(name, M_C(name, _t), type, __VA_ARGS__)
+  M_QUEUE_SPSC_DEF_AS(name, M_F(name, _t), type, __VA_ARGS__)
 
 
 /* Define a wait-free queue for Single Producer Single Consummer
@@ -258,19 +258,19 @@ m_buff3r_number_dec(m_buff3r_number_ct n, unsigned int policy)
   M_BUFF3R_DEF_TYPE(name, type, m_size, policy, oplist, buffer_t)             \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
   M_BUFF3R_DEF_CORE(name, type, m_size, policy, oplist, buffer_t)             \
-  M_EMPLACE_QUEUE_DEF(name, buffer_t, M_C(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
+  M_EMPLACE_QUEUE_DEF(name, buffer_t, M_F(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
 
 /* Define the type of a buffer */
 #define M_BUFF3R_DEF_TYPE(name, type, m_size, policy, oplist, buffer_t)       \
                                                                               \
   /* Put each data in a separate cache line to avoid false sharing            \
      by multiple writing threads. No need to align if there is no thread */   \
-  typedef union M_C(name, _el_s) {                                            \
+  typedef union M_F(name, _el_s) {                                            \
     type x;                                                                   \
     char align[M_BUFF3R_POLICY_P(policy, M_BUFFER_THREAD_UNSAFE) ? 1 : M_ALIGN_FOR_CACHELINE_EXCLUSION]; \
-  } M_C(name, _el_ct);                                                        \
+  } M_F(name, _el_ct);                                                        \
                                                                               \
-  typedef struct M_C(name, _s) {                                              \
+  typedef struct M_F(name, _s) {                                              \
     /* Data for a producer */                                                 \
     m_mutex_t mutexPush;    /* MUTEX used for pushing elements */             \
     size_t    idx_prod;     /* Index of the production threads  */            \
@@ -286,22 +286,22 @@ m_buff3r_number_dec(m_buff3r_number_ct n, unsigned int policy)
     /* number[1] := [OPTION] Number of elements being deferred in the buffer */ \
     m_buff3r_number_ct number[1 + M_BUFF3R_POLICY_P(policy, M_BUFFER_DEFERRED_POP)]; \
     /* If fixed size, array of elements, otherwise pointer to element */      \
-    M_C(name, _el_ct)  M_BUFF3R_IF_CTE_SIZE(m_size)(data[m_size], *data);     \
+    M_F(name, _el_ct)  M_BUFF3R_IF_CTE_SIZE(m_size)(data[m_size], *data);     \
   } buffer_t[1];                                                              \
                                                                               \
-  typedef struct M_C(name, _s) *M_C(name, _ptr);                              \
-  typedef const struct M_C(name, _s) *M_C(name, _srcptr);                     \
+  typedef struct M_F(name, _s) *M_F(name, _ptr);                              \
+  typedef const struct M_F(name, _s) *M_F(name, _srcptr);                     \
   /* Internal type used to unconst the buffer */                              \
-  typedef union { M_C(name, _srcptr) cptr; M_C(name, _ptr) ptr; } M_C(name, _uptr_ct); \
+  typedef union { M_F(name, _srcptr) cptr; M_F(name, _ptr) ptr; } M_F(name, _uptr_ct); \
   /* Internal types used by the oplist */                                     \
-  typedef type M_C(name, _subtype_ct);                                        \
-  typedef buffer_t M_C(name, _ct);                                            \
+  typedef type M_F(name, _subtype_ct);                                        \
+  typedef buffer_t M_F(name, _ct);                                            \
 
 /* Define the core functionnalities of a buffer */
 #define M_BUFF3R_DEF_CORE(name, type, m_size, policy, oplist, buffer_t)       \
                                                                               \
 static inline void                                                            \
-M_C(name, _init)(buffer_t v, size_t size)                                     \
+M_F(name, _init)(buffer_t v, size_t size)                                     \
 {                                                                             \
   M_BUFF3R_IF_CTE_SIZE(m_size)(M_ASSERT(size == m_size), v->size = size);     \
   M_ASSERT(size <= UINT_MAX);                                                 \
@@ -319,9 +319,9 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   }                                                                           \
                                                                               \
   M_BUFF3R_IF_CTE_SIZE(m_size)( /* Statically allocated */ ,                  \
-    v->data = M_CALL_REALLOC(oplist, M_C(name, _el_ct), NULL, M_BUFF3R_SIZE(m_size)); \
+    v->data = M_CALL_REALLOC(oplist, M_F(name, _el_ct), NULL, M_BUFF3R_SIZE(m_size)); \
   if (M_UNLIKELY_NOMEM (v->data == NULL)) {                                   \
-      M_MEMORY_FULL (M_BUFF3R_SIZE(m_size)*sizeof(M_C(name, _el_ct)));        \
+      M_MEMORY_FULL (M_BUFF3R_SIZE(m_size)*sizeof(M_F(name, _el_ct)));        \
       return;                                                                 \
     }                                                                         \
   )                                                                           \
@@ -337,7 +337,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
  static inline void                                                           \
  M_C3(m_buff3r_,name,_init)(buffer_t v)                                       \
  {                                                                            \
-   M_C(name, _init)(v, m_size);                                               \
+   M_F(name, _init)(v, m_size);                                               \
  }                                                                            \
  , )                                                                          \
                                                                               \
@@ -366,7 +366,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
  }                                                                            \
                                                                               \
  static inline void                                                           \
- M_C(name, _clear)(buffer_t v)                                                \
+ M_F(name, _clear)(buffer_t v)                                                \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
    M_C3(m_buff3r_,name,_clear_obj)(v);                                        \
@@ -384,7 +384,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
  }                                                                            \
                                                                               \
  static inline void                                                           \
- M_C(name, _reset)(buffer_t v)                                                \
+ M_F(name, _reset)(buffer_t v)                                                \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_THREAD_UNSAFE)) {                \
@@ -407,21 +407,21 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
  }                                                                            \
                                                                               \
  static inline void M_ATTR_DEPRECATED                                         \
- M_C(name, _clean)(buffer_t v)                                                \
+ M_F(name, _clean)(buffer_t v)                                                \
  {                                                                            \
-   M_C(name,_reset)(v);                                                       \
+   M_F(name,_reset)(v);                                                       \
  }                                                                            \
                                                                               \
  static inline void                                                           \
- M_C(name, _init_set)(buffer_t dest, const buffer_t src)                      \
+ M_F(name, _init_set)(buffer_t dest, const buffer_t src)                      \
  {                                                                            \
    /* unconst 'src', so that we can lock it (semantically it is const) */     \
-   M_C(name, _uptr_ct) vu;                                                    \
+   M_F(name, _uptr_ct) vu;                                                    \
    vu.cptr = src;                                                             \
-   M_C(name, _ptr) v = vu.ptr;                                                \
+   M_F(name, _ptr) v = vu.ptr;                                                \
    M_ASSERT (dest != v);                                                      \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
-   M_C(name, _init)(dest, M_BUFF3R_SIZE(m_size));                             \
+   M_F(name, _init)(dest, M_BUFF3R_SIZE(m_size));                             \
    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_THREAD_UNSAFE)) {                \
      m_mutex_lock(v->mutexPush);                                              \
      m_mutex_lock(v->mutexPop);                                               \
@@ -457,12 +457,12 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
  }                                                                            \
                                                                               \
  static inline void                                                           \
- M_C(name, _set)(buffer_t dest, const buffer_t src)                           \
+ M_F(name, _set)(buffer_t dest, const buffer_t src)                           \
  {                                                                            \
    /* unconst 'src', so that we can lock it (semantically it is const) */     \
-   M_C(name, _uptr_ct) vu;                                                    \
+   M_F(name, _uptr_ct) vu;                                                    \
    vu.cptr = src;                                                             \
-   M_C(name, _ptr) v = vu.ptr;                                                \
+   M_F(name, _ptr) v = vu.ptr;                                                \
    M_BUFF3R_CONTRACT(dest,m_size);                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
                                                                               \
@@ -527,7 +527,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
  }                                                                            \
                                                                               \
  static inline bool                                                           \
- M_C(name, _empty_p)(buffer_t v)                                              \
+ M_F(name, _empty_p)(buffer_t v)                                              \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
    /* If the buffer has been configured with deferred pop                     \
@@ -541,7 +541,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
  }                                                                            \
                                                                               \
  static inline bool                                                           \
- M_C(name, _full_p)(buffer_t v)                                               \
+ M_F(name, _full_p)(buffer_t v)                                               \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
    return m_buff3r_number_load (v->number[0], policy)                         \
@@ -549,14 +549,14 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
  }                                                                            \
                                                                               \
  static inline size_t                                                         \
- M_C(name, _size)(buffer_t v)                                                 \
+ M_F(name, _size)(buffer_t v)                                                 \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
    return m_buff3r_number_load (v->number[0], policy);                        \
  }                                                                            \
                                                                               \
  static inline bool                                                           \
- M_C(name, _push_blocking)(buffer_t v, type const data, bool blocking)        \
+ M_F(name, _push_blocking)(buffer_t v, type const data, bool blocking)        \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
                                                                               \
@@ -564,7 +564,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_THREAD_UNSAFE)) {                \
      m_mutex_lock(v->mutexPush);                                              \
      while (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_OVERWRITE)             \
-            && M_C(name, _full_p)(v)) {                                       \
+            && M_F(name, _full_p)(v)) {                                       \
        if (!blocking) {                                                       \
          m_mutex_unlock(v->mutexPush);                                        \
          return false;                                                        \
@@ -572,14 +572,14 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
        m_cond_wait(v->there_is_room_for_data, v->mutexPush);                  \
      }                                                                        \
    } else if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_OVERWRITE)           \
-              && M_C(name, _full_p)(v))                                       \
+              && M_F(name, _full_p)(v))                                       \
      return false;                                                            \
    M_BUFF3R_PROTECTED_CONTRACT(policy, v, m_size);                            \
                                                                               \
    size_t previousSize, idx = v->idx_prod;                                    \
    /* INDEX computation if we have to overwrite the last element */           \
    if (M_UNLIKELY (M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_OVERWRITE)       \
-                   && M_C(name, _full_p)(v))) {                               \
+                   && M_F(name, _full_p)(v))) {                               \
      v->overwrite++;                                                          \
      /* Let's overwrite the last element */                                   \
      /* Compute the index of the last push element */                         \
@@ -636,7 +636,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
  }                                                                            \
                                                                               \
  static inline bool                                                           \
- M_C(name, _pop_blocking)(type *data, buffer_t v, bool blocking)              \
+ M_F(name, _pop_blocking)(type *data, buffer_t v, bool blocking)              \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
    M_ASSERT (data != NULL);                                                   \
@@ -644,14 +644,14 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
    /* Consummer lock (mutex lock performs an acquire memory barrier) */       \
    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_THREAD_UNSAFE)) {                \
      m_mutex_lock(v->mutexPop);                                               \
-     while (M_C(name, _empty_p)(v)) {                                         \
+     while (M_F(name, _empty_p)(v)) {                                         \
        if (!blocking) {                                                       \
          m_mutex_unlock(v->mutexPop);                                         \
          return false;                                                        \
        }                                                                      \
        m_cond_wait(v->there_is_data, v->mutexPop);                            \
      }                                                                        \
-   } else if (M_C(name, _empty_p)(v))                                         \
+   } else if (M_F(name, _empty_p)(v))                                         \
      return false;                                                            \
    M_BUFF3R_PROTECTED_CONTRACT(policy, v, m_size);                            \
                                                                               \
@@ -707,34 +707,34 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
                                                                               \
                                                                               \
  static inline bool                                                           \
- M_C(name, _push)(buffer_t v, type const data)                                \
+ M_F(name, _push)(buffer_t v, type const data)                                \
  {                                                                            \
-   return M_C(name, _push_blocking)(v, data,                                  \
+   return M_F(name, _push_blocking)(v, data,                                  \
                              !M_BUFF3R_POLICY_P((policy), M_BUFFER_UNBLOCKING_PUSH)); \
  }                                                                            \
                                                                               \
  static inline bool                                                           \
- M_C(name, _pop)(type *data, buffer_t v)                                      \
+ M_F(name, _pop)(type *data, buffer_t v)                                      \
  {                                                                            \
-   return M_C(name, _pop_blocking)(data, v,                                   \
+   return M_F(name, _pop_blocking)(data, v,                                   \
                             !M_BUFF3R_POLICY_P((policy), M_BUFFER_UNBLOCKING_POP)); \
  }                                                                            \
                                                                               \
  static inline size_t                                                         \
- M_C(name, _overwrite)(const buffer_t v)                                      \
+ M_F(name, _overwrite)(const buffer_t v)                                      \
  {                                                                            \
    return v->overwrite;                                                       \
  }                                                                            \
                                                                               \
  static inline size_t                                                         \
- M_C(name, _capacity)(const buffer_t v)                                       \
+ M_F(name, _capacity)(const buffer_t v)                                       \
  {                                                                            \
    (void) v; /* may be unused */                                              \
    return M_BUFF3R_SIZE(m_size);                                              \
  }                                                                            \
                                                                               \
  static inline void                                                           \
- M_C(name, _pop_release)(buffer_t v)                                          \
+ M_F(name, _pop_release)(buffer_t v)                                          \
  {                                                                            \
    /* Decrement the effective number of elements in the buffer */             \
    if (M_BUFF3R_POLICY_P((policy), M_BUFFER_DEFERRED_POP)) {                  \
@@ -798,7 +798,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   M_QU3UE_MPMC_DEF_TYPE(name, type, policy, oplist, buffer_t)                 \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
   M_QU3UE_MPMC_DEF_CORE(name, type, policy, oplist, buffer_t)                 \
-  M_EMPLACE_QUEUE_DEF(name, buffer_t, M_C(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
+  M_EMPLACE_QUEUE_DEF(name, buffer_t, M_F(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
 
 /* Define the type of a MPMC queue */
 #define M_QU3UE_MPMC_DEF_TYPE(name, type, policy, oplist, buffer_t)           \
@@ -811,30 +811,30 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
      Each element is put in a separate cache line to avoid false              \
      sharing by multiple writing threads.                                     \
   */                                                                          \
-  typedef struct M_C(name, _el_s) {                                           \
+  typedef struct M_F(name, _el_s) {                                           \
     atomic_uint  seq;        /* Can only increase until wrapping */           \
     type         x;                                                           \
     M_CACHELINE_ALIGN(align, atomic_uint, type);                              \
-  } M_C(name, _el_ct);                                                        \
+  } M_F(name, _el_ct);                                                        \
                                                                               \
   /* If there is only one producer and one consummer, then they won't         \
      typically use the same cache line, increasing performance. */            \
-  typedef struct M_C(name, _s) {                                              \
+  typedef struct M_F(name, _s) {                                              \
     atomic_uint ProdIdx; /* Can only increase until wrapping */               \
     M_CACHELINE_ALIGN(align1, atomic_uint);                                   \
     atomic_uint ConsoIdx; /* Can only increase until wrapping */              \
     M_CACHELINE_ALIGN(align2, atomic_uint);                                   \
-    M_C(name, _el_ct) *Tab;                                                   \
+    M_F(name, _el_ct) *Tab;                                                   \
     unsigned int size;                                                        \
   } buffer_t[1];                                                              \
                                                                               \
-  typedef type M_C(name, _subtype_ct);                                        \
-  typedef buffer_t M_C(name, _ct);                                            \
+  typedef type M_F(name, _subtype_ct);                                        \
+  typedef buffer_t M_F(name, _ct);                                            \
 
 /* Define the core functionnalities of a MPMC queue */
 #define M_QU3UE_MPMC_DEF_CORE(name, type, policy, oplist, buffer_t)           \
   static inline bool                                                          \
-  M_C(name, _push)(buffer_t table, type const x)                              \
+  M_F(name, _push)(buffer_t table, type const x)                              \
   {                                                                           \
     M_QU3UE_MPMC_CONTRACT(table);                                             \
     unsigned int idx = atomic_load_explicit(&table->ProdIdx,                  \
@@ -868,7 +868,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _pop)(type *ptr, buffer_t table)                                  \
+  M_F(name, _pop)(type *ptr, buffer_t table)                                  \
   {                                                                           \
     M_QU3UE_MPMC_CONTRACT(table);                                             \
     M_ASSERT (ptr != NULL);                                                   \
@@ -897,7 +897,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init)(buffer_t buffer, size_t size)                              \
+  M_F(name, _init)(buffer_t buffer, size_t size)                              \
   {                                                                           \
     M_ASSERT (buffer != NULL);                                                \
     M_ASSERT( M_POWEROF2_P(size));                                            \
@@ -906,9 +906,9 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
     atomic_init(&buffer->ProdIdx, (unsigned int) size);                       \
     atomic_init(&buffer->ConsoIdx, (unsigned int) size);                      \
     buffer->size = (unsigned int) size;                                       \
-    buffer->Tab = M_CALL_REALLOC(oplist, M_C(name, _el_ct), NULL, size);      \
+    buffer->Tab = M_CALL_REALLOC(oplist, M_F(name, _el_ct), NULL, size);      \
     if (M_UNLIKELY_NOMEM (buffer->Tab == NULL)) {                             \
-      M_MEMORY_FULL (size*sizeof(M_C(name, _el_ct) ));                        \
+      M_MEMORY_FULL (size*sizeof(M_F(name, _el_ct) ));                        \
       return;                                                                 \
     }                                                                         \
     for(unsigned int j = 0; j < (unsigned int) size; j++) {                   \
@@ -921,7 +921,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clear)(buffer_t buffer)                                          \
+  M_F(name, _clear)(buffer_t buffer)                                          \
   {                                                                           \
     M_QU3UE_MPMC_CONTRACT(buffer);                                            \
     if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
@@ -946,7 +946,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_C(name, _size)(buffer_t table)                                            \
+  M_F(name, _size)(buffer_t table)                                            \
   {                                                                           \
     M_QU3UE_MPMC_CONTRACT(table);                                             \
     const unsigned int iC = atomic_load_explicit(&table->ConsoIdx, memory_order_relaxed); \
@@ -965,22 +965,22 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_C(name, _capacity)(buffer_t v)                                            \
+  M_F(name, _capacity)(buffer_t v)                                            \
   {                                                                           \
     M_QU3UE_MPMC_CONTRACT(v);                                                 \
     return v->size;                                                           \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _empty_p)(buffer_t v)                                             \
+  M_F(name, _empty_p)(buffer_t v)                                             \
   {                                                                           \
-    return M_C(name, _size) (v) == 0;                                         \
+    return M_F(name, _size) (v) == 0;                                         \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _full_p)(buffer_t v)                                              \
+  M_F(name, _full_p)(buffer_t v)                                              \
   {                                                                           \
-    return M_C(name, _size)(v) >= v->size;                                    \
+    return M_F(name, _size)(v) >= v->size;                                    \
   }                                                                           \
   
 
@@ -1033,7 +1033,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   M_QU3UE_SPSC_DEF_TYPE(name, type, policy, oplist, buffer_t)                 \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
   M_QU3UE_SPSC_DEF_CORE(name, type, policy, oplist, buffer_t)                 \
-  M_EMPLACE_QUEUE_DEF(name, buffer_t, M_C(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
+  M_EMPLACE_QUEUE_DEF(name, buffer_t, M_F(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
 
 /* Define the type of a SPSC queue */
 #define M_QU3UE_SPSC_DEF_TYPE(name, type, policy, oplist, buffer_t)           \
@@ -1042,26 +1042,26 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
      So, only one thread will write in this table. The other thread           \
      will only read. As such, there is no concurrent write, and no            \
      need to align the structure for best performance. */                     \
-  typedef struct M_C(name, _el_s) {                                           \
+  typedef struct M_F(name, _el_s) {                                           \
     type         x;                                                           \
-  } M_C(name, _el_ct);                                                        \
+  } M_F(name, _el_ct);                                                        \
                                                                               \
-  typedef struct M_C(name, _s) {                                              \
+  typedef struct M_F(name, _s) {                                              \
     atomic_uint  consoIdx; /* Can only increase until overflow */             \
     unsigned int size;                                                        \
-    M_C(name, _el_ct) *Tab;                                                   \
-    M_CACHELINE_ALIGN(align, atomic_uint, size_t, M_C(name, _el_ct) *);       \
+    M_F(name, _el_ct) *Tab;                                                   \
+    M_CACHELINE_ALIGN(align, atomic_uint, size_t, M_F(name, _el_ct) *);       \
     atomic_uint prodIdx;  /* Can only increase until overflow */              \
   } buffer_t[1];                                                              \
                                                                               \
-  typedef type M_C(name, _subtype_ct);                                        \
-  typedef buffer_t M_C(name, _ct);                                            \
+  typedef type M_F(name, _subtype_ct);                                        \
+  typedef buffer_t M_F(name, _ct);                                            \
 
 /* Define the core functionnalities of a SPSC queue */
 #define M_QU3UE_SPSC_DEF_CORE(name, type, policy, oplist, buffer_t)           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _push)(buffer_t table, type const x)                              \
+  M_F(name, _push)(buffer_t table, type const x)                              \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
@@ -1082,7 +1082,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _push_move)(buffer_t table, type *x)                              \
+  M_F(name, _push_move)(buffer_t table, type *x)                              \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
@@ -1103,7 +1103,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _pop)(type *ptr, buffer_t table)                                  \
+  M_F(name, _pop)(type *ptr, buffer_t table)                                  \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
     M_ASSERT (ptr != NULL);                                                   \
@@ -1125,7 +1125,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   }                                                                           \
                                                                               \
   static inline unsigned                                                      \
-  M_C(name, _push_bulk)(buffer_t table, unsigned n, type const x[])           \
+  M_F(name, _push_bulk)(buffer_t table, unsigned n, type const x[])           \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
     M_ASSERT (x != NULL);                                                     \
@@ -1151,7 +1151,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   }                                                                           \
                                                                               \
   static inline unsigned                                                      \
-  M_C(name, _pop_bulk)(unsigned int n, type ptr[], buffer_t table)            \
+  M_F(name, _pop_bulk)(unsigned int n, type ptr[], buffer_t table)            \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
     M_ASSERT (ptr != NULL);                                                   \
@@ -1177,7 +1177,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _push_force)(buffer_t table, type const x)                        \
+  M_F(name, _push_force)(buffer_t table, type const x)                        \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
@@ -1200,7 +1200,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_C(name, _size)(buffer_t table)                                            \
+  M_F(name, _size)(buffer_t table)                                            \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
@@ -1221,25 +1221,25 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   }                                                                           \
                                                                               \
  static inline size_t                                                         \
- M_C(name, _capacity)(buffer_t v)                                             \
+ M_F(name, _capacity)(buffer_t v)                                             \
  {                                                                            \
    return v->size;                                                            \
  }                                                                            \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _empty_p)(buffer_t v)                                             \
+  M_F(name, _empty_p)(buffer_t v)                                             \
   {                                                                           \
-    return M_C(name, _size) (v) == 0;                                         \
+    return M_F(name, _size) (v) == 0;                                         \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _full_p)(buffer_t v)                                              \
+  M_F(name, _full_p)(buffer_t v)                                              \
   {                                                                           \
-    return M_C(name, _size)(v) >= v->size;                                    \
+    return M_F(name, _size)(v) >= v->size;                                    \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init)(buffer_t buffer, size_t size)                              \
+  M_F(name, _init)(buffer_t buffer, size_t size)                              \
   {                                                                           \
     M_ASSERT (buffer != NULL);                                                \
     M_ASSERT( M_POWEROF2_P(size));                                            \
@@ -1248,9 +1248,9 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
     atomic_init(&buffer->prodIdx, (unsigned int) size);                       \
     atomic_init(&buffer->consoIdx, (unsigned int) size);                      \
     buffer->size = (unsigned int) size;                                       \
-    buffer->Tab = M_CALL_REALLOC(oplist, M_C(name, _el_ct), NULL, size);      \
+    buffer->Tab = M_CALL_REALLOC(oplist, M_F(name, _el_ct), NULL, size);      \
     if (M_UNLIKELY_NOMEM (buffer->Tab == NULL)) {                             \
-      M_MEMORY_FULL (size*sizeof(M_C(name, _el_ct) ));                        \
+      M_MEMORY_FULL (size*sizeof(M_F(name, _el_ct) ));                        \
       return;                                                                 \
     }                                                                         \
     if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
@@ -1262,7 +1262,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clear)(buffer_t buffer)                                          \
+  M_F(name, _clear)(buffer_t buffer)                                          \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(buffer);                                            \
     if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
@@ -1304,18 +1304,18 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
 /* OPLIST definition of a buffer */
 #define M_BUFF3R_OPLIST_P3(name, oplist)                                      \
   (INIT(M_C3(m_buff3r_,name, _init))                                          \
-   ,INIT_SET(M_C(name, _init_set))                                            \
-   ,SET(M_C(name, _set))                                                      \
-   ,CLEAR(M_C(name, _clear))                                                  \
+   ,INIT_SET(M_F(name, _init_set))                                            \
+   ,SET(M_F(name, _set))                                                      \
+   ,CLEAR(M_F(name, _clear))                                                  \
    ,NAME(name)                                                                \
-   ,TYPE(M_C(name,_ct))                                                       \
-   ,SUBTYPE(M_C(name, _subtype_ct))                                           \
-   ,RESET(M_C(name,_reset))                                                   \
-   ,PUSH(M_C(name,_push))                                                     \
-   ,POP(M_C(name,_pop))                                                       \
+   ,TYPE(M_F(name,_ct))                                                       \
+   ,SUBTYPE(M_F(name, _subtype_ct))                                           \
+   ,RESET(M_F(name,_reset))                                                   \
+   ,PUSH(M_F(name,_push))                                                     \
+   ,POP(M_F(name,_pop))                                                       \
    ,OPLIST(oplist)                                                            \
-   ,EMPTY_P(M_C(name, _empty_p)),                                             \
-   ,GET_SIZE(M_C(name, _size))                                                \
+   ,EMPTY_P(M_F(name, _empty_p)),                                             \
+   ,GET_SIZE(M_F(name, _size))                                                \
    )
 
 

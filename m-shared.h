@@ -34,7 +34,7 @@ M_BEGIN_PROTECTED_CODE
 /* Define shared pointer and its function.
    USAGE: SHARED_PTR_DEF(name, type, [, oplist]) */
 #define M_SHARED_PTR_DEF(name, ...)                                           \
-  M_SHARED_PTR_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
+  M_SHARED_PTR_DEF_AS(name, M_F(name,_t), __VA_ARGS__)
 
 
 /* Define shared pointer and its function
@@ -59,7 +59,7 @@ M_BEGIN_PROTECTED_CODE
 /* Define relaxed shared pointer and its function (thread unsafe).
    USAGE: SHARED_PTR_RELAXED_DEF(name, type, [, oplist]) */
 #define M_SHARED_PTR_RELAXED_DEF(name, ...)                                   \
-  M_SHARED_PTR_RELAXED_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
+  M_SHARED_PTR_RELAXED_DEF_AS(name, M_F(name,_t), __VA_ARGS__)
 
 
 /* Define relaxed shared pointer and its function (thread unsafe)
@@ -77,7 +77,7 @@ M_BEGIN_PROTECTED_CODE
    This is a bounded pool of resource shared by multiple owners.
    USAGE: SHARED_RESOURCE_DEF(name, type, [, oplist]) */
 #define M_SHARED_RESOURCE_DEF(name, ...)                                      \
-  M_SHARED_RESOURCE_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
+  M_SHARED_RESOURCE_DEF_AS(name, M_F(name,_t), M_F(name,_it_t), __VA_ARGS__)
 
 
 /* Define shared resource and its function
@@ -109,16 +109,16 @@ M_BEGIN_PROTECTED_CODE
   ((M_LIB_ERROR(ARGUMENT_OF_SHARED_PTR_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 #define M_SHAR3D_PTR_OPLIST_P3(name, oplist) (                                \
-  INIT(M_C(name, _init)),                                                     \
-  CLEAR(M_C(name, _clear)),                                                   \
-  INIT_SET(M_C(name, _init_set)),                                             \
-  SET(M_C(name, _set))                                                        \
-  INIT_MOVE(M_C(name, _init_move)),                                           \
-  RESET(M_C(name, _reset)),                                                   \
-  MOVE(M_C(name, _move)),                                                     \
-  SWAP(M_C(name, _swap))                                                      \
+  INIT(M_F(name, _init)),                                                     \
+  CLEAR(M_F(name, _clear)),                                                   \
+  INIT_SET(M_F(name, _init_set)),                                             \
+  SET(M_F(name, _set))                                                        \
+  INIT_MOVE(M_F(name, _init_move)),                                           \
+  RESET(M_F(name, _reset)),                                                   \
+  MOVE(M_F(name, _move)),                                                     \
+  SWAP(M_F(name, _swap))                                                      \
   ,NAME(name)                                                                 \
-  ,TYPE(M_C(name, _ct))                                                       \
+  ,TYPE(M_F(name, _ct))                                                       \
   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                           \
   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)               \
   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                           \
@@ -173,44 +173,44 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
 /* Define the types */
 #define M_SHAR3D_PTR_DEF_TYPE(name, type, oplist, cpt_oplist, shared_t)       \
                                                                               \
-  typedef struct M_C(name, _s){                                               \
+  typedef struct M_F(name, _s){                                               \
     type *data;                        /* Pointer to the data */              \
     M_GET_TYPE cpt_oplist  cpt; /* Counter of how many refs the data */       \
     bool  combineAlloc; /* Does the data and the ptr share the slot? */       \
   } *shared_t[1];                                                             \
-  typedef struct M_C(name, _s) *M_C(name, _ptr);                              \
-  typedef const struct M_C(name, _s) *M_C(name, _srcptr);                     \
+  typedef struct M_F(name, _s) *M_F(name, _ptr);                              \
+  typedef const struct M_F(name, _s) *M_F(name, _srcptr);                     \
                                                                               \
   /* Internal type for oplist */                                              \
-  typedef shared_t M_C(name, _ct);                                            \
+  typedef shared_t M_F(name, _ct);                                            \
                                                                               \
-  typedef struct M_C(name, combine_s) {                                       \
+  typedef struct M_F(name, combine_s) {                                       \
     type data;                                                                \
-    struct M_C(name, _s) ptr;                                                 \
-  } M_C(name, combine_ct)[1];                                                 \
+    struct M_F(name, _s) ptr;                                                 \
+  } M_F(name, combine_ct)[1];                                                 \
 
 /* Define the core functions */
 #define M_SHAR3D_PTR_DEF_CORE(name, type, oplist, cpt_oplist, shared_t)       \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init)(shared_t shared)                                           \
+  M_F(name, _init)(shared_t shared)                                           \
   {                                                                           \
     *shared = NULL;                                                           \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init2)(shared_t shared, type *data)                              \
+  M_F(name, _init2)(shared_t shared, type *data)                              \
   {                                                                           \
     M_ASSERT (shared != NULL);                                                \
     /* The shared ptr get exclusive access to data */                         \
-    struct M_C(name, _s) *ptr;                                                \
+    struct M_F(name, _s) *ptr;                                                \
     if (M_UNLIKELY (data == NULL)) {                                          \
       *shared = NULL;                                                         \
       return;                                                                 \
     }                                                                         \
-    ptr = M_CALL_NEW(oplist, struct M_C(name, _s));                           \
+    ptr = M_CALL_NEW(oplist, struct M_F(name, _s));                           \
     if (M_UNLIKELY_NOMEM (ptr == NULL)) {                                     \
-      M_MEMORY_FULL(sizeof(struct M_C(name, _s)));                            \
+      M_MEMORY_FULL(sizeof(struct M_F(name, _s)));                            \
       return;                                                                 \
     }                                                                         \
     ptr->data = data;                                                         \
@@ -222,16 +222,16 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
   static inline void                                                          \
-  M_C(name, _init_new)(shared_t shared)                                       \
+  M_F(name, _init_new)(shared_t shared)                                       \
   {                                                                           \
     /* NOTE: Alloc 1 struct with both structures. */                          \
-    struct M_C(name, combine_s) *p =                                          \
-      M_CALL_NEW(oplist, struct M_C(name, combine_s));                        \
+    struct M_F(name, combine_s) *p =                                          \
+      M_CALL_NEW(oplist, struct M_F(name, combine_s));                        \
     if (M_UNLIKELY_NOMEM (p == NULL)) {                                       \
-      M_MEMORY_FULL(sizeof(struct M_C(name, combine_s)));                     \
+      M_MEMORY_FULL(sizeof(struct M_F(name, combine_s)));                     \
       return;                                                                 \
     }                                                                         \
-    struct M_C(name, _s) *ptr = &p->ptr;                                      \
+    struct M_F(name, _s) *ptr = &p->ptr;                                      \
     type *data = &p->data;                                                    \
     M_CALL_INIT( oplist, *data);                                              \
     ptr->data = data;                                                         \
@@ -243,14 +243,14 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   , /* No INIT */ )                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _NULL_p)(const shared_t shared)                                   \
+  M_F(name, _NULL_p)(const shared_t shared)                                   \
   {                                                                           \
     M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
     return *shared == NULL;                                                   \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init_set)(shared_t dest,                                         \
+  M_F(name, _init_set)(shared_t dest,                                         \
                        const shared_t shared)                                 \
   {                                                                           \
     M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
@@ -264,7 +264,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clear)(shared_t dest)                                            \
+  M_F(name, _clear)(shared_t dest)                                            \
   {                                                                           \
     M_SHAR3D_CONTRACT(dest, cpt_oplist);                                      \
     if (*dest != NULL)        {                                               \
@@ -285,24 +285,24 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _reset)(shared_t dest)                                            \
+  M_F(name, _reset)(shared_t dest)                                            \
   {                                                                           \
     /* NOTE: Clear will also set dest to NULL */                              \
-    M_C(name, _clear)(dest);                                                  \
+    M_F(name, _clear)(dest);                                                  \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _set)(shared_t dest,                                              \
+  M_F(name, _set)(shared_t dest,                                              \
                   const shared_t shared)                                      \
   {                                                                           \
     M_SHAR3D_CONTRACT(dest, cpt_oplist);                                      \
     M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
-    M_C(name, _clear)(dest);                                                  \
-    M_C(name, _init_set)(dest, shared);                                       \
+    M_F(name, _clear)(dest);                                                  \
+    M_F(name, _init_set)(dest, shared);                                       \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init_move)(shared_t dest,                                        \
+  M_F(name, _init_move)(shared_t dest,                                        \
                         shared_t shared)                                      \
   {                                                                           \
     M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
@@ -313,30 +313,30 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _move)(shared_t dest,                                             \
+  M_F(name, _move)(shared_t dest,                                             \
                    shared_t shared)                                           \
   {                                                                           \
     M_SHAR3D_CONTRACT(dest, cpt_oplist);                                      \
     M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
     M_ASSERT (dest != shared);                                                \
-    M_C(name, _clear)(dest);                                                  \
-    M_C(name, _init_move)(dest, shared);                                      \
+    M_F(name, _clear)(dest);                                                  \
+    M_F(name, _init_move)(dest, shared);                                      \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _swap)(shared_t p1,                                               \
+  M_F(name, _swap)(shared_t p1,                                               \
                    shared_t p2)                                               \
   {                                                                           \
     M_SHAR3D_CONTRACT(p1, cpt_oplist);                                        \
     M_SHAR3D_CONTRACT(p2, cpt_oplist);                                        \
     /* NOTE: SWAP is not atomic */                                            \
-    M_SWAP (struct M_C(name, _s)*, *p1, *p2);                                 \
+    M_SWAP (struct M_F(name, _s)*, *p1, *p2);                                 \
     M_SHAR3D_CONTRACT(p1, cpt_oplist);                                        \
     M_SHAR3D_CONTRACT(p2, cpt_oplist);                                        \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _equal_p)(const shared_t p1,                                      \
+  M_F(name, _equal_p)(const shared_t p1,                                      \
                       const shared_t p2)                                      \
   {                                                                           \
     M_SHAR3D_CONTRACT(p1, cpt_oplist);                                        \
@@ -345,7 +345,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   }                                                                           \
                                                                               \
   static inline type const *                                                  \
-  M_C(name, _cref)(const shared_t shared)                                     \
+  M_F(name, _cref)(const shared_t shared)                                     \
   {                                                                           \
     M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
     M_ASSERT(*shared != NULL);                                                \
@@ -355,7 +355,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   }                                                                           \
                                                                               \
   static inline type *                                                        \
-  M_C(name, _ref)(shared_t shared)                                            \
+  M_F(name, _ref)(shared_t shared)                                            \
   {                                                                           \
     M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
     M_ASSERT(*shared != NULL);                                                \
@@ -392,35 +392,35 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
 #define M_SHAR3D_RESOURCE_DEF_TYPE(name, type, oplist, shared_t, it_t)        \
                                                                               \
   /* Create an aligned type to avoid false sharing between threads */         \
-  typedef struct M_C(name, _atype_s) {                                        \
+  typedef struct M_F(name, _atype_s) {                                        \
     atomic_uint  cpt;                                                         \
     type         x;                                                           \
     M_CACHELINE_ALIGN(align, type, atomic_uint);                              \
-  } M_C(name, _atype_ct);                                                     \
+  } M_F(name, _atype_ct);                                                     \
                                                                               \
-  typedef struct M_C(name, _s) {                                              \
+  typedef struct M_F(name, _s) {                                              \
     m_genint_t             core;                                              \
-    M_C(name, _atype_ct) *buffer;                                             \
+    M_F(name, _atype_ct) *buffer;                                             \
   } shared_t[1];                                                              \
                                                                               \
-  typedef struct M_C(name, _it_s) {                                           \
+  typedef struct M_F(name, _it_s) {                                           \
     unsigned int idx;                                                         \
-    struct M_C(name, _s) *ref;                                                \
+    struct M_F(name, _s) *ref;                                                \
   } it_t[1];                                                                  \
                                                                               \
   /* Internal Types for oplist */                                             \
-  typedef shared_t M_C(name, _ct);                                            \
+  typedef shared_t M_F(name, _ct);                                            \
 
 /* Define the core functions */
 #define M_SHAR3D_RESOURCE_DEF_CORE(name, type, oplist, shared_t, it_t)        \
   static inline void                                                          \
-  M_C(name, _init)(shared_t s, size_t n)                                      \
+  M_F(name, _init)(shared_t s, size_t n)                                      \
   {                                                                           \
     M_ASSERT(s != NULL);                                                      \
     M_ASSERT (n > 0 && n < UINT_MAX);                                         \
-    s->buffer = M_CALL_REALLOC(oplist, M_C(name, _atype_ct), NULL, n);        \
+    s->buffer = M_CALL_REALLOC(oplist, M_F(name, _atype_ct), NULL, n);        \
     if (M_UNLIKELY_NOMEM (s->buffer == NULL)) {                               \
-      M_MEMORY_FULL(sizeof(M_C(name, _atype_ct)) * n);                        \
+      M_MEMORY_FULL(sizeof(M_F(name, _atype_ct)) * n);                        \
       return;                                                                 \
     }                                                                         \
     for(size_t i = 0; i < n; i++) {                                           \
@@ -432,7 +432,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clear)(shared_t s)                                               \
+  M_F(name, _clear)(shared_t s)                                               \
   {                                                                           \
     M_SHAR3D_RESOURCE_CONTRACT(s);                                            \
     size_t n = m_genint_size(s->core);                                        \
@@ -445,7 +445,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _it)(it_t it, shared_t s)                                         \
+  M_F(name, _it)(it_t it, shared_t s)                                         \
   {                                                                           \
     M_SHAR3D_RESOURCE_CONTRACT(s);                                            \
     M_ASSERT (it != NULL);                                                    \
@@ -459,14 +459,14 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _end_p)(it_t it)                                                  \
+  M_F(name, _end_p)(it_t it)                                                  \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
     return it->idx == M_GENINT_ERROR;                                         \
   }                                                                           \
                                                                               \
   static inline type *                                                        \
-  M_C(name, _ref)(it_t it)                                                    \
+  M_F(name, _ref)(it_t it)                                                    \
   {                                                                           \
     M_ASSERT (it != NULL && it->ref != NULL && it->idx != M_GENINT_ERROR);    \
     M_SHAR3D_RESOURCE_CONTRACT(it->ref);                                      \
@@ -474,7 +474,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   }                                                                           \
                                                                               \
   static inline type const *                                                  \
-  M_C(name, _cref)(it_t it)                                                   \
+  M_F(name, _cref)(it_t it)                                                   \
   {                                                                           \
     M_ASSERT (it != NULL && it->ref != NULL && it->idx != M_GENINT_ERROR);    \
     M_SHAR3D_RESOURCE_CONTRACT(it->ref);                                      \
@@ -482,7 +482,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _end)(it_t it, shared_t s)                                        \
+  M_F(name, _end)(it_t it, shared_t s)                                        \
   {                                                                           \
     M_SHAR3D_RESOURCE_CONTRACT(s);                                            \
     M_ASSERT (it != NULL);                                                    \
@@ -498,7 +498,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _it_set)(it_t itd, it_t its)                                      \
+  M_F(name, _it_set)(it_t itd, it_t its)                                      \
   {                                                                           \
     M_ASSERT (itd != NULL && its != NULL);                                    \
     M_SHAR3D_RESOURCE_CONTRACT(its->ref);                                     \

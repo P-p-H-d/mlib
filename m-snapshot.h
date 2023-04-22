@@ -34,7 +34,7 @@ M_BEGIN_PROTECTED_CODE
 /* Define a Single Producer Single Consummer snapshot and its functions
    USAGE: SNAPSHOT_SPSC_DEF(name, type[, oplist]) */
 #define M_SNAPSHOT_SPSC_DEF(name, ...)                                        \
-  M_SNAPSHOT_SPSC_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
+  M_SNAPSHOT_SPSC_DEF_AS(name, M_F(name,_t), __VA_ARGS__)
 
 
 /* Define a Single Producer Single Consummer snapshot and its functions
@@ -51,7 +51,7 @@ M_BEGIN_PROTECTED_CODE
 /* Define a Single Producer Multiple Consummer snapshot and its functions
    USAGE: SNAPSHOT_SPMC_DEF(name, type[, oplist]) */
 #define M_SNAPSHOT_SPMC_DEF(name, ...)                                        \
-  M_SNAPSHOT_SPMC_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
+  M_SNAPSHOT_SPMC_DEF_AS(name, M_F(name,_t), __VA_ARGS__)
 
 
 /* Define a Single Producer Multiple Consummer snapshot and its functions
@@ -68,7 +68,7 @@ M_BEGIN_PROTECTED_CODE
 /* Define a Multiple Producer Multiple Consummer snapshot and its functions
    USAGE: SNAPSHOT_MPMC_DEF(name, type[, oplist]) */
 #define M_SNAPSHOT_MPMC_DEF(name, ...)                                        \
-  M_SNAPSHOT_MPMC_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
+  M_SNAPSHOT_MPMC_DEF_AS(name, M_F(name,_t), __VA_ARGS__)
 
 
 /* Define a Multiple Producer Multiple Consummer snapshot and its functions
@@ -107,16 +107,16 @@ M_BEGIN_PROTECTED_CODE
 
 /* Define the oplist of a snapshot */
 #define M_SNAPSH0T_OPLIST_P3(name, oplist)                                    \
-  (INIT(M_C(name, _init))                                                     \
-   ,INIT_SET(M_C(name, _init_set))                                            \
-   ,SET(M_C(name, _set))                                                      \
-   ,CLEAR(M_C(name, _clear))                                                  \
+  (INIT(M_F(name, _init))                                                     \
+   ,INIT_SET(M_F(name, _init_set))                                            \
+   ,SET(M_F(name, _set))                                                      \
+   ,CLEAR(M_F(name, _clear))                                                  \
    ,NAME(name)                                                                \
-   ,TYPE(M_C(name, _ct))                                                      \
-   ,SUBTYPE(M_C(name, _subtype_ct))                                           \
+   ,TYPE(M_F(name, _ct))                                                      \
+   ,SUBTYPE(M_F(name, _subtype_ct))                                           \
    ,OPLIST(oplist)                                                            \
-   ,M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_C(name, _init_move)),)         \
-   ,M_IF_METHOD(MOVE, oplist)(MOVE(M_C(name, _move)),)                        \
+   ,M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_F(name, _init_move)),)         \
+   ,M_IF_METHOD(MOVE, oplist)(MOVE(M_F(name, _move)),)                        \
    )
 
 
@@ -178,27 +178,27 @@ M_BEGIN_PROTECTED_CODE
 #define M_SNAPSH0T_SPSC_DEF_TYPE(name, type, oplist, snapshot_t)              \
                                                                               \
   /* Create an aligned type to avoid false sharing between threads */         \
-  typedef struct M_C(name, _aligned_type_s) {                                 \
+  typedef struct M_F(name, _aligned_type_s) {                                 \
     type         x;                                                           \
     M_CACHELINE_ALIGN(align, type);                                           \
-  } M_C(name, _aligned_type_ct);                                              \
+  } M_F(name, _aligned_type_ct);                                              \
                                                                               \
-  typedef struct M_C(name, _s) {                                              \
-    M_C(name, _aligned_type_ct)  data[M_SNAPSH0T_SPSC_MAX_BUFFER];            \
+  typedef struct M_F(name, _s) {                                              \
+    M_F(name, _aligned_type_ct)  data[M_SNAPSH0T_SPSC_MAX_BUFFER];            \
     atomic_uchar flags;                                                       \
   } snapshot_t[1];                                                            \
-  typedef struct M_C(name, _s) *M_C(name, _ptr);                              \
-  typedef const struct M_C(name, _s) *M_C(name, _srcptr);                     \
+  typedef struct M_F(name, _s) *M_F(name, _ptr);                              \
+  typedef const struct M_F(name, _s) *M_F(name, _srcptr);                     \
                                                                               \
   /* Define internal types for oplist */                                      \
-  typedef snapshot_t M_C(name, _ct);                                          \
-  typedef type          M_C(name, _subtype_ct);                               \
+  typedef snapshot_t M_F(name, _ct);                                          \
+  typedef type          M_F(name, _subtype_ct);                               \
 
 /* Define the core functions */
 #define M_SNAPSH0T_SPSC_DEF_CORE(name, type, oplist, snapshot_t)              \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init)(snapshot_t snap)                                           \
+  M_F(name, _init)(snapshot_t snap)                                           \
   {                                                                           \
     M_ASSERT(snap != NULL);                                                   \
     for(int i = 0; i < M_SNAPSH0T_SPSC_MAX_BUFFER; i++) {                     \
@@ -209,7 +209,7 @@ M_BEGIN_PROTECTED_CODE
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clear)(snapshot_t snap)                                          \
+  M_F(name, _clear)(snapshot_t snap)                                          \
   {                                                                           \
     M_SNAPSH0T_SPSC_CONTRACT(snap);                                           \
     for(int i = 0; i < M_SNAPSH0T_SPSC_MAX_BUFFER; i++) {                     \
@@ -219,7 +219,7 @@ M_BEGIN_PROTECTED_CODE
                                                                               \
   /* const is missing for org due to use of atomic_load of org */             \
   static inline void                                                          \
-  M_C(name, _init_set)(snapshot_t snap, snapshot_t org)                       \
+  M_F(name, _init_set)(snapshot_t snap, snapshot_t org)                       \
   {                                                                           \
     M_SNAPSH0T_SPSC_CONTRACT(org);                                            \
     M_ASSERT(snap != NULL && snap != org);                                    \
@@ -232,7 +232,7 @@ M_BEGIN_PROTECTED_CODE
                                                                               \
   /* const is missing for org due to use of atomic_load of org */             \
   static inline void                                                          \
-  M_C(name, _set)(snapshot_t snap, snapshot_t org)                            \
+  M_F(name, _set)(snapshot_t snap, snapshot_t org)                            \
   {                                                                           \
     M_SNAPSH0T_SPSC_CONTRACT(snap);                                           \
     M_SNAPSH0T_SPSC_CONTRACT(org);                                            \
@@ -245,7 +245,7 @@ M_BEGIN_PROTECTED_CODE
                                                                               \
   M_IF_METHOD(INIT_MOVE, oplist)(                                             \
     static inline void                                                        \
-    M_C(name, _init_move)(snapshot_t snap, snapshot_t org)                    \
+    M_F(name, _init_move)(snapshot_t snap, snapshot_t org)                    \
     {                                                                         \
       M_SNAPSH0T_SPSC_CONTRACT(org);                                          \
       M_ASSERT(snap != NULL && snap != org);                                  \
@@ -260,7 +260,7 @@ M_BEGIN_PROTECTED_CODE
                                                                               \
   M_IF_METHOD(MOVE, oplist)(                                                  \
     static inline void                                                        \
-    M_C(name, _move)(snapshot_t snap,                                         \
+    M_F(name, _move)(snapshot_t snap,                                         \
                                         snapshot_t org)                       \
     {                                                                         \
       M_SNAPSH0T_SPSC_CONTRACT(snap);                                         \
@@ -276,7 +276,7 @@ M_BEGIN_PROTECTED_CODE
   ,) /* IF_METHOD (MOVE) */                                                   \
                                                                               \
   static inline type *                                                        \
-  M_C(name, _write)(snapshot_t snap)                                          \
+  M_F(name, _write)(snapshot_t snap)                                          \
   {                                                                           \
     M_SNAPSH0T_SPSC_CONTRACT(snap);                                           \
     unsigned char nextFlags, origFlags = atomic_load (&snap->flags);          \
@@ -295,7 +295,7 @@ M_BEGIN_PROTECTED_CODE
   }                                                                           \
                                                                               \
   static inline type const *                                                  \
-  M_C(name, _read)(snapshot_t snap)                                           \
+  M_F(name, _read)(snapshot_t snap)                                           \
   {                                                                           \
     M_SNAPSH0T_SPSC_CONTRACT(snap);                                           \
     unsigned char nextFlags, origFlags = atomic_load (&snap->flags);          \
@@ -320,7 +320,7 @@ M_BEGIN_PROTECTED_CODE
                                                                               \
   /* Non const due to use of atomic_load */                                   \
   static inline bool                                                          \
-  M_C(name, _updated_p)(snapshot_t snap)                                      \
+  M_F(name, _updated_p)(snapshot_t snap)                                      \
   {                                                                           \
     M_SNAPSH0T_SPSC_CONTRACT(snap);                                           \
     unsigned char flags = atomic_load (&snap->flags);                         \
@@ -329,7 +329,7 @@ M_BEGIN_PROTECTED_CODE
                                                                               \
   /* Non const due to use of atomic_load */                                   \
   static inline type *                                                        \
-  M_C(name, _get_write_buffer)(snapshot_t snap)                               \
+  M_F(name, _get_write_buffer)(snapshot_t snap)                               \
   {                                                                           \
     M_SNAPSH0T_SPSC_CONTRACT(snap);                                           \
     unsigned char flags = atomic_load(&snap->flags);                          \
@@ -338,7 +338,7 @@ M_BEGIN_PROTECTED_CODE
                                                                               \
   /* Non const due to use of atomic_load */                                   \
   static inline type const *                                                  \
-  M_C(name, _get_read_buffer)(snapshot_t snap)                                \
+  M_F(name, _get_read_buffer)(snapshot_t snap)                                \
   {                                                                           \
     M_SNAPSH0T_SPSC_CONTRACT(snap);                                           \
     unsigned char flags = atomic_load(&snap->flags);                          \
@@ -622,32 +622,32 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
 #define M_SNAPSH0T_SPMC_DEF_TYPE(name, type, oplist, snapshot_t)              \
                                                                               \
   /* Create an aligned type to avoid false sharing between threads */         \
-  typedef struct M_C(name, _aligned_type_s) {                                 \
+  typedef struct M_F(name, _aligned_type_s) {                                 \
     type         x;                                                           \
     M_CACHELINE_ALIGN(align, type);                                           \
-  } M_C(name, _aligned_type_ct);                                              \
+  } M_F(name, _aligned_type_ct);                                              \
                                                                               \
-  typedef struct M_C(name, _s) {                                              \
-    M_C(name, _aligned_type_ct)  *data;                                       \
+  typedef struct M_F(name, _s) {                                              \
+    M_F(name, _aligned_type_ct)  *data;                                       \
     m_snapsh0t_mrsw_ct          core;                                         \
   } snapshot_t[1];                                                            \
                                                                               \
   /* Define internal types for oplist */                                      \
-  typedef snapshot_t M_C(name, _ct);                                          \
-  typedef type       M_C(name, _subtype_ct);                                  \
+  typedef snapshot_t M_F(name, _ct);                                          \
+  typedef type       M_F(name, _subtype_ct);                                  \
 
 /* Define the core functions */
 #define M_SNAPSH0T_SPMC_DEF_CORE(name, type, oplist, snapshot_t)              \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init)(snapshot_t snap, size_t nReader)                           \
+  M_F(name, _init)(snapshot_t snap, size_t nReader)                           \
   {                                                                           \
     M_ASSERT (snap != NULL);                                                  \
     M_ASSERT (nReader > 0 && nReader <= M_SNAPSH0T_SPMC_MAX_READER);          \
-    snap->data = M_CALL_REALLOC(oplist, M_C(name, _aligned_type_ct),          \
+    snap->data = M_CALL_REALLOC(oplist, M_F(name, _aligned_type_ct),          \
                                 NULL, nReader+M_SNAPSH0T_SPMC_EXTRA_BUFFER);  \
     if (M_UNLIKELY_NOMEM (snap->data == NULL)) {                              \
-      M_MEMORY_FULL(sizeof(M_C(name, _aligned_type_ct)) *                     \
+      M_MEMORY_FULL(sizeof(M_F(name, _aligned_type_ct)) *                     \
                     (nReader+M_SNAPSH0T_SPMC_EXTRA_BUFFER));                  \
       return;                                                                 \
     }                                                                         \
@@ -659,7 +659,7 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clear)(snapshot_t snap)                                          \
+  M_F(name, _clear)(snapshot_t snap)                                          \
   {                                                                           \
     M_SNAPSH0T_SPMC_CONTRACT(snap);                                           \
     size_t nReader = m_snapsh0t_mrsw_size(snap->core);                        \
@@ -671,7 +671,7 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
   }                                                                           \
                                                                               \
   static inline type *                                                        \
-  M_C(name, _write)(snapshot_t snap)                                          \
+  M_F(name, _write)(snapshot_t snap)                                          \
   {                                                                           \
     M_SNAPSH0T_SPMC_CONTRACT(snap);                                           \
     const unsigned int idx = m_snapsh0t_mrsw_write(snap->core);               \
@@ -679,7 +679,7 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
   }                                                                           \
                                                                               \
   static inline type const *                                                  \
-  M_C(name, _read_start)(snapshot_t snap)                                     \
+  M_F(name, _read_start)(snapshot_t snap)                                     \
   {                                                                           \
     M_SNAPSH0T_SPMC_CONTRACT(snap);                                           \
     const unsigned int idx = m_snapsh0t_mrsw_read_start(snap->core);          \
@@ -687,12 +687,12 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _read_end)(snapshot_t snap, type const *old)                      \
+  M_F(name, _read_end)(snapshot_t snap, type const *old)                      \
   {                                                                           \
     M_SNAPSH0T_SPMC_CONTRACT(snap);                                           \
     M_ASSERT (old != NULL);                                                   \
-    const M_C(name, _aligned_type_ct) *oldx;                                  \
-    oldx = M_CTYPE_FROM_FIELD(M_C(name, _aligned_type_ct), old, type, x);     \
+    const M_F(name, _aligned_type_ct) *oldx;                                  \
+    oldx = M_CTYPE_FROM_FIELD(M_F(name, _aligned_type_ct), old, type, x);     \
     M_ASSERT (oldx >= snap->data);                                            \
     M_ASSERT (oldx < snap->data + snap->core->n_reader + M_SNAPSH0T_SPMC_EXTRA_BUFFER); \
     M_ASSERT(snap->core->n_reader +M_SNAPSH0T_SPMC_EXTRA_BUFFER < UINT_MAX);  \
@@ -701,7 +701,7 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
   }                                                                           \
                                                                               \
   static inline type *                                                        \
-  M_C(name, _get_write_buffer)(snapshot_t snap)                               \
+  M_F(name, _get_write_buffer)(snapshot_t snap)                               \
   {                                                                           \
     M_SNAPSH0T_SPMC_CONTRACT(snap);                                           \
     const unsigned int idx = m_snapsh0t_mrsw_get_write_idx(snap->core);       \
@@ -727,7 +727,7 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
 
 /* Expand the type and the functions of a MPMC snapshot */
 #define M_SNAPSH0T_MPMC_DEF_P3(name, type, oplist, snapshot_t)                \
-  M_SNAPSH0T_SPMC_DEF_P1((M_C(name, _mrsw), type, oplist, M_C(name, _mrsw_pct))) \
+  M_SNAPSH0T_SPMC_DEF_P1((M_F(name, _mrsw), type, oplist, M_F(name, _mrsw_pct))) \
   M_SNAPSH0T_MPMC_DEF_TYPE(name, type, oplist, snapshot_t)                    \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
   M_SNAPSH0T_MPMC_DEF_CORE(name, type, oplist, snapshot_t)                    \
@@ -735,34 +735,34 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
 /* Define the types */
 #define M_SNAPSH0T_MPMC_DEF_TYPE(name, type, oplist, snapshot_t)              \
                                                                               \
-  typedef struct M_C(name, _s) {                                              \
-    M_C(name, _mrsw_pct)  core;                                               \
+  typedef struct M_F(name, _s) {                                              \
+    M_F(name, _mrsw_pct)  core;                                               \
   } snapshot_t[1];                                                            \
                                                                               \
   /* Define internal types for oplist */                                      \
-  typedef snapshot_t M_C(name, _ct);                                          \
-  typedef type       M_C(name, _subtype_ct);                                  \
+  typedef snapshot_t M_F(name, _ct);                                          \
+  typedef type       M_F(name, _subtype_ct);                                  \
 
 /* Define the core functions */
 #define M_SNAPSH0T_MPMC_DEF_CORE(name, type, oplist, snapshot_t)              \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init)(snapshot_t snap, size_t nReader, size_t nWriter)           \
+  M_F(name, _init)(snapshot_t snap, size_t nReader, size_t nWriter)           \
   {                                                                           \
-    M_C(name, _mrsw_init)(snap->core, nReader + nWriter -1 );                 \
+    M_F(name, _mrsw_init)(snap->core, nReader + nWriter -1 );                 \
     unsigned int idx = snap->core->core->currentWrite;                        \
     snap->core->core->currentWrite = M_GENINT_ERROR;                          \
     m_snapsh0t_mrsw_write_end(snap->core->core, idx);                         \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clear)(snapshot_t snap)                                          \
+  M_F(name, _clear)(snapshot_t snap)                                          \
   {                                                                           \
-    M_C(name, _mrsw_clear)(snap->core);                                       \
+    M_F(name, _mrsw_clear)(snap->core);                                       \
   }                                                                           \
                                                                               \
   static inline type *                                                        \
-  M_C(name, _write_start)(snapshot_t snap)                                    \
+  M_F(name, _write_start)(snapshot_t snap)                                    \
   {                                                                           \
     M_SNAPSH0T_SPMC_CONTRACT(snap->core);                                     \
     const unsigned int idx = m_snapsh0t_mrsw_write_start(snap->core->core);   \
@@ -770,11 +770,11 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _write_end)(snapshot_t snap, type *old)                           \
+  M_F(name, _write_end)(snapshot_t snap, type *old)                           \
   {                                                                           \
     M_SNAPSH0T_SPMC_CONTRACT(snap->core);                                     \
-    const M_C(name, _mrsw_aligned_type_ct) *oldx;                             \
-    oldx = M_CTYPE_FROM_FIELD(M_C(name, _mrsw_aligned_type_ct), old, type, x); \
+    const M_F(name, _mrsw_aligned_type_ct) *oldx;                             \
+    oldx = M_CTYPE_FROM_FIELD(M_F(name, _mrsw_aligned_type_ct), old, type, x); \
     M_ASSERT (oldx >= snap->core->data);                                      \
     M_ASSERT (oldx < snap->core->data + snap->core->core->n_reader + M_SNAPSH0T_SPMC_EXTRA_BUFFER); \
     M_ASSERT(snap->core->core->n_reader + M_SNAPSH0T_SPMC_EXTRA_BUFFER < UINT_MAX); \
@@ -783,15 +783,15 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
   }                                                                           \
                                                                               \
   static inline type const *                                                  \
-  M_C(name, _read_start)(snapshot_t snap)                                     \
+  M_F(name, _read_start)(snapshot_t snap)                                     \
   {                                                                           \
-    return M_C(name, _mrsw_read_start)(snap->core);                           \
+    return M_F(name, _mrsw_read_start)(snap->core);                           \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _read_end)(snapshot_t snap, type const *old)                      \
+  M_F(name, _read_end)(snapshot_t snap, type const *old)                      \
   {                                                                           \
-    M_C(name, _mrsw_read_end)(snap->core, old);                               \
+    M_F(name, _mrsw_read_end)(snap->core, old);                               \
   }                                                                           \
                                                                               \
 

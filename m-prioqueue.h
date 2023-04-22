@@ -33,7 +33,7 @@
 /* Define a prioqueue of a given type and its associated functions.
    USAGE: PRIOQUEUE_DEF(name, type [, oplist_of_the_type]) */
 #define M_PRIOQUEUE_DEF(name, ...)                                            \
-  M_PRIOQUEUE_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
+  M_PRIOQUEUE_DEF_AS(name, M_F(name,_t), M_F(name,_it_t), __VA_ARGS__)
 
 
 /* Define a prioqueue of a given type and its associated functions.
@@ -73,38 +73,38 @@
 
 /* Define oplist of a priority queue */
 #define M_PR1OQUEUE_OPLIST_P3(name, oplist)                                   \
-  (INIT(M_C(name, _init))                                                     \
-   ,INIT_SET(M_C(name, _init_set))                                            \
+  (INIT(M_F(name, _init))                                                     \
+   ,INIT_SET(M_F(name, _init_set))                                            \
    ,INIT_WITH(API_1(M_INIT_VAI))                                              \
-   ,SET(M_C(name, _set))                                                      \
-   ,CLEAR(M_C(name, _clear))                                                  \
-   ,INIT_MOVE(M_C(name, _init_move))                                          \
-   ,MOVE(M_C(name, _move))                                                    \
-   ,SWAP(M_C(name, _swap))                                                    \
+   ,SET(M_F(name, _set))                                                      \
+   ,CLEAR(M_F(name, _clear))                                                  \
+   ,INIT_MOVE(M_F(name, _init_move))                                          \
+   ,MOVE(M_F(name, _move))                                                    \
+   ,SWAP(M_F(name, _swap))                                                    \
    ,NAME(name)                                                                \
-   ,TYPE(M_C(name,_ct))                                                       \
-   ,SUBTYPE(M_C(name, _subtype_ct))                                           \
-   ,RESET(M_C(name,_reset))                                                   \
-   ,PUSH(M_C(name,_push))                                                     \
-   ,POP(M_C(name,_pop))                                                       \
+   ,TYPE(M_F(name,_ct))                                                       \
+   ,SUBTYPE(M_F(name, _subtype_ct))                                           \
+   ,RESET(M_F(name,_reset))                                                   \
+   ,PUSH(M_F(name,_push))                                                     \
+   ,POP(M_F(name,_pop))                                                       \
    ,OPLIST(oplist)                                                            \
-   ,EMPTY_P(M_C(name, _empty_p))                                              \
-   ,GET_SIZE(M_C(name, _size))                                                \
-   ,IT_TYPE(M_C(name, _it_ct))                                                \
-   ,IT_FIRST(M_C(name,_it))                                                   \
-   ,IT_END(M_C(name,_it_end))                                                 \
-   ,IT_SET(M_C(name,_it_set))                                                 \
-   ,IT_END_P(M_C(name,_end_p))                                                \
-   ,IT_EQUAL_P(M_C(name,_it_equal_p))                                         \
-   ,IT_LAST_P(M_C(name,_last_p))                                              \
-   ,IT_NEXT(M_C(name,_next))                                                  \
-   ,IT_CREF(M_C(name,_cref))                                                  \
-   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),)               \
-   ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),)         \
-   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),)               \
-   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),)                  \
-   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)),)      \
-   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)),)         \
+   ,EMPTY_P(M_F(name, _empty_p))                                              \
+   ,GET_SIZE(M_F(name, _size))                                                \
+   ,IT_TYPE(M_F(name, _it_ct))                                                \
+   ,IT_FIRST(M_F(name,_it))                                                   \
+   ,IT_END(M_F(name,_it_end))                                                 \
+   ,IT_SET(M_F(name,_it_set))                                                 \
+   ,IT_END_P(M_F(name,_end_p))                                                \
+   ,IT_EQUAL_P(M_F(name,_it_equal_p))                                         \
+   ,IT_LAST_P(M_F(name,_last_p))                                              \
+   ,IT_NEXT(M_F(name,_next))                                                  \
+   ,IT_CREF(M_F(name,_cref))                                                  \
+   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, _get_str)),)               \
+   ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, _parse_str)),)         \
+   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, _out_str)),)               \
+   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, _in_str)),)                  \
+   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, _out_serial)),)      \
+   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, _in_serial)),)         \
    )
 
 
@@ -131,171 +131,171 @@
 */
 #define M_PR1OQUEUE_DEF_P3(name, type, oplist, prioqueue_t, it_t)             \
   /* Definition of the internal array used to construct the priority queue */ \
-  ARRAY_DEF(M_C(name, _array), type, oplist)                                  \
+  ARRAY_DEF(M_F(name, _array), type, oplist)                                  \
   M_PR1OQUEUE_DEF_TYPE(name, type, oplist, prioqueue_t, it_t)                 \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
   M_PR1OQUEUE_DEF_CORE(name, type, oplist, prioqueue_t, it_t)                 \
   M_PR1OQUEUE_DEF_IT(name, type, oplist, prioqueue_t, it_t)                   \
   M_PR1OQUEUE_DEF_IO(name, type, oplist, prioqueue_t, it_t)                   \
-  M_EMPLACE_QUEUE_DEF(name, prioqueue_t, M_C(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
+  M_EMPLACE_QUEUE_DEF(name, prioqueue_t, M_F(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
 
 /* Define the types */
 #define M_PR1OQUEUE_DEF_TYPE(name, type, oplist, prioqueue_t, it_t)           \
                                                                               \
   /* Define the priority queue over the defined array */                      \
-  typedef struct M_C(name, _s) {                                              \
-    M_C(name, _array_t) array;                                                \
+  typedef struct M_F(name, _s) {                                              \
+    M_F(name, _array_t) array;                                                \
   } prioqueue_t[1];                                                           \
   /* Define the pointer references to the priority queue */                   \
-  typedef struct M_C(name, _s) *M_C(name, _ptr);                              \
-  typedef const struct M_C(name, _s) *M_C(name, _srcptr);                     \
+  typedef struct M_F(name, _s) *M_F(name, _ptr);                              \
+  typedef const struct M_F(name, _s) *M_F(name, _srcptr);                     \
                                                                               \
   /* The iterator is the same one as the one of the internal array */         \
-  typedef M_C(name, _array_it_t) it_t;                                        \
+  typedef M_F(name, _array_it_t) it_t;                                        \
                                                                               \
   /* Definition of the internal types used by the oplist */                   \
-  typedef prioqueue_t M_C(name, _ct);                                         \
-  typedef type        M_C(name, _subtype_ct);                                 \
-  typedef it_t        M_C(name, _it_ct);                                      \
+  typedef prioqueue_t M_F(name, _ct);                                         \
+  typedef type        M_F(name, _subtype_ct);                                 \
+  typedef it_t        M_F(name, _it_ct);                                      \
 
 /* Define the core functions */
 #define M_PR1OQUEUE_DEF_CORE(name, type, oplist, prioqueue_t, it_t)           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init)(prioqueue_t p)                                             \
+  M_F(name, _init)(prioqueue_t p)                                             \
   {                                                                           \
-    M_C(name, _array_init)(p->array);                                         \
+    M_F(name, _array_init)(p->array);                                         \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init_set)(prioqueue_t p, prioqueue_t const o)                    \
+  M_F(name, _init_set)(prioqueue_t p, prioqueue_t const o)                    \
   {                                                                           \
-    M_C(name, _array_init_set)(p->array, o->array);                           \
+    M_F(name, _array_init_set)(p->array, o->array);                           \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _set)(prioqueue_t p, prioqueue_t const o)                         \
+  M_F(name, _set)(prioqueue_t p, prioqueue_t const o)                         \
   {                                                                           \
-    M_C(name, _array_set)(p->array, o->array);                                \
+    M_F(name, _array_set)(p->array, o->array);                                \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clear)(prioqueue_t p)                                            \
+  M_F(name, _clear)(prioqueue_t p)                                            \
   {                                                                           \
-    M_C(name, _array_clear)(p->array);                                        \
+    M_F(name, _array_clear)(p->array);                                        \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init_move)(prioqueue_t p, prioqueue_t o)                         \
+  M_F(name, _init_move)(prioqueue_t p, prioqueue_t o)                         \
   {                                                                           \
-    M_C(name, _array_init_move)(p->array, o->array);                          \
+    M_F(name, _array_init_move)(p->array, o->array);                          \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _move)(prioqueue_t p, prioqueue_t o)                              \
+  M_F(name, _move)(prioqueue_t p, prioqueue_t o)                              \
   {                                                                           \
-    M_C(name, _array_move)(p->array, o->array);                               \
+    M_F(name, _array_move)(p->array, o->array);                               \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _swap)(prioqueue_t p, prioqueue_t o)                              \
+  M_F(name, _swap)(prioqueue_t p, prioqueue_t o)                              \
   {                                                                           \
-    M_C(name, _array_swap)(p->array, o->array);                               \
+    M_F(name, _array_swap)(p->array, o->array);                               \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _reset)(prioqueue_t p)                                            \
+  M_F(name, _reset)(prioqueue_t p)                                            \
   {                                                                           \
-    M_C(name, _array_reset)(p->array);                                        \
+    M_F(name, _array_reset)(p->array);                                        \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_C(name, _i_parent)(size_t i)                                              \
+  M_F(name, _i_parent)(size_t i)                                              \
   {                                                                           \
     M_ASSERT (i > 0);                                                         \
     return (i - 1) / 2;                                                       \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_C(name, _i_lchild)(size_t i)                                              \
+  M_F(name, _i_lchild)(size_t i)                                              \
   {                                                                           \
     M_ASSERT(i <= ((SIZE_MAX)-2)/2);                                          \
     return 2*i + 1;                                                           \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_C(name, _i_rchild)(size_t i)                                              \
+  M_F(name, _i_rchild)(size_t i)                                              \
   {                                                                           \
     M_ASSERT(i <= ((SIZE_MAX)-2)/2);                                          \
     return 2*i + 2;                                                           \
   }                                                                           \
                                                                               \
   static inline int                                                           \
-  M_C(name, _i_cmp)(const prioqueue_t p, size_t i, size_t j)                  \
+  M_F(name, _i_cmp)(const prioqueue_t p, size_t i, size_t j)                  \
   {                                                                           \
-    return M_CALL_CMP(oplist, *M_C(name, _array_cget)(p->array, i),           \
-                      *M_C(name, _array_cget)(p->array, j));                  \
+    return M_CALL_CMP(oplist, *M_F(name, _array_cget)(p->array, i),           \
+                      *M_F(name, _array_cget)(p->array, j));                  \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _empty_p)(prioqueue_t const p)                                    \
+  M_F(name, _empty_p)(prioqueue_t const p)                                    \
   {                                                                           \
-    return M_C(name, _array_empty_p)(p->array);                               \
+    return M_F(name, _array_empty_p)(p->array);                               \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_C(name, _size)(prioqueue_t const p)                                       \
+  M_F(name, _size)(prioqueue_t const p)                                       \
   {                                                                           \
-    return M_C(name, _array_size)(p->array);                                  \
+    return M_F(name, _array_size)(p->array);                                  \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _push)(prioqueue_t p, type const x)                               \
+  M_F(name, _push)(prioqueue_t p, type const x)                               \
   {                                                                           \
     /* Push back the new element at the end of the array */                   \
-    M_C(name, _array_push_back)(p->array, x);                                 \
+    M_F(name, _array_push_back)(p->array, x);                                 \
                                                                               \
     /* Reorder the array by swapping with its parent                          \
      * until it reaches the right position */                                 \
-    size_t i = M_C(name, _array_size)(p->array)-1;                            \
+    size_t i = M_F(name, _array_size)(p->array)-1;                            \
     while (i > 0) {                                                           \
-      size_t j = M_C(name, _i_parent)(i);                                     \
-      if (M_C(name, _i_cmp)(p, j, i) <= 0)                                    \
+      size_t j = M_F(name, _i_parent)(i);                                     \
+      if (M_F(name, _i_cmp)(p, j, i) <= 0)                                    \
         break;                                                                \
-      M_C(name, _array_swap_at) (p->array, i, j);                             \
+      M_F(name, _array_swap_at) (p->array, i, j);                             \
       i = j;                                                                  \
     }                                                                         \
   }                                                                           \
                                                                               \
   static inline type const *                                                  \
-  M_C(name, _front)(prioqueue_t const p)                                      \
+  M_F(name, _front)(prioqueue_t const p)                                      \
   {                                                                           \
-    return M_C(name, _array_cget)(p->array, 0);                               \
+    return M_F(name, _array_cget)(p->array, 0);                               \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _pop)(type *x, prioqueue_t p)                                     \
+  M_F(name, _pop)(type *x, prioqueue_t p)                                     \
   {                                                                           \
     /* Swap the front element with the last element */                        \
-    size_t size = M_C(name, _array_size)(p->array)-1;                         \
-    M_C(name, _array_swap_at) (p->array, 0, size);                            \
+    size_t size = M_F(name, _array_size)(p->array)-1;                         \
+    M_F(name, _array_swap_at) (p->array, 0, size);                            \
     /* Swap the new last element  */                                          \
-    M_C(name, _array_pop_back)(x, p->array);                                  \
+    M_F(name, _array_pop_back)(x, p->array);                                  \
                                                                               \
     /* Reorder the heap */                                                    \
     size_t i = 0;                                                             \
     while (true) {                                                            \
-      size_t child = M_C(name, _i_lchild)(i);                                 \
+      size_t child = M_F(name, _i_lchild)(i);                                 \
       if (child >= size)                                                      \
         break;                                                                \
-      size_t otherChild = M_C(name, _i_rchild)(i);                            \
+      size_t otherChild = M_F(name, _i_rchild)(i);                            \
       if (otherChild < size                                                   \
-          && M_C(name, _i_cmp)(p, otherChild, child) < 0 ) {                  \
+          && M_F(name, _i_cmp)(p, otherChild, child) < 0 ) {                  \
         child = otherChild;                                                   \
       }                                                                       \
-      if (M_C(name, _i_cmp)(p, i, child) <= 0)                                \
+      if (M_F(name, _i_cmp)(p, i, child) <= 0)                                \
         break;                                                                \
-      M_C(name, _array_swap_at) (p->array, i, child);                         \
+      M_F(name, _array_swap_at) (p->array, i, child);                         \
       i = child;                                                              \
     }                                                                         \
   }                                                                           \
@@ -304,86 +304,86 @@
   (                                                                           \
     /* EQUAL & CMP may be uncorrelated */                                     \
     static inline bool                                                        \
-    M_C(name, _equal_p)(prioqueue_t const p, prioqueue_t const q)             \
+    M_F(name, _equal_p)(prioqueue_t const p, prioqueue_t const q)             \
     {                                                                         \
-      return M_C(name, _array_equal_p)(p->array, q->array);                   \
+      return M_F(name, _array_equal_p)(p->array, q->array);                   \
     }                                                                         \
                                                                               \
    static inline size_t                                                       \
-   M_C(name, _i_find)(prioqueue_t p, type const x)                            \
+   M_F(name, _i_find)(prioqueue_t p, type const x)                            \
    {                                                                          \
-     size_t size = M_C(name, _array_size)(p->array);                          \
+     size_t size = M_F(name, _array_size)(p->array);                          \
      size_t i = 0;                                                            \
      for(i = 0; i < size; i++) {                                              \
        /* FIXME: Can we use CMP and the partial order to go faster? */        \
-       if (M_CALL_EQUAL(oplist, *M_C(name, _array_cget)(p->array, i), x))     \
+       if (M_CALL_EQUAL(oplist, *M_F(name, _array_cget)(p->array, i), x))     \
          break;                                                               \
      }                                                                        \
      return i;                                                                \
    }                                                                          \
                                                                               \
    static inline bool                                                         \
-   M_C(name, _erase)(prioqueue_t p, type const x)                             \
+   M_F(name, _erase)(prioqueue_t p, type const x)                             \
    {                                                                          \
      /* First pass: search for an item EQUAL to x */                          \
-     size_t size = M_C(name, _array_size)(p->array);                          \
-     size_t i = M_C(name, _i_find)(p, x);                                     \
+     size_t size = M_F(name, _array_size)(p->array);                          \
+     size_t i = M_F(name, _i_find)(p, x);                                     \
      /* If x is not found, then stop */                                       \
      if (i >= size)                                                           \
        return false;                                                          \
      /* Swap the found item and the last element */                           \
      size--;                                                                  \
-     M_C(name, _array_swap_at) (p->array, i, size);                           \
-     M_C(name, _array_pop_back)(NULL, p->array);                              \
+     M_F(name, _array_swap_at) (p->array, i, size);                           \
+     M_F(name, _array_pop_back)(NULL, p->array);                              \
      /* Move back the last swapped element to its right position in the heap */ \
      while (true) {                                                           \
-       size_t child = M_C(name, _i_lchild)(i);                                \
+       size_t child = M_F(name, _i_lchild)(i);                                \
        if (child >= size) break;                                              \
-       size_t otherChild = M_C(name, _i_rchild)(i);                           \
+       size_t otherChild = M_F(name, _i_rchild)(i);                           \
        if (otherChild < size                                                  \
-           && M_C(name, _i_cmp)(p, otherChild, child) < 0 ) {                 \
+           && M_F(name, _i_cmp)(p, otherChild, child) < 0 ) {                 \
          child = otherChild;                                                  \
        }                                                                      \
-       if (M_C(name, _i_cmp)(p, i, child) <= 0) break;                        \
-       M_C(name, _array_swap_at) (p->array, i, child);                        \
+       if (M_F(name, _i_cmp)(p, i, child) <= 0) break;                        \
+       M_F(name, _array_swap_at) (p->array, i, child);                        \
        i = child;                                                             \
      }                                                                        \
      return true;                                                             \
    }                                                                          \
                                                                               \
    static inline void                                                         \
-   M_C(name, _update)(prioqueue_t p, type const xold, type const xnew)        \
+   M_F(name, _update)(prioqueue_t p, type const xold, type const xnew)        \
    {                                                                          \
      /* NOTE: xold can be the same pointer than xnew */                       \
      /* First pass: search for an item EQUAL to x */                          \
-     size_t size = M_C(name, _array_size)(p->array);                          \
-     size_t i = M_C(name, _i_find)(p, xold);                                  \
+     size_t size = M_F(name, _array_size)(p->array);                          \
+     size_t i = M_F(name, _i_find)(p, xold);                                  \
      /* We shall have found the item */                                       \
      M_ASSERT (i < size);                                                     \
      /* Test if the position of the old data is further or nearer than the new */ \
-     int cmp = M_CALL_CMP(oplist, *M_C(name, _array_cget)(p->array, i), xnew); \
+     int cmp = M_CALL_CMP(oplist, *M_F(name, _array_cget)(p->array, i), xnew); \
      /* Set the found item to the new element */                              \
-     M_C(name, _array_set_at) (p->array, i, xnew);                            \
+     M_F(name, _array_set_at) (p->array, i, xnew);                            \
      if (cmp < 0) {                                                           \
       /* Move back the updated element to its new position, further in the heap */ \
       while (true) {                                                          \
-        size_t child = M_C(name, _i_lchild)(i);                               \
+        size_t child = M_F(name, _i_lchild)(i);                               \
         if (child >= size) break;                                             \
-        size_t otherChild = M_C(name, _i_rchild)(i);                          \
+        size_t otherChild = M_F(name, _i_rchild)(i);                          \
         if (otherChild < size                                                 \
-            && M_C(name, _i_cmp)(p, otherChild, child) < 0 ) {                \
+            && M_F(name, _i_cmp)(p, otherChild, child) < 0 ) {                \
           child = otherChild;                                                 \
         }                                                                     \
-        if (M_C(name, _i_cmp)(p, i, child) <= 0) break;                       \
-        M_C(name, _array_swap_at) (p->array, i, child);                       \
+        if (M_F(name, _i_cmp)(p, i, child) <= 0) break;                       \
+        M_F(name, _array_swap_at) (p->array, i, child);                       \
         i = child;                                                            \
       }                                                                       \
      } else {                                                                 \
       /* Move back the updated element to its new position, nearest in the heap */ \
       while (i > 0) {                                                         \
-        size_t parent = M_C(name, _i_parent)(i);                              \
-        if (M_C(name, _i_cmp)(p, parent, i) <= 0) break;                      \
-        M_C(name, _array_swap_at) (p->array, i, parent);                      \
+        size_t parent = M_F(name, _i_parent)(i);                              \
+        if (M_F(name, _i_cmp)(p, parent, i) <= 0) break;                      \
+        M_F(name, _array_swap_at) (p->array, i, parent);                      \
         i = parent;                                                           \
       }                                                                       \
      }                                                                        \
@@ -395,113 +395,113 @@
                                                                               \
   /* Define iterators over the array iterator */                              \
   static inline void                                                          \
-  M_C(name, _it)(it_t it, prioqueue_t const v)                                \
+  M_F(name, _it)(it_t it, prioqueue_t const v)                                \
   {                                                                           \
-    M_C(name, _array_it)(it, v->array);                                       \
+    M_F(name, _array_it)(it, v->array);                                       \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _it_last)(it_t it, prioqueue_t const v)                           \
+  M_F(name, _it_last)(it_t it, prioqueue_t const v)                           \
   {                                                                           \
-    M_C(name, _array_it_last)(it, v->array);                                  \
+    M_F(name, _array_it_last)(it, v->array);                                  \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _it_end)(it_t it, prioqueue_t const v)                            \
+  M_F(name, _it_end)(it_t it, prioqueue_t const v)                            \
   {                                                                           \
-    M_C(name, _array_it_end)(it, v->array);                                   \
+    M_F(name, _array_it_end)(it, v->array);                                   \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _it_set)(it_t it, const it_t org)                                 \
+  M_F(name, _it_set)(it_t it, const it_t org)                                 \
   {                                                                           \
-    M_C(name, _array_it_set)(it, org);                                        \
+    M_F(name, _array_it_set)(it, org);                                        \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _end_p)(const it_t it)                                            \
+  M_F(name, _end_p)(const it_t it)                                            \
   {                                                                           \
-    return M_C(name, _array_end_p)(it);                                       \
+    return M_F(name, _array_end_p)(it);                                       \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _last_p)(const it_t it)                                           \
+  M_F(name, _last_p)(const it_t it)                                           \
   {                                                                           \
-    return M_C(name, _array_last_p)(it);                                      \
+    return M_F(name, _array_last_p)(it);                                      \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _it_equal_p)(const it_t it1,                                      \
+  M_F(name, _it_equal_p)(const it_t it1,                                      \
                          const it_t it2)                                      \
   {                                                                           \
-    return M_C(name, _array_it_equal_p)(it1, it2);                            \
+    return M_F(name, _array_it_equal_p)(it1, it2);                            \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _next)(it_t it)                                                   \
+  M_F(name, _next)(it_t it)                                                   \
   {                                                                           \
-    M_C(name, _array_next)(it);                                               \
+    M_F(name, _array_next)(it);                                               \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _previous)(it_t it)                                               \
+  M_F(name, _previous)(it_t it)                                               \
   {                                                                           \
-    M_C(name, _array_previous)(it);                                           \
+    M_F(name, _array_previous)(it);                                           \
   }                                                                           \
                                                                               \
   static inline type const *                                                  \
-  M_C(name, _cref)(const it_t it)                                             \
+  M_F(name, _cref)(const it_t it)                                             \
   {                                                                           \
-    return M_C(name, _array_cref)(it);                                        \
+    return M_F(name, _array_cref)(it);                                        \
   }                                                                           \
 
 /* Define the IO functions */
 #define M_PR1OQUEUE_DEF_IO(name, type, oplist, prioqueue_t, it_t)             \
   M_IF_METHOD(OUT_STR, oplist)(                                               \
   static inline void                                                          \
-  M_C(name, _out_str)(FILE *file, const prioqueue_t p)                        \
+  M_F(name, _out_str)(FILE *file, const prioqueue_t p)                        \
   {                                                                           \
-    M_C(name, _array_out_str)(file, p->array);                                \
+    M_F(name, _array_out_str)(file, p->array);                                \
   }                                                                           \
   ,/* No OUT_STR */)                                                          \
                                                                               \
   M_IF_METHOD(IN_STR, oplist)(                                                \
   static inline bool                                                          \
-  M_C(name, _in_str)(prioqueue_t p, FILE *file)                               \
+  M_F(name, _in_str)(prioqueue_t p, FILE *file)                               \
   {                                                                           \
-    return M_C(name, _array_in_str)(p->array, file);                          \
+    return M_F(name, _array_in_str)(p->array, file);                          \
   }                                                                           \
   ,/* No IN_STR */)                                                           \
                                                                               \
   M_IF_METHOD(GET_STR, oplist)(                                               \
   static inline void                                                          \
-  M_C(name, _get_str)(string_t str, const prioqueue_t p, bool append)         \
+  M_F(name, _get_str)(string_t str, const prioqueue_t p, bool append)         \
   {                                                                           \
-    M_C(name, _array_get_str)(str, p->array, append);                         \
+    M_F(name, _array_get_str)(str, p->array, append);                         \
   }                                                                           \
   ,/* No GET_STR */)                                                          \
                                                                               \
   M_IF_METHOD(PARSE_STR, oplist)(                                             \
   static inline bool                                                          \
-  M_C(name, _parse_str)(prioqueue_t p, const char str[], const char **endp)   \
+  M_F(name, _parse_str)(prioqueue_t p, const char str[], const char **endp)   \
   {                                                                           \
-    return M_C(name, _array_parse_str)(p->array, str, endp);                  \
+    return M_F(name, _array_parse_str)(p->array, str, endp);                  \
   }                                                                           \
   ,/* No PARSE_STR */)                                                        \
                                                                               \
   M_IF_METHOD(OUT_SERIAL, oplist)(                                            \
   static inline m_serial_return_code_t                                        \
-  M_C(name, _out_serial)(m_serial_write_t f, const prioqueue_t p)             \
+  M_F(name, _out_serial)(m_serial_write_t f, const prioqueue_t p)             \
   {                                                                           \
-    return M_C(name, _array_out_serial)(f, p->array);                         \
+    return M_F(name, _array_out_serial)(f, p->array);                         \
   }                                                                           \
   ,/* No OUT_SERIAL */)                                                       \
                                                                               \
   M_IF_METHOD2(IN_SERIAL, INIT, oplist)(                                      \
   static inline m_serial_return_code_t                                        \
-  M_C(name, _in_serial)(prioqueue_t p, m_serial_read_t f)                     \
+  M_F(name, _in_serial)(prioqueue_t p, m_serial_read_t f)                     \
   {                                                                           \
-    return M_C(name, _array_in_serial)(p->array, f);                          \
+    return M_F(name, _array_in_serial)(p->array, f);                          \
   }                                                                           \
   ,/* No in_SERIAL */)                                                        \
 

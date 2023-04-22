@@ -43,12 +43,12 @@ M_BEGIN_PROTECTED_CODE
    type: name of the type of the structure (aka. struct test_s) - not used currently.
    NOTE: There can be only one interface of this kind in a type! */
 #define M_ISHARED_PTR_INTERFACE(name, type)                                   \
-  atomic_int M_C(name, _cpt)
+  atomic_int M_F(name, _cpt)
 
 
 /* Value of the interface field for static intialization (Uses C99 designated element). */
 #define M_ISHARED_PTR_STATIC_DESIGNATED_INIT(name, type)                      \
-  .M_C(name, _cpt) = ATOMIC_VAR_INIT(0)
+  .M_F(name, _cpt) = ATOMIC_VAR_INIT(0)
 
 /* Value of the interface field for static intialization (Uses C89 designated element). */
 #define M_ISHARED_PTR_STATIC_INIT(name, type)                                 \
@@ -58,7 +58,7 @@ M_BEGIN_PROTECTED_CODE
 /* Define the intrusive shared pointer type and its static inline functions.
    USAGE: ISHARED_PTR_DEF(name, type, [, oplist]) */
 #define M_ISHARED_PTR_DEF(name, ...)                                          \
-  M_ISHARED_PTR_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
+  M_ISHARED_PTR_DEF_AS(name, M_F(name,_t), __VA_ARGS__)
 
 
 /* Define the intrusive shared pointer type and its static inline functions
@@ -90,14 +90,14 @@ M_BEGIN_PROTECTED_CODE
 // Define the oplist
 #define M_ISHAR3D_PTR_OPLIST_P3(name, oplist) (                               \
   INIT(M_INIT_DEFAULT),                                                       \
-  INIT_SET(API_4(M_C(name, _init_set))),                                      \
-  SET(M_C(name, _set) M_IPTR),                                                \
-  CLEAR(M_C(name, _clear)),                                                   \
-  RESET(M_C(name, _reset) M_IPTR),                                            \
+  INIT_SET(API_4(M_F(name, _init_set))),                                      \
+  SET(M_F(name, _set) M_IPTR),                                                \
+  CLEAR(M_F(name, _clear)),                                                   \
+  RESET(M_F(name, _reset) M_IPTR),                                            \
   NAME(name),                                                                 \
-  TYPE(M_C(name, _ct)),                                                       \
+  TYPE(M_F(name, _ct)),                                                       \
   OPLIST(oplist),                                                             \
-  SUBTYPE(M_C(name, _subtype_ct))                                             \
+  SUBTYPE(M_F(name, _subtype_ct))                                             \
   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                           \
   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)               \
   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                           \
@@ -129,27 +129,27 @@ M_BEGIN_PROTECTED_CODE
   typedef type *shared_t;                                                     \
                                                                               \
   /* Define internal types for oplist */                                      \
-  typedef shared_t M_C(name, _ct);                                            \
-  typedef type     M_C(name, _subtype_ct);                                    \
+  typedef shared_t M_F(name, _ct);                                            \
+  typedef type     M_F(name, _subtype_ct);                                    \
 
 /* Define the core functions */
 #define M_ISHAR3D_PTR_DEF_CORE(name, type, oplist, shared_t)                  \
                                                                               \
   static inline shared_t                                                      \
-  M_C(name, _init)(type *ptr)                                                 \
+  M_F(name, _init)(type *ptr)                                                 \
   {                                                                           \
     /* Initialize the type referenced by the pointer */                       \
     if (M_LIKELY (ptr != NULL)) {                                             \
-      atomic_init(&ptr->M_C(name, _cpt), 2);                                  \
+      atomic_init(&ptr->M_F(name, _cpt), 2);                                  \
     }                                                                         \
     return ptr;                                                               \
   }                                                                           \
                                                                               \
   static inline shared_t                                                      \
-  M_C(name, _init_set)(shared_t shared)                                       \
+  M_F(name, _init_set)(shared_t shared)                                       \
   {                                                                           \
     if (M_LIKELY (shared != NULL)) {                                          \
-      int n = atomic_fetch_add(&(shared->M_C(name, _cpt)), 2);                \
+      int n = atomic_fetch_add(&(shared->M_F(name, _cpt)), 2);                \
       (void) n;                                                               \
     }                                                                         \
     return shared;                                                            \
@@ -160,38 +160,38 @@ M_BEGIN_PROTECTED_CODE
   (                                                                           \
   /* This function is only for static object */                               \
   static inline shared_t                                                      \
-  M_C(name, _init_once)(type *shared)                                         \
+  M_F(name, _init_once)(type *shared)                                         \
   {                                                                           \
     if (M_LIKELY (shared != NULL)) {                                          \
       /* Pretty much like atomic_add, except the first one increment by 1, others by 2 */ \
-      int o = atomic_load(&(shared->M_C(name, _cpt)));                        \
+      int o = atomic_load(&(shared->M_F(name, _cpt)));                        \
       int n;                                                                  \
       do {                                                                    \
         n = o + 1 + (o != 0);                                                 \
-      } while (!atomic_compare_exchange_strong(&(shared->M_C(name, _cpt)), &o, n)); \
+      } while (!atomic_compare_exchange_strong(&(shared->M_F(name, _cpt)), &o, n)); \
       if (o == 0) {                                                           \
       /* Partial initialization: _cpt is odd */                               \
         /* Call the INIT function once */                                     \
         M_CALL_INIT(oplist, *shared);                                         \
         /* Finish initialization: _cpt is even */                             \
-        atomic_fetch_add(&(shared->M_C(name, _cpt)), 1);                      \
+        atomic_fetch_add(&(shared->M_F(name, _cpt)), 1);                      \
       } else if ( (o&1) != 0) {                                               \
         /* Not fully initialized yet: wait for initialization */              \
         m_core_backoff_ct bkoff;                                              \
         m_core_backoff_init(bkoff);                                           \
         /* Wait for _cpt to be _even */                                       \
-        while ((atomic_load(&(shared->M_C(name, _cpt)))&1) != 0 ) {           \
+        while ((atomic_load(&(shared->M_F(name, _cpt)))&1) != 0 ) {           \
             m_core_backoff_wait(bkoff);                                       \
         }                                                                     \
       }                                                                       \
-      M_ASSERT( (atomic_load(&(shared->M_C(name, _cpt)))&1) == 0);            \
+      M_ASSERT( (atomic_load(&(shared->M_F(name, _cpt)))&1) == 0);            \
     }                                                                         \
     return shared;                                                            \
   }                                                                           \
   ,                                                                           \
   /* This function is only for dynamic object */                              \
   static inline shared_t                                                      \
-  M_C(name, _init_new)(void)                                                  \
+  M_F(name, _init_new)(void)                                                  \
   {                                                                           \
     type *ptr = M_CALL_NEW(oplist, type);                                     \
     if (M_UNLIKELY_NOMEM (ptr == NULL)) {                                     \
@@ -199,17 +199,17 @@ M_BEGIN_PROTECTED_CODE
       return NULL;                                                            \
     }                                                                         \
     M_CALL_INIT(oplist, *ptr);                                                \
-    atomic_init (&ptr->M_C(name, _cpt), 2);                                   \
+    atomic_init (&ptr->M_F(name, _cpt), 2);                                   \
     return ptr;                                                               \
   }                                                                           \
     /* End of NEW */)                                                         \
   , /* End of INIT */)                                                        \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clear)(shared_t shared)                                          \
+  M_F(name, _clear)(shared_t shared)                                          \
   {                                                                           \
     if (shared != NULL) {                                                     \
-      if (atomic_fetch_sub(&(shared->M_C(name, _cpt)), 2) == 2) {             \
+      if (atomic_fetch_sub(&(shared->M_F(name, _cpt)), 2) == 2) {             \
         M_CALL_CLEAR(oplist, *shared);                                        \
         M_IF_DISABLED_METHOD(DEL, oplist)(, M_CALL_DEL(oplist, shared);)      \
       }                                                                       \
@@ -217,27 +217,27 @@ M_BEGIN_PROTECTED_CODE
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _clear_ptr)(shared_t *shared)                                     \
+  M_F(name, _clear_ptr)(shared_t *shared)                                     \
   {                                                                           \
     M_ASSERT(shared != NULL);                                                 \
-    M_C(name, _clear)(*shared);                                               \
+    M_F(name, _clear)(*shared);                                               \
     *shared = NULL;                                                           \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _reset)(shared_t *shared)                                         \
+  M_F(name, _reset)(shared_t *shared)                                         \
   {                                                                           \
-    M_C(name, _clear)(*shared);                                               \
+    M_F(name, _clear)(*shared);                                               \
     *shared = NULL;                                                           \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _set)(shared_t *ptr, shared_t shared)                             \
+  M_F(name, _set)(shared_t *ptr, shared_t shared)                             \
   {                                                                           \
     M_ASSERT (ptr != NULL);                                                   \
     if (M_LIKELY (*ptr != shared)) {                                          \
-      M_C(name, _clear)(*ptr);                                                \
-      *ptr = M_C(name, _init_set)(shared);                                    \
+      M_F(name, _clear)(*ptr);                                                \
+      *ptr = M_F(name, _init_set)(shared);                                    \
     }                                                                         \
   }                                                                           \
                                                                               \
