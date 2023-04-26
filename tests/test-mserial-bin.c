@@ -35,8 +35,8 @@
 ARRAY_DEF(a2, int)
 #define M_OPL_a2_t() ARRAY_OPLIST(a2, M_BASIC_OPLIST)
 
-ARRAY_DEF(l2, int)
-#define M_OPL_l2_t() ARRAY_OPLIST(l2, M_BASIC_OPLIST)
+LIST_DEF(l2, int)
+#define M_OPL_l2_t() LIST_OPLIST(l2, M_BASIC_OPLIST)
 
 DICT_DEF2(d2, string_t, STRING_OPLIST, int, M_BASIC_OPLIST )
 #define M_OPL_d2_t() DICT_OPLIST(d2, STRING_OPLIST, M_BASIC_OPLIST)
@@ -54,7 +54,12 @@ TUPLE_DEF2(my,
            (vale, a2_t),
            (valf, v2_t),
            (valg, l2_t),
-           (valh, d2_t)
+           (valh, d2_t),
+           (vali, unsigned char),
+           (valj, short),
+           (valk, long long),
+           (vall, double),
+           (valm, long double)
            )
 #define M_OPL_my_t() TUPLE_OPLIST(my, M_BASIC_OPLIST, M_BASIC_OPLIST, M_BASIC_OPLIST, STRING_OPLIST, M_OPL_a2_t(), M_OPL_v2_t(), M_OPL_l2_t(), M_OPL_d2_t() )
 
