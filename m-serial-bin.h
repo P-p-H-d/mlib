@@ -124,33 +124,22 @@ m_ser1al_bin_write_boolean(m_serial_write_t serial, const bool data)
 static inline m_serial_return_code_t
 m_ser1al_bin_write_integer(m_serial_write_t serial,const long long data, const size_t size_of_type)
 {
-  int8_t   i8;
-  int16_t i16;
-  int32_t i32;
-  int64_t i64;
   size_t n;
   
   FILE *f = (FILE *)serial->data[0].p;
-  switch (size_of_type) {
-  case 1:
-    i8 = (int8_t) data;
+  if (size_of_type == 1) {
+    int8_t i8 = (int8_t) data;
     n = fwrite (M_ASSIGN_CAST(const void*, &i8), sizeof i8, 1, f);
-    break;
-  case 2:
-    i16 = (int16_t) data;
+  } else if (size_of_type == 2) {
+    int16_t i16 = (int16_t) data;
     n = fwrite (M_ASSIGN_CAST(const void*, &i16), sizeof i16, 1, f);
-    break;
-  case 4:
-    i32 = (int32_t) data;
+  } else if (size_of_type == 4) {
+    int32_t i32 = (int32_t) data;
     n = fwrite (M_ASSIGN_CAST(const void*, &i32), sizeof i32, 1, f);
-    break;
-  case 8:
-    i64 = (int64_t) data;
+  } else {
+    M_ASSERT(size_of_type == 8);
+    int64_t i64 = (int64_t) data;
     n = fwrite (M_ASSIGN_CAST(const void*, &i64), sizeof i64, 1, f);
-    break;
-  default:
-    M_ASSERT_INIT(false, "an integer of suitable size (8/16/32/64)");
-    break;
   }
   return n == 1 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
@@ -160,23 +149,19 @@ m_ser1al_bin_write_integer(m_serial_write_t serial,const long long data, const s
 static inline m_serial_return_code_t
 m_ser1al_bin_write_float(m_serial_write_t serial, const long double data, const size_t size_of_type)
 {
-  float   f1;
-  double  f2;
-  long double f3;
   size_t n;
   
   FILE *f = (FILE *)serial->data[0].p;
-  if (size_of_type == sizeof f1) {
-    f1 = (float) data;
+  if (size_of_type == sizeof (float) ) {
+    float f1 = (float) data;
     n = fwrite (M_ASSIGN_CAST(const void*, &f1), sizeof f1, 1, f);
-  } else if (size_of_type == sizeof f2) {
-    f2 = (double) data;
+  } else if (size_of_type == sizeof (double) ) {
+    double f2 = (double) data;
     n = fwrite (M_ASSIGN_CAST(const void*, &f2), sizeof f2, 1, f);
-  } else if (size_of_type == sizeof f3) {
-    f3 = (long double) data;
-    n = fwrite (M_ASSIGN_CAST(const void*, &f3), sizeof f3, 1, f);
   } else {
-    M_ASSERT_INIT(false, "a float of suitable size");
+    M_ASSERT(size_of_type == sizeof (long double) );
+    long double f3 = (long double) data;
+    n = fwrite (M_ASSIGN_CAST(const void*, &f3), sizeof f3, 1, f);
   }
   return n == 1 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
@@ -381,26 +366,19 @@ m_ser1al_bin_read_integer(m_serial_read_t serial, long long *i, const size_t siz
   int64_t i64;
   size_t n;
   FILE *f = (FILE *)serial->data[0].p;
-  switch (size_of_type) {
-  case 1:
+  if (size_of_type == 1) {
     n = fread (M_ASSIGN_CAST(void*, &i8), sizeof i8, 1, f);
     *i = i8;
-    break;
-  case 2:
+  } else if (size_of_type == 2) {
     n = fread (M_ASSIGN_CAST(void*, &i16), sizeof i16, 1, f);
     *i = i16;
-    break;
-  case 4:
+  } else if (size_of_type ==  4) {
     n = fread (M_ASSIGN_CAST(void*, &i32), sizeof i32, 1, f);
     *i = i32;
-    break;
-  case 8:
+  } else {
+    M_ASSERT(size_of_type == 8);
     n = fread (M_ASSIGN_CAST(void*, &i64), sizeof i64, 1, f);
     *i = i64;
-    break;
-  default:
-    M_ASSERT_INIT(false, "an integer of suitable size");
-    break;
   }
   return n == 1 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
@@ -421,11 +399,10 @@ m_ser1al_bin_read_float(m_serial_read_t serial, long double *r, const size_t siz
   } else if (size_of_type == sizeof f2) {
     n = fread (M_ASSIGN_CAST(void*, &f2), sizeof f2, 1, f);
     *r = f2;
-  } else if (size_of_type == sizeof f3) {
+  } else {
+    M_ASSERT(size_of_type == sizeof f3);
     n = fread (M_ASSIGN_CAST(void*, &f3), sizeof f3, 1, f);
     *r = f3;
-  } else {
-    M_ASSERT_INIT(false, "a float of suitable size");
   }
   return n == 1 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
