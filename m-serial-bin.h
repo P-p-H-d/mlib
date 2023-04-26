@@ -191,9 +191,10 @@ m_ser1al_bin_write_string(m_serial_write_t serial, const char data[], size_t len
 static inline m_serial_return_code_t
 m_ser1al_bin_write_array_start(m_serial_local_t local, m_serial_write_t serial, const size_t number_of_elements)
 {
+  (void) local; //Unused
+  if (number_of_elements == (size_t)-1) return M_SERIAL_FAIL_RETRY;
   FILE *f = (FILE *)serial->data[0].p;
   size_t n = fwrite (M_ASSIGN_CAST(const void*, &number_of_elements), sizeof number_of_elements, 1, f);
-  local->data[0].b = (number_of_elements == 0);
   return n == 1 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();
 }
 
@@ -202,15 +203,9 @@ m_ser1al_bin_write_array_start(m_serial_local_t local, m_serial_write_t serial, 
 static inline  m_serial_return_code_t
 m_ser1al_bin_write_array_next(m_serial_local_t local, m_serial_write_t serial)
 {
-  FILE *f = (FILE *)serial->data[0].p;
-  // Need separator if we don't know the real size 
-  if (local->data[0].b) {
-    size_t n = 0xABCDEF;
-    n = fwrite (M_ASSIGN_CAST(const void*, &n), sizeof n, 1, f);
-    return n == 1 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();    
-  } else {
-    return M_SERIAL_OK_CONTINUE;
-  }
+  (void) local; // Unused
+  (void) serial; // Unused
+  return M_SERIAL_OK_CONTINUE;
 }
 
 /* End the writing of an array into the serial stream 'serial'.
@@ -218,15 +213,9 @@ m_ser1al_bin_write_array_next(m_serial_local_t local, m_serial_write_t serial)
 static inline   m_serial_return_code_t
 m_ser1al_bin_write_array_end(m_serial_local_t local, m_serial_write_t serial)
 {
-  FILE *f = (FILE *)serial->data[0].p;
-  // Need mark if we don't know the real size 
-  if (local->data[0].b) {
-    size_t n = 0x12345678;
-    n = fwrite (M_ASSIGN_CAST(const void*, &n), sizeof n, 1, f);
-    return n == 1 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();    
-  } else {
-    return M_SERIAL_OK_CONTINUE;
-  }
+  (void) local; // Unused
+  (void) serial; // Unused
+  return M_SERIAL_OK_CONTINUE;
 }
 
 /* Write a value separator between element of the same pair of a map into the serial stream 'serial' if needed.
@@ -440,19 +429,8 @@ m_ser1al_bin_read_array_start(m_serial_local_t local, m_serial_read_t serial, si
 {
   FILE *f = (FILE*) serial->data[0].p;
   size_t n = fread (M_ASSIGN_CAST(void*, num), sizeof *num, 1, f);
-  if (n != 1)
-    return m_core_serial_fail();
-  local->data[0].b = (*num == 0);
   local->data[1].s = *num;
-  if (local->data[0].b) {
-    // Size not know ==> use of marker in the stream.
-    size_t p;
-    n = fread (M_ASSIGN_CAST(void*, &p), sizeof p, 1, f);
-    if (n != 1)
-      return m_core_serial_fail();
-    return p == 0xABCDEF ? M_SERIAL_OK_CONTINUE : p == 0x12345678 ? M_SERIAL_OK_DONE : m_core_serial_fail();
-  }
-  return M_SERIAL_OK_CONTINUE;
+  return (n != 1) ? m_core_serial_fail() : (local->data[1].s == 0) ? M_SERIAL_OK_DONE : M_SERIAL_OK_CONTINUE;
 }
 
 /* Continue reading from the stream 'serial' an array.
@@ -462,19 +440,10 @@ m_ser1al_bin_read_array_start(m_serial_local_t local, m_serial_read_t serial, si
 static inline  m_serial_return_code_t
 m_ser1al_bin_read_array_next(m_serial_local_t local, m_serial_read_t serial)
 {
-  FILE *f = (FILE*) serial->data[0].p;
-  if (local->data[0].b) {
-    // Size not know ==> use of marker in the stream.
-    size_t p, n;
-    n = fread (M_ASSIGN_CAST(void*, &p), sizeof p, 1, f);
-    if (n != 1)
-      return m_core_serial_fail();
-    return p == 0xABCDEF ? M_SERIAL_OK_CONTINUE : p == 0x12345678 ? M_SERIAL_OK_DONE : m_core_serial_fail();
-  } else {
-    M_ASSERT(local->data[1].s > 0);
-    local->data[1].s --;
-    return local->data[1].s == 0 ? M_SERIAL_OK_DONE : M_SERIAL_OK_CONTINUE;
-  }
+  (void) serial; // Unused
+  M_ASSERT(local->data[1].s > 0);
+  local->data[1].s --;
+  return local->data[1].s == 0 ? M_SERIAL_OK_DONE : M_SERIAL_OK_CONTINUE;
 }
 
 
