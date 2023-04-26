@@ -6851,7 +6851,7 @@ wanted serialization.
 * data: a table of M\_SERIAL\_MAX\_DATA\_SIZE of C types (Boolean, integer, size or pointer).
 This data is used to store the needed data for the methods.
 
-This is pretty much like a pure virtual interface object in C++. The interface has to defines
+This is pretty much like a pure virtual interface object in C++. The interface has to define
 the following fields with the following definition:
 
 * read\_boolean:
@@ -6872,11 +6872,12 @@ the following fields with the following definition:
    Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise
 * read\_array\_start:
    Start reading from the stream 'serial' an array (which is defined as a sequential collection of object).
-   Set '*num' with the number of elements, or 0 if it is not known.
+   Set '*num' with the number of elements, or (size\_t)-1 if it is not known.
    Initialize the object 'local' so that it can be used by the serialization object to serialize the array. 
    ('local' is an unique local serialization object of the array).
    Return M\_SERIAL\_OK\_CONTINUE if it succeeds and the parsing of the array can continue (the array is not empty),
    M\_SERIAL\_OK\_DONE if it succeeds and the array ends (the array is empty),
+   M\_SERIAL\_FAIL\_RETRY if it doesn't support unkown number of elements,
    M\_SERIAL\_FAIL otherwise.
 * read\_array\_next:
    Continue reading from the stream 'serial' an array using 'local' to load / save data if needed.

@@ -4881,9 +4881,10 @@ struct m_string_s;
  * - OK & done (object is fully parsed),
  * - OK & continue parsing (object is partially parsed)
  * - Fail parsing
+ * - Fail parsing with given arguments (give explicit size)
  */
 typedef enum m_serial_return_code_e {
-  M_SERIAL_OK_DONE = 0, M_SERIAL_OK_CONTINUE = 1, M_SERIAL_FAIL = 2
+  M_SERIAL_OK_DONE = 0, M_SERIAL_OK_CONTINUE = 1, M_SERIAL_FAIL = 2, M_SERIAL_FAIL_RETRY = 4
 } m_serial_return_code_t;
 
 #if defined(__cplusplus)
