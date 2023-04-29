@@ -1,5 +1,96 @@
 *Long term issues*
-------------------
+==========================================================
+
+* TODO #32 : User specialization fields in the container        :ENHANCEMENT:
+
+** State
+
+Some methods of a contained object may need to have some options that 
+are neither constant nor global, but are specialized in function of the container.
+
+For example, a memory handler may need a parameter which is needed to identify
+which pool of memory has to be used.
+
+** Plan:
+
+Add a new operator "SPECIALIZATION\_TYPE" which is a type to be added in the 
+defined container. Then it can be accessed by the operator through an extension
+of the GAIA by adding support for identification of specialization like this:
+
+     ( SPECIALIZATION_TYPE( memory_pool_ref ),
+       NEW( API(NONE, memory_pool_alloc, SPECIALIZATION, ARG1)),
+       DEL( API(NONE, memory_pool_free, SPECIALIZATION, ARG1)) )
+
+** Open points:
+
+- How to get access to the specialization field of the container? ==> Define the "self" name as the name of the container for all methods? What to do when there are several containers for a method?
+- How to initialize the specialization field of the container? provide custom initialization functions?
+
+* TODO #31 : Uniformize parametrization options of containers   :ENHANCEMENT:
+
+** State 
+
+Currently in order to pass some parametrization of the containers,
+the parameters are passed to the generation macros through:
+
+- extra parameters of the macros,
+- special operators of the contained object oplist.
+
+The extra parameters of some generation macros break the uniformity
+of the interface.
+It is conceptually wrong to put some special operators of the contained object 
+that have only meanings for the container object.
+In case of adding new options, it break the existing interface or put another
+operator in the contained object oplist.
+
+
+The following parameters are used:
+
+- Fixed size of a queue (buffer / B+Tree),
+- Policy of a queue (buffer),
+- Type of the container, IT type of the container, Ref type of the iterator
+
+The following operators are used:
+
+- NEW / DEL / REALLOC / FREE
+- MEMPOOL / MEMPOOL_LINKAGE
+
+The following new options is planned:
+
+- Interface (See #28)
+- Extra parameter for memory allocation function 
+
+** Plan
+
+The M\_*\_DEF\_AS macros shall be changed like this:
+
+    M_*_DEF_AS(name, cont_oplist, type[, type_oplist])
+
+with cont\_oplist being the container oplist that gives parametrization to the container definition.
+The following operators are planned:
+
+- TYPE: to define the type of the container,
+- IT\_TYPE: to define the IT type of the container,
+- SUBTYPE: to define the type pointed by the iterator,
+- FIXED\_SIZE: to define the fixed size of a container,
+- POLICY: to define the policy of a container,
+- NEW / DEL / REALLOC / FREE: to define the memory interface,
+- MEMPOOL / MEMPOOL_LINKAGE: to request a definition of a specialized memory interface,
+- INTERFACE: to request a pure header definition, an implementation or both (see #28),
+- SPECIALIZATION: to request an extra parameter to add in the container.
+
+All operators should be optional.
+
+The NEW / DEL / REALLOC / FREE / MEMPOOL / MEMPOOL_LINKAGE won't have any effects anymore if defined in the contained object oplist.
+
+** Pro:
+
+- Uniformize interface
+
+** Con:
+
+- API breakage. It can be mitigated by providing an adaptating layer by prividing the new interface for M\_*\_DEF\_AS only
+and *\_DEF\_AS will provide a translation layer.
 
 * TODO #30 : Serialization rework                               :ENHANCEMENT:
 
@@ -88,11 +179,13 @@ Used arguments to parameter generation not related to the contained type:
 - name of the iterated element.
 - ...
 
-Use another oplist as argument for M_.._DEF_AS?
+Use another oplist as argument for M_.._DEF_AS (See #31)
 
  M_BUFFER_DEF_AS(name, (TYPE(toto), FIXED_SIZE(10), POLICY(STACK), INTERFACE(header)), int, M_BASIC_OPLIST)
 
 * TODO #27 : Uniformization of m-buffer interface               :ENHANCEMENT:
+
+** State
 
 The m-buffer interface requires special argument to work:
 - size & policy for BUFFER,
@@ -101,8 +194,10 @@ This is not uniform with the others generation macros and not uniform with each 
 Moreover the others are the only one which can be used in a shared memory, so
 a fixed size will be good to have too for such interface.
 
-==> Uniformize the interface. How?
-==> Provide static size for all QUEUE.
+** Plan
+
+- Uniformization of the interface (See #31)
+- Provide static size for all QUEUE.
 
 * TODO #26 : Hash-Map for huge objects                          :ENHANCEMENT:
 
@@ -142,7 +237,7 @@ unsigned get_small_hash(int64_t x) {
 Find a way to support error return code for the API in case of allocation
 failure.
 
-Any service that returns void shall return a "int".
+Any service that returns void shall return a "int" (or another type).
 In case of allocation failure, it shall return an error.
 M_CALL macro shall stop its execution if the service returns an error code
 and the error code represents an error (avoid rewritting everything)
@@ -201,19 +296,20 @@ RETCODE/RETCODE
 If really needed, the macro can be avoided and code can be hand written.
 
 Open points:
+
 - How to handle warnings on unused labels?
-- What about M_LET/ M_EACH?
+- What about M_LET / M_EACH? Maybe only supports those.
 
-
-* TODO #24 : New: Add MIN-MAX-HEAP container                    :ENHANCEMENT:
+* TODO #24 : New MIN-MAX-HEAP container                         :ENHANCEMENT:
 
 See https://en.wikipedia.org/wiki/Min-max_heap
 as DPRIORITY_QUEUE_DEF ?
 
 NOTE: Needs for such container?
 
+* TODO #23 : Strict MOVE semantic to clarify                    :ENHANCEMENT:
 
-* TODO #23: Strict MOVE semantic to clarify                     :ENHANCEMENT:
+** State
 
 Some type may need to have a force MOVE semantic (for example, they can store
 pointer to themselves). Currently the INIT_MOVE & MOVE operators are more
@@ -228,7 +324,7 @@ moving the data before they can be moved using MOVE. Two solutions:
 - New operator MOVE_SELF to fix a type after it has been moved.
 - If MOVE defined, force another table and then copy by hand the type. This will be slower and consumme more memory.
 
-** MOVE in OPLIST                                               :ENHANCEMENT:
+** MOVE in OPLIST
 
 Proposal: do not export INIT_MOVE / MOVE operator in OPLIST if the MOVE operator is 
 compatible with a pure COPY semantic. An exported MOVE operator will tell 
@@ -247,7 +343,6 @@ defined with [1] tricks but without an explicit INIT_MOVE / MOVE
 operators as it uses MOVE_DEFAULT which is not (fully compatible).
 ==> Analyse limitation and possible constraint usages.
 
-
 Being able to define a correct default for INIT_MOVE will be really good
 (compatible with trivial move copy).
 In such case, all INIT_MOVE & MOVE operators can be removed from oplist
@@ -258,11 +353,10 @@ If the type is typedef T t[1] then passing such an argument to a function,
 will transform the argument to T*, and the type of the argument doesn't match
 what is expecting resulting in a move of the pointers, not a move of the design data.
 
-Defining a TYPE to this macro seems mandatory, but without C11 _Generic
-I don't see any way to define such macro.
+Defining this type seems possible with C11 _Generic and a TYPE in the oplist,
+but without C11 _Generic I don't see any way to define such macro.
 
-
-* TODO #20: New: Bucket priority queue                          :ENHANCEMENT:
+* TODO #20 : New: Bucket priority queue                         :ENHANCEMENT:
 
 Add a new kind of priority queue. 
 See https://en.wikipedia.org/wiki/Bucket_queue
@@ -279,20 +373,20 @@ Check if we can use BITSET, or introduce fixed size BITSET or use ad-hock
 implementation.
 
 
-* TODO #19: New: Intrusive Red Black Tree                       :ENHANCEMENT:
+* TODO #19 : New: Intrusive Red Black Tree                      :ENHANCEMENT:
 
  Add intrusive red black tree. 
  Look also for AVL tree (NOTE: Is there a performance difference between the two?)
 
 
-* TODO #18: Missing methods                                     :ENHANCEMENT:
+* TODO #18 : Missing methods                                    :ENHANCEMENT:
 
 Some containers don't have all the methods they should.
 See the cells in yellow here:
 http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Container.html
 
 
-* TODO #17: New: Ressource handler                              :ENHANCEMENT:
+* TODO #17 : New: Ressource handler                             :ENHANCEMENT:
 
  A global 'ressouce handler' which shall associated a unique handle to a ressource.
  The handle shall be unique for the ressource and shall not be reused.
@@ -323,7 +417,7 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
  * embedded the type in the ressource handler: more work, API more complex. Memory usage seems better.
 
 
-* TODO #16: New: Lock Free List                                 :ENHANCEMENT:
+* TODO #16 : New: Lock Free List                                :ENHANCEMENT:
 
  Implement a lock free list. Most of the difficulty is the memory reclamation part.
  Typically this lock free list shall be compatible with RCU method.
@@ -347,7 +441,7 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
    (NULL if not logically deleted) ? TBC
 
 
-* TODO #14: Memory allocation enhancement                       :ENHANCEMENT:
+* TODO #14 : Memory allocation enhancement                      :ENHANCEMENT:
 
 Enhancement of the memory allocation scheme to find way to deal properly with advanced allocators:
 
@@ -382,7 +476,7 @@ Needs some formal operator in the oplist to support it fully and an example.
 It is a kind of object  inheritance where the container inherits some extra data from its base.
 
 
-* TODO #12: New: Atomic shared pointer                          :ENHANCEMENT:
+* TODO #12 : New: Atomic shared pointer                         :ENHANCEMENT:
 
 Add an extension to the SHARED_PTR API:
 
@@ -458,7 +552,7 @@ Other implementation seems to have it hard to be lock-free: cf. https://github.c
 
 
 
-* TODO #5: New: Concurrent dictionary Container                 :ENHANCEMENT:
+* TODO #5 : New: Concurrent dictionary Container                :ENHANCEMENT:
 
 Implement a more efficient dictionary than lock + std dictionary for all operations when dealing with threads.
 See https://msdn.microsoft.com/en-us/library/dd287191(v=vs.110).aspx
