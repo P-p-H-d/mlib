@@ -121,6 +121,9 @@ when an exception is thrown, the destructors of the constructed objects are call
 M\*LIB may use a lot of assertions in its implementation to ensure safety: 
 it is highly recommended to properly define NDEBUG for released programs. 
 
+M\*LIB provides automatically several [serialization](https://en.wikipedia.org/wiki/Serialization) methods for each containers.
+You can read or write your full and complex data structure into [JSON](https://en.wikipedia.org/wiki/JSON) format in a few lines.
+
 M\*LIB is distributed under BSD-2 simplified license.
 
 It is strongly advised not to read the source to know how to use the library
