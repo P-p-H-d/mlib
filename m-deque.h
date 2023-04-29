@@ -1133,9 +1133,6 @@
    ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, _in_serial)),)         \
    ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, _equal_p)),)                   \
    ,M_IF_METHOD(HASH, oplist)(HASH(M_F(name, _hash)),)                        \
-   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                          \
-   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)              \
-   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                          \
    )
 
 

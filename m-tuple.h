@@ -742,9 +742,6 @@ namespace m_lib {
    M_IF_METHOD_ALL(MOVE, __VA_ARGS__)(MOVE(M_F(name, _move)),),               \
    M_IF_METHOD_ALL(SWAP, __VA_ARGS__)(SWAP(M_F(name, _swap)),),               \
    M_IF_METHOD_ALL(RESET, __VA_ARGS__)(RESET(M_F(name, _reset)),),            \
-   M_IF_METHOD(NEW, M_RET_ARG1(__VA_ARGS__,))(NEW(M_DELAY2(M_GET_NEW) M_RET_ARG1(__VA_ARGS__,)),), \
-   M_IF_METHOD(REALLOC, M_RET_ARG1(__VA_ARGS__,))(REALLOC(M_DELAY2(M_GET_REALLOC) M_RET_ARG1(__VA_ARGS__,)),), \
-   M_IF_METHOD(DEL, M_RET_ARG1(__VA_ARGS__,))(DEL(M_DELAY2(M_GET_DEL) M_RET_ARG1(__VA_ARGS__,)),), \
    EMPLACE_TYPE( ( M_REDUCE2(M_TUPL3_OPLIST_SUBTYPE, M_ID, name, M_SEQ(1, M_NARGS(__VA_ARGS__))) ) ) \
    )
 

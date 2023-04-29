@@ -120,8 +120,6 @@ typedef struct m_il1st_head_s {
    M_IF_METHOD(NEW, oplist)(IT_INSERT(M_F(name,_insert)),),                   \
    OPLIST(oplist),                                                            \
    SPLICE_BACK(M_F(name,_splice_back))                                        \
-   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                          \
-   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                          \
    )
 
 

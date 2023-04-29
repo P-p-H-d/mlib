@@ -1098,9 +1098,6 @@
    ,M_IF_METHOD_BOTH(OUT_SERIAL, key_oplist, value_oplist)(OUT_SERIAL(M_F(name, _out_serial)),) \
    ,M_IF_METHOD_BOTH(IN_SERIAL, key_oplist, value_oplist)(IN_SERIAL(M_F(name, _in_serial)),) \
    ,M_IF_METHOD(EQUAL, value_oplist)(EQUAL(M_F(name, _equal_p)),)             \
-   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW key_oplist),)                      \
-   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC key_oplist),)          \
-   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL key_oplist),)                      \
    )
 
 /* Deferred evaluation for the definition,
@@ -1157,9 +1154,6 @@
    ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, _out_serial)),)      \
    ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, _in_serial)),)         \
    ,EQUAL(M_F(name, _equal_p)),                                               \
-   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                          \
-   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)              \
-   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                          \
    )
 
 /* Define Lower Bound for hash table (TODO: Common macro for both implementation) */
