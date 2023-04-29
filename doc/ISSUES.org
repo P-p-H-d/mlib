@@ -1,6 +1,59 @@
 *Long term issues*
 ------------------
 
+* TODO #30 : Serialization rework                               :ENHANCEMENT:
+
+** State 
+Currently, each container supports 3 serialization methods:
+
+- old format to FILE 
+- old format to string
+- generic serialization 
+
+Generic serialiation connect the container format to the serialization object constraints.
+It is done through a vtable. As such there is a performance penality and it avoids proper inlining.
+
+** Evolution
+
+Old format should be deprecated and shall use the generic serialization interface.
+
+Serialization object shall provide an OPLIST of serialization.
+For example CORE will provide OLD Format oplist and serial-json will provide JSON format oplist.
+Each oplist will provide the suffix needed for the serialization, and the interface
+(see already existing interface).
+
+Then a container will generate specialized serialization methods for each provided oplist.
+
+Pros:
+
+- Faster
+- In the M*LIB philosphy: much like other oplist usage.
+
+Cons:
+
+- compatibility breakage.
+
+Open point:
+
+- how can a user add a new serialization object?
+- Can we make a generic serialization object to support migration path?
+
+** Example
+
+serial-json provides
+
+    #define M_SERIAL_1() (NAME(_json), READ_INT(...), WRITE_INT(...) )
+
+containers provides
+    
+    For i in 1 100 ; do 
+        if do exist M_SERIAL_ ## i () 
+             expand(SERIAL_METHOD with M_SERIAL_1())
+
+    SERIAL_METHOD(name, ....)
+      static inline m_serial_return_code_t                                        \
+      M_C(M_F(name, _out_serial),M_GET_NAME(serial_op) )(M_GET_TYPE(serial_op) f, const list_t list)               \
+
 * TODO #29 : Support of partial initialized object                  :ANOMALY:
 
 In case of exception during the construction of an object,
