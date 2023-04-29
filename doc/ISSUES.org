@@ -1,6 +1,14 @@
 *Long term issues*
 ------------------
 
+* TODO #29 : Support of partial initialized object                  :ANOMALY:
+
+In case of exception during the construction of an object,
+if the object is partially constructed, there is no destructor to call.
+Therefore if there is some partially constructed object
+(with some fields already fully constructed), there will be some links.
+This is the same problem with C++
+
 * TODO #28 : Separate generation of interface to implementation :ENHANCEMENT:
 
 Enable support for generating an interface only for the headers
