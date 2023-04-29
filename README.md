@@ -45,25 +45,23 @@ M\*LIB: Generic type-safe Container Library for C language
 13. [Licence](#license)
 
 
-
 ## Overview
 
-M\*LIB (M star lib) is a C library enabling to define and use **generic and
-type safe container**, aka handling generic
+M\*LIB (M star lib) is a C library enabling to define and to use **generic and
+type safe container** in C, aka handling generic
 [containers](https://en.wikipedia.org/wiki/Container_%28abstract_data_type%29) in in pure C language.
-The objects within the containers can be trivial or very complex:
-they can have their own constructor, destructor, operators
-or can be basic C type like the C type 'int'.
+The encapsulated objects can have their own constructor, destructor, operators
+or can be basic C type like the C type 'int': both are fully supported.
 This makes it possible to construct fully
-recursive objects (container-of[...]-container-of-type-T),
-without erasing type information (typically using void pointers or resorting
-to C macro to access the container).
+recursive container objects (container-of[...]-container-of-type-T)
+while keeping compile time type checking.
 
 This is an equivalent of the [C++](https://en.wikipedia.org/wiki/C%2B%2B)
 [Standard Library](https://en.wikipedia.org/wiki/C%2B%2B_Standard_Library)
 but for standard ISO C99 / C11.
 There is not a strict mapping as both the STL and M\*LIB have their exclusive containers:
 See [here](https://github.com/P-p-H-d/mlib/wiki/STL-to-M*LIB-mapping) for details.
+If you think a particular container is missing, feel free to open an issue.
 
 M\*LIB is portable to any systems that support [ISO C99](https://en.wikipedia.org/wiki/C99).
 Some optional features need at least [ISO C11](https://en.wikipedia.org/wiki/C11_(C_standard_revision)).
@@ -78,7 +76,7 @@ One of M\*LIB design key is to ensure safety. This is done by multiple means:
 
 * in debug mode, defensive programming is extensively used:
   the contracts of the function are checked, ensuring
-  that the data are not corrupted. For example, 
+  that the data are not corrupted. For example, strict
   [Buffer overflow](https://en.wikipedia.org/wiki/Buffer_overflow) are checked in this mode
   through [bound checking](https://en.wikipedia.org/wiki/Bounds_checking)
   or the intrinsic properties of a Red-Black tree (for example) are verified.
@@ -86,12 +84,12 @@ One of M\*LIB design key is to ensure safety. This is done by multiple means:
 * as few cast as possible are used within the library (casts are the evil of safety).
   Still the library can be used with the greatest level of warnings by a C compiler without
   any aliasing warning.
-* the genericity is not done directly by macro, but indirectly by making them
+* the genericity is not done directly by macro (which usually prevent type safety), but indirectly by making them
   define inline functions with the proper prototypes: this enables
-  the user calls to have proper warning checks.
-* extensive testing: the library is tested on the main targets using Continuous Integration with a coverage of the test suite of nearly 99%.
+  the user calls to have proper error and warning checks. 
+* extensive testing: the library is tested on the main targets using Continuous Integration with a coverage of the test suite of more than 99%.
   The test suite itself is run through the multiple sanitizers defined by GCC/CLANG (Address, undefined, leak, thread).
-  The test suite also includes a comparison of equivalent behaviors of M\*LIB with the C++ STL using random genetic algorithms.
+  The test suite also includes a comparison of equivalent behaviors of M\*LIB with the C++ STL using random testing or fuzzer testing.
 * static analysis: multiple static analyzer (like scan-build or GCC fanalyzer or CodeQL) are run on the generated code, and the results analyzed.
 
 Other key designs are:
@@ -114,8 +112,11 @@ is one of the fastest generic C/C++ library you can find.
 
 M\*LIB uses internally the 'malloc', 'realloc' and 'free' functions to handle
 the memory pool. This behavior can be overridden at different level.
-M\*LIB default policy is to abort the program if there is a memory error.
+Its default policy is to abort the program if there is a memory error.
 However, this behavior can also be customized globally.
+M\*LIB supports also the exception error model by providing its own implementation of the try / catch mechanism.
+This mechanism is compatible with [RAII programming](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization):
+when an exception is thrown, the destructors of the constructed objects are called (See [m-try](#m-try) for more details).
 
 M\*LIB may use a lot of assertions in its implementation to ensure safety: 
 it is highly recommended to properly define NDEBUG for released programs. 
@@ -141,8 +142,8 @@ The following headers define containers that don't require the user structure to
 * [m-list.h](#m-list): header for creating singly-linked list of generic type,
 * [m-deque.h](#m-deque): header for creating dynamic double-ended queue of generic type,
 * [m-dict.h](#m-dict): header for creating unordered associative array (through hashmap) or unordered set of generic type,
-* [m-rbtree.h](#m-rbtree): header for creating ordered set (through binary sorted tree) of generic type,
-* [m-bptree.h](#m-bptree): header for creating ordered map/set/multimap/multiset (through B+TREE) of generic type,
+* [m-rbtree.h](#m-rbtree): header for creating ordered set (through Red/Black binary sorted tree) of generic type,
+* [m-bptree.h](#m-bptree): header for creating ordered map/set/multimap/multiset (through sorted B+TREE) of generic type,
 * [m-tree.h](#m-tree): header for creating arbitrary tree of generic type,
 * [m-tuple.h](#m-tuple): header for creating arbitrary tuple of generic types,
 * [m-variant.h](#m-variant): header for creating arbitrary variant of generic type,
