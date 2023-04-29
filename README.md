@@ -57,11 +57,14 @@ recursive container objects (container-of[...]-container-of-type-T)
 while keeping compile time type checking.
 
 This is an equivalent of the [C++](https://en.wikipedia.org/wiki/C%2B%2B)
-[Standard Library](https://en.wikipedia.org/wiki/C%2B%2B_Standard_Library)
-but for standard ISO C99 / C11.
+[Standard Library](https://en.wikipedia.org/wiki/C%2B%2B_Standard_Library),
+providing vector, deque, forward_list, set, map, multiset, multimap,
+unordered_set, unordered_map, stack, queue, shared_ptr, string, variant, option
+to standard ISO C99 / C11.
 There is not a strict mapping as both the STL and M\*LIB have their exclusive containers:
 See [here](https://github.com/P-p-H-d/mlib/wiki/STL-to-M*LIB-mapping) for details.
-If you think a particular container is missing, feel free to open an issue.
+M\*LIB provides also addtional concurrent containers to design properly
+multi-threaded programs: shared register, communication queue, ...
 
 M\*LIB is portable to any systems that support [ISO C99](https://en.wikipedia.org/wiki/C99).
 Some optional features need at least [ISO C11](https://en.wikipedia.org/wiki/C11_(C_standard_revision)).
