@@ -3374,6 +3374,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_LIMITS_LIMITS(a)       ,a,
 #define M_PROPERTIES_PROPERTIES(a) ,a,
 #define M_EMPLACE_TYPE_EMPLACE_TYPE(a) ,a,
+#define M_FIXED_SIZE_FIXED_SIZE(a) ,a,
 
 // Properties only
 #define M_LET_AS_INIT_WITH_LET_AS_INIT_WITH(a) ,a,
@@ -3460,6 +3461,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_GET_LIMITS(...)    M_GET_METHOD(LIMITS,      M_LIMITS_DEFAULT,   __VA_ARGS__)
 #define M_GET_PROPERTIES(...) M_GET_METHOD(PROPERTIES, (),                 __VA_ARGS__)
 #define M_GET_EMPLACE_TYPE(...) M_GET_METHOD(EMPLACE_TYPE, M_NO_DEFAULT,   __VA_ARGS__)
+#define M_GET_FIXED_SIZE(...) M_GET_METHOD(FIXED_SIZE, 0,                  __VA_ARGS__)
 
 // Calling method with support of defined transformation API
 // operators that are not methods are commented
@@ -3531,6 +3533,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 //#define M_CALL_LIMITS(oplist, ...) M_APPLY_API(M_GET_LIMITS oplist, oplist, __VA_ARGS__)
 //#define M_CALL_PROPERTIES(oplist, ...) M_APPLY_API(M_GET_PROPERTIES oplist, oplist, __VA_ARGS__)
 //#define M_CALL_EMPLACE_TYPE(oplist, ...) M_APPLY_API(M_GET_EMPLACE_TYPE oplist, oplist, __VA_ARGS__)
+//#define M_CALL_FIXED_SIZE(oplist, ...) M_APPLY_API(M_GET_FIXED_SIZE oplist, oplist, __VA_ARGS__)
 
 
 /* API transformation support:
