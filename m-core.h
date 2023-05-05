@@ -4293,6 +4293,12 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_LET_TRY_INJECT_PRE(cont, oplist, name)
 #define M_LET_TRY_INJECT_POST(cont, oplist, name)
 
+/*
+  Internal M_LET for use for withing container.
+*/
+#define M_QLET(x, type, oplist)                                               \
+  M_LET(x, M_OPEXTEND(oplist, TYPE(type)))
+
 /* Transform the va list by adding their number as the first argument of
    the list.
    Example:   M_VA(a,b,c,d,e) ==> 5,a,b,c,d,e
