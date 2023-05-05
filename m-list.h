@@ -787,10 +787,10 @@
     m_serial_local_t local;                                                   \
     bool first_done = false;                                                  \
     ret = f->m_interface->write_array_start(local, f, (size_t)-1);            \
-    if (ret == M_SERIAL_FAIL_RETRY) {                                   \
-      size_t n = M_F(name, _size)(list);                                \
-      ret = f->m_interface->write_array_start(local, f, n);             \
-    }                                                                   \
+    if (ret == M_SERIAL_FAIL_RETRY) {                                         \
+      size_t n = M_F(name, _size)(list);                                      \
+      ret = f->m_interface->write_array_start(local, f, n);                   \
+    }                                                                         \
     it_t it;                                                                  \
     for (M_F(name, _it)(it, list) ;                                           \
          !M_F(name, _end_p)(it);                                              \
