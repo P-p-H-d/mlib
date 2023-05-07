@@ -218,7 +218,7 @@ m_buff3r_number_dec(m_buff3r_number_ct n, unsigned int policy)
 /* Return the size (run time or build time).
    NOTE: It assumed that the buffer variable name is 'v' */
 #define M_BUFF3R_SIZE(m_size)                                                 \
-  M_BUFF3R_IF_CTE_SIZE(m_size) (m_size, v->size)
+  M_BUFF3R_IF_CTE_SIZE(m_size) (m_size, v->capacity)
 
 /* Contract of a buffer.
    Nothing particular since we cannot test much without locking it.
@@ -277,7 +277,7 @@ m_buff3r_number_dec(m_buff3r_number_ct n, unsigned int policy)
     size_t    overwrite;    /* Number of overwritten values */                \
     m_cond_t there_is_data; /* condition raised when there is data */         \
     /* Read only Data */                                                      \
-    M_BUFF3R_IF_CTE_SIZE(m_size)( ,size_t size;) /* Size of the buffer */     \
+    M_BUFF3R_IF_CTE_SIZE(m_size)( ,size_t capacity;) /* Capacity of the buffer */ \
     /* Data for a consummer */                                                \
     m_cond_t there_is_room_for_data; /* Cond. raised when there is room */    \
     m_mutex_t mutexPop;     /* MUTEX used for popping elements */             \
@@ -303,8 +303,8 @@ m_buff3r_number_dec(m_buff3r_number_ct n, unsigned int policy)
 M_INLINE void                                                                 \
 M_F(name, _init)(buffer_t v, size_t size)                                     \
 {                                                                             \
-  M_BUFF3R_IF_CTE_SIZE(m_size)(M_ASSERT(size == m_size), v->size = size);     \
   M_ASSERT(size <= UINT_MAX);                                                 \
+  M_BUFF3R_IF_CTE_SIZE(m_size)(M_ASSERT(size == m_size), v->capacity = size); \
   v->idx_prod = v->idx_cons = v->overwrite = 0;                               \
   m_buff3r_number_init (v->number[0], policy);                                \
   if (M_BUFF3R_POLICY_P(policy, M_BUFFER_DEFERRED_POP))                       \
@@ -320,7 +320,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
                                                                               \
   M_BUFF3R_IF_CTE_SIZE(m_size)( /* Statically allocated */ ,                  \
     v->data = M_CALL_REALLOC(oplist, M_F(name, _el_ct), NULL, M_BUFF3R_SIZE(m_size)); \
-  if (M_UNLIKELY_NOMEM (v->data == NULL)) {                                   \
+    if (M_UNLIKELY_NOMEM (v->data == NULL)) {                                 \
       M_MEMORY_FULL (M_BUFF3R_SIZE(m_size)*sizeof(M_F(name, _el_ct)));        \
       return;                                                                 \
     }                                                                         \
