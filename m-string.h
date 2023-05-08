@@ -1106,25 +1106,23 @@ m_string_printf (m_string_t v, const char format[], ...)
 
 /* Append to the string the formatted string of the given printf format */
 static inline int
-m_string_cat_printf (m_string_t v, const char format[], ...)
+m_string_cat_vprintf (m_string_t v, const char format[], va_list args)
 {
   M_STR1NG_CONTRACT (v);
   M_ASSERT (format != NULL);
-  va_list args;
+  va_list args_org;
+  va_copy(args_org, args);
   int size;
   size_t old_size = m_string_size(v);
   char  *ptr      = m_str1ng_get_cstr(v);
   size_t alloc    = m_string_capacity(v);
-  va_start (args, format);
   size = vsnprintf (&ptr[old_size], alloc - old_size, format, args);
   if (size > 0 && (old_size+(size_t)size+1 >= alloc) ) {
     // We have to realloc our string to fit the needed size
     ptr = m_str1ng_fit2size (v, old_size + (size_t) size + 1);
     alloc = m_string_capacity(v);
     // and redo the parsing.
-    va_end (args);
-    va_start (args, format);
-    size = vsnprintf (&ptr[old_size], alloc - old_size, format, args);
+    size = vsnprintf (&ptr[old_size], alloc - old_size, format, args_org);
     M_ASSERT (size >= 0);
   }
   if (size >= 0) {
@@ -1134,9 +1132,22 @@ m_string_cat_printf (m_string_t v, const char format[], ...)
     // Undo this to have a clean state
     ptr[old_size] = 0;
   }
-  va_end (args);
+  va_end (args_org);
   M_STR1NG_CONTRACT (v);
   return size;
+}
+
+/* Append to the string the formatted string of the given printf format */
+static inline int
+m_string_cat_printf (m_string_t v, const char format[], ...)
+{
+  M_STR1NG_CONTRACT (v);
+  M_ASSERT (format != NULL);
+  va_list args;
+  va_start (args, format);
+  int ret = m_string_cat_vprintf(v, format, args);
+  va_end (args);
+  return ret;
 }
 
 #if M_USE_FAST_STRING_CONV == 0
@@ -2635,6 +2646,7 @@ namespace m_lib {
 #define string_replace_all m_string_replace_all
 #define string_vprintf m_string_vprintf
 #define string_printf m_string_printf
+#define string_cat_vprintf m_string_cat_vprintf
 #define string_cat_printf m_string_cat_printf
 #define string_fgets m_string_fgets
 #define string_fget_word m_string_fget_word
