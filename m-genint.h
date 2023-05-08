@@ -103,7 +103,7 @@ typedef struct m_genint_s {
  * meaning it can be used to index global unique resources shared 
  * for all threads.
  */
-static inline void
+M_INLINE void
 m_genint_init(m_genint_t s, unsigned int n)
 {
   M_ASSERT (s != NULL && n > 0 && n <= M_GENINT_MAX_ALLOC);
@@ -126,7 +126,7 @@ m_genint_init(m_genint_t s, unsigned int n)
 }
 
 /* Clear an integer generator (Destructor) */
-static inline void
+M_INLINE void
 m_genint_clear(m_genint_t s)
 {
   M_GEN1NT_CONTRACT(s);
@@ -135,7 +135,7 @@ m_genint_clear(m_genint_t s)
 }
 
 /* Return the maximum integer that the generator will provide */
-static inline size_t
+M_INLINE size_t
 m_genint_size(m_genint_t s)
 {
   M_GEN1NT_CONTRACT(s);
@@ -144,7 +144,7 @@ m_genint_size(m_genint_t s)
 
 /* Get an unique integer from the integer generator.
  * NOTE: For a typical case, the amortized cost is one CAS per pop. */
-static inline unsigned int
+M_INLINE unsigned int
 m_genint_pop(m_genint_t s)
 {
   M_GEN1NT_CONTRACT(s);
@@ -204,7 +204,7 @@ m_genint_pop(m_genint_t s)
 
 /* Restore a used integer in the integer generator.
  * NOTE: For a typical case, the amortized cost is one CAS per pop */
-static inline void
+M_INLINE void
 m_genint_push(m_genint_t s, unsigned int n)
 {
   M_GEN1NT_CONTRACT(s);

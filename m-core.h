@@ -162,6 +162,7 @@
 #if __clang_major__ >= 6
 #define M_BEGIN_PROTECTED_CODE                                                \
   _Pragma("clang diagnostic push")                                            \
+  _Pragma("clang push_options")                                               \
   _Pragma("clang diagnostic ignored \"-Wold-style-cast\"")                    \
   _Pragma("clang diagnostic ignored \"-Wzero-as-null-pointer-constant\"")     \
   _Pragma("clang diagnostic ignored \"-Wunused-function\"")                   \
@@ -169,12 +170,14 @@
 #else
 #define M_BEGIN_PROTECTED_CODE                                                \
   _Pragma("clang diagnostic push")                                            \
+  _Pragma("clang push_options")                                               \
   _Pragma("clang diagnostic ignored \"-Wold-style-cast\"")                    \
   _Pragma("clang diagnostic ignored \"-Wunused-function\"")                   \
   _Pragma("clang diagnostic ignored \"-Wformat-nonliteral\"")
 #endif
 
 #define M_END_PROTECTED_CODE                                                  \
+  _Pragma("clang pop_options")                                                \
   _Pragma("clang diagnostic pop")
 
 #elif defined(__GNUC__) && defined(__cplusplus)
@@ -185,11 +188,13 @@
  */
 #define M_BEGIN_PROTECTED_CODE                                                \
   _Pragma("GCC diagnostic push")                                              \
+  _Pragma("GCC push_options")                                                 \
   _Pragma("GCC diagnostic ignored \"-Wold-style-cast\"")                      \
   _Pragma("GCC diagnostic ignored \"-Wzero-as-null-pointer-constant\"")       \
   _Pragma("GCC diagnostic ignored \"-Wformat-nonliteral\"")
 
 #define M_END_PROTECTED_CODE                                                  \
+  _Pragma("GCC pop_options")                                                  \
   _Pragma("GCC diagnostic pop")
 
 #elif defined(__clang__)
@@ -197,10 +202,12 @@
 /* Warnings disabled for CLANG in C mode */
 #define M_BEGIN_PROTECTED_CODE                                                \
   _Pragma("clang diagnostic push")                                            \
+  _Pragma("clang push_options")                                               \
   _Pragma("clang diagnostic ignored \"-Wunused-function\"")                   \
   _Pragma("clang diagnostic ignored \"-Wformat-nonliteral\"")
 
 #define M_END_PROTECTED_CODE                                                  \
+  _Pragma("clang pop_options")                                                \
   _Pragma("clang diagnostic pop")
 
 #elif defined(__GNUC__)
@@ -209,16 +216,19 @@
 /* Warnings disabled for GNU C in C mode (Wstringop-overflow produces false warnings) */
 #define M_BEGIN_PROTECTED_CODE                                                \
   _Pragma("GCC diagnostic push")                                              \
+  _Pragma("GCC push_options")                                                 \
   _Pragma("GCC diagnostic ignored \"-Wformat-nonliteral\"")                   \
   _Pragma("GCC diagnostic ignored \"-Wstringop-overflow\"")
 #else
 /* Warnings disabled for GNU C in C mode */
 #define M_BEGIN_PROTECTED_CODE                                                \
   _Pragma("GCC diagnostic push")                                              \
+  _Pragma("GCC push_options")                                                 \
   _Pragma("GCC diagnostic ignored \"-Wformat-nonliteral\"")
 #endif
 
 #define M_END_PROTECTED_CODE                                                  \
+  _Pragma("GCC pop_options")                                                  \
   _Pragma("GCC diagnostic pop")
 
 #else
@@ -262,6 +272,30 @@
  */
 
 M_BEGIN_PROTECTED_CODE
+
+
+/************************************************************/
+/************************* LINKAGE **************************/
+/************************************************************/
+
+/* The following semantics apply to inline in C99:
+   - inline: No generation of an extern visible function. May inline or may call the external function.
+   - extern inline: externally visible code is emitted, so at most one translation unit can use this.
+   - static inline: No generation of an extern visible function. May inline or may call one static function.
+*/
+/* If the user requests to only define the prototypes (M_USE_EXTERN_DECL),
+   use the "inline" semantic of the C99 and requests no inlining to the compiler.
+   Then it needs to define in at most one translation unit (M_USE_EXTERN_DEF) to define the functions.
+   This is only supported by GCC and CLANG.
+   Otherwise uses the classic "M_INLINE"
+*/
+#if   defined(__GNUC__) && defined(M_USE_EXTERN_DECL)
+#define M_INLINE _Pragma("GCC optimize (\"-fno-inline\")") inline
+#elif defined(__GNUC__) && defined(M_USE_EXTERN_DEF)
+#define M_INLINE _Pragma("GCC optimize (\"-fno-inline\")") extern inline
+#else
+#define M_INLINE static inline
+#endif
 
 
 /************************************************************/
@@ -2532,7 +2566,7 @@ done
 #if defined(_MSC_VER) && defined(__STDC_WANT_LIB_EXT1__) && __STDC_WANT_LIB_EXT1__
 
 /* Wrapper around fopen_s */
-static inline FILE *
+M_INLINE FILE *
 m_core_fopen(const char filename[], const char opt[])
 {
     FILE *f;
@@ -2621,7 +2655,7 @@ m_core_fopen(const char filename[], const char opt[])
            void *: false /* unsupported */)
 
 /* Internal wrappers used by M_FSCAN_ARG : */
-static inline bool
+M_INLINE bool
 m_core_fscan_bool (bool *ptr, FILE *f)
 {
   int c = fgetc(f);
@@ -2629,7 +2663,7 @@ m_core_fscan_bool (bool *ptr, FILE *f)
   return (c == '0' || c == '1');
 }
 
-static inline bool
+M_INLINE bool
 m_core_fscan_char (char *ptr, FILE *f)
 {
   int c = fgetc(f);
@@ -2638,7 +2672,7 @@ m_core_fscan_char (char *ptr, FILE *f)
 }
 
 #define M_FSCAN_DEFAULT_TYPE_DEF(name, type, format)                          \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   name (type *ptr, FILE *f)                                                   \
   {                                                                           \
     return m_core_fscanf(f, format, ptr) == 1;                                \
@@ -2659,7 +2693,7 @@ M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ldouble, long double, "%Lf")
 
 /* Return the next character (like fgetc) which is not a space character
    and advance the FILE stream accordingly */
-static inline int m_core_fgetc_nospace(FILE *f)
+M_INLINE int m_core_fgetc_nospace(FILE *f)
 {
   int c;
   do {
@@ -2672,7 +2706,7 @@ static inline int m_core_fgetc_nospace(FILE *f)
 
 /* Return the next character (like fgetc) which is not a space character
    and advance the string stream accordingly */
-static inline char m_core_str_nospace(const char **str)
+M_INLINE char m_core_str_nospace(const char **str)
 {
   char c;
   do {
@@ -2712,7 +2746,7 @@ static inline char m_core_str_nospace(const char **str)
            void *: false /* not supported */)
 
 /* Internal wrappers used by M_PARSE_DEFAULT_TYPE : */
-static inline bool
+M_INLINE bool
 m_core_parse_char (char *ptr, const char str[], const char **endptr)
 {
     *ptr = *str++;
@@ -2720,7 +2754,7 @@ m_core_parse_char (char *ptr, const char str[], const char **endptr)
     return true;
 }
 
-static inline bool
+M_INLINE bool
 m_core_parse_bool (bool *ptr, const char str[], const char **endptr)
 {
   char c = *str++;
@@ -2730,7 +2764,7 @@ m_core_parse_bool (bool *ptr, const char str[], const char **endptr)
 }
 
 #define M_PARSE_DEFAULT_TYPE_DEF(name, type, parse_func, extra_arg)           \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   name (type *ptr, const char str[], const char **endptr)                     \
   {                                                                           \
     char *end;                                                                \
@@ -2939,7 +2973,7 @@ namespace m_lib {
 #else
 
 // Encapsulate snprintf to return the input buffer as argument (needed for M_CSTR)
-static inline const char *
+M_INLINE const char *
 m_core_snprintf(char *str, size_t size, const char *format, ...)
 {
   va_list args;
@@ -3017,12 +3051,12 @@ m_core_snprintf(char *str, size_t size, const char *format, ...)
    return (x<<n) | (x>>(-n&31));
    but compilers are less likely to generate a roll instruction.
  */
-static inline uint32_t m_core_rotl32a (uint32_t x, uint32_t n)
+M_INLINE uint32_t m_core_rotl32a (uint32_t x, uint32_t n)
 {
   M_ASSERT (n > 0 && n<32);
   return (x<<n) | (x>>(32-n));
 }
-static inline uint64_t m_core_rotl64a (uint64_t x, uint32_t n)
+M_INLINE uint64_t m_core_rotl64a (uint64_t x, uint32_t n)
 {
   M_ASSERT (n > 0 && n<64);
   return (x<<n) | (x>>(64-n));
@@ -3031,7 +3065,7 @@ static inline uint64_t m_core_rotl64a (uint64_t x, uint32_t n)
 /* Round to the next highest power of 2.
    See https://web.archive.org/web/20160703165415/https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
 */
-static inline uint64_t m_core_roundpow2(uint64_t v)
+M_INLINE uint64_t m_core_roundpow2(uint64_t v)
 {
   v--;
   v |= v >> 1;
@@ -3046,20 +3080,20 @@ static inline uint64_t m_core_roundpow2(uint64_t v)
 
 /* Return the count leading zero of the argument */
 #if defined(__GNUC__) && (__GNUC__*100 + __GNUC_MINOR__) >= 304
-static inline unsigned int m_core_clz32(uint32_t limb)
+M_INLINE unsigned int m_core_clz32(uint32_t limb)
 {
   return (unsigned int) (M_UNLIKELY (limb == 0) ? sizeof(uint32_t)*CHAR_BIT : (size_t) __builtin_clzl(limb) - (sizeof(unsigned long) - sizeof(uint32_t)) * CHAR_BIT);
 }
-static inline unsigned int m_core_clz64(uint64_t limb)
+M_INLINE unsigned int m_core_clz64(uint64_t limb)
 {
   return (unsigned int) (M_UNLIKELY (limb == 0ULL) ? sizeof (uint64_t)*CHAR_BIT : (size_t) __builtin_clzll(limb) - (sizeof (unsigned long long) - sizeof (uint64_t)) * CHAR_BIT);
 }
 
-static inline unsigned int m_core_ctz32(uint32_t limb)
+M_INLINE unsigned int m_core_ctz32(uint32_t limb)
 {
   return (unsigned int) (M_UNLIKELY (limb == 0) ? sizeof(uint32_t)*CHAR_BIT : (size_t) __builtin_ctzl(limb));
 }
-static inline unsigned int m_core_ctz64(uint64_t limb)
+M_INLINE unsigned int m_core_ctz64(uint64_t limb)
 {
   return (unsigned int) (M_UNLIKELY (limb == 0ULL) ? sizeof (uint64_t)*CHAR_BIT : (size_t) __builtin_ctzll(limb));
 }
@@ -3067,7 +3101,7 @@ static inline unsigned int m_core_ctz64(uint64_t limb)
 #elif defined(_MSC_VER) && (defined(_M_AMD64) || defined(_M_ARM64))
 // NOTE: _BitScanReverse64 is 64-bits only (not compatible 32 bits).
 #include <intrin.h>
-static inline unsigned int m_core_clz32(uint32_t limb)
+M_INLINE unsigned int m_core_clz32(uint32_t limb)
 {
   unsigned long bit = 0;
   if (_BitScanReverse( &bit, limb ) != 0) {
@@ -3076,7 +3110,7 @@ static inline unsigned int m_core_clz32(uint32_t limb)
     return 32;
   }
 }
-static inline unsigned int m_core_clz64(uint64_t limb)
+M_INLINE unsigned int m_core_clz64(uint64_t limb)
 {
   unsigned long bit = 0;
   if (_BitScanReverse64( &bit, limb ) != 0) {
@@ -3086,7 +3120,7 @@ static inline unsigned int m_core_clz64(uint64_t limb)
   }
 }
 
-static inline unsigned int m_core_ctz32(uint32_t limb)
+M_INLINE unsigned int m_core_ctz32(uint32_t limb)
 {
   unsigned long bit = 0;
   if (_BitScanForward( &bit, limb ) != 0) {
@@ -3095,7 +3129,7 @@ static inline unsigned int m_core_ctz32(uint32_t limb)
     return 32;
   }
 }
-static inline unsigned int m_core_ctz64(uint64_t limb)
+M_INLINE unsigned int m_core_ctz64(uint64_t limb)
 {
   unsigned long bit = 0;
   if (_BitScanForward64( &bit, limb ) != 0) {
@@ -3109,7 +3143,7 @@ static inline unsigned int m_core_ctz64(uint64_t limb)
 // Emulation layer
 #define M_CORE_CLZ_TAB "\010\07\06\06\05\05\05\05\04\04\04\04\04\04\04\04\03\03\03\03\03\03\03\03\03\03\03\03\03\03\03\03\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00"
 
-static inline unsigned int m_core_clz32(uint32_t limb)
+M_INLINE unsigned int m_core_clz32(uint32_t limb)
 {
   unsigned int shift = 0;
   /* This code should be branchless on most targets */
@@ -3126,7 +3160,7 @@ static inline unsigned int m_core_clz32(uint32_t limb)
   return shift;
 }
 
-static inline unsigned int m_core_clz64(uint64_t limb)
+M_INLINE unsigned int m_core_clz64(uint64_t limb)
 {
   unsigned int shift = 0;
   /* This code should be branchless on most targets */
@@ -3154,13 +3188,13 @@ static inline unsigned int m_core_clz64(uint64_t limb)
 /* See algorithm ctz5 that uses de Bruijn sequences to construct a minimal perfect hash function (32 bits) */
 #define M_CORE_CTZ_TAB "\000\001\034\002\035\016\030\003\036\026\024\017\031\021\004\010\037\033\015\027\025\023\020\007\032\014\022\006\013\005\012\011"
 
-static inline unsigned int m_core_ctz32(uint32_t limb)
+M_INLINE unsigned int m_core_ctz32(uint32_t limb)
 {
   if (limb == 0) { return 32; }
   return (unsigned int) M_CORE_CTZ_TAB[ ( (uint32_t) (limb & -limb) * 0x077CB531) >> 27];
 }
 
-static inline unsigned int m_core_ctz64(uint64_t limb)
+M_INLINE unsigned int m_core_ctz64(uint64_t limb)
 {
   unsigned int shift = 0;
   if ((limb & 0x0FFFFFFFFull) == 0) { shift = 32; limb >>= 32; }
@@ -3182,7 +3216,7 @@ static inline unsigned int m_core_ctz64(uint64_t limb)
  */
 #if SIZE_MAX <= 4294967295U
 /* 32 bits variant with an average measured avalanche effect of 16.056 bits */
-static inline uint32_t
+M_INLINE uint32_t
 m_core_hash (const void *str, size_t length)
 {
   const uint32_t prime = 709607U;
@@ -3217,7 +3251,7 @@ m_core_hash (const void *str, size_t length)
 }
 #else
 /* 64 bits variant with an average measured avalanche effect of 31.862 bits */
-static inline uint64_t
+M_INLINE uint64_t
 m_core_hash (const void *str, size_t length)
 {
   const uint64_t prime = 1099511628211ULL;
@@ -3263,7 +3297,7 @@ m_core_hash (const void *str, size_t length)
  * We cannot use m_core_hash due to the alignment constraint,
  * and it avoids computing the size before computing the hash.
  */
-static inline size_t m_core_cstr_hash(const char str[])
+M_INLINE size_t m_core_cstr_hash(const char str[])
 {
   M_HASH_DECL(hash);
   while (*str) {
@@ -3735,7 +3769,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_CHECK_COMPATIBLE_OPLIST(name, inst, type, oplist)                   \
   M_IF_METHOD(TYPE, oplist)                                                   \
   (                                                                           \
-   static inline void M_C3(m_c0re_ctype_, name, inst)(void)                   \
+   M_INLINE void M_C3(m_c0re_ctype_, name, inst)(void)                        \
   {                                                                           \
     type x;                                                                   \
     /* Proper check using _Generic */                                         \
@@ -3752,7 +3786,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_CHECK_COMPATIBLE_OPLIST(name, inst, type, oplist)                   \
   M_IF_METHOD(TYPE, oplist)                                                   \
   (                                                                           \
-   static inline void M_C3(m_c0re_ctype_, name, inst)(void)                   \
+   M_INLINE void M_C3(m_c0re_ctype_, name, inst)(void)                        \
   {                                                                           \
     /* Imperfect check using size of type */                                  \
     M_STATIC_ASSERT(sizeof (type) == sizeof (M_GET_TYPE oplist),              \
@@ -3947,7 +3981,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 /* Input/Output an enumerate.
    It is stored as a long long integer for best compatibility. */
 #if M_USE_STDIO
-static inline long long
+M_INLINE long long
 m_core_fscan_enum (FILE *f)
 {
   long long ret;
@@ -3964,12 +3998,12 @@ m_core_fscan_enum (FILE *f)
 
 /* HACK: Parse two times to convert and then compute
    if the conversion succeeds for PARSE */
-static inline long long
+M_INLINE long long
 m_core_parse1_enum (const char str[])
 {
   return strtoll(str, NULL, 10);
 }
-static inline bool
+M_INLINE bool
 m_core_parse2_enum (const char str[], const char **endptr)
 {
   char *end;
@@ -4739,7 +4773,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
    one for value only.
 */
 #define M_EMPLACE_ASS_ARRA1_BOTH_GENE(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   function_name(name_t v                                                      \
                 M_EMPLACE_LIST_TYPE_VAR(akey, key_emplace_type)               \
                 M_EMPLACE_LIST_TYPE_VAR(aval, val_emplace_type)               \
@@ -4754,7 +4788,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
   }                                                                           \
 
 #define M_EMPLACE_ASS_ARRA1_KEY_GENE(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   function_name(name_t v                                                      \
                 M_EMPLACE_LIST_TYPE_VAR(akey, key_emplace_type)               \
                 , M_F(name, _value_ct) const val                              \
@@ -4766,7 +4800,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
   }                                                                           \
 
 #define M_EMPLACE_ASS_ARRA1_VAL_GENE(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   function_name(name_t v, M_F(name, _key_ct) const key                        \
                 M_EMPLACE_LIST_TYPE_VAR(aval, val_emplace_type)               \
   ){                                                                          \
@@ -4782,7 +4816,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
    This definition is far from being efficient but works for the current interface.
 */
 #define M_EMPLACE_QUEUE_GENE(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   function_name(name_t v                                                      \
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
@@ -4798,7 +4832,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
    This definition is far from being efficient but works for the current interface.
 */
 #define M_EMPLACE_GET_GENE(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  static inline M_F(name, _value_ct) *                                        \
+  M_INLINE M_F(name, _value_ct) *                                             \
   function_name(name_t const v                                                \
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
@@ -4834,7 +4868,7 @@ typedef struct m_core_backoff_s {
 /* Initialize a backoff object.
  * Use the C function rand to initialize its internal seed.
  * It should be good enough for the purpose of the backoff */
-static inline void
+M_INLINE void
 m_core_backoff_init(m_core_backoff_ct backoff)
 {
   backoff->count = 0;
@@ -4842,7 +4876,7 @@ m_core_backoff_init(m_core_backoff_ct backoff)
 }
 
 /* Reset the count of the backoff object */
-static inline void
+M_INLINE void
 m_core_backoff_reset(m_core_backoff_ct backoff)
 {
   backoff->count = 0;
@@ -4851,7 +4885,7 @@ m_core_backoff_reset(m_core_backoff_ct backoff)
 /* Wait a few nanoseconds using an active loop,
  * generating a random number of nanosecond to wait,
  * and increment the number of times wait has been called */
-static inline void
+M_INLINE void
 m_core_backoff_wait(m_core_backoff_ct backoff)
 {
   /* x is qualified as volatile to avoid being optimized away
@@ -4870,7 +4904,7 @@ m_core_backoff_wait(m_core_backoff_ct backoff)
 }
 
 /* Clear the backoff object */
-static inline void
+M_INLINE void
 m_core_backoff_clear(m_core_backoff_ct backoff)
 {
   // Nothing to do
@@ -5074,7 +5108,7 @@ typedef struct m_serial_write_interface_s {
 /* Helper functions for M_IN_SERIAL_DEFAULT_ARG
    as we need to define a function per supported type in the generic expression */
 #define M_IN_SERIAL_DEFAULT_TYPE_DEF(name, type, func, promoted_type)         \
-  static inline m_serial_return_code_t                                        \
+  M_INLINE m_serial_return_code_t                                             \
   name (m_serial_read_t serial, type *ptr)                                    \
   {                                                                           \
     promoted_type i;                                                          \
@@ -5100,7 +5134,7 @@ M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_double, double, read_float, long d
 M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_ldouble, long double, read_float, long double)
 
 /* Helper function for M_ENUM_IN_SERIAL */
-static inline long long
+M_INLINE long long
 m_core_in_serial_enum(m_serial_read_t serial)
 {
   long long i;
@@ -5113,7 +5147,7 @@ m_core_in_serial_enum(m_serial_read_t serial)
  * because of expanded code will call strlen with NULL (which is illegal)
  * However, the branch where it is called is unreachable, so the warning
  * is not justified. */
-static inline size_t
+M_INLINE size_t
 m_core_out_serial_strlen(const char s[])
 {
   M_ASSERT(s != NULL);
@@ -5125,7 +5159,7 @@ m_core_out_serial_strlen(const char s[])
  * M_SERIAL_FAIL 
  * so that a breakpoint can be put on this function for debugging purpose.
  */
-static inline m_serial_return_code_t
+M_INLINE m_serial_return_code_t
 m_core_serial_fail(void)
 {
   return M_SERIAL_FAIL;

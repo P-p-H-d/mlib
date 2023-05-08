@@ -242,7 +242,7 @@ namespace m_lib {
 
 /* Define the INIT method calling the INIT method for all params */
 #define M_TUPL3_DEFINE_INIT(name, ...)                                        \
-  static inline void M_F(name, _init)(M_F(name,_ct) my) {                     \
+  M_INLINE void M_F(name, _init)(M_F(name,_ct) my) {                          \
     M_MAP(M_TUPL3_DEFINE_INIT_FUNC , __VA_ARGS__)                             \
   }
 
@@ -251,7 +251,7 @@ namespace m_lib {
 
 /* Define the INIT_SET method calling the INIT_SET method for all params */
 #define M_TUPL3_DEFINE_INIT_SET(name, ...)                                    \
-  static inline void M_F(name, _init_set)(M_F(name,_ct) my , M_F(name,_ct) const org) { \
+  M_INLINE void M_F(name, _init_set)(M_F(name,_ct) my , M_F(name,_ct) const org) { \
     M_TUPL3_CONTRACT(org);                                                    \
     M_MAP(M_TUPL3_DEFINE_INIT_SET_FUNC , __VA_ARGS__)                         \
   }
@@ -260,7 +260,7 @@ namespace m_lib {
 
 /* Define the INIT_WITH method calling the INIT_SET method for all params. */
 #define M_TUPL3_DEFINE_INIT_SET2(name, ...)                                   \
-  static inline void M_F(name, _init_emplace)(M_F(name,_ct) my                \
+  M_INLINE void M_F(name, _init_emplace)(M_F(name,_ct) my                     \
                       M_MAP(M_TUPL3_DEFINE_INIT_SET2_PROTO, __VA_ARGS__)      \
                                            ) {                                \
     M_MAP(M_TUPL3_DEFINE_INIT_SET2_FUNC , __VA_ARGS__)                        \
@@ -275,7 +275,7 @@ namespace m_lib {
 
 /* Define the SET method calling the SET method for all params. */
 #define M_TUPL3_DEFINE_SET(name, ...)                                         \
-  static inline void M_F(name, _set)(M_F(name,_ct) my ,                       \
+  M_INLINE void M_F(name, _set)(M_F(name,_ct) my ,                            \
                                      M_F(name,_ct) const org) {               \
     M_TUPL3_CONTRACT(my);                                                     \
     M_TUPL3_CONTRACT(org);                                                    \
@@ -288,7 +288,7 @@ namespace m_lib {
 
 /* Define the SET_WITH method calling the SET method for all params. */
 #define M_TUPL3_DEFINE_SET2(name, ...)                                        \
-  static inline void M_F(name, _emplace)(M_F(name,_ct) my                     \
+  M_INLINE void M_F(name, _emplace)(M_F(name,_ct) my                          \
                       M_MAP(M_TUPL3_DEFINE_SET2_PROTO, __VA_ARGS__)           \
                                            ) {                                \
     M_TUPL3_CONTRACT(my);                                                     \
@@ -303,7 +303,7 @@ namespace m_lib {
 
 /* Define the CLEAR method calling the CLEAR method for all params. */
 #define M_TUPL3_DEFINE_CLEAR(name, ...)                                       \
-  static inline void M_F(name, _clear)(M_F(name,_ct) my) {                    \
+  M_INLINE void M_F(name, _clear)(M_F(name,_ct) my) {                         \
     M_TUPL3_CONTRACT(my);                                                     \
     M_MAP(M_TUPL3_DEFINE_CLEAR_FUNC , __VA_ARGS__)                            \
   }
@@ -317,18 +317,18 @@ namespace m_lib {
   M_MAP3(M_TUPL3_DEFINE_GETTER_FIELD_PROTO, name, __VA_ARGS__)
 
 #define M_TUPL3_DEFINE_GETTER_FIELD_PROTO(name, num, a)                       \
-  static inline M_TUPL3_GET_TYPE a * M_C3(name, _get_at_, M_TUPL3_GET_FIELD a) \
+  M_INLINE M_TUPL3_GET_TYPE a * M_C3(name, _get_at_, M_TUPL3_GET_FIELD a)     \
        (M_F(name,_ct) my) {                                                   \
     M_TUPL3_CONTRACT(my);                                                     \
     return &(my->M_TUPL3_GET_FIELD a);                                        \
   }                                                                           \
-  static inline M_TUPL3_GET_TYPE a const * M_C3(name, _cget_at_, M_TUPL3_GET_FIELD a) \
+  M_INLINE M_TUPL3_GET_TYPE a const * M_C3(name, _cget_at_, M_TUPL3_GET_FIELD a) \
     (M_F(name,_ct) const my) {                                                \
     M_TUPL3_CONTRACT(my);                                                     \
     return &(my->M_TUPL3_GET_FIELD a);                                        \
   }                                                                           \
   /* Same but uses numerical index for accessing the field (internal) */      \
-  static inline M_TUPL3_GET_TYPE a * M_C4(m_tupl3_, name, _get_at_, num)      \
+  M_INLINE M_TUPL3_GET_TYPE a * M_C4(m_tupl3_, name, _get_at_, num)           \
        (M_F(name,_ct) my) {                                                   \
     return &(my->M_TUPL3_GET_FIELD a);                                        \
   }                                                                           \
@@ -339,7 +339,7 @@ namespace m_lib {
   M_MAP2(M_TUPL3_DEFINE_SETTER_FIELD_PROTO, name, __VA_ARGS__)
 
 #define M_TUPL3_DEFINE_SETTER_FIELD_PROTO(name, a)                            \
-  static inline void M_C3(name, _set_, M_TUPL3_GET_FIELD a)                   \
+  M_INLINE void M_C3(name, _set_, M_TUPL3_GET_FIELD a)                        \
        (M_F(name,_ct) my, M_TUPL3_GET_TYPE a const M_TUPL3_GET_FIELD a) {     \
     M_TUPL3_CONTRACT(my);                                                     \
     M_TUPL3_CALL_SET(a, my ->M_TUPL3_GET_FIELD a, M_TUPL3_GET_FIELD a);       \
@@ -348,7 +348,7 @@ namespace m_lib {
 
 /* Define the CMP method by calling CMP methods for all params. */
 #define M_TUPL3_DEFINE_CMP(name, ...)                                         \
-  static inline int M_F(name, _cmp)(M_F(name,_ct) const e1 ,                  \
+  M_INLINE int M_F(name, _cmp)(M_F(name,_ct) const e1 ,                       \
                                     M_F(name,_ct) const e2) {                 \
     int i;                                                                    \
     M_TUPL3_CONTRACT(e1);                                                     \
@@ -369,7 +369,7 @@ namespace m_lib {
    FIXME: All oplists shall define the CMP operator or at least one?
 */
 #define M_TUPL3_DEFINE_CMP_ORDER(name, ...)                                   \
-  static inline int M_F(name, _cmp_order)(M_F(name,_ct) const e1 ,            \
+  M_INLINE int M_F(name, _cmp_order)(M_F(name,_ct) const e1 ,                 \
                                           M_F(name,_ct) const e2,             \
                                           const int order[]) {                \
     int i, r;                                                                 \
@@ -403,7 +403,7 @@ namespace m_lib {
   )
 
 #define M_TUPL3_DEFINE_CMP_FIELD_FUNC(name, field, func_cmp, oplist)          \
-  static inline int M_C3(name, _cmp_, field)(M_F(name,_ct) const e1 ,         \
+  M_INLINE int M_C3(name, _cmp_, field)(M_F(name,_ct) const e1 ,              \
                                              M_F(name,_ct) const e2) {        \
     M_TUPL3_CONTRACT(e1);                                                     \
     M_TUPL3_CONTRACT(e2);                                                     \
@@ -413,7 +413,7 @@ namespace m_lib {
 
 /* Define a EQUAL method by calling the EQUAL methods  for all params */
 #define M_TUPL3_DEFINE_EQUAL(name, ...)                                       \
-  static inline bool M_F(name, _equal_p)(M_F(name,_ct) const e1 ,             \
+  M_INLINE bool M_F(name, _equal_p)(M_F(name,_ct) const e1 ,                  \
                                          M_F(name,_ct) const e2) {            \
     bool b;                                                                   \
     M_TUPL3_CONTRACT(e1);                                                     \
@@ -431,7 +431,7 @@ namespace m_lib {
 
 /* Define a HASH method by calling the HASH methods  for all params */
 #define M_TUPL3_DEFINE_HASH(name, ...)                                        \
-  static inline size_t M_F(name, _hash)(M_F(name,_ct) const e1) {             \
+  M_INLINE size_t M_F(name, _hash)(M_F(name,_ct) const e1) {                  \
     M_TUPL3_CONTRACT(e1);                                                     \
     M_HASH_DECL(hash);                                                        \
     M_MAP(M_TUPL3_DEFINE_HASH_FUNC_P0, __VA_ARGS__)                           \
@@ -446,7 +446,7 @@ namespace m_lib {
 
 /* Define a GET_STR method by calling the GET_STR methods for all params */
 #define M_TUPL3_DEFINE_GET_STR(name, ...)                                     \
-  static inline void M_F(name, _get_str)(m_string_t str,                      \
+  M_INLINE void M_F(name, _get_str)(m_string_t str,                           \
                                          M_F(name,_ct) const el,              \
                                          bool append) {                       \
     bool comma = false;                                                       \
@@ -465,7 +465,7 @@ namespace m_lib {
 
 /* Define a OUT_STR method by calling the OUT_STR methods for all params */
 #define M_TUPL3_DEFINE_OUT_STR(name, ...)                                     \
-  static inline void M_F(name, _out_str)(FILE *f,                             \
+  M_INLINE void M_F(name, _out_str)(FILE *f,                                  \
                                          M_F(name,_ct) const el) {            \
     bool comma = false;                                                       \
     M_TUPL3_CONTRACT(el);                                                     \
@@ -483,7 +483,7 @@ namespace m_lib {
 
 /* Define a IN_STR method by calling the IN_STR methods for all params */
 #define M_TUPL3_DEFINE_IN_STR(name, ...)                                      \
-  static inline bool M_F(name, _in_str)(M_F(name,_ct) el, FILE *f) {          \
+  M_INLINE bool M_F(name, _in_str)(M_F(name,_ct) el, FILE *f) {               \
     bool comma = false;                                                       \
     M_TUPL3_CONTRACT(el);                                                     \
     M_ASSERT (f != NULL);                                                     \
@@ -506,7 +506,7 @@ namespace m_lib {
 
 /* Define a PARSE_STR method by calling the PARSE_STR methods for all params */
 #define M_TUPL3_DEFINE_PARSE_STR(name, ...)                                   \
-  static inline bool M_F(name, _parse_str)(M_F(name,_ct) el,                  \
+  M_INLINE bool M_F(name, _parse_str)(M_F(name,_ct) el,                       \
                                         const char str[],                     \
                                         const char **endptr) {                \
     M_TUPL3_CONTRACT(el);                                                     \
@@ -540,7 +540,7 @@ namespace m_lib {
 
 /* Define a OUT_SERIAL method by calling the OUT_SERIAL methods for all params */
 #define M_TUPL3_DEFINE_OUT_SERIAL(name, ...)                                  \
-  static inline m_serial_return_code_t                                        \
+  M_INLINE m_serial_return_code_t                                             \
   M_F(name, _out_serial)(m_serial_write_t f,                                  \
                          M_F(name,_ct) const el) {                            \
     M_TUPL3_CONTRACT(el);                                                     \
@@ -567,7 +567,7 @@ namespace m_lib {
 
 /* Define a IN_SERIAL method by calling the IN_SERIAL methods for all params */
 #define M_TUPL3_DEFINE_IN_SERIAL(name, ...)                                   \
-  static inline m_serial_return_code_t                                        \
+  M_INLINE m_serial_return_code_t                                             \
   M_F(name, _in_serial)(M_F(name,_ct) el, m_serial_read_t f) {                \
     M_TUPL3_CONTRACT(el);                                                     \
     M_ASSERT (f != NULL && f->m_interface != NULL);                           \
@@ -600,7 +600,7 @@ namespace m_lib {
 
 /* Define a INIT_MOVE method by calling the INIT_MOVE methods for all params */
 #define M_TUPL3_DEFINE_INIT_MOVE(name, ...)                                   \
-  static inline void M_F(name, _init_move)(M_F(name,_ct) el, M_F(name,_ct) org) { \
+  M_INLINE void M_F(name, _init_move)(M_F(name,_ct) el, M_F(name,_ct) org) {  \
     M_TUPL3_CONTRACT(el);                                                     \
     M_MAP(M_TUPL3_DEFINE_INIT_MOVE_FUNC , __VA_ARGS__)                        \
   }
@@ -611,7 +611,7 @@ namespace m_lib {
 
 /* Define a MOVE method by calling the MOVE methods for all params */
 #define M_TUPL3_DEFINE_MOVE(name, ...)                                        \
- static inline void M_F(name, _move)(M_F(name,_ct) el, M_F(name,_ct) org) {   \
+ M_INLINE void M_F(name, _move)(M_F(name,_ct) el, M_F(name,_ct) org) {        \
     M_TUPL3_CONTRACT(el);                                                     \
     M_MAP(M_TUPL3_DEFINE_MOVE_FUNC , __VA_ARGS__)                             \
  }
@@ -622,7 +622,7 @@ namespace m_lib {
 
 /* Define a SWAP method by calling the SWAP methods for all params */
 #define M_TUPL3_DEFINE_SWAP(name, ...)                                        \
-  static inline void M_F(name, _swap)(M_F(name,_ct) el1, M_F(name,_ct) el2) { \
+  M_INLINE void M_F(name, _swap)(M_F(name,_ct) el1, M_F(name,_ct) el2) {      \
     M_TUPL3_CONTRACT(el1);                                                    \
     M_TUPL3_CONTRACT(el2);                                                    \
     M_MAP(M_TUPL3_DEFINE_SWAP_FUNC , __VA_ARGS__)                             \
@@ -634,7 +634,7 @@ namespace m_lib {
 
 /* Define a RESET method by calling the RESET methods for all params */
 #define M_TUPL3_DEFINE_RESET(name, ...)                                       \
-  static inline void M_F(name, _reset)(M_F(name,_ct) el1) {                   \
+  M_INLINE void M_F(name, _reset)(M_F(name,_ct) el1) {                        \
     M_TUPL3_CONTRACT(el1);                                                    \
     M_MAP(M_TUPL3_DEFINE_RESET_FUNC , __VA_ARGS__)                            \
   }                                                                           \

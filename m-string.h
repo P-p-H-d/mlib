@@ -149,7 +149,7 @@ typedef struct m_string_it_s {
    the string structure remains trivially movable (which is an important
    property to have).
  */
-static inline bool
+M_INLINE bool
 m_str1ng_stack_p(const m_string_t s)
 {
   // Function can be called when contract is not fulfilled
@@ -157,7 +157,7 @@ m_str1ng_stack_p(const m_string_t s)
 }
 
 /* Internal method to set the size of the string (excluding final nul char) */
-static inline void
+M_INLINE void
 m_str1ng_set_size(m_string_t s, size_t size)
 {
   // Function can be called when contract is not fulfilled
@@ -171,7 +171,7 @@ m_str1ng_set_size(m_string_t s, size_t size)
 }
 
 /* Return the number of bytes of the string (excluding the final nul char) */
-static inline size_t
+M_INLINE size_t
 m_string_size(const m_string_t s)
 {
   // Function can be called when contract is not fulfilled
@@ -182,7 +182,7 @@ m_string_size(const m_string_t s)
 }
 
 /* Return the capacity of the string (including the final nul char) */
-static inline size_t
+M_INLINE size_t
 m_string_capacity(const m_string_t s)
 {
   // Function can be called when contract is not fulfilled
@@ -193,7 +193,7 @@ m_string_capacity(const m_string_t s)
 }
 
 /* Return a writable pointer to the array of char of the string */
-static inline char*
+M_INLINE char*
 m_str1ng_get_cstr(m_string_t v)
 {
   // Function can be called when contract is not fulfilled
@@ -203,7 +203,7 @@ m_str1ng_get_cstr(m_string_t v)
 }
 
 /* Return the string view a classic C string (const char *) */
-static inline const char*
+M_INLINE const char*
 m_string_get_cstr(const m_string_t v)
 {
   // Function cannot be called when contract is not fulfilled
@@ -215,7 +215,7 @@ m_string_get_cstr(const m_string_t v)
 
 /* Initialize the dynamic string (constructor) 
   and make it empty */
-static inline void
+M_INLINE void
 m_string_init(m_string_t s)
 {
   s->ptr = NULL;
@@ -225,7 +225,7 @@ m_string_init(m_string_t s)
 }
 
 /* Clear the Dynamic string (destructor) */
-static inline void
+M_INLINE void
 m_string_clear(m_string_t v)
 {
   M_STR1NG_CONTRACT(v);
@@ -239,14 +239,14 @@ m_string_clear(m_string_t v)
 }
 
 /* NOTE: Internaly used by M_STRING_DECL_INIT */
-static inline void m_str1ng_clear2(m_string_t *v) { m_string_clear(*v); }
-static inline m_string_ptr m_str1ng_init_ref(m_string_t v) { m_string_init(v); return v; }
+M_INLINE void m_str1ng_clear2(m_string_t *v) { m_string_clear(*v); }
+M_INLINE m_string_ptr m_str1ng_init_ref(m_string_t v) { m_string_init(v); return v; }
 
 /* Clear the Dynamic string (destructor)
   and return a heap pointer to the string.
   The ownership of the data is transfered back to the caller
   and the returned pointer has to be released by M_MEMORY_FREE. */
-static inline char *
+M_INLINE char *
 m_string_clear_get_cstr(m_string_t v)
 {
   M_STR1NG_CONTRACT(v);
@@ -271,7 +271,7 @@ m_string_clear_get_cstr(m_string_t v)
 }
 
 /* Make the string empty */
-static inline void
+M_INLINE void
 m_string_reset(m_string_t v)
 {
   M_STR1NG_CONTRACT (v);
@@ -281,7 +281,7 @@ m_string_reset(m_string_t v)
 }
 
 /* Return the selected byte-character of the string */
-static inline char
+M_INLINE char
 m_string_get_char(const m_string_t v, size_t index)
 {
   M_STR1NG_CONTRACT (v);
@@ -290,7 +290,7 @@ m_string_get_char(const m_string_t v, size_t index)
 }
 
 /* Set the selected byte-character of the string */
-static inline void
+M_INLINE void
 m_string_set_char(m_string_t v, size_t index, const char c)
 {
   M_STR1NG_CONTRACT (v);
@@ -299,7 +299,7 @@ m_string_set_char(m_string_t v, size_t index, const char c)
 }
 
 /* Test if the string is empty or not */
-static inline bool
+M_INLINE bool
 m_string_empty_p(const m_string_t v)
 {
   M_STR1NG_CONTRACT (v);
@@ -312,7 +312,7 @@ m_string_empty_p(const m_string_t v)
    It may move the string from stack based to heap based.
    Return a pointer to the writable string.
 */
-static inline char *
+M_INLINE char *
 m_str1ng_fit2size (m_string_t v, size_t size_alloc)
 {
   M_ASSERT_INDEX (0, size_alloc);
@@ -362,7 +362,7 @@ m_str1ng_fit2size (m_string_t v, size_t size_alloc)
 /* Modify the string capacity to be able to handle at least 'alloc'
    characters (including final nul char).
    It may reduce the allocation of the string if possible */
-static inline void
+M_INLINE void
 m_string_reserve(m_string_t v, size_t alloc)
 {
   M_STR1NG_CONTRACT (v);
@@ -407,7 +407,7 @@ m_string_reserve(m_string_t v, size_t alloc)
 }
 
 /* Set the string to the C string str */
-static inline void
+M_INLINE void
 m_string_set_cstr(m_string_t v, const char str[])
 {
   M_STR1NG_CONTRACT (v);
@@ -421,7 +421,7 @@ m_string_set_cstr(m_string_t v, const char str[])
 }
 
 /* Set the string to the n first characters of the C string str */
-static inline void
+M_INLINE void
 m_string_set_cstrn(m_string_t v, const char str[], size_t n)
 {
   M_STR1NG_CONTRACT (v);
@@ -437,7 +437,7 @@ m_string_set_cstrn(m_string_t v, const char str[], size_t n)
 }
 
 /* Set the string to the other one */
-static inline void
+M_INLINE void
 m_string_set (m_string_t v1, const m_string_t v2)
 {
   M_STR1NG_CONTRACT (v1);
@@ -452,7 +452,7 @@ m_string_set (m_string_t v1, const m_string_t v2)
 }
 
 /* Set the string to the n first characters of other one */
-static inline void
+M_INLINE void
 m_string_set_n(m_string_t v, const m_string_t ref, size_t offset, size_t length)
 {
   M_STR1NG_CONTRACT (v);
@@ -469,7 +469,7 @@ m_string_set_n(m_string_t v, const m_string_t ref, size_t offset, size_t length)
 
 /* Initialize the string and set it to the other one 
    (constructor) */
-static inline void
+M_INLINE void
 m_string_init_set(m_string_t v1, const m_string_t v2)
 {
   m_string_init(v1);
@@ -478,7 +478,7 @@ m_string_init_set(m_string_t v1, const m_string_t v2)
 
 /* Initialize the string and set it to the C string
    (constructor) */
-static inline void
+M_INLINE void
 m_string_init_set_cstr(m_string_t v1, const char str[])
 {
   m_string_init(v1);
@@ -488,7 +488,7 @@ m_string_init_set_cstr(m_string_t v1, const char str[])
 /* Initialize the string, set it to the other one,
    and destroy the other one.
    (constructor & destructor) */
-static inline void
+M_INLINE void
 m_string_init_move(m_string_t v1, m_string_t v2)
 {
   M_STR1NG_CONTRACT (v2);
@@ -499,7 +499,7 @@ m_string_init_move(m_string_t v1, m_string_t v2)
 }
 
 /* Swap the two strings v1 and v2 */
-static inline void
+M_INLINE void
 m_string_swap(m_string_t v1, m_string_t v2)
 {
   M_STR1NG_CONTRACT (v1);
@@ -516,7 +516,7 @@ m_string_swap(m_string_t v1, m_string_t v2)
 /* Set the string to the other one,
    and destroy the other one.
    (destructor) */
-static inline void
+M_INLINE void
 m_string_move(m_string_t v1, m_string_t v2)
 {
   m_string_clear(v1);
@@ -524,7 +524,7 @@ m_string_move(m_string_t v1, m_string_t v2)
 }
 
 /* Push the byte-character 'c' in the string 'v' */
-static inline void
+M_INLINE void
 m_string_push_back (m_string_t v, char c)
 {
   M_STR1NG_CONTRACT (v);
@@ -537,7 +537,7 @@ m_string_push_back (m_string_t v, char c)
 }
 
 /* Concatene the string with the C string */
-static inline void
+M_INLINE void
 m_string_cat_cstr(m_string_t v, const char str[])
 {
   M_STR1NG_CONTRACT (v);
@@ -551,7 +551,7 @@ m_string_cat_cstr(m_string_t v, const char str[])
 }
 
 /* Concatene the string with the other string */
-static inline void
+M_INLINE void
 m_string_cat(m_string_t v, const m_string_t v2)
 {
   M_STR1NG_CONTRACT (v2);
@@ -569,7 +569,7 @@ m_string_cat(m_string_t v, const m_string_t v2)
 
 /* Compare the string to the C string and
   return the sort order (negative if less, 0 if equal, positive if greater) */
-static inline int
+M_INLINE int
 m_string_cmp_cstr(const m_string_t v1, const char str[])
 {
   M_STR1NG_CONTRACT (v1);
@@ -579,7 +579,7 @@ m_string_cmp_cstr(const m_string_t v1, const char str[])
 
 /* Compare the string to the other string and
   return the sort order (negative if less, 0 if equal, positive if greater) */
-static inline int
+M_INLINE int
 m_string_cmp(const m_string_t v1, const m_string_t v2)
 {
   M_STR1NG_CONTRACT (v1);
@@ -588,7 +588,7 @@ m_string_cmp(const m_string_t v1, const m_string_t v2)
 }
 
 /* Test if the string is equal to the given C string */
-static inline bool
+M_INLINE bool
 m_string_equal_cstr_p(const m_string_t v1, const char str[])
 {
   M_STR1NG_CONTRACT(v1);
@@ -597,7 +597,7 @@ m_string_equal_cstr_p(const m_string_t v1, const char str[])
 }
 
 /* Test if the string is equal to the other string */
-static inline bool
+M_INLINE bool
 m_string_equal_p(const m_string_t v1, const m_string_t v2)
 {
   /* m_string_equal_p can be called with (at most) one string which is an OOR value.
@@ -616,7 +616,7 @@ m_string_equal_p(const m_string_t v1, const m_string_t v2)
    (case insentive according to the current locale)
    Note: doesn't work with UTF-8 strings.
 */
-static inline int
+M_INLINE int
 m_string_cmpi_cstr(const m_string_t v1, const char p2[])
 {
   M_STR1NG_CONTRACT (v1);
@@ -638,7 +638,7 @@ m_string_cmpi_cstr(const m_string_t v1, const char p2[])
    (case insentive according to the current locale)
    Note: doesn't work with UTF-8 strings.
 */
-static inline int
+M_INLINE int
 m_string_cmpi(const m_string_t v1, const m_string_t v2)
 {
   return m_string_cmpi_cstr(v1, m_string_get_cstr(v2));
@@ -649,7 +649,7 @@ m_string_cmpi(const m_string_t v1, const m_string_t v2)
    Return M_STRING_FAILURE if not found.
    By default, start is zero.
 */
-static inline size_t
+M_INLINE size_t
 m_string_search_char (const m_string_t v, char c, size_t start)
 {
   M_STR1NG_CONTRACT (v);
@@ -664,7 +664,7 @@ m_string_search_char (const m_string_t v, char c, size_t start)
    Return M_STRING_FAILURE if not found.
    By default, start is zero.
 */
-static inline size_t
+M_INLINE size_t
 m_string_search_rchar (const m_string_t v, char c, size_t start)
 {
   M_STR1NG_CONTRACT (v);
@@ -681,7 +681,7 @@ m_string_search_rchar (const m_string_t v, char c, size_t start)
 /* Search for the sub C string in the string from the position start
    Return M_STRING_FAILURE if not found.
    By default, start is zero. */
-static inline size_t
+M_INLINE size_t
 m_string_search_cstr(const m_string_t v, const char str[], size_t start)
 {
   M_STR1NG_CONTRACT (v);
@@ -695,7 +695,7 @@ m_string_search_cstr(const m_string_t v, const char str[], size_t start)
 /* Search for the sub other string v2 in the string v1 from the position start
    Return M_STRING_FAILURE if not found.
    By default, start is zero. */
-static inline size_t
+M_INLINE size_t
 m_string_search (const m_string_t v1, const m_string_t v2, size_t start)
 {
   M_STR1NG_CONTRACT (v2);
@@ -707,7 +707,7 @@ m_string_search (const m_string_t v1, const m_string_t v2, size_t start)
    in the string v1 from the position start
    Return M_STRING_FAILURE if not found.
    By default, start is zero. */
-static inline size_t
+M_INLINE size_t
 m_string_search_pbrk(const m_string_t v1, const char first_of[], size_t start)
 {
   M_STR1NG_CONTRACT (v1);
@@ -719,7 +719,7 @@ m_string_search_pbrk(const m_string_t v1, const char first_of[], size_t start)
 }
 
 /* Compare the string to the C string using strcoll */
-static inline int
+M_INLINE int
 m_string_strcoll_cstr(const m_string_t v, const char str[])
 {
   M_STR1NG_CONTRACT (v);
@@ -727,7 +727,7 @@ m_string_strcoll_cstr(const m_string_t v, const char str[])
 }
 
 /* Compare the string to the other string using strcoll */
-static inline int
+M_INLINE int
 m_string_strcoll (const m_string_t v1, const m_string_t v2)
 {
   M_STR1NG_CONTRACT (v2);
@@ -736,7 +736,7 @@ m_string_strcoll (const m_string_t v1, const m_string_t v2)
 
 /* Return the number of bytes of the segment of s
    that consists entirely of bytes in accept */
-static inline size_t
+M_INLINE size_t
 m_string_spn(const m_string_t v1, const char accept[])
 {
   M_STR1NG_CONTRACT (v1);
@@ -746,7 +746,7 @@ m_string_spn(const m_string_t v1, const char accept[])
 
 /* Return the number of bytes of the segment of s
    that consists entirely of bytes not in reject */
-static inline size_t
+M_INLINE size_t
 m_string_cspn(const m_string_t v1, const char reject[])
 {
   M_STR1NG_CONTRACT (v1);
@@ -755,7 +755,7 @@ m_string_cspn(const m_string_t v1, const char reject[])
 }
 
 /* Return the string left truncated to the first 'index' bytes */
-static inline void
+M_INLINE void
 m_string_left(m_string_t v, size_t index)
 {
   M_STR1NG_CONTRACT (v);
@@ -768,7 +768,7 @@ m_string_left(m_string_t v, size_t index)
 }
 
 /* Return the string right truncated from the 'index' position to the last position */
-static inline void
+M_INLINE void
 m_string_right(m_string_t v, size_t index)
 {
   M_STR1NG_CONTRACT (v);
@@ -789,7 +789,7 @@ m_string_right(m_string_t v, size_t index)
 /* Return the string from position index to size bytes.
    See also m_string_set_n
  */
-static inline void
+M_INLINE void
 m_string_mid (m_string_t v, size_t index, size_t size)
 {
   m_string_right(v, index);
@@ -800,7 +800,7 @@ m_string_mid (m_string_t v, size_t index, size_t size)
    into the C string str2 from start
    By default, start is zero.
 */
-static inline size_t
+M_INLINE size_t
 m_string_replace_cstr (m_string_t v, const char str1[], const char str2[], size_t start)
 {
   M_STR1NG_CONTRACT (v);
@@ -826,7 +826,7 @@ m_string_replace_cstr (m_string_t v, const char str1[], const char str2[], size_
    into the C string v2 from start
    By default, start is zero.
 */
-static inline size_t
+M_INLINE size_t
 m_string_replace (m_string_t v, const m_string_t v1, const m_string_t v2, size_t start)
 {
   M_STR1NG_CONTRACT (v);
@@ -837,7 +837,7 @@ m_string_replace (m_string_t v, const m_string_t v1, const m_string_t v2, size_t
 
 /* Replace in the string the sub-string at position 'pos' for 'len' bytes
    into the C string str2. */
-static inline void
+M_INLINE void
 m_string_replace_at (m_string_t v, size_t pos, size_t len, const char str2[])
 {
   M_STR1NG_CONTRACT (v);
@@ -862,7 +862,7 @@ m_string_replace_at (m_string_t v, size_t pos, size_t len, const char str2[])
 }
 
 /* Replace all occurences of str1 into str2 when strlen(str1) >= strlen(str2) */
-static inline void
+M_INLINE void
 m_str1ng_replace_all_cstr_1ge2 (m_string_t v, const char str1[], size_t str1len, const char str2[], size_t str2len)
 {
   M_STR1NG_CONTRACT (v);
@@ -909,7 +909,7 @@ m_str1ng_replace_all_cstr_1ge2 (m_string_t v, const char str1[], size_t str1len,
   src is the current character pointer (shall be initialized to the end of the string)
   pattern / pattern_size: the pattern to search.
   */
-static inline char *
+M_INLINE char *
 m_str1ng_strstr_r(char org[], char src[], const char pattern[], size_t pattern_size)
 {
   M_ASSERT(pattern_size >= 1);
@@ -926,7 +926,7 @@ m_str1ng_strstr_r(char org[], char src[], const char pattern[], size_t pattern_s
 }
 
 /* Replace all occurences of str1 into str2 when strlen(str1) < strlen(str2) */
-static inline void
+M_INLINE void
 m_str1ng_replace_all_cstr_1lo2 (m_string_t v, const char str1[], size_t str1len, const char str2[], size_t str2len)
 {
   M_STR1NG_CONTRACT (v);
@@ -968,7 +968,7 @@ m_str1ng_replace_all_cstr_1lo2 (m_string_t v, const char str1[], size_t str1len,
   M_STR1NG_CONTRACT (v);
 }
 
-static inline void
+M_INLINE void
 m_string_replace_all_cstr (m_string_t v, const char str1[], const char str2[])
 {
   size_t str1_l = strlen(str1);
@@ -981,7 +981,7 @@ m_string_replace_all_cstr (m_string_t v, const char str1[], const char str2[])
   }
 }
 
-static inline void
+M_INLINE void
 m_string_replace_all (m_string_t v, const m_string_t str1, const m_string_t str2)
 {
   size_t str1_l = m_string_size(str1);
@@ -1008,7 +1008,7 @@ m_string_replace_all (m_string_t v, const m_string_t str1, const m_string_t str2
 # error Unexpected UINT_MAX value (workaround: Define M_USE_FAST_STRING_CONV to 0).
 #endif
 
-static inline void
+M_INLINE void
 m_string_set_ui(m_string_t v, unsigned int n)
 {
   M_STR1NG_CONTRACT (v);
@@ -1030,7 +1030,7 @@ m_string_set_ui(m_string_t v, unsigned int n)
   M_STR1NG_CONTRACT (v);
 }
 
-static inline void
+M_INLINE void
 m_string_set_si(m_string_t v, int n)
 {
   M_STR1NG_CONTRACT (v);
@@ -1060,7 +1060,7 @@ m_string_set_si(m_string_t v, int n)
 #if M_USE_STDARG
 
 /* Format in the string the given printf format */
-static inline int
+M_INLINE int
 m_string_vprintf (m_string_t v, const char format[], va_list args)
 {
   M_STR1NG_CONTRACT (v);
@@ -1092,7 +1092,7 @@ m_string_vprintf (m_string_t v, const char format[], va_list args)
 }
 
 /* Format in the string the given printf format */
-static inline int
+M_INLINE int
 m_string_printf (m_string_t v, const char format[], ...)
 {
   M_STR1NG_CONTRACT (v);
@@ -1105,7 +1105,7 @@ m_string_printf (m_string_t v, const char format[], ...)
 }
 
 /* Append to the string the formatted string of the given printf format */
-static inline int
+M_INLINE int
 m_string_cat_vprintf (m_string_t v, const char format[], va_list args)
 {
   M_STR1NG_CONTRACT (v);
@@ -1138,7 +1138,7 @@ m_string_cat_vprintf (m_string_t v, const char format[], va_list args)
 }
 
 /* Append to the string the formatted string of the given printf format */
-static inline int
+M_INLINE int
 m_string_cat_printf (m_string_t v, const char format[], ...)
 {
   M_STR1NG_CONTRACT (v);
@@ -1151,12 +1151,12 @@ m_string_cat_printf (m_string_t v, const char format[], ...)
 }
 
 #if M_USE_FAST_STRING_CONV == 0
-static inline void
+M_INLINE void
 m_string_set_ui(m_string_t v, unsigned int n)
 {
   m_string_printf(v, "%u", n);
 }
-static inline void
+M_INLINE void
 m_string_set_si(m_string_t v, int n)
 {
   m_string_printf(v, "%d", n);
@@ -1168,7 +1168,7 @@ m_string_set_si(m_string_t v, int n)
 #if M_USE_STDIO
 
 /* Get a line/pureline/file from the FILE and store it in the string */
-static inline bool
+M_INLINE bool
 m_string_fgets(m_string_t v, FILE *f, m_string_fgets_t arg)
 {
   M_STR1NG_CONTRACT(v);
@@ -1210,7 +1210,7 @@ m_string_fgets(m_string_t v, FILE *f, m_string_fgets_t arg)
    Words are supposed to be separated each other by the given list of separator
    separator shall be a CONSTANT C array.
  */
-static inline bool
+M_INLINE bool
 m_string_fget_word (m_string_t v, const char separator[], FILE *f)
 {
   char buffer[128];
@@ -1269,7 +1269,7 @@ m_string_fget_word (m_string_t v, const char separator[], FILE *f)
 }
 
 /* Put the string in the given FILE without formatting */
-static inline bool
+M_INLINE bool
 m_string_fputs(FILE *f, const m_string_t v)
 {
   M_STR1NG_CONTRACT (v);
@@ -1280,7 +1280,7 @@ m_string_fputs(FILE *f, const m_string_t v)
 #endif // Have stdio
 
 /* Test if the string starts with the given C string */
-static inline bool
+M_INLINE bool
 m_string_start_with_str_p(const m_string_t v, const char str[])
 {
   M_STR1NG_CONTRACT (v);
@@ -1296,7 +1296,7 @@ m_string_start_with_str_p(const m_string_t v, const char str[])
 }
 
 /* Test if the string starts with the other string */
-static inline bool
+M_INLINE bool
 m_string_start_with_string_p(const m_string_t v, const m_string_t v2)
 {
   M_STR1NG_CONTRACT (v2);
@@ -1304,7 +1304,7 @@ m_string_start_with_string_p(const m_string_t v, const m_string_t v2)
 }
 
 /* Test if the string ends with the C string */
-static inline bool
+M_INLINE bool
 m_string_end_with_str_p(const m_string_t v, const char str[])
 {
   M_STR1NG_CONTRACT (v);
@@ -1318,7 +1318,7 @@ m_string_end_with_str_p(const m_string_t v, const char str[])
 }
 
 /* Test if the string ends with the other string */
-static inline bool
+M_INLINE bool
 m_string_end_with_string_p(const m_string_t v, const m_string_t v2)
 {
   M_STR1NG_CONTRACT (v2);
@@ -1326,7 +1326,7 @@ m_string_end_with_string_p(const m_string_t v, const m_string_t v2)
 }
 
 /* Compute a hash for the string */
-static inline size_t
+M_INLINE size_t
 m_string_hash(const m_string_t v)
 {
   M_STR1NG_CONTRACT (v);
@@ -1334,7 +1334,7 @@ m_string_hash(const m_string_t v)
 }
 
 // Return true if c is a character from charac
-static inline bool
+M_INLINE bool
 m_str1ng_strim_char(char c, const char charac[])
 {
   for(const char *s = charac; *s; s++) {
@@ -1346,7 +1346,7 @@ m_str1ng_strim_char(char c, const char charac[])
 
 /* Remove any characters from charac that are present 
    in the begining of the string and the end of the string. */
-static inline void
+M_INLINE void
 m_string_strim(m_string_t v, const char charac[])
 {
   M_STR1NG_CONTRACT (v);
@@ -1368,14 +1368,14 @@ m_string_strim(m_string_t v, const char charac[])
 }
 
 /* Test if the string is equal to the OOR value */
-static inline bool
+M_INLINE bool
 m_string_oor_equal_p(const m_string_t s, unsigned char n)
 {
   return (s->ptr == NULL) & (s->u.heap.alloc == ~(size_t)n);
 }
 
 /* Set the unitialized string to the OOR value */
-static inline void
+M_INLINE void
 m_string_oor_set(m_string_t s, unsigned char n)
 {
   s->ptr = NULL;
@@ -1390,7 +1390,7 @@ m_string_oor_set(m_string_t s, unsigned char n)
 
 /* Transform the string 'v2' into a formatted string
    and set it to (or append in) the string 'v'. */
-static inline void
+M_INLINE void
 m_string_get_str(m_string_t v, const m_string_t v2, bool append)
 {
   M_STR1NG_CONTRACT(v2);
@@ -1444,7 +1444,7 @@ m_string_get_str(m_string_t v, const m_string_t v2, bool append)
 
 /* Transform the string 'v2' into a formatted string
    and output it in the given FILE */
-static inline void
+M_INLINE void
 m_string_out_str(FILE *f, const m_string_t v)
 {
   M_STR1NG_CONTRACT(v);
@@ -1481,7 +1481,7 @@ m_string_out_str(FILE *f, const m_string_t v)
 /* Read the formatted string from the FILE
    and set the converted value in the string 'v'.
    Return true in case of success */
-static inline bool
+M_INLINE bool
 m_string_in_str(m_string_t v, FILE *f)
 {
   M_STR1NG_CONTRACT(v);
@@ -1532,7 +1532,7 @@ m_string_in_str(m_string_t v, FILE *f)
    Return true in case of success
    If endptr is not null, update the position of the parsing.
 */
-static inline bool
+M_INLINE bool
 m_string_parse_str(m_string_t v, const char str[], const char **endptr)
 {
   M_STR1NG_CONTRACT(v);
@@ -1584,7 +1584,7 @@ m_string_parse_str(m_string_t v, const char str[], const char **endptr)
    and output it in the given serializer
    See serialization for return code.
 */
-static inline m_serial_return_code_t
+M_INLINE m_serial_return_code_t
 m_string_out_serial(m_serial_write_t serial, const m_string_t v)
 {
   M_ASSERT (serial != NULL && serial->m_interface != NULL);
@@ -1595,7 +1595,7 @@ m_string_out_serial(m_serial_write_t serial, const m_string_t v)
    and set the converted value in the string 'v'.
    See serialization for return code.
 */
-static inline m_serial_return_code_t
+M_INLINE m_serial_return_code_t
 m_string_in_serial(m_string_t v, m_serial_read_t serial)
 {
   M_ASSERT (serial != NULL && serial->m_interface != NULL);
@@ -1635,7 +1635,7 @@ m_string_in_serial(m_string_t v, m_serial_read_t serial)
    It updates the state and the decoded unicode code point.
    A decoded unicoded code point is valid only when the state is STARTING.
  */
-static inline void
+M_INLINE void
 m_str1ng_utf8_decode(char c, m_str1ng_utf8_state_e *state,
                     m_string_unicode_t *unicode)
 {
@@ -1649,7 +1649,7 @@ m_str1ng_utf8_decode(char c, m_str1ng_utf8_state_e *state,
 
 /* Check if the given array of characters is a valid UTF8 stream */
 /* NOTE: Non-canonical representation are not always rejected */
-static inline bool
+M_INLINE bool
 m_str1ng_utf8_valid_str_p(const char str[])
 {
   m_str1ng_utf8_state_e s = M_STR1NG_UTF8_STARTING;
@@ -1667,14 +1667,14 @@ m_str1ng_utf8_valid_str_p(const char str[])
 }
 
 /* Test if the given byte is the start of an UTF8 code point */
-static inline bool
+M_INLINE bool
 m_str1ng_utf8_start_p(unsigned char val)
 {
   return ((val & 0xC0u) != 0x80u);
 }
 
 /* Computer the number of unicode code points are encoded in the UTF8 stream */
-static inline size_t
+M_INLINE size_t
 m_str1ng_utf8_length(const char str[])
 {
   size_t size = 0;
@@ -1686,7 +1686,7 @@ m_str1ng_utf8_length(const char str[])
 }
 
 /* Encode an unicode code point into an UTF8 stream */
-static inline int
+M_INLINE int
 m_str1ng_utf8_encode(char buffer[5], m_string_unicode_t u)
 {
   if (M_LIKELY (u <= 0x7Fu)) {
@@ -1715,7 +1715,7 @@ m_str1ng_utf8_encode(char buffer[5], m_string_unicode_t u)
 }
 
 /* Start iteration over the UTF8 encoded unicode code point */
-static inline void
+M_INLINE void
 m_string_it(m_string_it_t it, const m_string_t str)
 {
   M_STR1NG_CONTRACT(str);
@@ -1729,7 +1729,7 @@ m_string_it(m_string_it_t it, const m_string_t str)
 /* Set the iterator to the end of string 
    The iterator references therefore nothing.
 */
-static inline void
+M_INLINE void
 m_string_it_end(m_string_it_t it, const m_string_t str)
 {
   M_STR1NG_CONTRACT(str);
@@ -1741,7 +1741,7 @@ m_string_it_end(m_string_it_t it, const m_string_t str)
 }
 
 /* Set the iterator to the same position than the other one */
-static inline void
+M_INLINE void
 m_string_it_set(m_string_it_t it, const m_string_it_t itsrc)
 {
   M_ASSERT(it != NULL && itsrc != NULL);
@@ -1755,7 +1755,7 @@ m_string_it_set(m_string_it_t it, const m_string_it_t itsrc)
 /* Set the iterator to the given position in the string.
    The given position shall reference a valide code point in the string.
  */
-static inline void
+M_INLINE void
 m_string_it_pos(m_string_it_t it, const m_string_t str, const size_t n)
 {
   M_ASSERT(it != NULL);
@@ -1773,7 +1773,7 @@ m_string_it_pos(m_string_it_t it, const m_string_t str, const size_t n)
 /* Return the current offset in the string referenced by the iterator.
    This references avalid code point.
  */
-static inline size_t
+M_INLINE size_t
 m_string_it_get_pos(m_string_it_t it)
 {
   M_STR1NG_IT_CONTRACT(it);
@@ -1781,7 +1781,7 @@ m_string_it_get_pos(m_string_it_t it)
 }
 
 /* Test if the iterator has reached the end of the string. */
-static inline bool
+M_INLINE bool
 m_string_end_p (m_string_it_t it)
 {
   M_STR1NG_IT_CONTRACT(it);
@@ -1789,7 +1789,7 @@ m_string_end_p (m_string_it_t it)
 }
 
 /* Test if the iterator is equal to the other one */
-static inline bool
+M_INLINE bool
 m_string_it_equal_p(const m_string_it_t it1, const m_string_it_t it2)
 {
   M_STR1NG_IT_CONTRACT(it1);
@@ -1798,7 +1798,7 @@ m_string_it_equal_p(const m_string_it_t it1, const m_string_it_t it2)
 }
 
 /* Advance the iterator to the next UTF8 unicode code point */
-static inline void
+M_INLINE void
 m_string_next (m_string_it_t it)
 {
   M_STR1NG_IT_CONTRACT(it);
@@ -1815,7 +1815,7 @@ m_string_next (m_string_it_t it)
 }
 
 /* Move the iterator to the previous code point */
-static inline void
+M_INLINE void
 m_string_previous(m_string_it_t it)
 {
   M_STR1NG_IT_CONTRACT(it);
@@ -1835,7 +1835,7 @@ m_string_previous(m_string_it_t it)
 }
 
 /* Return the unicode code point associated to the iterator */
-static inline m_string_unicode_t
+M_INLINE m_string_unicode_t
 m_string_get_cref (const m_string_it_t it)
 {
   M_STR1NG_IT_CONTRACT(it);
@@ -1855,7 +1855,7 @@ m_string_get_cref (const m_string_it_t it)
 }
 
 /* Return the unicode code point associated to the iterator */
-static inline const m_string_unicode_t *
+M_INLINE const m_string_unicode_t *
 m_string_cref (m_string_it_t it)
 {
   M_STR1NG_IT_CONTRACT(it);
@@ -1914,7 +1914,7 @@ m_string_it_set_ref(m_string_it_t it, m_string_t s, m_string_unicode_t new_u)
 }
 
 /* Push unicode code point into string, encoding it in UTF8 */
-static inline void
+M_INLINE void
 m_string_push_u (m_string_t str, m_string_unicode_t u)
 {
   M_STR1NG_CONTRACT(str);
@@ -1956,7 +1956,7 @@ m_string_pop_u(m_string_unicode_t *u, m_string_t str)
 }
 
 /* Compute the length in UTF8 code points in the string */
-static inline size_t
+M_INLINE size_t
 m_string_length_u(m_string_t str)
 {
   M_STR1NG_CONTRACT(str);
@@ -1964,7 +1964,7 @@ m_string_length_u(m_string_t str)
 }
 
 /* Check if a string is a valid UTF8 encoded stream */
-static inline bool
+M_INLINE bool
 m_string_utf8_p(m_string_t str)
 {
   M_STR1NG_CONTRACT(str);
@@ -1975,7 +1975,7 @@ m_string_utf8_p(m_string_t str)
 /* Define the split & the join functions 
    in case of usage with the algorithm module */
 #define M_STR1NG_SPLIT(name, oplist, type_oplist)                             \
-  static inline void M_F(name, _split)(M_GET_TYPE oplist cont,                \
+  M_INLINE void M_F(name, _split)(M_GET_TYPE oplist cont,                     \
                                    const m_string_t str, const char sep)      \
   {                                                                           \
     size_t begin = 0;                                                         \
@@ -2005,7 +2005,7 @@ m_string_utf8_p(m_string_t str)
     m_string_clear(tmp);                                                      \
   }                                                                           \
                                                                               \
-  static inline void M_F(name, _join)(m_string_t dst, M_GET_TYPE oplist cont, \
+  M_INLINE void M_F(name, _join)(m_string_t dst, M_GET_TYPE oplist cont,      \
                                       const m_string_t str)                   \
   {                                                                           \
     bool init_done = false;                                                   \
@@ -2303,7 +2303,7 @@ namespace m_lib {
   /* Internal types for oplist */                                             \
   typedef bounded_t M_F(name, _ct);                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init)(bounded_t s)                                               \
   {                                                                           \
     M_ASSERT(s != NULL);                                                      \
@@ -2313,7 +2313,7 @@ namespace m_lib {
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _clear)(bounded_t s)                                              \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
@@ -2321,7 +2321,7 @@ namespace m_lib {
     s->s[max_size] = 0x1F;                                                    \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _reset)(bounded_t s)                                              \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
@@ -2329,14 +2329,14 @@ namespace m_lib {
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
   }                                                                           \
                                                                               \
-  static inline size_t                                                        \
+  M_INLINE size_t                                                             \
   M_F(name, _size)(const bounded_t s)                                         \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     return strlen(s->s);                                                      \
   }                                                                           \
                                                                               \
-  static inline size_t                                                        \
+  M_INLINE size_t                                                             \
   M_F(name, _capacity)(const bounded_t s)                                     \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
@@ -2344,7 +2344,7 @@ namespace m_lib {
     return max_size+1;                                                        \
   }                                                                           \
                                                                               \
-  static inline char                                                          \
+  M_INLINE char                                                               \
   M_F(name, _get_char)(const bounded_t s, size_t index)                       \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
@@ -2352,14 +2352,14 @@ namespace m_lib {
     return s->s[index];                                                       \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _empty_p)(const bounded_t s)                                      \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     return s->s[0] == 0;                                                      \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _set_cstr)(bounded_t s, const char str[])                         \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
@@ -2368,7 +2368,7 @@ namespace m_lib {
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _set_cstrn)(bounded_t s, const char str[], size_t n)              \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
@@ -2379,14 +2379,14 @@ namespace m_lib {
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
   }                                                                           \
                                                                               \
-  static inline const char *                                                  \
+  M_INLINE const char *                                                       \
   M_F(name, _get_cstr)(const bounded_t s)                                     \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     return s->s;                                                              \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _set)(bounded_t s, const bounded_t str)                           \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
@@ -2394,7 +2394,7 @@ namespace m_lib {
     M_F(name, _set_cstr)(s, str->s);                                          \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _set_n)(bounded_t s, const bounded_t str,                         \
                     size_t offset, size_t length)                             \
   {                                                                           \
@@ -2404,21 +2404,21 @@ namespace m_lib {
     M_F(name, _set_cstrn)(s, str->s+offset, length);                          \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init_set)(bounded_t s, const bounded_t str)                      \
   {                                                                           \
     M_F(name,_init)(s);                                                       \
     M_F(name,_set)(s, str);                                                   \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init_set_cstr)(bounded_t s, const char str[])                    \
   {                                                                           \
     M_F(name,_init)(s);                                                       \
     M_F(name,_set_cstr)(s, str);                                              \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _cat_cstr)(bounded_t s, const char str[])                         \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
@@ -2427,14 +2427,14 @@ namespace m_lib {
     m_core_strncat(s->s, max_size+1, str, max_size-strlen(s->s));             \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _cat)(bounded_t s, const bounded_t  str)                          \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(str, max_size);                                 \
     M_F(name, _cat_cstr)(s, str->s);                                          \
   }                                                                           \
                                                                               \
-  static inline int                                                           \
+  M_INLINE int                                                                \
   M_F(name, _cmp_cstr)(const bounded_t s, const char str[])                   \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
@@ -2442,7 +2442,7 @@ namespace m_lib {
     return strcmp(s->s, str);                                                 \
   }                                                                           \
                                                                               \
-  static inline int                                                           \
+  M_INLINE int                                                                \
   M_F(name, _cmp)(const bounded_t s, const bounded_t str)                     \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
@@ -2450,7 +2450,7 @@ namespace m_lib {
     return strcmp(s->s, str->s);                                              \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _equal_cstr_p)(const bounded_t s, const char str[])               \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
@@ -2458,14 +2458,14 @@ namespace m_lib {
     return strcmp(s->s, str) == 0;                                            \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _equal_p)(const bounded_t s, const bounded_t str)                 \
   {                                                                           \
     /* _equal_p may be called in context OOR. So contract cannot be verified */ \
     return (s->s[max_size] == str->s[max_size]) & (strcmp(s->s, str->s) == 0); \
   }                                                                           \
                                                                               \
-  static inline int                                                           \
+  M_INLINE int                                                                \
   M_F(name, _printf)(bounded_t s, const char format[], ...)                   \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
@@ -2478,7 +2478,7 @@ namespace m_lib {
     return ret;                                                               \
   }                                                                           \
                                                                               \
-  static inline int                                                           \
+  M_INLINE int                                                                \
   M_F(name, _cat_printf)(bounded_t s, const char format[], ...)               \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
@@ -2493,7 +2493,7 @@ namespace m_lib {
     return ret;                                                               \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _fgets)(bounded_t s, FILE *f, m_string_fgets_t arg)               \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
@@ -2509,7 +2509,7 @@ namespace m_lib {
     return ret != NULL;                                                       \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _fputs)(FILE *f, const bounded_t s)                               \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
@@ -2517,7 +2517,7 @@ namespace m_lib {
     return fputs(s->s, f) >= 0;                                               \
   }                                                                           \
                                                                               \
-  static inline size_t                                                        \
+  M_INLINE size_t                                                             \
   M_F(name, _hash)(const bounded_t s)                                         \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
@@ -2525,7 +2525,7 @@ namespace m_lib {
     return m_core_cstr_hash(s->s);                                            \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _oor_equal_p)(const bounded_t s, unsigned char n)                 \
   {                                                                           \
     /* s may be invalid contract */                                           \
@@ -2534,7 +2534,7 @@ namespace m_lib {
     return s->s[max_size] == (char) (n+1);                                    \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _oor_set)(bounded_t s, unsigned char n)                           \
   {                                                                           \
     /* s may be invalid contract */                                           \
@@ -2543,7 +2543,7 @@ namespace m_lib {
     s->s[max_size] = (char) (n+1);                                            \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _get_str)(m_string_t v, const bounded_t s, bool append)           \
   {                                                                           \
     M_STR1NG_CONTRACT(v);                                                     \
@@ -2557,7 +2557,7 @@ namespace m_lib {
     m_string_get_str(v, v2, append);                                          \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _out_str)(FILE *f, const bounded_t s)                             \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
@@ -2571,7 +2571,7 @@ namespace m_lib {
     m_string_out_str(f, v2);                                                  \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _in_str)(bounded_t v, FILE *f)                                    \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(v, max_size);                                   \
@@ -2584,7 +2584,7 @@ namespace m_lib {
     return ret;                                                               \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _parse_str)(bounded_t v, const char str[], const char **endptr)   \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(v, max_size);                                   \
@@ -2597,7 +2597,7 @@ namespace m_lib {
     return ret;                                                               \
   }                                                                           \
                                                                               \
-  static inline m_serial_return_code_t                                        \
+  M_INLINE m_serial_return_code_t                                             \
   M_F(name, _out_serial)(m_serial_write_t serial, const bounded_t v)          \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(v, max_size);                                   \
@@ -2605,7 +2605,7 @@ namespace m_lib {
     return serial->m_interface->write_string(serial, v->s, strlen(v->s) );    \
   }                                                                           \
                                                                               \
-  static inline m_serial_return_code_t                                        \
+  M_INLINE m_serial_return_code_t                                             \
   M_F(name, _in_serial)(bounded_t v, m_serial_read_t serial)                  \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(v, max_size);                                   \

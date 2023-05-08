@@ -232,7 +232,7 @@ typedef struct m_worker_sync_s {
 
 /* Define the callback */
 #define M_WORK3R_SPAWN_EXTEND_DEF_CALLBACK(name, ...)                         \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(m_work3r_, name, _clear)(struct M_C3(m_worker_, name, _s) *p)          \
   {                                                                           \
     M_MAP3(M_WORK3R_SPAWN_EXTEND_DEF_CALLBACK_CLEAR, data, __VA_ARGS__)       \
@@ -240,7 +240,7 @@ typedef struct m_worker_sync_s {
     M_MEMORY_DEL(p);                                                          \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(m_work3r_, name, _callback)(void *data)                                \
   {                                                                           \
     struct M_C3(m_worker_, name, _s) *p = (struct M_C3(m_worker_, name, _s) *) data; \
@@ -258,7 +258,7 @@ typedef struct m_worker_sync_s {
 
 /* Define the emplace like spawn method */
 #define M_WORK3R_SPAWN_EXTEND_DEF_EMPLACE(name, ...)                          \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C(m_worker_spawn_, name)(m_worker_sync_t block, M_C3(m_worker_, name, _callback_ct) callback, \
                              M_MAP3_C(M_WORK3R_SPAWN_EXTEND_DEF_EMPLACE_FIELD, data, __VA_ARGS__) \
                              )                                                \
@@ -299,7 +299,7 @@ typedef struct m_worker_sync_s {
 /* Return the number of CPU cores available in the system.
    Works for WINDOWS, MACOS, *BSD, LINUX.
  */
-static inline int
+M_INLINE int
 m_work3r_get_cpu_count(void)
 {
 #if defined(_WIN32)
@@ -332,7 +332,7 @@ m_work3r_get_cpu_count(void)
 #endif
 
 /* Execute the registered work order **synchronously** */
-static inline void
+M_INLINE void
 m_work3r_exec(m_work3r_order_ct *w)
 {
   M_ASSERT (w!= NULL && w->block != NULL);
@@ -356,7 +356,7 @@ m_work3r_exec(m_work3r_order_ct *w)
 
 
 /* The worker thread main loop*/
-static inline void
+M_INLINE void
 m_work3r_thread(void *arg)
 {
   // Get back the given argument
@@ -397,7 +397,7 @@ m_work3r_thread(void *arg)
    @resetFunc: function to reset the state of a worker between work orders (or NULL if none)
    @clearFunc: function to clear the state of a worker before terminaning (or NULL if none)
 */
-static inline void
+M_INLINE void
 m_worker_init(m_worker_t g, int numWorker, unsigned int extraQueue, void (*resetFunc)(void), void (*clearFunc)(void))
 {
   M_ASSERT (numWorker >= -1);
@@ -437,7 +437,7 @@ m_worker_init(m_worker_t g, int numWorker, unsigned int extraQueue, void (*reset
 #define m_worker_init(...) m_worker_init(M_DEFAULT_ARGS(5, (0, 0, NULL, NULL), __VA_ARGS__))
 
 /* Clear of the worker module (destructor) */
-static inline void
+M_INLINE void
 m_worker_clear(m_worker_t g)
 {
   M_ASSERT (m_work3r_queue_empty_p (g->queue_g));
@@ -462,7 +462,7 @@ m_worker_clear(m_worker_t g)
 
 /* Start a new collaboration between workers of pool 'g'
    by defining the synchronization point 'block' */
-static inline void
+M_INLINE void
 m_worker_start(m_worker_sync_t block, m_worker_t g)
 {
   atomic_init (&block->num_spawn, 0);
@@ -475,7 +475,7 @@ m_worker_start(m_worker_sync_t block, m_worker_t g)
    The synchronization point is defined a 'block'
    The work order if composed of the function 'func' and its 'data'
 */
-static inline void
+M_INLINE void
 m_worker_spawn(m_worker_sync_t block, void (*func)(void *data), void *data)
 {
   const m_work3r_order_ct w = {  block, data, func M_WORK3R_EXTRA_ORDER };
@@ -493,7 +493,7 @@ m_worker_spawn(m_worker_sync_t block, void (*func)(void *data), void *data)
 #if M_USE_WORKER_CLANG_BLOCK
 /* Spawn or not the given work order to workers,
    or do it ourself if no worker is available */
-static inline void
+M_INLINE void
 m_work3r_spawn_block(m_worker_sync_t block, void (^func)(void *data), void *data)
 {
   const m_work3r_order_ct w = {  block, data, NULL, func };
@@ -512,7 +512,7 @@ m_work3r_spawn_block(m_worker_sync_t block, void (^func)(void *data), void *data
 #if M_USE_WORKER_CPP_FUNCTION
 /* Spawn or not the given work order to workers,
    or do it ourself if no worker is available */
-static inline void
+M_INLINE void
 m_work3r_spawn_function(m_worker_sync_t block, std::function<void(void *data)> func, void *data)
 {
   const m_work3r_order_ct w = {  block, data, NULL, func };
@@ -529,7 +529,7 @@ m_work3r_spawn_function(m_worker_sync_t block, std::function<void(void *data)> f
 #endif
 
 /* Test if all work orders of the given synchronization point are finished */
-static inline bool
+M_INLINE bool
 m_worker_sync_p(m_worker_sync_t block)
 {
   /* If the number of spawns is greated than the number
@@ -539,7 +539,7 @@ m_worker_sync_p(m_worker_sync_t block)
 }
 
 /* Wait for all work orders of the given synchronization point to be finished */
-static inline void
+M_INLINE void
 m_worker_sync(m_worker_sync_t block)
 {
   M_WORK3R_DEBUG ("Waiting for thread terminasion.\n");
@@ -554,7 +554,7 @@ m_worker_sync(m_worker_sync_t block)
 }
 
 /* Flush any work order in the queue ourself if some remains.*/
-static inline void
+M_INLINE void
 m_worker_flush(m_worker_t g)
 {
   m_work3r_order_ct w;
@@ -566,7 +566,7 @@ m_worker_flush(m_worker_t g)
 
 
 /* Return the number of workers */
-static inline size_t
+M_INLINE size_t
 m_worker_count(m_worker_t g)
 {
   return g->numWorker_g + 1;

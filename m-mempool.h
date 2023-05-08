@@ -109,7 +109,7 @@
 /* Define the core functions of the mempool */
 #define M_M3MPOOL_DEF_CORE(name, type, name_t)                                \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name,_init)(name_t mem)                                                 \
   {                                                                           \
     mem->free_list = NULL;                                                    \
@@ -123,7 +123,7 @@
     M_M3MPOOL_CONTRACT(mem, type);                                            \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name,_clear)(name_t mem)                                                \
   {                                                                           \
     M_M3MPOOL_CONTRACT(mem, type);                                            \
@@ -138,7 +138,7 @@
     mem->current_segment = NULL;                                              \
   }                                                                           \
                                                                               \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name,_alloc)(name_t mem)                                                \
   {                                                                           \
     M_M3MPOOL_CONTRACT(mem, type);                                            \
@@ -173,7 +173,7 @@
     return &ret->t;                                                           \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name,_free)(name_t mem, type *ptr)                                      \
   {                                                                           \
     M_M3MPOOL_CONTRACT(mem, type);                                            \

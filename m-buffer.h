@@ -152,7 +152,7 @@ typedef union m_buff3r_number_s {
 #endif
 } m_buff3r_number_ct[1];
 
-static inline void
+M_INLINE void
 m_buff3r_number_init(m_buff3r_number_ct n, unsigned int policy)
 {
   if (!M_BUFF3R_POLICY_P(policy, M_BUFFER_THREAD_UNSAFE))
@@ -161,7 +161,7 @@ m_buff3r_number_init(m_buff3r_number_ct n, unsigned int policy)
     n->u = 0UL;
 }
 
-static inline unsigned int
+M_INLINE unsigned int
 m_buff3r_number_load(m_buff3r_number_ct n, unsigned int policy)
 {
   if (!M_BUFF3R_POLICY_P(policy, M_BUFFER_THREAD_UNSAFE))
@@ -172,7 +172,7 @@ m_buff3r_number_load(m_buff3r_number_ct n, unsigned int policy)
     return n->u;
 }
 
-static inline void
+M_INLINE void
 m_buff3r_number_store(m_buff3r_number_ct n, unsigned int v, unsigned int policy)
 {
   if (!M_BUFF3R_POLICY_P(policy, M_BUFFER_THREAD_UNSAFE))
@@ -182,7 +182,7 @@ m_buff3r_number_store(m_buff3r_number_ct n, unsigned int v, unsigned int policy)
     n->u = v;
 }
 
-static inline void
+M_INLINE void
 m_buff3r_number_set(m_buff3r_number_ct n, m_buff3r_number_ct v, unsigned int policy)
 {
   if (!M_BUFF3R_POLICY_P(policy, M_BUFFER_THREAD_UNSAFE))
@@ -192,7 +192,7 @@ m_buff3r_number_set(m_buff3r_number_ct n, m_buff3r_number_ct v, unsigned int pol
     n->u = v->u;
 }
 
-static inline unsigned int
+M_INLINE unsigned int
 m_buff3r_number_inc(m_buff3r_number_ct n, unsigned int policy)
 {
   if (!M_BUFF3R_POLICY_P(policy, M_BUFFER_THREAD_UNSAFE))
@@ -201,7 +201,7 @@ m_buff3r_number_inc(m_buff3r_number_ct n, unsigned int policy)
     return n->u ++;
 }
 
-static inline unsigned int
+M_INLINE unsigned int
 m_buff3r_number_dec(m_buff3r_number_ct n, unsigned int policy)
 {
   if (!M_BUFF3R_POLICY_P(policy, M_BUFFER_THREAD_UNSAFE))
@@ -300,7 +300,7 @@ m_buff3r_number_dec(m_buff3r_number_ct n, unsigned int policy)
 /* Define the core functionnalities of a buffer */
 #define M_BUFF3R_DEF_CORE(name, type, m_size, policy, oplist, buffer_t)       \
                                                                               \
-static inline void                                                            \
+M_INLINE void                                                                 \
 M_F(name, _init)(buffer_t v, size_t size)                                     \
 {                                                                             \
   M_BUFF3R_IF_CTE_SIZE(m_size)(M_ASSERT(size == m_size), v->size = size);     \
@@ -334,14 +334,14 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
 }                                                                             \
                                                                               \
  M_BUFF3R_IF_CTE_SIZE(m_size)(                                                \
- static inline void                                                           \
+ M_INLINE void                                                                \
  M_C3(m_buff3r_,name,_init)(buffer_t v)                                       \
  {                                                                            \
    M_F(name, _init)(v, m_size);                                               \
  }                                                                            \
  , )                                                                          \
                                                                               \
- static inline void                                                           \
+ M_INLINE void                                                                \
  M_C3(m_buff3r_,name,_clear_obj)(buffer_t v)                                  \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
@@ -365,7 +365,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
  }                                                                            \
                                                                               \
- static inline void                                                           \
+ M_INLINE void                                                                \
  M_F(name, _clear)(buffer_t v)                                                \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
@@ -383,7 +383,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    }                                                                          \
  }                                                                            \
                                                                               \
- static inline void                                                           \
+ M_INLINE void                                                                \
  M_F(name, _reset)(buffer_t v)                                                \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
@@ -406,13 +406,13 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
  }                                                                            \
                                                                               \
- static inline void M_ATTR_DEPRECATED                                         \
+ M_INLINE void M_ATTR_DEPRECATED                                              \
  M_F(name, _clean)(buffer_t v)                                                \
  {                                                                            \
    M_F(name,_reset)(v);                                                       \
  }                                                                            \
                                                                               \
- static inline void                                                           \
+ M_INLINE void                                                                \
  M_F(name, _init_set)(buffer_t dest, const buffer_t src)                      \
  {                                                                            \
    /* unconst 'src', so that we can lock it (semantically it is const) */     \
@@ -456,7 +456,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    M_BUFF3R_CONTRACT(dest, m_size);                                           \
  }                                                                            \
                                                                               \
- static inline void                                                           \
+ M_INLINE void                                                                \
  M_F(name, _set)(buffer_t dest, const buffer_t src)                           \
  {                                                                            \
    /* unconst 'src', so that we can lock it (semantically it is const) */     \
@@ -526,7 +526,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    M_BUFF3R_CONTRACT(dest, m_size);                                           \
  }                                                                            \
                                                                               \
- static inline bool                                                           \
+ M_INLINE bool                                                                \
  M_F(name, _empty_p)(buffer_t v)                                              \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
@@ -540,7 +540,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
      return m_buff3r_number_load (v->number[0], policy) == 0;                 \
  }                                                                            \
                                                                               \
- static inline bool                                                           \
+ M_INLINE bool                                                                \
  M_F(name, _full_p)(buffer_t v)                                               \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
@@ -548,14 +548,14 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
      == M_BUFF3R_SIZE(m_size);                                                \
  }                                                                            \
                                                                               \
- static inline size_t                                                         \
+ M_INLINE size_t                                                              \
  M_F(name, _size)(buffer_t v)                                                 \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
    return m_buff3r_number_load (v->number[0], policy);                        \
  }                                                                            \
                                                                               \
- static inline bool                                                           \
+ M_INLINE bool                                                                \
  M_F(name, _push_blocking)(buffer_t v, type const data, bool blocking)        \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
@@ -635,7 +635,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    return true;                                                               \
  }                                                                            \
                                                                               \
- static inline bool                                                           \
+ M_INLINE bool                                                                \
  M_F(name, _pop_blocking)(type *data, buffer_t v, bool blocking)              \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
@@ -706,34 +706,34 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
  }                                                                            \
                                                                               \
                                                                               \
- static inline bool                                                           \
+ M_INLINE bool                                                                \
  M_F(name, _push)(buffer_t v, type const data)                                \
  {                                                                            \
    return M_F(name, _push_blocking)(v, data,                                  \
                              !M_BUFF3R_POLICY_P((policy), M_BUFFER_UNBLOCKING_PUSH)); \
  }                                                                            \
                                                                               \
- static inline bool                                                           \
+ M_INLINE bool                                                                \
  M_F(name, _pop)(type *data, buffer_t v)                                      \
  {                                                                            \
    return M_F(name, _pop_blocking)(data, v,                                   \
                             !M_BUFF3R_POLICY_P((policy), M_BUFFER_UNBLOCKING_POP)); \
  }                                                                            \
                                                                               \
- static inline size_t                                                         \
+ M_INLINE size_t                                                              \
  M_F(name, _overwrite)(const buffer_t v)                                      \
  {                                                                            \
    return v->overwrite;                                                       \
  }                                                                            \
                                                                               \
- static inline size_t                                                         \
+ M_INLINE size_t                                                              \
  M_F(name, _capacity)(const buffer_t v)                                       \
  {                                                                            \
    (void) v; /* may be unused */                                              \
    return M_BUFF3R_SIZE(m_size);                                              \
  }                                                                            \
                                                                               \
- static inline void                                                           \
+ M_INLINE void                                                                \
  M_F(name, _pop_release)(buffer_t v)                                          \
  {                                                                            \
    /* Decrement the effective number of elements in the buffer */             \
@@ -833,7 +833,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
 
 /* Define the core functionnalities of a MPMC queue */
 #define M_QU3UE_MPMC_DEF_CORE(name, type, policy, oplist, buffer_t)           \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _push)(buffer_t table, type const x)                              \
   {                                                                           \
     M_QU3UE_MPMC_CONTRACT(table);                                             \
@@ -867,7 +867,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     return true;                                                              \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _pop)(type *ptr, buffer_t table)                                  \
   {                                                                           \
     M_QU3UE_MPMC_CONTRACT(table);                                             \
@@ -896,7 +896,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     return true;                                                              \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init)(buffer_t buffer, size_t size)                              \
   {                                                                           \
     M_ASSERT (buffer != NULL);                                                \
@@ -920,7 +920,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     M_QU3UE_MPMC_CONTRACT(buffer);                                            \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _clear)(buffer_t buffer)                                          \
   {                                                                           \
     M_QU3UE_MPMC_CONTRACT(buffer);                                            \
@@ -945,7 +945,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     buffer->size = 3;                                                         \
   }                                                                           \
                                                                               \
-  static inline size_t                                                        \
+  M_INLINE size_t                                                             \
   M_F(name, _size)(buffer_t table)                                            \
   {                                                                           \
     M_QU3UE_MPMC_CONTRACT(table);                                             \
@@ -964,20 +964,20 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     return iP-iC;                                                             \
   }                                                                           \
                                                                               \
-  static inline size_t                                                        \
+  M_INLINE size_t                                                             \
   M_F(name, _capacity)(buffer_t v)                                            \
   {                                                                           \
     M_QU3UE_MPMC_CONTRACT(v);                                                 \
     return v->size;                                                           \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _empty_p)(buffer_t v)                                             \
   {                                                                           \
     return M_F(name, _size) (v) == 0;                                         \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _full_p)(buffer_t v)                                              \
   {                                                                           \
     return M_F(name, _size)(v) >= v->size;                                    \
@@ -1060,7 +1060,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
 /* Define the core functionnalities of a SPSC queue */
 #define M_QU3UE_SPSC_DEF_CORE(name, type, policy, oplist, buffer_t)           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _push)(buffer_t table, type const x)                              \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
@@ -1081,7 +1081,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     return true;                                                              \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _push_move)(buffer_t table, type *x)                              \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
@@ -1102,7 +1102,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     return true;                                                              \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _pop)(type *ptr, buffer_t table)                                  \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
@@ -1124,7 +1124,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     return true;                                                              \
   }                                                                           \
                                                                               \
-  static inline unsigned                                                      \
+  M_INLINE unsigned                                                           \
   M_F(name, _push_bulk)(buffer_t table, unsigned n, type const x[])           \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
@@ -1150,7 +1150,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     return max;                                                               \
   }                                                                           \
                                                                               \
-  static inline unsigned                                                      \
+  M_INLINE unsigned                                                           \
   M_F(name, _pop_bulk)(unsigned int n, type ptr[], buffer_t table)            \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
@@ -1176,7 +1176,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     return max;                                                               \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _push_force)(buffer_t table, type const x)                        \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
@@ -1199,7 +1199,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
   }                                                                           \
                                                                               \
-  static inline size_t                                                        \
+  M_INLINE size_t                                                             \
   M_F(name, _size)(buffer_t table)                                            \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
@@ -1220,25 +1220,25 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     return w-r;                                                               \
   }                                                                           \
                                                                               \
- static inline size_t                                                         \
+ M_INLINE size_t                                                              \
  M_F(name, _capacity)(buffer_t v)                                             \
  {                                                                            \
    return v->size;                                                            \
  }                                                                            \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _empty_p)(buffer_t v)                                             \
   {                                                                           \
     return M_F(name, _size) (v) == 0;                                         \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _full_p)(buffer_t v)                                              \
   {                                                                           \
     return M_F(name, _size)(v) >= v->size;                                    \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init)(buffer_t buffer, size_t size)                              \
   {                                                                           \
     M_ASSERT (buffer != NULL);                                                \
@@ -1261,7 +1261,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     M_QU3UE_SPSC_CONTRACT(buffer);                                            \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _clear)(buffer_t buffer)                                          \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(buffer);                                            \

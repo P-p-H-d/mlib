@@ -58,7 +58,7 @@ typedef cnd_t                  m_cond_t[1];
 typedef thrd_t                 m_thread_t[1];
 
 /* Initialize the mutex (constructor) */
-static inline void m_mutex_init(m_mutex_t m)
+M_INLINE void m_mutex_init(m_mutex_t m)
 {
   int rc = mtx_init(m, mtx_plain);
   // Abort program in case of initialization failure
@@ -67,25 +67,25 @@ static inline void m_mutex_init(m_mutex_t m)
 }
 
 /* Clear the mutex (destructor) */
-static inline void m_mutex_clear(m_mutex_t m)
+M_INLINE void m_mutex_clear(m_mutex_t m)
 {
   mtx_destroy(m);
 }
 
 /* Lock the mutex */
-static inline void m_mutex_lock(m_mutex_t m)
+M_INLINE void m_mutex_lock(m_mutex_t m)
 {
   mtx_lock(m);
 }
 
 /* Unlock the mutex */
-static inline void m_mutex_unlock(m_mutex_t m)
+M_INLINE void m_mutex_unlock(m_mutex_t m)
 {
   mtx_unlock(m);
 }
 
 /* Initialize the condition variable (constructor) */
-static inline void m_cond_init(m_cond_t c)
+M_INLINE void m_cond_init(m_cond_t c)
 {
   int rc = cnd_init(c);
   // Abort program in case of initialization failure
@@ -94,31 +94,31 @@ static inline void m_cond_init(m_cond_t c)
 }
 
 /* Clear the condition variable (destructor) */
-static inline void m_cond_clear(m_cond_t c)
+M_INLINE void m_cond_clear(m_cond_t c)
 {
   cnd_destroy(c);
 }
 
 /* Signal the condition variable to at least one waiting thread */
-static inline void m_cond_signal(m_cond_t c)
+M_INLINE void m_cond_signal(m_cond_t c)
 {
   cnd_signal(c);
 }
 
 /* Signal the condition variable to all waiting threads */
-static inline void m_cond_broadcast(m_cond_t c)
+M_INLINE void m_cond_broadcast(m_cond_t c)
 {
   cnd_broadcast(c);
 }
 
 /* Wait for signaling the condition variable by another thread */
-static inline void m_cond_wait(m_cond_t c, m_mutex_t m)
+M_INLINE void m_cond_wait(m_cond_t c, m_mutex_t m)
 {
   cnd_wait(c, m);
 }
 
 /* Create the thread (constructor) and start it */
-static inline void m_thread_create(m_thread_t t, void (*func)(void*), void* arg)
+M_INLINE void m_thread_create(m_thread_t t, void (*func)(void*), void* arg)
 {
   int rc = thrd_create(t, (int(*)(void*))(void(*)(void))func, arg);
   // Abort program in case of initialization failure
@@ -126,7 +126,7 @@ static inline void m_thread_create(m_thread_t t, void (*func)(void*), void* arg)
 }
 
 /* Wait for the thread to terminate and destroy it (destructor) */
-static inline void m_thread_join(m_thread_t t)
+M_INLINE void m_thread_join(m_thread_t t)
 {
   int rc = thrd_join(*t, NULL);
   M_ASSERT (rc == thrd_success);
@@ -136,14 +136,14 @@ static inline void m_thread_join(m_thread_t t)
 
 /* The thread has nothing meaningfull to do.
    Inform the OS to let other threads be scheduled */
-static inline void m_thread_yield(void)
+M_INLINE void m_thread_yield(void)
 {
   thrd_yield();
 }
 
 /* Sleep the thread for at least usec microseconds.
    Return true if the sleep was successful */
-static inline bool m_thread_sleep(unsigned long long usec)
+M_INLINE bool m_thread_sleep(unsigned long long usec)
 {
   struct timespec tv;
   tv.tv_sec = (long) (usec / 1000000ULL);
@@ -159,7 +159,7 @@ typedef once_flag                     m_once_t[1];
 #define M_ONCE_INIT_VALUE            { ONCE_FLAG_INIT }
 
 // Call the function exactly once
-static inline void m_once_call(m_once_t o, void (*func)(void))
+M_INLINE void m_once_call(m_once_t o, void (*func)(void))
 {
   call_once(o,func);
 }
@@ -223,68 +223,68 @@ typedef CRITICAL_SECTION       m_mutex_t[1];
 typedef CONDITION_VARIABLE     m_cond_t[1];
 
 /* Initialize a mutex (Constructor)*/
-static inline void m_mutex_init(m_mutex_t m)
+M_INLINE void m_mutex_init(m_mutex_t m)
 {
   InitializeCriticalSection(m);
 }
 
 /* Clear a mutex (destructor) */
-static inline void m_mutex_clear(m_mutex_t m)
+M_INLINE void m_mutex_clear(m_mutex_t m)
 {
   DeleteCriticalSection(m);
 }
 
 /* Lock a mutex */
-static inline void m_mutex_lock(m_mutex_t m)
+M_INLINE void m_mutex_lock(m_mutex_t m)
 {
   EnterCriticalSection(m);
 }
 
 /* Unlock a mutex */
-static inline void m_mutex_unlock(m_mutex_t m)
+M_INLINE void m_mutex_unlock(m_mutex_t m)
 {
   LeaveCriticalSection(m);
 }
 
 /* Initialize a condition variable (constructor) */
-static inline void m_cond_init(m_cond_t c)
+M_INLINE void m_cond_init(m_cond_t c)
 {
   InitializeConditionVariable(c);
 }
 
 /* Clear a condition variable (destructor) */
-static inline void m_cond_clear(m_cond_t c)
+M_INLINE void m_cond_clear(m_cond_t c)
 {
   (void) c; // There is no destructor for this object.
 }
 
 /* Signal a condition variable to at least one waiting thread */
-static inline void m_cond_signal(m_cond_t c)
+M_INLINE void m_cond_signal(m_cond_t c)
 {
   WakeConditionVariable(c);
 }
 
 /* Signal a condition variable to all waiting threads */
-static inline void m_cond_broadcast(m_cond_t c)
+M_INLINE void m_cond_broadcast(m_cond_t c)
 {
   WakeAllConditionVariable(c);
 }
 
 /* Wait for a condition variable */
-static inline void m_cond_wait(m_cond_t c, m_mutex_t m)
+M_INLINE void m_cond_wait(m_cond_t c, m_mutex_t m)
 {
   SleepConditionVariableCS(c, m, INFINITE);
 }
 
 /* Create a thread (constructor) and start it */
-static inline void m_thread_create(m_thread_t t, void (*func)(void*), void *arg)
+M_INLINE void m_thread_create(m_thread_t t, void (*func)(void*), void *arg)
 {
   *t = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) (uintptr_t) func, arg, 0, NULL);
   M_ASSERT_INIT (*t != NULL, "thread");
 }
 
 /* Wait for the thread to terminate and destroy it (destructor) */
-static inline void m_thread_join(m_thread_t t)
+M_INLINE void m_thread_join(m_thread_t t)
 {
   DWORD dwWaitResult = WaitForSingleObject(*t, INFINITE);
   (void) dwWaitResult;
@@ -294,14 +294,14 @@ static inline void m_thread_join(m_thread_t t)
 
 /* The thread has nothing meaningfull to do.
    Inform the OS to let other threads be scheduled */
-static inline void m_thread_yield(void)
+M_INLINE void m_thread_yield(void)
 {
   Sleep(0);
 }
 
 /* Sleep the thread for at least usec microseconds
    Return true if the sleep was successful */
-static inline bool m_thread_sleep(unsigned long long usec)
+M_INLINE bool m_thread_sleep(unsigned long long usec)
 {
   LARGE_INTEGER ft;
   M_ASSERT (usec <= LLONG_MAX);
@@ -317,7 +317,7 @@ static inline bool m_thread_sleep(unsigned long long usec)
 
 typedef INIT_ONCE                     m_once_t[1];
 #define M_ONCE_INIT_VALUE            { INIT_ONCE_STATIC_INIT }
-static inline BOOL CALLBACK m_once_callback( PINIT_ONCE InitOnce, PVOID Parameter, PVOID *lpContext)
+M_INLINE BOOL CALLBACK m_once_callback( PINIT_ONCE InitOnce, PVOID Parameter, PVOID *lpContext)
 {
     void (*func)(void);
     (void) InitOnce;
@@ -326,7 +326,7 @@ static inline BOOL CALLBACK m_once_callback( PINIT_ONCE InitOnce, PVOID Paramete
     (*func)();
     return TRUE;
 }
-static inline void m_once_call(m_once_t o, void (*func)(void))
+M_INLINE void m_once_call(m_once_t o, void (*func)(void))
 {
   InitOnceExecuteOnce(o, m_once_callback, (void*)(intptr_t)func, NULL);
 }
@@ -368,7 +368,7 @@ typedef pthread_cond_t         m_cond_t[1];
 typedef pthread_t              m_thread_t[1];
 
 /* Initialize the mutex (constructor) */
-static inline void m_mutex_init(m_mutex_t m)
+M_INLINE void m_mutex_init(m_mutex_t m)
 {
   int _rc = pthread_mutex_init(m, NULL);
   // Abort program in case of initialization failure
@@ -377,19 +377,19 @@ static inline void m_mutex_init(m_mutex_t m)
 }
 
 /* Clear the mutex (destructor) */
-static inline void m_mutex_clear(m_mutex_t m)
+M_INLINE void m_mutex_clear(m_mutex_t m)
 {
   pthread_mutex_destroy(m);
 }
 
 /* Lock the mutex */
-static inline void m_mutex_lock(m_mutex_t m)
+M_INLINE void m_mutex_lock(m_mutex_t m)
 {
   pthread_mutex_lock(m);
 }
 
 /* Unlock the mutex */
-static inline void m_mutex_unlock(m_mutex_t m)
+M_INLINE void m_mutex_unlock(m_mutex_t m)
 {
   pthread_mutex_unlock(m);
 }
@@ -398,13 +398,13 @@ static inline void m_mutex_unlock(m_mutex_t m)
 #define M_MUTEXI_INIT_VALUE    { PTHREAD_MUTEX_INITIALIZER }
 
 /* Internal function compatible with lazy lock */
-static inline void m_mutexi_lazy_lock(m_mutex_t m)
+M_INLINE void m_mutexi_lazy_lock(m_mutex_t m)
 {
   pthread_mutex_lock(m);
 }
 
 /* Initialize the condition variable (constructor) */
-static inline void m_cond_init(m_cond_t c)
+M_INLINE void m_cond_init(m_cond_t c)
 {
   int _rc = pthread_cond_init(c, NULL);
   // Abort program in case of initialization failure
@@ -413,38 +413,38 @@ static inline void m_cond_init(m_cond_t c)
 }
 
 /* Clear the condition variable (destructor) */
-static inline void m_cond_clear(m_cond_t c)
+M_INLINE void m_cond_clear(m_cond_t c)
 {
   pthread_cond_destroy(c);
 }
 
 /* Signal a condition variable to at least a waiting thread */
-static inline void m_cond_signal(m_cond_t c)
+M_INLINE void m_cond_signal(m_cond_t c)
 {
   pthread_cond_signal(c);
 }
 
 /* Signal a condition variable to all waiting threads */
-static inline void m_cond_broadcast(m_cond_t c)
+M_INLINE void m_cond_broadcast(m_cond_t c)
 {
   pthread_cond_broadcast(c);
 }
 
 /* Waiting for a condition variable */
-static inline void m_cond_wait(m_cond_t c, m_mutex_t m)
+M_INLINE void m_cond_wait(m_cond_t c, m_mutex_t m)
 {
   pthread_cond_wait(c, m);
 }
 
 /* Create a thread (constructor) and start it */
-static inline void m_thread_create(m_thread_t t, void (*func)(void*), void *arg)
+M_INLINE void m_thread_create(m_thread_t t, void (*func)(void*), void *arg)
 {
   int _rc = pthread_create(t, NULL, (void*(*)(void*))(void(*)(void))func, arg);
   M_ASSERT_INIT (_rc == 0, "thread");
 }
 
 /* Wait for the thread to terminate and destroy it (destructor) */
-static inline void m_thread_join(m_thread_t t)
+M_INLINE void m_thread_join(m_thread_t t)
 {
   int _rc = pthread_join(*t, NULL);
   (void)_rc; // Avoid warning about variable unused.
@@ -453,7 +453,7 @@ static inline void m_thread_join(m_thread_t t)
 
 /* The thread has nothing meaningfull to do.
    Inform the OS to let other threads be scheduled */
-static inline void m_thread_yield(void)
+M_INLINE void m_thread_yield(void)
 {
 #ifdef _POSIX_PRIORITY_SCHEDULING
   sched_yield();
@@ -462,7 +462,7 @@ static inline void m_thread_yield(void)
 
 /* Sleep for at least usec microseconds
    Return true if the sleep was successful */
-static inline bool m_thread_sleep(unsigned long long usec)
+M_INLINE bool m_thread_sleep(unsigned long long usec)
 {
   struct timeval tv;
   /* We don't want to use usleep or nanosleep so that
@@ -475,7 +475,7 @@ static inline bool m_thread_sleep(unsigned long long usec)
 
 typedef pthread_once_t                m_once_t[1];
 #define M_ONCE_INIT_VALUE            { PTHREAD_ONCE_INIT }
-static inline void m_once_call(m_once_t o, void (*func)(void))
+M_INLINE void m_once_call(m_once_t o, void (*func)(void))
 {
   pthread_once(o,func);
 }

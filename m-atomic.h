@@ -226,7 +226,7 @@ typedef _Atomic(uintmax_t)          atomic_uintmax_t;
 #endif
 
 /* (INTERNAL) Unlock the mutex and return the given value */
-static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
+M_INLINE long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
 {
   m_mutex_unlock (*lock);
   return val;
