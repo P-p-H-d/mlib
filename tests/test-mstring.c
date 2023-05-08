@@ -143,6 +143,14 @@ static void test_utf8_it(void)
   string_clear(s);
 }
 
+static void call_string_cat_vprintf(string_t s, const char format[], ...)
+{
+  va_list args;
+  va_start (args, format);
+  string_cat_vprintf(s, format, args);
+  va_end (args);
+}
+
 static void test0(void)
 {
   string_t s1;
@@ -376,13 +384,25 @@ static void test0(void)
   string_set_str(s2, "Hello, world! 10 little suns.");
   assert(string_equal_p(s1, s2) == true);
 
+  string_set_str(s1, "Hello, world!");
+  call_string_cat_vprintf(s1, " %d little %s.", 10, "suns");
+  assert(string_equal_p(s1, s2) == true);
+
   string_set_str(s1, "X:");
   string_cat_printf(s1, "");
+  assert(string_equal_str_p(s1, "X:") == true);
+
+  string_set_str(s1, "X:");
+  call_string_cat_vprintf(s1, "");
   assert(string_equal_str_p(s1, "X:") == true);
 
   // Illegal format char
   string_set_str(s1, "X:");
   string_cat_printf(s1, "%#");
+  assert(string_equal_str_p(s1, "X:") == true);
+
+  string_set_str(s1, "X:");
+  call_string_cat_vprintf(s1, "%#");
   assert(string_equal_str_p(s1, "X:") == true);
 
   string_set_str(s1, " \r\n\t HELLO  \n\r\t");
