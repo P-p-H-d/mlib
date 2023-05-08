@@ -1334,7 +1334,7 @@ m_string_hash(const m_string_t v)
 }
 
 // Return true if c is a character from charac
-static bool
+static inline bool
 m_str1ng_strim_char(char c, const char charac[])
 {
   for(const char *s = charac; *s; s++) {
