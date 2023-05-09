@@ -274,6 +274,11 @@ M_BEGIN_PROTECTED_CODE
 /************************* LINKAGE **************************/
 /************************************************************/
 
+/* Define default values */
+#ifndef M_USE_EXTERN_FINE_GRAINED
+#define M_USE_EXTERN_FINE_GRAINED 0
+#endif
+
 /* The following semantics apply to inline in C99:
    - inline: No generation of an extern visible function. May inline or may call the external function.
    - extern inline: externally visible code is emitted, so at most one translation unit can use this.
@@ -285,13 +290,19 @@ M_BEGIN_PROTECTED_CODE
    This is only supported by GCC and CLANG.
    Otherwise uses the classic "M_INLINE"
 */
-#if   defined(__GNUC__) && defined(M_USE_EXTERN_DECL)
+#if !defined( __cplusplus) && defined(__GNUC__) && defined(M_USE_EXTERN_DECL)
 #define M_INLINE __attribute__ ((noinline)) inline
-#elif defined(__GNUC__) && defined(M_USE_EXTERN_DEF)
+#elif !defined( __cplusplus) && defined(__GNUC__) && defined(M_USE_EXTERN_DEF)
 #define M_INLINE __attribute__ ((noinline)) extern inline
+#elif !defined( __cplusplus) && defined(__GNUC__) && M_USE_EXTERN_FINE_GRAINED
+#define M_INLINE                                                              \
+  M_IF(M_EQUAL(M_USE_EXTERN_FINE_GRAINED, 2))(__attribute__ ((noinline)) inline, \
+  M_IF(M_EQUAL(M_USE_EXTERN_FINE_GRAINED, 3))(__attribute__ ((noinline)) extern inline, \
+                                              static inline))
 #else
 #define M_INLINE static inline
 #endif
+
 
 
 /************************************************************/
