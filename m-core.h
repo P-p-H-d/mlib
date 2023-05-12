@@ -275,8 +275,8 @@ M_BEGIN_PROTECTED_CODE
 /************************************************************/
 
 /* Define default values */
-#ifndef M_USE_EXTERN_FINE_GRAINED
-#define M_USE_EXTERN_FINE_GRAINED 0
+#ifndef M_USE_EXTERN_FINE_SELECT
+#define M_USE_EXTERN_FINE_SELECT 0
 #endif
 
 /* The following semantics apply to inline in C99:
@@ -294,10 +294,10 @@ M_BEGIN_PROTECTED_CODE
 #define M_INLINE __attribute__ ((noinline)) inline
 #elif !defined( __cplusplus) && defined(__GNUC__) && defined(M_USE_EXTERN_DEF)
 #define M_INLINE __attribute__ ((noinline)) extern inline
-#elif !defined( __cplusplus) && defined(__GNUC__) && M_USE_EXTERN_FINE_GRAINED
+#elif !defined( __cplusplus) && defined(__GNUC__) && defined(M_USE_EXTERN_FINE_GRAINED)
 #define M_INLINE                                                              \
-  M_IF(M_EQUAL(M_USE_EXTERN_FINE_GRAINED, 2))(__attribute__ ((noinline)) inline, \
-  M_IF(M_EQUAL(M_USE_EXTERN_FINE_GRAINED, 3))(__attribute__ ((noinline)) extern inline, \
+  M_IF(M_EQUAL(M_USE_EXTERN_FINE_SELECT, 2))(_Pragma("GCC diagnostic ignored \"-Wmissing-prototypes\"") __attribute__((weak, noinline)), \
+  M_IF(M_EQUAL(M_USE_EXTERN_FINE_SELECT, 3))(_Pragma("GCC diagnostic ignored \"-Wmissing-prototypes\"") __attribute__((noinline)), \
                                               static inline))
 #else
 #define M_INLINE static inline
