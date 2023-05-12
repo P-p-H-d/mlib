@@ -201,7 +201,7 @@ static void test_rp_basic(void)
 {
   rpdict1_t dict;
   rpdict1_init(dict);
-  int z;
+  int z = 0;
   rpdict1_set_at(dict, 2, 3);
   rpdict1_get_copy(&z, dict, 2);
   assert (z == 3);

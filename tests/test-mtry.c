@@ -399,9 +399,24 @@ static void test3(void)
   assert(flow ++ == 0);
   M_TRY(test1) {
     assert(flow ++ == 1);
+#ifdef __GNUC__
+#if __GNUC__ >= 13
+  /* Issue with GCC 13. It reports a variable as being not initialized
+     whereas it is obviously initialized.
+     See also https://gcc.gnu.org/bugzilla/show_bug.cgi?id=109530
+  */
+  _Pragma("GCC diagnostic push")
+  _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+#endif
+#endif
     M_DEFER( assert(flow++ == 3) ) {
       assert(flow ++ == 2);
     }
+#ifdef __GNUC__
+#if __GNUC__ >= 13
+  _Pragma("GCC diagnostic pop")
+#endif
+#endif
   } M_CATCH(test1, M_ERROR_MEMORY) {
     assert(0);
   }
