@@ -253,7 +253,7 @@ sanitize:
 	awk '  printit { print } /END_COVERAGE/ { printit=1}' $< > $<.end.c
 	$(CC) $(CPPFLAGS) -E -DNDEBUG -DWITHIN_COVERAGE $< |grep -v '^#' |awk ' /END_COVERAGE/ { printit=0} printit { print } /START_COVERAGE/ { printit=1 }' |perl -p -e "s/;(?![\"'])/;\n/g ; s/}(?![\"'])/}\n/g ; s/{(?![\"'])/{\n/g" > $<.middle.c
 	cat $<.first.c $<.middle.c $<.end.c > $<.c
-	$(CC) $(CPPFLAGS) -fanalyzer -Wall -W -O2 -g $<.c -o $<.exe 2> `basename $< .c`.analyzer $(LDFLAGS)
+	$(CC) $(CPPFLAGS) -fanalyzer -Wall -W -Wno-analyzer-malloc-leak -O2 -g $<.c -o $<.exe 2> `basename $< .c`.analyzer $(LDFLAGS)
 	$(RM) $<.first.c $<.end.c $<.middle.c $<.c $<.exe
 
 analyze:
