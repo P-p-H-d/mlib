@@ -162,7 +162,6 @@
 #if __clang_major__ >= 6
 #define M_BEGIN_PROTECTED_CODE                                                \
   _Pragma("clang diagnostic push")                                            \
-  _Pragma("clang diagnostic ignored \"-Wattributes\"")                        \
   _Pragma("clang diagnostic ignored \"-Wold-style-cast\"")                    \
   _Pragma("clang diagnostic ignored \"-Wzero-as-null-pointer-constant\"")     \
   _Pragma("clang diagnostic ignored \"-Wunused-function\"")                   \
@@ -170,7 +169,6 @@
 #else
 #define M_BEGIN_PROTECTED_CODE                                                \
   _Pragma("clang diagnostic push")                                            \
-  _Pragma("clang diagnostic ignored \"-Wattributes\"")                        \
   _Pragma("clang diagnostic ignored \"-Wold-style-cast\"")                    \
   _Pragma("clang diagnostic ignored \"-Wunused-function\"")                   \
   _Pragma("clang diagnostic ignored \"-Wformat-nonliteral\"")
@@ -187,7 +185,6 @@
  */
 #define M_BEGIN_PROTECTED_CODE                                                \
   _Pragma("GCC diagnostic push")                                              \
-  _Pragma("GCC diagnostic ignored \"-Wattributes\"")                          \
   _Pragma("GCC diagnostic ignored \"-Wold-style-cast\"")                      \
   _Pragma("GCC diagnostic ignored \"-Wzero-as-null-pointer-constant\"")       \
   _Pragma("GCC diagnostic ignored \"-Wformat-nonliteral\"")
@@ -200,7 +197,6 @@
 /* Warnings disabled for CLANG in C mode */
 #define M_BEGIN_PROTECTED_CODE                                                \
   _Pragma("clang diagnostic push")                                            \
-  _Pragma("clang diagnostic ignored \"-Wattributes\"")                        \
   _Pragma("clang diagnostic ignored \"-Wunused-function\"")                   \
   _Pragma("clang diagnostic ignored \"-Wformat-nonliteral\"")
 
@@ -213,14 +209,12 @@
 /* Warnings disabled for GNU C in C mode (Wstringop-overflow produces false warnings) */
 #define M_BEGIN_PROTECTED_CODE                                                \
   _Pragma("GCC diagnostic push")                                              \
-  _Pragma("GCC diagnostic ignored \"-Wattributes\"")                          \
   _Pragma("GCC diagnostic ignored \"-Wformat-nonliteral\"")                   \
   _Pragma("GCC diagnostic ignored \"-Wstringop-overflow\"")
 #else
 /* Warnings disabled for GNU C in C mode */
 #define M_BEGIN_PROTECTED_CODE                                                \
   _Pragma("GCC diagnostic push")                                              \
-  _Pragma("GCC diagnostic ignored \"-Wattributes\"")                          \
   _Pragma("GCC diagnostic ignored \"-Wformat-nonliteral\"")
 #endif
 
@@ -291,9 +285,9 @@ M_BEGIN_PROTECTED_CODE
    Otherwise uses the classic "M_INLINE"
 */
 #if !defined( __cplusplus) && defined(__GNUC__) && defined(M_USE_EXTERN_DECL)
-#define M_INLINE __attribute__ ((noinline)) inline
+#define M_INLINE _Pragma("GCC diagnostic ignored \"-Wmissing-prototypes\"") __attribute__((weak, noinline))
 #elif !defined( __cplusplus) && defined(__GNUC__) && defined(M_USE_EXTERN_DEF)
-#define M_INLINE __attribute__ ((noinline)) extern inline
+#define M_INLINE _Pragma("GCC diagnostic ignored \"-Wmissing-prototypes\"") __attribute__((noinline))
 #elif !defined( __cplusplus) && defined(__GNUC__) && defined(M_USE_EXTERN_FINE_GRAINED)
 #define M_INLINE                                                              \
   M_IF(M_EQUAL(M_USE_EXTERN_FINE_SELECT, 2))(_Pragma("GCC diagnostic ignored \"-Wmissing-prototypes\"") __attribute__((weak, noinline)), \
