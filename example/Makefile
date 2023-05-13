@@ -39,7 +39,7 @@ RM=rm -f
 all: config
 	$(MAKE) `ls ex-*.c|sed -e 's/\.c/\.exe/g'`
 	if test "$(CC)" = "cc -std=c99" ; then $(MAKE) `ls ex11-*.c|sed -e 's/\.c/\.exe/g'` CC="cc -std=c11" ; fi
-	$(MAKE) exm.exe
+	$(MAKE) exm.exe exn.exe
 
 exm.exe: exm-lib.o exm-main.o
 	$(CC) -Wl,--gc-sections -g $^ -o $@
