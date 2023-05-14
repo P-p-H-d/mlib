@@ -34,7 +34,7 @@ RM=rm -f
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -o $@ `cat config` $(LDFLAGS)
 
 .c.o:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -O2 -ffunction-sections -fdata-sections -DNDEBUG -g $< -c -o $@ `cat config` $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O2 `cat config.link` -DNDEBUG -g $< -c -o $@
 
 all: config
 	$(MAKE) `ls ex-*.c|sed -e 's/\.c/\.exe/g'`
@@ -42,19 +42,21 @@ all: config
 	$(MAKE) exm.exe exn.exe
 
 exm.exe: exm-lib.o exm-main.o
-	$(CC) -Wl,--gc-sections -g $^ -o $@
+	$(CC) `cat config.link` -g $^ -o $@
 
 exn.exe: exn-lib.o exn-main.o
-	$(CC) -Wl,--gc-sections -g $^ -o $@
+	$(CC) `cat config.link` -g $^ -o $@
 
 config:
 	printf "#include <gmp.h>\nint main(void){mpz_t z; mpz_init(z); return 0;}\n" > config-test.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -I$(GMP_DIR)/include -L$(GMP_DIR)/lib config-test.c -lgmp -o config-test.exe $(LDFLAGS) 2> /dev/null && echo "-DHAVE_GMP=1 -DHAVE_MPFR=0 -I$(GMP_DIR)/include -L$(GMP_DIR)/lib -lgmp" > config || echo "-DHAVE_GMP=0 -DHAVE_MPFR=0 " > config
 	printf "#include <mpfr.h>\nint main(void){mpfr_t z; mpfr_init(z); return 0;}\n" > config-test.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -I$(GMP_DIR)/include -I$(MPFR_DIR)/include -L$(GMP_DIR)/lib -L$(MPFR_DIR)/lib config-test.c -lmpfr -lgmp -o config-test.exe $(LDFLAGS) 2> /dev/null && echo "-DHAVE_GMP=1 -DHAVE_MPFR=1  -I$(GMP_DIR)/include -L$(GMP_DIR)/lib -I$(MPFR_DIR)/include -L$(MPFR_DIR)/lib -lmpfr -lgmp" > config || echo "MPFR not available"
+	printf "#include <stdio.h>\nint main(void){printf(\"Ok\"); return 0;}\n" > config-test.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) config-test.c -ffunction-sections -fdata-sections -Wl,--gc-sections 2> /dev/null && echo "-ffunction-sections -fdata-sections -Wl,--gc-sections" > config.link || echo "" > config.link
 	$(RM) config-test.c config-test.exe
 
 clean:
-	$(RM) *.exe *.s *~ *.o ./a.dat config
+	$(RM) *.exe *.s *~ *.o ./a.dat config config.link
 
 
