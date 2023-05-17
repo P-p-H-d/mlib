@@ -282,17 +282,26 @@ M_BEGIN_PROTECTED_CODE
    use the "inline" semantic of the C99 and requests no inlining to the compiler.
    Then it needs to define in at most one translation unit (M_USE_EXTERN_DEF) to define the functions.
    This is only supported by GCC and CLANG.
-   Otherwise uses the classic "M_INLINE"
+   If M_USE_EXTERN_FINE_GRAINED, then uses a mechanism to decl or def the functions in function of M_USE_EXTERN_FINE_DECL / M_USE_EXTERN_FINE_DEF
+   Otherwise uses the classic "M_INLINE" (inline for C++ or static inline for C)
+   inline in C++ as a weak definition by default, which may reduce code size in executable.
 */
-#if !defined( __cplusplus) && defined(__GNUC__) && defined(M_USE_EXTERN_DECL)
-#define M_INLINE _Pragma("GCC diagnostic ignored \"-Wmissing-prototypes\"") __attribute__((weak, noinline))
-#elif !defined( __cplusplus) && defined(__GNUC__) && defined(M_USE_EXTERN_DEF)
-#define M_INLINE _Pragma("GCC diagnostic ignored \"-Wmissing-prototypes\"") __attribute__((noinline))
-#elif !defined( __cplusplus) && defined(__GNUC__) && defined(M_USE_EXTERN_FINE_GRAINED)
+#if !defined(__cplusplus) && defined(__GNUC__)
+# define M_INLINE_PRAGMA _Pragma("GCC diagnostic ignored \"-Wmissing-prototypes\"") 
+#else
+# define M_INLINE_PRAGMA
+#endif
+#if defined(__GNUC__) && defined(M_USE_EXTERN_DEF)
+#define M_INLINE M_INLINE_PRAGMA __attribute__((noinline)) extern
+#elif defined(__GNUC__) && defined(M_USE_EXTERN_DECL)
+#define M_INLINE M_INLINE_PRAGMA __attribute__((weak, noinline)) extern
+#elif defined(__GNUC__) && defined(M_USE_EXTERN_FINE_GRAINED)
 #define M_INLINE                                                              \
-  M_IF(M_EQUAL(M_USE_EXTERN_FINE_SELECT, 2))(_Pragma("GCC diagnostic ignored \"-Wmissing-prototypes\"") __attribute__((weak, noinline)), \
-  M_IF(M_EQUAL(M_USE_EXTERN_FINE_SELECT, 3))(_Pragma("GCC diagnostic ignored \"-Wmissing-prototypes\"") __attribute__((noinline)), \
-                                              static inline))
+  M_IF(M_EQUAL(M_USE_EXTERN_FINE_SELECT, 2))(M_INLINE_PRAGMA __attribute__((weak, noinline)) extern, \
+  M_IF(M_EQUAL(M_USE_EXTERN_FINE_SELECT, 3))(M_INLINE_PRAGMA __attribute__((noinline)) extern, \
+                                             static inline))
+#elif defined(__cplusplus) 
+#define M_INLINE inline
 #else
 #define M_INLINE static inline
 #endif
