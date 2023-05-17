@@ -34,6 +34,7 @@ RM=rm -f
 	$(CC) $(CFLAGS) $(CPPFLAGS) $< -o $@ `cat config` $(LDFLAGS)
 
 .c.o:
+	@$(MAKE) config
 	$(CC) $(CFLAGS) $(CPPFLAGS) -O2 `cat config.link` -DNDEBUG -g $< -c -o $@
 
 all: config
