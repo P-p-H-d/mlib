@@ -7,13 +7,8 @@
 #include "m-array.h"
 
 // The following functions will not be inlined:
-#undef M_USE_EXTERN_FINE_SELECT
-#ifdef EXN_LIB
-#define M_USE_EXTERN_FINE_SELECT 3
-#else
-#define M_USE_EXTERN_FINE_SELECT 2
-#endif
-
+#define M_USE_DECL
 ARRAY_DEF(array_str, string_t)
+#undef M_USE_DECL
 
 #endif
