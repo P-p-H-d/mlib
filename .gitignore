@@ -38,6 +38,7 @@ depend
 other/
 a*.dat
 config
+config.link
 *.log
 .vscode
 .vs
