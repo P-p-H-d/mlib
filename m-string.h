@@ -326,7 +326,7 @@ m_str1ng_fit2size (m_string_t v, size_t size_alloc)
     // Insufficient current allocation to store the new string
     // Perform an allocation on the heap.
     size_t alloc = size_alloc + size_alloc / 2;
-    if (M_UNLIKELY_NOMEM (alloc <= old_alloc)) {
+    if (M_UNLIKELY_NOMEM (alloc <= size_alloc)) {
       /* Overflow in alloc computation */
       M_MEMORY_FULL(sizeof (char) * alloc);
       // NOTE: Return is currently broken.
