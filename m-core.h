@@ -273,12 +273,13 @@ M_BEGIN_PROTECTED_CODE
    - extern inline: externally visible code is emitted, so at most one translation unit can use this.
    - static inline: No generation of an extern visible function. May inline or may call one static function.
 */
-/* If the user requests to use only declaration for all M*LIN functions (M_USE_EXTERN_DECL),
+/* If the user requests to use only declaration for all M*LIB functions globally (M_USE_DECL),
    it requests no inlining to the compiler and emits code as weak symbol.
-   Then at most one translation unit should request the definition of all functions (M_USE_EXTERN_DEF).
+   Then at most one translation unit should request the definition of all functions (M_USE_DEF).
    This is only supported by GCC and CLANG. You should also use the options -ffunction-sections -fdata-sections -Wl,--gc-sections
    Otherwise it would increase the size of the executable.
-   If M_USE_EXTERN_FINE_GRAINED, then uses a mechanism to decl or def the functions in function of M_USE_EXTERN_FINE_DECL / M_USE_EXTERN_FINE_DEF
+   If M_USE_FINE_GRAINED_LINKAGE, then the mechanism can be turn on / off dynamically in compilation time
+   to decl or def the functions in function of M_USE_DECL / M_USE_DEF
    Otherwise uses the classic "M_INLINE" (inline for C++ or static inline for C)
    inline in C++ as a weak definition by default, which may reduce code size in executable.
 */
@@ -287,16 +288,18 @@ M_BEGIN_PROTECTED_CODE
 #else
 # define M_INLINE_PRAGMA
 #endif
-#if defined(__GNUC__) && defined(M_USE_EXTERN_DEF)
-#define M_INLINE M_INLINE_PRAGMA __attribute__((noinline)) extern
-#elif defined(__GNUC__) && defined(M_USE_EXTERN_DECL)
-#define M_INLINE M_INLINE_PRAGMA __attribute__((weak, noinline)) extern
-#elif defined(__GNUC__) && defined(M_USE_EXTERN_FINE_GRAINED)
+#if defined(__GNUC__) && defined(M_USE_FINE_GRAINED_LINKAGE)
 #define M_INLINE                                                              \
   M_IF_EMPTY(M_USE_DECL)(                                                  \
     M_IF_EMPTY(M_USE_DEF)(M_INLINE_PRAGMA __attribute__((noinline)) extern,  \
                           M_INLINE_PRAGMA __attribute__((weak, noinline)) extern), \
                           static inline)
+#elif defined(__GNUC__) && defined(M_USE_DECL)
+# ifdef M_USE_DEF
+#  define M_INLINE M_INLINE_PRAGMA __attribute__((noinline)) extern
+# else
+#  define M_INLINE M_INLINE_PRAGMA __attribute__((weak, noinline)) extern
+#endif
 #elif defined(__cplusplus) 
 #define M_INLINE inline
 #else
