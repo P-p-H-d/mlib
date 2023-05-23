@@ -8342,6 +8342,45 @@ Use fast integer conversion algorithms instead of using the LIBC.
 
 Default value: 1 (because it also generates smaller code).
 
+#### M\_USE\_DECL
+
+If M\_USE\_FINE\_GRAINED\_LINKAGE is not defined,
+it will request M\*LIB to change the linkage of its symbols globally:
+instead of inlining the functions, it will emit weak symbols
+for the functions that are not inlined.
+
+And in exactly one translation unit, the macro M\_USE\_DEF
+should also be defined so that it emits the normal definition
+of the functions. In which case, it should contain all symbols
+used by all other translation units.
+
+You should compile your program with 
+-ffunction-sections -fdata-sections 
+and link with
+-Wl,--gc-sections
+in order to remove unused code and to merge identical code
+otherwise it is likely to generate even bigger code than using the inlining linkage.
+
+This works for GCC / CLANG in C mode.
+
+#### M\_USE\_FINE\_GRAINED\_LINKAGE
+
+It will request M\*LIB to change the linkage of its symbols dynamically at compile time:
+in which case
+M\_USE\_DECL / M\_USE\_DEF can be defined / undefined several times in a translation unit
+and M\*LIB will emit the change the linkage of the symbols being declared accordingly:
+
+* definition like if M\_USE\_DECL and M\_USE\_DEF are defined
+* declaration like if M\_USE\_DECL is defined
+* inline like otherwise
+
+This enables to inline some functions and not others.
+
+M\_USE\_DECL / M\_USE\_DEF shall be defined without effective value.
+
+See M\_USE\_DECL for more details.
+
+
 #### M\_MEMORY\_ALLOC
 
 See [m-core.h](#m-core)
