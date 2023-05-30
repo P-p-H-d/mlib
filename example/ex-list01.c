@@ -8,13 +8,17 @@
 #include "m-string.h"
 #include "m-algo.h"
 
-// Let's create a list of string by using the M*LIB dynamic string.
+// Let's create a list of string by using the M*LIB dynamic string 'string_t'
+// The prefix used for generating functions will be 'list_string'
 LIST_DEF(list_string, string_t)
 
 // Let's register the oplist globally so that other M*LIB macros
 // can get the oplist without us giving it explictly to them.
 // An oplist is the association of operators to the provided methods
 // so that generic code can use correctly an object of such type.
+// LIST_OPLIST is a macro used to generate the oplist associated to the
+// list itself. It needs the prefix used for generating the list (aka list_string here)
+// and the oplist of the item in the list (aka the string oplist)
 #define M_OPL_list_string_t() LIST_OPLIST(list_string, STRING_OPLIST)
 
 // Let's define some basic algorithms over this list of string.
@@ -95,6 +99,23 @@ int main(void)
       }
     
   } // Everything is cleared after this point.
+
+  // Let's create another list of string and init it.
+  list_string_t list;
+  list_string_init(list);
+  // Let's put some elements in it:
+  list_string_emplace_back (list, "A");
+  list_string_emplace_back (list, "B");
+  list_string_emplace_back (list, "C");
+  list_string_emplace_back (list, "D");
+  // Reverse it
+  list_string_reverse(list);
+  // Let's display the string by serializing the elements of the list:
+  printf ("List of string = ");
+  list_string_out_str(stdout, list);
+  printf ("\n");
+  // Don't forget to clear the list before leaving
+  list_string_clear(list);
   
   return 0;
 }
