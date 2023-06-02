@@ -2453,7 +2453,7 @@ done
 #define M_DEFAULTI_ARGS2(numArgs, numExpected, value, ...)                    \
   __VA_ARGS__                                                                 \
   M_IF(M_NOTEQUAL(numArgs, numExpected))(M_DEFERRED_COMMA, )                  \
-  M_REVERSE(M_KEEP_ARGS(M_SUB(numExpected, numArgs), M_REVERSE value, nothing))
+  M_REVERSE(M_KEEP_ARGS(M_SUB(numExpected, numArgs), M_REVERSE value, M_LIB_ERROR_MISSING_MANDATORY_ARGUMENT))
 #define M_DEFAULTI_ARGS_EVAL(...) __VA_ARGS__
 #define M_DEFAULT_ARGS(expected, value,  ...)                                 \
   M_DEFAULTI_ARGS_EVAL(M_DEFAULTI_ARGS2(M_NARGS(__VA_ARGS__), expected, value, __VA_ARGS__))

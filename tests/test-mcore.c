@@ -980,6 +980,31 @@ static void test_generic_api(void)
 
 }
 
+static void f_default(int a, int b, int c)
+{
+  assert( a == 1 );
+  assert( b == 2 );
+  assert( c == 3 );
+}
+
+static void test_default(void)
+{
+
+#define f11(...) f_default(M_DEFAULT_ARGS(3, (1, 2, 3), __VA_ARGS__))
+ f11(1, 2, 3);
+ f11(1, 2);
+ f11(1);
+
+#define f12(...) f_default(M_DEFAULT_ARGS(3, (2, 3), __VA_ARGS__))
+ f12(1, 2, 3);
+ f12(1, 2);
+ f12(1);
+
+#define f13(...) f_default(M_DEFAULT_ARGS(3, (3), __VA_ARGS__))
+ f13(1, 2, 3);
+ f13(1, 2);
+}
+
 int main(void)
 {
   test_cat();
@@ -1006,6 +1031,7 @@ int main(void)
   test_M_CSTR();
   test_properties();
   test_generic_api();
+  test_default();
   testobj_final_check();
   exit(0);
 }
