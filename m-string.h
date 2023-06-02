@@ -63,7 +63,7 @@ typedef enum {
   M_STR1NG_UTF8_STARTING = 0,
   M_STR1NG_UTF8_DECODING_1 = 8,
   M_STR1NG_UTF8_DECODING_2 = 16,
-  M_STR1NG_UTF8_DOCODING_3 = 24,
+  M_STR1NG_UTF8_DECODING_3 = 24,
   M_STR1NG_UTF8_ERROR = 32
 } m_str1ng_utf8_state_e;
 
@@ -1873,6 +1873,38 @@ m_string_push_u (m_string_t str, m_string_unicode_t u)
   m_string_cat_cstr(str, buffer);
 }
 
+/* Pop last unicode code point into string, encoding it in UTF8 */
+static inline  bool
+m_string_pop_u(m_string_unicode_t *u, m_string_t str)
+{
+  M_STR1NG_CONTRACT(str);
+  char *org = m_str1ng_get_cstr(str);
+  size_t len = m_string_size(str);
+  // From the last byte in the string
+  while (len > 0) {
+    len--;
+    // Test if it is a start of an UTF8 code point
+    if (m_str1ng_utf8_start_p((unsigned char) org[len])) {
+      // Yes, so decode the UTF8
+      m_str1ng_utf8_state_e state = M_STR1NG_UTF8_STARTING;
+      const char *tmp = &org[len];
+      // Support of NULL pointer
+      m_string_unicode_t u_tmp;
+      m_string_unicode_t *u_ptr = u == NULL ? &u_tmp : u;
+      do {
+        m_str1ng_utf8_decode(*tmp++, &state, u_ptr);
+      } while (state != M_STR1NG_UTF8_STARTING && state != M_STR1NG_UTF8_ERROR);
+      // Final null char for the string
+      org[len] = 0;
+      m_str1ng_set_size(str, len);
+      M_STR1NG_CONTRACT(str);
+      return true;
+    }
+  }
+  // Fail to pop a unicode code
+  return false;
+}
+
 /* Compute the length in UTF8 code points in the string */
 static inline size_t
 m_string_length_u(m_string_t str)
@@ -2674,6 +2706,7 @@ namespace m_lib {
 #define string_get_cref m_string_get_cref
 #define string_cref m_string_cref
 #define string_push_u m_string_push_u
+#define string_pop_u m_string_pop_u
 #define string_length_u m_string_length_u
 #define string_utf8_p m_string_utf8_p
 #define string_set_ui m_string_set_ui

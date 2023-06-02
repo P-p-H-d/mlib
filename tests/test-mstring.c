@@ -55,6 +55,37 @@ static void test_utf8_basic(void)
       string_push_u(s, i);
       assert(string_utf8_p(s) == true);
       assert(string_length_u(s) == 1); 
+      string_unicode_t j;
+      bool b = string_pop_u(&j, s);
+      assert(b);
+      assert(i== j);
+      assert(string_utf8_p(s) == true);
+      assert(string_length_u(s) == 0);
+      assert(string_size(s) == 0);
+      string_push_u(s, 'A');
+      string_push_u(s, i);
+      size_t len = string_size(s);
+      string_push_u(s, i);
+      assert(string_utf8_p(s) == true);
+      assert(string_length_u(s) == 3); 
+      b = string_pop_u(&j, s);
+      assert(b);
+      assert(i== j);
+      assert(string_utf8_p(s) == true);
+      assert(string_length_u(s) == 2);
+      assert(string_size(s) == len);
+      b = string_pop_u(NULL, s);
+      assert(b);
+      assert(string_utf8_p(s) == true);
+      assert(string_length_u(s) == 1);
+      assert(string_size(s) == 1);
+      b = string_pop_u(NULL, s);
+      assert(b);
+      assert(string_utf8_p(s) == true);
+      assert(string_length_u(s) == 0);
+      assert(string_size(s) == 0);
+      b = string_pop_u(NULL, s);
+      assert(!b);
     }
   }
   

@@ -5718,6 +5718,13 @@ Return true if both iterators reference the same position, false otherwise.
 Push the unicode code point 'u' into the string 'str'
 encoding it as a variable UTF8 encoded code point.
 
+##### bool string\_pop\_u (string\_unicode\_t *u, string\_t str)
+
+Pop the last unicode code point from the string 'str'
+encoded as a variable UTF8 encoded code point
+and store in '*u' the popped unicode code point if 'u' is not NULL.
+It returns true in case of succes or false otherwise (no character to pop or no valid UTF8).
+
 ##### size\_t string\_length\_u(string\_t str)
 
 Return the number of UTF8 encoded code point in the string.
