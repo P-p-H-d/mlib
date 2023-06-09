@@ -5709,6 +5709,14 @@ It returns -1 in case of error in decoding the UTF8 string.
 
 Return the position in the stream of the iterator 'it'.
 
+##### void string\_it\_set\_ref(string\_it\_t it, string\_t str, string\_unicode\_t u)
+
+Replace the unicode code point referenced by 'it' to the unicode code point 'u'
+in the string 'str'.
+If 'u' is 0, then it will resize the string to the size of the referenced iterator
+only keeping the unicode code points before the iterator.
+'it' shall be a valid iterator of 'str'.
+
 ##### bool string\_it\_equal\_p (const string\_it\_t it1, const string\_it\_t it2)
 
 Return true if both iterators reference the same position, false otherwise.

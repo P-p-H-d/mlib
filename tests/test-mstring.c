@@ -172,6 +172,52 @@ static void test_utf8_it(void)
   assert(!string_it_equal_p(it, it2));
 
   string_clear(s);
+
+  /* Test replacing of unicode */
+  string_init(s);
+  for (string_unicode_t u = 1; u < 0x10ffff; u+=3) {
+    if (u < 0xD800U || u > 0xDFFFU) {
+      for(int c1 = 0 ; c1 <= 3; c1+=2) {
+        for(int c2 = 0 ; c2 <= 20; c2+=5) {
+          const string_unicode_t u_tab[] = { 0, 'B', 300, 45215, 0x10fffe};
+          for(int c3 = 0 ; c3 < 5; c3++) {
+            // Generate string
+            string_reset(s);
+            for(int j = 0; j < c1; j++)
+              string_push_back(s, 'A');
+            string_push_u(s, u);
+            for(int j = 0; j < c2; j++)
+              string_push_back(s, 'C');
+            // Replace iterator in string
+            string_it(it, s);
+            for(int j = 0; j < c1; j++)
+              string_next(it);
+            assert( string_get_cref(it) == u);
+            string_it_set_ref(it, s, u_tab[c3]);
+            if (u_tab[c3] != 0) {
+              assert( string_get_cref(it) == u_tab[c3]);
+            }
+            // Check constructed string
+            string_it(it, s);
+            for(int j = 0; j < c1; j++) {
+              assert( string_get_cref(it) == 'A');
+              string_next(it);
+            }
+            if (u_tab[c3] != 0) {
+              assert( *string_cref(it) == u_tab[c3]);
+              string_next(it);
+              for(int j = 0; j < c2; j++) {
+                assert( string_get_cref(it) == 'C');
+                string_next(it);
+              }
+            }
+            assert(string_end_p(it));
+          }
+        }
+      }
+    }
+  }
+  string_clear(s);
 }
 
 static void call_string_cat_vprintf(string_t s, const char format[], ...)

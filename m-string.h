@@ -1863,6 +1863,56 @@ m_string_cref (m_string_it_t it)
   return &it->u;
 }
 
+/* Update the value referenced by the iterator to the given value */
+static inline void
+m_string_it_set_ref(m_string_it_t it, m_string_t s, m_string_unicode_t new_u)
+{
+  M_STR1NG_IT_CONTRACT(it);
+  M_STR1NG_CONTRACT(s);
+  M_ASSERT(s == it->string);
+  char *ptr = m_str1ng_get_cstr(s);
+  M_ASSUME( it->ptr >= ptr);
+  size_t offset = (size_t) (it->ptr - ptr);
+  // Special case if the unicode codepoint is 0
+  if (new_u == 0) {
+    // Null the string
+    m_str1ng_set_size(s, offset);
+    ptr[offset] = 0;
+    M_STR1NG_IT_CONTRACT(it);
+    M_STR1NG_CONTRACT(s);
+    return;
+  }
+  // Encode the new unicode code point & compute its size
+  char buffer[4+1];
+  m_str1ng_utf8_encode(buffer, new_u);
+  size_t new_u_size = strlen(buffer);
+  // Compute the size of the old unicode code point
+  m_str1ng_utf8_state_e state =  M_STR1NG_UTF8_STARTING;
+  m_string_unicode_t old_u = 0;
+  const char *str = it->ptr;
+  do {
+    m_str1ng_utf8_decode(*str, &state, &old_u);
+    str++;
+  } while (state != M_STR1NG_UTF8_STARTING && state != M_STR1NG_UTF8_ERROR && *str != 0);
+  M_ASSUME( str > it->ptr);
+  size_t old_u_size = (size_t) (str - it->ptr);
+  // We need to replace old_u by new_u. Both are variable length
+  size_t str_size = m_string_size(s);
+  m_str1ng_fit2size(s, str_size + new_u_size - old_u_size + 1);
+  ptr = m_str1ng_get_cstr(s); // ptr may be reallocated!
+  if (new_u_size != old_u_size) {
+    M_ASSUME( str_size+1 > (offset + old_u_size) );
+    memmove(&ptr[offset+new_u_size], &ptr[offset + old_u_size],
+            str_size+1 - offset - old_u_size);
+  }
+  memcpy(&ptr[offset], &buffer[0], new_u_size);
+  m_str1ng_set_size(s, str_size + new_u_size - old_u_size);
+  it->ptr = &ptr[offset];
+  M_STR1NG_IT_CONTRACT(it);
+  M_STR1NG_CONTRACT(s);
+  return;
+}
+
 /* Push unicode code point into string, encoding it in UTF8 */
 static inline void
 m_string_push_u (m_string_t str, m_string_unicode_t u)
@@ -2714,6 +2764,7 @@ namespace m_lib {
 #define string_it_pos m_string_it_pos
 #define string_it_get_pos m_string_it_get_pos
 #define string_previous m_string_previous
+#define string_it_set_ref m_string_it_set_ref
 
 #define STRING_CTE M_STRING_CTE
 #define STRING_DECL_INIT M_STRING_DECL_INIT
