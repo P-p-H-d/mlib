@@ -1864,7 +1864,7 @@ m_string_cref (m_string_it_t it)
 }
 
 /* Update the value referenced by the iterator to the given value */
-static inline void
+M_INLINE void
 m_string_it_set_ref(m_string_it_t it, m_string_t s, m_string_unicode_t new_u)
 {
   M_STR1NG_IT_CONTRACT(it);
@@ -1924,7 +1924,7 @@ m_string_push_u (m_string_t str, m_string_unicode_t u)
 }
 
 /* Pop last unicode code point into string, encoding it in UTF8 */
-static inline  bool
+M_INLINE  bool
 m_string_pop_u(m_string_unicode_t *u, m_string_t str)
 {
   M_STR1NG_CONTRACT(str);
