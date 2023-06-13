@@ -53,13 +53,13 @@ M_BEGIN_PROTECTED_CODE
                                                                               \
   typedef struct M_F(name, _slist_node_s) *M_F(name, _slist_ct)[1];           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _slist_init)(M_F(name, _slist_ct) list)                           \
   {                                                                           \
     *list = NULL;                                                             \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _slist_push)(M_F(name, _slist_ct) list,                           \
                         M_F(name, _slist_node_ct) *node)                      \
   {                                                                           \
@@ -67,7 +67,7 @@ M_BEGIN_PROTECTED_CODE
     *list = node;                                                             \
   }                                                                           \
                                                                               \
-  static inline M_F(name, _slist_node_ct) *                                   \
+  M_INLINE M_F(name, _slist_node_ct) *                                        \
   M_F(name, _slist_pop)(M_F(name, _slist_ct) list)                            \
   {                                                                           \
     M_ASSERT (*list != NULL);                                                 \
@@ -77,13 +77,13 @@ M_BEGIN_PROTECTED_CODE
     return node;                                                              \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _slist_empty_p)(M_F(name, _slist_ct) list)                        \
   {                                                                           \
     return *list == NULL;                                                     \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _slist_move)(M_F(name, _slist_ct) list,                           \
                          M_F(name, _slist_ct) src)                            \
   {                                                                           \
@@ -91,7 +91,7 @@ M_BEGIN_PROTECTED_CODE
     *src  = NULL;                                                             \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _slist_clear)(M_F(name, _slist_ct) list)                          \
   {                                                                           \
     M_F(name, _slist_node_ct) *it = *list, *next;                             \
@@ -139,7 +139,7 @@ M_BEGIN_PROTECTED_CODE
     M_F(name, _lf_node_t)            nil;                                     \
   } M_F(name, _lflist_ct)[1];                                                 \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _lflist_init)(M_F(name, _lflist_ct) list,                         \
                           M_F(name, _lf_node_t) *node)                        \
   {                                                                           \
@@ -148,13 +148,13 @@ M_BEGIN_PROTECTED_CODE
     atomic_store_explicit(&node->next, &list->nil, memory_order_relaxed);     \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _lflist_empty_p)(M_F(name, _lflist_ct) list)                      \
   {                                                                           \
     return atomic_load(&list->tail) == atomic_load(&list->head);              \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _lflist_push)(M_F(name, _lflist_ct) list,                         \
                           M_F(name, _lf_node_t) *node, m_core_backoff_ct bkoff) \
   {                                                                           \
@@ -190,7 +190,7 @@ M_BEGIN_PROTECTED_CODE
                                             memory_order_relaxed);            \
   }                                                                           \
                                                                               \
-  static inline M_F(name, _lf_node_t) *                                       \
+  M_INLINE M_F(name, _lf_node_t) *                                            \
   M_F(name, _lflist_pop)(M_F(name, _lflist_ct) list, m_core_backoff_ct bkoff) \
   {                                                                           \
     M_F(name, _lf_node_t) *head;                                              \
@@ -241,7 +241,7 @@ M_BEGIN_PROTECTED_CODE
   }                                                                           \
                                                                               \
   /* Dequeue a node if the node is old enough */                              \
-  static inline M_F(name, _lf_node_t) *                                       \
+  M_INLINE M_F(name, _lf_node_t) *                                            \
   M_F(name, _lflist_pop_if)(M_F(name, _lflist_ct) list,                       \
                             m_gc_ticket_ct age, m_core_backoff_ct bkoff)      \
   {                                                                           \
@@ -281,7 +281,7 @@ M_BEGIN_PROTECTED_CODE
    return head;                                                               \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _lflist_clear)(M_F(name, _lflist_ct) list)                        \
   {                                                                           \
     m_core_backoff_ct bkoff;                                                  \
@@ -306,7 +306,7 @@ M_BEGIN_PROTECTED_CODE
    As such it is a non Lock-Free path. */
 #define M_CMEMP00L_DEF_SYSTEM_ALLOC(name, type_t)                             \
                                                                               \
-  static inline M_F(name, _lf_node_t) *                                       \
+  M_INLINE M_F(name, _lf_node_t) *                                            \
        M_F(name, _alloc_node)(unsigned int initial)                           \
   {                                                                           \
     M_F(name, _lf_node_t) * node;                                             \
@@ -394,14 +394,14 @@ M_BEGIN_PROTECTED_CODE
     M_CACHELINE_ALIGN(align1, M_F(name, _slist_ct), M_F(name, _slist_ct));    \
   } M_F(name, _lfmp_thread_ct);                                               \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _lfmp_thread_init)(M_F(name, _lfmp_thread_ct) *t)                 \
   {                                                                           \
     M_F(name, _slist_init)(t->free);                                          \
     M_F(name, _slist_init)(t->to_be_reclaimed);                               \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _lfmp_thread_clear)(M_F(name, _lfmp_thread_ct) *t)                \
   {                                                                           \
     M_ASSERT(M_F(name, _slist_empty_p)(t->to_be_reclaimed));                  \
@@ -423,7 +423,7 @@ M_BEGIN_PROTECTED_CODE
   } M_F(name, _t)[1];                                                         \
                                                                               \
   /* Garbage collect of the nodes of the mempool on sleep */                  \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(m_cmemp00l_,name,_gc_on_sleep)(m_gc_t gc_mem, m_cmemp00l_list_ct *data, \
          m_gc_tid_t id, m_gc_ticket_ct ticket, m_gc_ticket_ct min_ticket)     \
   {                                                                           \
@@ -458,7 +458,7 @@ M_BEGIN_PROTECTED_CODE
     }                                                                         \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init)(M_F(name, _t) mem, m_gc_t gc_mem,                          \
                    unsigned init_node_count, unsigned init_group_count)       \
   {                                                                           \
@@ -490,7 +490,7 @@ M_BEGIN_PROTECTED_CODE
     mem->gc_mem = gc_mem;                                                     \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _clear)(M_F(name, _t) mem)                                        \
   {                                                                           \
     const unsigned max_thread = mem->gc_mem->max_thread;                      \
@@ -506,7 +506,7 @@ M_BEGIN_PROTECTED_CODE
     /* TODO: Unregister from the GC? */                                       \
   }                                                                           \
                                                                               \
-  static inline type_t *                                                      \
+  M_INLINE type_t *                                                           \
   M_F(name, _new)(M_F(name, _t) mem, m_gc_tid_t id)                           \
   {                                                                           \
     M_F(name, _slist_node_ct) *snode;                                         \
@@ -533,7 +533,7 @@ M_BEGIN_PROTECTED_CODE
     }                                                                         \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _del)(M_F(name, _t) mem, type_t *d, m_gc_tid_t id)                \
   {                                                                           \
     M_F(name, _slist_node_ct) *snode;                                         \
@@ -579,7 +579,7 @@ typedef struct m_gc_s {
   m_cmemp00l_list_ct     *mempool_list;
 } m_gc_t[1];
 
-static inline void
+M_INLINE void
 m_gc_init(m_gc_t gc_mem, size_t max_thread)
 {
   M_ASSERT(gc_mem != NULL);
@@ -600,7 +600,7 @@ m_gc_init(m_gc_t gc_mem, size_t max_thread)
   gc_mem->mempool_list = NULL;
 }
 
-static inline void
+M_INLINE void
 m_gc_clear(m_gc_t gc_mem)
 {
   M_ASSERT(gc_mem != NULL && gc_mem->max_thread > 0);
@@ -613,7 +613,7 @@ m_gc_clear(m_gc_t gc_mem)
   m_genint_clear(gc_mem->thread_alloc);
 }
 
-static inline m_gc_tid_t
+M_INLINE m_gc_tid_t
 m_gc_attach_thread(m_gc_t gc_mem)
 {
   M_ASSERT(gc_mem != NULL && gc_mem->max_thread > 0);
@@ -622,7 +622,7 @@ m_gc_attach_thread(m_gc_t gc_mem)
   return M_ASSIGN_CAST(m_gc_tid_t, id);
 }
   
-static inline void
+M_INLINE void
 m_gc_detach_thread(m_gc_t gc_mem, m_gc_tid_t id)
 {
   M_ASSERT(gc_mem != NULL && gc_mem->max_thread > 0);
@@ -632,7 +632,7 @@ m_gc_detach_thread(m_gc_t gc_mem, m_gc_tid_t id)
   m_genint_push(gc_mem->thread_alloc, id);
 }
   
-static inline void
+M_INLINE void
 m_gc_awake(m_gc_t gc_mem, m_gc_tid_t id)
 {
   M_ASSERT(gc_mem != NULL && gc_mem->max_thread > 0);
@@ -643,7 +643,7 @@ m_gc_awake(m_gc_t gc_mem, m_gc_tid_t id)
   atomic_store(&gc_mem->thread_data[id].ticket, t);
 }
   
-static inline m_gc_ticket_ct
+M_INLINE m_gc_ticket_ct
 m_cmemp00l_gc_min_ticket(m_gc_t gc_mem)
 {
   m_gc_ticket_ct min = atomic_load(&gc_mem->thread_data[0].ticket);
@@ -654,7 +654,7 @@ m_cmemp00l_gc_min_ticket(m_gc_t gc_mem)
   return min;
 }
 
-static inline void
+M_INLINE void
 m_gc_sleep(m_gc_t gc_mem, m_gc_tid_t id)
 {
   /* Increase life time of the thread */
@@ -690,13 +690,13 @@ typedef struct m_vlapool_lfmp_thread_s {
   M_CACHELINE_ALIGN(align1, m_vlapool_slist_ct);
 } m_vlapool_lfmp_thread_ct;
 
-static inline void
+M_INLINE void
 m_vlapool_lfmp_thread_init(m_vlapool_lfmp_thread_ct *t)
 {
   m_vlapool_slist_init(t->to_be_reclaimed);
 }
 
-static inline void
+M_INLINE void
 m_vlapool_lfmp_thread_clear(m_vlapool_lfmp_thread_ct *t)
 {
   M_ASSERT(m_vlapool_slist_empty_p(t->to_be_reclaimed));
@@ -712,7 +712,7 @@ typedef struct m_vlapool_s {
 } m_vlapool_t[1];
 
 /* Garbage collect of the nodes of the vla mempool on sleep */
-static inline void
+M_INLINE void
 m_cmemp00l_vlapool_on_sleep(m_gc_t gc_mem, m_cmemp00l_list_ct *data,
                           m_gc_tid_t id, m_gc_ticket_ct ticket, m_gc_ticket_ct min_ticket)
 {
@@ -751,7 +751,7 @@ m_cmemp00l_vlapool_on_sleep(m_gc_t gc_mem, m_cmemp00l_list_ct *data,
   }
 }
 
-static inline void
+M_INLINE void
 m_vlapool_init(m_vlapool_t mem, m_gc_t gc_mem)
 {
   const size_t max_thread =  gc_mem->max_thread;
@@ -777,7 +777,7 @@ m_vlapool_init(m_vlapool_t mem, m_gc_t gc_mem)
   mem->gc_mem = gc_mem;
 }
 
-static inline void
+M_INLINE void
 m_vlapool_clear(m_vlapool_t mem)
 {
   const unsigned max_thread = mem->gc_mem->max_thread;
@@ -792,7 +792,7 @@ m_vlapool_clear(m_vlapool_t mem)
   /* TODO: Unregister from the GC? */
 }
 
-static inline void *
+M_INLINE void *
 m_vlapool_new(m_vlapool_t mem, m_gc_tid_t id, size_t size)
 {
   M_ASSERT(mem != NULL && mem->gc_mem != NULL);
@@ -811,7 +811,7 @@ m_vlapool_new(m_vlapool_t mem, m_gc_tid_t id, size_t size)
   return (ptr == NULL) ? NULL : M_ASSIGN_CAST(void *, ptr + offsetof(struct m_vlapool_slist_node_s, data));
 }
 
-static inline void
+M_INLINE void
 m_vlapool_del(m_vlapool_t mem, void *d, m_gc_tid_t id)
 {
   M_ASSERT(mem != NULL && mem->gc_mem != NULL);

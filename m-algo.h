@@ -28,7 +28,7 @@
 #include "m-core.h"
 
 /* Define different kind of basic algorithms named 'name' over the container
-   which oplist is 'cont_oplist', as static inline functions.
+   which oplist is 'cont_oplist'.
    USAGE:
    ALGO_DEF(algogName, containerOplist|type if oplist has been registered) */
 #define M_ALGO_DEF(name, cont_oplist)                                         \
@@ -189,7 +189,7 @@
 #define M_ALG0_DEF_SORT(name, container_t, cont_oplist, type_t, type_oplist, it_t, order, sort_name) \
                                                                               \
   /* Define the encapsulation function that perform the selected order */     \
-  static inline int M_C3(name,sort_name,_cmp)(type_t const*a,type_t const*b)  \
+  M_INLINE int M_C3(name,sort_name,_cmp)(type_t const*a,type_t const*b)       \
   {                                                                           \
     return order M_CALL_CMP(type_oplist, *a, *b);                             \
   }                                                                           \
@@ -225,7 +225,7 @@
 #define M_ALG0_DEF_SORT_AUX(name, container_t, cont_oplist, type_t, type_oplist, it_t, sort_name, cmp_func, cmp_param, cmp_arg) \
                                                                               \
   /* Test if the container is sorted */                                       \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_C3(name,sort_name,_p)(const container_t l cmp_param(name))                \
   {                                                                           \
     it_t it1;                                                                 \
@@ -253,7 +253,7 @@
   /*  - a selection sort */                                                   \
   M_IF(M_AND(M_TEST_METHOD_P(SORT, cont_oplist), M_EMPTY_P(cmp_arg)))(        \
     /******** OPTIMIZED SORT FOR CONTAINER *********/                         \
-  static inline void M_F(name,sort_name)(container_t l)                       \
+  M_INLINE void M_F(name,sort_name)(container_t l)                            \
   {                                                                           \
     M_CALL_SORT(cont_oplist, l, M_C3(name, sort_name,_cmp));                  \
   }                                                                           \
@@ -265,7 +265,7 @@
                                                                               \
   /* Split the container 'l' into near even size l1 and l2 *                  \
      using odd/even splitting  */                                             \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(name,sort_name,_split)(container_t l1, container_t l2, container_t l)  \
   {                                                                           \
     it_t it;                                                                  \
@@ -280,7 +280,7 @@
   }                                                                           \
                                                                               \
   /* Merge in empty 'l' the sorted container 'l1' and 'l2' */                 \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(name,sort_name,_merge)(container_t l, container_t l1, container_t l2 cmp_param(name)) \
   {                                                                           \
     /* M_ASSERT(M_CALL_EMPTY_P (cont_oplist, l)); */                          \
@@ -320,7 +320,7 @@
   }                                                                           \
                                                                               \
   /* Sort the container 'l' */                                                \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name,sort_name)(container_t l cmp_param(name))                          \
   {                                                                           \
     container_t l1;                                                           \
@@ -363,7 +363,7 @@
                                         ,                                     \
   M_IF_METHOD(IT_PREVIOUS, cont_oplist)(                                      \
     /******** GENERIC INSERTION SORT *********/                               \
-  static inline void M_F(name,sort_name)(container_t l cmp_param(name))       \
+  M_INLINE void M_F(name,sort_name)(container_t l cmp_param(name))            \
   {                                                                           \
     it_t it1;                                                                 \
     it_t it2;                                                                 \
@@ -400,7 +400,7 @@
                                                                               \
   ,                                                                           \
   /********** GENERIC SELECTION SORT ************/                            \
-  static inline void M_F(name,sort_name)(container_t l cmp_param(name))       \
+  M_INLINE void M_F(name,sort_name)(container_t l cmp_param(name))            \
   {                                                                           \
     it_t it1;                                                                 \
     it_t it2;                                                                 \
@@ -433,7 +433,7 @@
                                                                         ) /* IF SORT METHOD */ \
   /* Compute the union of two ***sorted*** containers  */                     \
   M_IF_METHOD(IT_INSERT, cont_oplist)(                                        \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(name,sort_name,_union)(container_t dst, const container_t src cmp_param(name)) \
   {                                                                           \
     it_t itSrc;                                                               \
@@ -478,7 +478,7 @@
                                                                               \
   /* Compute the intersection of two ***sorted*** containers  */              \
   M_IF_METHOD(IT_REMOVE, cont_oplist)(                                        \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(name,sort_name,_intersect)(container_t dst, const container_t src cmp_param(name)) \
   {                                                                           \
     it_t itSrc;                                                               \
@@ -517,7 +517,7 @@
 #define M_ALG0_DEF_FIND(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   /* It supposes that the container is not sorted */                          \
   /* Find the next occurrence from it (included) of data */                   \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _find_again) (it_t it, type_t const data)                         \
   {                                                                           \
     for ( /*nothing*/ ; !M_CALL_IT_END_P(cont_oplist, it) ;                   \
@@ -528,7 +528,7 @@
   }                                                                           \
                                                                               \
   /* Find the first occurrence of data */                                     \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _find) (it_t it, container_t const l, type_t const data)          \
   {                                                                           \
     M_CALL_IT_FIRST(cont_oplist, it, l);                                      \
@@ -536,7 +536,7 @@
   }                                                                           \
                                                                               \
   /* Test if data is within the container */                                  \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _contain_p) (container_t const l, type_t const data)              \
   {                                                                           \
     it_t it;                                                                  \
@@ -549,7 +549,7 @@
      PREVIOUS & IT_LAST are defined, then search backwards */                 \
   M_IF_METHOD2(PREVIOUS, IT_LAST, cont_oplist)                                \
   (                                                                           \
-   static inline void                                                         \
+   M_INLINE void                                                              \
    M_F(name, _find_last) (it_t it, container_t const l, type_t const data)    \
    {                                                                          \
      for (M_CALL_IT_LAST(cont_oplist, it, l);                                 \
@@ -562,7 +562,7 @@
    }                                                                          \
    ,                                                                          \
    /* Otherwise search forward, but don't stop on the first occurrence */     \
-   static inline void                                                         \
+   M_INLINE void                                                              \
    M_F(name, _find_last) (it_t it, container_t const l, type_t const data)    \
    {                                                                          \
      M_CALL_IT_END(cont_oplist, it, l);                                       \
@@ -578,7 +578,7 @@
    ) /* End of alternative of _find_last */                                   \
                                                                               \
   /* Count the number of occurrence of data in the container */               \
-  static inline size_t                                                        \
+  M_INLINE size_t                                                             \
   M_F(name, _count) (container_t const l, type_t const data)                  \
   {                                                                           \
     it_t it;                                                                  \
@@ -594,7 +594,7 @@
                                                                               \
                                                                               \
   /* Find the next mismatch between the containers */                         \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _mismatch_again) (it_t it1, it_t it2)                             \
   {                                                                           \
     for (/* nothing */ ; !M_CALL_IT_END_P(cont_oplist, it1) &&                \
@@ -608,7 +608,7 @@
   }                                                                           \
                                                                               \
   /* Find the first mismatch between the containers */                        \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _mismatch) (it_t it1, it_t it2, container_t const l1, container_t const l2 ) \
   {                                                                           \
     M_CALL_IT_FIRST(cont_oplist, it1, l1);                                    \
@@ -625,7 +625,7 @@
 #define M_ALG0_DEF_FIND_IF(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, test_t, eq_t, call_test, call_eq) \
                                                                               \
   /* Find the next occurrence that matches the condition */                   \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(name, _find_again_, suffix) (it_t it, test_t func)                     \
   {                                                                           \
     for (/*nothing */ ; !M_CALL_IT_END_P(cont_oplist, it) ;                   \
@@ -636,7 +636,7 @@
   }                                                                           \
                                                                               \
   /* Find the first occurrence that matches the condition */                  \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(name, _find_, suffix) (it_t it, container_t l, test_t func)            \
   {                                                                           \
     M_CALL_IT_FIRST(cont_oplist, it, l);                                      \
@@ -644,7 +644,7 @@
   }                                                                           \
                                                                               \
   /* Count the number of occurrence that matches the condition */             \
-  static inline size_t                                                        \
+  M_INLINE size_t                                                             \
   M_C3(name, _count_, suffix) (container_t const l, test_t func)              \
   {                                                                           \
     it_t it;                                                                  \
@@ -660,7 +660,7 @@
   }                                                                           \
                                                                               \
   /* Find the next mismatch between the containers according to the condition */ \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(name, _mismatch_again_, suffix) (it_t it1, it_t it2, eq_t func)        \
   {                                                                           \
     for (/*nothing */ ; !M_CALL_IT_END_P(cont_oplist, it1) &&                 \
@@ -674,7 +674,7 @@
   }                                                                           \
                                                                               \
   /* Find the first mismatch between the containers according to the condition */ \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(name, _mismatch_, suffix) (it_t it1, it_t it2, container_t const l1,   \
                            container_t l2, eq_t func)                         \
   {                                                                           \
@@ -688,7 +688,7 @@
 #define M_ALG0_DEF_FILL(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   /* Fill all the container with value (overwritten) */                       \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _fill) (container_t l, type_t const value)                        \
   {                                                                           \
     for M_EACH(item, l, cont_oplist) {                                        \
@@ -698,7 +698,7 @@
                                                                               \
   /* Fill the container with exactly 'n' occurrence of 'value' */             \
   M_IF_METHOD(PUSH, cont_oplist)(                                             \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _fill_n) (container_t l, size_t n, type_t const value)            \
   {                                                                           \
     M_CALL_RESET(cont_oplist, l);                                             \
@@ -710,7 +710,7 @@
                                                                               \
   /* Fill the container with FOR('value'; 'value'+'inc') */                   \
   M_IF_METHOD(ADD, type_oplist)(                                              \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _fill_a) (container_t l, type_t const value, type_t const inc)    \
   {                                                                           \
     type_t tmp;                                                               \
@@ -724,7 +724,7 @@
                                                                               \
   /* Fill the container with n occurences of FOR('value'; 'value'+'inc') */   \
   M_IF_METHOD(PUSH, cont_oplist)(                                             \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _fill_an) (container_t l, size_t n, type_t const value, type_t const inc) \
   {                                                                           \
     type_t tmp;                                                               \
@@ -744,7 +744,7 @@
 #define M_ALG0_DEF_MAP(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   /* Apply func for all elements of the container */                          \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _for_each) (container_t l, M_F(name, _apply_cb_ct) func)          \
   {                                                                           \
     for M_EACH(item, l, cont_oplist) {                                        \
@@ -756,7 +756,7 @@
   M_IF_METHOD(PUSH_MOVE, cont_oplist)(                                        \
                                                                               \
   /* Apply func for all elements of the container src and push the result in dst */ \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _transform) (container_t dst,                                     \
                          container_t src,                                     \
                         M_F(name, _transform_cb_ct) func)                     \
@@ -775,7 +775,7 @@
                                                                               \
   /* Reduce all elements of the container in dst in function of func */       \
   M_IF_METHOD(SET, type_oplist)(                                              \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _reduce) (type_t *dest, container_t const l,                      \
                       M_F(name, _transform_cb_ct) func)                       \
   {                                                                           \
@@ -793,7 +793,7 @@
                                                                               \
   /* Reduce all transformed elements of the container in dst in function of func */ \
   M_IF_METHOD(INIT, type_oplist)(                                             \
-  static inline                                                               \
+  M_INLINE                                                                    \
   void M_F(name, _map_reduce) (type_t *dest,                                  \
                                const container_t l,                           \
                                M_F(name, _transform_cb_ct) redFunc,           \
@@ -819,7 +819,7 @@
 /* Define ALL_OF algorithms */
 #define M_ALG0_DEF_ALL_OF(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, func_t, call) \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_C4(name, _any_of, suffix, p) (container_t const l,                        \
                                   func_t func )                               \
   {                                                                           \
@@ -830,7 +830,7 @@
     return false;                                                             \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_C4(name, _all_of, suffix, p) (container_t const l,                        \
                                   func_t func )                               \
   {                                                                           \
@@ -841,7 +841,7 @@
     return true;                                                              \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_C4(name, _none_of, suffix, p) (container_t l,                             \
                                     func_t func )                             \
   {                                                                           \
@@ -856,7 +856,7 @@
 /* Define MIN / MAX algorithms */
 #define M_ALG0_DEF_MINMAX(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
-  static inline type_t *                                                      \
+  M_INLINE type_t *                                                           \
   M_F(name, _min) (const container_t l)                                       \
   {                                                                           \
     type_t *min = NULL;                                                       \
@@ -869,7 +869,7 @@
     return min;                                                               \
   }                                                                           \
                                                                               \
-  static inline type_t *                                                      \
+  M_INLINE type_t *                                                           \
   M_F(name, _max) (const container_t l)                                       \
   {                                                                           \
     type_t *max = NULL;                                                       \
@@ -882,7 +882,7 @@
     return max;                                                               \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _minmax) (type_t **min_p, type_t **max_p,                         \
                       const container_t l)                                    \
   {                                                                           \
@@ -905,7 +905,7 @@
 /* Define functions based on remove method */
 #define M_ALG0_DEF_REMOVE(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _uniq)(container_t l)                                             \
   {                                                                           \
     it_t it1;                                                                 \
@@ -927,7 +927,7 @@
       }                                                                       \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _remove_val)(container_t l, type_t const val)                     \
   {                                                                           \
     it_t it1;                                                                 \
@@ -942,7 +942,7 @@
     }                                                                         \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _remove_if)(container_t l, M_F(name, _test_cb_ct) func)           \
   {                                                                           \
     it_t it1;                                                                 \
@@ -961,7 +961,7 @@
 #define M_ALG0_DEF_VECTOR(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   M_IF_METHOD(ADD, type_oplist)(                                              \
-  static inline void M_F(name, _add) (container_t dst, const container_t src) \
+  M_INLINE void M_F(name, _add) (container_t dst, const container_t src)      \
   {                                                                           \
     it_t itSrc;                                                               \
     it_t itDst;                                                               \
@@ -979,7 +979,7 @@
   , /* NO_ADD METHOD */ )                                                     \
                                                                               \
   M_IF_METHOD(SUB, type_oplist)(                                              \
-  static inline void M_F(name, _sub) (container_t dst, const container_t src) \
+  M_INLINE void M_F(name, _sub) (container_t dst, const container_t src)      \
   {                                                                           \
     it_t itSrc;                                                               \
     it_t itDst;                                                               \
@@ -997,7 +997,7 @@
   , /* NO_SUB METHOD */ )                                                     \
                                                                               \
   M_IF_METHOD(MUL, type_oplist)(                                              \
-  static inline void M_F(name, _mul) (container_t dst, const container_t src) \
+  M_INLINE void M_F(name, _mul) (container_t dst, const container_t src)      \
   {                                                                           \
     it_t itSrc;                                                               \
     it_t itDst;                                                               \
@@ -1015,7 +1015,7 @@
   , /* NO_MUL METHOD */ )                                                     \
                                                                               \
   M_IF_METHOD(DIV, type_oplist)(                                              \
-  static inline void M_F(name, _div) (container_t dst, const container_t src) \
+  M_INLINE void M_F(name, _div) (container_t dst, const container_t src)      \
   {                                                                           \
     it_t itSrc;                                                               \
     it_t itDst;                                                               \

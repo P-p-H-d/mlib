@@ -136,10 +136,10 @@ M_BEGIN_PROTECTED_CODE
                                 IT_CREF(m_shar3d_integer_cref))
 
 /* Atomic like interface for basic integers */
-static inline void m_shar3d_integer_init_set(int *p, int val) { *p = val; }
-static inline int m_shar3d_integer_add(int *p, int val) { int r = *p;  *p += val; return r; }
-static inline int m_shar3d_integer_sub(int *p, int val) { int r = *p;  *p -= val; return r; }
-static inline int m_shar3d_integer_cref(int *p) { return *p; }
+M_INLINE void m_shar3d_integer_init_set(int *p, int val) { *p = val; }
+M_INLINE int m_shar3d_integer_add(int *p, int val) { int r = *p;  *p += val; return r; }
+M_INLINE int m_shar3d_integer_sub(int *p, int val) { int r = *p;  *p -= val; return r; }
+M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
 
 
 /********************************** INTERNAL *********************************/
@@ -189,13 +189,13 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
 /* Define the core functions */
 #define M_SHAR3D_PTR_DEF_CORE(name, type, oplist, cpt_oplist, shared_t)       \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init)(shared_t shared)                                           \
   {                                                                           \
     *shared = NULL;                                                           \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init2)(shared_t shared, type *data)                              \
   {                                                                           \
     M_ASSERT (shared != NULL);                                                \
@@ -218,7 +218,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init_new)(shared_t shared)                                       \
   {                                                                           \
     /* NOTE: Alloc 1 struct with both structures. */                          \
@@ -239,14 +239,14 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
   }                                                                           \
   , /* No INIT */ )                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _NULL_p)(const shared_t shared)                                   \
   {                                                                           \
     M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
     return *shared == NULL;                                                   \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init_set)(shared_t dest,                                         \
                        const shared_t shared)                                 \
   {                                                                           \
@@ -260,7 +260,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     M_SHAR3D_CONTRACT(dest, cpt_oplist);                                      \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _clear)(shared_t dest)                                            \
   {                                                                           \
     M_SHAR3D_CONTRACT(dest, cpt_oplist);                                      \
@@ -281,14 +281,14 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     M_SHAR3D_CONTRACT(dest, cpt_oplist);                                      \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _reset)(shared_t dest)                                            \
   {                                                                           \
     /* NOTE: Clear will also set dest to NULL */                              \
     M_F(name, _clear)(dest);                                                  \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _set)(shared_t dest,                                              \
                   const shared_t shared)                                      \
   {                                                                           \
@@ -298,7 +298,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     M_F(name, _init_set)(dest, shared);                                       \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init_move)(shared_t dest,                                        \
                         shared_t shared)                                      \
   {                                                                           \
@@ -309,7 +309,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     M_SHAR3D_CONTRACT(dest, cpt_oplist);                                      \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _move)(shared_t dest,                                             \
                    shared_t shared)                                           \
   {                                                                           \
@@ -320,7 +320,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     M_F(name, _init_move)(dest, shared);                                      \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _swap)(shared_t p1,                                               \
                    shared_t p2)                                               \
   {                                                                           \
@@ -332,7 +332,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     M_SHAR3D_CONTRACT(p2, cpt_oplist);                                        \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _equal_p)(const shared_t p1,                                      \
                       const shared_t p2)                                      \
   {                                                                           \
@@ -341,7 +341,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     return *p1 == *p2;                                                        \
   }                                                                           \
                                                                               \
-  static inline type const *                                                  \
+  M_INLINE type const *                                                       \
   M_F(name, _cref)(const shared_t shared)                                     \
   {                                                                           \
     M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
@@ -351,7 +351,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     return M_CONST_CAST (type, data);                                         \
   }                                                                           \
                                                                               \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _ref)(shared_t shared)                                            \
   {                                                                           \
     M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
@@ -410,7 +410,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
 
 /* Define the core functions */
 #define M_SHAR3D_RESOURCE_DEF_CORE(name, type, oplist, shared_t, it_t)        \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init)(shared_t s, size_t n)                                      \
   {                                                                           \
     M_ASSERT(s != NULL);                                                      \
@@ -428,7 +428,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     M_SHAR3D_RESOURCE_CONTRACT(s);                                            \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _clear)(shared_t s)                                               \
   {                                                                           \
     M_SHAR3D_RESOURCE_CONTRACT(s);                                            \
@@ -441,7 +441,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     m_genint_clear(s->core);                                                  \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it)(it_t it, shared_t s)                                         \
   {                                                                           \
     M_SHAR3D_RESOURCE_CONTRACT(s);                                            \
@@ -455,14 +455,14 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     }                                                                         \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _end_p)(it_t it)                                                  \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
     return it->idx == M_GENINT_ERROR;                                         \
   }                                                                           \
                                                                               \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _ref)(it_t it)                                                    \
   {                                                                           \
     M_ASSERT (it != NULL && it->ref != NULL && it->idx != M_GENINT_ERROR);    \
@@ -470,7 +470,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     return &it->ref->buffer[it->idx].x;                                       \
   }                                                                           \
                                                                               \
-  static inline type const *                                                  \
+  M_INLINE type const *                                                       \
   M_F(name, _cref)(it_t it)                                                   \
   {                                                                           \
     M_ASSERT (it != NULL && it->ref != NULL && it->idx != M_GENINT_ERROR);    \
@@ -478,7 +478,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     return M_CONST_CAST (type, &it->ref->buffer[it->idx].x);                  \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _end)(it_t it, shared_t s)                                        \
   {                                                                           \
     M_SHAR3D_RESOURCE_CONTRACT(s);                                            \
@@ -494,7 +494,7 @@ static inline int m_shar3d_integer_cref(int *p) { return *p; }
     }                                                                         \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it_set)(it_t itd, it_t its)                                      \
   {                                                                           \
     M_ASSERT (itd != NULL && its != NULL);                                    \

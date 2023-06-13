@@ -333,7 +333,7 @@
   typedef value_type M_F(name, _value_ct);                                    \
   typedef dict_it_t M_F(name, _it_ct);                                        \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init)(dict_t map)                                                \
   {                                                                           \
     M_ASSERT (map != NULL);                                                   \
@@ -345,7 +345,7 @@
     M_D1CT_CONTRACT(name, map);                                               \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init_set)(dict_t map, const dict_t org)                          \
   {                                                                           \
     M_D1CT_CONTRACT(name, org);                                               \
@@ -357,7 +357,7 @@
     M_D1CT_CONTRACT(name, map);                                               \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _set)(dict_t map, const dict_t org)                               \
   {                                                                           \
     M_D1CT_CONTRACT(name, map);                                               \
@@ -369,14 +369,14 @@
     M_D1CT_CONTRACT(name, map);                                               \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name,_clear)(dict_t map)                                                \
   {                                                                           \
     M_D1CT_CONTRACT(name, map);                                               \
     M_F(name, _array_list_pair_clear)(map->table);                            \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init_move)(dict_t map, dict_t org)                               \
   {                                                                           \
     M_D1CT_CONTRACT(name, org);                                               \
@@ -387,7 +387,7 @@
     M_D1CT_CONTRACT(name, map);                                               \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _swap)(dict_t d1, dict_t d2)                                      \
   {                                                                           \
     M_D1CT_CONTRACT(name, d1);                                                \
@@ -400,7 +400,7 @@
     M_D1CT_CONTRACT(name, d2);                                                \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _move)(dict_t map, dict_t org)                                    \
   {                                                                           \
     M_D1CT_CONTRACT(name, map);                                               \
@@ -411,7 +411,7 @@
     M_D1CT_CONTRACT(name, map);                                               \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name,_reset)(dict_t map)                                                \
   {                                                                           \
     M_F(name, _array_list_pair_reset)(map->table);                            \
@@ -422,7 +422,7 @@
     M_D1CT_CONTRACT(name, map);                                               \
   }                                                                           \
                                                                               \
-  static inline value_type *                                                  \
+  M_INLINE value_type *                                                       \
   M_F(name, _get)(const dict_t map, key_type const key)                       \
   {                                                                           \
     M_D1CT_CONTRACT(name, map);                                               \
@@ -442,13 +442,13 @@
     return NULL;                                                              \
   }                                                                           \
                                                                               \
-  static inline value_type const *                                            \
+  M_INLINE value_type const *                                                 \
   M_F(name, _cget)(const dict_t map, key_type const key)                      \
   {                                                                           \
     return M_CONST_CAST(value_type, M_F(name,_get)(map,key));                 \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(m_d1ct_,name,_resize_up)(dict_t map)                                   \
   {                                                                           \
     /* NOTE: Contract may not be fulfilled here */                            \
@@ -488,7 +488,7 @@
     map->lower_limit = M_D1CT_LOWER_BOUND(new_size);                          \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(m_d1ct_,name,_resize_down)(dict_t map)                                 \
   {                                                                           \
     /* NOTE: Contract may not be fulfilled here */                            \
@@ -513,7 +513,7 @@
     map->lower_limit = M_D1CT_LOWER_BOUND(new_size);                          \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_IF(isSet)(M_F(name, _push), M_F(name, _set_at))                           \
        (dict_t map, key_type const key                                        \
         M_IF(isSet)(, M_DEFERRED_COMMA value_type const value))               \
@@ -545,7 +545,7 @@
     M_D1CT_CONTRACT(name, map);                                               \
   }                                                                           \
                                                                               \
-  static inline value_type *                                                  \
+  M_INLINE value_type *                                                       \
   M_F(name, _safe_get)(dict_t map, key_type const key)                        \
   {                                                                           \
     M_D1CT_CONTRACT(name, map);                                               \
@@ -578,7 +578,7 @@
     return &(*ref)->M_IF(isSet)(key, value);                                  \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _erase)(dict_t map, key_type const key)                           \
   {                                                                           \
     M_D1CT_CONTRACT(name, map);                                               \
@@ -606,7 +606,7 @@
     return ret;                                                               \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it)(dict_it_t it, const dict_t d)                                \
   {                                                                           \
     M_D1CT_CONTRACT(name, d);                                                 \
@@ -623,7 +623,7 @@
     }                                                                         \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it_set)(dict_it_t it, const dict_it_t ref)                       \
   {                                                                           \
     M_ASSERT (it != NULL && ref != NULL);                                     \
@@ -632,21 +632,21 @@
     M_F(name, _list_pair_it_set)(it->list_it, ref->list_it);                  \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it_end)(dict_it_t it, const dict_t d)                            \
   {                                                                           \
     M_D1CT_CONTRACT(name, d);                                                 \
     M_F(name, _array_list_pair_it_end)(it->array_it, d->table);               \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _end_p)(const dict_it_t it)                                       \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
     return M_F(name, _list_pair_end_p)(it->list_it);                          \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _next)(dict_it_t it)                                              \
   {                                                                           \
     M_ASSERT(it != NULL);                                                     \
@@ -661,7 +661,7 @@
     }                                                                         \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _last_p)(const dict_it_t it)                                      \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
@@ -671,7 +671,7 @@
     return M_F(name, _end_p)(it2);                                            \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _it_equal_p)(const dict_it_t it1, const dict_it_t it2)            \
   {                                                                           \
     M_ASSERT (it1 != NULL && it2 != NULL);                                    \
@@ -679,7 +679,7 @@
                                             it2->list_it);                    \
   }                                                                           \
                                                                               \
-  static inline it_deref_t *                                                  \
+  M_INLINE it_deref_t *                                                       \
   M_F(name, _ref)(const dict_it_t it)                                         \
   {                                                                           \
     M_ASSERT(it != NULL);                                                     \
@@ -692,7 +692,7 @@
                                                                         )     \
   }                                                                           \
                                                                               \
-  static inline const it_deref_t *                                            \
+  M_INLINE const it_deref_t *                                                 \
   M_F(name, _cref)(const dict_it_t it)                                        \
   {                                                                           \
     M_ASSERT(it != NULL);                                                     \
@@ -733,14 +733,14 @@
  */
 #define M_D1CT_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t, it_deref_t) \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name,_empty_p)(const dict_t map)                                        \
   {                                                                           \
     M_ASSERT(map != NULL);                                                    \
     return map->count == 0;                                                   \
   }                                                                           \
                                                                               \
-  static inline size_t                                                        \
+  M_INLINE size_t                                                             \
   M_F(name,_size)(const dict_t map)                                           \
   {                                                                           \
     M_ASSERT(map != NULL);                                                    \
@@ -748,7 +748,7 @@
   }                                                                           \
                                                                               \
   M_IF_METHOD(EQUAL, value_oplist)(                                           \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _equal_p)(const dict_t dict1, const dict_t dict2)                 \
   {                                                                           \
     M_ASSERT (dict1 != NULL && dict2 != NULL);                                \
@@ -778,7 +778,7 @@
   , /* no value equal */ )                                                    \
                                                                               \
   M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(                        \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _get_str)(m_string_t str, const dict_t dict, const bool append)   \
   {                                                                           \
     (append ? m_string_cat_cstr : m_string_set_cstr) (str, "{");              \
@@ -804,7 +804,7 @@
   , /* no GET_STR */ )                                                        \
                                                                               \
   M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(                        \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _out_str)(FILE *file, const dict_t dict)                          \
   {                                                                           \
     M_ASSERT (file != NULL);                                                  \
@@ -831,7 +831,7 @@
   , /* no OUT_STR */ )                                                        \
                                                                               \
   M_IF_METHOD_BOTH(PARSE_STR, key_oplist, value_oplist)(                      \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _parse_str)(dict_t dict, const char str[], const char **endp)     \
   {                                                                           \
     M_ASSERT (str != NULL);                                                   \
@@ -876,7 +876,7 @@
   , /* no PARSE_STR */ )                                                      \
                                                                               \
   M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(                         \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _in_str)(dict_t dict, FILE *file)                                 \
   {                                                                           \
     M_ASSERT (file != NULL);                                                  \
@@ -918,7 +918,7 @@
   , /* no IN_STR */ )                                                         \
                                                                               \
   M_IF_METHOD_BOTH(OUT_SERIAL, key_oplist, value_oplist)(                     \
-  static inline m_serial_return_code_t                                        \
+  M_INLINE m_serial_return_code_t                                             \
   M_F(name, _out_serial)(m_serial_write_t f, dict_t const t1)                 \
   {                                                                           \
     M_ASSERT (f != NULL && f->m_interface != NULL);                           \
@@ -961,7 +961,7 @@
   , /* no OUT_SERIAL */ )                                                     \
                                                                               \
   M_IF_METHOD_BOTH(IN_SERIAL, key_oplist, value_oplist)(                      \
-  static inline m_serial_return_code_t                                        \
+  M_INLINE m_serial_return_code_t                                             \
   M_F(name, _in_serial)(dict_t t1, m_serial_read_t f)                         \
   {                                                                           \
     M_ASSERT (f != NULL && f->m_interface != NULL);                           \
@@ -1003,7 +1003,7 @@
   , /* no in_serial */ )                                                      \
                                                                               \
   M_IF(isSet)(                                                                \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _splice)(dict_t d1, dict_t d2)                                    \
   {                                                                           \
     dict_it_t it;                                                             \
@@ -1018,7 +1018,7 @@
   }                                                                           \
   ,                                                                           \
   M_IF_METHOD(ADD, value_oplist)(                                             \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _splice)(dict_t d1, dict_t d2)                                    \
   {                                                                           \
     dict_it_t it;                                                             \
@@ -1291,7 +1291,7 @@ enum m_d1ct_oa_element_e {
   typedef value_type M_F(name, _value_ct);                                    \
   typedef dict_it_t M_F(name, _it_ct);                                        \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(m_d1ct_,name,_update_limit)(dict_t dict, size_t size)                  \
   {                                                                           \
     /* FIXME: Overflow not handled. What to do in case of it? */              \
@@ -1299,7 +1299,7 @@ enum m_d1ct_oa_element_e {
     dict->lower_limit = (size <= M_D1CT_INITIAL_SIZE) ? 0 : (size_t) ((double) size * coeff_down) ; \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init)(dict_t dict)                                               \
   {                                                                           \
     M_ASSERT(0 <= (coeff_down) && (coeff_down)*2 < (coeff_up) && (coeff_up) < 1); \
@@ -1320,7 +1320,7 @@ enum m_d1ct_oa_element_e {
     M_D1CT_OA_CONTRACT(dict);                                                 \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _clear)(dict_t dict)                                              \
   {                                                                           \
     M_D1CT_OA_CONTRACT(dict);                                                 \
@@ -1337,7 +1337,7 @@ enum m_d1ct_oa_element_e {
     dict->data = NULL;                                                        \
   }                                                                           \
                                                                               \
-  static inline value_type *                                                  \
+  M_INLINE value_type *                                                       \
   M_F(name, _get)(const dict_t dict, key_type const key)                      \
   {                                                                           \
     M_D1CT_OA_CONTRACT(dict);                                                 \
@@ -1368,14 +1368,14 @@ enum m_d1ct_oa_element_e {
     return NULL;                                                              \
   }                                                                           \
                                                                               \
-  static inline value_type const *                                            \
+  M_INLINE value_type const *                                                 \
   M_F(name, _cget)(const dict_t map, key_type const key)                      \
   {                                                                           \
     return M_CONST_CAST(value_type, M_F(name,_get)(map,key));                 \
   }                                                                           \
                                                                               \
   M_IF_DEBUG(                                                                 \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_C3(m_d1ct_,name,_control_after_resize)(const dict_t h)                    \
   {                                                                           \
     /* This function checks if the reshashing of the dict is ok */            \
@@ -1393,7 +1393,7 @@ enum m_d1ct_oa_element_e {
   }                                                                           \
   )                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(m_d1ct_,name,_resize_up)(dict_t h, size_t newSize, bool updateLimit)   \
   {                                                                           \
     size_t oldSize = h->mask+1;                                               \
@@ -1471,7 +1471,7 @@ enum m_d1ct_oa_element_e {
     M_D1CT_OA_CONTRACT(h);                                                    \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_IF(isSet)(M_F(name, _push), M_F(name,_set_at))                            \
        (dict_t dict, key_type const key                                       \
         M_IF(isSet)(, M_DEFERRED_COMMA value_type const value) )              \
@@ -1531,7 +1531,7 @@ enum m_d1ct_oa_element_e {
     M_D1CT_OA_CONTRACT(dict);                                                 \
   }                                                                           \
                                                                               \
-  static inline value_type *                                                  \
+  M_INLINE value_type *                                                       \
   M_F(name,_safe_get)(dict_t dict, key_type const key)                        \
   {                                                                           \
     M_D1CT_OA_CONTRACT(dict);                                                 \
@@ -1587,13 +1587,13 @@ enum m_d1ct_oa_element_e {
     M_D1CT_OA_CONTRACT(dict);                                                 \
     return &data[p].M_IF(isSet)(key, value);                                  \
   }                                                                           \
-  static inline M_ATTR_DEPRECATED value_type *                                \
+  M_INLINE M_ATTR_DEPRECATED value_type *                                     \
   M_F(name,_get_at)(dict_t dict, key_type const key)                          \
   {                                                                           \
     return M_F(name,_safe_get)(dict, key);                                    \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(m_d1ct_,name,_resize_down)(dict_t h, size_t newSize)                   \
   {                                                                           \
     size_t oldSize = h->mask+1;                                               \
@@ -1671,7 +1671,7 @@ enum m_d1ct_oa_element_e {
     M_D1CT_OA_CONTRACT(h);                                                    \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name,_erase)(dict_t dict, key_type const key)                           \
   {                                                                           \
     M_D1CT_OA_CONTRACT(dict);                                                 \
@@ -1707,7 +1707,7 @@ enum m_d1ct_oa_element_e {
     return true;                                                              \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init_set)(dict_t map, const dict_t org)                          \
   {                                                                           \
     M_D1CT_OA_CONTRACT(org);                                                  \
@@ -1735,7 +1735,7 @@ enum m_d1ct_oa_element_e {
     M_D1CT_OA_CONTRACT(map);                                                  \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _set)(dict_t map, const dict_t org)                               \
   {                                                                           \
     M_D1CT_OA_CONTRACT(map);                                                  \
@@ -1747,7 +1747,7 @@ enum m_d1ct_oa_element_e {
     M_D1CT_OA_CONTRACT(map);                                                  \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init_move)(dict_t map, dict_t org)                               \
   {                                                                           \
     M_D1CT_OA_CONTRACT(org);                                                  \
@@ -1764,7 +1764,7 @@ enum m_d1ct_oa_element_e {
     M_D1CT_OA_CONTRACT(map);                                                  \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _move)(dict_t map, dict_t org)                                    \
   {                                                                           \
     M_D1CT_OA_CONTRACT(map);                                                  \
@@ -1776,7 +1776,7 @@ enum m_d1ct_oa_element_e {
     M_D1CT_OA_CONTRACT(map);                                                  \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _swap)(dict_t d1, dict_t d2)                                      \
   {                                                                           \
     M_D1CT_OA_CONTRACT(d1);                                                   \
@@ -1791,7 +1791,7 @@ enum m_d1ct_oa_element_e {
     M_D1CT_OA_CONTRACT(d2);                                                   \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _reset)(dict_t d)                                                 \
   {                                                                           \
     M_D1CT_OA_CONTRACT(d);                                                    \
@@ -1815,13 +1815,13 @@ enum m_d1ct_oa_element_e {
     M_D1CT_OA_CONTRACT(d);                                                    \
   }                                                                           \
                                                                               \
-  static inline void M_ATTR_DEPRECATED                                        \
+  M_INLINE void M_ATTR_DEPRECATED                                             \
   M_F(name, _clean)(dict_t d)                                                 \
   {                                                                           \
     M_F(name, _reset)(d);                                                     \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it)(dict_it_t it, const dict_t d)                                \
   {                                                                           \
     M_D1CT_OA_CONTRACT(d);                                                    \
@@ -1836,7 +1836,7 @@ enum m_d1ct_oa_element_e {
     it->index = i;                                                            \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it_set)(dict_it_t it, const dict_it_t ref)                       \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
@@ -1846,7 +1846,7 @@ enum m_d1ct_oa_element_e {
     M_D1CT_OA_CONTRACT (it->dict);                                            \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it_last)(dict_it_t it, const dict_t d)                           \
   {                                                                           \
     M_D1CT_OA_CONTRACT(d);                                                    \
@@ -1861,7 +1861,7 @@ enum m_d1ct_oa_element_e {
     it->index = i;                                                            \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it_end)(dict_it_t it, const dict_t d)                            \
   {                                                                           \
     M_D1CT_OA_CONTRACT(d);                                                    \
@@ -1870,7 +1870,7 @@ enum m_d1ct_oa_element_e {
     it->index = d->mask+1;                                                    \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _end_p)(const dict_it_t it)                                       \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
@@ -1878,7 +1878,7 @@ enum m_d1ct_oa_element_e {
     return it->index > it->dict->mask;                                        \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _next)(dict_it_t it)                                              \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
@@ -1892,7 +1892,7 @@ enum m_d1ct_oa_element_e {
     it->index = i;                                                            \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _previous)(dict_it_t it)                                          \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
@@ -1907,7 +1907,7 @@ enum m_d1ct_oa_element_e {
     it->index = i;                                                            \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _last_p)(const dict_it_t it)                                      \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
@@ -1917,7 +1917,7 @@ enum m_d1ct_oa_element_e {
     return M_F(name, _end_p)(it2);                                            \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _it_equal_p)(const dict_it_t it1,const dict_it_t it2)             \
   {                                                                           \
     M_ASSERT (it1 != NULL && it2 != NULL);                                    \
@@ -1926,7 +1926,7 @@ enum m_d1ct_oa_element_e {
     return it1->dict == it2->dict && it1->index == it2->index;                \
   }                                                                           \
                                                                               \
-  static inline it_deref_t *                                                  \
+  M_INLINE it_deref_t *                                                       \
   M_F(name, _ref)(const dict_it_t it)                                         \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
@@ -1938,13 +1938,13 @@ enum m_d1ct_oa_element_e {
     return &it->dict->data[i] M_IF(isSet)(.key, );                            \
   }                                                                           \
                                                                               \
-  static inline const  it_deref_t *                                           \
+  M_INLINE const  it_deref_t *                                                \
   M_F(name, _cref)(const dict_it_t it)                                        \
   {                                                                           \
     return M_CONST_CAST(it_deref_t, M_F(name, _ref)(it));                     \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name,_reserve)(dict_t dict, size_t capacity)                            \
   {                                                                           \
     M_D1CT_OA_CONTRACT(dict);                                                 \

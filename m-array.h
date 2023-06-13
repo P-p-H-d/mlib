@@ -201,7 +201,7 @@
 /* Define the core functions */
 #define M_ARRA4_DEF_CORE(name, type, oplist, array_t, it_t)                   \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init)(array_t v)                                                 \
   {                                                                           \
     M_ASSERT (v != NULL);                                                     \
@@ -212,7 +212,7 @@
     M_ARRA4_CONTRACT(v);                                                      \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _reset)(array_t v)                                                \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -222,7 +222,7 @@
     M_ARRA4_CONTRACT(v);                                                      \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _clear)(array_t v)                                                \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -234,7 +234,7 @@
   }                                                                           \
                                                                               \
   M_IF_METHOD2(INIT_SET, SET, oplist)(                                        \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _set)(array_t d, const array_t s)                                 \
   {                                                                           \
     M_ARRA4_CONTRACT(d);                                                      \
@@ -262,7 +262,7 @@
     M_ARRA4_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init_set)(array_t d, const array_t s)                            \
   {                                                                           \
     M_ASSERT (d != s);                                                        \
@@ -271,7 +271,7 @@
   }                                                                           \
   , /* No SET & INIT_SET */)                                                  \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init_move)(array_t d, array_t s)                                 \
   {                                                                           \
     M_ASSERT (d != s);                                                        \
@@ -285,7 +285,7 @@
     M_ARRA4_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _move)(array_t d, array_t s)                                      \
   {                                                                           \
     M_ASSERT (d != s);                                                        \
@@ -294,7 +294,7 @@
   }                                                                           \
                                                                               \
   M_IF_METHOD(SET, oplist)(                                                   \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _set_at)(array_t v, size_t i, type const x)                       \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -304,7 +304,7 @@
   }                                                                           \
   , /* No SET */)                                                             \
                                                                               \
-  static inline type  *                                                       \
+  M_INLINE type  *                                                            \
   M_F(name, _back)(array_t v)                                                 \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -313,7 +313,7 @@
     return &v->ptr[v->size-1];                                                \
   }                                                                           \
                                                                               \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _push_raw)(array_t v)                                             \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -342,7 +342,7 @@
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT_SET, oplist)(                                              \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _push_back)(array_t v, type const x)                              \
   {                                                                           \
     type *data = M_F(name, _push_raw)(v);                                     \
@@ -353,7 +353,7 @@
   , /* No INIT_SET */ )                                                       \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _push_new)(array_t v)                                             \
   {                                                                           \
     type *data = M_F(name, _push_raw)(v);                                     \
@@ -365,7 +365,7 @@
   , /* No INIT */ )                                                           \
                                                                               \
   M_IF_AT_LEAST_METHOD(INIT_SET, INIT_MOVE, oplist)(                          \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _push_move)(array_t v, type *x)                                   \
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
@@ -377,7 +377,7 @@
   , /* INIT_SET | INIT_MOVE */ )                                              \
                                                                               \
   M_IF_METHOD(INIT_SET, oplist)(                                              \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _push_at)(array_t v, size_t key, type const x)                    \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -407,7 +407,7 @@
   , /* No INIT_SET */ )                                                       \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _resize)(array_t v, size_t size)                                  \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -436,7 +436,7 @@
   }                                                                           \
   , /* No INIT */ )                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _reserve)(array_t v, size_t alloc)                                \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -461,7 +461,7 @@
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _safe_get)(array_t v, size_t idx)                                 \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -495,7 +495,7 @@
   , /* No INIT */)                                                            \
                                                                               \
   M_IF_AT_LEAST_METHOD(SET, INIT_MOVE, oplist)(                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _pop_back)(type *dest, array_t v)                                 \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -512,7 +512,7 @@
   , /* SET | INIT_MOVE */ )                                                   \
                                                                               \
   M_IF_AT_LEAST_METHOD(INIT_SET, INIT_MOVE, oplist)(                          \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _pop_move)(type *dest, array_t v)                                 \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -526,7 +526,7 @@
   , /* INIT_SET | INIT_MOVE */ )                                              \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _pop_until)(array_t v, it_t pos)                                  \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -536,21 +536,21 @@
   }                                                                           \
   , /* No INIT */ )                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _empty_p)(const array_t v)                                        \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
     return v->size == 0;                                                      \
   }                                                                           \
                                                                               \
-  static inline size_t                                                        \
+  M_INLINE size_t                                                             \
   M_F(name, _size)(const array_t v)                                           \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
     return v->size;                                                           \
   }                                                                           \
                                                                               \
-  static inline size_t                                                        \
+  M_INLINE size_t                                                             \
   M_F(name, _capacity)(const array_t v)                                       \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -558,7 +558,7 @@
   }                                                                           \
                                                                               \
   M_IF_AT_LEAST_METHOD(SET, INIT_MOVE, oplist)(                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _pop_at)(type *dest, array_t v, size_t i)                         \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -573,7 +573,7 @@
     M_ARRA4_CONTRACT(v);                                                      \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _erase)(array_t a, size_t i)                                      \
   {                                                                           \
     M_ARRA4_CONTRACT(a);                                                      \
@@ -584,7 +584,7 @@
   , /* SET | INIT_MOVE */ )                                                   \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _insert_v)(array_t v, size_t i, size_t num)                       \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -620,7 +620,7 @@
   }                                                                           \
   , /* No INIT */)                                                            \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _remove_v)(array_t v, size_t i, size_t j)                         \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -634,7 +634,7 @@
     M_ARRA4_CONTRACT(v);                                                      \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _swap)(array_t v1, array_t v2)                                    \
   {                                                                           \
     M_ARRA4_CONTRACT(v1);                                                     \
@@ -647,7 +647,7 @@
   }                                                                           \
                                                                               \
   M_IF_AT_LEAST_METHOD(INIT_SET,INIT_MOVE,oplist) (                           \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _swap_at)(array_t v, size_t i, size_t j)                          \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -662,7 +662,7 @@
   }                                                                           \
   , /* INIT_SET | INIT_MOVE */ )                                              \
                                                                               \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _get)(const array_t v, size_t i)                                  \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -671,7 +671,7 @@
     return &v->ptr[i];                                                        \
   }                                                                           \
                                                                               \
-  static inline type const *                                                  \
+  M_INLINE type const *                                                       \
   M_F(name, _cget)(const array_t v, size_t i)                                 \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -680,7 +680,7 @@
     return M_CONST_CAST(type, &v->ptr[i]);                                    \
   }                                                                           \
                                                                               \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _front)(const array_t v)                                          \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -688,7 +688,7 @@
     return M_F(name, _get)(v, 0);                                             \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it)(it_t it, const array_t v)                                    \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -697,7 +697,7 @@
     it->array = v;                                                            \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it_last)(it_t it, const array_t v)                               \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -707,7 +707,7 @@
     it->array = v;                                                            \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it_end)(it_t it, const array_t v)                                \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -716,7 +716,7 @@
     it->array = v;                                                            \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it_set)(it_t it, const it_t org)                                 \
   {                                                                           \
     M_ASSERT (it != NULL && org != NULL);                                     \
@@ -725,14 +725,14 @@
     M_ARRA4_CONTRACT(it->array);                                              \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _end_p)(const it_t it)                                            \
   {                                                                           \
     M_ASSERT(it != NULL && it->array != NULL);                                \
     return it->index >= it->array->size;                                      \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _last_p)(const it_t it)                                           \
   {                                                                           \
     M_ASSERT(it != NULL && it->array != NULL);                                \
@@ -741,7 +741,7 @@
     return it->index + 1 >= it->array->size;                                  \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _it_equal_p)(const it_t it1,                                      \
                          const it_t it2)                                      \
   {                                                                           \
@@ -749,14 +749,14 @@
     return it1->array == it2->array && it1->index == it2->index;              \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _next)(it_t it)                                                   \
   {                                                                           \
     M_ASSERT(it != NULL && it->array != NULL);                                \
     it->index ++;                                                             \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _previous)(it_t it)                                               \
   {                                                                           \
     M_ASSERT(it != NULL && it->array != NULL);                                \
@@ -765,14 +765,14 @@
     it->index --;                                                             \
   }                                                                           \
                                                                               \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _ref)(const it_t it)                                              \
   {                                                                           \
     M_ASSERT(it != NULL);                                                     \
     return M_F(name, _get)(it->array, it->index);                             \
   }                                                                           \
                                                                               \
-  static inline type const *                                                  \
+  M_INLINE type const *                                                       \
   M_F(name, _cref)(const it_t it)                                             \
   {                                                                           \
     M_ASSERT(it != NULL);                                                     \
@@ -780,7 +780,7 @@
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT_SET, oplist)(                                              \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _insert)(array_t a, it_t it, type const x)                        \
   {                                                                           \
     M_ASSERT (it != NULL && a == it->array);                                  \
@@ -791,7 +791,7 @@
   , /* End of INIT_SET */ )                                                   \
                                                                               \
   M_IF_AT_LEAST_METHOD(SET, INIT_MOVE, oplist)(                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _remove)(array_t a, it_t it)                                      \
   {                                                                           \
     M_ASSERT (it != NULL && a == it->array);                                  \
@@ -802,7 +802,7 @@
                                                                               \
   M_IF_METHOD(CMP, oplist)                                                    \
   (                                                                           \
-   static inline void M_F(name, _special_sort)(array_t l,                     \
+   M_INLINE void M_F(name, _special_sort)(array_t l,                          \
               int (*func_type) (type const *a, type const *b))                \
   {                                                                           \
     /* Using qsort is more compact but slower than a full templated           \
@@ -814,7 +814,7 @@
   }                                                                           \
                                                                               \
   M_IF_METHOD2(SWAP, SET, oplist)(                                            \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(m_arra4_,name,_stable_sort_noalloc)(type tab[], size_t size, type tmp[]) \
   {                                                                           \
     size_t th = 4;                                                            \
@@ -885,7 +885,7 @@
     M_ASSERT (org_tab == tab);                                                \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _special_stable_sort)(array_t l)                                  \
   {                                                                           \
     if (M_UNLIKELY (l->size < 2))                                             \
@@ -904,7 +904,7 @@
   ,) /* IF CMP oplist */                                                      \
                                                                               \
   M_IF_METHOD(EQUAL, oplist)(                                                 \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _equal_p)(const array_t array1,                                   \
                       const array_t array2)                                   \
   {                                                                           \
@@ -923,7 +923,7 @@
   , /* no EQUAL */ )                                                          \
                                                                               \
   M_IF_METHOD(HASH, oplist)(                                                  \
-  static inline size_t                                                        \
+  M_INLINE size_t                                                             \
   M_F(name, _hash)(const array_t array)                                       \
   {                                                                           \
     M_ARRA4_CONTRACT(array);                                                  \
@@ -936,7 +936,7 @@
   }                                                                           \
   , /* no HASH */ )                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _splice)(array_t a1, array_t a2)                                  \
   {                                                                           \
     M_ARRA4_CONTRACT(a1);                                                     \
@@ -969,7 +969,7 @@
 #define M_ARRA4_DEF_IO(name, type, oplist, array_t, it_t)                     \
                                                                               \
   M_IF_METHOD(GET_STR, oplist)(                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _get_str)(m_string_t str, array_t const array,                    \
                       bool append)                                            \
   {                                                                           \
@@ -989,7 +989,7 @@
   , /* no GET_STR */ )                                                        \
                                                                               \
   M_IF_METHOD(OUT_STR, oplist)(                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _out_str)(FILE *file, const array_t array)                        \
   {                                                                           \
     M_ARRA4_CONTRACT(array);                                                  \
@@ -1006,7 +1006,7 @@
   , /* no OUT_STR */ )                                                        \
                                                                               \
   M_IF_METHOD2(PARSE_STR, INIT, oplist)(                                      \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _parse_str)(array_t array, const char str[], const char**endp)    \
   {                                                                           \
     M_ARRA4_CONTRACT(array);                                                  \
@@ -1034,7 +1034,7 @@
   , /* no PARSE_STR & INIT */ )                                               \
                                                                               \
   M_IF_METHOD2(IN_STR, INIT, oplist)(                                         \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _in_str)(array_t array, FILE *file)                               \
   {                                                                           \
     M_ARRA4_CONTRACT(array);                                                  \
@@ -1060,7 +1060,7 @@
   , /* no IN_STR & INIT */ )                                                  \
                                                                               \
   M_IF_METHOD(OUT_SERIAL, oplist)(                                            \
-  static inline m_serial_return_code_t                                        \
+  M_INLINE m_serial_return_code_t                                             \
   M_F(name, _out_serial)(m_serial_write_t f, const array_t array)             \
   {                                                                           \
     M_ARRA4_CONTRACT(array);                                                  \
@@ -1081,7 +1081,7 @@
   , /* no OUT_SERIAL */ )                                                     \
                                                                               \
   M_IF_METHOD2(IN_SERIAL, INIT, oplist)(                                      \
-  static inline m_serial_return_code_t                                        \
+  M_INLINE m_serial_return_code_t                                             \
   M_F(name, _in_serial)(array_t array, m_serial_read_t f)                     \
   {                                                                           \
     M_ARRA4_CONTRACT(array);                                                  \
@@ -1110,7 +1110,7 @@
 
 /* Definition of the emplace_back function for arrays */
 #define M_ARRA4_EMPLACE_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   function_name(name_t v                                                      \
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \

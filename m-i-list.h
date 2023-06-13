@@ -198,7 +198,7 @@ typedef struct m_il1st_head_s {
 /* Define core functions for intrusive lists */
 #define M_IL1ST_DEF_CORE(name, type, oplist, list_t, it_t)                    \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init)(list_t list)                                               \
   {                                                                           \
     M_ASSERT (list != NULL);                                                  \
@@ -207,7 +207,7 @@ typedef struct m_il1st_head_s {
     M_IL1ST_CONTRACT(name, list);                                             \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _reset)(list_t list)                                              \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
@@ -229,7 +229,7 @@ typedef struct m_il1st_head_s {
     M_IL1ST_CONTRACT(name, list);                                             \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _clear)(list_t list)                                              \
   {                                                                           \
     /* Nothing to do more than clean the list itself */                       \
@@ -239,7 +239,7 @@ typedef struct m_il1st_head_s {
     list->name.prev = NULL;                                                   \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _empty_p)(const list_t list)                                      \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
@@ -247,7 +247,7 @@ typedef struct m_il1st_head_s {
   }                                                                           \
                                                                               \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init_move)(list_t list, list_t ref)                              \
   {                                                                           \
     M_IL1ST_CONTRACT(name, ref);                                              \
@@ -264,14 +264,14 @@ typedef struct m_il1st_head_s {
     M_IL1ST_CONTRACT(name, list);                                             \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _move)(list_t list, list_t ref)                                   \
   {                                                                           \
     M_F(name, _clear)(list);                                                  \
     M_F(name, _init_move)(list, ref);                                         \
   }                                                                           \
                                                                               \
-  static inline size_t                                                        \
+  M_INLINE size_t                                                             \
   M_F(name, _size)(const list_t list)                                         \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
@@ -285,7 +285,7 @@ typedef struct m_il1st_head_s {
     return s;                                                                 \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _push_back)(list_t list, type *obj)                               \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
@@ -298,7 +298,7 @@ typedef struct m_il1st_head_s {
     M_IL1ST_CONTRACT(name, list);                                             \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _push_front)(list_t list, type *obj)                              \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
@@ -311,7 +311,7 @@ typedef struct m_il1st_head_s {
     M_IL1ST_CONTRACT(name, list);                                             \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _push_after)(type *obj_pos, type *obj)                            \
   {                                                                           \
     M_ASSERT (obj_pos != NULL && obj != NULL);                                \
@@ -324,7 +324,7 @@ typedef struct m_il1st_head_s {
     next->prev = &obj->name;                                                  \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init_field)(type *obj)                                           \
   {                                                                           \
     M_ASSERT (obj != NULL);                                                   \
@@ -333,7 +333,7 @@ typedef struct m_il1st_head_s {
     obj->name.prev = NULL;                                                    \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _unlink)(type *obj)                                               \
   {                                                                           \
     M_ASSERT (obj != NULL);                                                   \
@@ -348,7 +348,7 @@ typedef struct m_il1st_head_s {
     obj->name.prev = NULL;                                                    \
   }                                                                           \
                                                                               \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _back)(const list_t list)                                         \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
@@ -357,7 +357,7 @@ typedef struct m_il1st_head_s {
                              struct m_il1st_head_s, name);                    \
   }                                                                           \
                                                                               \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _front)(const list_t list)                                        \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
@@ -366,7 +366,7 @@ typedef struct m_il1st_head_s {
                              struct m_il1st_head_s, name);                    \
   }                                                                           \
                                                                               \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _next_obj)(const list_t list, type const *obj)                    \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
@@ -377,7 +377,7 @@ typedef struct m_il1st_head_s {
                         struct m_il1st_head_s, name);                         \
   }                                                                           \
                                                                               \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _previous_obj)(const list_t list, type const *obj)                \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
@@ -388,7 +388,7 @@ typedef struct m_il1st_head_s {
                         struct m_il1st_head_s, name);                         \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it)(it_t it, const list_t list)                                  \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
@@ -400,7 +400,7 @@ typedef struct m_il1st_head_s {
     M_IL1ST_NODE_CONTRACT(it->current);                                       \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it_set)(it_t it, const it_t cit)                                 \
   {                                                                           \
     M_ASSERT (it != NULL && cit != NULL);                                     \
@@ -411,7 +411,7 @@ typedef struct m_il1st_head_s {
     M_IL1ST_NODE_CONTRACT(it->current);                                       \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it_last)(it_t it, list_t const list)                             \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
@@ -423,7 +423,7 @@ typedef struct m_il1st_head_s {
     M_IL1ST_NODE_CONTRACT(it->current);                                       \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it_end)(it_t it, list_t const list)                              \
   {                                                                           \
     M_ASSERT (it != NULL && list != NULL);                                    \
@@ -434,7 +434,7 @@ typedef struct m_il1st_head_s {
     M_IL1ST_NODE_CONTRACT(it->current);                                       \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _end_p)(const it_t it)                                            \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
@@ -442,7 +442,7 @@ typedef struct m_il1st_head_s {
     return it->current == it->head;                                           \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _last_p)(const it_t it)                                           \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
@@ -450,7 +450,7 @@ typedef struct m_il1st_head_s {
     return it->next == it->head || it->current == it->head;                   \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _next)(it_t it)                                                   \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
@@ -465,7 +465,7 @@ typedef struct m_il1st_head_s {
     M_IL1ST_NODE_CONTRACT(it->current);                                       \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _previous)(it_t it)                                               \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
@@ -480,7 +480,7 @@ typedef struct m_il1st_head_s {
     M_IL1ST_NODE_CONTRACT(it->current);                                       \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _it_equal_p)(const it_t it1, const it_t it2 )                     \
   {                                                                           \
     M_ASSERT (it1 != NULL && it2 != NULL);                                    \
@@ -488,7 +488,7 @@ typedef struct m_il1st_head_s {
     return it1->head == it2->head && it1->current == it2->current;            \
   }                                                                           \
                                                                               \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _ref)(const it_t it)                                              \
   {                                                                           \
     M_ASSERT (it != NULL && it->current != NULL);                             \
@@ -501,14 +501,14 @@ typedef struct m_il1st_head_s {
                              struct m_il1st_head_s, name);                    \
   }                                                                           \
                                                                               \
-  static inline type const *                                                  \
+  M_INLINE type const *                                                       \
   M_F(name, _cref)(const it_t it)                                             \
   {                                                                           \
     type *ptr = M_F(name, _ref)(it);                                          \
     return M_CONST_CAST(type, ptr);                                           \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _remove)(list_t list, it_t it)                                    \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
@@ -523,7 +523,7 @@ typedef struct m_il1st_head_s {
   }                                                                           \
                                                                               \
   M_IF_METHOD2(NEW, INIT_SET, oplist)(                                        \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _insert)(list_t list, it_t it, type x)                            \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
@@ -542,7 +542,7 @@ typedef struct m_il1st_head_s {
   }                                                                           \
   , /* NEW & INIT_SET not defined */)                                         \
                                                                               \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _pop_back)(list_t list)                                           \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
@@ -553,7 +553,7 @@ typedef struct m_il1st_head_s {
     return obj;                                                               \
   }                                                                           \
                                                                               \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _pop_front)(list_t list)                                          \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
@@ -564,7 +564,7 @@ typedef struct m_il1st_head_s {
     return obj;                                                               \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _splice)(list_t list1, list_t list2)                              \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list1);                                            \
@@ -581,7 +581,7 @@ typedef struct m_il1st_head_s {
     M_IL1ST_CONTRACT(name, list2);                                            \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _splice_back)(list_t nv, list_t ov, it_t it)                      \
   {                                                                           \
     M_IL1ST_CONTRACT(name, nv);                                               \
@@ -597,7 +597,7 @@ typedef struct m_il1st_head_s {
     M_IL1ST_CONTRACT(name, ov);                                               \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _splice_at)(list_t nlist, it_t npos,                              \
                         list_t olist, it_t opos)                              \
   {                                                                           \
@@ -627,7 +627,7 @@ typedef struct m_il1st_head_s {
     M_IL1ST_CONTRACT(name, olist);                                            \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _swap)(list_t d, list_t e)                                        \
   {                                                                           \
     M_IL1ST_CONTRACT(name, d);                                                \
@@ -650,7 +650,7 @@ typedef struct m_il1st_head_s {
     M_IL1ST_CONTRACT(name, e);                                                \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _reverse)(list_t list)                                            \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \

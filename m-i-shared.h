@@ -55,13 +55,13 @@ M_BEGIN_PROTECTED_CODE
   ATOMIC_VAR_INIT(0)
 
 
-/* Define the intrusive shared pointer type and its static inline functions.
+/* Define the intrusive shared pointer type and its M_INLINE functions.
    USAGE: ISHARED_PTR_DEF(name, type, [, oplist]) */
 #define M_ISHARED_PTR_DEF(name, ...)                                          \
   M_ISHARED_PTR_DEF_AS(name, M_F(name,_t), __VA_ARGS__)
 
 
-/* Define the intrusive shared pointer type and its static inline functions
+/* Define the intrusive shared pointer type and its M_INLINE functions
   as the name name_t
    USAGE: ISHARED_PTR_DEF_AS(name, name_t, type, [, oplist]) */
 #define M_ISHARED_PTR_DEF_AS(name, name_t, ...)                               \
@@ -132,7 +132,7 @@ M_BEGIN_PROTECTED_CODE
 /* Define the core functions */
 #define M_ISHAR3D_PTR_DEF_CORE(name, type, oplist, shared_t)                  \
                                                                               \
-  static inline shared_t                                                      \
+  M_INLINE shared_t                                                           \
   M_F(name, _init)(type *ptr)                                                 \
   {                                                                           \
     /* Initialize the type referenced by the pointer */                       \
@@ -142,7 +142,7 @@ M_BEGIN_PROTECTED_CODE
     return ptr;                                                               \
   }                                                                           \
                                                                               \
-  static inline shared_t                                                      \
+  M_INLINE shared_t                                                           \
   M_F(name, _init_set)(shared_t shared)                                       \
   {                                                                           \
     if (M_LIKELY (shared != NULL)) {                                          \
@@ -156,7 +156,7 @@ M_BEGIN_PROTECTED_CODE
   M_IF_DISABLED_METHOD(NEW, oplist)                                           \
   (                                                                           \
   /* This function is only for static object */                               \
-  static inline shared_t                                                      \
+  M_INLINE shared_t                                                           \
   M_F(name, _init_once)(type *shared)                                         \
   {                                                                           \
     if (M_LIKELY (shared != NULL)) {                                          \
@@ -187,7 +187,7 @@ M_BEGIN_PROTECTED_CODE
   }                                                                           \
   ,                                                                           \
   /* This function is only for dynamic object */                              \
-  static inline shared_t                                                      \
+  M_INLINE shared_t                                                           \
   M_F(name, _init_new)(void)                                                  \
   {                                                                           \
     type *ptr = M_CALL_NEW(oplist, type);                                     \
@@ -202,7 +202,7 @@ M_BEGIN_PROTECTED_CODE
     /* End of NEW */)                                                         \
   , /* End of INIT */)                                                        \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _clear)(shared_t shared)                                          \
   {                                                                           \
     if (shared != NULL) {                                                     \
@@ -213,7 +213,7 @@ M_BEGIN_PROTECTED_CODE
     }                                                                         \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _clear_ptr)(shared_t *shared)                                     \
   {                                                                           \
     M_ASSERT(shared != NULL);                                                 \
@@ -221,14 +221,14 @@ M_BEGIN_PROTECTED_CODE
     *shared = NULL;                                                           \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _reset)(shared_t *shared)                                         \
   {                                                                           \
     M_F(name, _clear)(*shared);                                               \
     *shared = NULL;                                                           \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _set)(shared_t *ptr, shared_t shared)                             \
   {                                                                           \
     M_ASSERT (ptr != NULL);                                                   \

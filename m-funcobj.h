@@ -161,7 +161,7 @@
   /* Internal type for oplist & instance */                                   \
   typedef interface_t M_F(name, _ct);                                         \
                                                                               \
-  static inline retcode                                                       \
+  M_INLINE retcode                                                            \
   M_F(name, _call)(interface_t funcobj)                                       \
   {                                                                           \
     M_IF(M_KEYWORD_P(void, retcode)) ( /* nothing */,return)                  \
@@ -197,7 +197,7 @@
   /* Internal type for oplist & instance */                                   \
   typedef interface_t M_F(name, _ct);                                         \
                                                                               \
-  static inline retcode                                                       \
+  M_INLINE retcode                                                            \
   M_F(name, _call)(interface_t funcobj                                        \
                    M_MAP3(M_FUNC0BJ_BASE_ARGLIST, name, __VA_ARGS__) )        \
   {                                                                           \
@@ -220,7 +220,7 @@
   /* Internal type for oplist */                                              \
   typedef instance_t M_F(name, _ct);                                          \
                                                                               \
-  static inline M_C(base_name, _retcode_ct)                                   \
+  M_INLINE M_C(base_name, _retcode_ct)                                        \
   M_F(name, _callback)(M_C(base_name, _ct) _self                              \
                       M_IF_EMPTY(M_OPFLAT param_list)(                        \
                           /* No param */,                                     \
@@ -233,25 +233,25 @@
     callback_core;                                                            \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init_with)(instance_t obj)                                       \
   {                                                                           \
     obj->callback = M_F(name, _callback);                                     \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _clear)(instance_t obj)                                           \
   {                                                                           \
     (void) obj; /* nothing to do */                                           \
   }                                                                           \
                                                                               \
-  static inline struct M_C(base_name, _s) *                                   \
+  M_INLINE struct M_C(base_name, _s) *                                        \
   M_F(name, _as_interface)(instance_t obj)                                    \
   {                                                                           \
     return (struct M_C(base_name, _s) *) obj;                                 \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init)(instance_t obj)                                            \
   {                                                                           \
     obj->callback = M_F(name, _callback);                                     \
@@ -306,7 +306,7 @@
                                                                               \
   M_FUNC0BJ_CONTROL_ALL_OPLIST(name, __VA_ARGS__)                             \
                                                                               \
-  static inline M_C(base_name, _retcode_ct)                                   \
+  M_INLINE M_C(base_name, _retcode_ct)                                        \
   M_F(name, _callback)(M_C(base_name, _ct) _self                              \
                       M_IF_EMPTY(M_OPFLAT param_list)(                        \
                         /* No param */,                                       \
@@ -321,20 +321,20 @@
     callback_core;                                                            \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init_with)(instance_t obj M_MAP(M_FUNC0BJ_INS_ATTR_LIST, __VA_ARGS__)) \
   {                                                                           \
     obj->callback = M_F(name, _callback);                                     \
     M_MAP(M_FUNC0BJ_INS_ATTR_INIT_SET, __VA_ARGS__);                          \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _clear)(instance_t obj)                                           \
   {                                                                           \
     M_MAP(M_FUNC0BJ_INS_ATTR_CLEAR, __VA_ARGS__);                             \
   }                                                                           \
                                                                               \
-  static inline struct M_C(base_name, _s) *                                   \
+  M_INLINE struct M_C(base_name, _s) *                                        \
   M_F(name, _as_interface)(instance_t obj)                                    \
   {                                                                           \
     return (struct M_C(base_name, _s) *) obj;                                 \
@@ -342,7 +342,7 @@
                                                                               \
   M_IF(M_FUNC0BJ_TEST_METHOD_P(INIT, __VA_ARGS))                              \
   (                                                                           \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init)(instance_t obj)                                            \
   {                                                                           \
     obj->callback = M_F(name, _callback);                                     \

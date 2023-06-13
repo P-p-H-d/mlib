@@ -204,7 +204,7 @@ typedef int32_t m_tr33_index_t;
 /* Define the core & unique methods of a tree */
 #define M_TR33_DEF_P4_CORE(name, type, oplist, tree_t, it_t)                  \
     /* Initialize a generic tree (empty) */                                   \
-    static inline void                                                        \
+    M_INLINE void                                                             \
     M_F(name, _init)(tree_t tree) {                                           \
         tree->size = 0;                                                       \
         tree->capacity = 0;                                                   \
@@ -215,7 +215,7 @@ typedef int32_t m_tr33_index_t;
         M_TR33_CONTRACT(tree);                                                \
     }                                                                         \
                                                                               \
-    static inline void                                                        \
+    M_INLINE void                                                             \
     M_F(name, _reset)(tree_t tree) {                                          \
         M_TR33_CONTRACT(tree);                                                \
         if (tree->size > 0) {                                                 \
@@ -241,7 +241,7 @@ typedef int32_t m_tr33_index_t;
         M_TR33_CONTRACT(tree);                                                \
     }                                                                         \
                                                                               \
-    static inline void                                                        \
+    M_INLINE void                                                             \
     M_F(name, _clear)(tree_t tree) {                                          \
         M_F(name, _reset)(tree);                                              \
         struct M_F(name,_node_s)*ptr = tree->tab == NULL ? NULL : tree->tab-1;\
@@ -251,7 +251,7 @@ typedef int32_t m_tr33_index_t;
         tree->tab = NULL;                                                     \
     }                                                                         \
                                                                               \
-    static inline void                                                        \
+    M_INLINE void                                                             \
     M_F(name, _reserve)(tree_t tree, size_t alloc) {                          \
         M_TR33_CONTRACT(tree);                                                \
         /* Nothing to do if the request is lower than the current capacity. */ \
@@ -298,14 +298,14 @@ typedef int32_t m_tr33_index_t;
         M_TR33_CONTRACT(tree);                                                \
     }                                                                         \
                                                                               \
-    static inline void                                                        \
+    M_INLINE void                                                             \
     M_F(name, _lock)(tree_t tree, bool lock) {                                \
         M_TR33_CONTRACT(tree);                                                \
         tree->allow_realloc = lock ? INT32_MAX : 0;                           \
         M_TR33_CONTRACT(tree);                                                \
     }                                                                         \
                                                                               \
-    static inline m_tr33_index_t                                              \
+    M_INLINE m_tr33_index_t                                                   \
     M_C3(m_tr33_, name, _alloc_node)(tree_t tree) {                           \
         m_tr33_index_t ret = tree->free_index;                                \
         if (M_UNLIKELY(ret < 0)) {                                            \
@@ -350,7 +350,7 @@ typedef int32_t m_tr33_index_t;
         return ret;                                                           \
     }                                                                         \
                                                                               \
-    static inline void                                                        \
+    M_INLINE void                                                             \
     M_C3(m_tr33_, name, _free_node)(tree_t tree, m_tr33_index_t i) {          \
         tree->tab[i].parent = M_TR33_NO_NODE;                                 \
         tree->tab[i].left   = M_TR33_NO_NODE;                                 \
@@ -360,7 +360,7 @@ typedef int32_t m_tr33_index_t;
         tree->free_index = i;                                                 \
     }                                                                         \
                                                                               \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _set_root)(tree_t tree, type const data) {                      \
         M_TR33_CONTRACT(tree);                                                \
         M_F(name, _reset)(tree);                                              \
@@ -380,7 +380,7 @@ typedef int32_t m_tr33_index_t;
                                                                               \
     /* The iterator references the first root node */                         \
     /* usually for pre-order walk */                                          \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _it)(tree_t tree) {                                             \
         M_TR33_CONTRACT(tree);                                                \
         it_t it;                                                              \
@@ -390,7 +390,7 @@ typedef int32_t m_tr33_index_t;
         return it;                                                            \
     }                                                                         \
                                                                               \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _it_end)(tree_t tree) {                                         \
         M_TR33_CONTRACT(tree);                                                \
         it_t it;                                                              \
@@ -400,53 +400,53 @@ typedef int32_t m_tr33_index_t;
         return it;                                                            \
     }                                                                         \
                                                                               \
-    static inline bool                                                        \
+    M_INLINE bool                                                             \
     M_F(name, _end_p)(it_t it) {                                              \
         M_TR33_IT_CONTRACT(it, false);                                        \
         return it.index < 0;                                                  \
     }                                                                         \
                                                                               \
-    static inline type *                                                      \
+    M_INLINE type *                                                           \
     M_F(name, _ref)(it_t it) {                                                \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return &it.tree->tab[it.index].data;                                  \
     }                                                                         \
                                                                               \
-    static inline type const *                                                \
+    M_INLINE type const *                                                     \
     M_F(name, _cref)(it_t it) {                                               \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return M_CONST_CAST(type, &it.tree->tab[it.index].data);              \
     }                                                                         \
                                                                               \
-    static inline type *                                                      \
+    M_INLINE type *                                                           \
     M_F(name, _up_ref)(it_t it) {                                             \
         M_TR33_IT_CONTRACT(it, true);                                         \
         m_tr33_index_t i = it.tree->tab[it.index].parent;                     \
         return i < 0 ? NULL : &it.tree->tab[i].data;                          \
     }                                                                         \
                                                                               \
-    static inline type *                                                      \
+    M_INLINE type *                                                           \
     M_F(name, _down_ref)(it_t it) {                                           \
         M_TR33_IT_CONTRACT(it, true);                                         \
         m_tr33_index_t i = it.tree->tab[it.index].child;                      \
         return i < 0 ? NULL : &it.tree->tab[i].data;                          \
     }                                                                         \
                                                                               \
-    static inline type *                                                      \
+    M_INLINE type *                                                           \
     M_F(name, _left_ref)(it_t it) {                                           \
         M_TR33_IT_CONTRACT(it, true);                                         \
         m_tr33_index_t i = it.tree->tab[it.index].left;                       \
         return i < 0 ? NULL : &it.tree->tab[i].data;                          \
     }                                                                         \
                                                                               \
-    static inline type *                                                      \
+    M_INLINE type *                                                           \
     M_F(name, _right_ref)(it_t it) {                                          \
         M_TR33_IT_CONTRACT(it, true);                                         \
         m_tr33_index_t i = it.tree->tab[it.index].right;                      \
         return i < 0 ? NULL : &it.tree->tab[i].data;                          \
     }                                                                         \
                                                                               \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _insert_up_raw)(it_t it) {                                      \
         M_TR33_IT_CONTRACT(it, true);                                         \
         m_tr33_index_t i = M_C3(m_tr33_, name, _alloc_node)(it.tree);         \
@@ -476,7 +476,7 @@ typedef int32_t m_tr33_index_t;
         return it;                                                            \
     }                                                                         \
                                                                               \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _insert_up)(it_t pos, type const data) {                        \
         it_t it = M_F(name, _insert_up_raw)(pos);                             \
         M_CALL_INIT_SET(oplist, it.tree->tab[it.index].data, data);           \
@@ -484,7 +484,7 @@ typedef int32_t m_tr33_index_t;
         return it;                                                            \
     }                                                                         \
                                                                               \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _move_up)(it_t pos, type *data) {                               \
         it_t it = M_F(name, _insert_up_raw)(pos);                             \
         M_DO_INIT_MOVE(oplist, it.tree->tab[it.index].data, *data);           \
@@ -492,7 +492,7 @@ typedef int32_t m_tr33_index_t;
         return it;                                                            \
     }                                                                         \
                                                                               \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _insert_down_raw)(it_t it) {                                    \
         M_TR33_IT_CONTRACT(it, true);                                         \
         m_tr33_index_t i = M_C3(m_tr33_, name, _alloc_node)(it.tree);         \
@@ -513,7 +513,7 @@ typedef int32_t m_tr33_index_t;
         return it;                                                            \
     }                                                                         \
                                                                               \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _insert_down)(it_t pos, type const data) {                      \
         it_t it = M_F(name, _insert_down_raw)(pos);                           \
         M_CALL_INIT_SET(oplist, it.tree->tab[it.index].data, data);           \
@@ -521,7 +521,7 @@ typedef int32_t m_tr33_index_t;
         return it;                                                            \
     }                                                                         \
                                                                               \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _move_down)(it_t pos, type *data) {                             \
         it_t it = M_F(name, _insert_down_raw)(pos);                           \
         M_DO_INIT_MOVE(oplist, it.tree->tab[it.index].data, *data);           \
@@ -529,7 +529,7 @@ typedef int32_t m_tr33_index_t;
         return it;                                                            \
     }                                                                         \
                                                                               \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _insert_child_raw)(it_t it) {                                   \
         M_TR33_IT_CONTRACT(it, true);                                         \
         /* Insert a node as a child of another, making the current childreen  \
@@ -550,7 +550,7 @@ typedef int32_t m_tr33_index_t;
         return it;                                                            \
     }                                                                         \
                                                                               \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _insert_child)(it_t pos, type const data) {                     \
         it_t it = M_F(name, _insert_child_raw)(pos);                          \
         M_CALL_INIT_SET(oplist, it.tree->tab[it.index].data, data);           \
@@ -558,7 +558,7 @@ typedef int32_t m_tr33_index_t;
         return it;                                                            \
     }                                                                         \
                                                                               \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _move_child)(it_t pos, type *data) {                            \
         it_t it = M_F(name, _insert_child_raw)(pos);                          \
         M_DO_INIT_MOVE(oplist, it.tree->tab[it.index].data, *data);           \
@@ -566,7 +566,7 @@ typedef int32_t m_tr33_index_t;
         return it;                                                            \
     }                                                                         \
                                                                               \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _insert_left_raw)(it_t it) {                                    \
         M_TR33_IT_CONTRACT(it, true);                                         \
         M_ASSERT(it.index != it.tree->root_index);                            \
@@ -590,7 +590,7 @@ typedef int32_t m_tr33_index_t;
         return it;                                                            \
     }                                                                         \
                                                                               \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _insert_left)(it_t pos, type const data) {                      \
         it_t it = M_F(name, _insert_left_raw)(pos);                           \
         M_CALL_INIT_SET(oplist, it.tree->tab[it.index].data, data);           \
@@ -598,7 +598,7 @@ typedef int32_t m_tr33_index_t;
         return it;                                                            \
     }                                                                         \
                                                                               \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _move_left)(it_t pos, type *data) {                             \
         it_t it = M_F(name, _insert_left_raw)(pos);                           \
         M_DO_INIT_MOVE(oplist, it.tree->tab[it.index].data, *data);           \
@@ -606,7 +606,7 @@ typedef int32_t m_tr33_index_t;
         return it;                                                            \
     }                                                                         \
                                                                               \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _insert_right_raw)(it_t it) {                                   \
         M_TR33_IT_CONTRACT(it, true);                                         \
         M_ASSERT(it.index != it.tree->root_index);                            \
@@ -624,7 +624,7 @@ typedef int32_t m_tr33_index_t;
         return it;                                                            \
     }                                                                         \
                                                                               \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _insert_right)(it_t pos, type const data) {                     \
         it_t it = M_F(name, _insert_right_raw)(pos);                          \
         M_CALL_INIT_SET(oplist, it.tree->tab[it.index].data, data);           \
@@ -632,7 +632,7 @@ typedef int32_t m_tr33_index_t;
         return it;                                                            \
     }                                                                         \
                                                                               \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _move_right)(it_t pos, type *data) {                            \
         it_t it = M_F(name, _insert_right_raw)(pos);                          \
         M_DO_INIT_MOVE(oplist, it.tree->tab[it.index].data, *data);           \
@@ -640,7 +640,7 @@ typedef int32_t m_tr33_index_t;
         return it;                                                            \
     }                                                                         \
                                                                               \
-    static inline bool                                                        \
+    M_INLINE bool                                                             \
     M_F(name, _it_up)(it_t *it) {                                             \
         M_ASSERT(it != NULL);                                                 \
         M_TR33_IT_CONTRACT(*it, true);                                        \
@@ -653,7 +653,7 @@ typedef int32_t m_tr33_index_t;
         return ret;                                                           \
     }                                                                         \
                                                                               \
-    static inline bool                                                        \
+    M_INLINE bool                                                             \
     M_F(name, _it_down)(it_t *it) {                                           \
         M_ASSERT(it != NULL);                                                 \
         M_TR33_IT_CONTRACT(*it, true);                                        \
@@ -666,7 +666,7 @@ typedef int32_t m_tr33_index_t;
         return ret;                                                           \
     }                                                                         \
                                                                               \
-    static inline bool                                                        \
+    M_INLINE bool                                                             \
     M_F(name, _it_left)(it_t *it) {                                           \
         M_ASSERT(it != NULL);                                                 \
         M_TR33_IT_CONTRACT(*it, true);                                        \
@@ -679,7 +679,7 @@ typedef int32_t m_tr33_index_t;
         return ret;                                                           \
     }                                                                         \
                                                                               \
-    static inline bool                                                        \
+    M_INLINE bool                                                             \
     M_F(name, _it_right)(it_t *it) {                                          \
         M_ASSERT(it != NULL);                                                 \
         M_TR33_IT_CONTRACT(*it, true);                                        \
@@ -692,26 +692,26 @@ typedef int32_t m_tr33_index_t;
         return ret;                                                           \
     }                                                                         \
                                                                               \
-    static inline bool                                                        \
+    M_INLINE bool                                                             \
     M_F(name, _root_p)(const it_t it) {                                       \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return it.tree->tab[it.index].parent == M_TR33_ROOT_NODE;             \
     }                                                                         \
                                                                               \
-    static inline bool                                                        \
+    M_INLINE bool                                                             \
     M_F(name, _node_p)(const it_t it) {                                       \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return it.tree->tab[it.index].child != M_TR33_NO_NODE;                \
     }                                                                         \
                                                                               \
-    static inline bool                                                        \
+    M_INLINE bool                                                             \
     M_F(name, _leaf_p)(const it_t it) {                                       \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return it.tree->tab[it.index].child == M_TR33_NO_NODE;                \
     }                                                                         \
                                                                               \
     /* Compute the degree of a node in linear time */                         \
-    static inline int32_t                                                     \
+    M_INLINE int32_t                                                          \
     M_F(name, _degree)(const it_t it) {                                       \
         M_TR33_IT_CONTRACT(it, true);                                         \
         int32_t ret = 0;                                                      \
@@ -724,7 +724,7 @@ typedef int32_t m_tr33_index_t;
     }                                                                         \
                                                                               \
     /* Compute the depth of a node in linear time */                          \
-    static inline int32_t                                                     \
+    M_INLINE int32_t                                                          \
     M_F(name, _depth)(it_t it) {                                              \
         M_TR33_IT_CONTRACT(it, true);                                         \
         int32_t ret = 0;                                                      \
@@ -736,13 +736,13 @@ typedef int32_t m_tr33_index_t;
         return ret;                                                           \
     }                                                                         \
                                                                               \
-    static inline struct M_F(name, _s) *                                      \
+    M_INLINE struct M_F(name, _s) *                                           \
     M_F(name, _tree)(it_t it) {                                               \
         M_TR33_IT_CONTRACT(it, false);                                        \
         return it.tree;                                                       \
     }                                                                         \
                                                                               \
-    static inline void                                                        \
+    M_INLINE void                                                             \
     M_F(name, _swap_at)(it_t it1, it_t it2, bool swapChild) {                 \
         M_ASSUME(it1.tree == it2.tree);                                       \
         M_TR33_IT_CONTRACT(it1, true);                                        \
@@ -823,7 +823,7 @@ typedef int32_t m_tr33_index_t;
         M_TR33_IT_CONTRACT(it2, true);                                        \
     }                                                                         \
                                                                               \
-    static inline type *                                                      \
+    M_INLINE type *                                                           \
     M_F(name, _unlink)(it_t it) {                                             \
         M_TR33_IT_CONTRACT(it, true);                                         \
         m_tr33_index_t parent, child, left, right, child_r;                   \
@@ -884,7 +884,7 @@ typedef int32_t m_tr33_index_t;
         return &it.tree->tab[it.index].data;                                  \
     }                                                                         \
                                                                               \
-    static inline bool                                                        \
+    M_INLINE bool                                                             \
     M_F(name, _remove)(it_t it) {                                             \
         M_TR33_IT_CONTRACT(it, false);                                        \
         if (M_UNLIKELY(it.index < 0)) { return false; }                       \
@@ -895,7 +895,7 @@ typedef int32_t m_tr33_index_t;
                                                                               \
     /* Scan all nodes, first the parent then the children (uses with _it) */  \
     /* pre-order walk */                                                      \
-    static inline void                                                        \
+    M_INLINE void                                                             \
     M_F(name, _next)(it_t *it) {                                              \
         M_TR33_IT_CONTRACT(*it, true);                                        \
         /* First go down, if impossible go right */                           \
@@ -915,7 +915,7 @@ typedef int32_t m_tr33_index_t;
                                                                               \
     /* Scan all nodes, first the children then the parent */                  \
     /* post-order walk */                                                     \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _it_post)(tree_t tree) {                                        \
         M_TR33_CONTRACT(tree);                                                \
         it_t it;                                                              \
@@ -929,7 +929,7 @@ typedef int32_t m_tr33_index_t;
                                                                               \
     /* Scan all nodes, first the children then the parent (uses with _it_post) */ \
     /* post-order walk */                                                     \
-    static inline void                                                        \
+    M_INLINE void                                                             \
     M_F(name, _next_post)(it_t *it) {                                         \
         M_TR33_IT_CONTRACT(*it, true);                                        \
         /* First go right */                                                  \
@@ -947,7 +947,7 @@ typedef int32_t m_tr33_index_t;
         M_TR33_IT_CONTRACT(*it, false);                                       \
     }                                                                         \
                                                                               \
-    static inline bool                                                        \
+    M_INLINE bool                                                             \
     M_F(name, _it_equal_p)(it_t it1, it_t it2) {                              \
         M_TR33_IT_CONTRACT(it1, false);                                       \
         M_TR33_IT_CONTRACT(it2, false);                                       \
@@ -956,7 +956,7 @@ typedef int32_t m_tr33_index_t;
                                                                               \
     /* Scan all nodes, first the parent, then the children */                 \
     /* post-order walk */                                                     \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _it_subpre)(it_t it) {                                          \
         /* Nothing to do as it is already on the parent! */                   \
         return it;                                                            \
@@ -964,7 +964,7 @@ typedef int32_t m_tr33_index_t;
                                                                               \
     /* Scan the nodes of it_ref, first the parent then the children */        \
     /* pre-order walk */                                                      \
-    static inline void                                                        \
+    M_INLINE void                                                             \
     M_F(name, _next_subpre)(it_t *it, it_t it_ref) {                          \
         M_TR33_IT_CONTRACT(*it, true);                                        \
         M_TR33_IT_CONTRACT(it_ref, true);                                     \
@@ -985,7 +985,7 @@ typedef int32_t m_tr33_index_t;
                                                                               \
     /* Scan all nodes, first the children then the parent */                  \
     /* post-order walk */                                                     \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _it_subpost)(it_t it) {                                         \
         M_TR33_IT_CONTRACT(it, true);                                         \
         /* Evaluate child first, so go down to the lowest child */            \
@@ -996,7 +996,7 @@ typedef int32_t m_tr33_index_t;
                                                                               \
     /* Scan all nodes, first the children then the parent (uses with _it_subpost) */ \
     /* post-order walk */                                                     \
-    static inline void                                                        \
+    M_INLINE void                                                             \
     M_F(name, _next_subpost)(it_t *it, it_t ref) {                            \
         M_TR33_IT_CONTRACT(*it, true);                                        \
         M_TR33_IT_CONTRACT(ref, true);                                        \
@@ -1018,7 +1018,7 @@ typedef int32_t m_tr33_index_t;
         assert(b);                                                            \
     }                                                                         \
                                                                               \
-    static inline void                                                        \
+    M_INLINE void                                                             \
     M_F(name, _prune)(it_t it) {                                              \
         M_TR33_IT_CONTRACT(it, true);                                         \
         /* remove the node, including its childs */                           \
@@ -1033,7 +1033,7 @@ typedef int32_t m_tr33_index_t;
         }                                                                     \
     }                                                                         \
                                                                               \
-    static inline it_t                                                        \
+    M_INLINE it_t                                                             \
     M_F(name, _lca)(it_t it1, it_t it2) {                                     \
         M_TR33_IT_CONTRACT(it1, true);                                        \
         M_TR33_IT_CONTRACT(it2, true);                                        \
@@ -1062,7 +1062,7 @@ typedef int32_t m_tr33_index_t;
         return it1;                                                           \
     }                                                                         \
                                                                               \
-    static inline void                                                        \
+    M_INLINE void                                                             \
     M_F(name, _graft_child)(it_t it1, const it_t it2) {                       \
         M_ASSERT(it1.tree == it2.tree);                                       \
         M_TR33_IT_CONTRACT(it1, true);                                        \
@@ -1094,7 +1094,7 @@ typedef int32_t m_tr33_index_t;
     }                                                                         \
                                                                               \
     M_IF_METHOD(CMP,oplist)(                                                  \
-    static inline void                                                        \
+    M_INLINE void                                                             \
     M_F(name, _sort_child)(it_t it0) {                                        \
         M_TR33_IT_CONTRACT(it0, true);                                        \
         it_t it1 = it0;                                                       \
@@ -1122,7 +1122,7 @@ typedef int32_t m_tr33_index_t;
 
 /* Define the classic extended missing methods of a tree */
 #define M_TR33_DEF_P4_EXT(name, type, oplist, tree_t, it_t)                   \
-    static inline void                                                        \
+    M_INLINE void                                                             \
     M_F(name, _init_set)(tree_t tree, const tree_t ref) {                     \
         tree->size = ref->size;                                               \
         tree->capacity = ref->capacity;                                       \
@@ -1155,14 +1155,14 @@ typedef int32_t m_tr33_index_t;
         M_TR33_CONTRACT(tree);                                                \
     }                                                                         \
                                                                               \
-    static inline void                                                        \
+    M_INLINE void                                                             \
     M_F(name, _set)(tree_t tree, const tree_t ref) {                          \
         /* No optimum, but good enought for present time */                   \
         M_F(name, _clear)(tree);                                              \
         M_F(name, _init_set)(tree, ref);                                      \
     }                                                                         \
                                                                               \
-    static inline void                                                        \
+    M_INLINE void                                                             \
     M_F(name, _init_move)(tree_t tree, tree_t ref) {                          \
         tree->size = ref->size;                                               \
         tree->capacity = ref->capacity;                                       \
@@ -1175,13 +1175,13 @@ typedef int32_t m_tr33_index_t;
         ref->tab = NULL;                                                      \
     }                                                                         \
                                                                               \
-    static inline void                                                        \
+    M_INLINE void                                                             \
     M_F(name, _move)(tree_t tree, tree_t ref) {                               \
         M_F(name, _clear)(tree);                                              \
         M_F(name, _init_move)(tree, ref);                                     \
     }                                                                         \
                                                                               \
-    static inline void                                                        \
+    M_INLINE void                                                             \
     M_F(name, _swap)(tree_t tree1, tree_t tree2) {                            \
         M_TR33_CONTRACT(tree1);                                               \
         M_TR33_CONTRACT(tree2);                                               \
@@ -1195,32 +1195,32 @@ typedef int32_t m_tr33_index_t;
         M_TR33_CONTRACT(tree2);                                               \
     }                                                                         \
                                                                               \
-    static inline size_t                                                      \
+    M_INLINE size_t                                                           \
     M_F(name, _size)(const tree_t tree) {                                     \
         M_TR33_CONTRACT(tree);                                                \
         return (size_t) tree->size;                                           \
     }                                                                         \
                                                                               \
-    static inline bool                                                        \
+    M_INLINE bool                                                             \
     M_F(name, _empty_p)(const tree_t tree) {                                  \
         M_TR33_CONTRACT(tree);                                                \
         return tree->size == 0;                                               \
     }                                                                         \
                                                                               \
-    static inline size_t                                                      \
+    M_INLINE size_t                                                           \
     M_F(name, _capacity)(const tree_t tree) {                                 \
         M_TR33_CONTRACT(tree);                                                \
         return (size_t) tree->capacity;                                       \
     }                                                                         \
                                                                               \
     /* Service not really usefull as the affectation operator works with it */\
-    static inline void                                                        \
+    M_INLINE void                                                             \
     M_F(name, _it_set)(it_t *dst, it_t src ){                                 \
         *dst = src;                                                           \
     }                                                                         \
                                                                               \
     M_IF_METHOD(EQUAL, oplist)(                                               \
-    static inline bool                                                        \
+    M_INLINE bool                                                             \
     M_F(name, _equal_p)(/*const*/ tree_t t1, /*const*/ tree_t t2) {           \
         M_TR33_CONTRACT(t1);                                                  \
         M_TR33_CONTRACT(t2);                                                  \
@@ -1282,7 +1282,7 @@ typedef int32_t m_tr33_index_t;
     , /* No EQUAL */ )                                                        \
                                                                               \
     M_IF_METHOD(HASH, oplist)(                                                \
-    static inline size_t                                                      \
+    M_INLINE size_t                                                           \
     M_F(name, _hash)(/* const */ tree_t t1) {                                 \
         M_HASH_DECL(hash);                                                    \
         for(it_t it = M_F(name, _it)(t1);                                     \
@@ -1299,7 +1299,7 @@ typedef int32_t m_tr33_index_t;
 /* Define the IO methods of a tree */
 #define M_TR33_DEF_P4_IO(name, type, oplist, tree_t, it_t)                    \
 M_IF_METHOD(GET_STR, oplist)(                                                 \
-static inline void                                                            \
+M_INLINE void                                                                 \
 M_F(name, _get_str)(string_t str, /*const*/ tree_t tree, bool append) {       \
     (append ? m_string_cat_cstr : m_string_set_cstr) (str, "[");              \
     it_t it = M_F(name, _it)(tree);                                           \
@@ -1335,7 +1335,7 @@ M_F(name, _get_str)(string_t str, /*const*/ tree_t tree, bool append) {       \
 , /* No GET_STR */ )                                                          \
                                                                               \
 M_IF_METHOD(PARSE_STR, oplist)(                                               \
-static inline bool                                                            \
+M_INLINE bool                                                                 \
 M_F(name, _parse_str)(tree_t tree, const char str[], const char **endp) {     \
     M_TR33_CONTRACT(tree);                                                    \
     int cmd = 0;                                                              \
@@ -1400,7 +1400,7 @@ exit:                                                                         \
 , /* No PARSE_STR */ )                                                        \
                                                                               \
 M_IF_METHOD(OUT_STR, oplist)(                                                 \
-static inline void                                                            \
+M_INLINE void                                                                 \
 M_F(name, _out_str)(FILE *f, /*const*/ tree_t tree) {                         \
     fputc('[', f);                                                            \
     it_t it = M_F(name, _it)(tree);                                           \
@@ -1436,7 +1436,7 @@ M_F(name, _out_str)(FILE *f, /*const*/ tree_t tree) {                         \
 , /* No OUT_STR */ )                                                          \
                                                                               \
 M_IF_METHOD(IN_STR, oplist)(                                                  \
-static inline bool                                                            \
+M_INLINE bool                                                                 \
 M_F(name, _in_str)(tree_t tree, FILE *f) {                                    \
     M_TR33_CONTRACT(tree);                                                    \
     int cmd = 0;                                                              \
@@ -1511,7 +1511,7 @@ exit:                                                                         \
 
 /* Definition of the emplace_back functions */
 #define M_TR33_EMPLACE_ROOT_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  static inline M_F(name, _it_ct)                                             \
+  M_INLINE M_F(name, _it_ct)                                                  \
     function_name(name_t tree                                                 \
                   M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )              \
     {                                                                         \
@@ -1533,7 +1533,7 @@ exit:                                                                         \
     }
 
 #define M_TR33_EMPLACE_UP_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  static inline name_t                                                        \
+  M_INLINE name_t                                                             \
   function_name(name_t pos                                                    \
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
@@ -1544,7 +1544,7 @@ exit:                                                                         \
   }
 
 #define M_TR33_EMPLACE_DOWN_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  static inline name_t                                                        \
+  M_INLINE name_t                                                             \
   function_name(name_t pos                                                    \
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
@@ -1555,7 +1555,7 @@ exit:                                                                         \
   }
 
 #define M_TR33_EMPLACE_CHILD_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  static inline name_t                                                        \
+  M_INLINE name_t                                                             \
   function_name(name_t pos                                                    \
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
@@ -1566,7 +1566,7 @@ exit:                                                                         \
   }
 
 #define M_TR33_EMPLACE_LEFT_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  static inline name_t                                                        \
+  M_INLINE name_t                                                             \
   function_name(name_t pos                                                    \
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
@@ -1577,7 +1577,7 @@ exit:                                                                         \
   }
 
 #define M_TR33_EMPLACE_RIGHT_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  static inline name_t                                                        \
+  M_INLINE name_t                                                             \
   function_name(name_t pos                                                    \
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \

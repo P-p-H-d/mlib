@@ -193,7 +193,7 @@
                                                                               \
   /* Initial the fields of the concurrent object not associated to the        \
   sub-container. */                                                           \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _internal_init)(concurrent_t out)                                 \
   {                                                                           \
     m_mutex_init(out->lock);                                                  \
@@ -204,7 +204,7 @@
                                                                               \
   /* Clear the fields of the concurrent object not associated to the          \
   sub-container. */                                                           \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _internal_clear)(concurrent_t out)                                \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -217,7 +217,7 @@
      write lock is exclusive.                                                 \
      NOTE: This instance doesn't implement the read/write strategy,           \
       and only get the lock */                                                \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _read_lock)(const concurrent_t out)                               \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -227,7 +227,7 @@
   /* Free the read lock. See above.                                           \
      NOTE: This instance doesn't implement the read/write strategy,           \
       and only get the lock */                                                \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _read_unlock)(const concurrent_t out)                             \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -236,7 +236,7 @@
                                                                               \
   /* Wait for a thread pushing some data in the container.                    \
      CONSTRAINT: the read lock shall be get before calling this service */    \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _read_wait)(const concurrent_t out)                               \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -247,7 +247,7 @@
      can get the read lock too.                                               \
      NOTE: This instance doesn't implement the read/write strategy,           \
       and only get the lock */                                                \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _write_lock)(concurrent_t out)                                    \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -257,7 +257,7 @@
   /* Free the write lock.                                                     \
      NOTE: This instance doesn't implement the read/write strategy,           \
       and only get the lock */                                                \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _write_unlock)(concurrent_t out)                                  \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -266,7 +266,7 @@
                                                                               \
   /* Wait for a thread pushing some data in the container.                    \
      CONSTRAINT: the write lock shall be get before calling this service */   \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _write_wait)(const concurrent_t out)                              \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -275,7 +275,7 @@
                                                                               \
   /* Wait to all threads that some data are available in the container.       \
      CONSTRAINT: the write lock shall be get before calling this service */   \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _write_signal)(concurrent_t out)                                  \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -295,7 +295,7 @@
 #define M_C0NCURRENT_DEF_COMMON(name, type, oplist, concurrent_t)             \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init)(concurrent_t out)                                          \
   {                                                                           \
     M_F(name, _internal_init)(out);                                           \
@@ -305,7 +305,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(INIT_SET, oplist)(                                              \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init_set)(concurrent_t out, concurrent_t const src)              \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(src);                                               \
@@ -319,7 +319,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(SET, oplist)(                                                   \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _set)(concurrent_t out, concurrent_t const src)                   \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -354,7 +354,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(CLEAR, oplist)(                                                 \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _clear)(concurrent_t out)                                         \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -366,7 +366,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(INIT_MOVE, oplist)(                                             \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init_move)(concurrent_t out, concurrent_t src)                   \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(src);                                               \
@@ -380,7 +380,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(MOVE, oplist)(                                                  \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _move)(concurrent_t out, concurrent_t src)                        \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -395,7 +395,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(SWAP, oplist)(                                                  \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _swap)(concurrent_t out, concurrent_t src)                        \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -421,7 +421,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(RESET, oplist)(                                                 \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _reset)(concurrent_t out)                                         \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -432,7 +432,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(EMPTY_P, oplist)(                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _empty_p)(concurrent_t const out)                                 \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -444,7 +444,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(GET_SIZE, oplist)(                                              \
-  static inline size_t                                                        \
+  M_INLINE size_t                                                             \
   M_F(name, _size)(concurrent_t const out)                                    \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -456,7 +456,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(SET_KEY, oplist)(                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _set_at)(concurrent_t out, M_GET_KEY_TYPE oplist const key, M_GET_VALUE_TYPE oplist const data) \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -468,7 +468,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(GET_KEY, oplist)(                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _get_copy)(M_GET_VALUE_TYPE oplist *out_data, const concurrent_t out, M_GET_KEY_TYPE oplist const key) \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -484,7 +484,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(SAFE_GET_KEY, oplist)(                                          \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _safe_get_copy)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist const key) \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -498,7 +498,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(ERASE_KEY, oplist)(                                             \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _erase)(concurrent_t out, M_GET_KEY_TYPE oplist const key)        \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -512,7 +512,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(PUSH, oplist)(                                                  \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _push)(concurrent_t out, M_GET_SUBTYPE oplist const data)         \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -526,7 +526,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(POP, oplist)(                                                   \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _pop)(M_GET_SUBTYPE oplist *p, concurrent_t out)                  \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -538,7 +538,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(PUSH_MOVE, oplist)(                                             \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _push_move)(concurrent_t out, M_GET_SUBTYPE oplist *data)         \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -550,7 +550,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(POP_MOVE, oplist)(                                              \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _pop_move)(M_GET_SUBTYPE oplist *p, concurrent_t out)             \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -562,7 +562,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(GET_STR, oplist)(                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _get_str)(m_string_t str, concurrent_t const out, bool a)         \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -573,7 +573,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(OUT_STR, oplist)(                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _out_str)(FILE *f, concurrent_t const out)                        \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -584,7 +584,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(PARSE_STR, oplist)(                                             \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _parse_str)(concurrent_t out, const char str[], const char **e)   \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -597,7 +597,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(IN_STR, oplist)(                                                \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _in_str)(concurrent_t out, FILE *f)                               \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -610,7 +610,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(OUT_SERIAL, oplist)(                                            \
-  static inline m_serial_return_code_t                                        \
+  M_INLINE m_serial_return_code_t                                             \
   M_F(name, _out_serial)(m_serial_write_t f, concurrent_t const out)          \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -622,7 +622,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(IN_SERIAL, oplist)(                                             \
-  static inline m_serial_return_code_t                                        \
+  M_INLINE m_serial_return_code_t                                             \
   M_F(name, _in_serial)(concurrent_t out, m_serial_read_t f)                  \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -635,7 +635,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(EQUAL, oplist)(                                                 \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _equal_p)(concurrent_t const out1, concurrent_t const out2)       \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out1);                                              \
@@ -662,7 +662,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(GET_KEY, oplist)(                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _get_blocking)(M_GET_VALUE_TYPE oplist *out_data, const concurrent_t out, M_GET_KEY_TYPE oplist const key, bool blocking) \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -686,7 +686,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD2(POP, EMPTY_P, oplist)(                                         \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _pop_blocking)(M_GET_SUBTYPE oplist *p, concurrent_t out, bool blocking) \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -709,7 +709,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD2(POP_MOVE, EMPTY_P, oplist)(                                    \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _pop_move_blocking)(M_GET_SUBTYPE oplist *p, concurrent_t out, bool blocking) \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -732,7 +732,7 @@
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(HASH, oplist)(                                                  \
-  static inline size_t                                                        \
+  M_INLINE size_t                                                             \
   M_F(name, _hash)(concurrent_t const out)                                    \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -792,7 +792,7 @@
 /* Define the internal services for the lock strategy of a RP container */
 #define M_C0NCURRENT_RP_DEF_CORE(name, type, oplist, concurrent_t)            \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _internal_init)(concurrent_t out)                                 \
   {                                                                           \
     m_mutex_init(out->lock);                                                  \
@@ -804,7 +804,7 @@
     M_C0NCURRENT_CONTRACT(out);                                               \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _internal_clear)(concurrent_t out)                                \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -814,7 +814,7 @@
     out->self = NULL;                                                         \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _read_lock)(const concurrent_t out)                               \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -827,7 +827,7 @@
     m_mutex_unlock (self->lock);                                              \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _read_unlock)(const concurrent_t out)                             \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -840,7 +840,7 @@
     m_mutex_unlock (self->lock);                                              \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _write_lock)(concurrent_t out)                                    \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -855,7 +855,7 @@
     m_mutex_unlock (out->lock);                                               \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _write_unlock)(concurrent_t out)                                  \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -865,7 +865,7 @@
     m_mutex_unlock (out->lock);                                               \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _read_wait)(const concurrent_t out)                               \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -884,7 +884,7 @@
     m_mutex_unlock (out->self->lock);                                         \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _write_wait)(concurrent_t out)                                    \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
@@ -902,7 +902,7 @@
     m_mutex_unlock (out->lock);                                               \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _write_signal)(concurrent_t out)                                  \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \

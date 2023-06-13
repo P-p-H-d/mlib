@@ -170,7 +170,7 @@
 #define M_D3QU3_DEF_CORE(name, type, oplist, deque_t, it_t, node_t)           \
                                                                               \
   /* Allocate a new node for a deque */                                       \
-  static inline node_t*                                                       \
+  M_INLINE node_t*                                                            \
   M_C3(m_d3qu3_,name,_new_node)(deque_t d)                                    \
   {                                                                           \
     size_t def = d->default_size;                                             \
@@ -198,7 +198,7 @@
     return n;                                                                 \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init)(deque_t d)                                                 \
   {                                                                           \
     M_F(name, _node_list_init)(d->list);                                      \
@@ -214,7 +214,7 @@
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _reset)(deque_t d)                                                \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
@@ -239,7 +239,7 @@
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _clear)(deque_t d)                                                \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
@@ -252,7 +252,7 @@
     d->count = 0;                                                             \
   }                                                                           \
                                                                               \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _push_back_raw)(deque_t d)                                        \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
@@ -279,13 +279,13 @@
   }                                                                           \
                                                                               \
   /* Internal, for INIT_WITH */                                               \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _push_raw)(deque_t d)                                             \
   {                                                                           \
     return M_F(name, _push_back_raw)(d);                                      \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _push_back)(deque_t d, type const x)                              \
   {                                                                           \
     type *p = M_F(name, _push_back_raw)(d);                                   \
@@ -295,7 +295,7 @@
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _push_back_new)(deque_t d)                                        \
   {                                                                           \
     type *p = M_F(name, _push_back_raw)(d);                                   \
@@ -306,7 +306,7 @@
   }                                                                           \
   , )                                                                         \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _push_back_move)(deque_t d, type *x)                              \
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
@@ -316,7 +316,7 @@
     M_DO_INIT_MOVE (oplist, *p, *x);                                          \
   }                                                                           \
                                                                               \
-  static inline type*                                                         \
+  M_INLINE type*                                                              \
   M_F(name, _push_front_raw)(deque_t d)                                       \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
@@ -341,7 +341,7 @@
     return ret;                                                               \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _push_front)(deque_t d, type const x)                             \
   {                                                                           \
     type *p = M_F(name, _push_front_raw)(d);                                  \
@@ -351,7 +351,7 @@
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _push_front_new)(deque_t d)                                       \
   {                                                                           \
     type *p = M_F(name, _push_front_raw)(d);                                  \
@@ -362,7 +362,7 @@
   }                                                                           \
   ,)                                                                          \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _push_front_move)(deque_t d, type *x)                             \
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
@@ -372,7 +372,7 @@
     M_DO_INIT_MOVE (oplist, *p, *x);                                          \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _pop_back)(type *ptr, deque_t d)                                  \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
@@ -408,7 +408,7 @@
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _pop_back_move)(type *ptr, deque_t d)                             \
   {                                                                           \
     M_ASSERT(ptr != NULL);                                                    \
@@ -418,7 +418,7 @@
   }                                                                           \
   , )                                                                         \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _pop_front)(type *ptr, deque_t d)                                 \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
@@ -464,7 +464,7 @@
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _pop_front_move)(type *ptr, deque_t d)                            \
   {                                                                           \
     M_ASSERT(ptr != NULL);                                                    \
@@ -474,7 +474,7 @@
   }                                                                           \
   ,)                                                                          \
                                                                               \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _back)(const deque_t d)                                           \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
@@ -489,7 +489,7 @@
     return &n->data[i-1];                                                     \
   }                                                                           \
                                                                               \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _front)(const deque_t d)                                          \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
@@ -499,14 +499,14 @@
     return &n->data[i];                                                       \
   }                                                                           \
                                                                               \
-  static inline size_t                                                        \
+  M_INLINE size_t                                                             \
   M_F(name, _size)(const deque_t d)                                           \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     return d->count;                                                          \
   }                                                                           \
                                                                               \
-  static inline size_t                                                        \
+  M_INLINE size_t                                                             \
   M_F(name, _capacity_back)(const deque_t v)                                  \
   {                                                                           \
     M_D3QU3_CONTRACT(v);                                                      \
@@ -520,7 +520,7 @@
     return s;                                                                 \
   }                                                                           \
                                                                               \
-  static inline size_t                                                        \
+  M_INLINE size_t                                                             \
   M_F(name, _capacity_front)(const deque_t v)                                 \
   {                                                                           \
     M_D3QU3_CONTRACT(v);                                                      \
@@ -534,20 +534,20 @@
     return s;                                                                 \
   }                                                                           \
                                                                               \
-  static inline size_t                                                        \
+  M_INLINE size_t                                                             \
   M_F(name, _capacity)(const deque_t v)                                       \
   {                                                                           \
     return M_F(name, _capacity_back)(v)+M_F(name, _capacity_front)(v);        \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _empty_p)(const deque_t d)                                        \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     return d->count == 0;                                                     \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it)(it_t it, const deque_t d)                                    \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
@@ -557,7 +557,7 @@
     it->deque = d;                                                            \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it_last)(it_t it, const deque_t d)                               \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
@@ -572,7 +572,7 @@
     }                                                                         \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it_end)(it_t it, const deque_t d)                                \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
@@ -582,7 +582,7 @@
     it->deque = d;                                                            \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _it_set)(it_t it1, const it_t it2)                                \
   {                                                                           \
     M_ASSERT (it1 != NULL);                                                   \
@@ -592,7 +592,7 @@
     it1->deque = it2->deque;                                                  \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _end_p)(it_t it)                                                  \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
@@ -602,7 +602,7 @@
           && it->index < it->deque->front->index);                            \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _next)(it_t it)                                                   \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
@@ -621,7 +621,7 @@
     }                                                                         \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _previous)(it_t it)                                               \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
@@ -640,7 +640,7 @@
     }                                                                         \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _last_p)(it_t it)                                                 \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
@@ -650,7 +650,7 @@
     return M_F(name, _end_p)(it2);                                            \
   }                                                                           \
                                                                               \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _it_equal_p)(it_t it1, const it_t it2)                            \
   {                                                                           \
     M_ASSERT (it1 != NULL);                                                   \
@@ -660,7 +660,7 @@
       && it1->index == it2->index;                                            \
   }                                                                           \
                                                                               \
-  static inline type *                                                        \
+  M_INLINE type *                                                             \
   M_F(name, _ref)(it_t it)                                                    \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
@@ -668,7 +668,7 @@
     return &it->node->data[it->index];                                        \
   }                                                                           \
                                                                               \
-  static inline type const *                                                  \
+  M_INLINE type const *                                                       \
   M_F(name, _cref)(it_t it)                                                   \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
@@ -676,7 +676,7 @@
     return M_CONST_CAST(type, &it->node->data[it->index]);                    \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _remove)(deque_t d, it_t it)                                      \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
@@ -739,7 +739,7 @@
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init_set)(deque_t d, const deque_t src)                          \
   {                                                                           \
     M_D3QU3_CONTRACT(src);                                                    \
@@ -766,7 +766,7 @@
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _set)(deque_t d, deque_t const src)                               \
   {                                                                           \
     if (M_UNLIKELY (src == d))                                                \
@@ -776,7 +776,7 @@
     M_F(name, _init_set)(d, src);                                             \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init_move)(deque_t d, deque_t src)                               \
   {                                                                           \
     M_D3QU3_CONTRACT(src);                                                    \
@@ -792,7 +792,7 @@
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _move)(deque_t d, deque_t src)                                    \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
@@ -802,7 +802,7 @@
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _swap)(deque_t d, deque_t e)                                      \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
@@ -818,7 +818,7 @@
     M_D3QU3_CONTRACT(e);                                                      \
   }                                                                           \
                                                                               \
-  static inline type*                                                         \
+  M_INLINE type*                                                              \
   M_F(name, _get)(deque_t d, size_t key)                                      \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
@@ -837,13 +837,13 @@
     }                                                                         \
   }                                                                           \
                                                                               \
-  static inline type const *                                                  \
+  M_INLINE type const *                                                       \
   M_F(name, _cget)(deque_t d, size_t key)                                     \
   {                                                                           \
     return M_CONST_CAST(type, M_F(name, _get)(d, key));                       \
   }                                                                           \
                                                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _set_at)(deque_t d, size_t key, type const x)                     \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
@@ -854,7 +854,7 @@
   }                                                                           \
                                                                               \
   M_IF_METHOD(EQUAL, oplist)(                                                 \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _equal_p)(const deque_t d1, const deque_t d2)                     \
   {                                                                           \
     M_D3QU3_CONTRACT(d1);                                                     \
@@ -877,7 +877,7 @@
   , /* NO EQUAL */)                                                           \
                                                                               \
   M_IF_METHOD(HASH, oplist)(                                                  \
-  static inline size_t                                                        \
+  M_INLINE size_t                                                             \
   M_F(name, _hash)(const deque_t d)                                           \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
@@ -892,7 +892,7 @@
   , /* NO HASH */)                                                            \
                                                                               \
   M_IF_METHOD(SWAP, oplist)(                                                  \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _swap_at)(deque_t d, size_t i, size_t j)                          \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
@@ -906,7 +906,7 @@
   , /* NO SWAP */)                                                            \
                                                                               \
   M_IF_METHOD(GET_STR, oplist)(                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _get_str)(m_string_t str, deque_t const deque, bool append)       \
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
@@ -925,7 +925,7 @@
   , /* no GET_STR */ )                                                        \
                                                                               \
   M_IF_METHOD(OUT_STR, oplist)(                                               \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _out_str)(FILE *file, const deque_t deque)                        \
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
@@ -945,7 +945,7 @@
   , /* no OUT_STR */ )                                                        \
                                                                               \
   M_IF_METHOD2(PARSE_STR, INIT, oplist)(                                      \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _parse_str)(deque_t deque, const char str[], const char **endp)   \
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
@@ -977,7 +977,7 @@
   , /* no PARSE_STR */ )                                                      \
                                                                               \
   M_IF_METHOD2(IN_STR, INIT, oplist)(                                         \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_F(name, _in_str)(deque_t deque, FILE *file)                               \
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
@@ -1004,7 +1004,7 @@
   , /* no IN_STR */ )                                                         \
                                                                               \
   M_IF_METHOD(OUT_SERIAL, oplist)(                                            \
-  static inline m_serial_return_code_t                                        \
+  M_INLINE m_serial_return_code_t                                             \
   M_F(name, _out_serial)(m_serial_write_t f, const deque_t deque)             \
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
@@ -1029,7 +1029,7 @@
   , /* no OUT_SERIAL */ )                                                     \
                                                                               \
   M_IF_METHOD2(IN_SERIAL, INIT, oplist)(                                      \
-  static inline m_serial_return_code_t                                        \
+  M_INLINE m_serial_return_code_t                                             \
   M_F(name, _in_serial)(deque_t deque, m_serial_read_t f)                     \
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
@@ -1055,7 +1055,7 @@
 
 /* Definition of the emplace_back function for deque */
 #define M_D3QUE_EMPLACE_BACK_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   function_name(name_t v                                                      \
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
@@ -1068,7 +1068,7 @@
 
 /* Definition of the emplace_front function for deque */
 #define M_D3QUE_EMPLACE_FRONT_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   function_name(name_t v                                                      \
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \

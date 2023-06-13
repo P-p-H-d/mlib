@@ -306,7 +306,7 @@ typedef struct m_try_s {
         { __VA_ARGS__ } } )
 
 // Copy an exception to another.
-static inline void
+M_INLINE void
 m_exception_set(struct m_exception_s *out, const struct m_exception_s *in)
 {
   if (in != out) {
@@ -357,7 +357,7 @@ extern M_ATTR_NO_RETURN M_ATTR_COLD_FUNCTION void m_throw(const struct m_excepti
   }
 
 // Rethrow the error
-static inline void
+M_INLINE void
 m_rethrow(void)
 {
   M_ASSERT(m_global_error_list != NULL);
@@ -366,7 +366,7 @@ m_rethrow(void)
 
 // Catch the error code associated to the TRY block state
 // and provide a pointer to the exception (which is a global).
-static inline bool
+M_INLINE bool
 m_catch(m_try_t state, unsigned error_code, const struct m_exception_s **exception)
 {
   M_ASSERT(m_global_error_list == state);
@@ -383,7 +383,7 @@ m_catch(m_try_t state, unsigned error_code, const struct m_exception_s **excepti
 }
 
 // Initialize the state to a TRY state.
-static inline void
+M_INLINE void
 m_try_init(m_try_t state)
 {
   state->kind = M_STATE_TRY;
@@ -395,7 +395,7 @@ m_try_init(m_try_t state)
   M_LIKELY ((m_try_init(s), m_try_setjmp(((s)->data.buf)) != 1))
 
 // Disable the current TRY block.
-static inline void
+M_INLINE void
 m_try_clear(m_try_t state)
 {
   // Even if there is a CATCH block and an unstack of the exception
@@ -422,7 +422,7 @@ m_try_clear(m_try_t state)
 // However we register the position in the stack frame now so that in case of partial initialization
 // of the object (if the INIT operator of the object calls other INIT operators of composed fields),
 // since partial initialization will be unstacked naturally by the composing object.
-static inline bool
+M_INLINE bool
 m_try_cb_pre(m_try_t state)
 {
   state->kind = M_STATE_CLEAR_CB;
@@ -431,7 +431,7 @@ m_try_cb_pre(m_try_t state)
 }
 
 // We register the function to call of the initialized object.
-static inline bool
+M_INLINE bool
 m_try_cb_post(m_try_t state, void (M_TRY_FUNC_OPERATOR func)(void*), void *data)
 {
   state->data.clear.func = func;
@@ -442,14 +442,14 @@ m_try_cb_post(m_try_t state, void (M_TRY_FUNC_OPERATOR func)(void*), void *data)
 
 // The object will be cleared.
 // We can pop the stack frame of the errors.
-static inline void
+M_INLINE void
 m_try_cb_final(m_try_t state)
 {
   m_global_error_list = state->next;
 }
 
 // Pre initialization function. Save the stack frame for a longjmp
-static inline bool
+M_INLINE bool
 m_try_jump_pre(m_try_t state)
 {
   state->kind = M_STATE_CLEAR_JMPBUF;
@@ -458,7 +458,7 @@ m_try_jump_pre(m_try_t state)
 }
 
 // Post initialization function. Register the stack frame for a longjmp
-static inline void
+M_INLINE void
 m_try_jump_post(m_try_t state)
 {
   m_global_error_list = state;
@@ -469,7 +469,7 @@ m_try_jump_post(m_try_t state)
 
 // The object will be cleared.
 // We can pop the stack frame of the errors.
-static inline void
+M_INLINE void
 m_try_jump_final(m_try_t state)
 {
   m_global_error_list = state->next;

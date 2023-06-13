@@ -219,14 +219,14 @@
 
 /* Define the INIT function. Init the variant to empty */
 #define M_VAR1ANT_DEFINE_INIT(name, ...)                                      \
-  static inline void M_F(name, _init)(M_F(name,_ct) my) {                     \
+  M_INLINE void M_F(name, _init)(M_F(name,_ct) my) {                          \
     my->type = M_F(name, _EMPTY);                                             \
   }
 
 
 /* Define the INIT_SET function. */
 #define M_VAR1ANT_DEFINE_INIT_SET(name, ...)                                  \
-  static inline void M_F(name, _init_set)(M_F(name,_ct) my ,                  \
+  M_INLINE void M_F(name, _init_set)(M_F(name,_ct) my ,                       \
                                           M_F(name,_ct) const org) {          \
     M_VAR1ANT_CONTRACT(name, org);                                            \
     my->type = org->type;                                                     \
@@ -246,7 +246,7 @@
 
 /* Define the SET function. */
 #define M_VAR1ANT_DEFINE_SET(name, ...)                                       \
-  static inline void M_F(name, _set)(M_F(name,_ct) my ,                       \
+  M_INLINE void M_F(name, _set)(M_F(name,_ct) my ,                            \
                                      M_F(name,_ct) const org) {               \
     M_VAR1ANT_CONTRACT(name, my);                                             \
     M_VAR1ANT_CONTRACT(name, org);                                            \
@@ -273,7 +273,7 @@
 
 /* Define the CLEAR function. */
 #define M_VAR1ANT_DEFINE_CLEAR(name, ...)                                     \
-  static inline void M_F(name, _clear)(M_F(name,_ct) my) {                    \
+  M_INLINE void M_F(name, _clear)(M_F(name,_ct) my) {                         \
     M_VAR1ANT_CONTRACT(name, my);                                             \
     switch (my->type) {                                                       \
       M_MAP2(M_VAR1ANT_DEFINE_CLEAR_FUNC, name,  __VA_ARGS__)                 \
@@ -291,11 +291,11 @@
 
 /* Define the TEST_P function. */
 #define M_VAR1ANT_DEFINE_TEST_P(name, ...)                                    \
-  static inline bool M_F(name, _empty_p)(M_F(name,_ct) const my) {            \
+  M_INLINE bool M_F(name, _empty_p)(M_F(name,_ct) const my) {                 \
     M_VAR1ANT_CONTRACT(name, my);                                             \
     return my->type == M_F(name, _EMPTY);                                     \
   }                                                                           \
-  static inline enum M_F(name, _enum)                                         \
+  M_INLINE enum M_F(name, _enum)                                              \
   M_F(name, _type)(M_F(name,_ct) my) {                                        \
     M_VAR1ANT_CONTRACT(name, my);                                             \
     return my->type;                                                          \
@@ -303,7 +303,7 @@
   M_MAP2(M_VAR1ANT_DEFINE_TEST_FUNC, name, __VA_ARGS__)
 
 #define M_VAR1ANT_DEFINE_TEST_FUNC(name, a)                                   \
-  static inline bool                                                          \
+  M_INLINE bool                                                               \
   M_C4(name, _, M_VAR1ANT_GET_FIELD a, _p)(M_F(name,_ct) const my) {          \
     M_VAR1ANT_CONTRACT(name, my);                                             \
     return my->type == M_C4(name, _, M_VAR1ANT_GET_FIELD a, _value);          \
@@ -315,7 +315,7 @@
   M_MAP2(M_VAR1ANT_DEFINE_INIT_FIELD_FUNC, name, __VA_ARGS__)
 
 #define M_VAR1ANT_DEFINE_INIT_FIELD_FUNC(name, a)                             \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(name, _init_, M_VAR1ANT_GET_FIELD a)(M_F(name,_ct) my) {               \
     /* Reinit variable with the given value */                                \
     my->type = M_C4(name, _, M_VAR1ANT_GET_FIELD a, _value);                  \
@@ -328,7 +328,7 @@
   M_MAP2(M_VAR1ANT_DEFINE_INIT_SETTER_FIELD_FUNC, name, __VA_ARGS__)
 
 #define M_VAR1ANT_DEFINE_INIT_SETTER_FIELD_FUNC(name, a)                      \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(name, _init_set_, M_VAR1ANT_GET_FIELD a)(M_F(name,_ct) my,             \
                                                M_VAR1ANT_GET_TYPE a const M_VAR1ANT_GET_FIELD a  ) { \
     my->type = M_C4(name, _, M_VAR1ANT_GET_FIELD a, _value);                  \
@@ -342,7 +342,7 @@
   M_MAP2(M_VAR1ANT_DEFINE_SETTER_FIELD_FUNC, name, __VA_ARGS__)
 
 #define M_VAR1ANT_DEFINE_SETTER_FIELD_FUNC(name, a)                           \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(name, _set_, M_VAR1ANT_GET_FIELD a)(M_F(name,_ct) my,                  \
                                           M_VAR1ANT_GET_TYPE a const M_VAR1ANT_GET_FIELD a  ) { \
     M_VAR1ANT_CONTRACT(name, my);                                             \
@@ -364,7 +364,7 @@
   M_MAP2(M_VAR1ANT_DEFINE_GETTER_FIELD_FUNC, name, __VA_ARGS__)
 
 #define M_VAR1ANT_DEFINE_GETTER_FIELD_FUNC(name, a)                           \
-  static inline M_VAR1ANT_GET_TYPE a *                                        \
+  M_INLINE M_VAR1ANT_GET_TYPE a *                                             \
   M_C3(name, _get_, M_VAR1ANT_GET_FIELD a)(M_F(name,_ct) my) {                \
     M_VAR1ANT_CONTRACT(name, my);                                             \
     if (my->type != M_C4(name, _, M_VAR1ANT_GET_FIELD a, _value) ) {          \
@@ -373,7 +373,7 @@
     return &my -> value . M_VAR1ANT_GET_FIELD a;                              \
   }                                                                           \
                                                                               \
-  static inline M_VAR1ANT_GET_TYPE a const *                                  \
+  M_INLINE M_VAR1ANT_GET_TYPE a const *                                       \
   M_C3(name, _cget_, M_VAR1ANT_GET_FIELD a)(M_F(name,_ct) const my) {         \
     M_VAR1ANT_CONTRACT(name, my);                                             \
     if (my->type != M_C4(name, _, M_VAR1ANT_GET_FIELD a, _value) ) {          \
@@ -397,7 +397,7 @@
   M_EMPLACE_QUEUE_DEF( (name, M_VAR1ANT_GET_FIELD a), M_F(name,_ct), M_C3(name, _emplace_, M_VAR1ANT_GET_FIELD a), M_VAR1ANT_GET_OPLIST a, M_VAR1ANT_DEFINE_EMPLACE_DEF)
 
 #define M_VAR1ANT_DEFINE_INIT_EMPLACE_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-static inline void                                                            \
+M_INLINE void                                                                 \
   function_name(name_t my                                                     \
                 M_EMPLACE_LIST_TYPE_VAR(ab, exp_emplace_type) )               \
   {                                                                           \
@@ -406,7 +406,7 @@ static inline void                                                            \
   }                                                                           \
 
 #define M_VAR1ANT_DEFINE_EMPLACE_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   function_name(name_t my                                                     \
                 M_EMPLACE_LIST_TYPE_VAR(ab, exp_emplace_type) )               \
   {                                                                           \
@@ -418,7 +418,7 @@ static inline void                                                            \
 
 /* Define the EQUAL_P function. */
 #define M_VAR1ANT_DEFINE_EQUAL(name, ...)                                     \
-  static inline bool M_F(name, _equal_p)(M_F(name,_ct) const e1 ,             \
+  M_INLINE bool M_F(name, _equal_p)(M_F(name,_ct) const e1 ,                  \
                                          M_F(name,_ct) const e2) {            \
     bool b;                                                                   \
     M_VAR1ANT_CONTRACT(name, e1);                                             \
@@ -442,7 +442,7 @@ static inline void                                                            \
 
 /* Define the HASH function. */
 #define M_VAR1ANT_DEFINE_HASH(name, ...)                                      \
-  static inline size_t M_F(name, _hash)(M_F(name,_ct) const e1) {             \
+  M_INLINE size_t M_F(name, _hash)(M_F(name,_ct) const e1) {                  \
     M_VAR1ANT_CONTRACT(name, e1);                                             \
     M_HASH_DECL(hash);                                                        \
     M_HASH_UP (hash, (unsigned int) (e1 -> type));                            \
@@ -462,7 +462,7 @@ static inline void                                                            \
 
 /* Define the INIT_MOVE function. */
 #define M_VAR1ANT_DEFINE_INIT_MOVE(name, ...)                                 \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _init_move)(M_F(name,_ct) el, M_F(name,_ct) org) {                \
     M_VAR1ANT_CONTRACT(name, org);                                            \
     el -> type = org -> type;                                                 \
@@ -486,7 +486,7 @@ static inline void                                                            \
    It can be optimized if both types are the same.
 */
 #define M_VAR1ANT_DEFINE_MOVE(name, ...)                                      \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _move)(M_F(name,_ct) el, M_F(name,_ct) org) {                     \
     M_VAR1ANT_CONTRACT(name, el);                                             \
     M_VAR1ANT_CONTRACT(name, org);                                            \
@@ -500,7 +500,7 @@ static inline void                                                            \
   M_MAP2(M_VAR1ANT_DEFINE_MOVER_FUNC, name, __VA_ARGS__)
 
 #define M_VAR1ANT_DEFINE_MOVER_FUNC(name, a)                                  \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_C3(name, _move_, M_VAR1ANT_GET_FIELD a)(M_F(name,_ct) my,                 \
                                            M_VAR1ANT_GET_TYPE a  M_VAR1ANT_GET_FIELD a  ) { \
     M_VAR1ANT_CONTRACT(name, my);                                             \
@@ -514,7 +514,7 @@ static inline void                                                            \
 
 /* Define the SWAP function  */
 #define M_VAR1ANT_DEFINE_SWAP(name, ...)                                      \
-  static inline void                                                          \
+  M_INLINE void                                                               \
   M_F(name, _swap)(M_F(name,_ct) el1, M_F(name,_ct) el2) {                    \
     M_VAR1ANT_CONTRACT(name, el1);                                            \
     M_VAR1ANT_CONTRACT(name, el2);                                            \
@@ -550,7 +550,7 @@ static inline void                                                            \
 
 /* Define the GET_STR function */
 #define M_VAR1ANT_DEFINE_GET_STR(name, ...)                                   \
-  static inline void M_F(name, _get_str)(m_string_t str,                      \
+  M_INLINE void M_F(name, _get_str)(m_string_t str,                           \
                                          M_F(name,_ct) const el,              \
                                          bool append) {                       \
     M_VAR1ANT_CONTRACT(name, el);                                             \
@@ -574,7 +574,7 @@ static inline void                                                            \
 
 /* Define the PARSE_STR function */
 #define M_VAR1ANT_DEFINE_PARSE_STR(name, ...)                                 \
-  static inline bool M_F(name, _parse_str)(M_F(name,_ct) el,                  \
+  M_INLINE bool M_F(name, _parse_str)(M_F(name,_ct) el,                       \
                                            const char str[],                  \
                                            const char **endp) {               \
     M_VAR1ANT_CONTRACT(name, el);                                             \
@@ -617,7 +617,7 @@ static inline void                                                            \
 
 /* Define the OUT_STR function */
 #define M_VAR1ANT_DEFINE_OUT_STR(name, ...)                                   \
-  static inline void M_F(name, _out_str)(FILE *f,                             \
+  M_INLINE void M_F(name, _out_str)(FILE *f,                                  \
                                          M_F(name,_ct) const el) {            \
     M_VAR1ANT_CONTRACT(name, el);                                             \
     M_ASSERT (f != NULL);                                                     \
@@ -638,7 +638,7 @@ static inline void                                                            \
 
 /* Define the IN_STR function */
 #define M_VAR1ANT_DEFINE_IN_STR(name, ...)                                    \
-  static inline bool M_F(name, _in_str)(M_F(name,_ct) el,                     \
+  M_INLINE bool M_F(name, _in_str)(M_F(name,_ct) el,                          \
                                         FILE *f) {                            \
     M_VAR1ANT_CONTRACT(name, el);                                             \
     M_ASSERT (f != NULL);                                                     \
@@ -680,7 +680,7 @@ static inline void                                                            \
 
 /* Define the OUT_SERIAL function */
 #define M_VAR1ANT_DEFINE_OUT_SERIAL(name, ...)                                \
-  static inline m_serial_return_code_t                                        \
+  M_INLINE m_serial_return_code_t                                             \
   M_F(name, _out_serial)(m_serial_write_t f,                                  \
                          M_F(name,_ct) const el) {                            \
     M_VAR1ANT_CONTRACT(name, el);                                             \
@@ -711,7 +711,7 @@ static inline void                                                            \
 
 /* Define the IN_SERIAL function */
 #define M_VAR1ANT_DEFINE_IN_SERIAL(name, ...)                                 \
-  static inline m_serial_return_code_t                                        \
+  M_INLINE m_serial_return_code_t                                             \
   M_F(name, _in_serial)(M_F(name,_ct) el,                                     \
                         m_serial_read_t f) {                                  \
     M_VAR1ANT_CONTRACT(name, el);                                             \
@@ -745,7 +745,7 @@ static inline void                                                            \
 
 /* Define the RESET function */
 #define M_VAR1ANT_DEFINE_RESET_FUNC(name, ...)                                \
-  static inline void M_F(name, _reset)(M_F(name,_ct) my)                      \
+  M_INLINE void M_F(name, _reset)(M_F(name,_ct) my)                           \
   {                                                                           \
     M_VAR1ANT_CONTRACT(name, my);                                             \
     M_F(name, _clear)(my);                                                    \
