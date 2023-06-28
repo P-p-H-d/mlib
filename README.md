@@ -26,9 +26,9 @@ M\*LIB: Generic type-safe Container Library for C language
     12. [Fixed buffer queue](#m-buffer)
     13. [Atomic Shared Register](#m-snapshot)
     14. [Shared pointers](#m-shared)
-    15. [Intrusie Shared Pointers](#m-i-shared)
+    15. [Intrusive Shared Pointers](#m-i-shared)
     16. [Intrusive list](#m-i-list)
-    17. [Concurrent adaptator](#m-concurrent)
+    17. [Concurrent adapter](#m-concurrent)
     18. [Bitset](#m-bitset)
     19. [String](#m-string)
     20. [Core preprocessing](#m-core)
@@ -42,7 +42,7 @@ M\*LIB: Generic type-safe Container Library for C language
     28. [JSON Serialization](#m-serial-json)
     29. [Binary Serialization](#m-serial-bin)
 12. [Global User Customization](#global-user-customization)
-13. [Licence](#license)
+13. [License](#license)
 
 
 ## Overview
@@ -63,7 +63,7 @@ unordered_set, unordered_map, stack, queue, shared_ptr, string, variant, option
 to standard ISO C99 / C11.
 There is not a strict mapping as both the STL and M\*LIB have their exclusive containers:
 See [here](https://github.com/P-p-H-d/mlib/wiki/STL-to-M*LIB-mapping) for details.
-M\*LIB provides also addtional concurrent containers to design properly
+M\*LIB provides also additional concurrent containers to design properly
 multi-threaded programs: shared register, communication queue, ...
 
 M\*LIB is portable to any systems that support [ISO C99](https://en.wikipedia.org/wiki/C99).
@@ -187,7 +187,7 @@ Finally headers for compatibility with non C11 compilers:
 * [m-atomic.h](#m-atomic): header for ensuring compatibility between C's stdatomic.h and C++'s atomic header (provide also its own implementation if nothing is available),
 * [m-thread.h](#m-thread): header for providing a very thin layer across multiple implementation of mutex/threads (C11/PTHREAD/WIN32).
 
-Each containers define their iterators (if it is meaningfull).
+Each containers define their iterators (if it is meaningful).
 
 All containers try to expose the same common interface:
 if the method name is the same, then it does the same thing
@@ -691,7 +691,7 @@ Properties can be stored in a sub-oplist format in the PROPERTIES operator.
 
 The following properties are defined:
 * LET\_AS\_INIT\_WITH(1): Defined if the macro M\_LET shall always initialize the object with INIT\_WITH regardless of the given input. The value of the property is 1 (enabled) or 0 (disabled/default).
-* NOCLEAR(1): Defined if the object CLEAR operator can be ommited (like for basic types or POD data). The value of the property is 1 (enabled) or 0 (disabled/default).
+* NOCLEAR(1): Defined if the object CLEAR operator can be omitted (like for basic types or POD data). The value of the property is 1 (enabled) or 0 (disabled/default).
 
 More properties are expected.
 
@@ -778,7 +778,7 @@ Let's take the interface of a pseudo library:
 ```
 The library returns a pointer to the object, so we need API_4 for these methods.
 There is no method for the SET operator available. However, we can use the macro M_SET_THROUGH_INIT_SET
-to emulate a SET semantics by using a combinaison of CLEAR+INIT_SET. This enables to support
+to emulate a SET semantics by using a combination of CLEAR+INIT_SET. This enables to support
 the type for array containers in particular. Or we can avoid this definition if we don't need it.
 A basic oplist will be:
 
@@ -844,7 +844,7 @@ An operator OP can be defined, omitted or disabled:
 * ( ): the operator OP is omitted, and the default global operation for OP is used (if it exists).
 * ( OP(0) ): the operator OP is disabled, and it can never be used.
 
-This can be usefull to disable an operator in an inherited oplist.
+This can be useful to disable an operator in an inherited oplist.
 
 
 ### Which OPLIST to use?
@@ -883,7 +883,7 @@ For example, internally M\_BOOL\_OPLIST inherits from M\_BASIC\_OPLIST.
 A typical example is if you want to provide the OOR\_SET and OOR\_EQUAL operators to a type
 so that it can be used in an OA dict.
 To do it, you use the M\_OPEXTEND macro. It takes as first argument the oplist you want to inherit with,
-and then you provide the additionals associations between operators to methods you want to add
+and then you provide the additional associations between operators to methods you want to add
 or override in the inherited oplist. For example:
 
 ```C
@@ -917,7 +917,7 @@ Let's take a look at the interface of the FILE interface:
      FILE *fopen(const char *filename, const char *mode);
      fclose(FILE *f);
 ```
-There is no INIT operator (an argument is mandatary), no INIT\_SET operator.
+There is no INIT operator (an argument is mandatory), no INIT\_SET operator.
 It is only possible to open a file from a filename.
 'FILE *' contains some space, so an alias is needed.
 There is an optional mode argument, which is a constant string, and isn't a valid preprocessing token.
@@ -5731,7 +5731,7 @@ encoding it as a variable UTF8 encoded code point.
 Pop the last unicode code point from the string 'str'
 encoded as a variable UTF8 encoded code point
 and store in '*u' the popped unicode code point if 'u' is not NULL.
-It returns true in case of succes or false otherwise (no character to pop or no valid UTF8).
+It returns true in case of success or false otherwise (no character to pop or no valid UTF8).
 
 ##### size\_t string\_length\_u(string\_t str)
 
@@ -6564,12 +6564,12 @@ right initialization function in function of the type of argument.
 
 The EMPLACE\_TYPE shall use a LIST based format for listing the different emplace types.
 This method is compatible with C11 or above.
-This method shall be used with API\_1 adaptator.
+This method shall be used with API\_1 adapter.
 
 ##### M\_SET\_THROUGH\_INIT\_SET(oplist, dest, src)
 
-Emulate the SET semantics using a combinaison of CLEAR and INIT\_SET of the given oplist.
-This method shall be used with API\_1 adaptator.
+Emulate the SET semantics using a combination of CLEAR and INIT\_SET of the given oplist.
+This method shall be used with API\_1 adapter.
 
 ##### M\_GLOBAL\_OPLIST(a)
 
@@ -6899,7 +6899,7 @@ the following fields with the following definition:
    ('local' is an unique local serialization object of the array).
    Return M\_SERIAL\_OK\_CONTINUE if it succeeds and the parsing of the array can continue (the array is not empty),
    M\_SERIAL\_OK\_DONE if it succeeds and the array ends (the array is empty),
-   M\_SERIAL\_FAIL\_RETRY if it doesn't support unkown number of elements,
+   M\_SERIAL\_FAIL\_RETRY if it doesn't support unknown number of elements,
    M\_SERIAL\_FAIL otherwise.
 * read\_array\_next:
    Continue reading from the stream 'serial' an array using 'local' to load / save data if needed.
@@ -7913,16 +7913,16 @@ that accept the generic interface (mainly \_call).
 ### M-TRY
 
 This header is for [exception handling](https://en.wikipedia.org/wiki/Exception_handling).
-It provides basic functionnality for throwing exception and catching then.
+It provides basic functionality for throwing exception and catching then.
 The setjmp and longjmp standard library functions (or some variants) are used to implement the try / catch / throw macro keywords.
-It doesn't support the finaly keyword.
+It doesn't support the finally keyword.
 When building with a C++ compiler, theses macro keywords simply use the original C++ keyword in a way to match
 the specification below.
 
 The whole program shall be compiled with the same exact compiler and the same target architecture.
 
-Only one type of data is supported as exception. This is done to simplify the design and to force using exception
-as a general purpose error handlings. It should only be used for rare case of errors which cannot be dealt locally
+Only one type of data is supported as exception. This is done to simplify the design and to avoid using exception
+as a general purpose error mecanism. It should only be used for rare case of errors which cannot be dealt locally
 in the program being executed.
 
 In order to support [Resource Acquisition Is Initialization](https://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization)
