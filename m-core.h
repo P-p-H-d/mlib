@@ -2910,7 +2910,7 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 # define M_MIN_FLEX_ARRAY_SIZE 
 #endif
 
-#if M_USE_STDARG
+#if M_USE_STDARG && M_USE_STDIO
 
 /* Define the allocation of the temporary string used by M_CSTR
    Default is 256 bytes (so 255 characters excluding the final null char).
