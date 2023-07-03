@@ -7149,64 +7149,63 @@ The following methods are available:
 
 A type representing a mutex.
 
-##### void m\_mutex\_init(mutex)
+##### void m\_mutex\_init(m\_mutex\_t mutex)
 
-Initialize the variable mutex of type m\_mutex\_t. 
+Initialize the variable mutex and sets it to the unlocked position.
 If the initialization fails, the program aborts.
+Only one thread shall initialize the mutex.
 
-##### void m\_mutex\_clear(mutex)
+##### void m\_mutex\_clear(m\_mutex\_t mutex)
 
-Clear the variable mutex of type m\_mutex\_t. 
-If the variable is not initialized, the behavior is undefined.
+Clear the variable mutex. 
+Only one thread shall clear the mutex.
 
-##### void m\_mutex\_lock(mutex)
+##### void m\_mutex\_lock(m\_mutex\_t mutex)
 
-Lock the variable mutex of type m\_mutex\_t for exclusive use.
-If the variable is not free, it will wait indefinitely until it is.
-If the variable is not initialized, the behavior is undefined.
+Lock the variable mutex for exclusive use.
+If the mutex is not unlocked, it will wait indefinitely until it is.
+The mutex shall not be already locked.
 
-##### void m\_mutex\_unlock(mutex)
+##### void m\_mutex\_unlock(m\_mutex\_t mutex)
 
-Unlock the variable mutex of type m\_mutex\_t for exclusive use.
-If the variable is not locked, the behavior is undefined.
-If the variable is not initialized, the behavior is undefined.
+Unlock the variable mutex for exclusive use.
+The mutex shall not be already unlocked.
 
 #### m\_cond\_t
 
-A type representing a conditional variable, used within a mutex section.
+A type representing a conditional variable, which shall be used within a mutex section.
 
 ##### void m\_cond\_init(m\_cond\_t cond)
 
-Initialize the conditional variable cond of type m\_cond\_t. 
+Initialize the conditional variable cond. 
 If the initialization failed, the program aborts.
+Only one thread shall init the conditional variable.
 
 ##### void m\_cond\_clear(m\_cond\_t cond)
 
-Clear the variable cond of type m\_cond\_t. 
+Clear the variable cond. 
 If the variable is not initialized, the behavior is undefined.
+Only one thread shall clear the conditional variable.
 
 ##### void m\_cond\_signal(m\_cond\_t cond)
 
-Within a mutex exclusive section,
-signal that the event associated to the variable cond of type m\_cond\_t 
+Signal that the event associated to the variable cond 
 has occurred to at least a single thread.
-If the variable is not initialized, the behavior is undefined.
+All usage of this conditional variable shall be done within the same mutex exclusve section.
 
 ##### void m\_cond\_broadcast(m\_cond\_t cond)
 
-Within a mutex exclusive section,
-signal that the event associated to the variable cond of type m\_cond\_t 
+Signal that the event associated to the variable cond 
 has occurred to all waiting threads.
-If the variable is not initialized, the behavior is undefined.
+All usage of this conditional variable shall be done within the same mutex exclusve section.
 
 ##### void m\_cond\_wait(m\_cond\_t cond, m\_mutex\_t mutex)
 
-Within a mutex exclusive section defined by mutex,
-wait indefinitely for the event associated to the variable cond of type m\_cond\_t
+Wait indefinitely for the event associated to the variable cond
 to occur.
 IF multiple threads wait for the same event, which thread to awoken
 is not specified.
-If any variable is not initialized, the behavior is undefined.
+All usage of this conditional variable shall be done within the mutex exclusve section.
 
 #### m\_thread\_t
 
