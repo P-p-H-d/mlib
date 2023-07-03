@@ -290,8 +290,8 @@ M_BEGIN_PROTECTED_CODE
 #endif
 #if defined(__GNUC__) && defined(M_USE_FINE_GRAINED_LINKAGE)
 #define M_INLINE                                                              \
-  M_IF_EMPTY(M_USE_DECL)(                                                  \
-    M_IF_EMPTY(M_USE_DEF)(M_INLINE_PRAGMA __attribute__((noinline)) extern,  \
+  M_IF_EMPTY(M_USE_DECL)(                                                     \
+    M_IF_EMPTY(M_USE_DEF)(M_INLINE_PRAGMA __attribute__((noinline)) extern,   \
                           M_INLINE_PRAGMA __attribute__((weak, noinline)) extern), \
                           static inline)
 #elif defined(__GNUC__) && defined(M_USE_DECL)

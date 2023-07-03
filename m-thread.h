@@ -29,7 +29,7 @@
 #ifndef M_USE_THREAD_BACKEND
 # if defined(INC_FREERTOS_H)
 #  define M_USE_THREAD_BACKEND 4
-# elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L                 \
+# elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L               \
   && !defined(__STDC_NO_THREADS__)
 #  define M_USE_THREAD_BACKEND 1
 # elif defined(WIN32) || defined(_WIN32) || defined(__CYGWIN__)
