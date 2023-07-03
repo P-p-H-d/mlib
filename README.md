@@ -7104,11 +7104,12 @@ See [m-serial-json.h](#m-serial-json) for example of use.
 ### M-THREAD
 
 This header is for providing very thin layer around OS implementation of threads, conditional variables and mutex.
-It has back-ends for WIN32, POSIX thread or C11 thread.
+It has back-ends for WIN32, POSIX thread, FreeRTOS tasks or C11 thread.
 
 It was needed due to the low adoption rate of the C11 equivalent layer.
 
-It uses the C11 threads.h if possible.
+It uses the FreeRTOS tasks is it detects FreeRTOS.
+Otherwise it uses the C11 threads.h if possible.
 If the C11 implementation does not respect the C standard
 (i.e. the compiler targets C11 mode,
 the  \_\_STDC\_NO\_THREADS\_\_ macro is not defined
@@ -7119,6 +7120,12 @@ macro to select the back end to use:
 * 1: for C11
 * 2: for WINDOWS
 * 3: for PTHREAD
+* 4: for FreeRTOS
+
+The FreeRTOS backend uses two additional global configuration constants:
+
+* M\_USE\_TASK\_STACK\_SIZE to define the stack size of a thread (default is the minimal)
+* M\_USE\_TASK\_PRIORITY to define the priority of a thread (default is lowest).
 
 Example:
 

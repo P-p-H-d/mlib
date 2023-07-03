@@ -27,7 +27,9 @@
 
 /* Auto-detect the thread backend to use if the user has not override it */
 #ifndef M_USE_THREAD_BACKEND
-# if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L                 \
+# if defined(INC_FREERTOS_H)
+#  define M_USE_THREAD_BACKEND 4
+# elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L                 \
   && !defined(__STDC_NO_THREADS__)
 #  define M_USE_THREAD_BACKEND 1
 # elif defined(WIN32) || defined(_WIN32) || defined(__CYGWIN__)
@@ -142,7 +144,7 @@ M_INLINE void m_thread_yield(void)
 }
 
 /* Sleep the thread for at least usec microseconds.
-   Return true if the sleep was successful */
+   Return true if the sleep was successful (or we cannot know) */
 M_INLINE bool m_thread_sleep(unsigned long long usec)
 {
   struct timespec tv;
@@ -343,7 +345,7 @@ M_END_PROTECTED_CODE
 
 
 /**************************** PTHREAD version ******************************/
-#else
+#elif M_USE_THREAD_BACKEND == 3
 
 #include <pthread.h>
 #ifdef _POSIX_PRIORITY_SCHEDULING
@@ -488,6 +490,223 @@ M_INLINE void m_once_call(m_once_t o, void (*func)(void))
 
 M_END_PROTECTED_CODE
 
+/****************************** FreeRTOS version ********************************/
+#elif M_USE_THREAD_BACKEND == 4
+
+#include <stdatomic.h>
+#include <semphr.h>
+#include <task.h>
+#include "m-core.h"
+
+M_BEGIN_PROTECTED_CODE
+
+/* Default value for the stack */
+#ifndef M_USE_TASK_STACK_SIZE
+#define M_USE_TASK_STACK_SIZE    configMINIMAL_STACK_SIZE
+#endif
+
+/* Default value for the priority tasks */
+#ifndef M_USE_TASK_PRIORITY
+#define M_USE_TASK_PRIORITY ( tskIDLE_PRIORITY )
+#endif
+
+/* Define a mutex type based on FreeRTOS definition */
+typedef struct m_mutex_s {
+    SemaphoreHandle_t   handle;
+    StaticSemaphore_t   MutexBuffer;
+} m_mutex_t[1];
+
+/* Define a thread type based on FreeRTOS definition */
+typedef struct m_cond_s {
+    SemaphoreHandle_t   handle;
+    StaticSemaphore_t   SemBuffer;
+    unsigned int        NumThreadWaiting;
+} m_cond_t[1];
+
+/* Define a thread type based on FreeRTOS definition */
+typedef struct m_thread_s {
+    SemaphoreHandle_t   SemHandle;
+    StaticSemaphore_t   SemBuffer;
+    TaskHandle_t        TaskHandle;
+    StaticTask_t        TaskBuffer;
+    void                (*EntryPoint)(void *);
+    void*               ArgsEntryPoint;
+    StackType_t*        StackBuffer;
+} m_thread_t[1];
+
+/* Initialize the mutex (constructor) */
+M_INLINE void m_mutex_init(m_mutex_t m)
+{
+    /* Create a mutex semaphore without using any dynamic allocation */
+    m->handle = xSemaphoreCreateMutexStatic(&m->MutexBuffer);
+    // It cannot fail, so we won't use M_ASSERT_INIT
+    M_ASSERT(m->handle);
+}
+
+/* Clear the mutex (destructor) */
+M_INLINE void m_mutex_clear(m_mutex_t m)
+{
+    vSemaphoreDelete(m->handle);
+}
+
+/* Lock the mutex */
+M_INLINE void m_mutex_lock(m_mutex_t m)
+{
+    xSemaphoreTake(m->handle, portMAX_DELAY);
+}
+
+/* Unlock the mutex */
+M_INLINE void m_mutex_unlock(m_mutex_t m)
+{
+    xSemaphoreGive(m->handle);
+}
+
+
+/* Initialize the condition variable (constructor) */
+M_INLINE void m_cond_init(m_cond_t c)
+{
+    c->NumThreadWaiting = 0;
+    // Create a semaphore to implement the conditional variable
+    // Initial value is 0 and valid range is <= 0
+    c->handle = xSemaphoreCreateCountingStatic( INT_MAX, 0, &c->SemBuffer );
+    // It cannot fail, so we won't use M_ASSERT_INIT
+    M_ASSERT(c->handle);
+}
+
+/* Clear the condition variable (destructor) */
+M_INLINE void m_cond_clear(m_cond_t c)
+{
+    vSemaphoreDelete(c->handle);
+}
+
+/* Signal the condition variable to at least one waiting thread */
+M_INLINE void m_cond_signal(m_cond_t c)
+{
+    // This function is called within the mutex lock
+    // NumThreadWaiting doesn't need to be atomic
+    if (c->NumThreadWaiting > 0) {
+        // Wakeup one thread by posting on the semaphore
+        xSemaphoreGive(c->handle);
+    } // Otherwise there is no waiting thread, so nothing to signal
+}
+
+/* Signal the condition variable to all waiting threads */
+M_INLINE void m_cond_broadcast(m_cond_t c)
+{
+    // This function is called within the mutex lock
+    // NumThreadWaiting doesn't need to be atomic
+    if (c->NumThreadWaiting > 0) {
+        // Wakeup all thread by posting on the semaphore
+        // as many times as there are waiting threads
+        for(unsigned i = 0; i < c->NumThreadWaiting; i++) {
+            xSemaphoreGive(c->handle);
+        }
+    } // Otherwise there is no waiting thread, so nothing to signal
+}
+
+/* Wait for signaling the condition variable by another thread */
+M_INLINE void m_cond_wait(m_cond_t c, m_mutex_t m)
+{
+    // This function is called within the mutex lock
+    // Increment the number of waiting thread
+    c->NumThreadWaiting ++;
+    m_mutex_unlock(m);
+    // Wait for post in the semaphore
+    xSemaphoreTake(c->handle, portMAX_DELAY);
+    m_mutex_lock(m);
+    c->NumThreadWaiting --;
+}
+
+M_INLINE void m_thr3ad_wrapper( void *args)
+{
+    struct m_thread_s *thread_ptr = args;
+    thread_ptr->EntryPoint(thread_ptr->ArgsEntryPoint);
+    // Give back the semaphore.
+    xSemaphoreGive(thread_ptr->SemHandle);
+    // Wait for destruction
+    while (true) { vTaskSuspend(NULL); }
+}
+
+/* Create the thread (constructor) and start it */
+M_INLINE void m_thread_create(m_thread_t t, void (*func)(void*), void* arg)
+{
+    // Create a semaphore to implement the final wait
+    t->SemHandle = xSemaphoreCreateCountingStatic( 1, 0, &t->SemBuffer );
+    M_ASSERT(t->SemHandle);
+    // Save the argument to the thread
+    t->EntryPoint = func;
+    t->ArgsEntryPoint = arg;
+
+    // Allocate the stack
+    t->StackBuffer = pvPortMalloc( sizeof (StackType_t) * M_USE_TASK_STACK_SIZE);
+    M_ASSERT_INIT(t->StackBuffer, "STACK");
+
+    // Create the task without using any dynamic allocation
+    t->TaskHandle = xTaskCreateStatic(m_thr3ad_wrapper, "M*LIB", M_USE_TASK_STACK_SIZE, (void*) t, M_USE_TASK_PRIORITY, t->StackBuffer, &t->TaskBuffer);
+    // It cannot fail, so we won't use M_ASSERT_INIT
+    M_ASSERT(t->TaskHandle);
+}
+
+/* Wait for the thread to terminate and destroy it (destructor) */
+M_INLINE void m_thread_join(m_thread_t t)
+{
+    xSemaphoreTake(t->SemHandle, portMAX_DELAY);
+    vTaskDelete(t->TaskHandle);
+    vPortFree(t->StackBuffer);
+    vSemaphoreDelete(t->SemHandle);
+    t->TaskHandle = 0;
+    t->StackBuffer = 0;
+    t->SemHandle = 0;
+}
+
+/* The thread has nothing meaningfull to do.
+   Inform the OS to let other threads be scheduled */
+M_INLINE void m_thread_yield(void)
+{
+    taskYIELD();
+}
+
+/* Sleep the thread for at least usec microseconds.
+   Return true if the sleep was successful */
+M_INLINE bool m_thread_sleep(unsigned long long usec)
+{
+    TickType_t  delay = (TickType_t) (usec / portTICK_PERIOD_MS / 1000ULL);
+    vTaskDelay(delay);
+    return true;
+}
+
+// a helper structure for m_once_call
+typedef struct {
+    atomic_int count;
+} m_once_t[1];
+
+// Initial value for m_once_t
+#define M_ONCE_INIT_VALUE            { { ATOMIC_VAR_INIT(0) } }
+
+// Call the function exactly once
+M_INLINE void m_once_call(m_once_t o, void (*func)(void))
+{
+    if (atomic_load(&o->count) != 2) {
+        int n = 0;
+        if (atomic_compare_exchange_strong( &o->count, &n, 1)) {
+            // First thread success
+            func();
+            atomic_store(&o->count,  2);
+        }
+        // Wait for function call (FIXME: priority inversion possible?)
+        while (atomic_load(&o->count) != 2) { m_thread_yield(); }
+    } // Already called. Nothing to do
+}
+
+// Attribute to use to allocate a global variable to a thread.
+#define M_THREAD_ATTR __thread
+
+M_END_PROTECTED_CODE
+
+/******************************** INVALID VALUE **********************************/
+
+#else
+# error Value of M_USE_THREAD_BACKEND is incorrect. Please see the documentation for valid usage.
 #endif
 
 // TODO: Obsolete M_LOCK macro.
