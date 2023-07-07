@@ -3354,12 +3354,6 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_SET_SET(a)             ,a,
 #define M_MOVE_MOVE(a)           ,a,
 #define M_CLEAR_CLEAR(a)         ,a,
-#define M_NEW_NEW(a)             ,a,
-#define M_DEL_DEL(a)             ,a,
-#define M_REALLOC_REALLOC(a)     ,a,
-#define M_FREE_FREE(a)           ,a,
-#define M_MEMPOOL_MEMPOOL(a)     ,a,
-#define M_MEMPOOL_LINKAGE_MEMPOOL_LINKAGE(a)     ,a,
 #define M_HASH_HASH(a)           ,a,
 #define M_EQUAL_EQUAL(a)         ,a,
 #define M_CMP_CMP(a)             ,a,
@@ -3418,11 +3412,19 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_LIMITS_LIMITS(a)       ,a,
 #define M_PROPERTIES_PROPERTIES(a) ,a,
 #define M_EMPLACE_TYPE_EMPLACE_TYPE(a) ,a,
+// As attribute customization
+#define M_NEW_NEW(a)             ,a,
+#define M_DEL_DEL(a)             ,a,
+#define M_REALLOC_REALLOC(a)     ,a,
+#define M_FREE_FREE(a)           ,a,
+#define M_MEMPOOL_MEMPOOL(a)     ,a,
+#define M_MEMPOOL_LINKAGE_MEMPOOL_LINKAGE(a)     ,a,
 #define M_FIXED_SIZE_FIXED_SIZE(a) ,a,
-
-// Properties only
+#define M_CONTEXT_CONTEXT(a)     ,a,
+#define M_POLICY_POLICY(a)       ,a,
+// As properties only
 #define M_LET_AS_INIT_WITH_LET_AS_INIT_WITH(a) ,a,
-#define M_NOCLEAR_NOCLEAR(a) ,a,
+#define M_NOCLEAR_NOCLEAR(a)     ,a,
 
 /* From an oplist - an unorded list of methods : like "INIT(mpz_init),CLEAR(mpz_clear),SET(mpz_set)" -
    Return the given method in the oplist or the default method.
@@ -3441,12 +3443,6 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_GET_MOVE(...)      M_GET_METHOD(MOVE,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SWAP(...)      M_GET_METHOD(SWAP,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_CLEAR(...)     M_GET_METHOD(CLEAR,       M_NOTHING_DEFAULT,  __VA_ARGS__)
-#define M_GET_NEW(...)       M_GET_METHOD(NEW,         M_NEW_DEFAULT,      __VA_ARGS__)
-#define M_GET_DEL(...)       M_GET_METHOD(DEL,         M_DEL_DEFAULT,      __VA_ARGS__)
-#define M_GET_REALLOC(...)   M_GET_METHOD(REALLOC,     M_REALLOC_DEFAULT,  __VA_ARGS__)
-#define M_GET_FREE(...)      M_GET_METHOD(FREE,        M_FREE_DEFAULT,     __VA_ARGS__)
-#define M_GET_MEMPOOL(...)   M_GET_METHOD(MEMPOOL,     M_NO_DEFAULT,       __VA_ARGS__)
-#define M_GET_MEMPOOL_LINKAGE(...)   M_GET_METHOD(MEMPOOL_LINKAGE, ,       __VA_ARGS__)
 #define M_GET_HASH(...)      M_GET_METHOD(HASH,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_EQUAL(...)     M_GET_METHOD(EQUAL,       M_EQUAL_DEFAULT,    __VA_ARGS__)
 #define M_GET_CMP(...)       M_GET_METHOD(CMP,         M_CMP_DEFAULT,      __VA_ARGS__)
@@ -3505,7 +3501,16 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_GET_LIMITS(...)    M_GET_METHOD(LIMITS,      M_LIMITS_DEFAULT,   __VA_ARGS__)
 #define M_GET_PROPERTIES(...) M_GET_METHOD(PROPERTIES, (),                 __VA_ARGS__)
 #define M_GET_EMPLACE_TYPE(...) M_GET_METHOD(EMPLACE_TYPE, M_NO_DEFAULT,   __VA_ARGS__)
+// As sttribute customization
+#define M_GET_NEW(...)       M_GET_METHOD(NEW,         M_NEW_DEFAULT,      __VA_ARGS__)
+#define M_GET_DEL(...)       M_GET_METHOD(DEL,         M_DEL_DEFAULT,      __VA_ARGS__)
+#define M_GET_REALLOC(...)   M_GET_METHOD(REALLOC,     M_REALLOC_DEFAULT,  __VA_ARGS__)
+#define M_GET_FREE(...)      M_GET_METHOD(FREE,        M_FREE_DEFAULT,     __VA_ARGS__)
+#define M_GET_MEMPOOL(...)   M_GET_METHOD(MEMPOOL,     M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_MEMPOOL_LINKAGE(...)   M_GET_METHOD(MEMPOOL_LINKAGE, ,       __VA_ARGS__)
 #define M_GET_FIXED_SIZE(...) M_GET_METHOD(FIXED_SIZE, 0,                  __VA_ARGS__)
+#define M_GET_CONTEXT(...)   M_GET_METHOD(CONTEXT,     0,                  __VA_ARGS__)
+#define M_GET_POLICY(...)    M_GET_METHOD(POLICY,      0,                  __VA_ARGS__)
 
 // Calling method with support of defined transformation API
 // operators that are not methods are commented
@@ -3518,11 +3523,6 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_CALL_SWAP(oplist, ...) M_APPLY_API(M_GET_SWAP oplist, oplist, __VA_ARGS__)
 #define M_CALL_CLEAR(oplist, ...) M_APPLY_API(M_GET_CLEAR oplist, oplist, __VA_ARGS__)
 #define M_CALL_NEW(oplist, ...) M_APPLY_API(M_GET_NEW oplist, oplist, __VA_ARGS__)
-#define M_CALL_DEL(oplist, ...) M_APPLY_API(M_GET_DEL oplist, oplist, __VA_ARGS__)
-#define M_CALL_REALLOC(oplist, ...) M_APPLY_API(M_GET_REALLOC oplist, oplist, __VA_ARGS__)
-#define M_CALL_FREE(oplist, ...) M_APPLY_API(M_GET_FREE oplist, oplist, __VA_ARGS__)
-#define M_CALL_MEMPOOL(oplist, ...) M_APPLY_API(M_GET_MEMPOOL oplist, oplist, __VA_ARGS__)
-#define M_CALL_MEMPOOL_LINKAGE(oplist, ...) M_APPLY_API(M_GET_MEMPOOL_LINKAGE oplist, oplist, __VA_ARGS__)
 #define M_CALL_HASH(oplist, ...) M_APPLY_API(M_GET_HASH oplist, oplist, __VA_ARGS__)
 #define M_CALL_EQUAL(oplist, ...) M_APPLY_API(M_GET_EQUAL oplist, oplist, __VA_ARGS__)
 #define M_CALL_CMP(oplist, ...) M_APPLY_API(M_GET_CMP oplist, oplist, __VA_ARGS__)
@@ -3577,7 +3577,15 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 //#define M_CALL_LIMITS(oplist, ...) M_APPLY_API(M_GET_LIMITS oplist, oplist, __VA_ARGS__)
 //#define M_CALL_PROPERTIES(oplist, ...) M_APPLY_API(M_GET_PROPERTIES oplist, oplist, __VA_ARGS__)
 //#define M_CALL_EMPLACE_TYPE(oplist, ...) M_APPLY_API(M_GET_EMPLACE_TYPE oplist, oplist, __VA_ARGS__)
+// As attribute customization
+#define M_CALL_DEL(oplist, ...) M_APPLY_API(M_GET_DEL oplist, oplist, __VA_ARGS__)
+#define M_CALL_REALLOC(oplist, ...) M_APPLY_API(M_GET_REALLOC oplist, oplist, __VA_ARGS__)
+#define M_CALL_FREE(oplist, ...) M_APPLY_API(M_GET_FREE oplist, oplist, __VA_ARGS__)
+#define M_CALL_MEMPOOL(oplist, ...) M_APPLY_API(M_GET_MEMPOOL oplist, oplist, __VA_ARGS__)
+#define M_CALL_MEMPOOL_LINKAGE(oplist, ...) M_APPLY_API(M_GET_MEMPOOL_LINKAGE oplist, oplist, __VA_ARGS__)
 //#define M_CALL_FIXED_SIZE(oplist, ...) M_APPLY_API(M_GET_FIXED_SIZE oplist, oplist, __VA_ARGS__)
+//#define M_CALL_CONTEXT(oplist, ...) M_APPLY_API(M_GET_CONTEXT oplist, oplist, __VA_ARGS__)
+//#define M_CALL_POLICY(oplist, ...)  M_APPLY_API(M_GET_POLICY oplist, oplist, __VA_ARGS__)
 
 
 /* API transformation support:

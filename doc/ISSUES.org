@@ -13,13 +13,13 @@ which pool of memory has to be used.
 
 ** Plan:
 
-Add a new operator "SPECIALIZATION\_TYPE" which is a type to be added in the 
+Add a new operator "CONTEXT" which is a type to be added in the 
 defined container. Then it can be accessed by the operator through an extension
 of the GAIA by adding support for identification of specialization like this:
 
-     ( SPECIALIZATION_TYPE( memory_pool_ref ),
-       NEW( API(NONE, memory_pool_alloc, SPECIALIZATION, ARG1)),
-       DEL( API(NONE, memory_pool_free, SPECIALIZATION, ARG1)) )
+     ( CONTEXT( memory_pool_ref ),
+       NEW( API(NONE, memory_pool_alloc, CONTEXT, ARG1)),
+       DEL( API(NONE, memory_pool_free, CONTEXT, ARG1)) )
 
 ** Open points:
 
@@ -77,7 +77,7 @@ The following operators are planned:
 - NEW / DEL / REALLOC / FREE: to define the memory interface,
 - MEMPOOL / MEMPOOL_LINKAGE: to request a definition of a specialized memory interface,
 - INTERFACE: to request a pure header definition, an implementation or both (see #28),
-- SPECIALIZATION: to request an extra parameter to add in the container.
+- CONTEXT: to request an extra context parameter to add in the container.
 
 All operators should be optional.
 
