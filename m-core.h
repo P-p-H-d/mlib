@@ -3419,7 +3419,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_FREE_FREE(a)           ,a,
 #define M_MEMPOOL_MEMPOOL(a)     ,a,
 #define M_MEMPOOL_LINKAGE_MEMPOOL_LINKAGE(a)     ,a,
-#define M_FIXED_SIZE_FIXED_SIZE(a) ,a,
+#define M_SIZE_SIZE(a)           ,a,
 #define M_CONTEXT_CONTEXT(a)     ,a,
 #define M_POLICY_POLICY(a)       ,a,
 // As properties only
@@ -3508,7 +3508,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_GET_FREE(...)      M_GET_METHOD(FREE,        M_FREE_DEFAULT,     __VA_ARGS__)
 #define M_GET_MEMPOOL(...)   M_GET_METHOD(MEMPOOL,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_MEMPOOL_LINKAGE(...)   M_GET_METHOD(MEMPOOL_LINKAGE, ,       __VA_ARGS__)
-#define M_GET_FIXED_SIZE(...) M_GET_METHOD(FIXED_SIZE, 0,                  __VA_ARGS__)
+#define M_GET_SIZE(...)      M_GET_METHOD(SIZE,        0,                  __VA_ARGS__)
 #define M_GET_CONTEXT(...)   M_GET_METHOD(CONTEXT,     0,                  __VA_ARGS__)
 #define M_GET_POLICY(...)    M_GET_METHOD(POLICY,      0,                  __VA_ARGS__)
 
@@ -3583,7 +3583,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_CALL_FREE(oplist, ...) M_APPLY_API(M_GET_FREE oplist, oplist, __VA_ARGS__)
 #define M_CALL_MEMPOOL(oplist, ...) M_APPLY_API(M_GET_MEMPOOL oplist, oplist, __VA_ARGS__)
 #define M_CALL_MEMPOOL_LINKAGE(oplist, ...) M_APPLY_API(M_GET_MEMPOOL_LINKAGE oplist, oplist, __VA_ARGS__)
-//#define M_CALL_FIXED_SIZE(oplist, ...) M_APPLY_API(M_GET_FIXED_SIZE oplist, oplist, __VA_ARGS__)
+//#define M_CALL_SIZE(oplist, ...) M_APPLY_API(M_GET_SIZE oplist, oplist, __VA_ARGS__)
 //#define M_CALL_CONTEXT(oplist, ...) M_APPLY_API(M_GET_CONTEXT oplist, oplist, __VA_ARGS__)
 //#define M_CALL_POLICY(oplist, ...)  M_APPLY_API(M_GET_POLICY oplist, oplist, __VA_ARGS__)
 
@@ -4409,8 +4409,10 @@ m_core_parse2_enum (const char str[], const char **endptr)
 /************************************************************/
 
 /* Add as suffix for the given function the number of arguments of the calls.
-   Can be used to call different function in function of the number of arguments. */
-#define M_SUFFIX_FUNCTION_BY_NARGS(function, ...) M_C3(function, _, M_NARGS(__VA_ARGS__))
+   Can be used to call different function in function of the number of arguments.
+   It doesn't call the function with the argument in order to be able to chain the 
+   macro */
+#define M_BY_NARGS(function, ...) M_C3(function, __NARGS_, M_NARGS(__VA_ARGS__))
 
 /* Call different INIT_WITH method in function of the number of arguments of the call,
  * to be used in an OPLIST.
@@ -4419,7 +4421,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
  * All INIT_WITH methods shall be named as name ## _init_with_ ## NARGS
  */
 #define M_INIT_WITH_NVAR(oplist, ...)                                         \
-  M_SUFFIX_FUNCTION_BY_NARGS(M_C(M_GET_NAME oplist, _init_with), __VA_ARGS__)(__VA_ARGS__)
+  M_BY_NARGS(M_C(M_GET_NAME oplist, _init_with), __VA_ARGS__)(__VA_ARGS__)
 
 
 /* Initialize the container 'dest' as per 'oplist' INIT operator
