@@ -5753,8 +5753,107 @@ The oplist of a string\_t
 
 ##### BOUNDED\_STRING\_DEF(name, size)
 
-aka char[size+1]
-TODO: Document the API.
+Define a bounded string of size 'size', aka char[size+1] (including the final nul char).
+
+###### Created types
+
+The following types are automatically defined by the previous definition macro if not provided by the user:
+
+####### name\_t
+
+Type of the concurrent container of 'type'.
+
+####### Generic methods
+
+The following methods of the generic interface are defined (See generic interface for details):
+
+* void name\_init(name\_t bounded\_string)
+* void name\_init\_set(name\_t bounded\_string, const name\_t src)
+* void name\_set(name\_t bounded\_string, const name\_t src)
+* void name\_reset(name\_t bounded\_string)
+* void name\_clear(name\_t bounded\_string)
+* size\_t name\_size(const name\_t bounded\_string)
+* size\_t name\_capacity(const name\_t bounded\_string)
+* bool name\_empty\_p(const name\_t bounded\_string)
+* void name\_get\_str(string\_t str, name\_t bounded\_string, bool append)
+* void name\_out\_str(FILE *file, name\_t bounded\_string)
+* bool name\_parse\_str(name\_t bounded\_string, const char str[], const char **end)
+* bool name\_in\_str(name\_t bounded\_string, FILE *file)
+* m\_serial\_return\_code\_t name\_out\_serial(m\_serial\_write\_t serial, const name\_t bounded\_string)
+* m\_serial\_return\_code\_t name\_in\_str(name\_t bounded\_string, m\_serial\_read\_t serial)
+* bool name\_equal\_p(name\_t bounded\_string1, name\_t bounded\_string2)
+* int name\_cmp(const name\_t bounded\_string1, const name\_t bounded\_string2)
+* size\_t name\_hash(name\_t bounded\_string)
+
+####### Specialized methods
+
+The following specialized methods are automatically created by the previous definition macro:
+
+####### void name\_init\_set\_cstr)(bounded\_t string, const char str[])
+
+Initialize the bounded string to the given C string 'str', truncating if needed.
+
+####### void name\_set\_cstr)(bounded\_t string, const char str[])
+
+Set the bounded string 'string' to the given C string 'str', truncating if needed.
+
+####### void name\_set\_cstrn)(bounded\_t string, const char str[], size\_t n)
+
+Set the bounded string 'string' to the 'n' first byte characters of the given C string 'str', truncating if needed.
+
+####### void name\_set\_n)(bounded\_t string, const bounded\_t string, size\_t offset, size\_t length)
+
+Set the bounded string 'string' to the 'length' first byte characters from the offset 'offset'
+of the bounded given C string 'str', truncating if needed.
+
+####### const char *name\_get\_cstr)(const bounded\_t string)
+
+Return the C string representation of the bounded string.
+
+####### char name\_get\_char(const bounded\_t string, size\_t index)
+
+Return the byte character at the given index of the string.
+index shall be within the size of the string.
+
+####### void name\_cat)(bounded\_t string, const bounded_t  str)
+####### void name\_cat\_cstr)(bounded\_t string, const char str[])
+
+Concat the given C string to the bounded string.
+
+####### int name\_cmp\_cstr)(const bounded\_t string, const char str[])
+
+Compared the bounded string to the given C string:
+return a negative integer if the bounded string is before the C string,
+0 if there are equals,
+a positive integer otherwise.
+
+####### bool name\_equal\_cstr\_p)(const bounded\_t string, const char str[])
+
+Return true if the bounded string is equal to the given C string.*
+
+####### int name\_printf)(bounded\_t string, const char format[], ...)
+
+Set the bounded string to the format C string.
+
+####### int name\_cat\_printf)(bounded\_t string, const char format[], ...)
+
+Concat to the bounded string the format C string.
+
+####### bool name\_fgets)(bounded\_t string, FILE *f, string\_fgets\_t arg)
+
+Read at most 'max\_size+1' bytes from the file 'f' and set the bounded string to it.
+
+####### bool name\_fputs)(FILE *f, const bounded\_t string)
+
+Put the bounded string to the file 'f'.
+
+####### bool name\_oor\_equal\_p)(const bounded\_t string, unsigned char n)
+
+Provide the OOR\_EQUAL\_P method of a string.
+
+####### void name\_oor\_set)(bounded\_t string, unsigned char n)
+
+Provide the OOR\_SET method of a string.
 
 
 ### M-CORE
