@@ -947,9 +947,9 @@ In which case, this enables you to close the file even if an exception is thrown
 
 Memory Allocation functions can be globally set by overriding the following macros before using the definition \_DEF macros:
 
-* M\_MEMORY\_ALLOC (type): return a pointer to a new object of type 'type'.
+* M\_MEMORY\_ALLOC (type) --> ptr: return a pointer to a new object of type 'type'.
 * M\_MEMORY\_DEL (ptr): free the single object pointed by 'ptr'.
-* M\_MEMORY\_REALLOC (type, ptr, number): return a pointer to an array of 'number' objects of type 'type', reusing the old array pointed by 'ptr'. 'ptr' can be NULL, in that case the array will be created.
+* M\_MEMORY\_REALLOC (type, ptr, number) --> ptr: return a pointer to an array of 'number' objects of type 'type', reusing the old array pointed by 'ptr'. 'ptr' can be NULL, in which case the array will be created.
 * M\_MEMORY\_FREE (ptr): free the array of objects pointed by 'ptr'.
 
 ALLOC & DEL operators are supposed to allocate fixed size single element object (no array).
