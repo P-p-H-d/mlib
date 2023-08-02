@@ -81,7 +81,7 @@ m_ser1al_json_write_string(m_serial_write_t serial, const char data[], size_t le
   v2->u.heap.alloc = length + 1;
   v2->ptr = (char*)ptr;
   m_string_out_str(f, v2);
-  return M_SERIAL_OK_DONE;
+  return M_UNLIKELY(ferror(f)) ? m_core_serial_fail() : M_SERIAL_OK_DONE;
 }
 
 /* Start writing an array of 'number_of_elements' objects into the serial stream 'serial'.
