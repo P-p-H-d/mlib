@@ -867,9 +867,36 @@ static void test_let_string(void)
     }
 }
 
+static void test_insert_remove(void)
+{
+  list_uint_t l;
+
+  list_uint_init(l);
+  list_uint_push_back(l, 1);
+  list_uint_push_back(l, 2);
+  list_uint_push_back(l, 3);
+
+  list_uint_it_t u;
+  unsigned w= 4;
+  list_uint_it(u, l);
+  list_uint_next(u);
+  assert ( list_uint_size(l) == 3);
+  list_uint_insert(l, u, w); 
+  assert ( list_uint_size(l) == 4);
+  list_uint_remove(l, u); 
+  assert ( list_uint_size(l) == 3);
+  list_uint_insert(l, u, w); 
+  assert ( list_uint_size(l) == 4);
+  list_uint_remove(l, u); 
+  assert ( list_uint_size(l) == 3);
+
+  list_uint_clear(l);
+}
+
 int main(void)
 {
   test_uint();
+  test_insert_remove();
   test_mpz();
   test_dual_push1();
   test_dual_it1();

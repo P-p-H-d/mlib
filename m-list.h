@@ -503,6 +503,7 @@
     }                                                                         \
     /* Update insertion_point to this element */                              \
     insertion_point->current = next;                                          \
+    insertion_point->previous = current;                                      \
     M_L1ST_CONTRACT(list);                                                    \
   }                                                                           \
                                                                               \
