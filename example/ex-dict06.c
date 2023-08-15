@@ -10,7 +10,7 @@
  */
 static const char empty_str[] = "EMPTY";
 static const char deleted_str[] = "DELETED";
-static const char *oor_table[] = { empty_str, deleted_str };
+static const char *const oor_table[] = { empty_str, deleted_str };
 
 static inline bool oor_equal_p(const char *k, int n)
 {

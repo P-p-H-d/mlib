@@ -59,10 +59,12 @@ int main(void)
       }
 
     // Print
-    printf("\nElisabeth has id = %d\n", *map_employee_name_get(Employees_r, STRING_CTE("Elisabeth")));    
+    printf("\nElisabeth has id = %d\n", *map_employee_name_get(Employees_r, STRING_CTE("Elisabeth")));
+    // Print using emplace (we give a const char [] isntead of a const string_t, avoiding macro STRING_CTE)
+    printf("\nElisabeth has id = %d\n", *map_employee_name_get_emplace(Employees_r, "Elisabeth"));
   } /* Employees_r is cleared beyond this point */
 
-  // But employee is not
+  // But employee is not since we don't use M_LET
   map_employee_id_clear(Employees);
   return 0;
 }
