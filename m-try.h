@@ -30,11 +30,12 @@
 
 /*
  * Select mechanism to use for support of RAII and exception,
- * so that for each variables defined in M_LET,
- * their destructor is still called on throwing exceptions.
+ * so that for each variable defined using M_LET,
+ * its destructor is still called when exceptions are thrown.
  * It is either the C++ try,
- * it uses a GCC or CLANG extension,
- * or the standard c compliant way (much slower).
+ * or it uses a GCC or CLANG extension,
+ * or the standard C compliant way (much slower).
+ * The user can override the desired mechanism.
  */
 #ifndef M_USE_TRY_MECHANISM
 # if defined(__has_extension)
@@ -75,11 +76,12 @@
  * error_code shall be the first argument. 
  * Other arguments are integers or pointers stored in the exception.
  * error code shall be a constant positive integer.
+ * There is no genericity of the exception data structure itself.
  */
 #define M_THROW(...) do {                                                     \
     M_STATIC_ASSERT(M_RET_ARG1 (__VA_ARGS__) != 0,                            \
                     M_LIB_NOT_A_CONSTANT_NON_NULL_INTEGER,                    \
-                    "The error code shall be a non null constant");           \
+                    "The error code shall be a non null positive constant");  \
     M_STATIC_ASSERT(M_NARGS (__VA_ARGS__) <= 1+M_USE_MAX_CONTEXT,             \
                     M_LIB_TOO_MANY_ARGUMENTS,                                 \
                     "There are too many arguments for an exception.");        \
@@ -88,7 +90,7 @@
 
 
 /*
- * Size of the context data that are stored in an exception.
+ * Size of the context data that are stored in an exception data structure.
  */
 #ifndef M_USE_MAX_CONTEXT
 #define M_USE_MAX_CONTEXT 10
@@ -98,9 +100,9 @@
  * The exception itself.
  *
  * It is POD data where every fields can be used by the user.
- * It has been decided to have only one exception to simplify error
- * code, and because :
- * - using generic types is much hard in C to do (still possible)
+ * It has been decided to have only one exception data structure
+ * to simplify error code and because :
+ * - using generic types is much harder in C to do (still possible)
  * - it will make exceptions more usable for errors which should not 
  * be handled by exceptions.
  *
