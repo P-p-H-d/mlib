@@ -24,9 +24,9 @@ of the GAIA by adding support for identification of specialization like this:
 ** Open points:
 
 - How to get access to the specialization field of the container? ==> Define the "self" name as the name of the container for all methods? What to do when there are several containers for a method?
-- How to initialize the specialization field of the container? provide custom initialization functions?
+- How to initialize the specialization field of the container? provide custom initialization functions? It seems to be the hard point.
 
-* TODO #31 : Uniformize parametrization options of containers   :ENHANCEMENT:
+* TODO #31 : Uniformize parametrisation options of containers   :ENHANCEMENT:
 
 ** State 
 
@@ -147,11 +147,42 @@ containers provides
 
 * TODO #29 : Support of partial initialized object                  :ANOMALY:
 
+** State
+
 In case of exception during the construction of an object,
 if the object is partially constructed, there is no destructor to call.
 Therefore if there is some partially constructed object
 (with some fields already fully constructed), there will be some links.
 This is the same problem with C++
+
+** Proposition
+
+Provide new macros to perform the partial initialization before doing the remaining taf.
+Something like:
+
+    M_CHAIN_INIT( init_code, clear_code)
+
+or
+
+x is { string_t s; string_t d; int num; }
+
+void struct_init_set(struct_t x, const struct_t y)
+{
+    // First thing is Chained Initialization
+    M_CHAIN_INIT( string_init_set(x->s, y->s), string_clear(x->s) );
+    M_CHAIN_INIT( string_init_set(x->d, y->d), string_clear(x->d) );
+    // End of chain init
+    x->num = y->num;
+}
+
+M_CHAIN_INIT will push the clean code pretty much like M_LET.
+Everything else is done in M_LET: when the constructor fully returns,
+the index of the clean code to call is reset to its value before calling
+the constructor. It means that the partially initialized code will be removed
+from this stack before the clean method of the structure itself is pushed.
+
+If an exception is raised after a M_CHAIN_INIT, only the clean methods
+of the M_CHAIN_INIT are called.
 
 * TODO #28 : Separate generation of interface to implementation :ENHANCEMENT:
 
@@ -356,6 +387,8 @@ what is expecting resulting in a move of the pointers, not a move of the design 
 Defining this type seems possible with C11 _Generic and a TYPE in the oplist,
 but without C11 _Generic I don't see any way to define such macro.
 
+Without a way to write such a macro, the ticket seems pretty much a dead end.
+
 * TODO #20 : New: Bucket priority queue                         :ENHANCEMENT:
 
 Add a new kind of priority queue. 
@@ -372,19 +405,16 @@ except that we can scan 64 entries at a time).
 Check if we can use BITSET, or introduce fixed size BITSET or use ad-hock 
 implementation.
 
-
 * TODO #19 : New: Intrusive Red Black Tree                      :ENHANCEMENT:
 
  Add intrusive red black tree. 
  Look also for AVL tree (NOTE: Is there a performance difference between the two?)
-
 
 * TODO #18 : Missing methods                                    :ENHANCEMENT:
 
 Some containers don't have all the methods they should.
 See the cells in yellow here:
 http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Container.html
-
 
 * TODO #17 : New: Ressource handler                             :ENHANCEMENT:
 
@@ -413,9 +443,8 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
 
  How to handle multiple resource ? 
 
- * variant: works fine. Memory usage can be (much) higher than needed if there is a lot of dissimilarity between the size of the objects.
- * embedded the type in the ressource handler: more work, API more complex. Memory usage seems better.
-
+ * variant: Pro : easy. Con: Memory usage can be (much) higher than needed if there is a lot of dissimilarity between the size of the objects.
+ * embedded the type in the ressource handler: Con: more work, API more complex. Pro: Memory usage seems better.
 
 * TODO #16 : New: Lock Free List                                :ENHANCEMENT:
 
@@ -440,8 +469,7 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
  - needs to be logically deleted : needs a previous field
    (NULL if not logically deleted) ? TBC
 
-
-* TODO #14 : Memory allocation enhancement                      :ENHANCEMENT:
+* DONE #14 : Memory allocation enhancement                      :ENHANCEMENT:
 
 Enhancement of the memory allocation scheme to find way to deal properly with advanced allocators:
 
@@ -475,6 +503,7 @@ Needs some formal operator in the oplist to support it fully and an example.
 
 It is a kind of object  inheritance where the container inherits some extra data from its base.
 
+Duplicate with #32 which is more generic ==> Closed
 
 * TODO #12 : New: Atomic shared pointer                         :ENHANCEMENT:
 
@@ -550,8 +579,6 @@ Other alternative solution is to use the bit 0 to mark the pointer as being upda
 
 Other implementation seems to have it hard to be lock-free: cf. https://github.com/llvm-mirror/libcxx/commit/5fec82dc0db3623546038e4a86baa44f749e554f
 
-
-
 * TODO #5 : New: Concurrent dictionary Container                :ENHANCEMENT:
 
 Implement a more efficient dictionary than lock + std dictionary for all operations when dealing with threads.
@@ -598,7 +625,6 @@ It needs before lock-free list: http://www.cse.yorku.ca/~ruppert/papers/lfll.pdf
  Atomic update is done by allocating a new node, update it, and atomicaly store it in the dict, putting the old one as logically deleted and to reclaim later.
  (Other threads may still read its data so we cannot free immediatly). 
  
-
 * DONE #22: Enhanced services for SPSC Queue                    :ENHANCEMENT:
 
 Add services:
