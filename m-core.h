@@ -4381,6 +4381,33 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_DEFER_TRY_INJECT_POST(cont, clear) /* Nothing */
 
 
+/* If exceptions are activated, M_CHAIN_INIT enables support for chaining
+  initialization at the begining of a constructor for the fields of the constructed
+  object so that even if the constructor failed and throw an exception, 
+  the fields of the constructed object are properly cleared.
+  This is equivalent to C++ construct: void type() : field1(), field2() { rest of constructor }
+  M_CHAIN_INIT shall be the first instruction of the init function.
+  First argument is the initialization code.
+  Second argument is the clear code.
+  The clear code is only executed on exception.
+  USAGE:
+    void init_function(struct_t s) {
+      M_CHAIN_INIT(string_init(s->str), string_clear(s->str)) {
+        // Rest of initialization code
+      }
+    }
+ */
+#define M_CHAIN_INIT(init, clear)                                             \
+  M_CHAIN_INIT_INTERNAL(M_C(m_var_, __LINE__), init, clear)
+
+#define M_CHAIN_INIT_INTERNAL(cont, init, clear)                              \
+  for(bool cont = true; cont; cont = false)                                   \
+    M_DEFER_TRY_INJECT_PRE(cont, clear)                                       \
+      for( init; cont ; cont = false)                                         \
+        M_DEFER_TRY_INJECT_POST(cont, clear)                                  \
+          for( (void) 0; cont; cont = false)
+
+
 /* Declare a variable, initialize it, continue if the initialization succeeds,
    and clears the variable afterwards.
    Otherwise, stop the execution and execute else_code if defined.

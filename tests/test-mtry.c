@@ -456,6 +456,102 @@ static void test3(void)
   assert(init == false);
 }
 
+typedef struct {
+  testobj_t o1;
+  testobj_t o2;
+  int num;
+} struct_t[1];
+
+// Pseudo execution counter
+volatile int g_flow = 0;
+// Throw execution when g_flow == g_throw
+volatile int g_throw = 0;
+
+static void struct_init(struct_t x)
+{
+  M_CHAIN_INIT(testobj_init(x->o1), testobj_clear(x->o1) )
+  M_CHAIN_INIT(testobj_init(x->o2), testobj_clear(x->o2) ) {
+    x->num = 0;
+    if (++g_flow == g_throw) M_THROW(1);
+  }
+}
+
+static void struct_init_set(struct_t x, const struct_t y)
+{
+  M_CHAIN_INIT(testobj_init_set(x->o1, y->o1), testobj_clear(x->o1) ) {
+    // Throw within the constructor (object partially constructed)
+    if (++g_flow == g_throw) M_THROW(1);
+    M_CHAIN_INIT(testobj_init_set(x->o2, y->o2), testobj_clear(x->o2) ) {
+      x->num = y->num;
+      if (++g_flow == g_throw) M_THROW(1);
+    }
+  }
+}
+
+static void struct_clear(struct_t x)
+{
+  testobj_clear(x->o1);
+  testobj_clear(x->o2);
+}
+
+#define M_OPL_struct_t() M_CLASSIC_OPLIST(struct)
+
+static void test4(void)
+{
+  g_flow = 0;
+  g_throw = 4;
+  M_TRY(main) {
+    assert(++g_flow == 1);
+    M_LET(a, struct_t) {
+      assert(++g_flow == 3);
+      M_LET( (b, a), struct_t) {
+        assert(false);
+      }
+    }
+  } M_CATCH(main, 0) {
+    assert(++g_flow == 5);
+  }
+
+  g_flow = 0;
+  g_throw = 5;
+  M_TRY(main) {
+    assert(++g_flow == 1);
+    M_LET(a, struct_t) {
+      assert(++g_flow == 3);
+      M_LET( (b, a), struct_t) {
+        assert(false);
+      }
+    }
+  } M_CATCH(main, 0) {
+    assert(++g_flow == 6);
+  }
+
+  g_flow = 0;
+  g_throw = 2;
+  M_TRY(main) {
+    assert(++g_flow == 1);
+    M_LET(a, struct_t) {
+      assert(false);
+    }
+  } M_CATCH(main, 0) {
+    assert(++g_flow == 3);
+  }
+
+  g_flow = 0;
+  g_throw = 0;
+  M_TRY(main) {
+    assert(++g_flow == 1);
+    M_LET(a, struct_t) {
+      assert(++g_flow == 3);
+      M_LET( (b, a), struct_t) {
+        assert(++g_flow == 6);
+      }
+    }
+  } M_CATCH(main, 0) {
+    assert(false);
+  }
+}
+
 static void test_final(void)
 {
   // Throw without a try block shall raise the M_RAISE_FATAL macro
@@ -472,6 +568,7 @@ int main(void)
   test1();
   test2();
   test3();
+  test4();
   testobj_final_check();
   test_final();
   exit(1); // Shall not be reached.
