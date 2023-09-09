@@ -1,6 +1,24 @@
 *Long term issues*
 ==========================================================
 
+* TODO #33 : Handling of partially constructed object               :ANOMALY:
+
+** State
+
+Support of partially constructed object needs special code to handle it 
+correctly (register a correct cleanup function in case of exception).
+
+Current containers don't support such features.
+
+** Actions
+
+Add such support in M*LIB containers. 
+
+It can be difficult. For example, for array _init_set
+function due to the copy of the object one per one. Each copied sub object
+may throw an exception, so we always need to have the container in a correct
+state so that it can be cleanup.
+
 * TODO #32 : User specialization fields in the container        :ENHANCEMENT:
 
 ** State
@@ -145,7 +163,7 @@ containers provides
       static inline m_serial_return_code_t                                        \
       M_C(M_F(name, _out_serial),M_GET_NAME(serial_op) )(M_GET_TYPE(serial_op) f, const list_t list)               \
 
-* TODO #29 : Support of partial initialized object                  :ANOMALY:
+* DONE #29 : Support of partial initialized object                  :ANOMALY:
 
 ** State
 

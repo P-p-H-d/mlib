@@ -6804,7 +6804,7 @@ You can chain the M\_LET\_IF macro to create several different variables.
 
 This macro registers the execution of 'clear\_code' when reaching 
 the further closing brace of the next block of instruction.
-clear_code shall be a valid expression.
+clear\_code shall be a valid expression.
 
 There shall be at most one M\_DEFER macro per line of source code.
 
@@ -6821,6 +6821,39 @@ outside the {} or a call to an exit function
 otherwise the clear\_code won't be called.
 You can use the break instruction to quit the block
 (the clear\_code will be executed) or you can use exception.
+
+
+##### M\_CHAIN\_INIT(init\_code, clear\_code)
+
+This macro executes 'init\_code' then
+registers the execution of 'clear\_code' if an exception is triggered
+until the further closing brace of the next block of instruction.
+init\_code and clear\_code shall be a valid expression.
+If exception are not enabled, it simply executes 'init\_code'.
+
+There shall be at most one M\CHAIN\_INIT macro per line of source code.
+It can be chained multiple times to register multiple registrations.
+
+Therefore it enables support for chaining
+initialization at the begining of a constructor for the fields of the constructed
+object so that even if the constructor failed and throw an exception, 
+the fields of the constructed object are properly cleared.
+
+This is equivalent to C++ construct: 
+
+        void type() : field1(), field2() { rest of constructor }
+
+M_CHAIN_INIT shall be the first instructions of the constructor function.
+
+Example:
+
+        void struct_init_set(struct_t d, struct_t s)
+        {
+          M_CHAIN_INIT(string_init_set(d->s1, s->s1), string_clear(d->s1) )
+          M_CHAIN_INIT(string_init_set(d->s2, s->s2), string_clear(d->s2) ) {
+            d->num = s->num;
+          }
+        }
 
 
 #### Memory / Error macros
@@ -8064,6 +8097,11 @@ When using CLANG, you should add the following options to your compiler flags,
 otherwise it will compile in degraded mode:
 
     -fblocks -lBlocksRuntime
+
+When writing your own constructor, you should consider M\_CHAIN\_INIT
+to support partially constructed object
+if there are more than two source of throwing in your object
+(any memory allocation is a source of throwing).
 
 #### struct m\_exception\_s
 
