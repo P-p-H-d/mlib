@@ -315,7 +315,8 @@
      size_t size = M_F(name, _array_size)(p->array);                          \
      size_t i = 0;                                                            \
      for(i = 0; i < size; i++) {                                              \
-       /* FIXME: Can we use CMP and the partial order to go faster? */        \
+       /* We cannot use CMP and the partial order to go faster                \
+        EQUAL & CMP may be uncorrelated */                                    \
        if (M_CALL_EQUAL(oplist, *M_F(name, _array_cget)(p->array, i), x))     \
          break;                                                               \
      }                                                                        \
