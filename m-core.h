@@ -4387,9 +4387,9 @@ m_core_parse2_enum (const char str[], const char **endptr)
   the fields of the constructed object are properly cleared.
   This is equivalent to C++ construct: void type() : field1(), field2() { rest of constructor }
   M_CHAIN_INIT shall be the first instruction of the init function.
-  First argument is the initialization code.
-  Second argument is the clear code.
-  The clear code is only executed on exception.
+  Second argument is the initialization code.
+  Third argument is the clear code.
+  The clear code is *only* executed on exception.
   USAGE:
     void init_function(struct_t s) {
       M_CHAIN_INIT(name, string_init(s->str), string_clear(s->str)) {
@@ -4405,6 +4405,61 @@ m_core_parse2_enum (const char str[], const char **endptr)
     M_DEFER_TRY_INJECT_PRE(cont, clear)                                       \
       for( init; cont ; cont = false)                                         \
         M_DEFER_TRY_INJECT_POST(cont, clear)                                  \
+          for( (void) 0; cont; cont = false)
+
+
+/* If exceptions are activated, M_CHAIN_OBJ enables support for chaining
+  initialization at the begining of a constructor for the fields of the constructed
+  object so that even if the constructor failed and throw an exception,
+  the fields of the constructed object are properly cleared.
+  This is equivalent to M_CHAIN_INIT except it takes an oplist.
+  This is equivalent to C++ construct: void type() : field1(), field2() { rest of constructor }
+  M_CHAIN_OBJ shall be the first instruction of the init function except
+  it can be freely mixed with M_CHAIN_INIT
+  First argument is a name identifier.
+  Second argument is the oplist of the variable to initialize.
+  Third argument is the variable to initialize.
+  Optional fourth argument is the value to use for initialization.
+  If there is no value, it will initialize using the INIT method.
+  Otherwise, if there is no parenthesis around the value, it will use the INIT_SET method.
+  Otherwise the INIT_WITH method.
+  The clear code is *only* executed on exception.
+  If the property NOCLEAR is defined for the object,
+  it won't generate an exception handler at all even if exceptions are activated,
+  and will only initialize the object.
+  USAGE:
+    void init_function(struct_t s) {
+      M_CHAIN_OBJ(name, STRING_OPLIST, s->str ) {
+        // Rest of initialization code
+      }
+    }
+ */
+#define M_CHAIN_OBJ(name, oplist, ...)                                        \
+  M_BY_NARGS( M_IF(M_GET_PROPERTY(oplist, NOCLEAR))(M_CHAIN_OBJ_A, M_CHAIN_OBJ_B), __VA_ARGS__) \
+  (name, oplist, __VA_ARGS__)
+// Need to define an exception handler. Use of M_CHAIN_INIT
+#define M_CHAIN_OBJ_B__NARGS_1(name, oplist, var)                             \
+  M_CHAIN_INIT( name, M_CALL_INIT(oplist, var), M_CALL_CLEAR(oplist, var) )
+#define M_CHAIN_OBJ_B__NARGS_2(name, oplist, var, value)                      \
+  M_IF(M_PARENTHESIS_P(value))(M_CHAIN_OBJ_B__NARGS_2_WITH, M_CHAIN_OBJ_B__NARGS_2_SET) \
+  (name, oplist, var, value)
+#define M_CHAIN_OBJ_B__NARGS_2_WITH(name, oplist, var, value)                 \
+  M_CHAIN_INIT( name, M_CALL_INIT_WITH(oplist, var, value), M_CALL_CLEAR(oplist, var) )
+#define M_CHAIN_OBJ_B__NARGS_2_SET(name, oplist, var, value)                  \
+  M_CHAIN_INIT( name, M_CALL_INIT_SET(oplist, var, value), M_CALL_CLEAR(oplist, var) )
+// No need to define an exception handler. Just call the INIT function.
+#define M_CHAIN_OBJ_A__NARGS_1(name, oplist, var)                             \
+  M_CHAIN_FOR(name, M_CALL_INIT(oplist, var) )
+#define M_CHAIN_OBJ_A__NARGS_2(name, oplist, var, value)                      \
+  M_CHAIN_FOR(name,                                                           \
+      M_IF(M_PARENTHESIS_P(value))(M_CALL_INIT_WITH, M_CALL_INIT_SET)         \
+      (oplist, var, value) )
+// Execute the 'init' function in a for loop construct
+#define M_CHAIN_FOR(name,  init )                                             \
+  M_CHAIN_FOR_B(M_C(m_var_, name), init)
+#define M_CHAIN_FOR_B(cont, init)                                             \
+  for(bool cont = true; cont; cont = false)                                   \
+      for( init; cont ; cont = false)                                         \
           for( (void) 0; cont; cont = false)
 
 

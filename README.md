@@ -6843,7 +6843,7 @@ This is equivalent to C++ construct:
 
         void type() : field1(), field2() { rest of constructor }
 
-M_CHAIN_INIT shall be the first instructions of the constructor function.
+M_CHAIN_INIT / M_CHAIN_OBJ shall be the first instructions of the constructor function.
 
 Example:
 
@@ -6853,6 +6853,44 @@ Example:
           M_CHAIN_INIT(s2, string_init_set(d->s2, s->s2), string_clear(d->s2) ) {
             d->num = s->num;
           }
+        }
+
+
+##### M\_CHAIN\_OBJ(name, oplist, var [, value])
+
+This macro executes the initialization method if 'var' to initialize it then
+registers the execution of its CLEAR method if an exception is triggered
+(and if the property NOCLEAR of the oplist is not defined)
+until the further closing brace of the next block of instruction.
+If exception are not enabled, it simply executes the initialization method.
+
+The initialization method being used is :
+
+* INIT method if there is no value
+* INIT\_SET method if there is a value which is not between parenthesis
+* INIT\_WITH method if there is a value which is between parenthesis.
+
+name shall a unique identifier in the current block.
+It can be chained multiple times to register multiple registrations.
+
+Therefore it enables support for chaining
+initialization at the begining of a constructor for the fields of the constructed
+object so that even if the constructor failed and throw an exception,
+the fields of the constructed object are properly cleared.
+
+This is equivalent to C++ construct:
+
+        void type() : field1(), field2() { rest of constructor }
+
+M_CHAIN_INIT / M_CHAIN_OBJ shall be the first instructions of the constructor function.
+
+Example:
+
+        void struct_init_set(struct_t d, struct_t s)
+        {
+          M_CHAIN_OBJ(s1, STRING_OPLIST, d->s1, s->s1)
+          M_CHAIN_OBJ(s2, STRING_OPLIST, d->s2, s->s2)
+          M_CHAIN_OBJ(nu, M_BASIC_OPLIST, d->num, s->num) { }
         }
 
 
