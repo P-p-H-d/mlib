@@ -469,8 +469,8 @@ volatile int g_throw = 0;
 
 static void struct_init(struct_t x)
 {
-  M_CHAIN_INIT(testobj_init(x->o1), testobj_clear(x->o1) )
-  M_CHAIN_INIT(testobj_init(x->o2), testobj_clear(x->o2) ) {
+  M_CHAIN_INIT(o1, testobj_init(x->o1), testobj_clear(x->o1) )
+  M_CHAIN_INIT(o2, testobj_init(x->o2), testobj_clear(x->o2) ) {
     x->num = 0;
     if (++g_flow == g_throw) M_THROW(1);
   }
@@ -478,10 +478,10 @@ static void struct_init(struct_t x)
 
 static void struct_init_set(struct_t x, const struct_t y)
 {
-  M_CHAIN_INIT(testobj_init_set(x->o1, y->o1), testobj_clear(x->o1) ) {
+  M_CHAIN_INIT(o1, testobj_init_set(x->o1, y->o1), testobj_clear(x->o1) ) {
     // Throw within the constructor (object partially constructed)
     if (++g_flow == g_throw) M_THROW(1);
-    M_CHAIN_INIT(testobj_init_set(x->o2, y->o2), testobj_clear(x->o2) ) {
+    M_CHAIN_INIT(o2, testobj_init_set(x->o2, y->o2), testobj_clear(x->o2) ) {
       x->num = y->num;
       if (++g_flow == g_throw) M_THROW(1);
     }

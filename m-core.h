@@ -4392,13 +4392,13 @@ m_core_parse2_enum (const char str[], const char **endptr)
   The clear code is only executed on exception.
   USAGE:
     void init_function(struct_t s) {
-      M_CHAIN_INIT(string_init(s->str), string_clear(s->str)) {
+      M_CHAIN_INIT(name, string_init(s->str), string_clear(s->str)) {
         // Rest of initialization code
       }
     }
  */
-#define M_CHAIN_INIT(init, clear)                                             \
-  M_CHAIN_INIT_INTERNAL(M_C(m_var_, __LINE__), init, clear)
+#define M_CHAIN_INIT(name, init, clear)                                       \
+  M_CHAIN_INIT_INTERNAL(M_C(m_var_, name), init, clear)
 
 #define M_CHAIN_INIT_INTERNAL(cont, init, clear)                              \
   for(bool cont = true; cont; cont = false)                                   \
@@ -4512,10 +4512,6 @@ m_core_parse2_enum (const char str[], const char **endptr)
          )
 #define M_INIT_EMPLACE_VAI2_FUNC(pair, a)                                     \
   M_INIT_EMPLACE_VAI3_FUNC(M_PAIR_1 pair, M_PAIR_2 pair, a)
-
-/* We first push a raw new item, and then we get back its pointer using _back.
-  _back (contrary to _push_raw) has no side effect, and so is safe to be used
-  in a macro */
 #define M_INIT_EMPLACE_VAI3_FUNC(d, op, a)                                    \
   (                                                                           \
     M_IF(M_PARENTHESIS_P(a))                                                  \

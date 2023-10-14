@@ -6823,7 +6823,7 @@ You can use the break instruction to quit the block
 (the clear\_code will be executed) or you can use exception.
 
 
-##### M\_CHAIN\_INIT(init\_code, clear\_code)
+##### M\_CHAIN\_INIT(name, init\_code, clear\_code)
 
 This macro executes 'init\_code' then
 registers the execution of 'clear\_code' if an exception is triggered
@@ -6831,7 +6831,7 @@ until the further closing brace of the next block of instruction.
 init\_code and clear\_code shall be a valid expression.
 If exception are not enabled, it simply executes 'init\_code'.
 
-There shall be at most one M\CHAIN\_INIT macro per line of source code.
+name shall a unique identifier in the current block.
 It can be chained multiple times to register multiple registrations.
 
 Therefore it enables support for chaining
@@ -6849,8 +6849,8 @@ Example:
 
         void struct_init_set(struct_t d, struct_t s)
         {
-          M_CHAIN_INIT(string_init_set(d->s1, s->s1), string_clear(d->s1) )
-          M_CHAIN_INIT(string_init_set(d->s2, s->s2), string_clear(d->s2) ) {
+          M_CHAIN_INIT(s1, string_init_set(d->s1, s->s1), string_clear(d->s1) )
+          M_CHAIN_INIT(s2, string_init_set(d->s2, s->s2), string_clear(d->s2) ) {
             d->num = s->num;
           }
         }
