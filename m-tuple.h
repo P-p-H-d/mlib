@@ -243,34 +243,36 @@ namespace m_lib {
 /* Define the INIT method calling the INIT method for all params */
 #define M_TUPL3_DEFINE_INIT(name, ...)                                        \
   M_INLINE void M_F(name, _init)(M_F(name,_ct) my) {                          \
-    M_MAP(M_TUPL3_DEFINE_INIT_FUNC , __VA_ARGS__)                             \
+    M_MAP(M_TUPL3_DEFINE_INIT_FUNC , __VA_ARGS__) {}                          \
   }
 
 #define M_TUPL3_DEFINE_INIT_FUNC(a)                                           \
-  M_TUPL3_CALL_INIT(a, my -> M_TUPL3_GET_FIELD a );
+  M_CHAIN_OBJ(M_TUPL3_GET_FIELD a, M_TUPL3_GET_OPLIST a, my -> M_TUPL3_GET_FIELD a)
 
 /* Define the INIT_SET method calling the INIT_SET method for all params */
 #define M_TUPL3_DEFINE_INIT_SET(name, ...)                                    \
   M_INLINE void M_F(name, _init_set)(M_F(name,_ct) my , M_F(name,_ct) const org) { \
     M_TUPL3_CONTRACT(org);                                                    \
-    M_MAP(M_TUPL3_DEFINE_INIT_SET_FUNC , __VA_ARGS__)                         \
+    M_MAP(M_TUPL3_DEFINE_INIT_SET_FUNC , __VA_ARGS__) {}                      \
   }
 #define M_TUPL3_DEFINE_INIT_SET_FUNC(a)                                       \
-  M_TUPL3_CALL_INIT_SET(a, my -> M_TUPL3_GET_FIELD a , org -> M_TUPL3_GET_FIELD a );
+  M_CHAIN_OBJ(M_TUPL3_GET_FIELD a, M_TUPL3_GET_OPLIST a,                      \
+              my -> M_TUPL3_GET_FIELD a , org -> M_TUPL3_GET_FIELD a )
 
 /* Define the INIT_WITH method calling the INIT_SET method for all params. */
 #define M_TUPL3_DEFINE_INIT_SET2(name, ...)                                   \
   M_INLINE void M_F(name, _init_emplace)(M_F(name,_ct) my                     \
                       M_MAP(M_TUPL3_DEFINE_INIT_SET2_PROTO, __VA_ARGS__)      \
                                            ) {                                \
-    M_MAP(M_TUPL3_DEFINE_INIT_SET2_FUNC , __VA_ARGS__)                        \
+    M_MAP(M_TUPL3_DEFINE_INIT_SET2_FUNC , __VA_ARGS__) {}                     \
   }
 
 #define M_TUPL3_DEFINE_INIT_SET2_PROTO(a)                                     \
   , M_TUPL3_GET_TYPE a const M_TUPL3_GET_FIELD a
 
 #define M_TUPL3_DEFINE_INIT_SET2_FUNC(a)                                      \
-  M_TUPL3_CALL_INIT_SET(a, my -> M_TUPL3_GET_FIELD a , M_TUPL3_GET_FIELD a );
+  M_CHAIN_OBJ(M_TUPL3_GET_FIELD a, M_TUPL3_GET_OPLIST a,                      \
+              my -> M_TUPL3_GET_FIELD a , M_TUPL3_GET_FIELD a )
 
 
 /* Define the SET method calling the SET method for all params. */
@@ -598,7 +600,8 @@ namespace m_lib {
   break;                                                                      \
 
 
-/* Define a INIT_MOVE method by calling the INIT_MOVE methods for all params */
+/* Define a INIT_MOVE method by calling the INIT_MOVE methods for all params
+   INIT_MOVE cannot fail and cannot throw any exception */
 #define M_TUPL3_DEFINE_INIT_MOVE(name, ...)                                   \
   M_INLINE void M_F(name, _init_move)(M_F(name,_ct) el, M_F(name,_ct) org) {  \
     M_TUPL3_CONTRACT(el);                                                     \
