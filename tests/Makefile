@@ -173,6 +173,9 @@ gene-serial:
 gene-try:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -march=native -DNDEBUG -S -std=c11 tgen-try.c && less tgen-try.s
 
+gene-tuple:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -march=native -DNDEBUG -S -std=c11 tgen-tuple.c && less tgen-tuple.s
+
 #####################################################################################################
 # Coverage
 #####################################################################################################
