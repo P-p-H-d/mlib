@@ -4438,22 +4438,23 @@ m_core_parse2_enum (const char str[], const char **endptr)
   M_BY_NARGS( M_IF(M_GET_PROPERTY(oplist, NOCLEAR))(M_CHAIN_OBJ_A, M_CHAIN_OBJ_B), __VA_ARGS__) \
   (name, oplist, __VA_ARGS__)
 // Need to define an exception handler. Use of M_CHAIN_INIT
-#define M_CHAIN_OBJ_B__NARGS_1(name, oplist, var)                             \
+#define M_CHAIN_OBJ_B__1(name, oplist, var)                             \
   M_CHAIN_INIT( name, M_CALL_INIT(oplist, var), M_CALL_CLEAR(oplist, var) )
-#define M_CHAIN_OBJ_B__NARGS_2(name, oplist, var, value)                      \
-  M_IF(M_PARENTHESIS_P(value))(M_CHAIN_OBJ_B__NARGS_2_WITH, M_CHAIN_OBJ_B__NARGS_2_SET) \
+#define M_CHAIN_OBJ_B__2(name, oplist, var, value)                      \
+  M_IF(M_PARENTHESIS_P(value))(M_CHAIN_OBJ_B__2_WITH, M_CHAIN_OBJ_B__2_SET) \
   (name, oplist, var, value)
-#define M_CHAIN_OBJ_B__NARGS_2_WITH(name, oplist, var, value)                 \
+#define M_CHAIN_OBJ_B__2_WITH(name, oplist, var, value)                 \
   M_CHAIN_INIT( name, M_CALL_INIT_WITH(oplist, var, value), M_CALL_CLEAR(oplist, var) )
-#define M_CHAIN_OBJ_B__NARGS_2_SET(name, oplist, var, value)                  \
+#define M_CHAIN_OBJ_B__2_SET(name, oplist, var, value)                  \
   M_CHAIN_INIT( name, M_CALL_INIT_SET(oplist, var, value), M_CALL_CLEAR(oplist, var) )
 // No need to define an exception handler. Just call the INIT function.
-#define M_CHAIN_OBJ_A__NARGS_1(name, oplist, var)                             \
+#define M_CHAIN_OBJ_A__1(name, oplist, var)                             \
   M_CHAIN_FOR(name, M_CALL_INIT(oplist, var) )
-#define M_CHAIN_OBJ_A__NARGS_2(name, oplist, var, value)                      \
+#define M_CHAIN_OBJ_A__2(name, oplist, var, value)                      \
   M_CHAIN_FOR(name,                                                           \
       M_IF(M_PARENTHESIS_P(value))(M_CALL_INIT_WITH, M_CALL_INIT_SET)         \
       (oplist, var, value) )
+
 // Execute the 'init' function in a for loop construct
 #define M_CHAIN_FOR(name,  init )                                             \
   M_CHAIN_FOR_B(M_C(m_var_, name), init)
@@ -4513,17 +4514,18 @@ m_core_parse2_enum (const char str[], const char **endptr)
 /******************* INIT_WITH Enhancing ********************/
 /************************************************************/
 
-/* Add as suffix for the given function the number of arguments of the calls.
+/* Add as suffix for the given function the number of arguments of the calls
+   equal to __ # NARGS(...)
    Can be used to call different function in function of the number of arguments.
    It doesn't call the function with the argument in order to be able to chain the 
    macro */
-#define M_BY_NARGS(function, ...) M_C3(function, __NARGS_, M_NARGS(__VA_ARGS__))
+#define M_BY_NARGS(function, ...) M_C3(function, __, M_NARGS(__VA_ARGS__))
 
-/* Call different INIT_WITH method in function of the number of arguments of the call,
- * to be used in an OPLIST.
+/* Call different methods in function of the number of arguments of the call,
+ * to be used in an OPLIST for the INIT_WITH operator.
  * Shall be used with API_1 call (example INIT_WITH(API_1(M_INIT_WITH_NVAR)) )
  * Shall define a NAME base method
- * All INIT_WITH methods shall be named as name ## _init_with_ ## NARGS
+ * All INIT_WITH methods shall be named as name ## _init_with__ ## NARGS
  */
 #define M_INIT_WITH_NVAR(oplist, ...)                                         \
   M_BY_NARGS(M_C(M_GET_NAME oplist, _init_with), __VA_ARGS__)(__VA_ARGS__)

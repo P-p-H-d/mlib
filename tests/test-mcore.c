@@ -570,8 +570,8 @@ static void test_oplist(void)
   assert (M_ID (M_GET_NAME A5));
 
 #define A6  (NAME(A6), INIT_WITH(API_1(M_INIT_WITH_NVAR)))
-#define A6_init_with__NARGS_1(x) 1
-#define A6_init_with__NARGS_2(x, y) 0
+#define A6_init_with__1(x) 1
+#define A6_init_with__2(x, y) 0
   assert (M_ID(M_CALL_INIT_WITH (A6, 0)));
   assert (M_ID(!M_CALL_INIT_WITH (A6, 0, 0)));
 }
