@@ -4463,6 +4463,29 @@ m_core_parse2_enum (const char str[], const char **endptr)
           for( (void) 0; cont; cont = false)
 
 
+/* If exceptions are activated, M_ON_EXCEPTION enables support for fixing
+  the data structure when an exception is throw,
+  so that the data structure is proper for the CLEAR method.
+  The fix code is *only* executed on exception.
+  USAGE:
+    void init_function(struct_t s) {
+      M_ON_EXCEPTION(name, OPLIST, s->size = i ) {
+        // Rest of initialization code
+      }
+    }
+ */
+#define M_ON_EXCEPTION(name, oplist, fix)                                       \
+  M_IF(M_GET_PROPERTY(oplist, NOCLEAR))(M_EAT, M_ON_EXCEPTION_B) \
+  (M_C(m_var_, name), fix)
+
+#define M_ON_EXCEPTION_B(cont, fix)                              \
+  for(bool cont = true; cont; cont = false)                                   \
+    M_DEFER_TRY_INJECT_PRE(cont, clear)                                       \
+      for( ; cont ; cont = false)                                         \
+        M_DEFER_TRY_INJECT_POST(cont, clear)                                  \
+          for( ; cont; cont = false)
+
+
 /* Declare a variable, initialize it, continue if the initialization succeeds,
    and clears the variable afterwards.
    Otherwise, stop the execution and execute else_code if defined.
