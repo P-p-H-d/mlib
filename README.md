@@ -611,6 +611,7 @@ Other documented operators are:
 * NAME() --> prefix: Return the base name (prefix) used to construct the container.
 * TYPE() --> type: Return the base type associated to this oplist.
 * SUBTYPE() --> type: Return the type of the element stored in the container (used to iterate over the container).
+* GENTYPE() --> type: Return the type representing TYPE suitable for a _Generic statement.
 * OPLIST() --> oplist: Return the oplist of the type of the elements stored in the container.
 * KEY\_TYPE() --> key\_t: Return the key type for associative containers.
 * VALUE\_TYPE() --> value\_t: Return the value type for associative containers.
