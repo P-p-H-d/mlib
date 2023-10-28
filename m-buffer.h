@@ -67,25 +67,37 @@ typedef enum {
    If size is 0, then the size will only be defined at run-time when initializing the buffer,
    otherwise the size will be a compile time constant.
    USAGE: BUFFER_DEF(name, type, size_of_buffer_or_0, policy[, oplist]) */
-#define M_BUFFER_DEF(... )             M_DEF_AS(M_BUFF3R_DEF, __VA_ARGS__)
+#define M_BUFFER_DEF(a, b, c, ... )    M_DEF_AS(M_BUFF3R_DEF, a, b, c, __VA_ARGS__)
 #define M_BUFF3R_DEF__4(n, t, s, p)    M_BUFF3R_DEF_P1((n, t, s, p, M_TYPE2OPL(t), M_F(n, _t)))
 #define M_BUFF3R_DEF__5(n, t, s, p, o) M_BUFF3R_DEF_P1((n, t, s, p, o, M_F(n, _t)))
+#define M_BUFF3R_DEF__6(n, t, s, p, o)
+#define M_BUFF3R_DEF__7(n, t, s, p, o)
+#define M_BUFF3R_DEF__8(n, t, s, p, o)
+#define M_BUFF3R_DEF__9(n, t, s, p, o)
 
 /* Define a lock based buffer
    as the provided type name_t.
    USAGE: BUFFER_DEF_AS(name, config_opl, type[, oplist of type]) */
-#define M_BUFFER_DEF_AS(...)           M_DEF_AS(M_BUFF3R_DEF_AS, __VA_ARGS__)
+#define M_BUFFER_DEF_AS(a, b, ...)     M_DEF_AS(M_BUFF3R_DEF_AS, a, b, __VA_ARGS__)
 #define M_BUFF3R_DEF_AS__3(n, c, t)    M_BUFF3R_DEF_P1(M_BUFF3R_CONFIG(n, c, t, M_TYPE2OPL(t)))
 #define M_BUFF3R_DEF_AS__4(n, c, t, o) M_BUFF3R_DEF_P1(M_BUFF3R_CONFIG(n, c, t, o))
+#define M_BUFF3R_DEF_AS__5(n, c, t, o)
+#define M_BUFF3R_DEF_AS__6(n, c, t, o)
+#define M_BUFF3R_DEF_AS__7(n, c, t, o)
+#define M_BUFF3R_DEF_AS__8(n, c, t, o)
+#define M_BUFF3R_DEF_AS__9(n, c, t, o)
 
 // Extract the optional customization attributes from name_opl
 #define M_BUFF3R_CONFIG(n, c, t, o)                         \
     (n, t, M_SIZE_AS(c, 0), M_POLICY_AS(c, M_BUFFER_QUEUE), o, M_TYPE_AS(c, M_C(n, _t)))
 
 // Old call: (name, name_t, type, syze, policy [, oplist] )
-#define BUFFER_DEF_AS(...)                     M_DEF_AS(M_BUFF3R_D3F_AS, __VA_ARGS__)
+#define BUFFER_DEF_AS(a, b, c, d, ...)         M_DEF_AS(M_BUFF3R_D3F_AS, a, b, c ,d, __VA_ARGS__)
 #define M_BUFF3R_D3F_AS__5(n, n_t, t, s, p)    M_BUFF3R_DEF_P1((n, t, s, p, M_TYPE2OPL(type), n_t))
 #define M_BUFF3R_D3F_AS__6(n, n_t, t, s, p, o) M_BUFF3R_DEF_P1((n, t, s, p, o, n_t))
+#define M_BUFF3R_D3F_AS__7(n, n_t, t, s, p, o)
+#define M_BUFF3R_D3F_AS__8(n, n_t, t, s, p, o)
+#define M_BUFF3R_D3F_AS__9(n, n_t, t, s, p, o)
 
 
 /* Define the oplist of a lock based buffer given its name and its oplist.
