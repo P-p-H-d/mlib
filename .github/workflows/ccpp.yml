@@ -126,6 +126,7 @@ jobs:
     - name: Test in FreeBSD
       id: test
       uses: vmactions/freebsd-vm@v0
+      timeout-minutes: 60
       with:
         usesh: true
         run: |
@@ -142,6 +143,7 @@ jobs:
       - uses: uraimo/run-on-arch-action@v2.5.0
         name: Run commands on aarch64
         id: make
+        timeout-minutes: 60
         with:
           arch: aarch64
           distro: bullseye
