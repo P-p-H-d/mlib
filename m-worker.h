@@ -192,7 +192,7 @@ typedef struct m_worker_sync_s {
 #define M_WORK3R_SPAWN_EXTEND_P0__2(field, type)            M_OPEXTEND(M_GLOBAL_OPLIST_OR_DEF(type)(), TYPE(type))
 #define M_WORK3R_SPAWN_EXTEND_P0__3(field, type, oplist)    M_IF_OPLIST(oplist)(M_WORK3R_SPAWN_EXTEND_P0__3_OK, M_WORK3R_SPAWN_EXTEND_P0__3_KO)(field, type, oplist)
 #define M_WORK3R_SPAWN_EXTEND_P0__3_OK(field, type, oplist) M_OPEXTEND(oplist, TYPE(type))
-#define M_WORK3R_SPAWN_EXTEND_P0__3_KO(field, type, oplist)             \
+#define M_WORK3R_SPAWN_EXTEND_P0__3_KO(field, type, oplist)                   \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(M_WORKER_SPAWN_EXTEND): the argument is not a valid oplist: " M_MAP(M_AS_STR, oplist))
 
 /* Deferred evaluation for the definition,
