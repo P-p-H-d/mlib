@@ -450,14 +450,13 @@ M_BEGIN_PROTECTED_CODE
 /* Terminate the compilation of the current unit with an error message.
    The error parameter is a C token which classifies the error
    with an optional message detailling the error.
-   Either use C11 to get a proper message, or at least a good hint in C99.
-   error shall be a C name, msg a string.
+   It is not an expression and shall not be used in an expression.
+   It shall be used outside of a function, therefore it is not an expression.
+   In C99, it uses a bitfield to be compatible with most compilers
+   (so that it properly displays 'error' on the command line
    Quite usefull to terminate with a proper error message rather than
    a garbage of error due to incorrect code generation in the methods
    expansion.
-   NOTE: Some implementation claims to be C11 (default mode) but fails
-   to deliver a working assert.h with static_assert so we test for the
-   explicity precense of the macro static_assert.
  */
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && defined(static_assert)) || defined(__cplusplus)
 # define M_STATIC_FAILURE(error, msg) static_assert(false, #error ": " msg);
@@ -469,19 +468,22 @@ M_BEGIN_PROTECTED_CODE
 /* Test at compile time if the given condition is true.
    The error parameter is a C token which classifies the error
    with an optional message detailling the error.
-   NOTE: Use bitfield to be compatible with most compilers
+   In C99, it uses a bitfield to be compatible with most compilers
    (so that it properly displays 'error' on the command line
-   It cannot use C11 Static Assert as is not usable in expression.
-   NOTE: In C++, use of lambda to encapsulate static_assert in
-   an expression.
-   NOTE: For GNU compatible compilers, uses of a GNU extension.
+   C11 static Assert is not usable in expression,
+   but is usable in struct declaration. Therefore we create
+   a dummy struct, define the static assert within it
+   compute its size and cast it to void.
+   NOTE: Some implementation claims to be C11 (default mode) but fails
+   to deliver a working assert.h with static_assert so we test for the
+   explicity precense of the macro static_assert.
 */
-#if defined(__cplusplus)
+#ifdef __cplusplus
 # define M_STATIC_ASSERT(cond, error, msg)                                    \
   ([] { static_assert(cond, #error ": " msg); } ())
-#elif defined(__GNUC__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && defined(static_assert)
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && defined(static_assert)
 # define M_STATIC_ASSERT(cond, error, msg)                                    \
-  M_ATTR_EXTENSION  ({ static_assert(cond, #error ": " msg); })
+  ((void) sizeof(struct { int error; static_assert(cond, #error ": " msg);}))
 #else
 # define M_STATIC_ASSERT(cond, error, msg)                                    \
   ((void) sizeof(struct  { int error : !!(cond);}))
@@ -2513,6 +2515,14 @@ done
 #define M_AS_STR(x)                 M_AS_STRI(x)
 #define M_AS_STRI(x)                #x
 
+/* Convert an oplist into a string. It may generate a very long string,
+  which generates warning (string length greater than 4095).
+  So the conversion is optional */
+#ifdef M_USE_PRINT_OPLIST
+# define M_OPL_AS_STR(x) M_AS_STR(x)
+#else
+# define M_OPL_AS_STR(x)
+#endif
 
 /* C11 MACROS */
 
@@ -3610,7 +3620,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 
    NOTE: It starts by a comma, to ack the success of the transformation.
 */
-#define M_OPLAPI_ERROR(method, oplist, ...)  , M_STATIC_FAILURE(M_LIB_DISABLED_METHOD, "The method has been explictly disabled for the requested operator, yet it has been called by the container")
+#define M_OPLAPI_ERROR(method, oplist, ...)  , M_STATIC_ASSERT(false, M_LIB_DISABLED_METHOD, "The method has been explictly disabled for the requested operator, yet it has been called by the container")
 #define M_OPLAPI_0(method, oplist, ...)      , M_DELAY3(method)(__VA_ARGS__)
 #define M_OPLAPI_1(method, oplist, ...)      , M_DELAY3(method)(oplist, __VA_ARGS__)
 #define M_OPLAPI_2(method, oplist, ...)      , M_DELAY3(method)(& __VA_ARGS__)
@@ -3730,11 +3740,11 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
    if the method is expanded.
 */
 #define M_NO_DEFAULT(...)                                                     \
-  M_STATIC_FAILURE(M_LIB_MISSING_METHOD,                                      \
+  M_STATIC_ASSERT(false, M_LIB_MISSING_METHOD,                                      \
   "The requested operator has no method registered in the given OPLIST. ")
 
 #define M_NO_DEF_TYPE                                                         \
-  M_STATIC_FAILURE(M_LIB_MISSING_METHOD,                                      \
+  M_STATIC_ASSERT(false, M_LIB_MISSING_METHOD,                                      \
   "The requested operator has no type/subtype/suboplist registered in the given OPLIST. ")
 
 /* Test if the given variable is a basic C variable:
@@ -3800,7 +3810,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
                     M_LIB_TYPE_MISTMACH,                                      \
                     "The given type " M_AS_STR(type)                          \
                     " and the type of the oplist does not match: "            \
-                    M_AS_STR(oplist) );                                       \
+                    M_OPL_AS_STR(oplist) );                                       \
   }                                                                           \
   , /* End of TYPE */)
 #else
@@ -3814,7 +3824,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
                     M_LIB_TYPE_MISTMACH,                                      \
                     "The given type " M_AS_STR(type)                          \
                     " and the type of the oplist does not match: "            \
-                    M_AS_STR(oplist) );                                       \
+                    M_OPL_AS_STR(oplist) );                                       \
   }                                                                           \
   , /* End of TYPE */)
 #endif
@@ -4310,7 +4320,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
   M_IF_OPLIST(oplist)(M_LETI3, M_LETI2_FAILURE)(cont, oplist, __VA_ARGS__)
 // Stop with a failure (invalid oplist)
 #define M_LETI2_FAILURE(cont, oplist, ...)                                    \
-  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(M_LET): the given argument is not a valid oplist: " M_AS_STR(oplist))
+  M_STATIC_ASSERT(false, M_LIB_NOT_AN_OPLIST, "(M_LET): the given argument is not a valid oplist: " M_AS_STR(oplist))
 // 4. Map all variables to their own LET
 #define M_LETI3(cont, oplist, ...)                                            \
   for(bool cont = true; cont ; /* unused */)                                  \

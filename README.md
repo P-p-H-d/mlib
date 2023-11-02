@@ -8562,6 +8562,9 @@ M\_USE\_DECL / M\_USE\_DEF shall be defined without effective value.
 
 See M\_USE\_DECL for more details.
 
+#### M\_USE\_PRINT\_OPLIST
+
+If defined, it displays the oplist associated to the static assert.
 
 #### M\_MEMORY\_ALLOC
 
