@@ -3740,11 +3740,11 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
    if the method is expanded.
 */
 #define M_NO_DEFAULT(...)                                                     \
-  M_STATIC_ASSERT(false, M_LIB_MISSING_METHOD,                                      \
+  M_STATIC_ASSERT(false, M_LIB_MISSING_METHOD,                                \
   "The requested operator has no method registered in the given OPLIST. ")
 
 #define M_NO_DEF_TYPE                                                         \
-  M_STATIC_ASSERT(false, M_LIB_MISSING_METHOD,                                      \
+  M_STATIC_ASSERT(false, M_LIB_MISSING_METHOD,                                \
   "The requested operator has no type/subtype/suboplist registered in the given OPLIST. ")
 
 /* Test if the given variable is a basic C variable:
@@ -3810,7 +3810,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
                     M_LIB_TYPE_MISTMACH,                                      \
                     "The given type " M_AS_STR(type)                          \
                     " and the type of the oplist does not match: "            \
-                    M_OPL_AS_STR(oplist) );                                       \
+                    M_OPL_AS_STR(oplist) );                                   \
   }                                                                           \
   , /* End of TYPE */)
 #else
@@ -3824,7 +3824,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
                     M_LIB_TYPE_MISTMACH,                                      \
                     "The given type " M_AS_STR(type)                          \
                     " and the type of the oplist does not match: "            \
-                    M_OPL_AS_STR(oplist) );                                       \
+                    M_OPL_AS_STR(oplist) );                                   \
   }                                                                           \
   , /* End of TYPE */)
 #endif
