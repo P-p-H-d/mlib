@@ -31,7 +31,7 @@ RM=rm -f
 .SUFFIXES: .c .exe
 
 .c.exe:
-	$(CC) $(CFLAGS) $(CPPFLAGS) $< -o $@ `cat config` $(LDFLAGS)
+	$(CC) $(CFLAGS) $(CPPFLAGS) $< -o $@ `cat config` `cat config.curl` $(LDFLAGS)
 
 .c.o:
 	@$(MAKE) config
@@ -53,11 +53,11 @@ config:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -I$(GMP_DIR)/include -L$(GMP_DIR)/lib config-test.c -lgmp -o config-test.exe $(LDFLAGS) 2> /dev/null && echo "-DHAVE_GMP=1 -DHAVE_MPFR=0 -I$(GMP_DIR)/include -L$(GMP_DIR)/lib -lgmp" > config || echo "-DHAVE_GMP=0 -DHAVE_MPFR=0 " > config
 	printf "#include <mpfr.h>\nint main(void){mpfr_t z; mpfr_init(z); return 0;}\n" > config-test.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) -I$(GMP_DIR)/include -I$(MPFR_DIR)/include -L$(GMP_DIR)/lib -L$(MPFR_DIR)/lib config-test.c -lmpfr -lgmp -o config-test.exe $(LDFLAGS) 2> /dev/null && echo "-DHAVE_GMP=1 -DHAVE_MPFR=1  -I$(GMP_DIR)/include -L$(GMP_DIR)/lib -I$(MPFR_DIR)/include -L$(MPFR_DIR)/lib -lmpfr -lgmp" > config || echo "MPFR not available"
+	printf "#include <curl/curl.h>\nint main(void){curl_global_init(CURL_GLOBAL_DEFAULT);}" > config-test.c
+	$(CC) $(CFLAGS) $(CPPFLAGS) config-test.c `curl-config --cflags --libs`  -o config-test.exe 2> /dev/null && echo "-DHAVE_CURL=1 `curl-config --cflags --libs`" > config.curl || echo "-DHAVE_CURL=0 " > config.curl
 	printf "#include <stdio.h>\nint main(void){printf(\"Ok\"); return 0;}\n" > config-test.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) config-test.c -ffunction-sections -fdata-sections -Wl,--gc-sections 2> /dev/null && echo "-ffunction-sections -fdata-sections -Wl,--gc-sections" > config.link || echo "" > config.link
 	$(RM) config-test.c config-test.exe
 
 clean:
-	$(RM) *.exe *.s *~ *.o ./a.dat config config.link
-
-
+	$(RM) *.exe *.s *~ *.o ./a.dat config config.link config.curl
