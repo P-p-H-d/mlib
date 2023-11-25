@@ -104,6 +104,19 @@ static void check_swap(void)
   pair_str_clear(p2);
 }
 
+static void check_emplace(void)
+{
+  pair_str_t p1;
+  pair_str_init (p1);
+
+  pair_str_emplace_vala(p1, "Hello");
+  pair_str_emplace_valb(p1, "World");
+  assert(string_equal_str_p (p1->vala, "Hello"));
+  assert(string_equal_str_p (p1->valb, "World"));
+
+  pair_str_clear(p1);
+}
+
 static void check_reset(void)
 {
   single_str_t p1;
@@ -286,6 +299,7 @@ int main(void)
   check_io();
   check_swap();
   check_reset();
+  check_emplace();
   check_chaining_tuple();
   test_double();
   testobj_final_check();
