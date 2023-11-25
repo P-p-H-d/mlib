@@ -61,7 +61,20 @@ TUPLE_DEF2(my,
            (vall, double),
            (valm, long double)
            )
-#define M_OPL_my_t() TUPLE_OPLIST(my, M_BASIC_OPLIST, M_BASIC_OPLIST, M_BASIC_OPLIST, STRING_OPLIST, M_OPL_a2_t(), M_OPL_v2_t(), M_OPL_l2_t(), M_OPL_d2_t() )
+#define M_OPL_my_t() TUPLE_OPLIST(my, \
+          M_BASIC_OPLIST, \
+          M_BASIC_OPLIST, \
+          M_BOOL_OPLIST, \
+          STRING_OPLIST, \
+          M_OPL_a2_t(), \
+          M_OPL_v2_t(), \
+          M_OPL_l2_t(), \
+          M_OPL_d2_t(), \
+          M_BASIC_OPLIST, \
+          M_BASIC_OPLIST, \
+          M_BASIC_OPLIST, \
+          M_BASIC_OPLIST, \
+          M_BASIC_OPLIST )
 
 TUPLE_DEF2(my2,
            (activated, bool),
