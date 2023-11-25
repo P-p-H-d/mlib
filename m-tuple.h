@@ -134,6 +134,7 @@ namespace m_lib {
   M_TUPL3_DEFINE_CLEAR(name, __VA_ARGS__)                                     \
   M_TUPL3_DEFINE_GETTER_FIELD(name, __VA_ARGS__)                              \
   M_TUPL3_DEFINE_SETTER_FIELD(name, __VA_ARGS__)                              \
+  M_TUPL3_DEFINE_EMPLACE_FIELD(name, __VA_ARGS__)                             \
   M_TUPL3_IF_ONE(CMP, __VA_ARGS__)(M_TUPL3_DEFINE_CMP(name, __VA_ARGS__),)    \
   M_TUPL3_IF_ALL(CMP, __VA_ARGS__)(M_TUPL3_DEFINE_CMP_ORDER(name, __VA_ARGS__),) \
   M_TUPL3_DEFINE_CMP_FIELD(name, __VA_ARGS__)                                 \
@@ -345,6 +346,25 @@ namespace m_lib {
        (M_F(name,_ct) my, M_TUPL3_GET_TYPE a const M_TUPL3_GET_FIELD a) {     \
     M_TUPL3_CONTRACT(my);                                                     \
     M_TUPL3_CALL_SET(a, my ->M_TUPL3_GET_FIELD a, M_TUPL3_GET_FIELD a);       \
+  }
+
+
+/* Define the EMPLACE_field methods for all params. */
+#define M_TUPL3_DEFINE_EMPLACE_FIELD(name, ...)                               \
+  M_REDUCE3(M_TUPL3_DEFINE_EMPLACE_FIELD_PROTO, M_TUPL3_DEFINE_EMPLACE_G, name, __VA_ARGS__)
+
+#define M_TUPL3_DEFINE_EMPLACE_G(a, b) a b
+
+#define M_TUPL3_DEFINE_EMPLACE_FIELD_PROTO(name, id, a)                       \
+  M_EMPLACE_QUEUE_DEF(M_TUPL3_GET_FIELD a, M_F(name, _ct), M_C3(name, _emplace_, M_TUPL3_GET_FIELD a), M_TUPL3_GET_OPLIST a, M_TUPL3_EMPLACE_DEF)
+
+#define M_TUPL3_EMPLACE_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
+  M_INLINE void                                                               \
+  function_name(name_t v                                                      \
+                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  {                                                                           \
+    M_CALL_CLEAR(oplist, v->name);                                            \
+    M_EMPLACE_CALL_FUNC(a, init_func, oplist, v->name, exp_emplace_type);     \
   }
 
 

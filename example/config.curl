@@ -1,0 +1,2 @@
+-DHAVE_CURL=1 
+-lcurl
