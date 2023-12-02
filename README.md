@@ -4434,6 +4434,18 @@ Initialize the shared pointer 'shared' to the same object than the one
 pointed by 'src' (sharing ownership).
 This function is thread safe from 'src' point of view.
 
+##### void name\_init\_with\[suffix\](shared\_t shared, args...)
+
+Initialize the shared pointer 'shared' to the new object initilized with args.
+The provided arguments shall therefore match one of the constructor provided
+by the EMPLACE\_TYPE operator.
+There is one generated method per suffix defined in the EMPLACE\_TYPE operator,
+and the 'suffix' in the generated method name corresponds to the suffix defined in
+in the EMPLACE\_TYPE operator (it can be empty).
+This method is created only if the EMPLACE\_TYPE operator is provided.
+See emplace chapter for more details.
+It is equivalent to the C++ make\_shared.
+
 ##### bool name\_NULL\_p(const shared\_t shared)
 
 Return true if shared doesn't reference any object (i.e. is the NULL pointer).

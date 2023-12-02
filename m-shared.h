@@ -1,5 +1,5 @@
 /*
- * M*LIB - SHARED Module
+ * M*LIB - SHARED Pointer Module
  *
  * Copyright (c) 2017-2023, Patrick Pelissier
  * All rights reserved.
@@ -166,6 +166,7 @@ M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
   M_SHAR3D_PTR_DEF_TYPE(name, type, oplist, cpt_oplist, shared_t)             \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
   M_SHAR3D_PTR_DEF_CORE(name, type, oplist, cpt_oplist, shared_t)             \
+  M_EMPLACE_QUEUE_DEF(name, cpt_oplist, M_F(name, _init_with), oplist, M_SHAR3D_PTR_DEF_EMPLACE)
 
 /* Define the types */
 #define M_SHAR3D_PTR_DEF_TYPE(name, type, oplist, cpt_oplist, shared_t)       \
@@ -180,6 +181,7 @@ M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
                                                                               \
   /* Internal type for oplist */                                              \
   typedef shared_t M_F(name, _ct);                                            \
+  typedef type     M_F(name, _subtype_ct);                                    \
                                                                               \
   typedef struct M_F(name, combine_s) {                                       \
     type data;                                                                \
@@ -361,6 +363,30 @@ M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
     return data;                                                              \
   }                                                                           \
 
+/* Definition of the emplace_back function for arrays */
+#define M_SHAR3D_PTR_DEF_EMPLACE(name, cpt_oplist, function_name, oplist, init_func, exp_emplace_type) \
+  M_INLINE void                                                               \
+  function_name(M_F(name, _ct) shared                                         \
+                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  {                                                                           \
+    /* NOTE: Alloc 1 struct with both structures. */                          \
+    struct M_F(name, combine_s) *p =                                          \
+      M_CALL_NEW(oplist, struct M_F(name, combine_s));                        \
+    if (M_UNLIKELY_NOMEM (p == NULL)) {                                       \
+      M_MEMORY_FULL(sizeof(struct M_F(name, combine_s)));                     \
+      return;                                                                 \
+    }                                                                         \
+    struct M_F(name, _s) *ptr = &p->ptr;                                      \
+    M_F(name, _subtype_ct) *data = &p->data;                                  \
+    M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
+    ptr->data = data;                                                         \
+    M_CALL_INIT_SET(cpt_oplist, &ptr->cpt, 1);                                \
+    ptr->combineAlloc = true;                                                 \
+    *shared = ptr;                                                            \
+    M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
+  }                                                                           \
+
+
 
 /********************************** INTERNAL *********************************/
 
@@ -407,6 +433,7 @@ M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
                                                                               \
   /* Internal Types for oplist */                                             \
   typedef shared_t M_F(name, _ct);                                            \
+  typedef type     M_F(name, _subtype_ct);                                    \
 
 /* Define the core functions */
 #define M_SHAR3D_RESOURCE_DEF_CORE(name, type, oplist, shared_t, it_t)        \

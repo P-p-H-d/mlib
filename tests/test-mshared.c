@@ -135,6 +135,15 @@ static void test2(void)
   shared_int_clear(p1);
 }
 
+static void test_emplace(void)
+{
+  shared_mpz_t z;
+
+  shared_mpz_init_with_ui(z, 23);
+  assert ( (*shared_mpz_ref(z))->ptr[0] == 23);
+  shared_mpz_clear(z);
+}
+
 #define MAX_RESSOURCE 10
 
 static void test_ressource(int n)
@@ -223,6 +232,7 @@ int main(void)
 {
   test1();
   test2();
+  test_emplace();
   for(int i = 1; i < MAX_RESSOURCE; i++) {
     test_ressource(i);  
   }
