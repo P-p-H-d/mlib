@@ -183,9 +183,9 @@ M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
   typedef shared_t M_F(name, _ct);                                            \
   typedef type     M_F(name, _subtype_ct);                                    \
                                                                               \
-  typedef struct M_F(name, combine_s) {                                       \
-    type data;                                                                \
+  typedef struct M_F(name, _combine_s) {                                      \
     struct M_F(name, _s) ptr;                                                 \
+    type data;                                                                \
   } M_F(name, combine_ct)[1];                                                 \
 
 /* Define the core functions */
@@ -224,18 +224,18 @@ M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
   M_F(name, _init_new)(shared_t shared)                                       \
   {                                                                           \
     /* NOTE: Alloc 1 struct with both structures. */                          \
-    struct M_F(name, combine_s) *p =                                          \
-      M_CALL_NEW(oplist, struct M_F(name, combine_s));                        \
+    struct M_F(name, _combine_s) *p =                                         \
+      M_CALL_NEW(oplist, struct M_F(name, _combine_s));                       \
     if (M_UNLIKELY_NOMEM (p == NULL)) {                                       \
-      M_MEMORY_FULL(sizeof(struct M_F(name, combine_s)));                     \
+      M_MEMORY_FULL(sizeof(struct M_F(name, _combine_s)));                    \
       return;                                                                 \
     }                                                                         \
     struct M_F(name, _s) *ptr = &p->ptr;                                      \
+    ptr->combineAlloc = true;                                                 \
     type *data = &p->data;                                                    \
     M_CALL_INIT( oplist, *data);                                              \
     ptr->data = data;                                                         \
     M_CALL_INIT_SET(cpt_oplist, &ptr->cpt, 1);                                \
-    ptr->combineAlloc = true;                                                 \
     *shared = ptr;                                                            \
     M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
   }                                                                           \
@@ -274,9 +274,10 @@ M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
            first element, aka data itself. Static analyzer tools don't        \
            seem to detect this and report error. */                           \
         M_CALL_CLEAR(oplist, *(*dest)->data);                                 \
-        M_CALL_DEL(oplist, (*dest)->data);                                    \
-        if (combineAlloc == false)                                            \
-          M_CALL_DEL(oplist, *dest);                                          \
+        if (combineAlloc == false) {                                          \
+          M_CALL_DEL(oplist, (*dest)->data);                                  \
+        }                                                                     \
+        M_CALL_DEL(oplist, *dest);                                            \
       }                                                                       \
       *dest = NULL;                                                           \
     }                                                                         \
@@ -370,18 +371,18 @@ M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
     /* NOTE: Alloc 1 struct with both structures. */                          \
-    struct M_F(name, combine_s) *p =                                          \
-      M_CALL_NEW(oplist, struct M_F(name, combine_s));                        \
+    struct M_F(name, _combine_s) *p =                                          \
+      M_CALL_NEW(oplist, struct M_F(name, _combine_s));                        \
     if (M_UNLIKELY_NOMEM (p == NULL)) {                                       \
-      M_MEMORY_FULL(sizeof(struct M_F(name, combine_s)));                     \
+      M_MEMORY_FULL(sizeof(struct M_F(name, _combine_s)));                     \
       return;                                                                 \
     }                                                                         \
     struct M_F(name, _s) *ptr = &p->ptr;                                      \
+    ptr->combineAlloc = true;                                                 \
     M_F(name, _subtype_ct) *data = &p->data;                                  \
     M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
     ptr->data = data;                                                         \
     M_CALL_INIT_SET(cpt_oplist, &ptr->cpt, 1);                                \
-    ptr->combineAlloc = true;                                                 \
     *shared = ptr;                                                            \
     M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
   }                                                                           \
