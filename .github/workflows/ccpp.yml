@@ -120,12 +120,12 @@ jobs:
       run: Make-check-cl.bat clang-cl
 
   build_freebsd:
-    runs-on: macos-12
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - name: Test in FreeBSD
       id: test
-      uses: vmactions/freebsd-vm@v0
+      uses: vmactions/freebsd-vm@v1
       timeout-minutes: 60
       with:
         usesh: true
