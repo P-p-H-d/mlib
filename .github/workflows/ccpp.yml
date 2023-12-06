@@ -119,6 +119,7 @@ jobs:
       working-directory: ./tests
       run: Make-check-cl.bat clang-cl
 
+    # The host should always be linux
   build_freebsd:
     runs-on: ubuntu-latest
     steps:
