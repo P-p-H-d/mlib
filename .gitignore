@@ -38,7 +38,7 @@ depend
 other/
 a*.dat
 config
-config.link
+config.*
 *.log
 .vscode
 .vs
