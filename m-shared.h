@@ -371,10 +371,10 @@ M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
     /* NOTE: Alloc 1 struct with both structures. */                          \
-    struct M_F(name, _combine_s) *p =                                          \
-      M_CALL_NEW(oplist, struct M_F(name, _combine_s));                        \
+    struct M_F(name, _combine_s) *p =                                         \
+      M_CALL_NEW(oplist, struct M_F(name, _combine_s));                       \
     if (M_UNLIKELY_NOMEM (p == NULL)) {                                       \
-      M_MEMORY_FULL(sizeof(struct M_F(name, _combine_s)));                     \
+      M_MEMORY_FULL(sizeof(struct M_F(name, _combine_s)));                    \
       return;                                                                 \
     }                                                                         \
     struct M_F(name, _s) *ptr = &p->ptr;                                      \
