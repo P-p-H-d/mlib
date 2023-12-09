@@ -8008,7 +8008,8 @@ Example:
         {
                 sumint_t s;
                 sumint_init_with(s, 16);
-                int n = f(sumint_as_interface(s));
+                interface_t interface = sumint_as_interface(s);
+                int n = f(interface);
                 printf("sum=%d\n", n);
                 sumint_clear(s);
         }
@@ -8037,6 +8038,7 @@ It will define the following type and functions:
 
 Type representing an interface to such function object. 
 There is only one method for such type (see below).
+It is a pointer to an hidded structure and can be assigned.
 
 ##### retcode\_type name\_call(name\_t interface, type\_of\_param1, type\_of\_param 2, ...)
 

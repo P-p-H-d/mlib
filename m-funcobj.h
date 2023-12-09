@@ -156,7 +156,7 @@
                                                                               \
   typedef struct M_F(name, _s) {                                              \
      M_F(name, _callback_ct) callback;                                        \
-  } interface_t[1];                                                           \
+  } *interface_t;                                                             \
                                                                               \
   /* Internal type for oplist & instance */                                   \
   typedef interface_t M_F(name, _ct);                                         \
@@ -192,7 +192,7 @@
                                                                               \
   typedef struct M_F(name, _s) {                                              \
      M_F(name, _callback_ct) callback;                                        \
-  } interface_t[1];                                                           \
+  } *interface_t;                                                             \
                                                                               \
   /* Internal type for oplist & instance */                                   \
   typedef interface_t M_F(name, _ct);                                         \

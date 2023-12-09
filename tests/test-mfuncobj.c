@@ -85,7 +85,8 @@ static void test_instance11(void)
   instance11_t cmp;
   int n = 2;
   instance11_init_with(cmp, -1, STRING_CTE("INIT") );
-  int x = interface1_call(instance11_as_interface(cmp), 10, &n);
+  interface1_t interface = instance11_as_interface(cmp);
+  int x = interface1_call(interface, 10, &n);
   assert(x == -8);
   assert(string_equal_str_p(cmp->c, "CALLED"));
   instance11_clear(cmp);
@@ -111,7 +112,8 @@ static void test_instance21(void)
 {
   instance21_t cmp;
   instance21_init(cmp);
-  int x = interface2_call(instance21_as_interface(cmp));
+  interface2_t interface = instance21_as_interface(cmp);
+  int x = interface2_call(interface);
   assert(x == 1);
   instance21_clear(cmp);
 }
