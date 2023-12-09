@@ -27,6 +27,7 @@
 
 #include "m-string.h"
 #include "m-array.h"
+#include "m-list.h"
 #include "m-generic.h"
 
 // Generic is not supported if not C11
@@ -34,6 +35,9 @@
 
 ARRAY_DEF(array_int, int)
 #define M_OPL_array_int_t() ARRAY_OPLIST(array_int, M_BASIC_OPLIST)
+
+LIST_DEF(list_int, int)
+#define M_OPL_list_int_t() LIST_OPLIST(list_int, M_BASIC_OPLIST)
 
 static void h(string_t x)
 {
@@ -46,6 +50,7 @@ const string_t gx;
 #define FLT1 (GENTYPE(float), TYPE(float), INIT(M_INIT_BASIC), INIT_SET(M_SET_BASIC), SET(M_SET_BASIC),               \
    CLEAR(M_NOTHING_DEFAULT) )
 #define ARRAY1 M_OPEXTEND(M_OPL_array_int_t(), GENTYPE(struct array_int_s *))
+#define LIST1  M_OPEXTEND(M_OPL_list_int_t(), GENTYPE(struct list_int_s **))
 
 //#define M_GENERIC_ORG_MLIB_COMP_1() (CORE)
 //#define M_GENERIC_ORG_MLIB_COMP_CORE_OPLIST_1() STR1
@@ -57,8 +62,10 @@ const string_t gx;
 #define M_GENERIC_ORG_USER_COMP_CORE_OPLIST_7() STR1
 
 #define M_GENERIC_ORG_3() (ARRAY)
-#define M_GENERIC_ORG_ARRAY_COMP_5() (INT)
-#define M_GENERIC_ORG_ARRAY_COMP_INT_OPLIST_6() ARRAY1
+#define M_GENERIC_ORG_ARRAY_COMP_5() (AINT)
+#define M_GENERIC_ORG_ARRAY_COMP_AINT_OPLIST_6() ARRAY1
+#define M_GENERIC_ORG_ARRAY_COMP_10() (LINT)
+#define M_GENERIC_ORG_ARRAY_COMP_LINT_OPLIST_30() LIST1
 
 static bool test_empty(const string_t p)
 {
@@ -91,6 +98,15 @@ static void test_string(string_t p)
 static void test_array(void)
 {
 	M_LET(a, array_int_t) {
+		push(a, 14);
+		push(a, 15);
+		out_str(stdout, a);
+		for each(it, a) {
+			printf("=%d, ", *it);
+		}
+ 	}
+	// Just change the type, same code!
+	M_LET(a, list_int_t) {
 		push(a, 14);
 		push(a, 15);
 		out_str(stdout, a);
