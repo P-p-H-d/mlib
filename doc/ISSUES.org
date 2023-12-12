@@ -41,8 +41,28 @@ of the GAIA by adding support for identification of specialization like this:
 
 ** Open points:
 
-- How to get access to the specialization field of the container? ==> Define the "self" name as the name of the container for all methods? What to do when there are several containers for a method?
+- How to get access to the specialization field of the container? 
+==> Define the "self" name as the name of the container for all methods? 
+- What to do when there are several containers for a method?
+==> self shall be the destination?
+
 - How to initialize the specialization field of the container? provide custom initialization functions? It seems to be the hard point.
+* INIT: Force a default to NULL ?
+* INIT_SET: Force the same value than the src? We may want another pool!
+* INIT_MOVE: Force the same value than the src. Mandatory
+* MOVE: Assume the same value. Mandatory
+* SET: Use the already define pool
+* INIT_WITH: Force a default to NULL?
+==> init_emplace ?
+-- How can we handle containers that allocate on initialization? It cannot, so this solution seems broken
+==> Modify constructor prototype to add allocators (except for MOVE/INIT_MOVE)
+* INIT(dest) ==> INIT(dest, context)
+* INIT(dest, src) ==> INIT_SET(dest, context, src)
+* INIT_WITH(dest, ...) ==> INIT_WITH(dest, context, ...)
+* INIT emplace(dest [custom]) ==> INIT_emplace(dest, context, [custom])
+==> How to pass context? Inherited from master container? A CONTEXT may be present in the parent container but the child may not accept CONTEXT... Same than the Heap Allocator is not the same between different types... The allocator of the parent may be different from the one of the child... ==> Force context to be the same ?
+==> If a type A uses CONTEXT, all containers constructed from A shall use CONTEXT too
+-- Need to use an oplist for context or force basic type?
 
 * TODO #31 : Uniformize parametrisation options of containers   :ENHANCEMENT:
 
@@ -280,6 +300,9 @@ unsigned get_small_hash(int64_t x) {
   return x & ((1<<LOW_BITS)-1);
 }
 #+END_SRC
+
+Can also (should?) use SIMD to test for several hash entries at the same times
+In which case a complete new implementation will be needed
 
 * TODO #25 : Support of error return model for error handling.  :ENHANCEMENT:
 
