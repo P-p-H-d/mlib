@@ -399,6 +399,14 @@ bench-CC0:
 	@./bench-CC.exe 40
 	@./bench-CC.exe 41
 
+# VERSTABLE shall point to the source directory of VERSTABLE (where the headers are)
+bench-verstable:
+	@if test -n "$${VERSTABLE}" ; then $(MAKE) bench-verstable0 ; else echo "Nothing to be done for VERSTABLE." ; fi
+
+bench-verstable0:
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I $${VERSTABLE}/ bench-verstable.c common.c -o bench-verstable.exe
+	@./bench-verstable.exe 40
+
 ############################################################################
 
 bench-mlib-json: bench-mlib
