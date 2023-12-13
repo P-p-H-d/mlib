@@ -406,6 +406,7 @@ bench-verstable:
 bench-verstable0:
 	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I $${VERSTABLE}/ bench-verstable.c common.c -o bench-verstable.exe
 	@./bench-verstable.exe 40
+	@./bench-verstable.exe 41
 
 ############################################################################
 
