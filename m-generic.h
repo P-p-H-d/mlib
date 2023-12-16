@@ -36,6 +36,21 @@
 #define m_typeof(x) typeof(x)
 #endif
 
+#if defined(__clang__) && __clang_major__ >= 15
+/* Warnings disabled for CLANG in C mode */
+#define M_G3N_BEGIN_PROTECTED_CODE                                            \
+  _Pragma("clang diagnostic push")                                            \
+  _Pragma("clang diagnostic ignored \"-Wunreachable-code-generic-assoc\"")    
+
+#define M_G3N_END_PROTECTED_CODE                                              \
+  _Pragma("clang diagnostic pop")
+
+#else
+
+#define M_G3N_BEGIN_PROTECTED_CODE
+#define M_G3N_END_PROTECTED_CODE
+
+#endif
 
 // Instead of using expensive M_SEQ(1,50), precompute it:
 #define M_G3N_SEQ_INT                                                         \
@@ -83,9 +98,11 @@ typedef const char **m_g3n_cstring_end;
 // Call the OPERATOR call of the oplist registered to the variable 'x'
 // which takes one argument.
 #define M_G3N_CALL_1(op, x)                                                   \
+  M_G3N_BEGIN_PROTECTED_CODE                                                  \
   _Generic( ((void)0, (x)),                                                   \
             M_MAP2(M_G3N_CALL_1_func, (op, x) M_G3N_REGISTERED_ITEMS() )      \
-            struct m_g3neric_dummys *: /* cannot happen */ (void)0)
+            struct m_g3neric_dummys *: /* cannot happen */ (void)0)           \
+  M_G3N_END_PROTECTED_CODE
 #define M_G3N_CALL_1_func(x, oplist)                                          \
   M_G3N_CALL_1_func_test(M_GET_GENTYPE oplist(), M_PAIR_1 x, M_PAIR_2 x, oplist)
 #define M_G3N_CALL_1_func_test(gentype, op, x, oplist)                        \
@@ -97,9 +114,11 @@ typedef const char **m_g3n_cstring_end;
 // Call the OPERATOR call of the oplist registered to the variable 'svar'
 // which takes 2 arguments of the given type
 #define M_G3N_CALL_2(op, svar, type1, var1, type2, var2)                      \
+  M_G3N_BEGIN_PROTECTED_CODE                                                  \
   _Generic( ((void)0, (svar)),                                                \
             M_MAP2(M_G3N_CALL_2_func, (op, svar, type1, var1, type2, var2) M_G3N_REGISTERED_ITEMS() ) \
-            struct m_g3neric_dummys *: /* cannot happen */ (void) 0)
+            struct m_g3neric_dummys *: /* cannot happen */ (void) 0)          \
+  M_G3N_END_PROTECTED_CODE
 #define M_G3N_CALL_2_func(x, oplist)                                          \
   M_APPLY(M_G3N_CALL_2_func_test, M_GET_GENTYPE oplist(), M_ID x, oplist)
 #define M_G3N_CALL_2_func_test(gentype, op, svar, type1, var1, type2, var2, oplist) \
@@ -111,9 +130,11 @@ typedef const char **m_g3n_cstring_end;
 // Call the OPERATOR call of the oplist registered to the variable 'svar'
 // which takes 3 arguments of the given type
 #define M_G3N_CALL_3(op, svar, type1, var1, type2, var2, type3, var3)         \
+  M_G3N_BEGIN_PROTECTED_CODE                                                  \
   _Generic( ((void)0, (svar)),                                                \
             M_MAP2(M_G3N_CALL_3_func, (op, svar, type1, var1, type2, var2, type3, var3) M_G3N_REGISTERED_ITEMS() ) \
-            struct m_g3neric_dummys *: /* cannot happen */ (void) 0)
+            struct m_g3neric_dummys *: /* cannot happen */ (void) 0)          \
+  M_G3N_END_PROTECTED_CODE
 #define M_G3N_CALL_3_func(x, oplist)                                          \
   M_APPLY(M_G3N_CALL_3_func_test, M_GET_GENTYPE oplist(), M_ID x, oplist)
 #define M_G3N_CALL_3_func_test(gentype, op, svar, type1, var1, type2, var2, type3, var3, oplist) \
@@ -125,9 +146,11 @@ typedef const char **m_g3n_cstring_end;
 // Call the OPERATOR call of the oplist registered to the variable 'svar'
 // which takes 4 arguments of the given type
 #define M_G3N_CALL_4(op, svar, type1, var1, type2, var2, type3, var3, type4, var4) \
+  M_G3N_BEGIN_PROTECTED_CODE                                                  \
   _Generic( ((void)0, (svar)),                                                \
             M_MAP2(M_G3N_CALL_4_func, (op, svar, type1, var1, type2, var2, type3, var3, type4, var4) M_G3N_REGISTERED_ITEMS() ) \
-            struct m_g3neric_dummys *: /* cannot happen */ (void) 0)
+            struct m_g3neric_dummys *: /* cannot happen */ (void) 0)          \
+  M_G3N_END_PROTECTED_CODE
 #define M_G3N_CALL_4_func(x, oplist)                                          \
   M_APPLY(M_G3N_CALL_4_func_test, M_GET_GENTYPE oplist(), M_ID x, oplist)
 #define M_G3N_CALL_4_func_test(gentype, op, svar, type1, var1, type2, var2, type3, var3, type4, var4, oplist) \
@@ -139,32 +162,38 @@ typedef const char **m_g3n_cstring_end;
 // Call the OPERATOR call of the oplist registered to the variable 'x'
 // which takes one argument, it_type
 #define M_G3N_CALL_1i(op, x)                                                  \
+  M_G3N_BEGIN_PROTECTED_CODE                                                  \
   _Generic( ((void)0, (x)),                                                   \
             M_MAP2(M_G3N_CALL_1i_func, (op, x) M_G3N_REGISTERED_ITEMS() )     \
-            struct m_g3neric_dummys *: /* cannot happen */ (void)0)
+            struct m_g3neric_dummys *: /* cannot happen */ (void)0)           \
+  M_G3N_END_PROTECTED_CODE
 #define M_G3N_CALL_1i_func(x, oplist)                                         \
   M_G3N_CALL_1_func_test(M_G3N_IT_TYPE(oplist), M_PAIR_1 x, M_PAIR_2 x, oplist)
 
 // Call the OPERATOR call of the oplist registered to the variable 'svar'
 // which takes 2 arguments of the given it_type
 #define M_G3N_CALL_2i(op, svar, type1, var1, type2, var2)                     \
+  M_G3N_BEGIN_PROTECTED_CODE                                                  \
   _Generic( ((void)0, (svar)),                                                \
             M_MAP2(M_G3N_CALL_2i_func, (op, svar, type1, var1, type2, var2) M_G3N_REGISTERED_ITEMS() ) \
-            struct m_g3neric_dummys *: /* cannot happen */ (void) 0)
+            struct m_g3neric_dummys *: /* cannot happen */ (void) 0)          \
+  M_G3N_END_PROTECTED_CODE
 #define M_G3N_CALL_2i_func(x, oplist)                                         \
   M_APPLY(M_G3N_CALL_2_func_test, M_G3N_IT_TYPE(oplist), M_ID x, oplist)
 
 // Create a variable of type OPERATOR call of the oplist registered to the variable 'x'
 #define M_G3N_TYPE_1(op, x)                                                   \
+  M_G3N_BEGIN_PROTECTED_CODE                                                  \
   _Generic( ((void)0, (x)),                                                   \
             M_MAP2(M_G3N_TYPE_1_func, (op, x) M_G3N_REGISTERED_ITEMS() )      \
-            struct m_g3neric_dummys *: /* cannot happen */ (void)0)
+            struct m_g3neric_dummys *: /* cannot happen */ (void)0)           \
+  M_G3N_END_PROTECTED_CODE
 #define M_G3N_TYPE_1_func(x, oplist)                                          \
   M_G3N_TYPE_1_func_test(M_GET_GENTYPE oplist(), M_PAIR_1 x, M_PAIR_2 x, oplist)
 #define M_G3N_TYPE_1_func_test(gentype, op, x, oplist)                        \
   M_IF_METHOD(op, oplist())(M_G3N_TYPE_1_func_expand, M_EAT)(gentype, op, x, oplist)
 #define M_G3N_TYPE_1_func_expand(gentype, op, x, oplist)                      \
-  gentype: (M_G3N_TYPE(op, oplist)){0},                 \
+  gentype: (M_G3N_TYPE(op, oplist)){0},                                       \
   const gentype: (M_G3N_TYPE(op, oplist)){0},
 
 
@@ -230,18 +259,14 @@ typedef const char **m_g3n_cstring_end;
 #define M_G3N_EACHI(item, container, l_it, l_pass)                            \
   (bool l_pass = true; l_pass; l_pass = false)                                \
   for(sub_type(container) *item; l_pass ; l_pass = false)                     \
-    for(it_type(container) l_it; l_pass ; l_pass = false)                      \
+    for(it_type(container) l_it; l_pass ; l_pass = false)                     \
       for(it_first(l_it, container) ;                                         \
           !it_end_p(l_it)                                                     \
             && (item = it_ref(l_it), true) ;                                  \
           it_next(l_it))
 
-// TODO: init_with ? How to handle the different type of parameters ?
-// TODO: emplace ?
+// TODO: init_with ? How to handle the different type of parameters ? emplace ?
 // TODO: Integrate in M_PRINT ?
-// TODO: How to handle -Wunreachable-code-generic-assoc which is enabled automatically in CLANG 15?
-// Generate warning: due to lvalue conversion of the controlling expression, association of type 'const float' will never be selected because it is qualified [-Wunreachable-code-generic-assoc]
-// Pragma if CLANG ?
 
 /* User code has to register oplists :
 
