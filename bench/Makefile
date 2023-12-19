@@ -322,8 +322,11 @@ bench-xxhash0:
 bench-boost:
 	@if test -n "$${BOOST}" ; then $(MAKE) bench-boost0 ; else echo "Nothing to be done for BOOST." ; fi
 bench-boost0:
-	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${BOOST}" bench-boost.cpp common.c -DMULTI_THREAD_MEASURE -o bench-boost.exe -lpthread
-	@./bench-boost.exe 60
+	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${BOOST}" bench-boost.cpp common.c -DMULTI_THREAD_MEASURE -o bench-boost-thread.exe -lpthread
+	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${BOOST}" bench-boost.cpp common.c -o bench-boost.exe -lpthread
+	@./bench-boost.exe 42
+	@./bench-boost.exe 41
+	@./bench-boost-thread.exe 60
 
 # NEDTRIES shall point to the header location.
 bench-nedtries:
