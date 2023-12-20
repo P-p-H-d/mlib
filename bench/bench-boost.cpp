@@ -63,16 +63,6 @@ inline std::size_t hash_value(const char_array_s &k) {
   return hash;
 }
 
-struct Hash32 {
-  //using is_avalanching = void;
-  inline std::size_t operator()(const char_array_s &k) const {
-      size_t hash = 0;
-      const char *s = k.a;
-      while (*s) hash = hash * 31421 + (*s++) + 6927;
-      return hash;
-    };
-};
-
 static void
 test_dict_big(size_t  n)
 {
