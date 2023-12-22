@@ -6376,19 +6376,14 @@ Theses macros are only valid if the program is built in C11 mode:
 Return the printf format associated to the type of 'x'.
 'x' shall be a basic C variable, printable with printf.
 
-##### M\_PRINT\_ARG(x)
+##### M\_FPRINT\_ARG(file, x)
 
-Print using printf the variable 'x'.
+Print into a file 'file' using fprintf the variable 'x'.
 
 The format of 'x' is deduced provided that it is a standard numerical C type.
 If m-string is included, it supports also the type 'string\_t' natively.
 If the argument is extended (i.e. in the format '(var, optype)' with optype being either an oplist or a type
 with a globally registered oplist), then it will call the OUT\_STR method of the oplist on the variable 'var'.
-
-##### M\_FPRINT\_ARG(file, x)
-
-Print into a file 'file' using fprintf the variable 'x'.
-See M\_PRINT\_ARG for details on the supported variable.
 
 ##### M\_GET\_STRING\_ARG(string,x,append)
 

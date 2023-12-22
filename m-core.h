@@ -2629,15 +2629,6 @@ m_core_fopen(const char filename[], const char opt[])
 /* Can be overloaded by m-string to support string output too */
 #define M_CORE_PRINTF_ARG(x) x
 
-/* Print a C variable if it is a standard type (or extension) to stdout
-  If a variable is extended (i.e. like (x, type) ) it will use the 
-  method associated to the OUT_STR operator.
-*/
-#define M_PRINT_ARG(x)                                                        \
-  M_IF(M_PARENTHESIS_P(x))                                                    \
-    ( M_FPRINT_ARG_OUT_STR(stdout, M_PAIR_2 x, M_PAIR_1 x),                   \
-    printf(M_PRINTF_FORMAT(x), M_CORE_PRINTF_ARG(x) ) )
-
 /* Print a C variable if it is a standard type to the given file 'f'.
   If a variable is extended (i.e. like (x, type) ) it will use the 
   method associated to the OUT_STR operator.
@@ -2812,7 +2803,7 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 
 /* Generic PRINT macro: print all its inputs regardless of the type
    provided it is a generic "non-struct" type. */
-#define M_PRINT(...)   do { M_REDUCE(M_PRINT_ARG, M_SEPARATE_PER_SEMICOLON, __VA_ARGS__); } while (0)
+#define M_PRINT(...)   do { M_REDUCE2(M_FPRINT_ARG, M_SEPARATE_PER_SEMICOLON, stdout, __VA_ARGS__); } while (0)
 
 /* Generic FPRINT macro: print all its inputs regardless of the type
    provided it is a generic "non-struct" type into the file 'f'. */
