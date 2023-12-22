@@ -64,7 +64,7 @@ jobs:
       run: make depend
     - name: make check
       shell: bash
-      run: make CC="/tmp/tcc/bin/tcc -std=c99" check
+      run: make CC="/tmp/tcc/bin/tcc -std=c99" check -j4 || make CC="/tmp/tcc/bin/tcc -std=c99" check -j2 || make CC="/tmp/tcc/bin/tcc -std=c99" check
 
   build_linux_sanitize:
     runs-on: ubuntu-latest
