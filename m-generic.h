@@ -27,17 +27,92 @@
 
 #include "m-core.h"
 
+/* Define the generic macro-functions */
+// TODO: m_ prefix?
+#define init(x)              M_G3N_CALL_1(INIT, x)
+#define init_set(x, y)       M_G3N_CALL_2(INIT_SET, x, TYPE, x, TYPE, y)
+#define init_move(x, y)      M_G3N_CALL_2(INIT_MOVE, x, TYPE, x, TYPE, y)
+#define move(x, y)           M_G3N_CALL_2(MOVE, x, TYPE, x, TYPE, y)
+#define set(x, y)            M_G3N_CALL_2(SET, x, TYPE, x , TYPE, y)
+#define clear(x)             M_G3N_CALL_1(CLEAR, x)
+#define swap(x, y)           M_G3N_CALL_2(SWAP, x, TYPE, x , TYPE, y)
+#define hash(x)              M_G3N_CALL_1(HASH, x)
+#define equal(x, y)          M_G3N_CALL_2(EQUAL, x, TYPE, x , TYPE, y)
+#define cmp(x, y)            M_G3N_CALL_2(CMP, x, TYPE, x , TYPE, y)
+#define sort(x)              M_G3N_CALL_1(SORT, x)
+#define splice_back(d, s, i) M_G3N_CALL_3(SPLICE_BACK, d, TYPE, d, TYPE, s, IT_TYPE, i)
+#define splice_at(d, id, s, is) M_G3N_CALL_4(SPLICE_BACK, d, TYPE, d, IT_TYPE, id, TYPE, s, IT_TYPE, is)
+#define it_type(x)           m_typeof(M_G3N_TYPE_1(IT_TYPE, x))
+#define sub_type(x)          m_typeof(M_G3N_TYPE_1(SUBTYPE, x))
+#define key_type(x)          m_typeof(M_G3N_TYPE_1(KEY_TYPE, x))
+#define value_type(x)        m_typeof(M_G3N_TYPE_1(VALUE_TYPE, x))
+#define it_first(x, y)       M_G3N_CALL_2(IT_FIRST, y, IT_TYPE, x, TYPE, y)
+#define it_last(x, y)        M_G3N_CALL_i2(IT_LAST, y, IT_TYPE, x, TYPE, y)
+#define it_end(x, y)         M_G3N_CALL_i2(IT_END, y, IT_TYPE, x, TYPE, y)
+#define it_set(d, s)         M_G3N_CALL_2i(IT_SET, d, IT_TYPE, d, IT_TYPE, s)
+#define it_end_p(i)          M_G3N_CALL_1i(IT_END_P, i)
+#define it_last_p(i)         M_G3N_CALL_1i(IT_LAST_P, i)
+#define it_next(i)           M_G3N_CALL_1i(IT_NEXT, i)
+#define it_previous(i)       M_G3N_CALL_1i(IT_PREVIOUS, i)
+#define it_ref(i)            M_G3N_CALL_1i(IT_REF, i)
+#define it_cref(i)           M_G3N_CALL_1i(IT_CREF, i)
+#define it_equal(x, y)       M_G3N_CALL_2i(IT_EQUAL, x, IT_TYPE, x, IT_TYPE, y)
+#define it_insert(c, i, o)   M_G2N_CALL_3(IT_INSERT, c, TYPE, c, IT_TYPE, i, SUBTYPE, o)
+#define it_remove(c, i)      M_G3N_CALL_2(IT_REMOVE, c, TYPE, c, IT_TYPE, i)
+#define empty_p(x)           M_G3N_CALL_1(EMPTY_P, x)
+#define add(x, y)            M_G3N_CALL_2(ADD, x, TYPE, x, TYPE, y)
+#define sub(x, y)            M_G3N_CALL_2(SUB, x, TYPE, x, TYPE, y)
+#define mul(x, y)            M_G3N_CALL_2(MUL, x, TYPE, x, TYPE, y)
+#define div(x, y)            M_G3N_CALL_2(DIV, x, TYPE, x, TYPE, y)
+#define reset(x)             M_G3N_CALL_1(RESET, x)
+#define get(x, y)            M_G3N_CALL_2(GET_KEY, x, TYPE, x, KEY_TYPE, y)
+#define set_at(x, y, z)      M_G3N_CALL_3(SET_KEY, x, TYPE, x, KEY_TYPE, y, VALUE_TYPE, z)
+#define safe_get(x, y)       M_G3N_CALL_2(SAFE_GET_KEY, x, TYPE, x, KEY_TYPE, y)
+#define erase(x, y)          M_G3N_CALL_2(ERASE, x, TYPE, x, KEY_TYPE, y)
+#define get_size(x)          M_G3N_CALL_1(GET_SIZE, x)
+#define push(x, y)           M_G3N_CALL_2(PUSH, x, TYPE, x, SUBTYPE, y)
+#define pop(x, y)            M_G3N_CALL_2(PUSH, x, TYPE, x, SUBTYPE, y)
+#define push_move(x, y)      M_G3N_CALL_2(PUSH_MOVE, x, TYPE, x, SUBTYPE *, y)
+#define pop_move(x, y)       M_G3N_CALL_2(PUSH, x, TYPE, x, SUBTYPE*, y)
+#define reverse(x)           M_G3N_CALL_1(REVERSE, x)
+#define get_str(s, c, b)     M_G3N_CALL_3(GET_STR, c, string_t, s, TYPE, c, bool, b)
+#define parse_str(c, s, e)   M_G3N_CALL_3(PARSE_STR, c, TYPE, c, m_g3n_cstring, s, m_g3n_cstring_end, e)
+#define out_str(x, y)        M_G3N_CALL_2(OUT_STR, y, m_g3n_file, x, TYPE, y)
+#define in_str(x, y)         M_G3N_CALL_2(IN_STR, x, TYPE, x, m_g3n_file, y)
+#define out_serial(x, y)     M_G3N_CALL_2(OUT_SERIAL, y, m_serial_write_t, x, TYPE, y)
+#define in_serial(x, y)      M_G3N_CALL_2(IN_SERIAL, x, TYPE, x, m_serial_read_t, y)
+
+// for each(item, container)
+#define each(item, container)                                                 \
+  M_G3N_EACHI(item, container, M_C(m_local_it_, __LINE__), M_C(local_pass_, __LINE__))
+
+/* User code has to register oplists like this:
+#define M_GENERIC_ORG_2() (USER)
+#define M_GENERIC_ORG_USER_COMP_1() (CORE)
+#define M_GENERIC_ORG_USER_COMP_CORE_OPLIST_6() FLT1
+#define M_GENERIC_ORG_USER_COMP_CORE_OPLIST_7() STR1
+*/
+
+
+/*****************************************************************************/
+/********************************** INTERNAL *********************************/
+/*****************************************************************************/
+
+/* Definition of the typeof keyword
+   In C23, we can use the standard keyword.
+   Otherwise we use some extensions of the compilers. */
 #ifdef _MSC_VER
 #define m_typeof(x) decltype(x)
 #elif defined(__GNUC__)   
 #define m_typeof(x) __typeof__(x)
 #else
-// Definition valid for C23, TCC
 #define m_typeof(x) typeof(x)
 #endif
 
+/* Warnings disabled for CLANG in C mode:
+   Due to the genericty of the _Generic generation,
+   we cannot avoid generating both T and const T in the generic association. */
 #if defined(__clang__) && __clang_major__ >= 15
-/* Warnings disabled for CLANG in C mode */
 #define M_G3N_BEGIN_PROTECTED_CODE                                            \
   _Pragma("clang diagnostic push")                                            \
   _Pragma("clang diagnostic ignored \"-Wunreachable-code-generic-assoc\"")    
@@ -58,7 +133,9 @@
   21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, \
   40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50
 
-/* 3 levels of indirection are neeeded:
+/* Generate a sequence of the oplist that have been registered.
+
+   3 levels of indirection are neeeded:
     * One level is the organisation.
     * One level is the component of the organisation.
     * One level is the oplist within the component of the organisation
@@ -86,8 +163,11 @@ typedef FILE *m_g3n_file;
 typedef const char *m_g3n_cstring;
 typedef const char **m_g3n_cstring_end;
 
+// If x is of typex, return y else return (typey){O}
 #define M_AS_LINKED_TYPE(typex, x, typey, y) _Generic(((void)0,(x)), typex: (y), default: (typey) {0})
 
+// Return IT_TYPE of oplist promoted to a type suitable for a _Generic statement
+// i.e. transform array type into corresponding pointer type
 #define M_G3N_IT_TYPE(oplist)  m_typeof( ((void)0, (M_GET_IT_TYPE oplist()){0}))
 
 // Translate type' into the container type if type == TYPE, IT_TYPE into its iterator
@@ -196,66 +276,8 @@ typedef const char **m_g3n_cstring_end;
   gentype: (M_G3N_TYPE(op, oplist)){0},                                       \
   const gentype: (M_G3N_TYPE(op, oplist)){0},
 
-
-// Define the generic macro-functions
-// TODO: m_ prefix?
-#define init(x)              M_G3N_CALL_1(INIT, x)
-#define init_set(x, y)       M_G3N_CALL_2(INIT_SET, x, TYPE, x, TYPE, y)
-#define init_move(x, y)      M_G3N_CALL_2(INIT_MOVE, x, TYPE, x, TYPE, y)
-#define move(x, y)           M_G3N_CALL_2(MOVE, x, TYPE, x, TYPE, y)
-#define set(x, y)            M_G3N_CALL_2(SET, x, TYPE, x , TYPE, y)
-#define clear(x)             M_G3N_CALL_1(CLEAR, x)
-#define swap(x, y)           M_G3N_CALL_2(SWAP, x, TYPE, x , TYPE, y)
-#define hash(x)              M_G3N_CALL_1(HASH, x)
-#define equal(x, y)          M_G3N_CALL_2(EQUAL, x, TYPE, x , TYPE, y)
-#define cmp(x, y)            M_G3N_CALL_2(CMP, x, TYPE, x , TYPE, y)
-#define sort(x)              M_G3N_CALL_1(SORT, x)
-#define splice_back(d, s, i) M_G3N_CALL_3(SPLICE_BACK, d, TYPE, d, TYPE, s, IT_TYPE, i)
-#define splice_at(d, id, s, is) M_G3N_CALL_4(SPLICE_BACK, d, TYPE, d, IT_TYPE, id, TYPE, s, IT_TYPE, is)
-#define it_type(x)           m_typeof(M_G3N_TYPE_1(IT_TYPE, x))
-#define sub_type(x)          m_typeof(M_G3N_TYPE_1(SUBTYPE, x))
-#define key_type(x)          m_typeof(M_G3N_TYPE_1(KEY_TYPE, x))
-#define value_type(x)        m_typeof(M_G3N_TYPE_1(VALUE_TYPE, x))
-#define it_first(x, y)       M_G3N_CALL_2(IT_FIRST, y, IT_TYPE, x, TYPE, y)
-#define it_last(x, y)        M_G3N_CALL_i2(IT_LAST, y, IT_TYPE, x, TYPE, y)
-#define it_end(x, y)         M_G3N_CALL_i2(IT_END, y, IT_TYPE, x, TYPE, y)
-#define it_set(d, s)         M_G3N_CALL_2i(IT_SET, d, IT_TYPE, d, IT_TYPE, s)
-#define it_end_p(i)          M_G3N_CALL_1i(IT_END_P, i)
-#define it_last_p(i)         M_G3N_CALL_1i(IT_LAST_P, i)
-#define it_next(i)           M_G3N_CALL_1i(IT_NEXT, i)
-#define it_previous(i)       M_G3N_CALL_1i(IT_PREVIOUS, i)
-#define it_ref(i)            M_G3N_CALL_1i(IT_REF, i)
-#define it_cref(i)           M_G3N_CALL_1i(IT_CREF, i)
-#define it_equal(x, y)       M_G3N_CALL_2i(IT_EQUAL, x, IT_TYPE, x, IT_TYPE, y)
-#define it_insert(c, i, o)   M_G2N_CALL_3(IT_INSERT, c, TYPE, c, IT_TYPE, i, SUBTYPE, o)
-#define it_remove(c, i)      M_G3N_CALL_2(IT_REMOVE, c, TYPE, c, IT_TYPE, i)
-#define empty_p(x)           M_G3N_CALL_1(EMPTY_P, x)
-#define add(x, y)            M_G3N_CALL_2(ADD, x, TYPE, x, TYPE, y)
-#define sub(x, y)            M_G3N_CALL_2(SUB, x, TYPE, x, TYPE, y)
-#define mul(x, y)            M_G3N_CALL_2(MUL, x, TYPE, x, TYPE, y)
-#define div(x, y)            M_G3N_CALL_2(DIV, x, TYPE, x, TYPE, y)
-#define reset(x)             M_G3N_CALL_1(RESET, x)
-#define get(x, y)            M_G3N_CALL_2(GET_KEY, x, TYPE, x, KEY_TYPE, y)
-#define set_at(x, y, z)      M_G3N_CALL_3(SET_KEY, x, TYPE, x, KEY_TYPE, y, VALUE_TYPE, z)
-#define safe_get(x, y)       M_G3N_CALL_2(SAFE_GET_KEY, x, TYPE, x, KEY_TYPE, y)
-#define erase(x, y)          M_G3N_CALL_2(ERASE, x, TYPE, x, KEY_TYPE, y)
-#define get_size(x)          M_G3N_CALL_1(GET_SIZE, x)
-#define push(x, y)           M_G3N_CALL_2(PUSH, x, TYPE, x, SUBTYPE, y)
-#define pop(x, y)            M_G3N_CALL_2(PUSH, x, TYPE, x, SUBTYPE, y)
-#define push_move(x, y)      M_G3N_CALL_2(PUSH_MOVE, x, TYPE, x, SUBTYPE *, y)
-#define pop_move(x, y)       M_G3N_CALL_2(PUSH, x, TYPE, x, SUBTYPE*, y)
-#define reverse(x)           M_G3N_CALL_1(REVERSE, x)
-#define get_str(s, c, b)     M_G3N_CALL_3(GET_STR, c, string_t, s, TYPE, c, bool, b)
-#define parse_str(c, s, e)   M_G3N_CALL_3(PARSE_STR, c, TYPE, c, m_g3n_cstring, s, m_g3n_cstring_end, e)
-#define out_str(x, y)        M_G3N_CALL_2(OUT_STR, y, m_g3n_file, x, TYPE, y)
-#define in_str(x, y)         M_G3N_CALL_2(IN_STR, x, TYPE, x, m_g3n_file, y)
-#define out_serial(x, y)     M_G3N_CALL_2(OUT_SERIAL, y, m_serial_write_t, x, TYPE, y)
-#define in_serial(x, y)      M_G3N_CALL_2(IN_SERIAL, x, TYPE, x, m_serial_read_t, y)
-
-// for each
-#define each(item, container)                                                 \
-  M_G3N_EACHI(item, container, M_C(m_local_it_, __LINE__), M_C(local_pass_, __LINE__))
-
+// for each item in the container
+// Same as M_EACH except it uses the generic macros
 #define M_G3N_EACHI(item, container, l_it, l_pass)                            \
   (bool l_pass = true; l_pass; l_pass = false)                                \
   for(sub_type(container) *item; l_pass ; l_pass = false)                     \
@@ -267,6 +289,7 @@ typedef const char **m_g3n_cstring_end;
 
 // TODO: init_with ? How to handle the different type of parameters ? emplace ?
 
+// Overwrite M_FPRINT & M_PRINT to support global oplists registration
 #define M_FPRINT_ARG_G3N(f, x)                                                \
   M_G3N_BEGIN_PROTECTED_CODE                                                  \
   _Generic(((void)0,(x)),                                                     \
@@ -304,14 +327,5 @@ typedef const char **m_g3n_cstring_end;
 
 #undef M_FPRINT
 #define M_FPRINT(f,...)  do { M_REDUCE2(M_G3N_FPRINT_ARG, M_SEPARATE_PER_SEMICOLON, f, __VA_ARGS__); } while (0)
-
-
-/* User code has to register oplists :
-
-#define M_GENERIC_ORG_2() (USER)
-#define M_GENERIC_ORG_USER_COMP_1() (CORE)
-#define M_GENERIC_ORG_USER_COMP_CORE_OPLIST_6() FLT1
-#define M_GENERIC_ORG_USER_COMP_CORE_OPLIST_7() STR1
-*/
 
 #endif
