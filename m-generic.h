@@ -267,33 +267,33 @@ typedef const char **m_g3n_cstring_end;
 
 // TODO: init_with ? How to handle the different type of parameters ? emplace ?
 
-#define M_FPRINT_ARG_G3N(f, x)                                                    \
+#define M_FPRINT_ARG_G3N(f, x)                                                \
   M_G3N_BEGIN_PROTECTED_CODE                                                  \
   _Generic(((void)0,(x)),                                                     \
-           char: fprintf(f, "%c", M_AS_TYPE(char,x)),                                                       \
-           bool: fprintf(f, "%d", M_AS_TYPE(bool,x)),                                                        \
-           signed char: fprintf(f, "%hhd", M_AS_TYPE(signed char,x)),                                               \
-           unsigned char: fprintf(f, "%hhu", M_AS_TYPE(unsigned char,x)),                                             \
-           signed short: fprintf(f, "%hd", M_AS_TYPE(signed short,x)),                                               \
-           unsigned short: fprintf(f, "%hu", M_AS_TYPE(unsigned short,x)),                                             \
-           signed int: fprintf(f, "%d", M_AS_TYPE(signed int,x)),                                                  \
-           unsigned int: fprintf(f, "%u", M_AS_TYPE(unsigned int,x)),                                                \
-           long int: fprintf(f, "%ld", M_AS_TYPE(long int,x)),                                                   \
-           unsigned long int: fprintf(f, "%lu", M_AS_TYPE(unsigned long int,x)),                                          \
-           long long int: fprintf(f, "%lld", M_AS_TYPE(long long int,x)),                                             \
-           unsigned long long int: fprintf(f, "%llu", M_AS_TYPE(unsigned long long int,x)),                                   \
-           float: fprintf(f, "%f", M_AS_TYPE(float,x)),                                                      \
-           double: fprintf(f, "%f", M_AS_TYPE(double,x)),                                                     \
-           long double: fprintf(f, "%Lf", M_AS_TYPE(long double,x)),                                                \
-           const char *: fprintf(f, "%s", M_AS_TYPE(const char*,x)),                                                \
-           char *: fprintf(f, "%s", M_AS_TYPE(char*,x)),                                                      \
-           const void *: fprintf(f, "%p", M_AS_TYPE(const void *,x)),                                                \
-           void *: fprintf(f, "%p", M_AS_TYPE(void *,x)),                                                       \
+           char: fprintf(f, "%c", M_AS_TYPE(char,x)),                         \
+           bool: fprintf(f, "%d", M_AS_TYPE(bool,x)),                         \
+           signed char: fprintf(f, "%hhd", M_AS_TYPE(signed char,x)),         \
+           unsigned char: fprintf(f, "%hhu", M_AS_TYPE(unsigned char,x)),     \
+           signed short: fprintf(f, "%hd", M_AS_TYPE(signed short,x)),        \
+           unsigned short: fprintf(f, "%hu", M_AS_TYPE(unsigned short,x)),    \
+           signed int: fprintf(f, "%d", M_AS_TYPE(signed int,x)),             \
+           unsigned int: fprintf(f, "%u", M_AS_TYPE(unsigned int,x)),         \
+           long int: fprintf(f, "%ld", M_AS_TYPE(long int,x)),                \
+           unsigned long int: fprintf(f, "%lu", M_AS_TYPE(unsigned long int,x)), \
+           long long int: fprintf(f, "%lld", M_AS_TYPE(long long int,x)),     \
+           unsigned long long int: fprintf(f, "%llu", M_AS_TYPE(unsigned long long int,x)), \
+           float: fprintf(f, "%f", M_AS_TYPE(float,x)),                       \
+           double: fprintf(f, "%f", M_AS_TYPE(double,x)),                     \
+           long double: fprintf(f, "%Lf", M_AS_TYPE(long double,x)),          \
+           const char *: fprintf(f, "%s", M_AS_TYPE(const char*,x)),          \
+           char *: fprintf(f, "%s", M_AS_TYPE(char*,x)),                      \
+           const void *: fprintf(f, "%p", M_AS_TYPE(const void *,x)),         \
+           void *: fprintf(f, "%p", M_AS_TYPE(void *,x)),                     \
            M_MAP2(M_G3N_CALL_2_func, (OUT_STR, x, m_g3n_file, f, TYPE, x) M_G3N_REGISTERED_ITEMS() ) \
-           struct m_g3neric_dummys *: /* cannot happen */ (void) 0)          \
+           struct m_g3neric_dummys *: /* cannot happen */ (void) 0)           \
   M_G3N_END_PROTECTED_CODE
 
-#define M_G3N_FPRINT_ARG(f, x)                                                    \
+#define M_G3N_FPRINT_ARG(f, x)                                                \
   M_IF(M_PARENTHESIS_P(x))                                                    \
     ( M_FPRINT_ARG_OUT_STR(f, M_PAIR_2 x, M_PAIR_1 x),                        \
       M_FPRINT_ARG_G3N(f, x) )

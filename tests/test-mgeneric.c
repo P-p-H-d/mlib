@@ -132,7 +132,8 @@ static void test_print(void)
 
 int main(void)
 {
-	freopen("atmp-generic.dat", "w", stdout);
+	FILE *f = freopen("atmp-generic.dat", "w", stdout);
+	if (!f) abort();
 	string_t p;
 	test_string(p);
 	test_array();
