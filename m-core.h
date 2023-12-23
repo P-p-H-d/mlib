@@ -1458,6 +1458,7 @@ M_BEGIN_PROTECTED_CODE
 #define M_PATTERN_type_type ,
 #define M_PATTERN_TYPE_TYPE ,
 #define M_PATTERN_SUBTYPE_SUBTYPE ,
+#define M_PATTERN_SUBTYPE_PTR_SUBTYPE_PTR ,
 #define M_PATTERN_IT_TYPE_IT_TYPE ,
 #define M_PATTERN_KEY_TYPE_KEY_TYPE ,
 #define M_PATTERN_VALUE_TYPE_VALUE_TYPE ,
@@ -3369,6 +3370,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_TYPE_TYPE(a)           ,a,
 #define M_SUBTYPE_SUBTYPE(a)     ,a,
 #define M_GENTYPE_GENTYPE(a)     ,a,
+#define M_SUBTYPE_PTR_SUBTYPE_PTR(a) ,a,
 #define M_NAME_NAME(a)           ,a,
 #define M_OPLIST_OPLIST(a)       ,a,
 #define M_SORT_SORT(a)           ,a,
@@ -3458,6 +3460,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_GET_CMP(...)       M_GET_METHOD(CMP,         M_CMP_DEFAULT,      __VA_ARGS__)
 #define M_GET_TYPE(...)      M_GET_METHOD(TYPE,        M_NO_DEF_TYPE,      __VA_ARGS__)
 #define M_GET_SUBTYPE(...)   M_GET_METHOD(SUBTYPE,     M_NO_DEF_TYPE,      __VA_ARGS__)
+#define M_GET_SUBTYPE_PTR(...) M_GET_METHOD(SUBTYPE_PTR, M_NO_DEF_TYPE,      __VA_ARGS__)
 #define M_GET_GENTYPE(...)   M_GET_METHOD(GENTYPE,     M_NO_DEF_TYPE,      __VA_ARGS__)
 #define M_GET_NAME(...)      M_GET_METHOD(NAME,        M_NO_DEF_TYPE,      __VA_ARGS__)
 #define M_GET_OPLIST(...)    M_GET_METHOD(OPLIST,      (),                 __VA_ARGS__)
@@ -3539,6 +3542,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_CALL_CMP(oplist, ...) M_APPLY_API(M_GET_CMP oplist, oplist, __VA_ARGS__)
 //#define M_CALL_TYPE(oplist, ...) M_APPLY_API(M_GET_TYPE oplist, oplist, __VA_ARGS__)
 //#define M_CALL_SUBTYPE(oplist, ...) M_APPLY_API(M_GET_SUBTYPE oplist, oplist, __VA_ARGS__)
+//#define M_CALL_SUBTYPE_PTR(oplist, ...) M_APPLY_API(M_GET_SUBTYPE_PTR oplist, oplist, __VA_ARGS__)
 //#define M_CALL_GENTYPE(oplist, ...) M_APPLY_API(M_GET_GENTYPE oplist, oplist, __VA_ARGS__)
 //#define M_CALL_NAME(oplist, ...) M_APPLY_API(M_GET_NAME oplist, oplist, __VA_ARGS__)
 //#define M_CALL_OPLIST(oplist, ...) M_APPLY_API(M_GET_OPLIST oplist, oplist, __VA_ARGS__)

@@ -100,12 +100,19 @@ static void test_string(string_t p)
 static void test_array(void)
 {
 	M_LET(a, array_int_t) {
+    bool b = empty_p(a);
+    assert(b);
 		push(a, 14);
+    b = empty_p(a);
+    assert(!b);
 		push(a, 15);
 		out_str(stdout, a);
 		for each(it, a) {
 			printf("=%d, ", *it);
 		}
+    int z;
+    pop(&z, a);
+    assert(z == 15);
  	}
 	// Just change the type, same code!
 	M_LET(a, list_int_t) {

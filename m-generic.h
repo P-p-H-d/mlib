@@ -71,9 +71,9 @@
 #define erase(x, y)          M_G3N_CALL_2(ERASE, x, TYPE, x, KEY_TYPE, y)
 #define get_size(x)          M_G3N_CALL_1(GET_SIZE, x)
 #define push(x, y)           M_G3N_CALL_2(PUSH, x, TYPE, x, SUBTYPE, y)
-#define pop(x, y)            M_G3N_CALL_2(PUSH, x, TYPE, x, SUBTYPE, y)
-#define push_move(x, y)      M_G3N_CALL_2(PUSH_MOVE, x, TYPE, x, SUBTYPE *, y)
-#define pop_move(x, y)       M_G3N_CALL_2(PUSH, x, TYPE, x, SUBTYPE*, y)
+#define pop(x, y)            M_G3N_CALL_2(POP, y, SUBTYPE_PTR, x, TYPE, y)
+#define push_move(x, y)      M_G3N_CALL_2(PUSH_MOVE, x, TYPE, x, SUBTYPE_PTR, y)
+#define pop_move(x, y)       M_G3N_CALL_2(POP_MOVE, y, SUBTYPE_PTR, x, TYPE, y)
 #define reverse(x)           M_G3N_CALL_1(REVERSE, x)
 #define get_str(s, c, b)     M_G3N_CALL_3(GET_STR, c, string_t, s, TYPE, c, bool, b)
 #define parse_str(c, s, e)   M_G3N_CALL_3(PARSE_STR, c, TYPE, c, m_g3n_cstring, s, m_g3n_cstring_end, e)
@@ -173,7 +173,9 @@ typedef const char **m_g3n_cstring_end;
 // Translate type' into the container type if type == TYPE, IT_TYPE into its iterator
 // KEY_TYPE, VALUE_TYPE, SUBTYPE into the associated type in the oplist,
 // or keep 'type' otherwise
-#define M_G3N_TYPE(type, oplist) M_GET_METHOD(type, type, M_OPFLAT oplist ())
+// Handle also specially SUBTYPE_PTR
+#define M_G3N_TYPE(type, oplist) M_G3N_TYPE_B(type, oplist()) 
+#define M_G3N_TYPE_B(type, oplist) M_GET_METHOD(type, type, SUBTYPE_PTR(M_GET_SUBTYPE oplist *), M_OPFLAT oplist)
 
 // Call the OPERATOR call of the oplist registered to the variable 'x'
 // which takes one argument.
