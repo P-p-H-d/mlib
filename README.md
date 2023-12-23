@@ -8473,6 +8473,7 @@ Define the thread backend to use by m-thread.h:
 * 1: for C11 header threads.h
 * 2: for WINDOWS header windows.h
 * 3: for POSIX THREAD header pthread.h
+* 4: for FreeRTOS
 
 Default value: auto-detect in function of the running system.
 
