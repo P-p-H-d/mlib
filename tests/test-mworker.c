@@ -31,7 +31,7 @@ static int fib(int n);
 struct fib2_s {
   int x, n;
 };
-atomic_bool resetFunc_called = ATOMIC_VAR_INIT(false);
+atomic_bool resetFunc_called = M_ATOMIC_VAR_INIT(false);
 static void resetFunc(void)
 {
   atomic_store(&resetFunc_called, true);

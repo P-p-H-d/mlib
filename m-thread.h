@@ -681,7 +681,7 @@ typedef struct {
 } m_once_t[1];
 
 // Initial value for m_once_t
-#define M_ONCE_INIT_VALUE            { { ATOMIC_VAR_INIT(0) } }
+#define M_ONCE_INIT_VALUE            { { M_ATOMIC_VAR_INIT(0) } }
 
 // Call the function exactly once
 M_INLINE void m_once_call(m_once_t o, void (*func)(void))

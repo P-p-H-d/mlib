@@ -887,13 +887,15 @@ static void test_M_CSTR(void)
 #undef M_USE_CSTR_ALLOC
 #define M_USE_CSTR_ALLOC 8
   // Disable GNUC warning as we want to test this behavior.
-  // this warning is not supported by CLANG
-#if defined (__GNUC__) && __GNUC__ >= 7 && !defined(__clang__)
+  // this warning is supported by CLANG
+#if (defined (__GNUC__) && __GNUC__ >= 7 && !defined(__clang__)) \
+  ||(defined(__clang__) && __clang_major__ >= 18)
   _Pragma("GCC diagnostic push")
   _Pragma("GCC diagnostic ignored \"-Wformat-truncation\"")
 #endif
   r = strcmp(M_CSTR("Hello %s %c", "World", '!'), "Hello W");
-#if defined(__GNUC__) && __GNUC__ >= 7 && !defined(__clang__)
+#if (defined (__GNUC__) && __GNUC__ >= 7 && !defined(__clang__)) \
+  ||(defined(__clang__) && __clang_major__ >= 18)
   _Pragma("GCC diagnostic pop")
 #endif
   assert (r == 0);

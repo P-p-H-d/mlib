@@ -48,11 +48,11 @@ M_BEGIN_PROTECTED_CODE
 
 /* Value of the interface field for static intialization (Uses C99 designated element). */
 #define M_ISHARED_PTR_STATIC_DESIGNATED_INIT(name, type)                      \
-  .M_F(name, _cpt) = ATOMIC_VAR_INIT(0)
+  .M_F(name, _cpt) = M_ATOMIC_VAR_INIT(0)
 
 /* Value of the interface field for static intialization (Uses C89 designated element). */
 #define M_ISHARED_PTR_STATIC_INIT(name, type)                                 \
-  ATOMIC_VAR_INIT(0)
+  M_ATOMIC_VAR_INIT(0)
 
 
 /* Define the intrusive shared pointer type and its M_INLINE functions.

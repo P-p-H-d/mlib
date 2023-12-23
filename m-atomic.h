@@ -332,4 +332,11 @@ M_END_PROTECTED_CODE
 
 #endif
 
+// C17 deprecated ATOMIC_VAR_INIT
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201710L
+# define M_ATOMIC_VAR_INIT(x) (x)
+#else
+# define M_ATOMIC_VAR_INIT(x) ATOMIC_VAR_INIT(x)
+#endif
+
 #endif
