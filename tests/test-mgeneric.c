@@ -118,11 +118,25 @@ static void test_array(void)
  	}
 }
 
+static void test_print(void)
+{
+    int x = 0;
+    M_PRINT("X= ", x, "\n");
+    M_LET( (s, "Hello"), string_t) {
+        M_PRINT("s=", s, "\n");
+    }
+    M_LET( (a, 3,4,5), array_int_t) {
+        M_PRINT("a=", a, "\n");
+    }
+}
+
 int main(void)
 {
+	freopen("atmp-generic.dat", "w", stdout);
 	string_t p;
 	test_string(p);
 	test_array();
+	test_print();
 	exit(0);
 }
 
