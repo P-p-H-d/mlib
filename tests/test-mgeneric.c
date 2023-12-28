@@ -46,22 +46,22 @@ static void h(string_t x)
 	string_set_str(x, "TEST STRING");
 }
 
+// Global variable to test genericity on a global variable
 const string_t gx;
 
-#define STR1 M_OPEXTEND(STRING_OPLIST, GENTYPE(struct m_string_s *), PUSH(m_string_push_u))
 #define FLT1 (GENTYPE(float), TYPE(float), INIT(M_INIT_BASIC), INIT_SET(M_SET_BASIC), SET(M_SET_BASIC),               \
+   CLEAR(M_NOTHING_DEFAULT) )
+#define INT1 (GENTYPE(int), TYPE(int), INIT(M_INIT_BASIC), INIT_SET(M_SET_BASIC), SET(M_SET_BASIC),               \
    CLEAR(M_NOTHING_DEFAULT) )
 #define ARRAY1 M_OPEXTEND(M_OPL_array_int_t(), GENTYPE(struct array_int_s *))
 #define LIST1  M_OPEXTEND(M_OPL_list_int_t(), GENTYPE(struct list_int_s **))
 
-//#define M_GENERIC_ORG_MLIB_COMP_1() (CORE)
-//#define M_GENERIC_ORG_MLIB_COMP_CORE_OPLIST_1() STR1
-//#define M_GENERIC_ORG_MLIB_COMP_CORE_OPLIST_5() FLT1
+//NOTE: string_t is registered by the CORE component of the MLIB organization
 
 #define M_GENERIC_ORG_2() (USER)
 #define M_GENERIC_ORG_USER_COMP_1() (CORE)
 #define M_GENERIC_ORG_USER_COMP_CORE_OPLIST_6() FLT1
-#define M_GENERIC_ORG_USER_COMP_CORE_OPLIST_7() STR1
+#define M_GENERIC_ORG_USER_COMP_CORE_OPLIST_1() INT1
 
 #define M_GENERIC_ORG_3() (ARRAY)
 #define M_GENERIC_ORG_ARRAY_COMP_5() (AINT)

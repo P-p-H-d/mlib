@@ -2023,14 +2023,14 @@ m_string_utf8_p(m_string_t str)
 /* Use of Compound Literals to init a constant string.
    NOTE: The use of the additional structure layer is to ensure
    that the pointer to char is properly aligned to an int (this
-   is a needed asumption by m_string_hash).
+   is a needed assumption by m_string_hash).
    Otherwise it could have been :
    #define M_STRING_CTE(s)                                                    \
      ((const m_string_t){{.size = sizeof(s)-1, .alloc = sizeof(s),            \
      .ptr = s}})
    which produces faster code.
    Note: This code doesn't work with C++ (use of c99 feature
-   of recursive struct definition and compound literral). 
+   of recursive struct definition and compound literal). 
    As such, there is a separate C++ definition.
 */
 #ifndef __cplusplus
@@ -2101,7 +2101,7 @@ namespace m_lib {
    SWAP(m_string_swap), RESET(m_string_reset),                                \
    EMPTY_P(m_string_empty_p),                                                 \
    CLEAR(m_string_clear), HASH(m_string_hash), EQUAL(m_string_equal_p),       \
-   CMP(m_string_cmp), TYPE(m_string_t),                                       \
+   CMP(m_string_cmp), TYPE(m_string_t), GENTYPE(struct m_string_s *),         \
    PARSE_STR(m_string_parse_str), GET_STR(m_string_get_str),                  \
    OUT_STR(m_string_out_str), IN_STR(m_string_in_str),                        \
    OUT_SERIAL(m_string_out_serial), IN_SERIAL(m_string_in_serial),            \
@@ -2115,12 +2115,15 @@ namespace m_lib {
    ,IT_END_P(m_string_end_p)                                                  \
    ,IT_EQUAL_P(m_string_it_equal_p)                                           \
    ,IT_NEXT(m_string_next)                                                    \
-   ,IT_CREF(m_string_cref)                                                    \
+   ,IT_CREF(m_string_cref), PUSH(m_string_push_u)                             \
    ,EMPLACE_TYPE(const char*)                                                 \
    )
 
 /* Register the OPLIST as a global one */
 #define M_OPL_m_string_t() M_STRING_OPLIST
+
+/* Register the string_t oplist as a generic type */
+#define M_GENERIC_ORG_MLIB_COMP_CORE_OPLIST_1() M_STRING_OPLIST
 
 
 /***********************************************************************/

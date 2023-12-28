@@ -110,7 +110,7 @@
 #endif
 
 /* Warnings disabled for CLANG in C mode:
-   Due to the genericty of the _Generic generation,
+   Due to the genericity of the _Generic generation,
    we cannot avoid generating both T and const T in the generic association. */
 #if defined(__clang__) && __clang_major__ >= 15
 #define M_G3N_BEGIN_PROTECTED_CODE                                            \
@@ -135,13 +135,13 @@
 
 /* Generate a sequence of the oplist that have been registered.
 
-   3 levels of indirection are neeeded:
+   3 levels of indirection are needed:
     * One level is the organisation.
     * One level is the component of the organisation.
     * One level is the oplist within the component of the organisation
-  Return the list of unevaled oplist that are registered accorss all organisations, all components.
-  MLIB Organisation is the default organisation and is always registered
-  Usage Domain: Nb organizations * Nb components * Nb oplists < M_MAX_NB_ARGUMENT
+  Return the list of unevaluated oplist that are registered across all organizations, all components.
+  M*LIB Organisation (MLIB) is the default organisation and is always registered
+  Usage Domain: Nb organizations * Nb components * Nb oplist <= M_MAX_NB_ARGUMENT
 */
 #define M_G3N_REGISTERED_ITEMS()                                              \
   M_CROSS_MAP( M_G3N_IS_PRESENT3, ( comp M_CROSS_MAP(M_G3N_IS_PRESENT2, (MLIB M_MAP(M_G3N_IS_PRESENT, M_G3N_SEQ_INT)), ( M_G3N_SEQ_INT ) ) ), ( M_G3N_SEQ_INT ) )
@@ -155,10 +155,11 @@
 #define M_G3N_IS_PRESENT3(el1, num)                                           \
   M_IF(M_OPLIST_P(M_C4(M_GENERIC_ORG_, el1, _OPLIST_, num)()))(M_DEFERRED_COMMA M_C4(M_GENERIC_ORG_, el1, _OPLIST_, num), )
 
+
 // Dummy unused structure. Just to fill in default case of the _Generic
 struct m_g3neric_dummys;
 
-// Synonymous for some basic pointers doesn't work well with prepropressing code
+// Synonymous for some basic pointers doesn't work well with preprocessing code
 typedef FILE *m_g3n_file;
 typedef const char *m_g3n_cstring;
 typedef const char **m_g3n_cstring_end;
@@ -278,6 +279,7 @@ typedef const char **m_g3n_cstring_end;
   gentype: (M_G3N_TYPE(op, oplist)){0},                                       \
   const gentype: (M_G3N_TYPE(op, oplist)){0},
 
+
 // for each item in the container
 // Same as M_EACH except it uses the generic macros
 #define M_G3N_EACHI(item, container, l_it, l_pass)                            \
@@ -288,6 +290,7 @@ typedef const char **m_g3n_cstring_end;
           !it_end_p(l_it)                                                     \
             && (item = it_ref(l_it), true) ;                                  \
           it_next(l_it))
+
 
 // TODO: init_with ? How to handle the different type of parameters ? emplace ?
 
@@ -329,5 +332,9 @@ typedef const char **m_g3n_cstring_end;
 
 #undef M_FPRINT
 #define M_FPRINT(f,...)  do { M_REDUCE2(M_G3N_FPRINT_ARG, M_SEPARATE_PER_SEMICOLON, f, __VA_ARGS__); } while (0)
+
+// Register CORE component of M*LIB
+#define M_GENERIC_ORG_MLIB_COMP_1() (CORE)
+
 
 #endif
