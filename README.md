@@ -8469,7 +8469,7 @@ int main(void)
 To register an oplist you need to register three things:
 
 * the *integration user* (user responsible for the integration of the whole program) registers all the *organizations* by mapping an integer from 1 to 50 to the short name of the organization.
-* the *organization user* (user responsible for the integration produced by an organization, typically a library or the program except its libraries) chooses the short name of the organization and registers all the *components* of this organization by mapping an integer from 1 to 50 to the short name of the component.
+* the *organization user* (user responsible for the integration produced by an organization, typically a library or the program without its libraries) chooses the short name of the organization and registers all the *components* of this organization by mapping an integer from 1 to 50 to the short name of the component.
 * the *component user* (user responsible for a component of a library or a program) registers all the *oplists* of this component by mapping an integer from 1 to 50 to the oplist.
 
 This 3 levels registration is used to enable support for complex integration in real project. So, it maps the basic structure of a program so that each independent layer can register its own oplists independently of the others, and only the final integrator maps everything together.
@@ -8477,22 +8477,22 @@ This 3 levels registration is used to enable support for complex integration in 
 To register an organization the *integration user* shall define a macro like this for all organizations:
 
 ```C
-#define M_GENERIC_ORG_<NUM>() (<ORGA_NAME>)
+#define M_GENERIC_ORG_<A_NUM>() (<ORGA_NAME>)
 ```
 with 
 
-* <NUM> replaced by a unique integer in the range 1 to 50
+* <A_NUM> replaced by a unique integer in the range 1 to 50
 * <ORGA_NAME> replaced by the short name of the organization.
 
 
 To register a component the *organization user* shall define a macro like this for all components:
 
 ```C
-#define M_GENERIC_ORG_<ORGA_NAME>_COMP_<NUM>() (<COMP_NAME>)
+#define M_GENERIC_ORG_<ORGA_NAME>_COMP_<A_NUM>() (<COMP_NAME>)
 ```
 with
 
-* <NUM> replaced by a unique integer in the range 1 to 50
+* <A_NUM> replaced by a unique integer in the range 1 to 50
 * <ORGA_NAME> replaced by the short name of the organization.
 * <COMP_NAME> replaced by the short name of the component.
 
@@ -8500,14 +8500,14 @@ with
 To register an oplist the *component user* shall define a macro like this for all oplists:
 
 ```C
-#define M_GENERIC_ORG_<ORGA_NAME>_COMP_<COMP_NAME>_OPLIST_<NUM>() <OPLIST>
+#define M_GENERIC_ORG_<ORGA_NAME>_COMP_<COMP_NAME>_OPLIST_<A_NUM>() <OP_LIST>
 ```
 with
 
-* <NUM> replaced by a unique integer in the range 1 to 50
+* <A_NUM> replaced by a unique integer in the range 1 to 50
 * <ORGA_NAME> replaced by the short name of the organization.
 * <COMP_NAME> replaced by the short name of the component.
-* <OPLIST> replaced by the oplist (no need for extra parenthesis).
+* <OP_LIST> replaced by the oplist (no need for extra parenthesis).
 
 
 Theses macros should be defined in the header associated to their responsibility.
