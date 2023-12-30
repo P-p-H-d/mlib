@@ -41,6 +41,7 @@ M\*LIB: Generic type-safe Container Library for C language
     27. [Memory pool](#m-mempool)
     28. [JSON Serialization](#m-serial-json)
     29. [Binary Serialization](#m-serial-bin)
+    30. [Generic interface](#m-generic)
 12. [Global User Customization](#global-user-customization)
 13. [License](#license)
 
@@ -179,6 +180,7 @@ Other headers offering other functionality are:
 * [m-worker.h](#m-worker): header for providing an easy pool of workers on separated threads to handle work orders (used for parallel tasks),
 * [m-serial-json.h](#m-serial-json): header for importing / exporting the containers in [JSON format](https://en.wikipedia.org/wiki/JSON),
 * [m-serial-bin.h](#m-serial-bin): header for importing / exporting the containers in an adhoc fast binary format,
+* [m-generic.h](#m-generic): header for using a common interface for all registered types,
 * m-genint.h: internal header for generating unique integers in a concurrent context,
 * [m-core.h](#m-core): header for meta-programming with the C preprocessor (used by all other headers).
 
@@ -492,14 +494,16 @@ of the library.
 The final goal of the library is to be able to write code like this in pure C while keeping type safety and compile time name resolution:
 
 ```C
-        let(list, list_uint_t) {
+        M_LET(list, list_uint_t) {
           push(list, 42);
           push(list, 17);
           for each (item, list) {
-            print(item, "\n");
+            M_PRINT(*item, "\n");
           }
         }
 ```
+
+See #M-GENERIC header for details.
 
 ## Performance
 
@@ -8410,6 +8414,171 @@ otherwise the behavior of the object is undefined.
 ##### void m\_serial\_bin\_read\_clear(m\_serial\_read\_t serial)
 
 Clear the serialization object 'serial'.
+
+### M-GENERIC
+
+This header is for registering and using a generic interface, regardless of the real type.
+More precisely it provides way of registering the oplist of a type. Then a variable of this type can be used in macro-like functions (init, clear, push, ...) and the associated method of this oplist will be used to handle the variable.
+If no type is associated to this variable, an error is reported by the compiler.
+
+This header needs a C23 compliant compiler or a C11 compiler providing the typeof extension (like GCC, CLANG, MSVC).
+NOTE: TCC is not supported yet due to some bugs in the compiler.
+
+This provide the same level of flexibility of the C++. However there is some drawbacks of using this generic interface:
+
+* error messages can be more complex,
+* compilation time increase a lot (on pair with C++)
+
+This header is still a WIP and is currently more a demo (Not ready for production).
+
+#### Example
+
+A concrete example of the generic header is the following.
+It reuses the basic example of the introduction of the library.
+
+```C
+#include "m-list.h"
+#include "m-generic.h"
+
+LIST_DEF(list_uint, unsigned int)
+
+// Register oplist for M_LET & M_EACH :
+#define M_OPL_list_uint_t() LIST_OPLIST(list_uint, M_BASIC_OPLIST)
+
+// Register for Generic (Organization, Component & Oplist)
+#define M_GENERIC_ORG_1() (USER)
+#define M_GENERIC_ORG_USER_COMP_1() (CORE)
+#define M_GENERIC_ORG_USER_COMP_CORE_OPLIST_1() M_OPL_list_uint_t()
+
+int main(void)
+{
+    M_LET(list, list_uint_t) {
+        push(list, 42);
+        push(list, 17);
+        for each(item, list) {
+            M_PRINT("ITEM=", *item, "\n");
+        }
+        M_PRINT("List = ", list, "\n");
+    }
+}
+```
+
+
+#### Registration
+
+To register an oplist you need to register three things:
+
+* the *integration user* (user responsible for the integration of the whole program) registers all the *organizations* by mapping an integer from 1 to 50 to the short name of the organization.
+* the *organization user* (user responsible for the integration produced by an organization, typically a library or the program except its libraries) chooses the short name of the organization and registers all the *components* of this organization by mapping an integer from 1 to 50 to the short name of the component.
+* the *component user* (user responsible for a component of a library or a program) registers all the *oplists* of this component by mapping an integer from 1 to 50 to the oplist.
+
+This 3 levels registration is used to enable support for complex integration in real project. So, it maps the basic structure of a program so that each independent layer can register its own oplists independently of the others, and only the final integrator maps everything together.
+
+To register an organization the *integration user* shall define a macro like this for all organizations:
+
+```C
+#define M_GENERIC_ORG_<NUM>() (<ORGA_NAME>)
+```
+with 
+
+* <NUM> replaced by a unique integer in the range 1 to 50
+* <ORGA_NAME> replaced by the short name of the organization.
+
+
+To register a component the *organization user* shall define a macro like this for all components:
+
+```C
+#define M_GENERIC_ORG_<ORGA_NAME>_COMP_<NUM>() (<COMP_NAME>)
+```
+with
+
+* <NUM> replaced by a unique integer in the range 1 to 50
+* <ORGA_NAME> replaced by the short name of the organization.
+* <COMP_NAME> replaced by the short name of the component.
+
+
+To register an oplist the *component user* shall define a macro like this for all oplists:
+
+```C
+#define M_GENERIC_ORG_<ORGA_NAME>_COMP_<COMP_NAME>_OPLIST_<NUM>() <OPLIST>
+```
+with
+
+* <NUM> replaced by a unique integer in the range 1 to 50
+* <ORGA_NAME> replaced by the short name of the organization.
+* <COMP_NAME> replaced by the short name of the component.
+* <OPLIST> replaced by the oplist (no need for extra parenthesis).
+
+
+Theses macros should be defined in the header associated to their responsibility.
+To register something, you don't need to include the m-register header file.
+
+
+#### Usage
+
+The following macro functions are defined. They have the same behavior as their corresponding OPERATOR of the oplists:
+
+* init(x)
+* init_set(x, y)
+* init_move(x, y)
+* move(x, y)
+* set(x, y)
+* clear(x)
+* swap(x, y)
+* hash(x)
+* equal(x, y)
+* cmp(x, y)
+* sort(x)
+* splice_back(d, s, i)
+* splice_at(d, id, s, is)
+* it_first(x, y)
+* it_last(x, y)
+* it_end(x, y)
+* it_set(d, s)
+* it_end_p(i)
+* it_last_p(i)
+* it_next(i)
+* it_previous(i)
+* it_ref(i)
+* it_cref(i)
+* it_equal(x, y)
+* it_insert(c, i, o)
+* it_remove(c, i)
+* empty_p(x)
+* add(x, y)
+* sub(x, y)
+* mul(x, y)
+* div(x, y)
+* reset(x)
+* get(x, y)
+* set_at(x, y, z)
+* safe_get(x, y)
+* erase(x, y)
+* get_size(x)
+* push(x, y)
+* pop(x, y)
+* push_move(x, y)
+* pop_move(x, y)
+* reverse(x)
+* get_str(s, c, b)
+* parse_str(c, s, e)
+* out_str(x, y)
+* in_str(x, y)
+* out_serial(x, y)
+* in_serial(x, y)
+
+The following macro are defined and represents a type associated to the variable. They have the same behavior as their corresponding OPERATOR of the oplists and use the typeof keyword:
+
+* it_type(x)
+* sub_type(x)
+* key_type(x)
+* value_type(x)
+
+The following macro is defined and enabled to iterate over a container (See example):
+
+* each(item, container)
+
+Note that only short names are defined in this header which may be incompatible with your own namespace (This header is still a WIP)
 
 
 ## Global User Customization
