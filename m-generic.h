@@ -157,7 +157,7 @@
 
 
 // Dummy unused structure. Just to fill in default case of the _Generic
-struct m_g3neric_dummys;
+struct m_g3neric_dummy_s;
 
 // Synonymous for some basic pointers doesn't work well with preprocessing code
 typedef FILE *m_g3n_file;
@@ -169,7 +169,8 @@ typedef const char **m_g3n_cstring_end;
 
 // Return IT_TYPE of oplist promoted to a type suitable for a _Generic statement
 // i.e. transform array type into corresponding pointer type
-#define M_G3N_IT_TYPE(oplist)  m_typeof( ((void)0, (M_GET_IT_TYPE oplist()){0}))
+#define M_G3N_GEN_IT_TYPE(oplist)  m_typeof( ((void)0, (M_GET_IT_TYPE oplist()){0}))
+#define M_G3N_GEN_TYPE(oplist)     M_GET_GENTYPE oplist()
 
 // Translate type' into the container type if type == TYPE, IT_TYPE into its iterator
 // KEY_TYPE, VALUE_TYPE, SUBTYPE into the associated type in the oplist,
@@ -184,10 +185,10 @@ typedef const char **m_g3n_cstring_end;
   M_G3N_BEGIN_PROTECTED_CODE                                                  \
   _Generic( ((void)0, (x)),                                                   \
             M_MAP2(M_G3N_CALL_1_func, (op, x) M_G3N_REGISTERED_ITEMS() )      \
-            struct m_g3neric_dummys *: /* cannot happen */ (void)0)           \
+            struct m_g3neric_dummy_s *: /* cannot happen */ (void)0)          \
   M_G3N_END_PROTECTED_CODE
 #define M_G3N_CALL_1_func(x, oplist)                                          \
-  M_G3N_CALL_1_func_test(M_GET_GENTYPE oplist(), M_PAIR_1 x, M_PAIR_2 x, oplist)
+  M_G3N_CALL_1_func_test(M_G3N_GEN_TYPE(oplist), M_PAIR_1 x, M_PAIR_2 x, oplist)
 #define M_G3N_CALL_1_func_test(gentype, op, x, oplist)                        \
   M_IF_METHOD(op, oplist())(M_G3N_CALL_1_func_expand, M_EAT)(gentype, op, x, oplist)
 #define M_G3N_CALL_1_func_expand(gentype, op, x, oplist)                      \
@@ -200,10 +201,10 @@ typedef const char **m_g3n_cstring_end;
   M_G3N_BEGIN_PROTECTED_CODE                                                  \
   _Generic( ((void)0, (svar)),                                                \
             M_MAP2(M_G3N_CALL_2_func, (op, svar, type1, var1, type2, var2) M_G3N_REGISTERED_ITEMS() ) \
-            struct m_g3neric_dummys *: /* cannot happen */ (void) 0)          \
+            struct m_g3neric_dummy_s *: /* cannot happen */ (void) 0)         \
   M_G3N_END_PROTECTED_CODE
 #define M_G3N_CALL_2_func(x, oplist)                                          \
-  M_APPLY(M_G3N_CALL_2_func_test, M_GET_GENTYPE oplist(), M_ID x, oplist)
+  M_APPLY(M_G3N_CALL_2_func_test, M_G3N_GEN_TYPE(oplist), M_ID x, oplist)
 #define M_G3N_CALL_2_func_test(gentype, op, svar, type1, var1, type2, var2, oplist) \
   M_IF_METHOD(op, oplist())(M_G3N_CALL_2_func_expand, M_EAT)(gentype, op, svar, M_G3N_TYPE(type1, oplist), var1, M_G3N_TYPE(type2, oplist), var2, oplist)
 #define M_G3N_CALL_2_func_expand(gentype, op, svar, type1, var1, type2, var2, oplist) \
@@ -216,10 +217,10 @@ typedef const char **m_g3n_cstring_end;
   M_G3N_BEGIN_PROTECTED_CODE                                                  \
   _Generic( ((void)0, (svar)),                                                \
             M_MAP2(M_G3N_CALL_3_func, (op, svar, type1, var1, type2, var2, type3, var3) M_G3N_REGISTERED_ITEMS() ) \
-            struct m_g3neric_dummys *: /* cannot happen */ (void) 0)          \
+            struct m_g3neric_dummy_s *: /* cannot happen */ (void) 0)         \
   M_G3N_END_PROTECTED_CODE
 #define M_G3N_CALL_3_func(x, oplist)                                          \
-  M_APPLY(M_G3N_CALL_3_func_test, M_GET_GENTYPE oplist(), M_ID x, oplist)
+  M_APPLY(M_G3N_CALL_3_func_test, M_G3N_GEN_TYPE(oplist), M_ID x, oplist)
 #define M_G3N_CALL_3_func_test(gentype, op, svar, type1, var1, type2, var2, type3, var3, oplist) \
   M_IF_METHOD(op, oplist())(M_G3N_CALL_3_func_expand, M_EAT)(gentype, op, svar, M_G3N_TYPE(type1, oplist), var1, M_G3N_TYPE(type2, oplist), var2, M_G3N_TYPE(type3, oplist), var3, oplist)
 #define M_G3N_CALL_3_func_expand(gentype, op, svar, type1, var1, type2, var2, oplist) \
@@ -232,10 +233,10 @@ typedef const char **m_g3n_cstring_end;
   M_G3N_BEGIN_PROTECTED_CODE                                                  \
   _Generic( ((void)0, (svar)),                                                \
             M_MAP2(M_G3N_CALL_4_func, (op, svar, type1, var1, type2, var2, type3, var3, type4, var4) M_G3N_REGISTERED_ITEMS() ) \
-            struct m_g3neric_dummys *: /* cannot happen */ (void) 0)          \
+            struct m_g3neric_dummy_s *: /* cannot happen */ (void) 0)         \
   M_G3N_END_PROTECTED_CODE
 #define M_G3N_CALL_4_func(x, oplist)                                          \
-  M_APPLY(M_G3N_CALL_4_func_test, M_GET_GENTYPE oplist(), M_ID x, oplist)
+  M_APPLY(M_G3N_CALL_4_func_test, M_G3N_GEN_TYPE(oplist), M_ID x, oplist)
 #define M_G3N_CALL_4_func_test(gentype, op, svar, type1, var1, type2, var2, type3, var3, type4, var4, oplist) \
   M_IF_METHOD(op, oplist())(M_G3N_CALL_4_func_expand, M_EAT)(gentype, op, svar, M_G3N_TYPE(type1, oplist), var1, M_G3N_TYPE(type2, oplist), var2, M_G3N_TYPE(type3, oplist), var3, M_G3N_TYPE(type4, oplist), var4, oplist)
 #define M_G3N_CALL_4_func_expand(gentype, op, svar, type1, var1, type2, var2, oplist) \
@@ -248,10 +249,10 @@ typedef const char **m_g3n_cstring_end;
   M_G3N_BEGIN_PROTECTED_CODE                                                  \
   _Generic( ((void)0, (x)),                                                   \
             M_MAP2(M_G3N_CALL_1i_func, (op, x) M_G3N_REGISTERED_ITEMS() )     \
-            struct m_g3neric_dummys *: /* cannot happen */ (void)0)           \
+            struct m_g3neric_dummy_s *: /* cannot happen */ (void)0)          \
   M_G3N_END_PROTECTED_CODE
 #define M_G3N_CALL_1i_func(x, oplist)                                         \
-  M_G3N_CALL_1_func_test(M_G3N_IT_TYPE(oplist), M_PAIR_1 x, M_PAIR_2 x, oplist)
+  M_G3N_CALL_1_func_test(M_G3N_GEN_IT_TYPE(oplist), M_PAIR_1 x, M_PAIR_2 x, oplist)
 
 // Call the OPERATOR call of the oplist registered to the variable 'svar'
 // which takes 2 arguments of the given it_type
@@ -259,20 +260,20 @@ typedef const char **m_g3n_cstring_end;
   M_G3N_BEGIN_PROTECTED_CODE                                                  \
   _Generic( ((void)0, (svar)),                                                \
             M_MAP2(M_G3N_CALL_2i_func, (op, svar, type1, var1, type2, var2) M_G3N_REGISTERED_ITEMS() ) \
-            struct m_g3neric_dummys *: /* cannot happen */ (void) 0)          \
+            struct m_g3neric_dummy_s *: /* cannot happen */ (void) 0)         \
   M_G3N_END_PROTECTED_CODE
 #define M_G3N_CALL_2i_func(x, oplist)                                         \
-  M_APPLY(M_G3N_CALL_2_func_test, M_G3N_IT_TYPE(oplist), M_ID x, oplist)
+  M_APPLY(M_G3N_CALL_2_func_test, M_G3N_GEN_IT_TYPE(oplist), M_ID x, oplist)
 
 // Create a variable of type OPERATOR call of the oplist registered to the variable 'x'
 #define M_G3N_TYPE_1(op, x)                                                   \
   M_G3N_BEGIN_PROTECTED_CODE                                                  \
   _Generic( ((void)0, (x)),                                                   \
             M_MAP2(M_G3N_TYPE_1_func, (op, x) M_G3N_REGISTERED_ITEMS() )      \
-            struct m_g3neric_dummys *: /* cannot happen */ (void)0)           \
+            struct m_g3neric_dummy_s *: /* cannot happen */ (void)0)          \
   M_G3N_END_PROTECTED_CODE
 #define M_G3N_TYPE_1_func(x, oplist)                                          \
-  M_G3N_TYPE_1_func_test(M_GET_GENTYPE oplist(), M_PAIR_1 x, M_PAIR_2 x, oplist)
+  M_G3N_TYPE_1_func_test(M_G3N_GEN_TYPE(oplist), M_PAIR_1 x, M_PAIR_2 x, oplist)
 #define M_G3N_TYPE_1_func_test(gentype, op, x, oplist)                        \
   M_IF_METHOD(op, oplist())(M_G3N_TYPE_1_func_expand, M_EAT)(gentype, op, x, oplist)
 #define M_G3N_TYPE_1_func_expand(gentype, op, x, oplist)                      \
@@ -318,7 +319,7 @@ typedef const char **m_g3n_cstring_end;
            const void *: fprintf(f, "%p", M_AS_TYPE(const void *,x)),         \
            void *: fprintf(f, "%p", M_AS_TYPE(void *,x)),                     \
            M_MAP2(M_G3N_CALL_2_func, (OUT_STR, x, m_g3n_file, f, TYPE, x) M_G3N_REGISTERED_ITEMS() ) \
-           struct m_g3neric_dummys *: /* cannot happen */ (void) 0)           \
+           struct m_g3neric_dummy_s *: /* cannot happen */ (void) 0)          \
   M_G3N_END_PROTECTED_CODE
 
 #define M_G3N_FPRINT_ARG(f, x)                                                \
