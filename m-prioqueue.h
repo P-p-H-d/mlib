@@ -82,7 +82,7 @@
    ,MOVE(M_F(name, _move))                                                    \
    ,SWAP(M_F(name, _swap))                                                    \
    ,NAME(name)                                                                \
-   ,TYPE(M_F(name,_ct))                                                       \
+   ,TYPE(M_F(name,_ct)), GENTYPE(struct M_F(name,_s)*)                        \
    ,SUBTYPE(M_F(name, _subtype_ct))                                           \
    ,RESET(M_F(name,_reset))                                                   \
    ,PUSH(M_F(name,_push))                                                     \

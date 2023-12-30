@@ -2101,7 +2101,7 @@ namespace m_lib {
    SWAP(m_string_swap), RESET(m_string_reset),                                \
    EMPTY_P(m_string_empty_p),                                                 \
    CLEAR(m_string_clear), HASH(m_string_hash), EQUAL(m_string_equal_p),       \
-   CMP(m_string_cmp), TYPE(m_string_t), GENTYPE(struct m_string_s *),         \
+   CMP(m_string_cmp), TYPE(m_string_t), GENTYPE(struct m_string_s*),          \
    PARSE_STR(m_string_parse_str), GET_STR(m_string_get_str),                  \
    OUT_STR(m_string_out_str), IN_STR(m_string_in_str),                        \
    OUT_SERIAL(m_string_out_serial), IN_SERIAL(m_string_in_serial),            \
@@ -2197,7 +2197,7 @@ namespace m_lib {
 /* Set the string a to the string (or C string) b */
 #define m_string_set(a,b) M_STR1NG_SELECT2(m_string_set, m_string_set_cstr, a, b)
 
-/* Concatene the string (or C string) b to the string a */
+/* Concatenate the string (or C string) b to the string a */
 #define m_string_cat(a,b) M_STR1NG_SELECT2(m_string_cat, m_string_cat_cstr, a, b)
 
 /* Compare the string a to the string (or C string) b and return the sort order */
@@ -2273,7 +2273,7 @@ namespace m_lib {
    HASH(M_F(name,_hash)),                                                     \
    EQUAL(M_F(name,_equal_p)),                                                 \
    CMP(M_F(name,_cmp)),                                                       \
-   TYPE(M_F(name,_ct)),                                                       \
+   TYPE(M_F(name,_ct)), GENTYPE(struct M_F(name,_s)*),                        \
    OOR_EQUAL(M_F(name,_oor_equal_p)),                                         \
    OOR_SET(M_F(name, _oor_set)),                                              \
    PARSE_STR(M_F(name,_parse_str)),                                           \

@@ -106,7 +106,7 @@
    ,M_IF_METHOD(MOVE, oplist)(MOVE(M_F(name, _move)),)                        \
    ,M_IF_METHOD(SWAP,oplist)(SWAP(M_F(name, _swap)),)                         \
    ,NAME(name)                                                                \
-   ,TYPE(M_F(name,_ct))                                                       \
+   ,TYPE(M_F(name,_ct)), GENTYPE(struct M_F(name,_s)*)                        \
    ,SUBTYPE(M_F(name, _subtype_ct))                                           \
    ,OPLIST(oplist)                                                            \
    ,M_IF_METHOD(EMPTY_P, oplist)(EMPTY_P(M_F(name,_empty_p)),)                \

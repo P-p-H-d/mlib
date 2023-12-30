@@ -774,7 +774,7 @@ M_INLINE void                                                                 \
    CLEAR(M_F(name, _clear)),                                                  \
    RESET(M_F(name, _reset)),                                                  \
    NAME(name),                                                                \
-   TYPE(M_F(name,_ct)),                                                       \
+   TYPE(M_F(name,_ct)), GENTYPE(struct M_F(name,_s)*),                        \
    EMPTY_P(M_F(name,_empty_p)),                                               \
    M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_F(name, _hash)),),               \
    M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)(EQUAL(M_F(name, _equal_p)),),          \

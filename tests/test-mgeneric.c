@@ -53,8 +53,6 @@ const string_t gx;
    CLEAR(M_NOTHING_DEFAULT) )
 #define INT1 (GENTYPE(int), TYPE(int), INIT(M_INIT_BASIC), INIT_SET(M_SET_BASIC), SET(M_SET_BASIC),               \
    CLEAR(M_NOTHING_DEFAULT) )
-#define ARRAY1 M_OPEXTEND(M_OPL_array_int_t(), GENTYPE(struct array_int_s *))
-#define LIST1  M_OPEXTEND(M_OPL_list_int_t(), GENTYPE(struct list_int_s **))
 
 //NOTE: string_t is registered by the CORE component of the MLIB organization
 
@@ -65,9 +63,9 @@ const string_t gx;
 
 #define M_GENERIC_ORG_3() (ARRAY)
 #define M_GENERIC_ORG_ARRAY_COMP_5() (AINT)
-#define M_GENERIC_ORG_ARRAY_COMP_AINT_OPLIST_6() ARRAY1
+#define M_GENERIC_ORG_ARRAY_COMP_AINT_OPLIST_6() M_OPL_array_int_t()
 #define M_GENERIC_ORG_ARRAY_COMP_10() (LINT)
-#define M_GENERIC_ORG_ARRAY_COMP_LINT_OPLIST_30() LIST1
+#define M_GENERIC_ORG_ARRAY_COMP_LINT_OPLIST_30() M_OPL_list_int_t()
 
 static bool test_empty(const string_t p)
 {
