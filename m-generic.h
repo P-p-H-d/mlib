@@ -293,7 +293,9 @@ typedef const char **m_g3n_cstring_end;
           it_next(l_it))
 
 
-// TODO: init_with ? How to handle the different type of parameters ? emplace ?
+// TODO: init_with ? How to handle the different type of parameters ? Using EMPLACE_TYPE ?
+// TODO: support of PUSH_EMPLACE ?
+// TODO: support of "let" directly to avoid using the post-processing registration of M_LET?
 
 // Overwrite M_FPRINT & M_PRINT to support global oplists registration
 #define M_FPRINT_ARG_G3N(f, x)                                                \
