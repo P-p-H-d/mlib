@@ -112,7 +112,7 @@ M_BEGIN_PROTECTED_CODE
    ,SET(M_F(name, _set))                                                      \
    ,CLEAR(M_F(name, _clear))                                                  \
    ,NAME(name)                                                                \
-   ,TYPE(M_F(name, _ct))                                                      \
+   ,TYPE(M_F(name, _ct)) , GENTYPE(struct M_F(name,_s)*)                      \
    ,SUBTYPE(M_F(name, _subtype_ct))                                           \
    ,OPLIST(oplist)                                                            \
    ,M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_F(name, _init_move)),)         \

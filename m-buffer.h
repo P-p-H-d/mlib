@@ -1308,7 +1308,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    ,SET(M_F(name, _set))                                                      \
    ,CLEAR(M_F(name, _clear))                                                  \
    ,NAME(name)                                                                \
-   ,TYPE(M_F(name,_ct))                                                       \
+   ,TYPE(M_F(name,_ct)), GENTYPE(struct M_F(name,_s)*)                        \
    ,SUBTYPE(M_F(name, _subtype_ct))                                           \
    ,RESET(M_F(name,_reset))                                                   \
    ,PUSH(M_F(name,_push))                                                     \

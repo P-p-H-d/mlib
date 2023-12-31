@@ -95,7 +95,7 @@ M_BEGIN_PROTECTED_CODE
   CLEAR(M_F(name, _clear)),                                                   \
   RESET(M_F(name, _reset) M_IPTR),                                            \
   NAME(name),                                                                 \
-  TYPE(M_F(name, _ct)),                                                       \
+  TYPE(M_F(name, _ct)), GENTYPE(struct M_F(name,_s)*),                        \
   OPLIST(oplist),                                                             \
   SUBTYPE(M_F(name, _subtype_ct))                                             \
   )

@@ -750,7 +750,7 @@ namespace m_lib {
    SET(M_F(name,_set)),                                                       \
    CLEAR(M_F(name, _clear)),                                                  \
    NAME(name),                                                                \
-   TYPE(M_F(name,_ct)),                                                       \
+   TYPE(M_F(name,_ct)), GENTYPE(struct M_F(name,_s)*),                        \
    OPLIST( (__VA_ARGS__) ),                                                   \
    M_IF_METHOD_ALL(CMP, __VA_ARGS__)(CMP(M_F(name, _cmp)),),                  \
    M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_F(name, _hash)),),               \

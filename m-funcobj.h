@@ -111,7 +111,7 @@
 /* Specialization of the OPLIST in function if there is at least one member or not */
 #define M_FUNC0BJ_INS_NO_ATTR_OPLIST(name) (                                  \
   NAME(name),                                                                 \
-  TYPE(M_F(name, _ct)),                                                       \
+  TYPE(M_F(name, _ct)), GENTYPE(struct M_F(name,_s)*),                        \
   CLEAR(M_F(name, _clear)),                                                   \
   INIT(M_F(name,_init))                                                       \
   )
@@ -127,7 +127,7 @@
 /* Define the oplist of the instance */
 #define M_FUNC0BJ_INS_ATTR_OPLIST_P3(name, ...) (                             \
   NAME(name),                                                                 \
-  TYPE(M_F(name, _ct)),                                                       \
+  TYPE(M_F(name, _ct)), GENTYPE(struct M_F(name,_s)*),                        \
   INIT_WITH(M_F(name, _init_with)),                                           \
   CLEAR(M_F(name, _clear)),                                                   \
   M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_F(name,_init)),),                 \

@@ -118,7 +118,7 @@ M_BEGIN_PROTECTED_CODE
   MOVE(M_F(name, _move)),                                                     \
   SWAP(M_F(name, _swap))                                                      \
   ,NAME(name)                                                                 \
-  ,TYPE(M_F(name, _ct))                                                       \
+  ,TYPE(M_F(name, _ct)), GENTYPE(struct M_F(name,_s)*)                        \
   )
 
 // OPLIST to handle a counter of atomic type

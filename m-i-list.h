@@ -100,7 +100,7 @@ typedef struct m_il1st_head_s {
    INIT_MOVE(M_F(name, _init_move)),                                          \
    MOVE(M_F(name, _move)),                                                    \
    NAME(name),                                                                \
-   TYPE(M_F(name,_ct)),                                                       \
+   TYPE(M_F(name,_ct)), GENTYPE(struct M_F(name,_s)*),                        \
    RESET(M_F(name,_reset)),                                                   \
    SUBTYPE(M_F(name,_subtype_ct)),                                            \
    EMPTY_P(M_F(name,_empty_p)),                                               \

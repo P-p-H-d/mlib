@@ -89,7 +89,7 @@
    ,INIT_MOVE(M_F(name, _init_move))                                          \
    ,MOVE(M_F(name, _move))                                                    \
    ,SWAP(M_F(name, _swap))                                                    \
-   ,TYPE(M_F(name,_ct))                                                       \
+   ,TYPE(M_F(name,_ct)) , GENTYPE(struct M_F(name,_s)*)                       \
    ,NAME(name)                                                                \
    ,SUBTYPE(M_F(name, _subtype_ct))                                           \
    ,EMPTY_P(M_F(name,_empty_p))                                               \
