@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2023, Patrick Pelissier
+ * Copyright (c) 2017-2024, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -32,7 +32,7 @@
 
 // Generic is not supported if not C11
 // TCC has some issues in the preprocessing.
-// See https://lists.nongnu.org/archive/html/tinycc-devel/2023-12/msg00004.html
+// See https://lists.nongnu.org/archive/html/tinycc-devel/2024-12/msg00004.html
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && !defined(__TINYC__)
 
 ARRAY_DEF(array_int, int)

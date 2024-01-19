@@ -36,7 +36,7 @@
  */
 
 /* Update of integrating M*LIB, LIBSRT, SDS, GLIB & POTTERY
-   Copyright (c) 2018-2023 Patrick Pelissier
+   Copyright (c) 2018-2024 Patrick Pelissier
  */
 
 /*
