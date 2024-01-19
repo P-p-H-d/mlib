@@ -31,13 +31,13 @@
 
 M_BEGIN_PROTECTED_CODE
 
-/* Define a Single Producer Single Consummer snapshot and its functions
+/* Define a Single Producer Single Consumer snapshot and its functions
    USAGE: SNAPSHOT_SPSC_DEF(name, type[, oplist]) */
 #define M_SNAPSHOT_SPSC_DEF(name, ...)                                        \
   M_SNAPSHOT_SPSC_DEF_AS(name, M_F(name,_t), __VA_ARGS__)
 
 
-/* Define a Single Producer Single Consummer snapshot and its functions
+/* Define a Single Producer Single Consumer snapshot and its functions
    as the given name name_t
    USAGE: SNAPSHOT_SPSC_DEF_AS(name, name_t, type[, oplist]) */
 #define M_SNAPSHOT_SPSC_DEF_AS(name, name_t, ...)                             \
@@ -48,13 +48,13 @@ M_BEGIN_PROTECTED_CODE
   M_END_PROTECTED_CODE
 
 
-/* Define a Single Producer Multiple Consummer snapshot and its functions
+/* Define a Single Producer Multiple Consumer snapshot and its functions
    USAGE: SNAPSHOT_SPMC_DEF(name, type[, oplist]) */
 #define M_SNAPSHOT_SPMC_DEF(name, ...)                                        \
   M_SNAPSHOT_SPMC_DEF_AS(name, M_F(name,_t), __VA_ARGS__)
 
 
-/* Define a Single Producer Multiple Consummer snapshot and its functions
+/* Define a Single Producer Multiple Consumer snapshot and its functions
    as the given name name_t
    USAGE: SNAPSHOT_SPMC_DEF_AS(name, type[, oplist]) */
 #define M_SNAPSHOT_SPMC_DEF_AS(name, name_t, ...)                             \
@@ -65,13 +65,13 @@ M_BEGIN_PROTECTED_CODE
   M_END_PROTECTED_CODE
 
 
-/* Define a Multiple Producer Multiple Consummer snapshot and its functions
+/* Define a Multiple Producer Multiple Consumer snapshot and its functions
    USAGE: SNAPSHOT_MPMC_DEF(name, type[, oplist]) */
 #define M_SNAPSHOT_MPMC_DEF(name, ...)                                        \
   M_SNAPSHOT_MPMC_DEF_AS(name, M_F(name,_t), __VA_ARGS__)
 
 
-/* Define a Multiple Producer Multiple Consummer snapshot and its functions
+/* Define a Multiple Producer Multiple Consumer snapshot and its functions
    as the given name name_t
    USAGE: SNAPSHOT_MPMC_DEF_AS(name, name_t, type[, oplist]) */
 #define M_SNAPSHOT_MPMC_DEF_AS(name, name_t, ...)                             \
@@ -154,10 +154,10 @@ M_BEGIN_PROTECTED_CODE
   } while (0)
 
 // A snapshot is basically an atomic triple buffer (Lock Free)
-// between a single producer thread and a single consummer thread.
+// between a single producer thread and a single Consumer thread.
 #define M_SNAPSH0T_SPSC_MAX_BUFFER             3
 
-// Defered evaluation of the arguments.
+// Deferred evaluation of the arguments.
 #define M_SNAPSH0T_SPSC_DEF_P1(arg)        M_ID( M_SNAPSH0T_SPSC_DEF_P2 arg )
 
 /* Validate the oplist before going further */
@@ -514,7 +514,7 @@ m_snapsh0t_mrsw_write_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
 {
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
 
-  // Provide this write bufer to the readers
+  // Provide this write buffer to the readers
   unsigned int newNext, previous = atomic_load(&s->lastNext);
   do {
     newNext = M_SNAPSH0T_SPMC_INT_FLAG(idx, true);
@@ -558,7 +558,7 @@ m_snapsh0t_mrsw_read_start(m_snapsh0t_mrsw_ct s)
     if (idx == M_SNAPSH0T_SPMC_INT_FLAG_W(previous)) {
       // This is still ok if the index has not changed
       // We can get previous to true again if the writer has recycled the index,
-      // while we reserved it, and the reader get prempted until its CAS.
+      // while we reserved it, and the reader get preempted until its CAS.
       if (M_UNLIKELY (M_SNAPSH0T_SPMC_INT_FLAG_N(previous) == true)) goto reforce;
       break;
     }
@@ -601,7 +601,7 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
   } while (0)
 
 
-// Defered evaluation
+// Deferred evaluation
 #define M_SNAPSH0T_SPMC_DEF_P1(arg)        M_ID( M_SNAPSH0T_SPMC_DEF_P2 arg )
 
 /* Validate the oplist before going further */
@@ -714,7 +714,7 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
 
 // MPMC is built upon SPMC
 
-// Defered evaluation
+// Deferred evaluation
 #define M_SNAPSH0T_MPMC_DEF_P1(arg)        M_ID( M_SNAPSH0T_MPMC_DEF_P2 arg )
 
 /* Validate the oplist before going further */

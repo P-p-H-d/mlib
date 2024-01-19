@@ -56,7 +56,7 @@
 
 
 /*
- * Start a protected section of code 'name' where all exceptions are catched
+ * Start a protected section of code 'name' where all exceptions are caught
  * by the associated CATCH section.
  */
 #define M_TRY(name)                                                           \
@@ -249,7 +249,7 @@ namespace m_lib {
 // Use of builtin setjmp / longjmp for GCC
 // There are at least twice faster at worst, and reduce stack consumption
 // See https://gcc.gnu.org/onlinedocs/gcc/Nonlocal-Gotos.html
-// CLANG doesn't support these builtins officialy (https://groups.google.com/g/llvm-dev/c/9QgfdW23K8M)
+// CLANG doesn't support these builtins officially (https://groups.google.com/g/llvm-dev/c/9QgfdW23K8M)
 #define m_try_setjmp(x)     __builtin_setjmp(x)
 #define m_try_longjmp(x,v)  __builtin_longjmp(x, v)
 typedef intptr_t           m_try_jmp_buf[5];
@@ -281,7 +281,7 @@ typedef intptr_t           m_try_jmp_buf[5];
 // this point in the stack frame. Each nodes are linked together, so that we can
 // analyze the stack frame on exception.
 typedef struct m_try_s {
-  enum { M_STATE_TRY, M_STATE_EXCEPTION_IN_PROGRESS, M_STATE_EXCEPTION_CATCHED,
+  enum { M_STATE_TRY, M_STATE_EXCEPTION_IN_PROGRESS, M_STATE_EXCEPTION_CAUGHT,
          M_STATE_CLEAR_JMPBUF, M_STATE_CLEAR_CB } kind;
   struct m_try_s *next;
   union {
@@ -354,7 +354,7 @@ extern M_ATTR_NO_RETURN M_ATTR_COLD_FUNCTION void m_throw(const struct m_excepti
     }                                                                         \
     /* No exception found.                                                    \
        Display the information and halt program . */                          \
-    M_RAISE_FATAL("Exception '%u' raised by (%s:%d) is not catched. Program aborted.\n", \
+    M_RAISE_FATAL("Exception '%u' raised by (%s:%d) is not caught. Program aborted.\n", \
                   exception->error_code, exception->filename, exception->line); \
   }
 
@@ -376,8 +376,8 @@ m_catch(m_try_t state, unsigned error_code, const struct m_exception_s **excepti
   *exception = &m_global_exception;
   if (error_code != 0 && m_global_exception.error_code != error_code)
     return false;
-  // The exception has been catched.
-  state->kind = M_STATE_EXCEPTION_CATCHED;
+  // The exception has been caught.
+  state->kind = M_STATE_EXCEPTION_CAUGHT;
   // Unstack the try block, so that next throw command in the CATCH block
   // will reach the upper TRY block.
   m_global_error_list = state->next;
@@ -413,7 +413,7 @@ m_try_clear(m_try_t state)
 
 // Implement the M_LET injection macros, so that the CLEAR operator is called on exception
 // Helper functions
-// Each mechanisme provide 3 helper functions:
+// Each mechanism provide 3 helper functions:
 // * pre: which is called before the constructor
 // * post: which is called after the constructor
 // * final: which is called before the destructor.

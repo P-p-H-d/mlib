@@ -238,13 +238,13 @@ m_string_clear(m_string_t v)
   v->u.stack.buffer[sizeof (m_str1ng_heap_ct) - 1] = CHAR_MAX;
 }
 
-/* NOTE: Internaly used by M_STRING_DECL_INIT */
+/* NOTE: Internally used by M_STRING_DECL_INIT */
 M_INLINE void m_str1ng_clear2(m_string_t *v) { m_string_clear(*v); }
 M_INLINE m_string_ptr m_str1ng_init_ref(m_string_t v) { m_string_init(v); return v; }
 
 /* Clear the Dynamic string (destructor)
   and return a heap pointer to the string.
-  The ownership of the data is transfered back to the caller
+  The ownership of the data is transferred back to the caller
   and the returned pointer has to be released by M_MEMORY_FREE. */
 M_INLINE char *
 m_string_clear_get_cstr(m_string_t v)
@@ -319,7 +319,7 @@ m_str1ng_fit2size (m_string_t v, size_t size_alloc)
   // Note: this function may be called in context where the contract
   // is not fulfilled.
   const size_t old_alloc = m_string_capacity(v);
-  // This line enables the compiler to completly remove this function
+  // This line enables the compiler to completely remove this function
   // for very short constant strings.
   M_ASSUME(old_alloc >= sizeof (m_str1ng_heap_ct) - 1);
   if (M_UNLIKELY (size_alloc > old_alloc)) {
@@ -536,7 +536,7 @@ m_string_push_back (m_string_t v, char c)
   M_STR1NG_CONTRACT (v);
 }
 
-/* Concatene the string with the C string */
+/* Concatenate the string with the C string */
 M_INLINE void
 m_string_cat_cstr(m_string_t v, const char str[])
 {
@@ -550,7 +550,7 @@ m_string_cat_cstr(m_string_t v, const char str[])
   M_STR1NG_CONTRACT (v);
 }
 
-/* Concatene the string with the other string */
+/* Concatenate the string with the other string */
 M_INLINE void
 m_string_cat(m_string_t v, const m_string_t v2)
 {
@@ -613,7 +613,7 @@ m_string_equal_p(const m_string_t v1, const m_string_t v2)
 }
 
 /* Test if the string is equal to the C string 
-   (case insentive according to the current locale)
+   (case insensitive according to the current locale)
    Note: doesn't work with UTF-8 strings.
 */
 M_INLINE int
@@ -635,7 +635,7 @@ m_string_cmpi_cstr(const m_string_t v1, const char p2[])
 }
 
 /* Test if the string is equal to the other string 
-   (case insentive according to the current locale)
+   (case insensitive according to the current locale)
    Note: doesn't work with UTF-8 strings.
 */
 M_INLINE int
@@ -796,7 +796,7 @@ m_string_mid (m_string_t v, size_t index, size_t size)
   m_string_left(v, size);
 }
 
-/* Replace in the string the firt occurence of the C string str1
+/* Replace in the string the first occurrence of the C string str1
    into the C string str2 from start
    By default, start is zero.
 */
@@ -822,7 +822,7 @@ m_string_replace_cstr (m_string_t v, const char str1[], const char str2[], size_
   return i;
 }
 
-/* Replace in the string the firt occurence of the C string v1
+/* Replace in the string the first occurrence of the C string v1
    into the C string v2 from start
    By default, start is zero.
 */
@@ -861,7 +861,7 @@ m_string_replace_at (m_string_t v, size_t pos, size_t len, const char str2[])
   M_STR1NG_CONTRACT (v);
 }
 
-/* Replace all occurences of str1 into str2 when strlen(str1) >= strlen(str2) */
+/* Replace all occurrences of str1 into str2 when strlen(str1) >= strlen(str2) */
 M_INLINE void
 m_str1ng_replace_all_cstr_1ge2 (m_string_t v, const char str1[], size_t str1len, const char str2[], size_t str2len)
 {
@@ -1167,7 +1167,7 @@ m_string_set_si(m_string_t v, int n)
 
 #if M_USE_STDIO
 
-/* Get a line/pureline/file from the FILE and store it in the string */
+/* Get a line/pure-line/file from the FILE and store it in the string */
 M_INLINE bool
 m_string_fgets(m_string_t v, FILE *f, m_string_fgets_t arg)
 {
@@ -1192,7 +1192,7 @@ m_string_fgets(m_string_t v, FILE *f, m_string_fgets_t arg)
       }
       m_str1ng_set_size(v, size);
       M_STR1NG_CONTRACT(v);
-      return retcode; /* Normal terminaison */
+      return retcode; /* Normal termination */
     } else if (ptr[size-1] != '\n' && !feof(f)) {
       /* The string buffer is not big enough:
          increase it and continue reading */
@@ -1203,7 +1203,7 @@ m_string_fgets(m_string_t v, FILE *f, m_string_fgets_t arg)
   }
   m_str1ng_set_size(v, size);
   M_STR1NG_CONTRACT (v);
-  return retcode; /* Abnormal terminaison */
+  return retcode; /* Abnormal termination */
 }
 
 /* Get a word from the FILE and store it in the string.
@@ -1333,30 +1333,30 @@ m_string_hash(const m_string_t v)
   return m_core_hash(m_string_get_cstr(v), m_string_size(v));
 }
 
-// Return true if c is a character from charac
+// Return true if c is a character from the C-String tab
 M_INLINE bool
-m_str1ng_strim_char(char c, const char charac[])
+m_str1ng_strim_char(char c, const char tab[])
 {
-  for(const char *s = charac; *s; s++) {
+  for(const char *s = tab; *s; s++) {
     if (c == *s)
       return true;
   }
   return false;
 }
 
-/* Remove any characters from charac that are present 
-   in the begining of the string and the end of the string. */
+/* Remove any characters from tab that are present 
+   in the beginning of the string and the end of the string. */
 M_INLINE void
-m_string_strim(m_string_t v, const char charac[])
+m_string_strim(m_string_t v, const char tab[])
 {
   M_STR1NG_CONTRACT (v);
   char *ptr = m_str1ng_get_cstr(v);
   char *b   = ptr;
   size_t size = m_string_size(v);
-  while (size > 0 && m_str1ng_strim_char(b[size-1], charac))
+  while (size > 0 && m_str1ng_strim_char(b[size-1], tab))
     size --;
   if (size > 0) {
-    while (m_str1ng_strim_char(*b, charac))
+    while (m_str1ng_strim_char(*b, tab))
       b++;
     M_ASSERT (b >= ptr &&  size >= (size_t) (b - ptr) );
     size -= (size_t) (b - ptr);
@@ -1374,7 +1374,7 @@ m_string_oor_equal_p(const m_string_t s, unsigned char n)
   return (s->ptr == NULL) & (s->u.heap.alloc == ~(size_t)n);
 }
 
-/* Set the unitialized string to the OOR value */
+/* Set the uninitialized string to the OOR value */
 M_INLINE void
 m_string_oor_set(m_string_t s, unsigned char n)
 {
@@ -1633,7 +1633,7 @@ m_string_in_serial(m_string_t v, m_serial_read_t serial)
    It shall be (nearly) branchless on any CPU.
    It takes a byte, and the previous state and the previous value of the unicode code point.
    It updates the state and the decoded unicode code point.
-   A decoded unicoded code point is valid only when the state is STARTING.
+   A decoded unicode code point is valid only when the state is STARTING.
  */
 M_INLINE void
 m_str1ng_utf8_decode(char c, m_str1ng_utf8_state_e *state,
@@ -1753,7 +1753,7 @@ m_string_it_set(m_string_it_t it, const m_string_it_t itsrc)
 }
 
 /* Set the iterator to the given position in the string.
-   The given position shall reference a valide code point in the string.
+   The given position shall reference a valid code point in the string.
  */
 M_INLINE void
 m_string_it_pos(m_string_it_t it, const m_string_t str, const size_t n)
@@ -2524,7 +2524,7 @@ namespace m_lib {
   M_F(name, _hash)(const bounded_t s)                                         \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
-    /* Cannot use m_core_hash: alignment not sufficent */                     \
+    /* Cannot use m_core_hash: alignment guarantee is not sufficient */       \
     return m_core_cstr_hash(s->s);                                            \
   }                                                                           \
                                                                               \

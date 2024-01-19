@@ -188,6 +188,23 @@
    - node_t: alias for M_F(name, _node_t) [ node ]
  */
 #define M_L1ST_DEF_P3(name, type, oplist, list_t, it_t)                       \
+  M_L1ST_DEF_TYPE(name, type, oplist, list_t, it_t)                           \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+  M_L1ST_MEMPOOL_DEF(name, type, oplist, list_t, it_t)                        \
+  M_L1ST_DEF_P4(name, type, oplist, list_t, it_t)                             \
+  M_EMPLACE_QUEUE_DEF(name, list_t, M_F(name, _emplace_back), oplist, M_L1ST_EMPLACE_DEF) \
+  M_L1ST_ITBASE_DEF(name, type, oplist, list_t, it_t)
+
+
+/* Define the internal contract of a list
+   (there is nothing worthy to be checked) */
+#define M_L1ST_CONTRACT(v) do {                                               \
+    M_ASSERT (v != NULL);                                                     \
+  } while (0)
+
+
+/* Define the type of a list */
+#define M_L1ST_DEF_TYPE(name, type, oplist, list_t, it_t)                     \
                                                                               \
   /* Define the node of a list, and the list as a pointer to a node */        \
   typedef struct M_F(name, _s) {                                              \
@@ -207,22 +224,9 @@
   typedef list_t M_F(name, _ct);                                              \
   typedef it_t M_F(name, _it_ct);                                             \
   typedef type M_F(name, _subtype_ct);                                        \
-                                                                              \
-  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
-                                                                              \
-  M_L1ST_MEMPOOL_DEF(name, type, oplist, list_t, it_t)                        \
-  M_L1ST_DEF_P4(name, type, oplist, list_t, it_t)                             \
-  M_L1ST_ITBASE_DEF(name, type, oplist, list_t, it_t)
+ 
 
-
-/* Define the internal contract of a list
-   (there is nothing worthy to be checked) */
-#define M_L1ST_CONTRACT(v) do {                                               \
-    M_ASSERT (v != NULL);                                                     \
-  } while (0)
-
-
-/* Internal list function definition
+ /* Internal list function definition
    - name: prefix to be used
    - type: type of the elements of the list
    - oplist: oplist of the type of the elements of the container
@@ -539,7 +543,7 @@
       *update_list = next;                                                    \
       if (M_UNLIKELY_NOMEM (next == NULL)) {                                  \
         M_MEMORY_FULL(sizeof (struct M_F(name, _s)));                         \
-        /* FIXME: Partialy initialized list. What to do? */                   \
+        /* FIXME: Partially initialized list. What to do? */                  \
         return;                                                               \
       }                                                                       \
       update_list = &next->next;                                              \
@@ -666,8 +670,6 @@
     }                                                                         \
     *list = previous;                                                         \
   }                                                                           \
-                                                                              \
-  M_EMPLACE_QUEUE_DEF(name, list_t, M_F(name, _emplace_back), oplist, M_L1ST_EMPLACE_DEF)
 
 
 /* Internal list function definition using only iterator functions 
@@ -927,6 +929,15 @@
 #define M_L1ST_DUAL_PUSH_DEF_FAILURE(name, type, oplist, list_t, it_t)        \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(LIST_DUAL_PUSH_DEF): the given argument is not a valid oplist: " #oplist)
 
+
+/* Define the internal contract of an dual-push list */
+#define M_L1ST_DUAL_PUSH_CONTRACT(l) do {                                     \
+    M_ASSERT (l != NULL);                                                     \
+    M_ASSERT ( (l->back == NULL && l->front == NULL)                          \
+             || (l->back != NULL && l->front != NULL));                       \
+  } while (0)
+
+
 /* Internal dual-push list definition
    - name: prefix to be used
    - type: type of the elements of the array
@@ -935,7 +946,17 @@
    - it_t: alias for M_F(name, _it_t) [ iterator of the container ]
  */
 #define M_L1ST_DUAL_PUSH_DEF_P3(name, type, oplist, list_t, it_t)             \
-                                                                              \
+  M_L1ST_DUAL_PUSH_DEF_TYPE(name, type, oplist, list_t, it_t)                 \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+  M_L1ST_MEMPOOL_DEF(name, type, oplist, list_t, it_t)                        \
+  M_L1ST_DUAL_PUSH_DEF_P4(name, type, oplist, list_t, it_t)                   \
+  M_EMPLACE_QUEUE_DEF(name, list_t, M_F(name, _emplace_back), oplist, M_L1ST_EMPLACE_BACK_DEF) \
+  M_EMPLACE_QUEUE_DEF(name, list_t, M_F(name, _emplace_front), oplist, M_L1ST_EMPLACE_FRONT_DEF) \
+  M_L1ST_ITBASE_DEF(name, type, oplist, list_t, it_t)
+
+
+/* Define the type of a dual-push list */
+#define M_L1ST_DUAL_PUSH_DEF_TYPE(name, type, oplist, list_t, it_t)           \
   /* Node of a list (it is liked the singly linked list) */                   \
   struct M_F(name, _s) {                                                      \
     struct M_F(name, _s) *next;                                               \
@@ -965,19 +986,6 @@
   typedef it_t M_F(name, _it_ct);                                             \
   typedef type M_F(name, _subtype_ct);                                        \
                                                                               \
-  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
-                                                                              \
-  M_L1ST_MEMPOOL_DEF(name, type, oplist, list_t, it_t)                        \
-  M_L1ST_DUAL_PUSH_DEF_P4(name, type, oplist, list_t, it_t)                   \
-  M_L1ST_ITBASE_DEF(name, type, oplist, list_t, it_t)
-
-
-/* Define the internal contract of an dual-push list */
-#define M_L1ST_DUAL_PUSH_CONTRACT(l) do {                                     \
-    M_ASSERT (l != NULL);                                                     \
-    M_ASSERT ( (l->back == NULL && l->front == NULL)                          \
-             || (l->back != NULL && l->front != NULL));                       \
-  } while (0)
 
 /* Internal dual-push list definition
    - name: prefix to be used
@@ -1510,9 +1518,7 @@
     list->back = previous;                                                    \
     M_L1ST_DUAL_PUSH_CONTRACT(list);                                          \
   }                                                                           \
-                                                                              \
-  M_EMPLACE_QUEUE_DEF(name, list_t, M_F(name, _emplace_back), oplist, M_L1ST_EMPLACE_BACK_DEF) \
-  M_EMPLACE_QUEUE_DEF(name, list_t, M_F(name, _emplace_front), oplist, M_L1ST_EMPLACE_FRONT_DEF)
+
 
 #if M_USE_SMALL_NAME
 #define LIST_DEF M_LIST_DEF

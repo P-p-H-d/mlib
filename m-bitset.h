@@ -286,7 +286,7 @@ m_bitset_resize (m_bitset_t v, size_t size)
   M_B1TSET_CONTRACT (v);
 }
 
-/* Reserve allocation in the bitset to accomodate at least 'size' bits without reallocation */
+/* Reserve allocation in the bitset to accommodate at least 'size' bits without reallocation */
 M_INLINE void
 m_bitset_reserve (m_bitset_t v, size_t alloc)
 {
@@ -750,7 +750,7 @@ m_bitset_not(m_bitset_t dest)
   M_B1TSET_CONTRACT(dest);
 }
 
-/* Copute a hash of the bitset */
+/* Compute a hash of the bitset */
 M_INLINE size_t
 m_bitset_hash(const m_bitset_t set)
 {
@@ -961,7 +961,7 @@ M_END_PROTECTED_CODE
 M_BEGIN_PROTECTED_CODE
 
 /* Output to a m_string_t 'str' the formatted text representation of the bitset 'set'
-   or append it to the strinf (append=true) */
+   or append it to the string (append=true) */
 M_INLINE void
 m_bitset_get_str(m_string_t str, const m_bitset_t set, bool append)
 {

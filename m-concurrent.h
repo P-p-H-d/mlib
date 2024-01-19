@@ -329,7 +329,7 @@
        T1: A := B                                                             \
        T2: B := A                                                             \
        If we lock first the mutex of out, then the src, it could be possible  \
-       in the previous scenario that both mutexs are locked: T1 has locked A  \
+       in the previous scenario that both mutexes are locked: T1 has locked A \
        and T2 has locked B, and T1 is waiting for locking B, and T2 is waiting \
        for locking A, resulting in a deadlock.                                \
        To avoid this problem, we **always** lock the mutex which address is   \
@@ -641,7 +641,7 @@
     M_C0NCURRENT_CONTRACT(out1);                                              \
     M_C0NCURRENT_CONTRACT(out2);                                              \
     if (M_UNLIKELY (out1 == out2)) return true;                               \
-    /* See comment above on mutal mutexs */                                   \
+    /* See comment above on mutual mutexes */                                 \
     if (out1 < out2) {                                                        \
       M_F(name, _read_lock)(out1);                                            \
       M_F(name, _read_lock)(out2);                                            \

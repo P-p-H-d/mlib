@@ -97,7 +97,7 @@ typedef struct m_genint_s {
    |((M_GEN1NT_ABA_CPT_T)((master) + 1)))
 
 /* Initialize an integer generator (CONSTRUCTOR).
- * Initialy, the container is full of all the integers up to 'n-1'
+ * Initially, the container is full of all the integers up to 'n-1'
  * The typical sequence is to initialize the container, and pop
  * the integer from it. Each pop integer is **unique** for all threads,
  * meaning it can be used to index global unique resources shared 

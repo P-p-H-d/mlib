@@ -185,7 +185,7 @@ typedef struct m_worker_sync_s {
   M_END_PROTECTED_CODE
 
 /* Output a valid oplist with the given type.
-   input is (fieldname, type) or (fieldname, type, oplist)
+   input is (field-name, type) or (field-name, type, oplist)
    Output shall be : M_OPEXTEND(M_GLOBAL_OPLIST_OR_DEF(type_or_oplist)(), TYPE(type)) / M_OPEXTEND(oplist, TYPE(type))
  */
 #define M_WORK3R_SPAWN_EXTEND_P0(...)                       M_BY_NARGS(M_WORK3R_SPAWN_EXTEND_P0, M_ID __VA_ARGS__) __VA_ARGS__
@@ -377,7 +377,7 @@ m_work3r_thread(void *arg)
     if (w.block == NULL) break;
     // Execute the work order
     m_work3r_exec(&w);
-    // Consumme fully the work order in the queue
+    // Consume fully the work order in the queue
     m_work3r_queue_pop_release(g->queue_g);
     // Signal that a worker has finished.
     m_mutex_lock(g->lock);
@@ -395,7 +395,7 @@ m_work3r_thread(void *arg)
    @numWorker: number of worker to create (0=autodetect, -1=2*autodetect)
    @extraQueue: number of extra work order we can get if all workers are full
    @resetFunc: function to reset the state of a worker between work orders (or NULL if none)
-   @clearFunc: function to clear the state of a worker before terminaning (or NULL if none)
+   @clearFunc: function to clear the state of a worker before terminating (or NULL if none)
 */
 M_INLINE void
 m_worker_init(m_worker_t g, int numWorker, unsigned int extraQueue, void (*resetFunc)(void), void (*clearFunc)(void))
@@ -432,7 +432,7 @@ m_worker_init(m_worker_t g, int numWorker, unsigned int extraQueue, void (*reset
    @numWorker: number of worker to create (0=autodetect, -1=2*autodetect)
    @extraQueue: number of extra work order we can get if all workers are full
    @resetFunc: function to reset the state of a worker between work orders (optional)
-   @clearFunc: function to clear the state of a worker before terminaning (optional)
+   @clearFunc: function to clear the state of a worker before terminating (optional)
 */
 #define m_worker_init(...) m_worker_init(M_DEFAULT_ARGS(5, (0, 0, NULL, NULL), __VA_ARGS__))
 
@@ -444,12 +444,12 @@ m_worker_clear(m_worker_t g)
   // Push the terminate order on the queue
   for(unsigned int i = 0; i < g->numWorker_g; i++) {
     m_work3r_order_ct w = M_WORK3R_EMPTY_ORDER;
-    // Normaly all worker threads shall be waiting at this
+    // Normally all worker threads shall be waiting at this
     // stage, so all push won't block as the queue is empty.
     // But for robustness, let's wait.
     m_work3r_queue_push_blocking (g->queue_g, w, true);
   }
-  // Wait for thread terminanison
+  // Wait for thread termination
   for(unsigned int i = 0; i < g->numWorker_g; i++) {
     m_thread_join(g->worker[i].id);
   }
@@ -532,9 +532,9 @@ m_work3r_spawn_function(m_worker_sync_t block, std::function<void(void *data)> f
 M_INLINE bool
 m_worker_sync_p(m_worker_sync_t block)
 {
-  /* If the number of spawns is greated than the number
+  /* If the number of spawns is greater than the number
      of terminated spawns, some spawns are still working.
-     So wait for terminaison */
+     So wait for termination */
   return (atomic_load(&block->num_spawn) == atomic_load (&block->num_terminated_spawn));
 }
 
@@ -542,7 +542,7 @@ m_worker_sync_p(m_worker_sync_t block)
 M_INLINE void
 m_worker_sync(m_worker_sync_t block)
 {
-  M_WORK3R_DEBUG ("Waiting for thread terminasion.\n");
+  M_WORK3R_DEBUG ("Waiting for thread termination.\n");
   // Fast case: all workers have finished
   if (m_worker_sync_p(block)) return;
   // Slow case: perform a locked wait to put this thread to waiting state
@@ -574,7 +574,7 @@ m_worker_count(m_worker_t g)
 
 /* Spawn the 'core' block computation into another thread if
    a worker thread is available. Compute it in the current thread otherwise.
-   'block' shall be the initialised synchronised block for all threads.
+   'block' shall be the initialised synchronized block for all threads.
    'input' is the list of input variables of the 'core' block within "( )"
    'output' is the list of output variables of the 'core' block within "( )"
    Output variables are only available after a synchronisation block.

@@ -96,7 +96,7 @@
 /*****************************************************************************/
 
 /* To be used by M_IF_FUNCOBJ macro defined in m-core.
-   NOTE: It is reversed (0 instead of 1) so that it can be used in M_IF reliabely.
+   NOTE: It is reversed (0 instead of 1) so that it can be used in M_IF reliably.
 */
 #define M_FUNC0BJ_IS_NOT_DEFINED 0
 
@@ -105,7 +105,7 @@
  *
  * Structure definitions are specialized in function of the presence or not
  * of parameters and/or attributes 
- * FIXME: How to factorize reasonnably well between the definitions?
+ * FIXME: How to factorize reasonably well between the definitions?
  */
 
 /* Specialization of the OPLIST in function if there is at least one member or not */

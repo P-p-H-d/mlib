@@ -329,7 +329,7 @@ typedef const char **m_g3n_cstring_end;
     ( M_FPRINT_ARG_OUT_STR(f, M_PAIR_2 x, M_PAIR_1 x),                        \
       M_FPRINT_ARG_G3N(f, x) )
 
-/* Ovverride M_PRINT */
+/* Override M_PRINT */
 #undef M_PRINT
 #define M_PRINT(...)   do { M_REDUCE2(M_G3N_FPRINT_ARG, M_SEPARATE_PER_SEMICOLON, stdout, __VA_ARGS__); } while (0)
 

@@ -114,14 +114,14 @@ M_BEGIN_PROTECTED_CODE
    - Thread 1 performs a PUSH of N in Q1 with Q1 empty (only node is NA)
    NA.next is NIL.
    - Thread 1 is interrupted just before the CAS on NA.next
-   - Thread 2 performs a sucessfull push of NB in Q1. NA.next is set to NB.
-   - Thread 2 performs a sucessfull pop of NA in Q1
-   - Thread 2 performs a sucessfull push of NA in Q2. NA.next is set to NIL.
+   - Thread 2 performs a successful push of NB in Q1. NA.next is set to NB.
+   - Thread 2 performs a successful pop of NA in Q1
+   - Thread 2 performs a successful push of NA in Q2. NA.next is set to NIL.
    - Thread 1 is restored and will succeed as NA.next is once again NIL.
    In order to prevent the last CAS to succeed, each queue uses its own NIL pointer.
    It is a derived problem of the ABA problem.
  */
-/* TODO: Optimize alignement to reduce memory consumption. NIL object can use [] 
+/* TODO: Optimize alignment to reduce memory consumption. NIL object can use [] 
    to reduce memory consumption too (non compatible with C++ ...) */
 #define M_CMEMP00L_DEF_LF_QUEUE(name, type_t)                                 \
                                                                               \
@@ -232,7 +232,7 @@ M_BEGIN_PROTECTED_CODE
     }                                                                         \
     /* dequeue returns an element that becomes the new dummy element (the new head), \
        and the former dummy element (the former head) is removed:             \
-       Since we want a link of free list, and we don't care about the content itsef, \
+       Since we want a link of free list, and we don't care about the content itself, \
        provided that the node we return is older than the one we should return, \
        Therefore, we return the previous dummy head.                          \
        As such, it is not the original MSqueue algorithm. */                  \
@@ -263,7 +263,7 @@ M_BEGIN_PROTECTED_CODE
                                                     memory_order_release,     \
                                                     memory_order_relaxed);    \
           } else {                                                            \
-            /* Test if the node is old enought to be popped */                \
+            /* Test if the node is old enough to be popped */                 \
             if (atomic_load_explicit(&next->cpt, memory_order_relaxed) >= age) \
               return NULL;                                                    \
             /* Try to swing Head to the next node */                          \
@@ -338,15 +338,15 @@ M_BEGIN_PROTECTED_CODE
    nodes). If it fails, it requests a new pool to the system allocator
    (and from there it is no longer lock free).
    This memory pool can only be lock free if the initial state is 
-   sufficiently dimensionned to avoid calling the system allocator during
+   sufficiently dimensioned to avoid calling the system allocator during
    the normal processing.
-   Then each thread pushs its deleted node into another pool of nodes,
+   Then each thread pushes its deleted node into another pool of nodes,
    where the node is logically deleted (no contain of the node is destroyed
    at this point and the node can be freely accessed by other threads).
    Once the thread mempool is put to sleep, the age of the pool of logical 
    deleted nodes is computed and this pool is move to the Lock Free Queue 
    List of pools to be reclaimed. Then A Garbage Collector is performed
-   on this Lock Free Queue list to reclaim all pools thare are sufficiently
+   on this Lock Free Queue list to reclaim all pools that are sufficiently
    aged (taking into account the grace period of the pool) to be moved back
    to the Lock Free Queue of the free pools.
 
@@ -822,7 +822,7 @@ m_vlapool_del(m_vlapool_t mem, void *d, m_gc_tid_t id)
   // Get back the pointer to a struct m_vlapool_slist_node_s.
   d = M_ASSIGN_CAST(void *, M_ASSIGN_CAST(char *, d) - offsetof(struct m_vlapool_slist_node_s, data));
   m_vlapool_slist_node_ct *snode = M_ASSIGN_CAST(m_vlapool_slist_node_ct *, d);
-  // Push the logicaly free memory into the list of the nodes to be reclaimed.
+  // Push the logically free memory into the list of the nodes to be reclaimed.
   m_vlapool_slist_push(mem->thread_data[id].to_be_reclaimed, snode);
 }
 

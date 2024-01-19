@@ -796,7 +796,7 @@
   {                                                                           \
     M_ASSERT (it != NULL && a == it->array);                                  \
     M_F(name, _pop_at)(NULL, a, it->index);                                   \
-    /* NOTE: it->index will naturaly point to the next element */             \
+    /* NOTE: it->index will naturally point to the next element */            \
   }                                                                           \
   , /* End of SET | INIT_SET */ )                                             \
                                                                               \
@@ -918,7 +918,7 @@
       bool b = M_CALL_EQUAL(oplist, *item1, *item2);                          \
       if (!b) return false;                                                   \
     }                                                                         \
-    return i == array1->size;                                                 \
+    return true;                                                              \
   }                                                                           \
   , /* no EQUAL */ )                                                          \
                                                                               \
@@ -946,7 +946,7 @@
       /* To overflow newSize, we need to a1 and a2 a little bit above         \
          SIZE_MAX/2, which is not possible in the classic memory model as we  \
          should have exhausted all memory before reaching such sizes. */      \
-      M_ASSERT(newSize > a1->size);                                           \
+      M_ASSERT_INDEX(a1->size, newSize);                                      \
       if (newSize > a1->alloc) {                                              \
         type *ptr = M_CALL_REALLOC(oplist, type, a1->ptr, newSize);           \
         if (M_UNLIKELY_NOMEM (ptr == NULL) ) {                                \

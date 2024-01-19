@@ -905,7 +905,7 @@ typedef enum {
           M_ASSERT (M_C3(m_rbtr33_,name,_black_p)(s));                        \
         }                                                                     \
         M_ASSERT (p != NULL && u == p->child[nbChild]);                       \
-        /* if both childreen of s are black */                                \
+        /* if both children of s are black */                                 \
         /* perform recoloring and recur on parent if black */                 \
         if (s != NULL                                                         \
             && M_C3(m_rbtr33_,name,_black_p)(s->child[0])                     \
@@ -983,7 +983,7 @@ typedef enum {
     it_t it1;                                                                 \
     it_t it2;                                                                 \
     /* NOTE: We can't compare two tree directly as they can be                \
-       structuraly different but functionnaly equal (you get this by          \
+       structurally different but functionally equal (you get this by         \
        constructing the tree in a different way). We have to                  \
        compare the ordered value within the tree. */                          \
     M_F(name, _it)(it1, t1);                                                  \

@@ -147,7 +147,7 @@
    so that all arguments are evaluated before further expansion */
 #define M_BPTR33_KEY_OPLIST_P1(arg) M_BPTR33_KEY_OPLIST_P2 arg
 
-/* Validation of the given oplists */
+/* Validation of the given oplist */
 #define M_BPTR33_KEY_OPLIST_P2(name, oplist)                                  \
   M_IF_OPLIST(oplist)(M_BPTR33_KEY_OPLIST_P3, M_BPTR33_KEY_OPLIST_FAILURE)(name, oplist)
 
@@ -950,7 +950,7 @@
       node_t parent = pit->parent[--pit->num];                                \
       M_ASSERT (parent != NULL);                                              \
       k = M_F(name, _search_for_node)(parent, leaf);                          \
-      /* Look for the neighboor of the removed key. */                        \
+      /* Look for the neighbour of the removed key. */                        \
       /* if we can steal one key from them to keep our node balanced */       \
       if (k > 0 && M_F(name, _get_num)(parent->kind.node[k-1]) > N/2) {       \
         M_F(name, _left_shift)(parent, k-1);                                  \
@@ -1042,6 +1042,7 @@
     b->size = ref->size;                                                      \
     b->root = ref->root;                                                      \
     ref->root = NULL;                                                         \
+    ref->size = 1;                                                            \
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
   }                                                                           \
                                                                               \
@@ -1209,7 +1210,7 @@
     it_t it1;                                                                 \
     it_t it2;                                                                 \
     /* NOTE: We can't compare two trees directly as they can be               \
-       structuraly different but functionnaly equal (you get this by          \
+       structurally different but functionally equal (you get this by         \
        constructing the tree in a different way). We have to                  \
        compare the ordered value within the tree. */                          \
     M_F(name, _it)(it1, t1);                                                  \
@@ -1263,7 +1264,6 @@
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, t1);                            \
     M_ASSERT(str != NULL);                                                    \
     (append ? m_string_cat_cstr : m_string_set_cstr) (str, "[");              \
-    /* NOTE: The print is really naive, and not really efficient */           \
     bool commaToPrint = false;                                                \
     it_t it;                                                                  \
     for (M_F(name, _it)(it, t1) ;                                             \

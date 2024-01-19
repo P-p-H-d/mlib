@@ -30,13 +30,13 @@
 
 /* Priority queue based on binary heap implementation */
 
-/* Define a prioqueue of a given type and its associated functions.
+/* Define a priority queue (prioqueue) of a given type and its associated functions.
    USAGE: PRIOQUEUE_DEF(name, type [, oplist_of_the_type]) */
 #define M_PRIOQUEUE_DEF(name, ...)                                            \
   M_PRIOQUEUE_DEF_AS(name, M_F(name,_t), M_F(name,_it_t), __VA_ARGS__)
 
 
-/* Define a prioqueue of a given type and its associated functions.
+/* Define a priority queue (prioqueue) of a given type and its associated functions.
   as the name name_t with an iterator named it_t
    USAGE: PRIOQUEUE_DEF_AS(name, name_t, it_t, type [, oplist_of_the_type]) */
 #define M_PRIOQUEUE_DEF_AS(name, name_t, it_t, ...)                           \

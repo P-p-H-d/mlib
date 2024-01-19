@@ -6248,17 +6248,6 @@ Apply 'func' to each triplet composed of data, one argument of arglist1 and one 
       ==>
       f(5, 1, 2) f(5, 1, 4) f(5, 3, 2) f(5, 3, 4)
 
-##### M\_MAP\_PAIR(func, args...)
-
-Map a macro to all given pair of arguments (Using recursion).
-Can not be chained.
-
-      M_MAP_PAIR(f, a, b, c, d)
-      ==>
-      f(a, b) f(c, d)
-
-OBSOLETE macro
-
 ##### M\_REDUCE(funcMap, funcReduce, args...)
 
 Map the macro funcMap to all given arguments 'args'

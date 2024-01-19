@@ -63,7 +63,7 @@
   M_END_PROTECTED_CODE
 
 
-/* Define the oplist of a doubly-linked instrusive list of type.
+/* Define the oplist of a doubly-linked intrusive list of type.
    USAGE:
      ILIST_OPLIST(name [, oplist_of_the_type]) */
 #define M_ILIST_OPLIST(...)                                                   \
@@ -234,7 +234,7 @@ typedef struct m_il1st_head_s {
   {                                                                           \
     /* Nothing to do more than clean the list itself */                       \
     M_F(name, _reset)(list);                                                  \
-    /* For safety purpose (create invalid represenation of object) */         \
+    /* For safety purpose (create invalid representation of object) */        \
     list->name.next = NULL;                                                   \
     list->name.prev = NULL;                                                   \
   }                                                                           \

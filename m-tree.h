@@ -532,7 +532,7 @@ typedef int32_t m_tr33_index_t;
     M_INLINE it_t                                                             \
     M_F(name, _insert_child_raw)(it_t it) {                                   \
         M_TR33_IT_CONTRACT(it, true);                                         \
-        /* Insert a node as a child of another, making the current childreen  \
+        /* Insert a node as a child of another, making the current children   \
             of the nodes their siblings */                                    \
         m_tr33_index_t i = M_C3(m_tr33_, name, _alloc_node)(it.tree);         \
         m_tr33_index_t child = it.tree->tab[it.index].child;                  \
@@ -1157,7 +1157,7 @@ typedef int32_t m_tr33_index_t;
                                                                               \
     M_INLINE void                                                             \
     M_F(name, _set)(tree_t tree, const tree_t ref) {                          \
-        /* No optimum, but good enought for present time */                   \
+        /* No optimum, but good enough currently */                           \
         M_F(name, _clear)(tree);                                              \
         M_F(name, _init_set)(tree, ref);                                      \
     }                                                                         \
@@ -1213,7 +1213,7 @@ typedef int32_t m_tr33_index_t;
         return (size_t) tree->capacity;                                       \
     }                                                                         \
                                                                               \
-    /* Service not really usefull as the affectation operator works with it */\
+    /* Service not really useful as the affectation operator works with it */ \
     M_INLINE void                                                             \
     M_F(name, _it_set)(it_t *dst, it_t src ){                                 \
         *dst = src;                                                           \

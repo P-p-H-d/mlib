@@ -449,7 +449,7 @@
         /* No next obj.                                                       \
            It is only possible if there was only 1 element */                 \
         M_ASSERT(d->count == 1);                                              \
-        /* Reset the deque to the midle of the current node */                \
+        /* Reset the deque to the middle of the current node */               \
         d->back->node = d->front->node;                                       \
         index = d->front->node->size/2;                                       \
         d->back->index = d->front->node->size/2;                              \

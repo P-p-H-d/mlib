@@ -78,7 +78,7 @@ typedef enum {
                   (__VA_ARGS__ )))
 
 
-/* Define a nearly lock-free queue for Many Producer Many Consummer.
+/* Define a nearly lock-free queue for Many Producers Many Consumers.
    Much faster than queue of BUFFER_DEF in heavy communication scenario
    but without any blocking features (this is let to the user).
    Size of created queue shall be a power of 2 and is defined at run-time.
@@ -88,7 +88,7 @@ typedef enum {
   M_QUEUE_MPMC_DEF_AS(name, M_F(name,_t), type, __VA_ARGS__)
 
 
-/* Define a nearly lock-free queue for Many Producer Many Consummer
+/* Define a nearly lock-free queue for Many Producers Many Consumers
    as the provided type name_t.
    Much faster than queue of BUFFER_DEF in heavy communication scenario
    but without any blocking features (this is let to the user).
@@ -103,7 +103,7 @@ typedef enum {
   M_END_PROTECTED_CODE
 
 
-/* Define a wait-free queue for Single Producer Single Consummer
+/* Define a wait-free queue for Single Producer Single Consumer
    Much faster than queue of BUFFER_DEF or QUEUE_MPMC in heavy communication scenario
    but without any blocking features (this is let to the user).
    Size of created queue shall be a power of 2 and is defined at run-time.
@@ -113,7 +113,7 @@ typedef enum {
   M_QUEUE_SPSC_DEF_AS(name, M_F(name, _t), type, __VA_ARGS__)
 
 
-/* Define a wait-free queue for Single Producer Single Consummer
+/* Define a wait-free queue for Single Producer Single Consumer
    as the provided type name_t.
    Much faster than queue of BUFFER_DEF in heavy communication scenario
    but without any blocking features (this is let to the user).
@@ -278,7 +278,7 @@ m_buff3r_number_dec(m_buff3r_number_ct n, unsigned int policy)
     m_cond_t there_is_data; /* condition raised when there is data */         \
     /* Read only Data */                                                      \
     M_BUFF3R_IF_CTE_SIZE(m_size)( ,size_t capacity;) /* Capacity of the buffer */ \
-    /* Data for a consummer */                                                \
+    /* Data for a consumer */                                                 \
     m_cond_t there_is_room_for_data; /* Cond. raised when there is room */    \
     m_mutex_t mutexPop;     /* MUTEX used for popping elements */             \
     size_t    idx_cons;     /* Index of the consumption threads */            \
@@ -291,13 +291,13 @@ m_buff3r_number_dec(m_buff3r_number_ct n, unsigned int policy)
                                                                               \
   typedef struct M_F(name, _s) *M_F(name, _ptr);                              \
   typedef const struct M_F(name, _s) *M_F(name, _srcptr);                     \
-  /* Internal type used to unconst the buffer */                              \
+  /* Internal type used to un-const the buffer */                             \
   typedef union { M_F(name, _srcptr) cptr; M_F(name, _ptr) ptr; } M_F(name, _uptr_ct); \
   /* Internal types used by the oplist */                                     \
   typedef type M_F(name, _subtype_ct);                                        \
   typedef buffer_t M_F(name, _ct);                                            \
 
-/* Define the core functionnalities of a buffer */
+/* Define the core functionalities of a buffer */
 #define M_BUFF3R_DEF_CORE(name, type, m_size, policy, oplist, buffer_t)       \
                                                                               \
 M_INLINE void                                                                 \
@@ -415,7 +415,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
  M_INLINE void                                                                \
  M_F(name, _init_set)(buffer_t dest, const buffer_t src)                      \
  {                                                                            \
-   /* unconst 'src', so that we can lock it (semantically it is const) */     \
+   /* un-const 'src', so that we can lock it (semantically it is const) */    \
    M_F(name, _uptr_ct) vu;                                                    \
    vu.cptr = src;                                                             \
    M_F(name, _ptr) v = vu.ptr;                                                \
@@ -459,7 +459,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
  M_INLINE void                                                                \
  M_F(name, _set)(buffer_t dest, const buffer_t src)                           \
  {                                                                            \
-   /* unconst 'src', so that we can lock it (semantically it is const) */     \
+   /* un-const 'src', so that we can lock it (semantically it is const) */    \
    M_F(name, _uptr_ct) vu;                                                    \
    vu.cptr = src;                                                             \
    M_F(name, _ptr) v = vu.ptr;                                                \
@@ -607,7 +607,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
      v->idx_prod = idx;                                                       \
                                                                               \
      /* number[] is the only variable which can be modified by both           \
-        the consummer thread which has the pop lock and the producer          \
+        the consumer thread which has the pop lock and the producer           \
         thread which has the push lock. As such, it is an atomic variable     \
         that performs a release memory barrier. */                            \
      /* Increment number of elements of the buffer */                         \
@@ -615,14 +615,14 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
      if (M_BUFF3R_POLICY_P((policy), M_BUFFER_DEFERRED_POP)) {                \
        previousSize = m_buff3r_number_inc (v->number[1], policy);             \
      }                                                                        \
-     /* From this point, consummer may read the data in the table */          \
+     /* From this point, consumer may read the data in the table */           \
    }                                                                          \
                                                                               \
    /* Producer unlock (mutex unlock performs a release memory barrier) */     \
    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_THREAD_UNSAFE)) {                \
      m_mutex_unlock(v->mutexPush);                                            \
-     /* If the number of items in the buffer was 0, some consummer            \
-        may be waiting. Signal to them the availibility of the data           \
+     /* If the number of items in the buffer was 0, some consumer             \
+        may be waiting. Signal to them the availability of the data           \
         We cannot only signal one thread. */                                  \
      if (previousSize == 0) {                                                 \
        m_mutex_lock(v->mutexPop);                                             \
@@ -641,7 +641,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
    M_ASSERT (data != NULL);                                                   \
                                                                               \
-   /* Consummer lock (mutex lock performs an acquire memory barrier) */       \
+   /* consumer lock (mutex lock performs an acquire memory barrier) */        \
    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_THREAD_UNSAFE)) {                \
      m_mutex_lock(v->mutexPop);                                               \
      while (M_F(name, _empty_p)(v)) {                                         \
@@ -675,7 +675,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    }                                                                          \
                                                                               \
    /* number[] is the only variable which can be modified by both             \
-      the consummer thread which has the pop lock and the producer            \
+      the consumer thread which has the pop lock and the producer             \
       thread which has the push lock. As such, it is an atomic variable       \
       that performs a release memory barrier. */                              \
    /* Decrement number of elements in the buffer */                           \
@@ -687,11 +687,11 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    }                                                                          \
    /* Space may be reused by a producer thread from this point */             \
                                                                               \
-   /* Consummer unlock (mutex unlock perfoms a release memory barrier) */     \
+   /* consumer unlock (mutex unlock performs a release memory barrier) */     \
    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_THREAD_UNSAFE)) {                \
      m_mutex_unlock(v->mutexPop);                                             \
      /* If the number of items in the buffer was the max, some producer       \
-        may be waiting. Signal to them the availibility of the free room      \
+        may be waiting. Signal to them the availability of the free room      \
         We cannot only signal one thread. */                                  \
      if ((!M_BUFF3R_POLICY_P((policy), M_BUFFER_DEFERRED_POP))                \
          && previousSize == M_BUFF3R_SIZE(m_size)) {                          \
@@ -750,7 +750,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
 
 /********************************** INTERNAL *********************************/
 
-/* Definition of a a QUEUE for Many Produccer / Many Consummer
+/* Definition of a a QUEUE for Many Producers / Many consumers
    for high bandwidth scenario:
    * nearly lock-free,
    * quite fast
@@ -805,7 +805,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
                                                                               \
   /* The sequence number of an element will be equal to either                \
      - 2* the index of the production which creates it,                       \
-     - 1 + 2* the index of the consumption which consummes it                 \
+     - 1 + 2* the index of the consumption which consumes it                  \
      In case of wrapping, as there is no order comparison but only            \
      equal comparison, there is no special issue.                             \
      Each element is put in a separate cache line to avoid false              \
@@ -817,7 +817,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     M_CACHELINE_ALIGN(align, atomic_uint, type);                              \
   } M_F(name, _el_ct);                                                        \
                                                                               \
-  /* If there is only one producer and one consummer, then they won't         \
+  /* If there is only one producer and one consumer, then they won't          \
      typically use the same cache line, increasing performance. */            \
   typedef struct M_F(name, _s) {                                              \
     atomic_uint ProdIdx; /* Can only increase until wrapping */               \
@@ -831,7 +831,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
   typedef type M_F(name, _subtype_ct);                                        \
   typedef buffer_t M_F(name, _ct);                                            \
 
-/* Define the core functionnalities of a MPMC queue */
+/* Define the core functionalities of a MPMC queue */
 #define M_QU3UE_MPMC_DEF_CORE(name, type, policy, oplist, buffer_t)           \
   M_INLINE bool                                                               \
   M_F(name, _push)(buffer_t table, type const x)                              \
@@ -952,7 +952,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     const unsigned int iC = atomic_load_explicit(&table->ConsoIdx, memory_order_relaxed); \
     const unsigned int iP = atomic_load_explicit(&table->ProdIdx, memory_order_acquire); \
     /* We return an approximation as we can't read both iC & iP atomically    \
-       As we read producer index after consummer index,                       \
+       As we read producer index after consumer index,                        \
        and they are atomic variables without reordering                       \
        producer index is always greater or equal than consumer index          \
        (or on overflow occurs, in which case as we compute with modulo        \
@@ -986,7 +986,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
 
 /********************************** INTERNAL *********************************/
 
-/* Definition of a a QUEUE for Single Producer / Single Consummer
+/* Definition of a a QUEUE for Single Producer / Single consumer
    for high bandwidth scenario:
    * wait-free,
    * quite fast
@@ -1038,7 +1038,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
 /* Define the type of a SPSC queue */
 #define M_QU3UE_SPSC_DEF_TYPE(name, type, policy, oplist, buffer_t)           \
                                                                               \
-  /* Single producer / Single consummer                                       \
+  /* Single producer / Single consumer                                        \
      So, only one thread will write in this table. The other thread           \
      will only read. As such, there is no concurrent write, and no            \
      need to align the structure for best performance. */                     \
@@ -1057,7 +1057,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
   typedef type M_F(name, _subtype_ct);                                        \
   typedef buffer_t M_F(name, _ct);                                            \
 
-/* Define the core functionnalities of a SPSC queue */
+/* Define the core functionalities of a SPSC queue */
 #define M_QU3UE_SPSC_DEF_CORE(name, type, policy, oplist, buffer_t)           \
                                                                               \
   M_INLINE bool                                                               \
@@ -1208,14 +1208,14 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
                                           memory_order_acquire);              \
     /* We return an approximation as we can't read both r & w atomically      \
-       As we read producer index after consummer index,                       \
+       As we read producer index after consumer index,                        \
        and they are atomic variables without reordering                       \
        producer index is always greater or equal than consumer index          \
        (or on overflow occurs, in which case as we compute with modulo        \
        arithmetic, the right result is computed).                             \
        We may return a result which is greater than the size of the queue     \
        if the function is interrupted a long time between reading the         \
-       indexs. The function is not protected against it.                      \
+       index. The function is not protected against it.                       \
     */                                                                        \
     return w-r;                                                               \
   }                                                                           \

@@ -25,7 +25,7 @@
 #ifndef MSTARLIB_ATOMIC_H
 #define MSTARLIB_ATOMIC_H
 
-/* NOTE: Due to the C++ not having recognized stdatomic.h officialy,
+/* NOTE: Due to the C++ not having recognized stdatomic.h officially,
    it is hard to use this header directly with a C++ compiler.
    See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60932
    clang++ has no issue with this header but if someone includes 

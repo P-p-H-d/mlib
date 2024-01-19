@@ -46,11 +46,11 @@ M_BEGIN_PROTECTED_CODE
   atomic_int M_F(name, _cpt)
 
 
-/* Value of the interface field for static intialization (Uses C99 designated element). */
+/* Value of the interface field for static initialization (Uses C99 designated element). */
 #define M_ISHARED_PTR_STATIC_DESIGNATED_INIT(name, type)                      \
   .M_F(name, _cpt) = M_ATOMIC_VAR_INIT(0)
 
-/* Value of the interface field for static intialization (Uses C89 designated element). */
+/* Value of the interface field for static initialization (Uses C89 designated element). */
 #define M_ISHARED_PTR_STATIC_INIT(name, type)                                 \
   M_ATOMIC_VAR_INIT(0)
 
@@ -103,7 +103,7 @@ M_BEGIN_PROTECTED_CODE
 
 /******************************** INTERNAL ***********************************/
 
-// Deferred evaluatioin
+// Deferred evaluation
 #define M_ISHAR3D_PTR_DEF_P1(arg) M_ID( M_ISHAR3D_PTR_DEF_P2 arg )
 
 /* Validate the oplist before going further */

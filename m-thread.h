@@ -136,7 +136,7 @@ M_INLINE void m_thread_join(m_thread_t t)
   (void) rc;
 }
 
-/* The thread has nothing meaningfull to do.
+/* The thread has nothing meaningful to do.
    Inform the OS to let other threads be scheduled */
 M_INLINE void m_thread_yield(void)
 {
@@ -187,7 +187,7 @@ M_END_PROTECTED_CODE
  * We cannot add theses warnings in M_BEGIN_PROTECTED_CODE
  * as they need to be disabled **BEFORE** including any system header
  * and m-core includes some system headers.
- * So we need to disable them explictly here.
+ * So we need to disable them explicitly here.
  */
 #if defined(__clang__) && __clang_major__ >= 4
   _Pragma("clang diagnostic push")
@@ -294,7 +294,7 @@ M_INLINE void m_thread_join(m_thread_t t)
   CloseHandle(*t);
 }
 
-/* The thread has nothing meaningfull to do.
+/* The thread has nothing meaningful to do.
    Inform the OS to let other threads be scheduled */
 M_INLINE void m_thread_yield(void)
 {
@@ -453,7 +453,7 @@ M_INLINE void m_thread_join(m_thread_t t)
   M_ASSERT (_rc == 0);
 }
 
-/* The thread has nothing meaningfull to do.
+/* The thread has nothing meaningful to do.
    Inform the OS to let other threads be scheduled */
 M_INLINE void m_thread_yield(void)
 {
@@ -659,7 +659,7 @@ M_INLINE void m_thread_join(m_thread_t t)
     t->SemHandle = 0;
 }
 
-/* The thread has nothing meaningfull to do.
+/* The thread has nothing meaningful to do.
    Inform the OS to let other threads be scheduled */
 M_INLINE void m_thread_yield(void)
 {
