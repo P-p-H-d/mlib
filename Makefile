@@ -66,7 +66,6 @@ doc:	html doc/depend.png
 clean:
 	cd tests && $(MAKE) clean
 	cd example && $(MAKE) clean
-	cd bench && $(MAKE) clean
 	$(RM) README.html depend.dot
 	$(RM) -r 'm_lib-$(VERSION)'
 	$(RM) 'm_lib-$(VERSION).tar.bz2'

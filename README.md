@@ -511,7 +511,7 @@ M\*LIB performance is compared to the one of GNU C++ STL (v10.2) in the followin
 Each graph is presented first in linear scale and then in logarithmic scale to better realize the differences.
 M\*LIB is on par with the STL or even faster.
 
-All used bench codes are available in the bench directory.
+All used bench codes are available in this [repository](https://github.com/P-p-H-d/c-stl-comparison)
 The results for several different libraries are also available [in a separate page](https://github.com/P-p-H-d/mlib/wiki/performance).
 
 #### Singly List
