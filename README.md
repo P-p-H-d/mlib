@@ -385,7 +385,8 @@ We can also write the same example shorter:
 #include "m-array.h"
 
 // Register the oplist of a mpz_t.
-#define M_OPL_mpz_t() (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear))
+#define M_OPL_mpz_t() (INIT(mpz_init), INIT_SET(mpz_init_set), \
+        SET(mpz_set), CLEAR(mpz_clear))
 // Define an instance of an array of mpz_t (both type and function)
 ARRAY_DEF(array_mpz, mpz_t)
 // Register the oplist of the created instance of array of mpz_t
@@ -417,7 +418,8 @@ Or even shorter when you're comfortable enough with the library:
 #include "m-array.h"
 
 // Register the oplist of a mpz_t. It is a classic oplist.
-#define M_OPL_mpz_t() M_OPEXTEND(M_CLASSIC_OPLIST(mpz), INIT_WITH(mpz_init_set_ui), EMPLACE_TYPE(unsigned nt) )
+#define M_OPL_mpz_t() M_OPEXTEND(M_CLASSIC_OPLIST(mpz),         \
+        INIT_WITH(mpz_init_set_ui), EMPLACE_TYPE(unsigned int))
 // Define an instance of an array of mpz_t (both type and function)
 ARRAY_DEF(array_mpz, mpz_t)
 // Register the oplist of the created instance of array of mpz_t
@@ -743,8 +745,8 @@ can be used instead, but this typedef shall be used everywhere.
 Example:
 
 ```C
-#define 
-    M_OPL_mpz_t() (INIT(mpz_init),SET(mpz_set),INIT_SET(mpz_init_set),CLEAR(mpz_clear),TYPE(mpz_t))
+#define M_OPL_mpz_t() (INIT(mpz_init),SET(mpz_set),          \
+        INIT_SET(mpz_init_set),CLEAR(mpz_clear),TYPE(mpz_t))
 ```
 
 This can simplify a lot `OPLIST` usage and it is recommended.
@@ -916,16 +918,17 @@ or override in the inherited oplist. For example:
 ```C
 int my_int_oor_set(char c) { return INT_MIN + c; }
 bool my_int_oor_equal(int i1, int i2) { return i1 == i2; }
-#define MY_INT_OPLIST                                                 \
-    M_OPEXTEND(M_BASIC_OPLIST, OOR_SET(API_4(my_int_oor_set)), OOR_EQUAL(my_int_oor_equal))
+#define MY_INT_OPLIST                                              \
+        M_OPEXTEND(M_BASIC_OPLIST, OOR_SET(API_4(my_int_oor_set)), \
+            OOR_EQUAL(my_int_oor_equal))
 ```
 
 You can even inherit from another oplist to disable some operators in your new oplist.
 For example:
 
 ```C
-#define MY_INT_OPLIST                                                 \
-    M_OPEXTEND(M_BASIC_OPLIST, HASH(0), CMP(0), EQUAL(0))
+#define MY_INT_OPLIST                                              \
+        M_OPEXTEND(M_BASIC_OPLIST, HASH(0), CMP(0), EQUAL(0))
 ```
 
 `MY_INT_OPLIST` is a new oplist that handles integers but has disabled the operators `HASH`, `CMP` and `EQUAL`.
@@ -952,7 +955,8 @@ An oplist can therefore be:
 
 ```C
 typedef FILE *m_file_t;
-#define M_OPL_m_file_t() (INIT_WITH(API(fopen, ARG1, ARG2, ID("wt"))),SET(0),INIT_SET(0),CLEAR(fclose),TYPEm_file_t))
+#define M_OPL_m_file_t() (INIT_WITH(API(fopen, ARG1, ARG2, ID("wt"))), \
+        SET(0),INIT_SET(0),CLEAR(fclose),TYPE(m_file_t))
 ```
 
 Since there is no `INIT_SET` operator available, pretty much no container can work.
@@ -1050,12 +1054,13 @@ If you take once again the example of the `FILE*`, a more complete oplist can be
 
 ```C
 typedef FILE *m_file_t;
-#define 
-M_OPL_m_file_t() (INIT_WITH(API_1(M_INIT_WITH_THROUGH_EMPLACE_TYPE)),SET(0),INIT_SET(0),CLEAR(fclose),TYPEm_file_t), \
+#define M_OPL_m_file_t() (INIT_WITH(API_1(M_INIT_WITH_THROUGH_EMPLACE_TYPE)), \
+        SET(0),INIT_SET(0),CLEAR(fclose),TYPE(m_file_t),                      \
         EMPLACE_TYPE(LIST((_str, API(fopen, ARG1, ARG2, ID("wb")), char *))))
 ```
 
-The `INIT_WITH` operator will use the provided init methods in the `EMPLACE_TYPE`. `EMPLACE_TYPE` defines a `_str` suffix method with a GAIA for `fopen`, and accepts a `char*` as argument.
+The `INIT_WITH` operator will use the provided init methods in the `EMPLACE_TYPE`. 
+`EMPLACE_TYPE` defines a `_str` suffix method with a GAIA for `fopen`, and accepts a `char*` as argument.
 The GAIA specifies that the output (ARG1) is set as return value,
 ARG2 is given as the first argument, and a third constant argument is used.
 
@@ -1696,10 +1701,10 @@ Example:
 #include <gmp.h>
 #include "m-list.h"
 
-#define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)
-LIST_DEF(list_mpz, mpz_t,                                           \
-          (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), 
-              CLEAR(mpz_clear), OUT_STR(MPZ_OUT_STR)))
+#define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)       \
+        LIST_DEF(list_mpz, mpz_t,                              \
+        (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), \
+            CLEAR(mpz_clear), OUT_STR(MPZ_OUT_STR)))
 
 int main(void) {
   list_mpz_t a;
@@ -1895,10 +1900,10 @@ Example:
 #include <gmp.h>
 #include "m-list.h"
 
-#define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)
-LIST_DUAL_PUSH_DEF(list_mpz, mpz_t,                                           \
-          (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), 
-              CLEAR(mpz_clear), OUT_STR(MPZ_OUT_STR)))
+#define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)   \
+    LIST_DUAL_PUSH_DEF(list_mpz, mpz_t,                    \
+    (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), \
+        CLEAR(mpz_clear), OUT_STR(MPZ_OUT_STR)))
 
 int main(void) {
   list_mpz_t a;
@@ -2053,10 +2058,10 @@ Example:
 #include <gmp.h>
 #include "m-array.h"
 
-#define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)
-ARRAY_DEF(array_mpz, mpz_t,                                           \
-          (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), 
-              CLEAR(mpz_clear), OUT_STR(MPZ_OUT_STR)))
+#define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)   \
+    ARRAY_DEF(array_mpz, mpz_t,                            \
+    (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), \
+        CLEAR(mpz_clear), OUT_STR(MPZ_OUT_STR)))
 	
 int main(void) {
   array_mpz_t a;
@@ -2711,10 +2716,10 @@ Example:
 #include "m-string.h"
 #include "m-tuple.h"
 
-#define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)
-TUPLE_DEF2(pair,
-           (key_field, string_t, STRING_OPLIST),
-           (value_field, mpz_t, M_OPEXTEND(M_CLASSIC_OPLIST(mpz), OUT_STR(MPZ_OUT_STR))))
+#define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)       \
+        TUPLE_DEF2(pair,(key_field, string_t, STRING_OPLIST),  \
+        (value_field, mpz_t, M_OPEXTEND(M_CLASSIC_OPLIST(mpz), \
+            OUT_STR(MPZ_OUT_STR))))
 
 int main(void) {
   pair_t p1;
@@ -3349,7 +3354,7 @@ The tree handles its own pool of nodes for the nodes.
 It is called the capacity of the tree. 
 This pool of nodes will increase when needed by default.
 However, in case of capacity increased, all the nodes of the tree may move in memory to accommodate the new need.
-You may also request to reserve more capacity to avoid moving the items, and disable this auto-expand feature (in which a MEMORY_FAILURE is raised).
+You may also request to reserve more capacity to avoid moving the items, and disable this auto-expand feature (in which a `MEMORY_FAILURE` is raised).
 
 There are several way to iterate over this container:
 
@@ -3451,7 +3456,7 @@ The user should use other the non `_raw` function if possible rather than this o
 as it is low level and error prone.
 
 `name_insert_down_raw` will move all children of the referenced node as children of the inserted children,
-whereas `name_insert_down_raw` will insert the node as the new first child of the referenced node.
+whereas `name_insert_child_raw` will insert the node as the new first child of the referenced node.
 
 ##### `it_t name_insert_up(it_t ref, const type value)`
 ##### `it_t name_insert_left(it_t ref, const type value)`
@@ -3463,7 +3468,7 @@ Insert a node up (resp. left, right, down and down) the given referenced iterato
 It returns an iterator to the inserted node.
 
 `name_insert_down` will move all children of the referenced node as children of the inserted children,
-whereas `name_insert_down` will insert the node as the new first child of the referenced node.
+whereas `name_insert_child` will insert the node as the new first child of the referenced node.
 
 ##### `it_t name_move_up(it_t ref, type *value)`
 ##### `it_t name_move_left(it_t ref, type *value)`
@@ -3475,7 +3480,7 @@ Insert a node up (resp. left, right, down and down) the given referenced iterato
 It returns an iterator to the inserted node.
 
 `name_move_down` will move all children of the referenced node as children of the inserted children,
-whereas name_move_down will insert the node as the new first child of the referenced node.
+whereas `name_move_child` will insert the node as the new first child of the referenced node.
 
 ##### `it_t name_emplace_up[suffix](it_t ref, args...)`
 ##### `it_t name_emplace_left[suffix](it_t ref, args...)`
@@ -3491,7 +3496,7 @@ See [emplace chapter](#Emplace-construction) for more details.
 It returns an iterator to the inserted node.
 
 `name_emplace_down` will move all children of the referenced node as children of the inserted children,
-whereas name_emplace_down will insert the node as the new first child of the referenced node.
+whereas `name_emplace_child` will insert the node as the new first child of the referenced node.
 
 ##### `type *name_up_ref(name_it_t it)`
 ##### `type *name_down_ref(name_it_t it)`
@@ -5700,7 +5705,7 @@ Provide the `OOR_SET` method of a string.
 
 Convert a string into a formatted string usable for I/O:
 Outputs the input string with quote around,
-replacing any `\"` by `\\\"` within the string
+replacing any `"` by `\"` within the string
 into the output string.
 
 ##### `bool string_parse_str(string_t v, const char str[], const char **endp)`
@@ -5716,7 +5721,7 @@ decoded by the function.
 
 Write a string into a `FILE*` as a formatted string:
 Outputs the input string while quoting around,
-replacing any `\"` by `\\\"` within the string,
+replacing any `"` by `\"` within the string,
 and quote special characters.
 
 ##### `bool string_in_str(string_t v, FILE *f)`
@@ -6153,9 +6158,6 @@ Return the pre-processing token `action_if_true` if `cond` is empty,
 `action_if_false` otherwise (meaning it is evaluated
 at macro processing stage, not at compiler stage).
 
-`cond` shall be a preprocessing constant equal to 0 or 1.
-(You could use `M_BOOL` to convert).
-
 ##### `M_DELAY1(expr)`
 ##### `M_DELAY2(expr) `
 ##### `M_DELAY3(expr)`
@@ -6176,8 +6178,8 @@ Can not be chained.
 
 ##### `M_APPLY(func, args...)`
 
-Apply `func` to `'(args...)` ensuring
-that `a()` isn't evaluated until all `args` have been also evaluated.
+Apply `func` to `(args...)` ensuring
+that `func()` isn't evaluated until all `args` have been also evaluated.
 It is used to delay evaluation.
 
 ##### `M_EAT(...)`
@@ -6263,7 +6265,7 @@ f(1) f(2) f(3)
 ##### `M_MAP_C(func, args...)`
 
 Apply `func` to each argument of the `args...` list of argument,
-putting a comma between each expanded `func(argc)`
+putting a comma between each expanded `func(args)`
 
 ```C
 M_MAP_C(f, 1, 2, 3)
@@ -6772,12 +6774,6 @@ M_IF_METHOD_ALL(HASH, oplist1, oplist2, oplist3) (/*define function*/, )
 Return the content of the property named `propname` as defined in the `PROPERTIES` field of the `oplist`,
 or 0 if it is not defined.
 
-##### `M_TEST_NOEXCEPT_P(oplist, operator)`
-
-Test if the operator has the property `NOEXCEPT` or not in the oplist.
-If this property is set to 1 for this operator, it means that there is a guarantee that the operator won't raise any error.
-If the operator has not this property or it is set to 0, it means that it may raise some error (default).
-
 ##### `M_DO_INIT_MOVE(oplist, dest, src)`
 ##### `M_DO_MOVE(oplist, dest, src)`
 
@@ -7095,9 +7091,7 @@ The macro can:
 * Set a global error variable and return
 
 > [!NOTE] 
-> The last two cases are not properly fully supported yet.
-> Throwing an exception is not fully supported yet
-> (Needs M\*LIB support to clear the skipped objects).
+> The last case is not properly fully supported yet.
 
 The default is to raise a fatal error.
 
@@ -8413,7 +8407,7 @@ TUPLE_DEF2(my,
            (value, int),
            (name, string_t)
            )
-#define M_OPL_my_t() TUPLE_OPLIST(my, M_BASIC_OPLIST, STRING_OPLIST )
+#define M_OPL_my_t() TUPLE_OPLIST(my, M_BASIC_OPLIST, STRING_OPLIST)
 
 // Output in JSON file the structure my_t
 void output(my_t el1)
@@ -8572,7 +8566,8 @@ with
 To register an oplist the *component user* shall define a macro like this for all oplists:
 
 ```C
-#define M_GENERIC_ORG_<ORGA_NAME>_COMP_<COMP_NAME>_OPLIST_<A_NUM>() <OP_LIST>
+#define M_GENERIC_ORG_<ORGA_NAME>_COMP_<COMP_NAME>_OPLIST_<A_NUM>() \
+        <OP_LIST>
 ```
 
 with
@@ -8654,7 +8649,7 @@ The following macro is defined and enabled to iterate over a container (See exam
 * `each(item, container)`
 
 > [!Note] 
-> that only short names are defined in this header which may be 
+> Only short names are defined in this header which may be 
 > incompatible with your own namespace (This header is still a WIP)
 
 _________________
