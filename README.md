@@ -1701,10 +1701,10 @@ Example:
 #include <gmp.h>
 #include "m-list.h"
 
-#define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)       \
-        LIST_DEF(list_mpz, mpz_t,                              \
-        (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), \
-            CLEAR(mpz_clear), OUT_STR(MPZ_OUT_STR)))
+#define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)
+LIST_DEF(list_mpz, mpz_t,                                  \
+    (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), \
+        CLEAR(mpz_clear), OUT_STR(MPZ_OUT_STR)))
 
 int main(void) {
   list_mpz_t a;
@@ -1900,8 +1900,8 @@ Example:
 #include <gmp.h>
 #include "m-list.h"
 
-#define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)   \
-    LIST_DUAL_PUSH_DEF(list_mpz, mpz_t,                    \
+#define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)
+LIST_DUAL_PUSH_DEF(list_mpz, mpz_t,                        \
     (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), \
         CLEAR(mpz_clear), OUT_STR(MPZ_OUT_STR)))
 
@@ -2058,8 +2058,8 @@ Example:
 #include <gmp.h>
 #include "m-array.h"
 
-#define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)   \
-    ARRAY_DEF(array_mpz, mpz_t,                            \
+#define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)
+ARRAY_DEF(array_mpz, mpz_t,                                \
     (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), \
         CLEAR(mpz_clear), OUT_STR(MPZ_OUT_STR)))
 	
@@ -2716,10 +2716,10 @@ Example:
 #include "m-string.h"
 #include "m-tuple.h"
 
-#define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)       \
-        TUPLE_DEF2(pair,(key_field, string_t, STRING_OPLIST),  \
-        (value_field, mpz_t, M_OPEXTEND(M_CLASSIC_OPLIST(mpz), \
-            OUT_STR(MPZ_OUT_STR))))
+#define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)
+TUPLE_DEF2(pair, (key_field, string_t, STRING_OPLIST),     \
+    (value_field, mpz_t, M_OPEXTEND(M_CLASSIC_OPLIST(mpz), \
+        OUT_STR(MPZ_OUT_STR))))
 
 int main(void) {
   pair_t p1;
