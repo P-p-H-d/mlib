@@ -1,8 +1,33 @@
 *Long term issues*
 ==========================================================
 
-* TODO #33 : Handling of partially constructed object               :ANOMALY:
+* TODO #34 : Pass old size arguments to memory allocator        :ENHANCEMENT:
 
+** State
+
+Some custom allocators don't store the old size of an object to maximize memory usage
+used by the allocated objects. On realloc, they need the old size argument.
+This is inline with the GMP allocator which provides  the old size argument.
+There is no difficulty in the data structure to compute the old size of the object
+(it is quite easily available).
+It is needed for REALLOC operator (and FREE)
+
+** Solution #1
+
+Add the oldsize argument to the REALLOC and FREE operators.
+
+** Solution #2
+
+Create a local variable m_local_old_size before calling the REALLOC or FREE operators
+Modify GAIA interface to link OLDSIZE patttern to m_local_old_size
+Need to handle the warnings correctly.
+
+** Tradeof analysis
+
+Solution #1 is simpler but breaks API. However custom allocators are not common.
+Solution #2 keeps API as it is but increases code complexity by adding more hacks into the codebase.
+
+* TODO #33 : Handling of partially constructed object               :ANOMALY:
 ** State
 
 Support of partially constructed object needs special code to handle it 
@@ -13,6 +38,7 @@ Current containers don't support such features.
 ** Actions
 
 Add such support in M*LIB containers. 
+Need to analyse each function for execption safety.
 
 It can be difficult. For example, for array _init_set
 function due to the copy of the object one per one. Each copied sub object
@@ -20,7 +46,6 @@ may throw an exception, so we always need to have the container in a correct
 state so that it can be cleanup.
 
 * TODO #32 : User specialization fields in the container        :ENHANCEMENT:
-
 ** State
 
 Some methods of a contained object may need to have some options that 
@@ -47,24 +72,51 @@ of the GAIA by adding support for identification of specialization like this:
 ==> self shall be the destination?
 
 - How to initialize the specialization field of the container? provide custom initialization functions? It seems to be the hard point.
-* INIT: Force a default to NULL ?
-* INIT_SET: Force the same value than the src? We may want another pool!
-* INIT_MOVE: Force the same value than the src. Mandatory
-* MOVE: Assume the same value. Mandatory
-* SET: Use the already define pool
-* INIT_WITH: Force a default to NULL?
-==> init_emplace ?
--- How can we handle containers that allocate on initialization? It cannot, so this solution seems broken
-==> Modify constructor prototype to add allocators (except for MOVE/INIT_MOVE)
-* INIT(dest) ==> INIT(dest, context)
-* INIT(dest, src) ==> INIT_SET(dest, context, src)
-* INIT_WITH(dest, ...) ==> INIT_WITH(dest, context, ...)
-* INIT emplace(dest [custom]) ==> INIT_emplace(dest, context, [custom])
-==> How to pass context? Inherited from master container? A CONTEXT may be present in the parent container but the child may not accept CONTEXT... Same than the Heap Allocator is not the same between different types... The allocator of the parent may be different from the one of the child... ==> Force context to be the same ?
-==> If a type A uses CONTEXT, all containers constructed from A shall use CONTEXT too
--- Need to use an oplist for context or force basic type?
+  Use GAIA interface and a local variable with force naming : m_local_context for example.
 
-* TODO #31 : Uniformize parametrisation options of containers   :ENHANCEMENT:
+** Proposed Solution:
+
+  New operator USER_CONTEXT created. If operator USER_CONTEXT exist:
+  + add a USER_CONTEXT user_data in the data structure.
+  + for INIT & INIT_WITH, add a new parameter to the function to pass the context to initialize
+  + for INIT_SET & INIT_MOVE & MOVE, initialize it with the source object (FIXME: This may not be what we want for INIT_SET if we want to copy an object from an allocator to another)
+  + for each functions that use an operator that may use the USER_CONTEXT, add a local variable m_local_context and initialize to the user context
+  ==> Limit user context to pointer or integer (Good enough)
+  + Expand GAIA interface to handle specially the term USER_CONTEXT: if it exists, expands it to m_local_context. The user will therefore be able to expand its operator with the user provided local context.
+  + Update OPLIST of data structure to change the call to INIT & INIT_WITH to use GAIA/USER_CONTEXT if the basic type has a USER_CONTEXT
+  + To be checked: EMPLACE_TYPE ?
+  + Create M_USING_CONTEXT to initialize a local variable m_local_context and initalize it with the user context to be used y the M_LET macro:
+      M_USING_CONTEXT(int *, &y) 
+      M_LET(x, object_t) {
+
+      }
+
+  Done in branch feature/user-data-v2 with a full working implementation for array
+
+** Solution limitation:
+
+ INIT & INIT_WITH interface change for the user. This however is an acceptable limitation.
+
+ Adding a user context to each data structure will increase a lot the size of the data structure in case of recursive data structures: For example, an array of string_t. Each string_t will need a user data context for it to work properly, so we'll need N*sizeof(user data context) memory just to make it work. This becomes even more problematic if we chain more data structures.
+ And in general, we use custom allocators to be faster and use less memory: this will defeat the purpose of custom allocators a lot.
+
+ Another limitation is that string_t / bitset_t are not supported correctly. We can make this change globally but it will prevent mixing different codebase that uses the string_t together (one expects a user context, the other not).
+ 
+** Alternative #1
+
+ Passing user context arguments to each function call seems to be a little bit better.
+ It might however reduces code optimization as one more register will be user everywhere in the calling chain, which may huge.
+
+** Alternative #2
+
+ The custom allocator could have a thread default allocator as a global variable (thread attribute). It seems to be a better solution, more scalable.
+ The custom allocator will need to be able to switch quickly between scrach arena and permanent arena. This seems to be easy.
+
+ However switching allocators puts a burden to the user: 
+ the user needs to properly be sure to call the destructor with the custom allocator set to be the same as when it was created.
+ This might not even be possible in case of exceptions.
+ 
+* TODO #31 : Uniformize parametrization options of containers   :ENHANCEMENT:
 
 ** State 
 
@@ -141,31 +193,33 @@ Currently, each container supports 3 serialization methods:
 
 Generic serialiation connect the container format to the serialization object constraints.
 It is done through a vtable. As such there is a performance penality and it avoids proper inlining.
+It is however quite flexible and decouple the data structure from the serialization format.
 
 ** Evolution
 
-Old format should be deprecated and shall use the generic serialization interface.
+Old format should be deprecated and the functions implemented it shall use the generic serialization interface.
 
-Serialization object shall provide an OPLIST of serialization.
-For example CORE will provide OLD Format oplist and serial-json will provide JSON format oplist.
+Serialization object shall provide a special OPLIST of serialization.
+For example M-CORE will provide OLD Format oplist and M-SERIAL-JSON will provide JSON format oplist.
 Each oplist will provide the suffix needed for the serialization, and the interface
 (see already existing interface).
 
 Then a container will generate specialized serialization methods for each provided oplist.
 
-Pros:
+** Pros:
 
 - Faster
 - In the M*LIB philosphy: much like other oplist usage.
 
-Cons:
+** Cons:
 
 - compatibility breakage.
+- increase code complexity.
 
-Open point:
+** Open point:
 
-- how can a user add a new serialization object?
-- Can we make a generic serialization object to support migration path?
+- how can a user add a new serialization object? ==> See solution implemented by M-GENERIC.
+- Can we make a generic serialization object to support migration path? Seems possible.
 
 ** Example
 
@@ -224,9 +278,11 @@ of the M_CHAIN_INIT are called.
 
 * TODO #28 : Separate generation of interface to implementation :ENHANCEMENT:
 
+** State
 Enable support for generating an interface only for the headers
 and an implementation only for the source code.
 
+** Analysis
 Try to keep API compatibility
 ==> Only modify renamed macro with M_ prefix by giving a new mandatory
 argument for such generation.
@@ -303,19 +359,25 @@ unsigned get_small_hash(int64_t x) {
 
 Can also (should?) use SIMD to test for several hash entries at the same times
 In which case a complete new implementation will be needed
+Note: SIMD doesn't seem to be a win if not handled properly.
+Since the first guess of a good hashtable shall give the right entry > 90% of the time.
+So 90% of the times SIMD will pay the cost of reading not needed memory.
+It might still be a win, but proper tuning needs to be done.
 
 * TODO #25 : Support of error return model for error handling.  :ENHANCEMENT:
 
+** State
 Find a way to support error return code for the API in case of allocation
 failure.
 
+** Analysis
 Any service that returns void shall return a "int" (or another type).
 In case of allocation failure, it shall return an error.
 M_CALL macro shall stop its execution if the service returns an error code
 and the error code represents an error (avoid rewritting everything)
 and throw back the error code (stopping the execution flow).
 
-Services returning already something shall not be modified.
+Services returning already something shall not be modified but returns the error code embedded (like a NULL pointer).
 
 This model should be applied at the container level only and not globally.
 Different containers may need different levels of error handling.
@@ -367,17 +429,20 @@ RETCODE/RETCODE
 
 If really needed, the macro can be avoided and code can be hand written.
 
-Open points:
+** Open points:
 
 - How to handle warnings on unused labels?
 - What about M_LET / M_EACH? Maybe only supports those.
 
 * TODO #24 : New MIN-MAX-HEAP container                         :ENHANCEMENT:
 
+** State
 See https://en.wikipedia.org/wiki/Min-max_heap
 as DPRIORITY_QUEUE_DEF ?
 
+** Analysis
 NOTE: Needs for such container?
+On hold until a user needs it.
 
 * TODO #23 : Strict MOVE semantic to clarify                    :ENHANCEMENT:
 
@@ -387,7 +452,7 @@ Some type may need to have a force MOVE semantic (for example, they can store
 pointer to themselves). Currently the INIT_MOVE & MOVE operators are more
 a help for performance than a strict semantic usage.
 
-** ARRAY container
+** ARRAY container constraint
 
 The ARRAY container doesn't support strict MOVE semantic for example.
 It is not a simple matter as it performs a realloc of the table, thus
@@ -410,9 +475,9 @@ For example for tuple, it shall
 
 ** DO_INIT_MOVE operator
 
-DO_INIT_MOVE macro is not also fully working for structure
+DO_INIT_MOVE macro is also fully working for structure
 defined with [1] tricks but without an explicit INIT_MOVE / MOVE
-operators as it uses MOVE_DEFAULT which is not (fully compatible).
+operators as it uses MOVE_DEFAULT which is not compatible.
 ==> Analyse limitation and possible constraint usages.
 
 Being able to define a correct default for INIT_MOVE will be really good
@@ -426,12 +491,13 @@ will transform the argument to T*, and the type of the argument doesn't match
 what is expecting resulting in a move of the pointers, not a move of the design data.
 
 Defining this type seems possible with C11 _Generic and a TYPE in the oplist,
-but without C11 _Generic I don't see any way to define such macro.
+but without C11 _Generic I don't see any way to define such macro
+and we still need to target C99 for such basic feature.
 
 Without a way to write such a macro, the ticket seems pretty much a dead end.
 
 * TODO #20 : New: Bucket priority queue                         :ENHANCEMENT:
-
+** State
 Add a new kind of priority queue. 
 See https://en.wikipedia.org/wiki/Bucket_queue
 
@@ -446,19 +512,33 @@ except that we can scan 64 entries at a time).
 Check if we can use BITSET, or introduce fixed size BITSET or use ad-hock 
 implementation.
 
-* TODO #19 : New: Intrusive Red Black Tree                      :ENHANCEMENT:
+** Analysis
+NOTE: Needs for such container?
+On hold until a user needs it.
 
+* CANC #19 : New: Intrusive Red Black Tree                      :ENHANCEMENT:
+** State
  Add intrusive red black tree. 
  Look also for AVL tree (NOTE: Is there a performance difference between the two?)
 
-* TODO #18 : Missing methods                                    :ENHANCEMENT:
+** Analysis
+ Only needed for unmovable objects for which B+Tree cannot do the job.
+ But standard Read/Black Tree will do the job just fine.
+ There is really no need for it.
+ ==> Cancelled
 
+* TODO #18 : Missing methods                                    :ENHANCEMENT:
+** State
 Some containers don't have all the methods they should.
 See the cells in yellow here:
 http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Container.html
 
+** Analysis
+Analyzed each missing methods and fill in the gap
+
 * TODO #17 : New: Ressource handler                             :ENHANCEMENT:
 
+** State
  A global 'ressouce handler' which shall associated a unique handle to a ressource.
  The handle shall be unique for the ressource and shall not be reused.
  It is typically a 64 bits integers always incremented (even if the program
@@ -484,8 +564,9 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
 
  How to handle multiple resource ? 
 
- * variant: Pro : easy. Con: Memory usage can be (much) higher than needed if there is a lot of dissimilarity between the size of the objects.
- * embedded the type in the ressource handler: Con: more work, API more complex. Pro: Memory usage seems better.
+** Analysis
+ - use of variant: Pro : easy. Con: Memory usage can be (much) higher than needed if there is a lot of dissimilarity between the size of the objects.
+ - embedded the type in the ressource handler: Con: more work, API more complex. Pro: Memory usage seems better.
 
 * TODO #16 : New: Lock Free List                                :ENHANCEMENT:
 
@@ -509,6 +590,8 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
  - singly or doubly or dual push?
  - needs to be logically deleted : needs a previous field
    (NULL if not logically deleted) ? TBC
+
+ NOTE: m-c-mempool doesn't seem to be fully robust. random failure of the test cases appear (more notably with Visual C++, but it is still quite rare).
 
 * DONE #14 : Memory allocation enhancement                      :ENHANCEMENT:
 
@@ -547,7 +630,7 @@ It is a kind of object  inheritance where the container inherits some extra data
 Duplicate with #32 which is more generic ==> Closed
 
 * TODO #12 : New: Atomic shared pointer                         :ENHANCEMENT:
-
+** State
 Add an extension to the SHARED_PTR API:
 
 - New type atomic_shared_ptr
@@ -621,7 +704,7 @@ Other alternative solution is to use the bit 0 to mark the pointer as being upda
 Other implementation seems to have it hard to be lock-free: cf. https://github.com/llvm-mirror/libcxx/commit/5fec82dc0db3623546038e4a86baa44f749e554f
 
 * TODO #5 : New: Concurrent dictionary Container                :ENHANCEMENT:
-
+** State
 Implement a more efficient dictionary than lock + std dictionary for all operations when dealing with threads.
 See https://msdn.microsoft.com/en-us/library/dd287191(v=vs.110).aspx
 
