@@ -3439,15 +3439,15 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_GET_EQUAL(...)     M_GET_METHOD(EQUAL,       M_EQUAL_DEFAULT,    __VA_ARGS__)
 #define M_GET_CMP(...)       M_GET_METHOD(CMP,         M_CMP_DEFAULT,      __VA_ARGS__)
 #define M_GET_TYPE(...)      M_GET_METHOD(TYPE,        M_NO_DEF_TYPE,      __VA_ARGS__)
-#define M_GET_SUBTYPE(...)   M_GET_METHOD(SUBTYPE,     M_NO_DEF_TYPE,      __VA_ARGS__)
-#define M_GET_SUBTYPE_PTR(...) M_GET_METHOD(SUBTYPE_PTR, M_NO_DEF_TYPE,      __VA_ARGS__)
-#define M_GET_GENTYPE(...)   M_GET_METHOD(GENTYPE,     M_NO_DEF_TYPE,      __VA_ARGS__)
-#define M_GET_NAME(...)      M_GET_METHOD(NAME,        M_NO_DEF_TYPE,      __VA_ARGS__)
+#define M_GET_SUBTYPE(...)   M_GET_METHOD(SUBTYPE,     M_NO_DEF_SUBTYPE,      __VA_ARGS__)
+#define M_GET_SUBTYPE_PTR(...) M_GET_METHOD(SUBTYPE_PTR, M_NO_DEF_SUBTYPE_PTR, __VA_ARGS__)
+#define M_GET_GENTYPE(...)   M_GET_METHOD(GENTYPE,     M_NO_DEF_GENTYPE,   __VA_ARGS__)
+#define M_GET_NAME(...)      M_GET_METHOD(NAME,        M_NO_DEF_NAME,      __VA_ARGS__)
 #define M_GET_OPLIST(...)    M_GET_METHOD(OPLIST,      (),                 __VA_ARGS__)
 #define M_GET_SORT(...)      M_GET_METHOD(SORT,        M_NO_DEF_SORT,      __VA_ARGS__)
 #define M_GET_SPLICE_BACK(...) M_GET_METHOD(SPLICE_BACK, M_NO_DEF_SPLICE_BACK, __VA_ARGS__)
 #define M_GET_SPLICE_AT(...) M_GET_METHOD(SPLICE_AT,   M_NO_DEF_SPLICE_AT, __VA_ARGS__)
-#define M_GET_IT_TYPE(...)   M_GET_METHOD(IT_TYPE,     M_NO_DEF_TYPE,      __VA_ARGS__)
+#define M_GET_IT_TYPE(...)   M_GET_METHOD(IT_TYPE,     M_NO_DEF_IT_TYPE,   __VA_ARGS__)
 #define M_GET_IT_FIRST(...)  M_GET_METHOD(IT_FIRST,    M_NO_DEF_IT_FIRST,  __VA_ARGS__)
 #define M_GET_IT_LAST(...)   M_GET_METHOD(IT_LAST,     M_NO_DEF_IT_LAST,   __VA_ARGS__)
 #define M_GET_IT_END(...)    M_GET_METHOD(IT_END,      M_NO_DEF_IT_END,    __VA_ARGS__)
@@ -3467,10 +3467,10 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_GET_MUL(...)       M_GET_METHOD(MUL,         M_MUL_DEFAULT,      __VA_ARGS__)
 #define M_GET_DIV(...)       M_GET_METHOD(DIV,         M_DIV_DEFAULT,      __VA_ARGS__)
 #define M_GET_RESET(...)     M_GET_METHOD(RESET,       M_NO_DEF_RESET,     __VA_ARGS__)
-#define M_GET_KEY_TYPE(...)  M_GET_METHOD(KEY_TYPE,    M_NO_DEF_TYPE,      __VA_ARGS__)
-#define M_GET_VALUE_TYPE(...) M_GET_METHOD(VALUE_TYPE, M_NO_DEF_TYPE,      __VA_ARGS__)
-#define M_GET_KEY_OPLIST(...) M_GET_METHOD(KEY_OPLIST, M_NO_DEF_TYPE,      __VA_ARGS__)
-#define M_GET_VALUE_OPLIST(...) M_GET_METHOD(VALUE_OPLIST, M_NO_DEF_TYPE,  __VA_ARGS__)
+#define M_GET_KEY_TYPE(...)  M_GET_METHOD(KEY_TYPE,    M_NO_DEF_KEY_TYPE,  __VA_ARGS__)
+#define M_GET_VALUE_TYPE(...) M_GET_METHOD(VALUE_TYPE, M_NO_DEF_VALUE_TYPE,__VA_ARGS__)
+#define M_GET_KEY_OPLIST(...) M_GET_METHOD(KEY_OPLIST, (),                 __VA_ARGS__)
+#define M_GET_VALUE_OPLIST(...) M_GET_METHOD(VALUE_OPLIST, (),             __VA_ARGS__)
 #define M_GET_GET_KEY(...)   M_GET_METHOD(GET_KEY,     M_NO_DEF_GET_KEY,   __VA_ARGS__)
 #define M_GET_SET_KEY(...)   M_GET_METHOD(SET_KEY,     M_NO_DEF_SET_KEY,   __VA_ARGS__)
 #define M_GET_SAFE_GET_KEY(...) M_GET_METHOD(SAFE_GET_KEY, M_NO_DEF_SAFE_GET_KEY, __VA_ARGS__)
@@ -3733,7 +3733,6 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_NO_DEF_SORT(...)        M_NO_DEFAULT(SORT, void)
 #define M_NO_DEF_SPLICE_BACK(...) M_NO_DEFAULT(SPLICE_BACK, void)
 #define M_NO_DEF_SPLICE_AT(...)   M_NO_DEFAULT(SPLICE_AT, void)
-#define M_NO_DEF_IT_TYPE(...)     M_NO_DEFAULT(IT_TYPE, int)
 #define M_NO_DEF_IT_FIRST(...)    M_NO_DEFAULT(IT_FIRST, void)
 #define M_NO_DEF_IT_LAST(...)     M_NO_DEFAULT(IT_LAST, void)
 #define M_NO_DEF_IT_END(...)      M_NO_DEFAULT(IT_END, void)
@@ -3769,9 +3768,25 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_NO_DEF_OOR_EQUAL(...)   M_NO_DEFAULT(OOR_EQUAL, bool)
 #define M_NO_DEF_MEMPOOL(...)     M_NO_DEFAULT(MEMPOOL, void)
 
-#define M_NO_DEF_TYPE                                                         \
-  M_STATIC_ASSERT(false, M_LIB_MISSING_METHOD,                                \
-  "The requested operator has no type/subtype/suboplist registered in the given OPLIST. ")
+/* Create a type with an invalid static assertion.
+   Creating a type allowed the macro into something not too bad
+   from a syntaxic point of view, reducing the amount of errors reported
+   so that the user can concentrate to the real error.
+*/
+#define M_NO_DEFAULT_TYPE(op)                                                 \
+  struct { int m_x[                                                           \
+  (M_STATIC_ASSERT(false, M_LIB_MISSING_METHOD,                               \
+  "The " #op " operator is not registered in the given OPLIST. ")             \
+  , 1)]; }
+
+#define M_NO_DEF_TYPE             M_NO_DEFAULT_TYPE(TYPE)
+#define M_NO_DEF_IT_TYPE          M_NO_DEFAULT_TYPE(IT_TYPE)
+#define M_NO_DEF_SUBTYPE          M_NO_DEFAULT_TYPE(SUBTYPE)
+#define M_NO_DEF_SUBTYPE_PTR      M_NO_DEFAULT_TYPE(SUBTYPE_PTR)
+#define M_NO_DEF_GENTYPE          M_NO_DEFAULT_TYPE(GENTYPE)
+#define M_NO_DEF_KEY_TYPE         M_NO_DEFAULT_TYPE(KEY_TYPE)
+#define M_NO_DEF_VALUE_TYPE       M_NO_DEFAULT_TYPE(VALUE_TYPE)
+#define M_NO_DEF_NAME             M_NO_DEFAULT_TYPE(NAME) m_no_name
 
 /* Test if the given variable is a basic C variable:
    int, float, enum, bool or compatible.
