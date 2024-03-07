@@ -1320,38 +1320,31 @@
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, t1);                            \
     M_ASSERT (str != NULL);                                                   \
     M_F(name,_reset)(t1);                                                     \
-    bool success = false;                                                     \
     int c = *str++;                                                           \
-    if (M_UNLIKELY (c != '[')) goto exit;                                     \
+    if (M_UNLIKELY (c != '[')) { c = 0; goto exit; }                          \
     c = *str++;                                                               \
-    if (M_UNLIKELY (c == ']')) { success = true; goto exit;}                  \
-    if (M_UNLIKELY (c == 0)) goto exit;                                       \
+    if (M_UNLIKELY (c == ']' || c == 0)) goto exit;                           \
     str--;                                                                    \
-    key_t key;                                                                \
-    M_CALL_INIT(key_oplist, key);                                             \
-    M_IF(isMap)(value_t value;                                                \
-                M_CALL_INIT(value_oplist, value);                             \
-    , /* No isMap */)                                                         \
-    do {                                                                      \
-      bool b = M_CALL_PARSE_STR(key_oplist, key, str, &str);                  \
-      do { c = *str++; } while (isspace(c));                                  \
-      if (b == false) goto exit_clear;                                        \
-      M_IF(isMap)(if (c != ':') goto exit_clear;                              \
-                  b = M_CALL_PARSE_STR(value_oplist, value, str, &str);       \
-      do { c = *str++; } while (isspace(c));                                  \
-      if (b == false || c == 0) goto exit_clear;                              \
-      M_F(name, _set_at)(t1, key, value);                                     \
-      ,                                                                       \
-      M_F(name, _push)(t1, key);                                              \
-      )                                                                       \
-    } while (c == M_GET_SEPARATOR key_oplist);                                \
-    success = (c == ']');                                                     \
-  exit_clear:                                                                 \
-    M_CALL_CLEAR(key_oplist, key);                                            \
-    M_IF(isMap)(M_CALL_CLEAR(value_oplist, value);   , /* No isMap */ )       \
+    M_QLET(1, key, key_t, key_oplist)                                         \
+    M_IF(isMap)(M_QLET(2, value, value_t, value_oplist), /* No isMap */) {    \
+      do {                                                                    \
+        bool b = M_CALL_PARSE_STR(key_oplist, key, str, &str);                \
+        c = m_core_str_nospace(&str);                                         \
+        if (b == false) { c = 0; break; }                                     \
+        M_IF(isMap)(if (c != ':') { c = 0; break; }                           \
+                    b = M_CALL_PARSE_STR(value_oplist, value, str, &str);     \
+                    c = m_core_str_nospace(&str);                             \
+        if (b == false || c == 0) { c = 0; break; }                           \
+        M_F(name, _set_at)(t1, key, value);                                   \
+        ,                                                                     \
+        M_F(name, _push)(t1, key);                                            \
+        )                                                                     \
+      } while (c == M_GET_SEPARATOR key_oplist);                              \
+    }                                                                         \
   exit:                                                                       \
     if (endp) *endp = str;                                                    \
-    return success;                                                           \
+    M_BPTR33_CONTRACT(N, isMulti, key_oplist, t1);                            \
+    return (c == ']');                                                        \
   }                                                                           \
   , /* no parse_str */ )                                                      \
                                                                               \
@@ -1368,27 +1361,23 @@
     if (M_UNLIKELY (c == ']')) return true;                                   \
     if (M_UNLIKELY (c == EOF)) return false;                                  \
     ungetc(c, file);                                                          \
-    key_t key;                                                                \
-    M_CALL_INIT (key_oplist, key);                                            \
-    M_IF(isMap)(value_t value;                                                \
-                M_CALL_INIT (value_oplist, value);                            \
-                ,)                                                            \
-    do {                                                                      \
-      bool b = M_CALL_IN_STR(key_oplist, key, file);                          \
-      do { c = fgetc(file); } while (isspace(c));                             \
-      if (b == false) break;                                                  \
-      M_IF(isMap)(if (c!=':') break;                                          \
-                  b = M_CALL_IN_STR(value_oplist,value, file);                \
-                  do { c = fgetc(file); } while (isspace(c));                 \
-                  if (b == false || c == EOF) break;                          \
-                  M_F(name, _set_at)(t1, key, value)                          \
-                  ,                                                           \
-                  M_F(name, _push)(t1, key)                                   \
-                  );                                                          \
-    } while (c == M_GET_SEPARATOR key_oplist);                                \
-    M_CALL_CLEAR(key_oplist, key);                                            \
-    M_IF(isMap)(M_CALL_CLEAR(value_oplist, value);                            \
-                ,)                                                            \
+    M_QLET(1, key, key_t, key_oplist)                                         \
+    M_IF(isMap)(M_QLET(2, value, value_t, value_oplist) , /*nothing*/) {      \
+      do {                                                                    \
+        bool b = M_CALL_IN_STR(key_oplist, key, file);                        \
+        c = m_core_fgetc_nospace(file);                                       \
+        if (b == false) { c = 0; break; }                                     \
+        M_IF(isMap)(if (c!=':') { c = 0; break; }                             \
+                    b = M_CALL_IN_STR(value_oplist,value, file);              \
+                    c = m_core_fgetc_nospace(file);                           \
+                    if (b == false || c == EOF) { c = 0; break; }             \
+                    M_F(name, _set_at)(t1, key, value)                        \
+                    ,                                                         \
+                    M_F(name, _push)(t1, key)                                 \
+                    );                                                        \
+      } while (c == M_GET_SEPARATOR key_oplist);                              \
+    }                                                                         \
+    M_BPTR33_CONTRACT(N, isMulti, key_oplist, t1);                            \
     return c == ']';                                                          \
   }                                                                           \
   , /* no in_str */ )                                                         \
@@ -1446,37 +1435,33 @@
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
     size_t estimated_size = 0;                                                \
-    key_t key;                                                                \
     M_F(name,_reset)(t1);                                                     \
-    M_IF(isMap)(                                                              \
-                value_t value;                                                \
+    M_QLET(1, key, key_t, key_oplist)                                         \
+    M_IF(isMap)(M_QLET(2, value, value_t, value_oplist) , /*nothing*/) {      \
+        M_IF(isMap)(                                                          \
                 ret = f->m_interface->read_map_start(local, f, &estimated_size); \
-                if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;     \
-                M_CALL_INIT(key_oplist, key);                                 \
-                M_CALL_INIT (value_oplist, value);                            \
+                if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) break;          \
                 do {                                                          \
                   ret = M_CALL_IN_SERIAL(key_oplist, key, f);                 \
-                  if (ret != M_SERIAL_OK_DONE)     return M_SERIAL_FAIL;      \
+                  if (ret != M_SERIAL_OK_DONE) break;                         \
                   ret = f->m_interface->read_map_value(local, f);             \
-                  if (ret != M_SERIAL_OK_CONTINUE) return M_SERIAL_FAIL;      \
+                  if (ret != M_SERIAL_OK_CONTINUE) break;                     \
                   ret = M_CALL_IN_SERIAL(value_oplist, value, f);             \
-                  if (ret != M_SERIAL_OK_DONE)     return M_SERIAL_FAIL;      \
+                  if (ret != M_SERIAL_OK_DONE) break;                         \
                   M_F(name, _set_at)(t1, key, value);                         \
                 } while ((ret = f->m_interface->read_map_next(local, f)) == M_SERIAL_OK_CONTINUE); \
-                M_CALL_CLEAR(key_oplist, key);                                \
-                M_CALL_CLEAR(value_oplist, value);                            \
-                ,                                                             \
+        , /* queue style */                                                   \
                 ret = f->m_interface->read_array_start(local, f, &estimated_size); \
-                if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;     \
-                M_CALL_INIT(key_oplist, key);                                 \
+                if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) break;          \
                 do {                                                          \
                   ret = M_CALL_IN_SERIAL(key_oplist, key, f);                 \
-                  if (ret != M_SERIAL_OK_DONE) { break; }                     \
+                  if (ret != M_SERIAL_OK_DONE) break;                         \
                   M_F(name, _push)(t1, key);                                  \
                 } while ((ret = f->m_interface->read_array_next(local, f)) == M_SERIAL_OK_CONTINUE); \
-                M_CALL_CLEAR(key_oplist, key);                                \
-                ) /* End of IF isMap */                                       \
-      return ret;                                                             \
+        ) /* End of IF isMap */                                               \
+    }                                                                         \
+    M_BPTR33_CONTRACT(N, isMulti, key_oplist, t1);                            \
+    return ret;                                                               \
   }                                                                           \
   , /* no in_serial */ )                                                      \
 

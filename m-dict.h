@@ -836,42 +836,35 @@
   {                                                                           \
     M_ASSERT (str != NULL);                                                   \
     M_F(name, _reset)(dict);                                                  \
-    bool success = false;                                                     \
     int c = m_core_str_nospace(&str);                                         \
-    if (M_UNLIKELY (c != '{')) { goto exit; }                                 \
+    if (M_UNLIKELY (c != '{')) { c = 0; goto exit; }                          \
     c = m_core_str_nospace(&str);                                             \
-    if (M_UNLIKELY (c == '}')) { success = true; goto exit;}                  \
-    if (M_UNLIKELY (c == 0))   { goto exit; }                                 \
+    if (M_UNLIKELY (c == '}' || c == 0)) goto exit;                           \
     str--;                                                                    \
-    key_type key;                                                             \
-    M_IF(isSet)( ,value_type value);                                          \
-    M_CALL_INIT(key_oplist, key);                                             \
-    M_IF(isSet)( , M_CALL_INIT(value_oplist, value) );                        \
-    do {                                                                      \
-      c = m_core_str_nospace(&str);                                           \
-      str--;                                                                  \
-      bool b = M_CALL_PARSE_STR(key_oplist, key, str, &str);                  \
-      M_IF(isSet)(                                                            \
-                  if (b == false) { goto exit_clear; }                        \
-                  M_F(name, _push)(dict, key);                                \
-                  ,                                                           \
-                  c = m_core_str_nospace(&str);                               \
-                  if (b == false || c != ':') { goto exit_clear; }            \
-                  c = m_core_str_nospace(&str);                               \
-                  str--;                                                      \
-                  b = M_CALL_PARSE_STR(value_oplist, value, str, &str);       \
-                  if (b == false) { goto exit_clear; }                        \
-                  M_F(name, _set_at)(dict, key, value);                       \
-                )                                                             \
-      c = m_core_str_nospace(&str);                                           \
-    } while (c == ',');                                                       \
-    success = (c == '}');                                                     \
-  exit_clear:                                                                 \
-    M_CALL_CLEAR(key_oplist, key);                                            \
-    M_CALL_CLEAR(value_oplist, value);                                        \
+    M_QLET(1, key, key_type, key_oplist)                                      \
+    M_IF(isSet)(,M_QLET(2, value, value_type, value_oplist)) {                \
+      do {                                                                    \
+        c = m_core_str_nospace(&str);                                         \
+        str--;                                                                \
+        bool b = M_CALL_PARSE_STR(key_oplist, key, str, &str);                \
+        M_IF(isSet)(                                                          \
+            if (b == false) { c = 0; break; }                                 \
+            M_F(name, _push)(dict, key);                                      \
+          , /* is a map */                                                    \
+            c = m_core_str_nospace(&str);                                     \
+            if (b == false || c != ':') { c = 0; break; }                     \
+            c = m_core_str_nospace(&str);                                     \
+            str--;                                                            \
+            b = M_CALL_PARSE_STR(value_oplist, value, str, &str);             \
+            if (b == false) { c = 0; break; }                                 \
+            M_F(name, _set_at)(dict, key, value);                             \
+          )                                                                   \
+        c = m_core_str_nospace(&str);                                         \
+      } while (c == ',');                                                     \
+    }                                                                         \
   exit:                                                                       \
     if (endp) *endp = str;                                                    \
-    return success;                                                           \
+    return c == '}';                                                          \
   }                                                                           \
   , /* no PARSE_STR */ )                                                      \
                                                                               \
@@ -887,32 +880,29 @@
     if (M_UNLIKELY(c == '}')) return true;                                    \
     if (M_UNLIKELY (c == EOF)) return false;                                  \
     ungetc(c, file);                                                          \
-    key_type key;                                                             \
-    M_IF(isSet)( ,value_type value);                                          \
-    M_CALL_INIT(key_oplist, key);                                             \
-    M_IF(isSet)( , M_CALL_INIT(value_oplist, value) );                        \
-    do {                                                                      \
+    M_QLET(1, key, key_type, key_oplist)                                      \
+    M_IF(isSet)(,M_QLET(2, value, value_type, value_oplist)) {                \
+      do {                                                                    \
+        c = m_core_fgetc_nospace(file);                                       \
+        if (M_UNLIKELY (c == EOF)) { break; }                                 \
+        ungetc(c, file);                                                      \
+        bool b = M_CALL_IN_STR(key_oplist, key, file);                        \
+        M_IF(isSet)(                                                          \
+            if (M_UNLIKELY (b == false)) { c = 0; break; }                    \
+            M_F(name, _push)(dict, key);                                      \
+        , /* is map */                                                        \
+            c = m_core_fgetc_nospace(file);                                   \
+            if (M_UNLIKELY (b == false || c != ':')) { c = 0; break; }        \
+            c = m_core_fgetc_nospace(file);                                   \
+            if (M_UNLIKELY (c == EOF)) { break; }                             \
+            ungetc(c, file);                                                  \
+            b = M_CALL_IN_STR(value_oplist, value, file);                     \
+            if (M_UNLIKELY (b == false)) { c = 0; break; }                    \
+            M_F(name, _set_at)(dict, key, value);                             \
+        )                                                                     \
       c = m_core_fgetc_nospace(file);                                         \
-      if (M_UNLIKELY (c == EOF)) { break; }                                   \
-      ungetc(c, file);                                                        \
-      bool b = M_CALL_IN_STR(key_oplist, key, file);                          \
-      M_IF(isSet)(                                                            \
-                  if (M_UNLIKELY (b == false)) { break; }                     \
-                  M_F(name, _push)(dict, key);                                \
-      ,                                                                       \
-                  c = m_core_fgetc_nospace(file);                             \
-                  if (M_UNLIKELY (b == false || c != ':')) { c = 0; break; }  \
-                  c = m_core_fgetc_nospace(file);                             \
-                  if (M_UNLIKELY (c == EOF)) { break; }                       \
-                  ungetc(c, file);                                            \
-                  b = M_CALL_IN_STR(value_oplist, value, file);               \
-                  if (M_UNLIKELY (b == false)) { c = 0; break; }              \
-                  M_F(name, _set_at)(dict, key, value);                       \
-      )                                                                       \
-      c = m_core_fgetc_nospace(file);                                         \
-    } while (c == ',');                                                       \
-    M_CALL_CLEAR(key_oplist, key);                                            \
-    M_IF(isSet)(, M_CALL_CLEAR(value_oplist, value); )                        \
+      } while (c == ',');                                                     \
+    }                                                                         \
     return c == '}';                                                          \
   }                                                                           \
   , /* no IN_STR */ )                                                         \
@@ -968,37 +958,32 @@
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
     size_t estimated_size = 0;                                                \
-    key_type key;                                                             \
     M_F(name,_reset)(t1);                                                     \
-    M_IF(isSet)(                                                              \
-                ret = f->m_interface->read_array_start(local, f, &estimated_size); \
-                if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;     \
-                M_CALL_INIT(key_oplist, key);                                 \
-                do {                                                          \
-                  ret = M_CALL_IN_SERIAL(key_oplist, key, f);                 \
-                  if (ret != M_SERIAL_OK_DONE) { break; }                     \
-                  M_F(name, _push)(t1, key);                                  \
-                } while ((ret = f->m_interface->read_array_next(local, f)) == M_SERIAL_OK_CONTINUE); \
-                M_CALL_CLEAR(key_oplist, key);                                \
-                ,                                                             \
-                value_type value;                                             \
-                ret = f->m_interface->read_map_start(local, f, &estimated_size); \
-                if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;     \
-                M_CALL_INIT(key_oplist, key);                                 \
-                M_CALL_INIT (value_oplist, value);                            \
-                do {                                                          \
-                  ret = M_CALL_IN_SERIAL(key_oplist, key, f);                 \
-                  if (ret != M_SERIAL_OK_DONE)     return M_SERIAL_FAIL;      \
-                  ret = f->m_interface->read_map_value(local, f);             \
-                  if (ret != M_SERIAL_OK_CONTINUE) return M_SERIAL_FAIL;      \
-                  ret = M_CALL_IN_SERIAL(value_oplist, value, f);             \
-                  if (ret != M_SERIAL_OK_DONE)     return M_SERIAL_FAIL;      \
-                  M_F(name, _set_at)(t1, key, value);                         \
-                } while ((ret = f->m_interface->read_map_next(local, f)) == M_SERIAL_OK_CONTINUE); \
-                M_CALL_CLEAR(key_oplist, key);                                \
-                M_CALL_CLEAR(value_oplist, value);                            \
-                ) /* End of IF isSet */                                       \
-      return ret;                                                             \
+    M_QLET(1, key, key_type, key_oplist)                                      \
+    M_IF(isSet)(,M_QLET(2, value, value_type, value_oplist)) {                \
+        M_IF(isSet)(                                                          \
+            ret = f->m_interface->read_array_start(local, f, &estimated_size); \
+            if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) break;              \
+            do {                                                              \
+              ret = M_CALL_IN_SERIAL(key_oplist, key, f);                     \
+              if (ret != M_SERIAL_OK_DONE) break;                             \
+              M_F(name, _push)(t1, key);                                      \
+            } while ((ret = f->m_interface->read_array_next(local, f)) == M_SERIAL_OK_CONTINUE); \
+        , /* is map */                                                        \
+            ret = f->m_interface->read_map_start(local, f, &estimated_size);  \
+            if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) break;              \
+            do {                                                              \
+              ret = M_CALL_IN_SERIAL(key_oplist, key, f);                     \
+              if (ret != M_SERIAL_OK_DONE) break;                             \
+              ret = f->m_interface->read_map_value(local, f);                 \
+              if (ret != M_SERIAL_OK_CONTINUE) break;                         \
+              ret = M_CALL_IN_SERIAL(value_oplist, value, f);                 \
+              if (ret != M_SERIAL_OK_DONE) break;                             \
+              M_F(name, _set_at)(t1, key, value);                             \
+            } while ((ret = f->m_interface->read_map_next(local, f)) == M_SERIAL_OK_CONTINUE); \
+        ) /* End of IF isSet */                                               \
+    }                                                                         \
+    return ret;                                                               \
   }                                                                           \
   , /* no in_serial */ )                                                      \
                                                                               \

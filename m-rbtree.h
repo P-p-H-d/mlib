@@ -1072,27 +1072,22 @@ typedef enum {
     M_RBTR33_CONTRACT(rbtree);                                                \
     M_ASSERT (str != NULL);                                                   \
     M_F(name,_reset)(rbtree);                                                 \
-    bool success = false;                                                     \
-    int c = *str++;                                                           \
-    if (M_UNLIKELY (c != '[')) goto exit;                                     \
-    c = *str++;                                                               \
-    if (M_UNLIKELY (c == ']')) { success = true; goto exit; }                 \
-    if (M_UNLIKELY (c == 0)) goto exit;                                       \
+    int c = m_core_str_nospace(&str);                                         \
+    if (M_UNLIKELY (c != '[')) { c = 0; goto exit; }                          \
+    c = m_core_str_nospace(&str);                                             \
+    if (M_UNLIKELY (c == ']' || c == 0)) goto exit;                           \
     str--;                                                                    \
-    type item;                                                                \
-    M_CALL_INIT(oplist, item);                                                \
-    do {                                                                      \
-      bool b = M_CALL_PARSE_STR(oplist, item, str, &str);                     \
-      do { c = *str++; } while (isspace(c));                                  \
-      if (b == false || c == 0) goto exit_clear;                              \
-      M_F(name, _push)(rbtree, item);                                         \
-    } while (c == M_GET_SEPARATOR oplist);                                    \
-    success = (c == ']');                                                     \
-  exit_clear:                                                                 \
-    M_CALL_CLEAR(oplist, item);                                               \
+    M_QLET(1, item, type, oplist) {                                           \
+      do {                                                                    \
+        bool b = M_CALL_PARSE_STR(oplist, item, str, &str);                   \
+        c = m_core_str_nospace(&str);                                         \
+        if (b == false || c == 0) { c= 0 ; break; };                          \
+        M_F(name, _push)(rbtree, item);                                       \
+      } while (c == M_GET_SEPARATOR oplist);                                  \
+    }                                                                         \
   exit:                                                                       \
     if (endp) *endp = str;                                                    \
-    return success;                                                           \
+    return c == ']';                                                          \
   }                                                                           \
   , /* no parse_str */ )                                                      \
                                                                               \
@@ -1109,15 +1104,14 @@ typedef enum {
     if (M_UNLIKELY (c == ']')) return true;                                   \
     if (M_UNLIKELY (c == EOF)) return false;                                  \
     ungetc(c, file);                                                          \
-    type item;                                                                \
-    M_CALL_INIT(oplist, item);                                                \
-    do {                                                                      \
-      bool b = M_CALL_IN_STR(oplist, item, file);                             \
-      do { c = fgetc(file); } while (isspace(c));                             \
-      if (b == false || c == EOF) break;                                      \
-      M_F(name, _push)(rbtree, item);                                         \
-    } while (c == M_GET_SEPARATOR oplist);                                    \
-    M_CALL_CLEAR(oplist, item);                                               \
+    M_QLET(1, item, type, oplist) {                                           \
+      do {                                                                    \
+        bool b = M_CALL_IN_STR(oplist, item, file);                           \
+        c = m_core_fgetc_nospace(file);                                       \
+        if (b == false || c == EOF) { c = 0; break; }                         \
+        M_F(name, _push)(rbtree, item);                                       \
+      } while (c == M_GET_SEPARATOR oplist);                                  \
+    }                                                                         \
     return c == ']';                                                          \
   }                                                                           \
   , /* no in_str */ )                                                         \
@@ -1157,17 +1151,17 @@ typedef enum {
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
     size_t estimated_size = 0;                                                \
-    type key;                                                                 \
     M_F(name,_reset)(t1);                                                     \
     ret = f->m_interface->read_array_start(local, f, &estimated_size);        \
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;                 \
-    M_CALL_INIT(oplist, key);                                                 \
-    do {                                                                      \
-      ret = M_CALL_IN_SERIAL(oplist, key, f);                                 \
-      if (ret != M_SERIAL_OK_DONE) { break; }                                 \
-      M_F(name, _push)(t1, key);                                              \
-    } while ((ret = f->m_interface->read_array_next(local, f)) == M_SERIAL_OK_CONTINUE); \
-    M_CALL_CLEAR(oplist, key);                                                \
+    M_QLET(1, key, type, oplist) {                                            \
+      do {                                                                    \
+        ret = M_CALL_IN_SERIAL(oplist, key, f);                               \
+        if (ret != M_SERIAL_OK_DONE) { break; }                               \
+        M_F(name, _push)(t1, key);                                            \
+        ret = f->m_interface->read_array_next(local, f);                      \
+      } while (ret == M_SERIAL_OK_CONTINUE);                                  \
+    }                                                                         \
     return ret;                                                               \
   }                                                                           \
   , /* no in_serial */ )                                                      \

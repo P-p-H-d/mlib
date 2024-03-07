@@ -4401,10 +4401,15 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_LET_TRY_INJECT_POST(cont, oplist, name)
 
 /*
-  Internal M_LET for use within container.
+ * Internal M_LET for use within container.
+ * Declare the given variable of the given type and
+ * initialize / clear it using the given oplist .
+ * 
+ * index shall be a number within the function (from 1)
+ * identifying the M_QLET in the service.
 */
-#define M_QLET(x, type, oplist)                                               \
-  M_LET(x, M_OPEXTEND(oplist, TYPE(type)))
+#define M_QLET(index, var, type, oplist)                                      \
+  M_LET(var, M_OPEXTEND(oplist, TYPE(type)))
 
 /* Transform the va list by adding their number as the first argument of
    the list.

@@ -287,25 +287,13 @@ typedef m_serial_write_t m_serial_json_write_t;
 /*************************** FILE / READ  / JSON ********************************/
 /********************************************************************************/
 
-/* Helper function to skip a space */
-M_INLINE int
-m_ser1al_json_read_skip (FILE *f)
-{
-  int c;
-  do {
-    // c is an int, and is the value of the character read as unsigned char
-    c = fgetc(f);
-  } while (c != EOF && isspace(c));
-  return c;
-}
-
 /* Read from the stream 'serial' a boolean.
    Set '*b' with the boolean value if succeeds 
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 M_INLINE  m_serial_return_code_t
 m_ser1al_json_read_boolean(m_serial_read_t serial, bool *b){
   FILE *f = (FILE*) serial->data[0].p;
-  int c = m_ser1al_json_read_skip(f);
+  int c = m_core_fgetc_nospace(f);
   if (c == 't') {
     *b = true;
     c = fgetc(f);
@@ -473,7 +461,7 @@ m_ser1al_json_read_tuple_id(m_serial_local_t local, m_serial_read_t serial, cons
 {
   (void) local; // argument not used
   FILE *f = (FILE*) serial->data[0].p;
-  int c = m_ser1al_json_read_skip(f);
+  int c = m_core_fgetc_nospace(f);
   if (c == EOF) return m_core_serial_fail();
   if (c == '}') return M_SERIAL_OK_DONE;
   if (c == ',') {
@@ -860,9 +848,8 @@ m_ser1al_str_json_getc(const char **p)
 M_INLINE void
 m_ser1al_str_json_skip (const char **p)
 {
-  while (isspace (**p)) {
-    (*p)++;
-  }
+  (void) m_core_str_nospace(p);
+  (*p)--;
 }
 
 /* Helper function to read a string with characters not present in reject */

@@ -1018,7 +1018,7 @@
     if (M_UNLIKELY (c == ']')) { goto exit; }                                 \
     if (M_UNLIKELY (c == 0)) { goto exit; }                                   \
     str--;                                                                    \
-    M_QLET(item, type, oplist) {                                              \
+    M_QLET(1, item, type, oplist) {                                           \
       do {                                                                    \
         bool b = M_CALL_PARSE_STR(oplist, item, str, &str);                   \
         c = m_core_str_nospace(&str);                                         \
@@ -1046,7 +1046,7 @@
     if (M_UNLIKELY (c == ']')) return true;                                   \
     if (M_UNLIKELY (c == EOF)) return false;                                  \
     ungetc(c, file);                                                          \
-    M_QLET(item, type, oplist) {                                              \
+    M_QLET(1, item, type, oplist) {                                           \
       do {                                                                    \
         bool b = M_CALL_IN_STR(oplist, item, file);                           \
         c = m_core_fgetc_nospace(file);                                       \
@@ -1095,7 +1095,7 @@
        return ret;                                                            \
     }                                                                         \
     M_F(name, _reserve)(array, estimated_size);                               \
-    M_QLET(item, type, oplist) {                                              \
+    M_QLET(1, item, type, oplist) {                                           \
       do {                                                                    \
         ret = M_CALL_IN_SERIAL(oplist, item, f);                              \
         if (ret != M_SERIAL_OK_DONE) { break; }                               \

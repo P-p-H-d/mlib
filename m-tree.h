@@ -1339,7 +1339,6 @@ M_INLINE bool                                                                 \
 M_F(name, _parse_str)(tree_t tree, const char str[], const char **endp) {     \
     M_TR33_CONTRACT(tree);                                                    \
     int cmd = 0;                                                              \
-    type item;                                                                \
     it_t it;                                                                  \
     M_F(name, _reset)(tree);                                                  \
     bool success = false;                                                     \
@@ -1348,50 +1347,47 @@ M_F(name, _parse_str)(tree_t tree, const char str[], const char **endp) {     \
     c = *++str;                                                               \
     if (M_UNLIKELY (c == ']')) { success = true; str++; goto exit; }          \
     if (M_UNLIKELY (c == 0)) goto exit;                                       \
-    M_CALL_INIT(oplist, item);                                                \
-    it = M_F(name, _it_end)(tree);                                            \
-    while (true) {                                                            \
-        c = *str++;                                                           \
-        if (c != '{') goto exit_clear;                                        \
-        bool b = M_CALL_PARSE_STR(oplist, item, str, &str);                   \
-        c = *str++;                                                           \
-        if (b == false || c == 0) { goto exit_clear; }                        \
-        /* Insert the item as the root or as a right sibling or as a child */ \
-        switch (cmd) {                                                        \
-            case 0: it = M_F(name, _set_root)(tree, item); break;             \
-            case 1: it = M_F(name, _insert_right)(it, item); break;           \
-            case 2: it = M_F(name, _insert_child)(it, item); break;           \
-            default: M_ASSERT(0);                                             \
-        }                                                                     \
-        if (c == ',') {                                                       \
-            /* The current item has some children */                          \
+    M_QLET(1, item, type, oplist) {                                           \
+        it = M_F(name, _it_end)(tree);                                        \
+        while (true) {                                                        \
             c = *str++;                                                       \
-            if (c != '[') { goto exit_clear; }                                \
-            /* next is a child: push_down */                                  \
-            cmd = 2;                                                          \
-            continue;                                                         \
-        }                                                                     \
-        /* The current item has no children. */                               \
-        if (c != '}') { goto exit_clear; }                                    \
-        /* Scan the next character to decide where to move (right or up) */   \
-        c = *str++;                                                           \
-        if (c == ']') {                                                       \
-            do {                                                              \
-                /* move up. It we cannot, we have reached the end */          \
-                if (!M_F(name, _it_up)(&it)) { goto exit_success; }           \
+            if (c != '{') break;                                              \
+            bool b = M_CALL_PARSE_STR(oplist, item, str, &str);               \
+            c = *str++;                                                       \
+            if (b == false || c == 0) break;                                  \
+            /* Insert the item as the root or as a right sibling or as a child */ \
+            switch (cmd) {                                                    \
+                case 0: it = M_F(name, _set_root)(tree, item); break;         \
+                case 1: it = M_F(name, _insert_right)(it, item); break;       \
+                case 2: it = M_F(name, _insert_child)(it, item); break;       \
+                default: M_ASSERT(0);                                         \
+            }                                                                 \
+            if (c == ',') {                                                   \
+                /* The current item has some children */                      \
                 c = *str++;                                                   \
-                if (c != '}') { goto exit_clear; }                            \
-                c = *str++;                                                   \
-            } while (c == ']');                                               \
+                if (c != '[') break;                                          \
+                /* next is a child: push_down */                              \
+                cmd = 2;                                                      \
+                continue;                                                     \
+            }                                                                 \
+            /* The current item has no children. */                           \
+            if (c != '}') break;                                              \
+            /* Scan the next character to decide where to move (right or up) */ \
+            c = *str++;                                                       \
+            if (c == ']') {                                                   \
+                do {                                                          \
+                    /* move up. It we cannot, we have reached the end */      \
+                    if (!M_F(name, _it_up)(&it)) { success = true; break; }   \
+                    c = *str++;                                               \
+                    if (c != '}') goto do_break;                              \
+                    c = *str++;                                               \
+                } while (c == ']');                                           \
+            }                                                                 \
+            if (c != ',') { do_break: break; }                                \
+            /* next is a sibling: push_right */                               \
+            cmd = 1;                                                          \
         }                                                                     \
-        if (c != ',') { goto exit_clear; }                                    \
-        /* next is a sibling: push_right */                                   \
-        cmd = 1;                                                              \
     }                                                                         \
-exit_success:                                                                 \
-    success = true;                                                           \
-exit_clear:                                                                   \
-    M_CALL_CLEAR(oplist, item);                                               \
 exit:                                                                         \
     if (endp) *endp = str;                                                    \
     M_TR33_CONTRACT(tree);                                                    \
@@ -1440,7 +1436,6 @@ M_INLINE bool                                                                 \
 M_F(name, _in_str)(tree_t tree, FILE *f) {                                    \
     M_TR33_CONTRACT(tree);                                                    \
     int cmd = 0;                                                              \
-    type item;                                                                \
     it_t it;                                                                  \
     M_F(name, _reset)(tree);                                                  \
     bool success = false;                                                     \
@@ -1450,50 +1445,47 @@ M_F(name, _in_str)(tree_t tree, FILE *f) {                                    \
     if (M_UNLIKELY (c == ']')) { success = true; goto exit; }                 \
     ungetc(c, f);                                                             \
     if (M_UNLIKELY (c == 0)) goto exit;                                       \
-    M_CALL_INIT(oplist, item);                                                \
-    it = M_F(name, _it_end)(tree);                                            \
-    while (true) {                                                            \
-        c = fgetc(f);                                                         \
-        if (c != '{') goto exit_clear;                                        \
-        bool b = M_CALL_IN_STR(oplist, item, f);                              \
-        c = fgetc(f);                                                         \
-        if (b == false || c == 0) { goto exit_clear; }                        \
-        /* Insert the item as the root or as a right sibling or as a child */ \
-        switch (cmd) {                                                        \
-            case 0: it = M_F(name, _set_root)(tree, item); break;             \
-            case 1: it = M_F(name, _insert_right)(it, item); break;           \
-            case 2: it = M_F(name, _insert_child)(it, item); break;           \
-            default: M_ASSERT(0);                                             \
-        }                                                                     \
-        if (c == ',') {                                                       \
-            /* The current item has some children */                          \
+    M_QLET(1, item, type, oplist) {                                           \
+        it = M_F(name, _it_end)(tree);                                        \
+        while (true) {                                                        \
             c = fgetc(f);                                                     \
-            if (c != '[') { goto exit_clear; }                                \
-            /* next is a child: push_down */                                  \
-            cmd = 2;                                                          \
-            continue;                                                         \
-        }                                                                     \
-        /* The current item has no children. */                               \
-        if (c != '}') { goto exit_clear; }                                    \
-        /* Scan the next character to decide where to move (right or up) */   \
-        c = fgetc(f);                                                         \
-        if (c == ']') {                                                       \
-            do {                                                              \
-                /* move up. It we cannot, we have reached the end */          \
-                if (!M_F(name, _it_up)(&it)) { goto exit_success; }           \
+            if (c != '{') break;                                              \
+            bool b = M_CALL_IN_STR(oplist, item, f);                          \
+            c = fgetc(f);                                                     \
+            if (b == false || c == 0) break;                                  \
+            /* Insert the item as the root or as a right sibling or as a child */ \
+            switch (cmd) {                                                    \
+                case 0: it = M_F(name, _set_root)(tree, item); break;         \
+                case 1: it = M_F(name, _insert_right)(it, item); break;       \
+                case 2: it = M_F(name, _insert_child)(it, item); break;       \
+                default: M_ASSERT(0);                                         \
+            }                                                                 \
+            if (c == ',') {                                                   \
+                /* The current item has some children */                      \
                 c = fgetc(f);                                                 \
-                if (c != '}') { goto exit_clear; }                            \
-                c = fgetc(f);                                                 \
-            } while (c == ']');                                               \
+                if (c != '[') break;                                          \
+                /* next is a child: push_down */                              \
+                cmd = 2;                                                      \
+                continue;                                                     \
+            }                                                                 \
+            /* The current item has no children. */                           \
+            if (c != '}') break;                                              \
+            /* Scan the next character to decide where to move (right or up) */ \
+            c = fgetc(f);                                                     \
+            if (c == ']') {                                                   \
+                do {                                                          \
+                    /* move up. It we cannot, we have reached the end */      \
+                    if (!M_F(name, _it_up)(&it)) { success = true ; break; }  \
+                    c = fgetc(f);                                             \
+                    if (c != '}') goto do_break;                              \
+                    c = fgetc(f);                                             \
+                } while (c == ']');                                           \
+            }                                                                 \
+            if (c != ',') { do_break: break; }                                \
+            /* next is a sibling: push_right */                               \
+            cmd = 1;                                                          \
         }                                                                     \
-        if (c != ',') { goto exit_clear; }                                    \
-        /* next is a sibling: push_right */                                   \
-        cmd = 1;                                                              \
     }                                                                         \
-exit_success:                                                                 \
-    success = true;                                                           \
-exit_clear:                                                                   \
-    M_CALL_CLEAR(oplist, item);                                               \
 exit:                                                                         \
     M_TR33_CONTRACT(tree);                                                    \
     return success;                                                           \
