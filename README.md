@@ -593,6 +593,10 @@ You can therefore use the oplist of the container to chain this new interface
 with another container, creating container-of-container.
 ![oplist and definition](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/oplist.png)
 
+An operator may throw exceptions on *abnormal error* if configured.
+In this case, the object remains initialized and valid but in an unspecified state.
+In case of in constructors, the object is not constructed and the destructor of the object has not to be called.
+
 ### Operators
 
 The following operators are usually expected for an object:
@@ -632,7 +636,7 @@ Other documented operators are:
 * `INIT_MOVE(objd, objc)`: Initialize `objd` to the same state than `objc` by stealing as many resources as possible from `objc`, and then clear `objc` (constructor of `objd` + destructor of `objc`). It is semantically equivalent to calling `INIT_SET(objd,objc)` then `CLEAR(objc)` but is usually way faster.  Contrary to the C++ choice of using "conservative move" semantic (you still need to call the destructor of a moved object in C++) M\*LIB implements a "destructive move" semantic (this enables better optimization). By default, all objects are assumed to be **trivially movable** (i.e. using memcpy to move an object is safe). Most C objects (even complex structure) are trivially movable and it is a very nice property to have (enabling better optimization). A notable exception are intrusive objects. If an object is not trivially movable, it shall provide an `INIT_MOVE` method or disable the `INIT_MOVE` method entirely 
 
 > [!NOTE]
-> Some containers may assume that the objects are trivially movable).
+> Some containers may assume that the objects are always trivially movable.
 > An `INIT_MOVE` operator shall not fail (and therefore no exception can be thrown).
 > Moved objects shall use the same memory allocator.
 
@@ -653,7 +657,7 @@ Other documented operators are:
 * `SUB(obj1, obj2, obj3)`: Set obj1 to the difference of obj2 and obj3. Default is `-` C operator.
 * `MUL(obj1, obj2, obj3)`: Set obj1 to the product of obj2 and obj3. Default is `*` C operator.
 * `DIV(obj1, obj2, obj3)`: Set obj1 to the division of obj2 and obj3. Default is `/` C operator.
-* `GET_KEY (container, key)` --> `&value`: Return a pointer to the value object within the container associated to the key `key` or return NULL if no object is associated to this key. The pointer to the value object remains valid until any modification of the container.
+* `GET_KEY (container, key)` --> `&value`: Return a pointer to the value object within the container associated to the key `key` if an object is associated to this key. Otherwise it may return NULL if the container doe not require that the association exists. The pointer to the value object remains valid until any modification of the container.
 * `SET_KEY (container, key, value)`: Associate the key object `key` to the value object `value` in the given container.
 * `SAFE_GET_KEY (container, key)` --> `&value`: return a pointer to the value object within the container associated to the key `key` if it exists, or create a new entry in the container and associate it to the key `key` with the default initialization before returning its pointer. The pointer to the object remains valid until any modification of the container. The returned pointer is therefore never NULL.
 * `ERASE_KEY (container, key)` --> `bool`: Erase the object associated to the key `key` within the container. Return true if successful, false if the key is not found (nothing is done).
@@ -1006,11 +1010,6 @@ handling non-trivial memory errors can be hard,
 testing them is even harder but still mandatory to avoid security holes.
 So the default behavior is rather conservative.
 
-Indeed, a good design should handle a process entire failure (using for examples multiple
-processes for doing the job) so that even if a process stops, it should be recovered.
-See [here](http://joeduffyblog.com/2016/02/07/the-error-model/) for more
-information about why abandonment is good software practice.
-
 It can however be overloaded to handle other policy for error handling like:
 
 * throwing an error (See header [m-try](#m-try) for defining exceptions with M\*LIB),
@@ -1020,6 +1019,18 @@ It can however be overloaded to handle other policy for error handling like:
 This function takes the size in bytes of the memory that has been tried to be allocated.
 
 If needed, this macro shall be defined ***prior*** to instantiate the structure.
+
+> [!NOTE] 
+> A good design should handle a process entire failure (using for examples multiple
+> processes for doing the job) so that even if a process stops, it should be recovered.
+> See [here](http://joeduffyblog.com/2016/02/07/the-error-model/) for more
+> information about why abandonment is good software practice.
+>
+> In M\*LIB, we classify the kind of errors according to this classification:
+> * *logical error*: the expectations of the function are not met (null pointer passed as argument, negative argument, invalid object state, ...). In which case, the sanction is abnormal halt of the program, if it is detected, regardless of the configuration of M\*LIB. Normally, debug build will detect such errors.
+> * *abnormal error*:  errors that are unlikely to be expected during the execution of the program (like no more memory). In which case, the sanction is either abnormal halt of the program or throwing an exception.
+> * *normal error*: errors that can be expected in the execution of the program (all I/O errors like file not found or invalid file format, parsing of invalid user input, no solution found, etc). In which case, the error is reported by the return code of the function or by polling for error (See `ferror`) in the data structure.
+
 
 ## Emplace construction
 
@@ -8171,7 +8182,7 @@ When building with a C++ compiler, theses macro keywords simply use the original
 The whole program shall be compiled with the same exact compiler and the same target architecture.
 
 Only one type of data is supported as exception. This is done to simplify the design and to avoid using exception as a general purpose error mechanism. It should only be used for rare case of errors which cannot be dealt locally
-in the program being executed.
+in the program being executed (so called *abnormal error*).
 
 In order to support [Resource Acquisition Is Initialization](https://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization)
 technique which frees resources using [destructor](https://en.wikipedia.org/wiki/Destructor_(computer_programming)),

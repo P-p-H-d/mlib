@@ -35,6 +35,14 @@ correctly (register a correct cleanup function in case of exception).
 
 Current containers don't support such features.
 
+> NOTE: 
+ An exception for init_set supposes that the object is *not* initialized.
+ An exception for set supposes that the object *remains* initialized.
+ Some containers perform an init_set using init+set
+ others perform a set using a clear+init_set
+ The property of init_set (resp. set) is broken if an exception is raised in the set (resp. init_set):
+ the object is not let in the expected uninitialized (resp. initialized) state.
+
 ** Actions
 
 Add such support in M*LIB containers. 
