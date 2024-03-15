@@ -641,7 +641,11 @@ Other documented operators are:
 > Moved objects shall use the same memory allocator.
 
 * `MOVE(objd, objc)`: Set `objd` to the same state than `objc` by stealing as resources as possible from `objc` and then clear `objc` (destructor of `objc`). It is equivalent to calling `SET(objd,objc)` then `CLEAR(objc)` or `CLEAR(objd)` and then `INIT_MOVE(objd, objc)`. See `INIT_MOVE` for details and constraints. TBC if this operator is really needed as calling `CLEAR` then `INIT_MOVE` is what do all known implementation, and is efficient.
-* `INIT_WITH(obj, ...)`: Initialize the object `obj` with the given variable set of arguments (constructor). The arguments can be of different types. It is up to the method of the object to decide how to initialize the object based on this initialization array. This operator is used by the `M_LET` macro to initialize objects with their given values and this operator defines what the `M_LET` macro supports. In C11, you can use `API_1(M_INIT_WITH_THROUGH_EMPLACE_TYPE)` as method to automatically use the different emplace functions defined in `EMPLACE_TYPE` through a _Generic switch case. The `EMPLACE_TYPE` shall use the LIST format. See [emplace chapter](#Emplace-construction).
+* `INIT_WITH(obj, ...)`: Initialize the object `obj` with the given variable set of arguments (constructor). The arguments are variable and can be of different types. It is up to the method of the object to decide how to initialize the object based on this initialization array. This operator is used by the `M_LET` macro to initialize objects with their given values and this operator defines what the `M_LET` macro supports. 
+
+> [!NOTE]
+>In C11, you can use `API_1(M_INIT_WITH_THROUGH_EMPLACE_TYPE)` as method to automatically use the different emplace functions defined in `EMPLACE_TYPE` through a _Generic switch case. The `EMPLACE_TYPE` shall use the LIST format. See [emplace chapter](#Emplace-construction).
+>
 * `SWAP(objd, objc)`: Swap the states of the object `objc` and the object `objd`.  The objects shall use the same allocator.
 * `RESET(obj)`: Reset the object to its initialized state (Emptying the object if it is a container object).
 * `EMPTY_P(obj)` --> `bool`: Test if the container object is empty (true) or not.
@@ -661,10 +665,10 @@ Other documented operators are:
 * `SET_KEY (container, key, value)`: Associate the key object `key` to the value object `value` in the given container.
 * `SAFE_GET_KEY (container, key)` --> `&value`: return a pointer to the value object within the container associated to the key `key` if it exists, or create a new entry in the container and associate it to the key `key` with the default initialization before returning its pointer. The pointer to the object remains valid until any modification of the container. The returned pointer is therefore never NULL.
 * `ERASE_KEY (container, key)` --> `bool`: Erase the object associated to the key `key` within the container. Return true if successful, false if the key is not found (nothing is done).
-* `PUSH(obj, subobj)`: Push `subobj` (of type `SUBTYPE()`) into the container `obj`. How and where it is pushed is container dependent.
-* `POP(&subobj, obj)`: Pop an object from the container `obj` and set it in the initialized object `*subobj` (of type `SUBTYPE()`) if subobj is not NULL. Which object is popped is container dependent. The container shall have at least one object.
-* `PUSH_MOVE(obj, &subobj)`: Push and move the object `*subobj` (of type `SUBTYPE()`) into the container `obj` (`*subobj` destructor). How it is pushed is container dependent. `*subobj` is cleared afterward and shall not be used anymore. See `INIT_MOVE` for more details and constraints.
-* `POP_MOVE(&subobj, obj)`: Pop an object from the container `obj` and **init & move** it in the uninitialized object `*subobj` (`*subobj` constructor). Which object is popped is container dependent. `*subobj` shall be uninitialized. The container shall have at least one object. See `INIT_MOVE` for more details and constraints.
+* `PUSH(container, obj)`: Push `obj` (of type `SUBTYPE()`) into the container `container`. How and where it is pushed is container dependent.
+* `POP(&obj, container)`: Pop an object from the container `container` and set it in the initialized object `*obj` (of type `SUBTYPE()`) if the pointer `obj` is not NULL. Which object is popped is container dependent. The container shall have at least one object.
+* `PUSH_MOVE(container, &obj)`: Push and move the object `*obj` (of type `SUBTYPE()`) into the container `container` (`*obj` destructor). How it is pushed is container dependent. `*obj` is cleared afterward and shall not be used anymore. See `INIT_MOVE` for more details and constraints.
+* `POP_MOVE(&obj, container)`: Pop an object from the container `container` and **init & move** it in the uninitialized object `*obj` (aka constructor). Which object is popped is container dependent. `*obj` shall be uninitialized. The container shall have at least one object. See `INIT_MOVE` for more details and constraints.
 * `IT_TYPE()` --> `type`: Return the type of the iterator object of this container.
 * `IT_FIRST(it_obj, obj)`: Set the iterator it_obj to the first sub-element of the container `obj`. What is the first element is container dependent (it may be front or back, or something else). However, iterating from FIRST to LAST (included) or END (excluded) through `IT_NEXT` ensures going through all elements of the container. If there is no sub-element in the container, it references an end of the container.
 * `IT_LAST(it_obj, obj)`: Set the iterator it_obj to the last sub-element of the container `obj`.  What is the last element is container dependent (it may be front or back, or something else). However, iterating from LAST to FIRST (included) or END (excluded) through `IT_PREVIOUS` ensures going through all elements of the container. If there is no sub-element in the container, it references an end of the container.
@@ -693,20 +697,32 @@ Other documented operators are:
 * `SEPARATOR()` --> `character`: Return the character used to separate items for I/O methods (default is ',') (for internal use only).
 * `EXT_ALGO(name, container oplist, object oplist)`: Define additional algorithms functions specialized for the containers (for internal use only).
 * `PROPERTIES()` --> `( properties)`: Return internal properties of a container in a recursive oplist format. Use M_GET_PROPERTY to get the property.
-* `EMPLACE_TYPE( ... )`: Specify the types usable for "emplacing" the object. See chapter [Emplace construction](#Emplace-construction).
+* `EMPLACE_TYPE( ... )`: Specify the types usable for "emplacing" the object (initializing the object in-place, constructor). See chapter [Emplace construction](#Emplace-construction).
 
 The operator names listed above shall not be defined as macro.
 More operators are expected.
 
 > [!NOTE]
 > An iterator doesn't have a constructor nor destructor methods.
-> It should not allocate any memory. A reference to an object through
-> an iterator is only valid until another reference is taken from the same
+> Therefore, it cannot not allocate any memory.
+>
+
+> [!NOTE]
+> A reference to an object through the pointer get from the iterator
+> is only valid until another reference is taken from the same
 > container (potentially through another iterator),
-> the iterator is moved. If the container is modified, all iterators
+> or the iterator is modified
+> or the container itself is modified.
+> This reference is therefore extremely local and should not be stored anywhere else.
+> Some containers may lessen this constraint (for example list or RB-Tree).
+>
+
+> [!NOTE]
+> If the container is *modified*, all iterators
 > of this container become invalid and shall not be used anymore
 > except if the modifying operator provided itself an updated iterator.
-> Some containers may lessen these constraints.
+> Some containers may lessen this constraint.
+>
 
 ### Properties
 
