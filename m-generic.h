@@ -183,7 +183,7 @@ typedef const char **m_g3n_cstring_end;
 // which takes one argument.
 #define M_G3N_CALL_1(op, x)                                                   \
   M_G3N_BEGIN_PROTECTED_CODE                                                  \
-  _Generic( ((void)0, (x)),                                                   \
+  _Generic( (x),                                                              \
             M_MAP2(M_G3N_CALL_1_func, (op, x) M_G3N_REGISTERED_ITEMS() )      \
             struct m_g3neric_dummy_s *: /* cannot happen */ (void)0)          \
   M_G3N_END_PROTECTED_CODE
@@ -247,7 +247,7 @@ typedef const char **m_g3n_cstring_end;
 // which takes one argument, it_type
 #define M_G3N_CALL_1i(op, x)                                                  \
   M_G3N_BEGIN_PROTECTED_CODE                                                  \
-  _Generic( ((void)0, (x)),                                                   \
+  _Generic( (x),                                                              \
             M_MAP2(M_G3N_CALL_1i_func, (op, x) M_G3N_REGISTERED_ITEMS() )     \
             struct m_g3neric_dummy_s *: /* cannot happen */ (void)0)          \
   M_G3N_END_PROTECTED_CODE
@@ -268,7 +268,7 @@ typedef const char **m_g3n_cstring_end;
 // Create a variable of type OPERATOR call of the oplist registered to the variable 'x'
 #define M_G3N_TYPE_1(op, x)                                                   \
   M_G3N_BEGIN_PROTECTED_CODE                                                  \
-  _Generic( ((void)0, (x)),                                                   \
+  _Generic( (x),                                                              \
             M_MAP2(M_G3N_TYPE_1_func, (op, x) M_G3N_REGISTERED_ITEMS() )      \
             struct m_g3neric_dummy_s *: /* cannot happen */ (void)0)          \
   M_G3N_END_PROTECTED_CODE
