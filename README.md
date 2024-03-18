@@ -593,12 +593,16 @@ You can therefore use the oplist of the container to chain this new interface
 with another container, creating container-of-container.
 ![oplist and definition](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/oplist.png)
 
-An operator shall fail only on **abnormal error** and if it is marked as potentially raising asynchronous errors. In this case it shall throw exceptions only if exceptions are configured. Otherwise, the program is terminated.
-In this case, the object remains initialized and valid but in an unspecified state.
-In case of in constructors, the object is not constructed and the destructor of the object has not to be called.
-If an operator is not marked as raising asynchronous errors, it shall not fail or throw any exceptions in any cases.
-
 ### Operators
+
+> [!NOTE]
+> An operator shall fail only on **abnormal error** and if it is marked as potentially raising asynchronous errors. In this case it shall throw exceptions only if exceptions are configured. Otherwise, the program shall be terminated.
+> 
+> In this case, the objects remain initialized and valid but in an unspecified state.
+> In case of in constructors, the object is not constructed and the destructor of the object has not to be called.
+
+> [!NOTE]
+> If an operator is not marked as raising asynchronous errors, it shall not fail or throw any exceptions in any cases.
 
 Not all operators are needed for an oplist to handle a container.
 If some operator is missing, the associated default method of the operator is used if it exists.
@@ -643,7 +647,11 @@ Other documented operators are:
 > [!NOTE]
 >In C11, you can use `API_1(M_INIT_WITH_THROUGH_EMPLACE_TYPE)` as method to automatically use the different emplace functions defined in `EMPLACE_TYPE` through a _Generic switch case. The `EMPLACE_TYPE` shall use the LIST format. See [emplace chapter](#Emplace-construction).
 >
-* `SWAP(objd, objc)`: Swap the states of the object `objc` and the object `objd`.  The objects shall use the same allocator.
+* `SWAP(objd, objc)`: Swap the states of the object `objc` and the object `objd`.
+
+> [!NOTE]
+>  The swapped objects shall use the same allocator.
+
 * `RESET(obj)`: Reset the object to its initialized state (Emptying the object if it is a container object).
 * `EMPTY_P(obj)` --> `bool`: Test if the container object is empty (true) or not.
 * `GET_SIZE (container)` --> `size_t`: Return the number of elements in the container object.
@@ -653,7 +661,7 @@ Other documented operators are:
 
 > [!NOTE]
 > The equivalence between `EQUAL(a, b)` and `CMP(a, b) == 0` is not required, but is usually welcome.
->
+
 * `ADD(obj1, obj2, obj3)`: Set obj1 to the sum of obj2 and obj3. Default is `+` C operator. It may raise asynchronous error.
 * `SUB(obj1, obj2, obj3)`: Set obj1 to the difference of obj2 and obj3. Default is `-` C operator. It may raise asynchronous error.
 * `MUL(obj1, obj2, obj3)`: Set obj1 to the product of obj2 and obj3. Default is `*` C operator. It may raise asynchronous error.
@@ -663,9 +671,12 @@ Other documented operators are:
 * `SAFE_GET_KEY (container, key)` --> `&value`: return a pointer to the value object within the container associated to the key `key` if it exists, or create a new entry in the container and associate it to the key `key` with the default initialization before returning its pointer. The pointer to the object remains valid until any modification of the container. The returned pointer is therefore never NULL. It may raise asynchronous error.
 * `ERASE_KEY (container, key)` --> `bool`: Erase the object associated to the key `key` within the container. Return true if successful, false if the key is not found (nothing is done).
 * `PUSH(container, obj)`: Push `obj` (of type `SUBTYPE()`) into the container `container`. How and where it is pushed is container dependent. It may raise asynchronous error.
-* `POP(&obj, container)`: Pop an object from the container `container` and set it in the initialized object `*obj` (of type `SUBTYPE()`) if the pointer `obj` is not NULL. Which object is popped is container dependent. The container shall have at least one object. It may raise asynchronous error.
+* `POP(&obj, container)`: Pop an object from the container `container` and set it in the initialized object `*obj` (of type `SUBTYPE()`) if the pointer `obj` is not NULL. Which object is popped is container dependent. It may raise asynchronous error.
 * `PUSH_MOVE(container, &obj)`: Push and move the object `*obj` (of type `SUBTYPE()`) into the container `container` (`*obj` destructor). How it is pushed is container dependent. `*obj` is cleared afterward and shall not be used anymore. See `INIT_MOVE` for more details and constraints. It may raise asynchronous error.
-* `POP_MOVE(&obj, container)`: Pop an object from the container `container` and **init & move** it in the uninitialized object `*obj` (aka constructor). Which object is popped is container dependent. `*obj` shall be uninitialized. The container shall have at least one object. See `INIT_MOVE` for more details and constraints.
+* `POP_MOVE(&obj, container)`: Pop an object from the container `container` and **init & move** it in the uninitialized object `*obj` (aka constructor). Which object is popped is container dependent. `*obj` shall be uninitialized. See `INIT_MOVE` for more details and constraints.
+
+> [!NOTE]
+> When using a `POP` operator (or any derived operator) on a container, this container shall have at least one object.
 
 The iterator operators are:
 
@@ -724,7 +735,9 @@ The final operators are:
 * `PROPERTIES()` --> `( properties)`: Return internal properties of a container in a recursive oplist format. Use M_GET_PROPERTY to get the property.
 * `EMPLACE_TYPE( ... )`: Specify the types usable for "emplacing" the object (initializing the object in-place, constructor). See chapter [Emplace construction](#Emplace-construction). THe referenced initializing functions may raise asynchronous error.
 
-The operator names listed above shall not be defined as macro.
+> [!NOTE]
+> The operator names listed above shall not be defined as macro.
+
 More operators are expected.
 
 ### Properties
@@ -735,6 +748,9 @@ The following properties are defined:
 
 * `LET_AS_INIT_WITH(1)` — Defined if the macro `M_LET` shall always initialize the object with `INIT_WITH` regardless of the given input. The value of the property is 1 (enabled) or 0 (disabled/default).
 * `NOCLEAR(1)` — Defined if the object `CLEAR` operator can be omitted (like for basic types or POD data). The value of the property is 1 (enabled) or 0 (disabled/default).
+
+> [!NOTE]
+> The properties names listed above shall not be defined as macro.
 
 More properties are expected.
 
@@ -958,7 +974,8 @@ For example:
 The main interest is to disable the generation of optional methods of a container (since they are only
 expanded if the oplist provides some methods).
 
-Usage of inheritance and oplist is available in the [int example](https://github.com/P-p-H-d/mlib/blob/master/example/ex-dict05.c)
+Usage of inheritance and oplist is available
+in the [int example](https://github.com/P-p-H-d/mlib/blob/master/example/ex-dict05.c)
 and the [cstr example](https://github.com/P-p-H-d/mlib/blob/master/example/ex-dict06.c)
 
 ### Advanced example
@@ -1031,7 +1048,7 @@ So the default behavior is rather conservative.
 
 It can however be overloaded to handle other policy for error handling like:
 
-* throwing an error (See header [m-try](#m-try) for defining exceptions with M\*LIB),
+* throwing an error (which is automatically done by including header [m-try](#m-try) ),
 * set a global error and handle it when the function returns [planned, not possible yet],
 * other policy.
 
@@ -1044,11 +1061,11 @@ If needed, this macro shall be defined ***prior*** to instantiate the structure.
 > processes for doing the job) so that even if a process stops, it should be recovered.
 > See [here](http://joeduffyblog.com/2016/02/07/the-error-model/) for more
 > information about why abandonment is good software practice.
->
-> In M\*LIB, we classify the kind of errors according to this classification:
-> * *logical error*: the expectations of the function are not met (null pointer passed as argument, negative argument, invalid object state, ...). In which case, the sanction is abnormal halt of the program, if it is detected, regardless of the configuration of M\*LIB. Normally, debug build will detect such errors.
-> * *abnormal error*:  errors that are unlikely to be expected during the execution of the program (like no more memory). In which case, the sanction is either abnormal halt of the program or throwing an exception.
-> * *normal error*: errors that can be expected in the execution of the program (all I/O errors like file not found or invalid file format, parsing of invalid user input, no solution found, etc). In which case, the error is reported by the return code of the function or by polling for error (See `ferror`) in the data structure.
+
+In M\*LIB, we classify the kind of errors according to this classification:
+* *logical error*: the expectations of the function are not met (null pointer passed as argument, negative argument, invalid object state, ...). In which case, the sanction is abnormal halt of the program, if it is detected, regardless of the configuration of M\*LIB. Normally, debug build will detect such errors.
+* *abnormal error*:  errors that are unlikely to be expected during the execution of the program (like no more memory). In which case, the sanction is either abnormal halt of the program or throwing an exception.
+* *normal error*: errors that can be expected in the execution of the program (all I/O errors like file not found or invalid file format, parsing of invalid user input, no solution found, etc). In which case, the error is reported by the return code of the function or by polling for error (See `ferror`) in the data structure.
 
 
 ## Emplace construction
