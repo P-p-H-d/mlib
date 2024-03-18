@@ -593,24 +593,22 @@ You can therefore use the oplist of the container to chain this new interface
 with another container, creating container-of-container.
 ![oplist and definition](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/oplist.png)
 
-An operator may throw exceptions on *abnormal error* if configured.
+An operator shall fail only on **abnormal error** and if it is marked as potentially raising asynchronous errors. In this case it shall throw exceptions only if exceptions are configured. Otherwise, the program is terminated.
 In this case, the object remains initialized and valid but in an unspecified state.
 In case of in constructors, the object is not constructed and the destructor of the object has not to be called.
+If an operator is not marked as raising asynchronous errors, it shall not fail or throw any exceptions in any cases.
 
 ### Operators
 
-The following operators are usually expected for an object:
-
-* `INIT(obj)`: initialize the object `obj` into a valid state (constructor).
-* `INIT_SET(obj, org)`: initialize the object `obj` into the same state as the object `org` (copy constructor).
-* `SET(obj, org)`: set the initialized object `obj` into the same state as the initialized object org (copy operator).
-* `CLEAR(obj)`: destroy the initialized object `obj`, releasing any attached memory (destructor). This method shall never fail.
-
-`INIT`, `INIT_SET` and `SET` methods should only fail due to ***memory errors***.
-
 Not all operators are needed for an oplist to handle a container.
 If some operator is missing, the associated default method of the operator is used if it exists.
-To use C integer or float types, the default constructors are perfectly fine.
+
+The following classic operators are usually expected for an object:
+
+* `INIT(obj)`: initialize the object `obj` into a valid state (constructor). It may raise asynchronous error.
+* `INIT_SET(obj, org)`: initialize the object `obj` into the same state as the object `org` (copy constructor). It may raise asynchronous error.
+* `SET(obj, org)`: set the initialized object `obj` into the same state as the initialized object org (copy operator). It may raise asynchronous error.
+* `CLEAR(obj)`: destroy the initialized object `obj`, releasing any attached memory (destructor).
 
 Other documented operators are:
 
@@ -623,25 +621,24 @@ Other documented operators are:
 * `VALUE_TYPE()` --> `value_t`: Return the value type for associative containers.
 * `KEY_OPLIST()` --> `oplist`: Return the oplist of the key type for associative containers.
 * `VALUE_OPLIST()` --> `oplist`: Return the oplist of the value type for associative containers.
-* `NEW (type)` --> `type pointer`: allocate a new object (with suitable alignment and size) and return a pointer to it. The returned object is **not initialized** (a constructor operator shall be called afterward). The default method is `M_MEMORY_ALLOC` (that allocates from the heap). It returns NULL in case of failure.
-* `DEL` --> `(&obj)`: free the allocated uninitialized object `obj`. The object is not cleared before being free (A destructor operator shall be called before). The object shall have been allocated by the associated NEW method. The default method is `M_MEMORY_DEL` (that frees to the heap).
-* `REALLOC(type, type pointer, number)` --> `type pointer`: realloc the given array referenced by type pointer (either a NULL pointer or a pointer returned by the associated REALLOC method itself) to an array of the number of objects of this type and return a pointer to this new array. Previously objects pointed by the pointer are kept up to the minimum of the new size and old one. New objects are not initialized (a constructor operator shall be called afterward). Freed objects are not cleared (A destructor operator shall be called before). The default is `M_MEMORY_REALLOC` (that allocates from the heap). It returns NULL in case of failure in which case the original array is not modified.
-* `FREE (&obj)` --> `(&obj)`: free the allocated uninitialized array object `obj`. The objects are not cleared before being free (CLEAR operator has to be called before).  The object shall have been allocated by the associated REALLOC method. The default is `M_MEMORY_FREE` (that frees to the heap).
+* `NEW(type)` --> `type pointer`: allocate a new object (with suitable alignment and size) and return a pointer to it. The returned object is **not initialized** (a constructor operator shall be called afterward). The default method is `M_MEMORY_ALLOC` (that allocates from the heap). It returns NULL in case of failure.
+* `DEL(&obj)`: free the allocated uninitialized object `obj`. The destructor of the pointed object shall be called before freeing the memory by calling this method. The object shall have been allocated by the associated NEW method. The default method is `M_MEMORY_DEL` (that frees to the heap). `obj` shall not be NULL and shall be of the proper type.
+* `REALLOC(type, type pointer, number)` --> `type pointer`: reallocate the given array referenced by type pointer (either a NULL pointer or a pointer returned by the associated `REALLOC` method itself) to an array of the number of objects of this type and return a pointer to this new array. Previously objects pointed by the pointer are kept up to the minimum of the new size and old one but may have moved from their original positions (if the array is reallocated otherwhere). New objects are not initialized (a constructor operator shall be called afterward). Freed objects are not cleared (A destructor operator shall be called before). The default is `M_MEMORY_REALLOC` (that allocates from the heap). It returns NULL in case of failure in which case the original array is not modified.
+* `FREE(&obj)`: free the allocated uninitialized array object `obj`. The destructor of the pointed objects shall be called before freeing the memory by calling this method.  The objects shall have been allocated by the associated REALLOC method. The default is `M_MEMORY_FREE` (that frees to the heap).
 * `INC_ALLOC(size_t s)` --> `size_t`: Define the growing policy of an array (or equivalent structure). It returns a new allocation size based on the old allocation size (`s`). Default policy is to get the maximum between `2*s` and 16. 
 
 > [!NOTE]
 > It doesn't check for overflow: if the returned value is lower 
-> than the old one, the user shall raise an overflow error.
+> than the old one, the user shall raise an overflow error (memory error).
 
 * `INIT_MOVE(objd, objc)`: Initialize `objd` to the same state than `objc` by stealing as many resources as possible from `objc`, and then clear `objc` (constructor of `objd` + destructor of `objc`). It is semantically equivalent to calling `INIT_SET(objd,objc)` then `CLEAR(objc)` but is usually way faster.  Contrary to the C++ choice of using "conservative move" semantic (you still need to call the destructor of a moved object in C++) M\*LIB implements a "destructive move" semantic (this enables better optimization). By default, all objects are assumed to be **trivially movable** (i.e. using memcpy to move an object is safe). Most C objects (even complex structure) are trivially movable and it is a very nice property to have (enabling better optimization). A notable exception are intrusive objects. If an object is not trivially movable, it shall provide an `INIT_MOVE` method or disable the `INIT_MOVE` method entirely 
 
 > [!NOTE]
-> Some containers may assume that the objects are always trivially movable.
-> An `INIT_MOVE` operator shall not fail (and therefore no exception can be thrown).
+> Some containers may assume that the objects are always trivially movable (like array).
 > Moved objects shall use the same memory allocator.
 
 * `MOVE(objd, objc)`: Set `objd` to the same state than `objc` by stealing as resources as possible from `objc` and then clear `objc` (destructor of `objc`). It is equivalent to calling `SET(objd,objc)` then `CLEAR(objc)` or `CLEAR(objd)` and then `INIT_MOVE(objd, objc)`. See `INIT_MOVE` for details and constraints. TBC if this operator is really needed as calling `CLEAR` then `INIT_MOVE` is what do all known implementation, and is efficient.
-* `INIT_WITH(obj, ...)`: Initialize the object `obj` with the given variable set of arguments (constructor). The arguments are variable and can be of different types. It is up to the method of the object to decide how to initialize the object based on this initialization array. This operator is used by the `M_LET` macro to initialize objects with their given values and this operator defines what the `M_LET` macro supports. 
+* `INIT_WITH(obj, ...)`: Initialize the object `obj` with the given variable set of arguments (constructor). The arguments are variable and can be of different types. It is up to the method of the object to decide how to initialize the object based on this initialization array. This operator is used by the `M_LET` macro to initialize objects with their given values and this operator defines what the `M_LET` macro supports. It may raise asynchronous error.
 
 > [!NOTE]
 >In C11, you can use `API_1(M_INIT_WITH_THROUGH_EMPLACE_TYPE)` as method to automatically use the different emplace functions defined in `EMPLACE_TYPE` through a _Generic switch case. The `EMPLACE_TYPE` shall use the LIST format. See [emplace chapter](#Emplace-construction).
@@ -650,25 +647,28 @@ Other documented operators are:
 * `RESET(obj)`: Reset the object to its initialized state (Emptying the object if it is a container object).
 * `EMPTY_P(obj)` --> `bool`: Test if the container object is empty (true) or not.
 * `GET_SIZE (container)` --> `size_t`: Return the number of elements in the container object.
-* `HASH (obj)` --> `size_t`: return a hash of the object (not a secure hash but one that is usable for a hash table). Default is performing a hash of the memory representation of the object. This default implementation is invalid if the object holds pointer to other objects.
+* `HASH (obj)` --> `size_t`: return a hash of the object (not a secure hash but one that is usable for a hash table). Default is performing a hash of the memory representation of the object. This default implementation is invalid if the object holds pointer to other objects or has spare fields.
 * `EQUAL(obj1, obj2)` --> `bool`: Compare the two objects for equality. Return true if both objects are equal, false otherwise. Default is using the C comparison operator. 'obj1' may be an OOR object (Out of Representation) for the Open Addressing dictionary (see `OOR_*` operators): in such cases, it shall return false.
 * `CMP(obj1, obj2)` --> `int`: Provide a complete order the objects. return a negative integer if `obj1 < obj2`, 0 if `obj1 = obj2`, a positive integer otherwise. Default is C comparison operator.
 
 > [!NOTE]
 > The equivalence between `EQUAL(a, b)` and `CMP(a, b) == 0` is not required, but is usually welcome.
 >
-* `ADD(obj1, obj2, obj3)`: Set obj1 to the sum of obj2 and obj3. Default is `+` C operator.
-* `SUB(obj1, obj2, obj3)`: Set obj1 to the difference of obj2 and obj3. Default is `-` C operator.
-* `MUL(obj1, obj2, obj3)`: Set obj1 to the product of obj2 and obj3. Default is `*` C operator.
-* `DIV(obj1, obj2, obj3)`: Set obj1 to the division of obj2 and obj3. Default is `/` C operator.
-* `GET_KEY (container, key)` --> `&value`: Return a pointer to the value object within the container associated to the key `key` if an object is associated to this key. Otherwise it may return NULL if the container doe not require that the association exists. The pointer to the value object remains valid until any modification of the container.
-* `SET_KEY (container, key, value)`: Associate the key object `key` to the value object `value` in the given container.
-* `SAFE_GET_KEY (container, key)` --> `&value`: return a pointer to the value object within the container associated to the key `key` if it exists, or create a new entry in the container and associate it to the key `key` with the default initialization before returning its pointer. The pointer to the object remains valid until any modification of the container. The returned pointer is therefore never NULL.
+* `ADD(obj1, obj2, obj3)`: Set obj1 to the sum of obj2 and obj3. Default is `+` C operator. It may raise asynchronous error.
+* `SUB(obj1, obj2, obj3)`: Set obj1 to the difference of obj2 and obj3. Default is `-` C operator. It may raise asynchronous error.
+* `MUL(obj1, obj2, obj3)`: Set obj1 to the product of obj2 and obj3. Default is `*` C operator. It may raise asynchronous error.
+* `DIV(obj1, obj2, obj3)`: Set obj1 to the division of obj2 and obj3. Default is `/` C operator. It may raise asynchronous error.
+* `GET_KEY (container, key)` --> `&value`: Return a pointer to the value object within the container associated to the key `key` if an object is associated to this key. Otherwise it may return NULL or terminate the program with a logic error (depending on the container). The pointer to the value object remains valid until any modification of the container.
+* `SET_KEY (container, key, value)`: Associate the key object `key` to the value object `value` in the given container.  It may raise asynchronous error.
+* `SAFE_GET_KEY (container, key)` --> `&value`: return a pointer to the value object within the container associated to the key `key` if it exists, or create a new entry in the container and associate it to the key `key` with the default initialization before returning its pointer. The pointer to the object remains valid until any modification of the container. The returned pointer is therefore never NULL. It may raise asynchronous error.
 * `ERASE_KEY (container, key)` --> `bool`: Erase the object associated to the key `key` within the container. Return true if successful, false if the key is not found (nothing is done).
-* `PUSH(container, obj)`: Push `obj` (of type `SUBTYPE()`) into the container `container`. How and where it is pushed is container dependent.
-* `POP(&obj, container)`: Pop an object from the container `container` and set it in the initialized object `*obj` (of type `SUBTYPE()`) if the pointer `obj` is not NULL. Which object is popped is container dependent. The container shall have at least one object.
-* `PUSH_MOVE(container, &obj)`: Push and move the object `*obj` (of type `SUBTYPE()`) into the container `container` (`*obj` destructor). How it is pushed is container dependent. `*obj` is cleared afterward and shall not be used anymore. See `INIT_MOVE` for more details and constraints.
+* `PUSH(container, obj)`: Push `obj` (of type `SUBTYPE()`) into the container `container`. How and where it is pushed is container dependent. It may raise asynchronous error.
+* `POP(&obj, container)`: Pop an object from the container `container` and set it in the initialized object `*obj` (of type `SUBTYPE()`) if the pointer `obj` is not NULL. Which object is popped is container dependent. The container shall have at least one object. It may raise asynchronous error.
+* `PUSH_MOVE(container, &obj)`: Push and move the object `*obj` (of type `SUBTYPE()`) into the container `container` (`*obj` destructor). How it is pushed is container dependent. `*obj` is cleared afterward and shall not be used anymore. See `INIT_MOVE` for more details and constraints. It may raise asynchronous error.
 * `POP_MOVE(&obj, container)`: Pop an object from the container `container` and **init & move** it in the uninitialized object `*obj` (aka constructor). Which object is popped is container dependent. `*obj` shall be uninitialized. The container shall have at least one object. See `INIT_MOVE` for more details and constraints.
+
+The iterator operators are:
+
 * `IT_TYPE()` --> `type`: Return the type of the iterator object of this container.
 * `IT_FIRST(it_obj, obj)`: Set the iterator it_obj to the first sub-element of the container `obj`. What is the first element is container dependent (it may be front or back, or something else). However, iterating from FIRST to LAST (included) or END (excluded) through `IT_NEXT` ensures going through all elements of the container. If there is no sub-element in the container, it references an end of the container.
 * `IT_LAST(it_obj, obj)`: Set the iterator it_obj to the last sub-element of the container `obj`.  What is the last element is container dependent (it may be front or back, or something else). However, iterating from LAST to FIRST (included) or END (excluded) through `IT_PREVIOUS` ensures going through all elements of the container. If there is no sub-element in the container, it references an end of the container.
@@ -683,29 +683,12 @@ Other documented operators are:
 * `IT_REF(it_obj)` --> `&subobj`: Same as `IT_CREF`, but return a modifiable pointer to the object referenced by the iterator.
 * `IT_INSERT(obj, it_obj, subobj)`: Insert `subobj` after 'it_obj' in the container `obj` and update it_obj to point to the inserted object (as per `IT_NEXT` semantics). All other iterators of the same container become invalidated. If 'it_obj' is an end of the container, it inserts the object as the first one.
 * `IT_REMOVE(obj, it_obj)`: Remove it_obj from the container `obj` (clearing the associated object) and update it_obj to point to the next object (as per `IT_NEXT` semantics). As it modifies the container, all other iterators of the same container become invalidated. it_obj shall not be an end of the container.
-* `SPLICE_BACK(objd, objs, it_obj)`: Move the object of the container `objs` referenced by the iterator 'it_obj' to the container `objd`. Where it is moved is container dependent (it is recommended however to be like the `PUSH` method). Afterward 'it_obj' references the next item in 'containerSrc' (as per `IT_NEXT` semantics). 'it_obj' shall not be an end of the container. Both objects shall use the same allocator.
-* `SPLICE_AT(objd, id_objd, objs, it_objs)`: Move the object referenced by the iterator `it_objs` from the container `objs` just after the object referenced by the iterator `it_objd` in the container `objd`. If `it_objd` references an end of the container, it is inserted as the first item of the container (See operator `IT_INSERT`). Afterward `it_objs` references the next item in the container `objs`, and `it_objd` references the moved item in the container `objd`. `it_objs` shall not be an end of the container. Both objects shall use the same allocator.
-* `OUT_STR(FILE* f, obj)`: Output `obj` as a custom formatted string into the `FILE*` stream `f`. Format is container dependent, but is human readable.
-* `IN_STR(obj, FILE* f)` --> `bool`: Set `obj` to the value associated to the formatted string representation of the object in the `FILE*` stream `f`. Return true in case of success (in that case the stream `f` has been advanced to the end of the parsing of the object), false otherwise (in that case, the stream `f` is in an undetermined position but is likely where the parsing fails). It ensures that an object which is output in a FILE through `OUT_STR`, and an object which is read from this FILE through `IN_STR` are considered as equal.
-* `GET_STR(string_t str, obj, bool append)`: Set `str` to a formatted string representation of the object `obj`. Append to the string if `append` is true, set it otherwise. This operator requires the module [m-string](#m-string).
-* `PARSE_STR(obj, const char *str, const char **endp)` --> `bool`: Set `obj` to the value associated to the formatted string representation of the object in the char stream `str`. Return true in case of success (in that case if endp is not NULL, it points to the end of the parsing of the object), false otherwise (in that case, if endp is not NULL, it points to an undetermined position but likely to be where the parsing fails). It ensures that an object which is written in a string through GET_STR, and an object which is read from this string through `PARSE_STR` are considered as equal.
-* `OUT_SERIAL(m_serial_write_t *serial, obj)` --> `m_serial_return_code_t`: Output `obj` into the configurable serialization stream `serial` (See [m-serial-json.h](#m-serial-json) for details and example) as per the serial object semantics. Return `M_SERIAL_OK_DONE` in case of success, or `M_SERIAL_FAIL` otherwise.
-* `IN_SERIAL(obj, m_serial_read_t *serial)` --> `m_serial_return_code_t`: Set `obj` to its representation from the configurable serialization stream `serial` (See [m-serial-json.h](#m-serial-json) for details and example) as per the serial object semantics. `M_SERIAL_OK_DONE` in case of success (in that case the stream `serial` has been advanced up to the complete parsing of the object), or `M_SERIAL_FAIL` otherwise (in that case, the stream `serial` is in an undetermined position but usually around the next characters after the first failure).
-* `OOR_SET(obj, int_value)`: Some containers want to store some information within the uninitialized objects (for example Open Addressing Hash Table). This method stores the integer value 'int_value' into an uninitialized object `obj`. It shall be able to differentiate between uninitialized object and initialized object (How is type dependent). The way to store this information is fully object dependent. In general, you use out-of-range value for detecting such values. The object remains uninitialized but sets to of out-of-range value (OOR). int_value can be 0 or 1.
-* `OOR_EQUAL(obj, int_value)`: This method compares the object `obj` (initialized or uninitialized) to the out-of-range value (OOR) representation associated to 'int_value' and returns true if both objects are equal, false otherwise. See `OOR_SET`.
-* `REVERSE(obj)`: Reverse the order of the items in the container `obj`.
-* `SEPARATOR()` --> `character`: Return the character used to separate items for I/O methods (default is ',') (for internal use only).
-* `EXT_ALGO(name, container oplist, object oplist)`: Define additional algorithms functions specialized for the containers (for internal use only).
-* `PROPERTIES()` --> `( properties)`: Return internal properties of a container in a recursive oplist format. Use M_GET_PROPERTY to get the property.
-* `EMPLACE_TYPE( ... )`: Specify the types usable for "emplacing" the object (initializing the object in-place, constructor). See chapter [Emplace construction](#Emplace-construction).
-
-The operator names listed above shall not be defined as macro.
-More operators are expected.
+* `SPLICE_BACK(objd, objs, it_obj)`: Move the object of the container `objs` referenced by the iterator 'it_obj' to the container `objd`. Where it is moved is container dependent (it is recommended however to be like the `PUSH` method). Afterward 'it_obj' references the next item in 'containerSrc' (as per `IT_NEXT` semantics). 'it_obj' shall not be an end of the container. Both objects shall use the same allocator. It may raise asynchronous error.
+* `SPLICE_AT(objd, id_objd, objs, it_objs)`: Move the object referenced by the iterator `it_objs` from the container `objs` just after the object referenced by the iterator `it_objd` in the container `objd`. If `it_objd` references an end of the container, it is inserted as the first item of the container (See operator `IT_INSERT`). Afterward `it_objs` references the next item in the container `objs`, and `it_objd` references the moved item in the container `objd`. `it_objs` shall not be an end of the container. Both objects shall use the same allocator. It may raise asynchronous error.
 
 > [!NOTE]
 > An iterator doesn't have a constructor nor destructor methods.
 > Therefore, it cannot not allocate any memory.
->
 
 > [!NOTE]
 > A reference to an object through the pointer get from the iterator
@@ -715,14 +698,34 @@ More operators are expected.
 > or the container itself is modified.
 > This reference is therefore extremely local and should not be stored anywhere else.
 > Some containers may lessen this constraint (for example list or RB-Tree).
->
 
 > [!NOTE]
 > If the container is *modified*, all iterators
 > of this container become invalid and shall not be used anymore
 > except if the modifying operator provided itself an updated iterator.
 > Some containers may lessen this constraint.
->
+
+The I/O operators are:
+
+* `OUT_STR(FILE* f, obj)`: Output `obj` as a custom formatted string into the `FILE*` stream `f`. Format is container dependent, but is human readable.
+* `IN_STR(obj, FILE* f)` --> `bool`: Set `obj` to the value associated to the formatted string representation of the object in the `FILE*` stream `f`. Return true in case of success (in that case the stream `f` has been advanced to the end of the parsing of the object), false otherwise (in that case, the stream `f` is in an undetermined position but is likely where the parsing fails). It ensures that an object which is output in a FILE through `OUT_STR`, and an object which is read from this FILE through `IN_STR` are considered as equal. It may raise asynchronous error.
+* `GET_STR(string_t str, obj, bool append)`: Set `str` to a formatted string representation of the object `obj`. Append to the string if `append` is true, set it otherwise. This operator requires the module [m-string](#m-string). It may raise asynchronous error.
+* `PARSE_STR(obj, const char *str, const char **endp)` --> `bool`: Set `obj` to the value associated to the formatted string representation of the object in the char stream `str`. Return true in case of success (in that case if endp is not NULL, it points to the end of the parsing of the object), false otherwise (in that case, if endp is not NULL, it points to an undetermined position but likely to be where the parsing fails). It ensures that an object which is written in a string through GET_STR, and an object which is read from this string through `PARSE_STR` are considered as equal. It may raise asynchronous error.
+* `OUT_SERIAL(m_serial_write_t *serial, obj)` --> `m_serial_return_code_t`: Output `obj` into the configurable serialization stream `serial` (See [m-serial-json.h](#m-serial-json) for details and example) as per the serial object semantics. Return `M_SERIAL_OK_DONE` in case of success, or `M_SERIAL_FAIL` otherwise. It may raise asynchronous error.
+* `IN_SERIAL(obj, m_serial_read_t *serial)` --> `m_serial_return_code_t`: Set `obj` to its representation from the configurable serialization stream `serial` (See [m-serial-json.h](#m-serial-json) for details and example) as per the serial object semantics. `M_SERIAL_OK_DONE` in case of success (in that case the stream `serial` has been advanced up to the complete parsing of the object), or `M_SERIAL_FAIL` otherwise (in that case, the stream `serial` is in an undetermined position but usually around the next characters after the first failure). It may raise asynchronous error.
+
+The final operators are:
+
+* `OOR_SET(obj, int_value)`: Some containers want to store some information within the uninitialized objects (for example Open Addressing Hash Table). This method stores the integer value 'int_value' into an uninitialized object `obj`. It shall be able to differentiate between uninitialized object and initialized object (How is type dependent). The way to store this information is fully object dependent. In general, you use out-of-range value for detecting such values. The object remains uninitialized but sets to of out-of-range value (OOR). int_value can be 0 or 1.
+* `OOR_EQUAL(obj, int_value)`: This method compares the object `obj` (initialized or uninitialized) to the out-of-range value (OOR) representation associated to 'int_value' and returns true if both objects are equal, false otherwise. See `OOR_SET`.
+* `REVERSE(obj)`: Reverse the order of the items in the container `obj`. It may raise asynchronous error.
+* `SEPARATOR()` --> `character`: Return the character used to separate items for I/O methods (default is ',') (for internal use only).
+* `EXT_ALGO(name, container oplist, object oplist)`: Define additional algorithms functions specialized for the containers (for internal use only).
+* `PROPERTIES()` --> `( properties)`: Return internal properties of a container in a recursive oplist format. Use M_GET_PROPERTY to get the property.
+* `EMPLACE_TYPE( ... )`: Specify the types usable for "emplacing" the object (initializing the object in-place, constructor). See chapter [Emplace construction](#Emplace-construction). THe referenced initializing functions may raise asynchronous error.
+
+The operator names listed above shall not be defined as macro.
+More operators are expected.
 
 ### Properties
 
