@@ -80,6 +80,12 @@ M_INLINE void m_mutex_lock(m_mutex_t m)
   mtx_lock(m);
 }
 
+/* Try to lock the mutex. Return true on success */
+M_INLINE bool m_mutex_trylock(m_mutex_t m)
+{
+  return mtx_trylock(m) == thrd_success;
+}
+
 /* Unlock the mutex */
 M_INLINE void m_mutex_unlock(m_mutex_t m)
 {
@@ -242,6 +248,12 @@ M_INLINE void m_mutex_lock(m_mutex_t m)
   EnterCriticalSection(m);
 }
 
+/* Try to Lock a mutex. Return true on success */
+M_INLINE bool m_mutex_trylock(m_mutex_t m)
+{
+  return TryEnterCriticalSection(m) != 0;
+}
+
 /* Unlock a mutex */
 M_INLINE void m_mutex_unlock(m_mutex_t m)
 {
@@ -388,6 +400,12 @@ M_INLINE void m_mutex_clear(m_mutex_t m)
 M_INLINE void m_mutex_lock(m_mutex_t m)
 {
   pthread_mutex_lock(m);
+}
+
+/* Try to Lock a mutex. Return true on success */
+M_INLINE bool m_mutex_trylock(m_mutex_t m)
+{
+  return pthread_mutex_trylock(m) == 0;
 }
 
 /* Unlock the mutex */
@@ -553,6 +571,12 @@ M_INLINE void m_mutex_clear(m_mutex_t m)
 M_INLINE void m_mutex_lock(m_mutex_t m)
 {
     xSemaphoreTake(m->handle, portMAX_DELAY);
+}
+
+/* Try to Lock a mutex. Return true on success */
+M_INLINE bool m_mutex_trylock(m_mutex_t m)
+{
+  return xSemaphoreTake(m->handle, 0) == pdTRUE;
 }
 
 /* Unlock the mutex */

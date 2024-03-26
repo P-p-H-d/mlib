@@ -7436,12 +7436,17 @@ Only one thread shall clear the mutex.
 
 Lock the variable mutex for exclusive use.
 If the mutex is not unlocked, it will wait indefinitely until it is.
-The mutex shall not be already locked.
+
+##### `bool m_mutex_trylock(m_mutex_t mutex)`
+
+Try to lock the variable mutex for exclusive use.
+If the mutex is not unlocked, it will return immediately.
+Return true in case of success (mutex locked), false otherwise (mutex unlocked).
 
 ##### `void m_mutex_unlock(m_mutex_t mutex)`
 
 Unlock the variable mutex for exclusive use.
-The mutex shall not be already unlocked.
+The mutex shall be locked.
 
 #### `m_cond_t`
 
