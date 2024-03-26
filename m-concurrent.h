@@ -795,8 +795,8 @@
   M_F(name, _internal_init)(concurrent_t out)                                 \
   {                                                                           \
     m_mutex_init(out->lock);                                                  \
-    atomic_store(&out->num_reader, 0);                                        \
-    atomic_store(&out->num_waiting_writer, 0);                                \
+    atomic_init(&out->num_reader, 0);                                         \
+    atomic_init(&out->num_waiting_writer, 0);                                 \
     m_cond_init(out->there_is_data);                                          \
     out->self = out;                                                          \
     M_C0NCURRENT_CONTRACT(out);                                               \
