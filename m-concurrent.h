@@ -816,6 +816,7 @@
     struct M_F(name, _s) *self = out->self;                                   \
     while (true) {                                                            \
       unsigned int num = atomic_load(&self->num_reader);                      \
+      /* FIXME: this lock is unfair for writers as readers may starve then */ \
       if (num != 0                                                            \
          && atomic_compare_exchange_strong(&self->num_reader, &num, num+1)) { \
           break;                                                              \
