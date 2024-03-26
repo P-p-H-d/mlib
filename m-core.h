@@ -5034,7 +5034,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 /* Can be increased / decreased by user code if needed
    to increase / decrease backoff of code */
 #ifndef M_USE_BACKOFF_MAX_COUNT
-#define M_USE_BACKOFF_MAX_COUNT 6
+#define M_USE_BACKOFF_MAX_COUNT 8
 #endif
 
 /* Exponential backoff object.
@@ -5048,14 +5048,12 @@ typedef struct m_core_backoff_s {
   unsigned int seed;                // Initial seed
 } m_core_backoff_ct[1];
 
-/* Initialize a backoff object.
- * Use the C function rand to initialize its internal seed.
- * It should be good enough for the purpose of the backoff */
+/* Initialize a backoff object. */
 M_INLINE void
 m_core_backoff_init(m_core_backoff_ct backoff)
 {
   backoff->count = 0;
-  backoff->seed  = (unsigned int) rand();
+  backoff->seed  = 0;
 }
 
 /* Reset the count of the backoff object */
@@ -5071,6 +5069,16 @@ m_core_backoff_reset(m_core_backoff_ct backoff)
 M_INLINE void
 m_core_backoff_wait(m_core_backoff_ct backoff)
 {
+  if (backoff->count <= 2) {
+    backoff->count++;
+    if (backoff->count < 3) 
+      return;
+    // Use the C function rand to initialize its internal seed.
+    // It should be good enough for the purpose of the backoff.
+    // We only do it once if we already have performed several loops
+    // to avoid paying the cost of 'rand' for the small start.
+    backoff->seed  = (unsigned int) rand();
+  }
   /* x is qualified as volatile to avoid being optimized away
      by the compiler in the active sleep loop */
   volatile int x = 0;
