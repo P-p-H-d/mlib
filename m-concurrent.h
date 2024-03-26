@@ -777,9 +777,7 @@
   typedef struct M_F(name, _s) {                                              \
     struct M_F(name, _s) *self;                                               \
     m_mutex_t lock;                                                           \
-    m_cond_t  rw_done;                                                        \
-    size_t    read_count;                                                     \
-    bool      writer_waiting;                                                 \
+    atomic_uint num_reader;  /* number of reader threads */                   \
     m_cond_t  there_is_data; /* condition raised when there is data */        \
     type      data;                                                           \
   } concurrent_t[1];                                                          \
@@ -796,11 +794,9 @@
   M_F(name, _internal_init)(concurrent_t out)                                 \
   {                                                                           \
     m_mutex_init(out->lock);                                                  \
-    m_cond_init(out->rw_done);                                                \
+    atomic_store(&out->num_reader, 0);                                        \
     m_cond_init(out->there_is_data);                                          \
     out->self = out;                                                          \
-    out->read_count = 0;                                                      \
-    out->writer_waiting = false;                                              \
     M_C0NCURRENT_CONTRACT(out);                                               \
   }                                                                           \
                                                                               \
@@ -809,7 +805,6 @@
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
     m_mutex_clear(out->lock);                                                 \
-    m_cond_clear(out->rw_done);                                               \
     m_cond_clear(out->there_is_data);                                         \
     out->self = NULL;                                                         \
   }                                                                           \
@@ -819,12 +814,18 @@
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
     struct M_F(name, _s) *self = out->self;                                   \
-    m_mutex_lock (self->lock);                                                \
-    while (self->writer_waiting == true) {                                    \
-      m_cond_wait(self->rw_done, self->lock);                                 \
+    while (true) {                                                            \
+      unsigned int num = atomic_load(&self->num_reader);                      \
+      if (num != 0                                                            \
+         && atomic_compare_exchange_strong(&self->num_reader, &num, num+1)) { \
+          break;                                                              \
+      }                                                                       \
+      if (m_mutex_trylock(self->lock)) {                                      \
+        atomic_store(&self->num_reader, 1);                                   \
+        break;                                                                \
+      }                                                                       \
+      /* TODO: exponential backoff */                                         \
     }                                                                         \
-    self->read_count ++;                                                      \
-    m_mutex_unlock (self->lock);                                              \
   }                                                                           \
                                                                               \
   M_INLINE void                                                               \
@@ -832,12 +833,10 @@
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
     struct M_F(name, _s) *self = out->self;                                   \
-    m_mutex_lock (self->lock);                                                \
-    self->read_count --;                                                      \
-    if (self->read_count == 0) {                                              \
-      m_cond_broadcast (self->rw_done);                                       \
+    unsigned int num = atomic_fetch_sub(&self->num_reader, 1);                \
+    if (num == 1) {                                                           \
+      m_mutex_unlock(self->lock);                                             \
     }                                                                         \
-    m_mutex_unlock (self->lock);                                              \
   }                                                                           \
                                                                               \
   M_INLINE void                                                               \
@@ -845,23 +844,14 @@
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
     m_mutex_lock (out->lock);                                                 \
-    while (out->writer_waiting == true) {                                     \
-      m_cond_wait(out->rw_done, out->lock);                                   \
-    }                                                                         \
-    out->writer_waiting = true;                                               \
-    while (out->read_count > 0) {                                             \
-      m_cond_wait(out->rw_done, out->lock);                                   \
-    }                                                                         \
-    m_mutex_unlock (out->lock);                                               \
+    M_ASSERT(atomic_load(&out->num_reader) == 0);                             \
   }                                                                           \
                                                                               \
   M_INLINE void                                                               \
   M_F(name, _write_unlock)(concurrent_t out)                                  \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
-    m_mutex_lock (out->lock);                                                 \
-    out->writer_waiting = false;                                              \
-    m_cond_broadcast (out->rw_done);                                          \
+    M_ASSERT(atomic_load(&out->num_reader) == 0);                             \
     m_mutex_unlock (out->lock);                                               \
   }                                                                           \
                                                                               \
@@ -870,45 +860,22 @@
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
     struct M_F(name, _s) *self = out->self;                                   \
-    M_ASSERT (self == out);                                                   \
-    m_mutex_lock (out->self->lock);                                           \
-    self->read_count --;                                                      \
-    if (self->read_count == 0) {                                              \
-      m_cond_broadcast (self->rw_done);                                       \
-    }                                                                         \
     m_cond_wait(self->there_is_data, self->lock);                             \
-    while (self->writer_waiting == true) {                                    \
-      m_cond_wait(self->rw_done, self->lock);                                 \
-    }                                                                         \
-    self->read_count ++;                                                      \
-    m_mutex_unlock (out->self->lock);                                         \
   }                                                                           \
                                                                               \
   M_INLINE void                                                               \
   M_F(name, _write_wait)(concurrent_t out)                                    \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
-    m_mutex_lock (out->lock);                                                 \
-    out->writer_waiting = false;                                              \
-    m_cond_broadcast (out->rw_done);                                          \
     m_cond_wait(out->there_is_data, out->lock);                               \
-    while (out->writer_waiting == true) {                                     \
-      m_cond_wait(out->rw_done, out->lock);                                   \
-    }                                                                         \
-    out->writer_waiting = true;                                               \
-    while (out->read_count > 0) {                                             \
-      m_cond_wait(out->rw_done, out->lock);                                   \
-    }                                                                         \
-    m_mutex_unlock (out->lock);                                               \
   }                                                                           \
                                                                               \
   M_INLINE void                                                               \
   M_F(name, _write_signal)(concurrent_t out)                                  \
   {                                                                           \
     M_C0NCURRENT_CONTRACT(out);                                               \
-    m_mutex_lock (out->lock);                                                 \
+    M_ASSERT(atomic_load(&out->num_reader) == 0);                             \
     m_cond_broadcast(out->there_is_data);                                     \
-    m_mutex_unlock (out->lock);                                               \
   }                                                                           \
 
 
