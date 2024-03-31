@@ -3821,7 +3821,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 /* Check if both variables are of the same type.
    The test compare their size.
    NOTE: Not perfect but catch some errors */
-#ifdef __GNUC__
+#if defined(__GNUC__) && !defined(__cplusplus) 
 #define M_CHECK_SAME(a, b)                                                    \
   M_STATIC_ASSERT(__builtin_types_compatible_p(__typeof__(a), __typeof__(b)), \
                   M_LIB_NOT_SAME_TYPE,                                        \
