@@ -505,7 +505,8 @@ M_LET(list, list_uint_t) {
 }
 ```
 
-See [M-GENERIC](#M-GENERIC) header for details.
+See the [example](https://github.com/P-p-H-d/mlib/blob/master/example/ex11-generic01.c)
+and [M-GENERIC](#M-GENERIC) header for details.
 
 ## Performance
 
