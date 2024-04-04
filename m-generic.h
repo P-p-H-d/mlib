@@ -82,6 +82,9 @@
 #define out_serial(x, y)     M_G3N_CALL_2(OUT_SERIAL, y, m_serial_write_t, x, TYPE, y)
 #define in_serial(x, y)      M_G3N_CALL_2(IN_SERIAL, x, TYPE, x, m_serial_read_t, y)
 
+#define let(...)             M_LET(__VA_ARGS__)
+#define print(...)           M_PRINT(__VA_ARGS__)
+
 // for each(item, container)
 #define each(item, container)                                                 \
   M_G3N_EACHI(item, container, M_C(m_local_it_, __LINE__), M_C(local_pass_, __LINE__))
