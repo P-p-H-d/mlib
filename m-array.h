@@ -254,10 +254,12 @@
     size_t step1 = M_MIN(s->size, d->size);                                   \
     for(i = 0; i < step1; i++)                                                \
       M_CALL_SET(oplist, d->ptr[i], s->ptr[i]);                               \
-    for( ; i < s->size; i++)                                                  \
-      M_CALL_INIT_SET(oplist, d->ptr[i], s->ptr[i]);                          \
     for( ; i < d->size; i++)                                                  \
       M_CALL_CLEAR(oplist, d->ptr[i]);                                        \
+    for( ; i < s->size; i++) {                                                \
+      M_CALL_INIT_SET(oplist, d->ptr[i], s->ptr[i]);                          \
+      M_IF_EXCEPTION( d->size = i + 1 );                                      \
+    }                                                                         \
     d->size = s->size;                                                        \
     M_ARRA4_CONTRACT(d);                                                      \
   }                                                                           \
@@ -266,8 +268,10 @@
   M_F(name, _init_set)(array_t d, const array_t s)                            \
   {                                                                           \
     M_ASSERT (d != s);                                                        \
-    M_F(name, _init)(d);                                                      \
-    M_F(name, _set)(d, s);                                                    \
+    M_ON_EXCEPTION(M_F(name, _clear)(d) ) {                                   \
+      M_F(name, _init)(d);                                                    \
+      M_F(name, _set)(d, s);                                                  \
+    }                                                                         \
   }                                                                           \
   , /* No SET & INIT_SET */)                                                  \
                                                                               \
@@ -348,7 +352,9 @@
     type *data = M_F(name, _push_raw)(v);                                     \
     if (M_UNLIKELY (data == NULL) )                                           \
       return;                                                                 \
-    M_CALL_INIT_SET(oplist, *data, x);                                        \
+    M_IF_EXCEPTION( v->size --);                                              \
+      M_CALL_INIT_SET(oplist, *data, x);                                      \
+    M_IF_EXCEPTION( v->size ++);                                              \
   }                                                                           \
   , /* No INIT_SET */ )                                                       \
                                                                               \
@@ -359,7 +365,9 @@
     type *data = M_F(name, _push_raw)(v);                                     \
     if (M_UNLIKELY (data == NULL) )                                           \
       return NULL;                                                            \
+    M_IF_EXCEPTION( v->size --);                                              \
     M_CALL_INIT(oplist, *data);                                               \
+    M_IF_EXCEPTION( v->size ++);                                              \
     return data;                                                              \
   }                                                                           \
   , /* No INIT */ )                                                           \
@@ -400,8 +408,10 @@
     }                                                                         \
     M_ASSERT(v->ptr != NULL);                                                 \
     memmove(&v->ptr[key+1], &v->ptr[key], (v->size-key)*sizeof(type));        \
+    M_ON_EXCEPTION( memmove(&v->ptr[key], &v->ptr[v->size], sizeof(type))) {  \
+      M_CALL_INIT_SET(oplist, v->ptr[key], x);                                \
+    }                                                                         \
     v->size++;                                                                \
-    M_CALL_INIT_SET(oplist, v->ptr[key], x);                                  \
     M_ARRA4_CONTRACT(v);                                                      \
   }                                                                           \
   , /* No INIT_SET */ )                                                       \
@@ -428,8 +438,10 @@
         v->ptr = ptr;                                                         \
         v->alloc = alloc;                                                     \
       }                                                                       \
-      for(size_t i = v->size ; i < size; i++)                                 \
+      for(size_t i = v->size ; i < size; i++) {                               \
         M_CALL_INIT(oplist, v->ptr[i]);                                       \
+        M_IF_EXCEPTION( v->size = i+1);                                       \
+      }                                                                       \
       v->size = size;                                                         \
     }                                                                         \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -484,8 +496,10 @@
         v->ptr = ptr;                                                         \
         v->alloc = alloc;                                                     \
       }                                                                       \
-      for(size_t i = v->size ; i < size; i++)                                 \
+      for(size_t i = v->size ; i < size; i++) {                               \
         M_CALL_INIT(oplist, v->ptr[i]);                                       \
+        M_IF_EXCEPTION( v->size = i+1);                                       \
+      }                                                                       \
       v->size = size;                                                         \
     }                                                                         \
     M_ASSERT (idx < v->size);                                                 \
