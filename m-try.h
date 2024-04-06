@@ -156,6 +156,17 @@ struct m_exception_s {
 /********************************** INTERNAL *********************************/
 /*****************************************************************************/
 
+#undef M_IF_EXCEPTION
+#define M_IF_EXCEPTION(...) __VA_ARGS__
+
+#undef M_ON_EXCEPTION
+#define M_ON_EXCEPTION(...)                                                   \
+  for(bool cont = true; cont; cont = false)                                   \
+    M_DEFER_TRY_INJECT_PRE(cont, __VA_ARGS__)                                 \
+      for( ; cont ; cont = false)                                             \
+        M_DEFER_TRY_INJECT_POST(cont, __VA_ARGS__)                            \
+          for( ; cont; cont = false)
+
 /*
  * Define the C++ back-end.
  * It is fully different from C back-end as it reuses the classic try of the C++.

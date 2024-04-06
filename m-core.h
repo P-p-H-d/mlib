@@ -4542,16 +4542,13 @@ m_core_parse2_enum (const char str[], const char **endptr)
         // Rest of initialization code
       }
     }
+  Do nothing if exceptions are not enabled.
  */
-#define M_ON_EXCEPTION(fix)                                                   \
-  for(bool cont = true; cont; cont = false)                                   \
-    M_DEFER_TRY_INJECT_PRE(cont, fix)                                         \
-      for( ; cont ; cont = false)                                             \
-        M_DEFER_TRY_INJECT_POST(cont, fix)                                    \
-          for( ; cont; cont = false)
+#define M_ON_EXCEPTION(...)  for(bool cont = true; cont; cont = false)        \
 
-/* If exceptions are activated, M_IF_EXCEPTION will expand the code */
-#define M_IF_EXCEPTION(fix) (void) 0
+/* If exceptions are activated, M_IF_EXCEPTION will expand the code.
+  Do nothing if exceptions are not enabled. */
+#define M_IF_EXCEPTION(...) (void) 0
 
 /* Declare a variable, initialize it, continue if the initialization succeeds,
    and clears the variable afterwards.
