@@ -211,6 +211,12 @@ To run the test suite, run:
 make check
 ```
 
+You can also override the compiler CC or its flags CFLAGS if needed:
+
+```bash
+make check CC="gcc" CFLAGS="-O3"
+```
+
 To generate the documentation, run:
 
 ```bash
