@@ -102,7 +102,7 @@ exe: depend
 	@echo All executable generated
 
 check: depend
-	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.log/g'` `ls fail-*.c|$(SED) 's/\.c/\.log.err/g'` CC="$(CC)" CFLAGS="$(CFLAGS)"
+	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.log/g'` `ls fail-*.c|$(SED) 's/\.c/\.log.err/g'` `ls except-*.c|$(SED) 's/\.c/\.log/g'` CC="$(CC)" CFLAGS="$(CFLAGS)"
 	@echo All tests passed
 
 check-stl: depend
