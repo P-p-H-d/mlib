@@ -86,7 +86,7 @@ all:
 depend:
 	$(RM) depend
 	echo "" > depend
-	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.depend/g'`
+	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.depend/g'` `ls except-*.c|$(SED) 's/\.c/\.depend/g'`
 	$(CXX) --version 2> /dev/null && $(MAKE) `ls check-*.cpp|$(SED) 's/\.cpp/\.depend/g'` || echo "Skip C++ tests"
 	cat *.depend > depend
 	$(RM) *.depend
