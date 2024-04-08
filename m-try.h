@@ -585,5 +585,9 @@ m_try_jump_final(m_try_t state)
 #undef  M_MEMORY_FULL
 #define M_MEMORY_FULL(size)    M_THROW(M_ERROR_MEMORY, (intptr_t)(size))
 
+// Add attribute volatile if exceptions are enabled
+#undef  m_volatile
+#define m_volatile volatile
+
 #endif
 

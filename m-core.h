@@ -4550,6 +4550,10 @@ m_core_parse2_enum (const char str[], const char **endptr)
   Do nothing if exceptions are not enabled. */
 #define M_IF_EXCEPTION(...) (void) 0
 
+/* Declare a variable as volatile if exceptions are enabled */
+#define m_volatile /* nothing */
+
+
 /* Declare a variable, initialize it, continue if the initialization succeeds,
    and clears the variable afterwards.
    Otherwise, stop the execution and execute else_code if defined.
