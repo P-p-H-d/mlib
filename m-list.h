@@ -294,7 +294,10 @@
     type *data = M_F(name, _push_raw)(v);                                     \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
-    M_CALL_INIT_SET(oplist, *data, x);                                        \
+    M_IF_EXCEPTION(struct M_F(name, _s) *next = *v );                         \
+    M_ON_EXCEPTION( *v = next->next, M_C3(m_l1st_,name,_del)(next)) {         \
+      M_CALL_INIT_SET(oplist, *data, x);                                      \
+    }                                                                         \
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
@@ -304,7 +307,10 @@
     type *data = M_F(name, _push_raw)(v);                                     \
     if (M_UNLIKELY (data == NULL))                                            \
       return NULL;                                                            \
-    M_CALL_INIT(oplist, *data);                                               \
+    M_IF_EXCEPTION(struct M_F(name, _s) *next = *v );                         \
+    M_ON_EXCEPTION( *v = next->next, M_C3(m_l1st_,name,_del)(next)) {         \
+      M_CALL_INIT(oplist, *data);                                             \
+    }                                                                         \
     return data;                                                              \
   }                                                                           \
   , /* No INIT */)                                                            \
@@ -534,23 +540,28 @@
   M_F(name, _init_set)(list_t list, const list_t org)                         \
   {                                                                           \
     M_L1ST_CONTRACT(org);                                                     \
-    struct M_F(name, _s) *next, *it_org;                                      \
-    struct M_F(name, _s) **update_list;                                       \
-    update_list = list;                                                       \
-    it_org = *org;                                                            \
-    while (it_org != NULL) {                                                  \
-      next = M_C3(m_l1st_,name,_new)();                                       \
-      *update_list = next;                                                    \
-      if (M_UNLIKELY_NOMEM (next == NULL)) {                                  \
-        M_MEMORY_FULL(sizeof (struct M_F(name, _s)));                         \
-        /* FIXME: Partially initialized list. What to do? */                  \
-        return;                                                               \
+    struct M_F(name, _s) *m_volatile next = NULL;                             \
+    /* On exceptions, free node and clear list*/                              \
+    M_ON_EXCEPTION(M_C3(m_l1st_,name,_del)(next), M_F(name, _clear)(list) ) { \
+      struct M_F(name, _s) *it_org;                                           \
+      struct M_F(name, _s) **update_list;                                     \
+      update_list = list;                                                     \
+      it_org = *org;                                                          \
+      while (it_org != NULL) {                                                \
+        next = M_C3(m_l1st_,name,_new)();                                     \
+        if (M_UNLIKELY_NOMEM (next == NULL)) {                                \
+          M_MEMORY_FULL(sizeof (struct M_F(name, _s)));                       \
+          *update_list = NULL;                                                \
+          return;                                                             \
+        }                                                                     \
+        M_CALL_INIT_SET(oplist, next->data, it_org->data);                    \
+        *update_list = next;                                                  \
+        update_list = &next->next;                                            \
+        it_org = it_org->next;                                                \
+        M_IF_EXCEPTION(next = NULL, *update_list = NULL);                     \
       }                                                                       \
-      update_list = &next->next;                                              \
-      M_CALL_INIT_SET(oplist, next->data, it_org->data);                      \
-      it_org = it_org->next;                                                  \
+      *update_list = NULL;                                                    \
     }                                                                         \
-    *update_list = NULL;                                                      \
     M_L1ST_CONTRACT(list);                                                    \
   }                                                                           \
                                                                               \
@@ -558,8 +569,10 @@
   M_F(name, _set)(list_t list, const list_t org)                              \
   {                                                                           \
     if (M_UNLIKELY (list == org)) return;                                     \
-    M_F(name, _clear)(list);                                                  \
-    M_F(name, _init_set)(list, org);                                          \
+    M_ON_EXCEPTION(M_F(name, _init)(list) ) {                                 \
+      M_F(name, _clear)(list);                                                \
+      M_F(name, _init_set)(list, org);                                        \
+    }                                                                         \
   }                                                                           \
                                                                               \
   M_INLINE void                                                               \
