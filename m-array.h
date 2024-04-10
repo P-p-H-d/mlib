@@ -627,8 +627,11 @@
       v->alloc = alloc;                                                       \
     }                                                                         \
     memmove(&v->ptr[i+num], &v->ptr[i], sizeof(type)*(v->size - i) );         \
-    for(size_t k = i ; k < i+num; k++)                                        \
-      M_CALL_INIT(oplist, v->ptr[k]);                                         \
+    m_volatile size_t k;                                                      \
+    M_ON_EXCEPTION(memmove(&v->ptr[k], &v->ptr[i+num], sizeof(type)*(v->size - i) ), v->size += (k-i) ) { \
+      for(k = i ; k < i+num; k++)                                             \
+        M_CALL_INIT(oplist, v->ptr[k]);                                       \
+    }                                                                         \
     v->size = size;                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
   }                                                                           \

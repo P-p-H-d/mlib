@@ -502,7 +502,8 @@
       M_MEMORY_FULL(sizeof (struct M_F(name, _s)));                           \
       return;                                                                 \
     }                                                                         \
-    M_CALL_INIT_SET(oplist, next->data, x);                                   \
+    M_ON_EXCEPTION( M_C3(m_l1st_,name,_del)(next))                            \
+      M_CALL_INIT_SET(oplist, next->data, x);                                 \
     struct M_F(name, _s) *current = insertion_point->current;                 \
     if (M_UNLIKELY (current == NULL)) {                                       \
       next->next = *list;                                                     \
@@ -1314,12 +1315,13 @@
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(list);                                          \
     M_ASSERT (insertion_point != NULL);                                       \
-    struct M_F(name, _s) *next = M_C3(m_l1st_,name,_new)();                   \
+    struct M_F(name, _s) *m_volatile next = M_C3(m_l1st_,name,_new)();        \
     if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
       M_MEMORY_FULL(sizeof (struct M_F(name, _s)));                           \
       return;                                                                 \
     }                                                                         \
-    M_CALL_INIT_SET(oplist, next->data, x);                                   \
+    M_ON_EXCEPTION( M_C3(m_l1st_,name,_del)(next))                            \
+      M_CALL_INIT_SET(oplist, next->data, x);                                 \
     if (M_UNLIKELY (insertion_point->current == NULL)) {                      \
       next->next = list->back;                                                \
       list->back = next;                                                      \
