@@ -60,6 +60,7 @@ static void test1(unsigned n)
               bool b = array_obj_parse_str(array, string_get_cstr(str), NULL);
               assert(b);
             }
+            array_obj_insert_v(tmp, 12, 3);
         }
     } M_CATCH(test1, 0) {
         // Nothing to do
@@ -77,6 +78,7 @@ static void test1(unsigned n)
     } M_CATCH(test1, 0) {
         // Nothing to do
     }
+    fclose(f);
 }
 
 static void do_test1(void)
@@ -84,6 +86,7 @@ static void do_test1(void)
     // Run once to get the number of exceptions point existing in the test service
     test_obj_except__trigger_exception = 0;
     test1(10);
+    test_obj_except__final_check();
     int count = -test_obj_except__trigger_exception;
     assert(count > 0);
     // Run once again the test service, and for each registered exception point, throw an exception

@@ -32,19 +32,21 @@
 
 // Overwrite malloc to throw exceptions sometimes
 // Needs to be done before including M*LIB headers
+// TODO: Not representative enough: it shall not throw an exception itself but return NULL
 static inline void test_obj_except_trigger(void);
+extern int test_obj_except__malloc_counter;
 #ifdef __cplusplus
 # include <cstdlib>
-# define M_MEMORY_ALLOC(type) (test_obj_except_trigger(), (type*)std::malloc (sizeof (type)))
-# define M_MEMORY_DEL(ptr)  std::free(ptr)
+# define M_MEMORY_ALLOC(type) (test_obj_except_trigger(), test_obj_except__malloc_counter++, (type*)std::malloc (sizeof (type)))
+# define M_MEMORY_DEL(ptr)  (test_obj_except__malloc_counter-=(ptr != NULL), std::free(ptr))
 # define M_MEMORY_REALLOC(type, ptr, n)                                       \
-  ((type*) (test_obj_except_trigger(), std::realloc ((ptr), (n)*sizeof (type))))
-# define M_MEMORY_FREE(ptr) std::free(ptr)
+  ((type*) (test_obj_except_trigger(), test_obj_except__malloc_counter+= (ptr == NULL), std::realloc ((ptr), (n)*sizeof (type))))
+# define M_MEMORY_FREE(ptr) (test_obj_except__malloc_counter--, std::free(ptr))
 #else
-# define M_MEMORY_ALLOC(type) (test_obj_except_trigger(), malloc (sizeof (type)))
-# define M_MEMORY_DEL(ptr)  free(ptr)
-# define M_MEMORY_REALLOC(type, ptr, n) (test_obj_except_trigger(), realloc ((ptr), (n)*sizeof (type)))
-# define M_MEMORY_FREE(ptr) free(ptr)
+# define M_MEMORY_ALLOC(type) (test_obj_except_trigger(), test_obj_except__malloc_counter++, malloc (sizeof (type)))
+# define M_MEMORY_DEL(ptr)  (test_obj_except__malloc_counter-=(ptr != NULL), free(ptr))
+# define M_MEMORY_REALLOC(type, ptr, n) (test_obj_except_trigger(), test_obj_except__malloc_counter+=(ptr == NULL), realloc ((ptr), (n)*sizeof (type)))
+# define M_MEMORY_FREE(ptr) (test_obj_except__malloc_counter-=(ptr != NULL), free(ptr))
 #endif
 
 // Include M*LIB headers
@@ -62,6 +64,7 @@ typedef struct test_obj_except__s {
 } test_obj_except__t[1];
 
 int test_obj_except__init_counter = 0;
+int test_obj_except__malloc_counter = 0;
 int test_obj_except__trigger_exception = 0;
 
 // Trigger an exception if the counter reaches 0
@@ -77,6 +80,7 @@ static inline void test_obj_except_trigger(void)
 static inline void test_obj_except__final_check(void)
 {
   assert(test_obj_except__init_counter == 0);
+  assert(test_obj_except__malloc_counter == 0);
 }
 
 static inline void test_obj_except__init(test_obj_except__t z)
@@ -85,13 +89,11 @@ static inline void test_obj_except__init(test_obj_except__t z)
     z->n = 1;
     z->ptr = (unsigned int*) calloc(1, sizeof(unsigned int));
     assert(z->ptr != NULL);
-    //printf("%p: init\n", z);
     test_obj_except__init_counter++;
 }
 
 static inline void test_obj_except__clear(test_obj_except__t z)
 {
-    //printf("%p: clear\n", z);
     assert (z->ptr != NULL);
     free(z->ptr);
     z->ptr = NULL;
@@ -106,7 +108,6 @@ static inline void test_obj_except__init_set(test_obj_except__t d, const test_ob
     d->ptr = (unsigned int *) calloc (s->n, sizeof(unsigned int));
     assert(d->ptr != NULL);
     memcpy(d->ptr, s->ptr, sizeof(unsigned int) * s->n);
-    //printf("%p: init_set\n", d);
     test_obj_except__init_counter++;
 }
 
@@ -114,7 +115,6 @@ static inline void test_obj_except__set(test_obj_except__t d, const test_obj_exc
 {
   if (d != s) {
     test_obj_except_trigger();
-    //printf("%p: set\n", d);
     test_obj_except__clear(d);
     // Don't trigger exception for init_set now
     test_obj_except__trigger_exception++;
