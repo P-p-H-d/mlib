@@ -542,27 +542,26 @@
   {                                                                           \
     M_L1ST_CONTRACT(org);                                                     \
     struct M_F(name, _s) *m_volatile next = NULL;                             \
+    struct M_F(name, _s) *it_org;                                             \
+    struct M_F(name, _s) **update_list;                                       \
+    update_list = list;                                                       \
+    it_org = *org;                                                            \
     /* On exceptions, free node and clear list*/                              \
-    M_ON_EXCEPTION(M_C3(m_l1st_,name,_del)(next), M_F(name, _clear)(list) ) { \
-      struct M_F(name, _s) *it_org;                                           \
-      struct M_F(name, _s) **update_list;                                     \
-      update_list = list;                                                     \
-      it_org = *org;                                                          \
-      while (it_org != NULL) {                                                \
-        next = M_C3(m_l1st_,name,_new)();                                     \
-        if (M_UNLIKELY_NOMEM (next == NULL)) {                                \
-          M_MEMORY_FULL(sizeof (struct M_F(name, _s)));                       \
-          *update_list = NULL;                                                \
-          return;                                                             \
-        }                                                                     \
-        M_CALL_INIT_SET(oplist, next->data, it_org->data);                    \
-        *update_list = next;                                                  \
-        update_list = &next->next;                                            \
-        it_org = it_org->next;                                                \
-        M_IF_EXCEPTION(next = NULL, *update_list = NULL);                     \
+    M_ON_EXCEPTION(M_C3(m_l1st_,name,_del)(next), M_F(name, _clear)(list) )   \
+    while (it_org != NULL) {                                                  \
+      next = M_C3(m_l1st_,name,_new)();                                       \
+      if (M_UNLIKELY_NOMEM (next == NULL)) {                                  \
+        M_MEMORY_FULL(sizeof (struct M_F(name, _s)));                         \
+        *update_list = NULL;                                                  \
+        return;                                                               \
       }                                                                       \
-      *update_list = NULL;                                                    \
+      M_CALL_INIT_SET(oplist, next->data, it_org->data);                      \
+      *update_list = next;                                                    \
+      update_list = &next->next;                                              \
+      it_org = it_org->next;                                                  \
+      M_IF_EXCEPTION(next = NULL, *update_list = NULL);                       \
     }                                                                         \
+    *update_list = NULL;                                                      \
     M_L1ST_CONTRACT(list);                                                    \
   }                                                                           \
                                                                               \
@@ -1079,7 +1078,10 @@
     type *data = M_F(name, _push_back_raw)(v);                                \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
-    M_CALL_INIT_SET(oplist, *data, x);                                        \
+    M_IF_EXCEPTION(struct M_F(name, _s) *next = v->back);                     \
+    M_ON_EXCEPTION( v->back = next->next, v->front = (v->front == next) ? NULL : v->front, M_C3(m_l1st_,name,_del)(next)) { \
+      M_CALL_INIT_SET(oplist, *data, x);                                      \
+    }                                                                         \
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
@@ -1089,7 +1091,10 @@
     type *data = M_F(name, _push_back_raw)(v);                                \
     if (M_UNLIKELY (data == NULL))                                            \
       return NULL;                                                            \
-    M_CALL_INIT(oplist, *data);                                               \
+    M_IF_EXCEPTION(struct M_F(name, _s) *next = v->back);                     \
+    M_ON_EXCEPTION( v->back = next->next, v->front = (v->front == next) ? NULL : v->front, M_C3(m_l1st_,name,_del)(next)) { \
+      M_CALL_INIT(oplist, *data);                                             \
+    }                                                                         \
     return data;                                                              \
   }                                                                           \
   , /* No INIT */ )                                                           \
@@ -1182,10 +1187,15 @@
   M_INLINE void                                                               \
   M_F(name, _push_front)(list_t v, type const x)                              \
   {                                                                           \
+    M_IF_EXCEPTION(struct M_F(name, _s) *front = v->front, *back = v->back);  \
     type *data = M_F(name, _push_front_raw)(v);                               \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
-    M_CALL_INIT_SET(oplist, *data, x);                                        \
+    M_IF_EXCEPTION(struct M_F(name, _s) *m_volatile tofree = v->front);       \
+    M_IF_EXCEPTION(M_ASSERT(tofree != NULL));                                 \
+    M_ON_EXCEPTION( v->back = back, v->front = front, (front != NULL ? front : tofree)->next = NULL, M_C3(m_l1st_,name,_del)(tofree)) { \
+      M_CALL_INIT_SET(oplist, *data, x);                                      \
+    }                                                                         \
   }                                                                           \
                                                                               \
   M_INLINE void                                                               \
@@ -1202,10 +1212,15 @@
   M_INLINE type *                                                             \
   M_F(name, _push_front_new)(list_t v)                                        \
   {                                                                           \
-    type *data = M_F(name, _push_back_raw)(v);                                \
+    M_IF_EXCEPTION(struct M_F(name, _s) *front = v->front, *back = v->back);  \
+    type *data = M_F(name, _push_front_raw)(v);                               \
     if (M_UNLIKELY (data == NULL))                                            \
       return NULL;                                                            \
-    M_CALL_INIT(oplist, *data);                                               \
+    M_IF_EXCEPTION(struct M_F(name, _s) *m_volatile tofree = v->front);       \
+    M_IF_EXCEPTION(M_ASSERT(tofree != NULL));                                 \
+    M_ON_EXCEPTION( v->back = back, v->front = front, (front != NULL ? front : tofree)->next = NULL, M_C3(m_l1st_,name,_del)(tofree)) { \
+      M_CALL_INIT(oplist, *data);                                             \
+    }                                                                         \
     return data;                                                              \
   }                                                                           \
   , /* No INIT */)                                                            \
@@ -1367,34 +1382,40 @@
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(list);                                          \
     M_L1ST_DUAL_PUSH_CONTRACT(org);                                           \
-    struct M_F(name, _s) *next = NULL;                                        \
+    struct M_F(name, _s) *m_volatile next = NULL;                             \
     struct M_F(name, _s) *it_org;                                             \
     struct M_F(name, _s) **update_list;                                       \
     if (M_UNLIKELY (list == org)) return;                                     \
     M_F(name, _reset)(list);                                                  \
     update_list = &list->back;                                                \
     it_org = org->back;                                                       \
+    M_ON_EXCEPTION(M_C3(m_l1st_,name,_del)(next) )                            \
     while (it_org != NULL) {                                                  \
       next = M_C3(m_l1st_,name,_new)();                                       \
-      *update_list = next;                                                    \
       if (M_UNLIKELY_NOMEM (next == NULL)) {                                  \
         M_MEMORY_FULL(sizeof (struct M_F(name, _s)));                         \
         return;                                                               \
       }                                                                       \
-      update_list = &next->next;                                              \
       M_CALL_INIT_SET(oplist, next->data, it_org->data);                      \
+      /* Link new node to the previous one*/                                  \
+      *update_list = next;                                                    \
+      update_list = &next->next;                                              \
       it_org = it_org->next;                                                  \
+      /* so that even on exception, the object is still coherent */           \
+      list->front = next;                                                     \
+      *update_list = NULL;                                                    \
+      M_IF_EXCEPTION(next = NULL);                                            \
     }                                                                         \
-    list->front = next;                                                       \
-    *update_list = NULL;                                                      \
   }                                                                           \
                                                                               \
   M_INLINE void                                                               \
   M_F(name, _init_set)(list_t list, const list_t org)                         \
   {                                                                           \
     M_ASSERT (list != org);                                                   \
-    M_F(name, _init)(list);                                                   \
-    M_F(name, _set)(list, org);                                               \
+    M_ON_EXCEPTION( M_F(name, _clear)(list)) {                                \
+      M_F(name, _init)(list);                                                 \
+      M_F(name, _set)(list, org);                                             \
+    }                                                                         \
   }                                                                           \
                                                                               \
   M_INLINE void                                                               \
