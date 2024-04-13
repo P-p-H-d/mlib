@@ -138,23 +138,6 @@ static void test3(unsigned n)
     }
 }
 
-static void do_test1(void (*test)(unsigned))
-{
-    // Run once to get the number of exceptions point existing in the test service
-    test_obj_except__trigger_exception = 0;
-    test(10);
-    test_obj_except__final_check();
-    int count = -test_obj_except__trigger_exception;
-    assert(count > 0);
-    // Run once again the test service, and for each registered exception point, throw an exception
-    for(int i = 1; i <= count; i++) {
-        test_obj_except__trigger_exception = i;
-        test(10);
-        // Check there is no memory leak
-        test_obj_except__final_check();
-    }
-}
-
 int main(void)
 {
     do_test1(test1);
