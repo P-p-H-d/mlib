@@ -122,6 +122,22 @@ static void test2(unsigned n)
     fclose(f);
 }
 
+static void test3(unsigned n)
+{
+    M_TRY(test1) {
+        M_LET(obj, test_obj_except__t)
+        M_LET(list, tmp, list2_obj_t) {
+            for(unsigned i = 0; i < n; i++) {
+                test_obj_except__set_ui(obj, i);
+                list2_obj_push_front(list, obj);
+            }
+            list2_obj_push_front_new(list);
+        }
+    } M_CATCH(test1, 0) {
+        // Nothing to do
+    }
+}
+
 static void do_test1(void (*test)(unsigned))
 {
     // Run once to get the number of exceptions point existing in the test service
@@ -142,6 +158,7 @@ static void do_test1(void (*test)(unsigned))
 int main(void)
 {
     do_test1(test1);
-    //do_test1(test2);
+    do_test1(test2);
+    do_test1(test3);
     exit(0);
 }
