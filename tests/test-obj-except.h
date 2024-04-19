@@ -41,7 +41,7 @@ extern int test_obj_except__malloc_counter;
 # define M_MEMORY_DEL(ptr)  (test_obj_except__malloc_counter-=(ptr != NULL), std::free(ptr))
 # define M_MEMORY_REALLOC(type, ptr, n)                                       \
   ((type*) (test_obj_except_trigger(), test_obj_except__malloc_counter+= (ptr == NULL), std::realloc ((ptr), (n)*sizeof (type))))
-# define M_MEMORY_FREE(ptr) (test_obj_except__malloc_counter--, std::free(ptr))
+# define M_MEMORY_FREE(ptr) (test_obj_except__malloc_counter-=(ptr != NULL), std::free(ptr))
 #else
 # define M_MEMORY_ALLOC(type) (test_obj_except_trigger(), test_obj_except__malloc_counter++, malloc (sizeof (type)))
 # define M_MEMORY_DEL(ptr)  (test_obj_except__malloc_counter-=(ptr != NULL), free(ptr))
