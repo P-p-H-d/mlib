@@ -238,8 +238,6 @@ m_string_clear(m_string_t v)
   v->u.stack.buffer[sizeof (m_str1ng_heap_ct) - 1] = CHAR_MAX;
 }
 
-/* NOTE: Internally used by M_STRING_DECL_INIT */
-M_INLINE void m_str1ng_clear2(m_string_t *v) { m_string_clear(*v); }
 M_INLINE m_string_ptr m_str1ng_init_ref(m_string_t v) { m_string_init(v); return v; }
 
 /* Clear the Dynamic string (destructor)
@@ -2083,16 +2081,6 @@ namespace m_lib {
   M_IF_NARGS_EQ1(__VA_ARGS__)(m_string_init_set_cstr, m_string_init_printf)(v, __VA_ARGS__)
 #endif
 
-/* NOTE: Use GCC extension (OBSOLETE) */
-#define M_STRING_DECL_INIT(v)                                                 \
-  m_string_t v __attribute__((cleanup(m_str1ng_clear2))) = {{ 0, 0, NULL}}
-
-/* NOTE: Use GCC extension (OBSOLETE) */
-#define M_STRING_DECL_INIT_PRINTF(v, format, ...)                             \
-  M_STRING_DECL_INIT(v);                                                      \
-  m_string_printf (v, format, __VA_ARGS__)
-
-
 /* Define the OPLIST of a STRING */
 #define M_STRING_OPLIST                                                       \
   (INIT(m_string_init),INIT_SET(m_string_init_set), SET(m_string_set),        \
@@ -2770,8 +2758,6 @@ namespace m_lib {
 #define string_it_set_ref m_string_it_set_ref
 
 #define STRING_CTE M_STRING_CTE
-#define STRING_DECL_INIT M_STRING_DECL_INIT
-#define STRING_DECL_INIT_PRINTF M_STRING_DECL_INIT_PRINTF
 #define STRING_OPLIST M_STRING_OPLIST
 #define M_OPL_string_t M_OPL_m_string_t
 #define string_sets m_string_sets
