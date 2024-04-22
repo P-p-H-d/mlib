@@ -1186,7 +1186,8 @@ m_string_fgets(m_string_t v, FILE *f, m_string_fgets_t arg)
   bool retcode = false; /* Nothing has been read yet */
   /* alloc - size is very unlikely to be bigger than INT_MAX
     but fgets accepts an int as the size argument */
-  while (fgets(&ptr[size], (int) M_MIN( (alloc - 1 - size), (size_t) INT_MAX ), f) != NULL) {
+  // NOTE: fgets reads at most one less than 'alloc-size' characters from stream
+  while (fgets(&ptr[size], (int) M_MIN( (alloc - size), (size_t) INT_MAX ), f) != NULL) {
     retcode = true; /* Something has been read */
     // fgets doesn't return the number of characters read, so we need to count.
     size += strlen(&ptr[size]);
@@ -1199,7 +1200,7 @@ m_string_fgets(m_string_t v, FILE *f, m_string_fgets_t arg)
       m_str1ng_set_size(v, size);
       M_STR1NG_CONTRACT(v);
       return retcode; /* Normal termination */
-    } else if (ptr[size-1] != '\n' && !feof(f)) {
+    } else if (alloc <= 1 + size) {
       // Reset the string in a clean state in case of exception
       // to keep the object in a clearable state
       M_IF_EXCEPTION( m_str1ng_set_size(v, size) );
