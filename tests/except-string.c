@@ -32,7 +32,6 @@ static void test1(unsigned n)
     FILE *f = m_core_fopen ("a-estring.dat", "wt");
     assert(f != NULL);
     M_TRY(test1) {
-        M_LET(obj, test_obj_except__t)
         M_LET(str, tmp, string_t) {
             for(unsigned i = 0; i < 10*n; i++) {
                 string_push_back(str, (char) (i + 'A'));
@@ -75,6 +74,11 @@ static void test1(unsigned n)
             }
             string_get_str(str, tmp, false);
             bool b = string_parse_str(tmp, string_get_cstr(str), NULL);
+            string_it_t it;
+            unsigned i = 0;
+            for( string_it(it, str); !string_end_p(it); string_next(it)) {
+                string_it_set_ref(it, str, ' ' + i++);
+            }
             assert(b);
         }
     } M_CATCH(test1, 0) {
@@ -85,7 +89,6 @@ static void test1(unsigned n)
     f = m_core_fopen ("a-estring.dat", "rt");
     assert(f != NULL);
     M_TRY(test1) {
-        M_LET(obj, test_obj_except__t)
         M_LET(str, string_t) {
             bool b = string_in_str(str, f);
             (void)b;
@@ -98,9 +101,20 @@ static void test1(unsigned n)
     f = m_core_fopen ("a-estring.dat", "rt");
     assert(f != NULL);
     M_TRY(test1) {
-        M_LET(obj, test_obj_except__t)
         M_LET(str, string_t) {
             bool b = m_string_fgets(str, f, M_STRING_READ_FILE);
+            (void)b;
+        }
+    } M_CATCH(test1, 0) {
+        // Nothing to do
+    }
+    fclose(f);
+
+    f = m_core_fopen ("a-estring.dat", "rt");
+    assert(f != NULL);
+    M_TRY(test1) {
+        M_LET(str, string_t) {
+            bool b = string_fget_word(str, " \t,;.:/!=+", f);
             (void)b;
         }
     } M_CATCH(test1, 0) {
