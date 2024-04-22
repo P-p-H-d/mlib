@@ -1433,6 +1433,7 @@ m_string_get_str(m_string_t v, const m_string_t v2, bool append)
       if (M_UNLIKELY (!isprint((unsigned char) c))) {
         targetSize += 3;
         m_str1ng_set_size(v, size);
+        M_IF_EXCEPTION(m_str1ng_get_cstr(v)[size] = 0);
         ptr = m_str1ng_fit2size(v, targetSize);
         int d1 = c & 0x07, d2 = (c>>3) & 0x07, d3 = (c>>6) & 0x07;
         ptr[size ++] = '\\';
