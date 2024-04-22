@@ -1266,6 +1266,7 @@ m_string_fget_word (m_string_t v, const char separator[], FILE *f)
       break;
     /* Next char is not a separator: continue parsing */
     m_str1ng_set_size(v, size);
+    M_IF_EXCEPTION( m_str1ng_get_cstr(v)[size] = 0);
     ptr = m_str1ng_fit2size (v, alloc + alloc/2);
     alloc = m_string_capacity(v);
     M_ASSERT (alloc > size + 1);
