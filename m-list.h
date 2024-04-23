@@ -547,6 +547,7 @@
     update_list = list;                                                       \
     it_org = *org;                                                            \
     /* On exceptions, free node and clear list*/                              \
+    M_IF_EXCEPTION(*update_list = NULL);                                      \
     M_ON_EXCEPTION(M_C3(m_l1st_,name,_del)(next), M_F(name, _clear)(list) )   \
     while (it_org != NULL) {                                                  \
       next = M_C3(m_l1st_,name,_new)();                                       \
@@ -1389,6 +1390,7 @@
     M_F(name, _reset)(list);                                                  \
     update_list = &list->back;                                                \
     it_org = org->back;                                                       \
+    M_ASSERT(*update_list == NULL);                                           \
     M_ON_EXCEPTION(M_C3(m_l1st_,name,_del)(next) )                            \
     while (it_org != NULL) {                                                  \
       next = M_C3(m_l1st_,name,_new)();                                       \
