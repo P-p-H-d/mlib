@@ -59,6 +59,7 @@ M_BEGIN_PROTECTED_CODE
 /* This is a trivial encapsulation of an opaque structure that triggers exception.
    Used for test purpose only.*/
 typedef struct test_obj_except__s {
+  unsigned int magic;
   unsigned int n;
   unsigned int *ptr;
 } test_obj_except__t[1];
@@ -89,14 +90,18 @@ static inline void test_obj_except__init(test_obj_except__t z)
     z->n = 1;
     z->ptr = (unsigned int*) calloc(1, sizeof(unsigned int));
     assert(z->ptr != NULL);
+    z->ptr[0] = (unsigned int) rand();
+    z->magic = 0xCAFE;
     test_obj_except__init_counter++;
 }
 
 static inline void test_obj_except__clear(test_obj_except__t z)
 {
     assert (z->ptr != NULL);
+    assert(z->magic == 0xCAFE);
     free(z->ptr);
     z->ptr = NULL;
+    z->magic = 0xDEAD;
     test_obj_except__init_counter--;
     assert(test_obj_except__init_counter >= 0);
 }
@@ -107,6 +112,7 @@ static inline void test_obj_except__init_set(test_obj_except__t d, const test_ob
     d->n = s->n;
     d->ptr = (unsigned int *) calloc (s->n, sizeof(unsigned int));
     assert(d->ptr != NULL);
+    d->magic = 0xCAFE;
     memcpy(d->ptr, s->ptr, sizeof(unsigned int) * s->n);
     test_obj_except__init_counter++;
 }
@@ -212,6 +218,15 @@ static inline void test_obj_except__str(string_t str, const test_obj_except__t z
   else        string_printf (str, "%u", z->ptr[0]);
 }
 
+static inline size_t test_obj_except__hash(const test_obj_except__t z)
+{
+  M_HASH_DECL(hash);
+  for(unsigned int i = 0; i < z->n; i++) {
+    M_HASH_UP(hash, z->ptr[i]);
+  }
+  return M_HASH_FINAL(hash);
+}
+
 #define TEST_OBJ_EXCEPT_OPLIST						                             \
   (INIT(test_obj_except__init),                                                  \
    INIT_SET(test_obj_except__init_set),                                          \
@@ -226,13 +241,24 @@ static inline void test_obj_except__str(string_t str, const test_obj_except__t z
    EQUAL(test_obj_except__equal_p),                                              \
    CMP(test_obj_except__cmp),                                                    \
    INIT_WITH(test_obj_except__init_set_ui),                                      \
+   HASh(test_obj_except__hash),                                                  \
    EMPLACE_TYPE( LIST( (_ui, test_obj_except__init_set_ui, unsigned int), (_str, test_obj_except__init_set_str, const char *), ( /*empty*/, test_obj_except__init_set, test_obj_except__t) ) ) \
    )
 
 #define M_OPL_test_obj_except__t() TEST_OBJ_EXCEPT_OPLIST
 
+// Write some values in the stack to avoid having a stack set to zero
+// A zero stack may hide some issues.
+static void reset_stack(void)
+{
+  volatile char table[16*1024];
+  for(unsigned i = 0 ; i < sizeof table; i++)
+    table[i] = (char) i;
+}
+
 static void do_test1(void (*test)(unsigned))
 {
+    reset_stack();
     // Run once to get the number of exceptions point existing in the test service
     test_obj_except__trigger_exception = 0;
     test(10);
