@@ -396,11 +396,7 @@
       index = n->size-1;                                                      \
     }                                                                         \
     if (ptr != NULL)                                                          \
-      M_IF_METHOD(MOVE, oplist) (                                             \
-      M_CALL_MOVE(oplist, *ptr, n->data[index]); else                         \
-      ,                                                                       \
-      M_CALL_SET(oplist, *ptr, n->data[index]);                               \
-      )                                                                       \
+      M_DO_MOVE(oplist, *ptr, n->data[index]); else                           \
     M_CALL_CLEAR(oplist,  n->data[index]);                                    \
     d->count --;                                                              \
     d->back->index = index;                                                   \
@@ -426,11 +422,7 @@
     node_t *n = d->front->node;                                               \
     size_t index = d->front->index;                                           \
     if (ptr != NULL)                                                          \
-      M_IF_METHOD(MOVE, oplist) (                                             \
-      M_CALL_MOVE(oplist, *ptr, n->data[index]); else                         \
-      ,                                                                       \
-      M_CALL_SET(oplist, *ptr, n->data[index]);                               \
-      )                                                                       \
+      M_DO_MOVE(oplist, *ptr, n->data[index]); else                           \
     M_CALL_CLEAR(oplist, n->data[index]);                                     \
     index++;                                                                  \
     if (M_UNLIKELY (n->size <= index)) {                                      \
