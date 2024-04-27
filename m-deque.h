@@ -289,7 +289,7 @@
   M_F(name, _push_back)(deque_t d, type const x)                              \
   {                                                                           \
     type *p = M_F(name, _push_back_raw)(d);                                   \
-    M_ON_EXCEPTION(d->back->index --, d->count--) { \
+    M_ON_EXCEPTION(d->back->index --, d->count--) {                           \
       M_CALL_INIT_SET(oplist, *p, x);                                         \
     }                                                                         \
   }                                                                           \
@@ -299,7 +299,7 @@
   M_F(name, _push_back_new)(deque_t d)                                        \
   {                                                                           \
     type *p = M_F(name, _push_back_raw)(d);                                   \
-    M_ON_EXCEPTION(d->back->index --, d->count--) { \
+    M_ON_EXCEPTION(d->back->index --, d->count--) {                           \
       M_CALL_INIT(oplist, *p);                                                \
     }                                                                         \
     return p;                                                                 \
@@ -342,7 +342,7 @@
   M_F(name, _push_front)(deque_t d, type const x)                             \
   {                                                                           \
     type *p = M_F(name, _push_front_raw)(d);                                  \
-    M_ON_EXCEPTION(d->front->index ++, d->count--) { \
+    M_ON_EXCEPTION(d->front->index ++, d->count--) {                          \
       M_CALL_INIT_SET(oplist, *p, x);                                         \
     }                                                                         \
   }                                                                           \
@@ -352,7 +352,7 @@
   M_F(name, _push_front_new)(deque_t d)                                       \
   {                                                                           \
     type *p = M_F(name, _push_front_raw)(d);                                  \
-    M_ON_EXCEPTION(d->front->index ++, d->count--) { \
+    M_ON_EXCEPTION(d->front->index ++, d->count--) {                          \
       M_CALL_INIT(oplist, *p);                                                \
     }                                                                         \
     return p;                                                                 \
@@ -743,7 +743,7 @@
     d->back->index  = M_USE_DEQUE_DEFAULT_SIZE/2 + src->count;                \
     it_t it;                                                                  \
     size_t m_volatile i = M_USE_DEQUE_DEFAULT_SIZE/2;                         \
-    M_ON_EXCEPTION(d->count = i - M_USE_DEQUE_DEFAULT_SIZE/2, d->back->index = i, M_F(name, _clear)(d) )               \
+    M_ON_EXCEPTION(d->count = i - M_USE_DEQUE_DEFAULT_SIZE/2, d->back->index = i, M_F(name, _clear)(d) ) \
     for(M_F(name, _it)(it, src); !M_F(name, _end_p)(it) ; M_F(name, _next)(it)) { \
       type const *obj = M_F(name, _cref)(it);                                 \
       M_CALL_INIT_SET(oplist, n->data[i], *obj);                              \
@@ -759,10 +759,10 @@
     if (M_UNLIKELY (src == d))                                                \
       return;                                                                 \
     /* TODO: Reuse memory of d! */                                            \
-    M_ON_EXCEPTION( M_F(name, _init)(d) ) {\
-      M_F(name, _clear)(d);                                                     \
-      M_F(name, _init_set)(d, src);                                             \
-    }\
+    M_ON_EXCEPTION( M_F(name, _init)(d) ) {                                   \
+      M_F(name, _clear)(d);                                                   \
+      M_F(name, _init_set)(d, src);                                           \
+    }                                                                         \
   }                                                                           \
                                                                               \
   M_INLINE void                                                               \
@@ -1042,9 +1042,9 @@
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
     M_F(name, _subtype_ct) *data = M_F(name, _push_back_raw)(v);              \
-    M_ON_EXCEPTION(v->back->index --, v->count--) { \
-      M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
-    } \
+    M_ON_EXCEPTION(v->back->index --, v->count--) {                           \
+      M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);     \
+    }                                                                         \
   }
 
 
@@ -1055,9 +1055,9 @@
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
     M_F(name, _subtype_ct) *data = M_F(name, _push_front_raw)(v);             \
-    M_ON_EXCEPTION(v->front->index ++, v->count--) { \
-      M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
-    } \
+    M_ON_EXCEPTION(v->front->index ++, v->count--) {                          \
+      M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);     \
+    }                                                                         \
   }
 
 
