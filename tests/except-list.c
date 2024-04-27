@@ -58,6 +58,8 @@ static void test1(unsigned n)
             }
             list_obj_it_t it; list_obj_it(it, tmp); list_obj_next(it);
             list_obj_insert(tmp, it, obj);
+            list_obj_emplace_back_ui(list, 345);
+            list_obj_emplace_back_str(list, "345");
         }
     } M_CATCH(test1, 0) {
         // Nothing to do
@@ -102,6 +104,8 @@ static void test2(unsigned n)
             }
             list2_obj_it_t it; list2_obj_it(it, tmp); list2_obj_next(it);
             list2_obj_insert(tmp, it, obj);
+            list2_obj_emplace_back_ui(tmp, 345);
+            list2_obj_emplace_back_str(tmp, "345");
         }
     } M_CATCH(test1, 0) {
         // Nothing to do
@@ -132,6 +136,8 @@ static void test3(unsigned n)
                 list2_obj_push_front(list, obj);
             }
             list2_obj_push_front_new(list);
+            list2_obj_emplace_front_ui(list, 345);
+            list2_obj_emplace_front_str(list, "345");
         }
     } M_CATCH(test1, 0) {
         // Nothing to do

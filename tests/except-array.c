@@ -61,6 +61,8 @@ static void test1(unsigned n)
               assert(b);
             }
             array_obj_insert_v(tmp, 12, 3);
+            array_obj_emplace_back_ui(tmp, 345);
+            array_obj_emplace_back_str(tmp, "345");
         }
     } M_CATCH(test1, 0) {
         // Nothing to do

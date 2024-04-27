@@ -1134,7 +1134,9 @@
     M_F(name, _subtype_ct) *data = M_F(name, _push_raw)(v);                   \
     if (M_UNLIKELY (data == NULL) )                                           \
       return;                                                                 \
+    M_IF_EXCEPTION( v->size --);                                              \
     M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
+    M_IF_EXCEPTION( v->size ++);                                              \
   }                                                                           \
 
 /********************************** INTERNAL *********************************/

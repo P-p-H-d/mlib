@@ -897,7 +897,10 @@
     M_F(name, _subtype_ct) *data = M_F(name, _push_raw)(v);                   \
     if (M_UNLIKELY (data == NULL) )                                           \
       return;                                                                 \
-    M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
+    M_IF_EXCEPTION(struct M_F(name, _s) *next = *v );                         \
+    M_ON_EXCEPTION( *v = next->next, M_C3(m_l1st_,name,_del)(next)) {         \
+      M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);     \
+    }                                                                         \
   }
 
 
@@ -910,7 +913,10 @@
     M_F(name, _subtype_ct) *data = M_F(name, _push_back_raw)(v);              \
     if (M_UNLIKELY (data == NULL) )                                           \
       return;                                                                 \
-    M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
+    M_IF_EXCEPTION(struct M_F(name, _s) *next = v->back);                     \
+    M_ON_EXCEPTION( v->back = next->next, v->front = (v->front == next) ? NULL : v->front, M_C3(m_l1st_,name,_del)(next)) { \
+      M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);     \
+    }                                                                         \
   }
 
 
@@ -920,10 +926,15 @@
   function_name(name_t v                                                      \
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
+    M_IF_EXCEPTION(struct M_F(name, _s) *front = v->front, *back = v->back);  \
     M_F(name, _subtype_ct) *data = M_F(name, _push_front_raw)(v);             \
     if (M_UNLIKELY (data == NULL) )                                           \
       return;                                                                 \
-    M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
+    M_IF_EXCEPTION(struct M_F(name, _s) *m_volatile tofree = v->front);       \
+    M_IF_EXCEPTION(M_ASSERT(tofree != NULL));                                 \
+    M_ON_EXCEPTION( v->back = back, v->front = front, (front != NULL ? front : tofree)->next = NULL, M_C3(m_l1st_,name,_del)(tofree)) { \
+      M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);     \
+    }                                                                         \
   }
 
 
