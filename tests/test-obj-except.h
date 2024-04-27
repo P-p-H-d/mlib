@@ -137,15 +137,19 @@ static inline void test_obj_except__set_ui(test_obj_except__t d, unsigned int v)
 
 static inline void test_obj_except__init_set_ui(test_obj_except__t d, unsigned int v)
 {
-  test_obj_except_trigger();
+  // test_obj_except_trigger(); is already triggered by test_obj_except__init
   test_obj_except__init(d);
+  // Don't trigger exception for test_obj_except__set_ui now
+  test_obj_except__trigger_exception++;
   test_obj_except__set_ui(d, v);
 }
 
 static inline void test_obj_except__init_set_str(test_obj_except__t d, const char v[])
 {
-  test_obj_except_trigger();
+  // test_obj_except_trigger(); is already triggered by test_obj_except__init
   test_obj_except__init(d);
+  // Don't trigger exception for test_obj_except__set_ui now
+  test_obj_except__trigger_exception++;
   test_obj_except__set_ui(d, (unsigned int) atoi(v) );
 }
 

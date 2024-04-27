@@ -177,6 +177,7 @@
     /* Test for overflow of the size computation */                           \
     if (M_UNLIKELY_NOMEM (def > SIZE_MAX / sizeof (type) - sizeof(node_t))) { \
       M_MEMORY_FULL(sizeof(node_t)+def * sizeof(type));                       \
+      abort();                                                                \
       return NULL;                                                            \
     }                                                                         \
     /* Alloc a new node with dynamic size */                                  \
@@ -185,6 +186,7 @@
                      sizeof(node_t) + def * sizeof(type) );                   \
     if (M_UNLIKELY_NOMEM (n==NULL)) {                                         \
       M_MEMORY_FULL(sizeof(node_t)+def * sizeof(type));                       \
+      abort();                                                                \
       return NULL;                                                            \
     }                                                                         \
     /* Initialize the node */                                                 \
@@ -205,7 +207,6 @@
     d->default_size = M_USE_DEQUE_DEFAULT_SIZE;                               \
     d->count        = 0;                                                      \
     node_t *n = M_C3(m_d3qu3_,name,_new_node)(d);                             \
-    if (n == NULL) return;                                                    \
     M_F(name, _node_list_push_back)(d->list, n);                              \
     d->front->node  = n;                                                      \
     d->front->index = M_USE_DEQUE_DEFAULT_SIZE/2;                             \
@@ -264,7 +265,6 @@
       if (n == NULL) {                                                        \
         /* No node exists, allocate a new one */                              \
         n = M_C3(m_d3qu3_,name,_new_node)(d);                                 \
-        if (M_UNLIKELY (n == NULL)) return NULL;                              \
         M_F(name, _node_list_push_back)(d->list, n);                          \
       }                                                                       \
       d->back->node = n;                                                      \
@@ -289,7 +289,7 @@
   M_F(name, _push_back)(deque_t d, type const x)                              \
   {                                                                           \
     type *p = M_F(name, _push_back_raw)(d);                                   \
-    if (M_LIKELY(p != NULL)) {                                                \
+    M_ON_EXCEPTION(d->back->index --, d->count--) { \
       M_CALL_INIT_SET(oplist, *p, x);                                         \
     }                                                                         \
   }                                                                           \
@@ -299,7 +299,7 @@
   M_F(name, _push_back_new)(deque_t d)                                        \
   {                                                                           \
     type *p = M_F(name, _push_back_raw)(d);                                   \
-    if (M_LIKELY(p != NULL)) {                                                \
+    M_ON_EXCEPTION(d->back->index --, d->count--) { \
       M_CALL_INIT(oplist, *p);                                                \
     }                                                                         \
     return p;                                                                 \
@@ -311,8 +311,6 @@
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
     type *p = M_F(name, _push_back_raw)(d);                                   \
-    if (M_UNLIKELY(p == NULL))                                                \
-      return;                                                                 \
     M_DO_INIT_MOVE (oplist, *p, *x);                                          \
   }                                                                           \
                                                                               \
@@ -328,7 +326,6 @@
       n = M_F(name, _node_list_previous_obj)(d->list, n);                     \
       if (n == NULL) {                                                        \
         n = M_C3(m_d3qu3_,name,_new_node)(d);                                 \
-        if (M_UNLIKELY (n == NULL)) return NULL;                              \
         M_F(name, _node_list_push_front)(d->list, n);                         \
       }                                                                       \
       d->front->node = n;                                                     \
@@ -345,7 +342,7 @@
   M_F(name, _push_front)(deque_t d, type const x)                             \
   {                                                                           \
     type *p = M_F(name, _push_front_raw)(d);                                  \
-    if (M_LIKELY(p != NULL)) {                                                \
+    M_ON_EXCEPTION(d->front->index ++, d->count--) { \
       M_CALL_INIT_SET(oplist, *p, x);                                         \
     }                                                                         \
   }                                                                           \
@@ -355,7 +352,7 @@
   M_F(name, _push_front_new)(deque_t d)                                       \
   {                                                                           \
     type *p = M_F(name, _push_front_raw)(d);                                  \
-    if (M_LIKELY(p != NULL)) {                                                \
+    M_ON_EXCEPTION(d->front->index ++, d->count--) { \
       M_CALL_INIT(oplist, *p);                                                \
     }                                                                         \
     return p;                                                                 \
@@ -367,8 +364,6 @@
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
     type *p = M_F(name, _push_front_raw)(d);                                  \
-    if (M_UNLIKELY(p == NULL))                                                \
-      return;                                                                 \
     M_DO_INIT_MOVE (oplist, *p, *x);                                          \
   }                                                                           \
                                                                               \
@@ -738,9 +733,8 @@
     M_ASSERT (d != NULL);                                                     \
     M_F(name, _node_list_init)(d->list);                                      \
     d->default_size = M_USE_DEQUE_DEFAULT_SIZE + src->count;                  \
-    d->count        = src->count;                                             \
     node_t *n = M_C3(m_d3qu3_,name,_new_node)(d);                             \
-    if (n == NULL) return;                                                    \
+    d->count        = src->count;                                             \
     d->default_size /= 2;                                                     \
     M_F(name, _node_list_push_back)(d->list, n);                              \
     d->front->node  = n;                                                      \
@@ -748,7 +742,8 @@
     d->back->node   = n;                                                      \
     d->back->index  = M_USE_DEQUE_DEFAULT_SIZE/2 + src->count;                \
     it_t it;                                                                  \
-    size_t i = M_USE_DEQUE_DEFAULT_SIZE/2;                                    \
+    size_t m_volatile i = M_USE_DEQUE_DEFAULT_SIZE/2;                         \
+    M_ON_EXCEPTION(d->count = i - M_USE_DEQUE_DEFAULT_SIZE/2, d->back->index = i, M_F(name, _clear)(d) )               \
     for(M_F(name, _it)(it, src); !M_F(name, _end_p)(it) ; M_F(name, _next)(it)) { \
       type const *obj = M_F(name, _cref)(it);                                 \
       M_CALL_INIT_SET(oplist, n->data[i], *obj);                              \
@@ -764,8 +759,10 @@
     if (M_UNLIKELY (src == d))                                                \
       return;                                                                 \
     /* TODO: Reuse memory of d! */                                            \
-    M_F(name, _clear)(d);                                                     \
-    M_F(name, _init_set)(d, src);                                             \
+    M_ON_EXCEPTION( M_F(name, _init)(d) ) {\
+      M_F(name, _clear)(d);                                                     \
+      M_F(name, _init_set)(d, src);                                             \
+    }\
   }                                                                           \
                                                                               \
   M_INLINE void                                                               \
@@ -1045,9 +1042,9 @@
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
     M_F(name, _subtype_ct) *data = M_F(name, _push_back_raw)(v);              \
-    if (M_UNLIKELY (data == NULL) )                                           \
-      return;                                                                 \
-    M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
+    M_ON_EXCEPTION(v->back->index --, v->count--) { \
+      M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
+    } \
   }
 
 
@@ -1058,9 +1055,9 @@
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
     M_F(name, _subtype_ct) *data = M_F(name, _push_front_raw)(v);             \
-    if (M_UNLIKELY (data == NULL) )                                           \
-      return;                                                                 \
-    M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
+    M_ON_EXCEPTION(v->front->index ++, v->count--) { \
+      M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);       \
+    } \
   }
 
 
