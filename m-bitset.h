@@ -145,6 +145,9 @@ M_INLINE void
 m_bitset_init_set(m_bitset_t d, const m_bitset_t s)
 {
   M_ASSERT (d != s);
+  // In case of exception, d remains initialized,
+  // but without any allocation done.
+  // Therefore it is safe, not to clear d on exception.
   m_bitset_init(d);
   m_bitset_set(d, s);
 }

@@ -470,6 +470,9 @@ m_string_set_n(m_string_t v, const m_string_t ref, size_t offset, size_t length)
 M_INLINE void
 m_string_init_set(m_string_t v1, const m_string_t v2)
 {
+  // In case of exception, v1 remains initialized,
+  // but without any allocation done.
+  // Therefore it is safe, not to clear v1 on exception.
   m_string_init(v1);
   m_string_set(v1,v2);
 }
@@ -479,6 +482,9 @@ m_string_init_set(m_string_t v1, const m_string_t v2)
 M_INLINE void
 m_string_init_set_cstr(m_string_t v1, const char str[])
 {
+  // In case of exception, v1 remains initialized,
+  // but without any allocation done.
+  // Therefore it is safe, not to clear v1 on exception.
   m_string_init(v1);
   m_string_set_cstr(v1, str);
 }
