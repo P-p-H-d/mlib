@@ -160,6 +160,28 @@ static void assert(int cond)
 {
    if (!cond) abort();
 }
+#elif defined(WITHIN_ANALYZER)
+/* For analyzer build, do not expand other likes NULL, etc. */
+#undef assert
+#undef M_STATIC_FAILURE
+#undef NULL
+#undef M_LIKELY
+#undef M_UNLIKELY
+#undef M_MEMORY_FULL
+#undef M_SWAP
+#undef NDEBUG
+#undef atomic_init
+#undef atomic_load
+#undef atomic_store
+#undef atomic_compare_exchange_weak
+#undef atomic_compare_exchange_strong
+#undef atomic_fetch_add
+#undef atomic_fetch_sub
+#undef M_CONST_CAST
+#undef M_ASSIGN_CAST
+#undef M_CHECK_DEFAULT_TYPE
+#undef M_CHECK_SAME
+#undef isspace
 #else
 /* For normal builds, empty macros which does nothing */
 #define START_COVERAGE
