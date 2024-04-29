@@ -1,5 +1,5 @@
 /*
- * Test that the list module properly support exceptions
+ * Test that the string module properly support exceptions
  * 
  * Copyright (c) 2017-2024, Patrick Pelissier
  * All rights reserved.
