@@ -465,7 +465,8 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
           h->index[p].index = ind;                                            \
           h->index[p].hash  = hash;                                           \
         } else {                                                              \
-          m_array_index_push_back(tmp, (m_indexhash_t) {ind, hash});          \
+          m_indexhash_t t = { ind, hash };                                    \
+          m_array_index_push_back(tmp, t);                                    \
         }                                                                     \
       }                                                                       \
     }                                                                         \
@@ -518,7 +519,8 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
           h->index[p].index = ind;                                            \
           h->index[p].hash  = hash;                                           \
         } else {                                                              \
-          m_array_index_push_back(tmp, (m_indexhash_t) {ind, hash});          \
+          m_indexhash_t t = { ind, hash };                                    \
+          m_array_index_push_back(tmp, t);                                    \
         }                                                                     \
       }                                                                       \
     }                                                                         \
