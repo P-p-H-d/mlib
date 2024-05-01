@@ -838,16 +838,6 @@ static void test_coverage(void)
   dict_oa_int_array_pair_reset(v);
   dict_oa_int_array_pair_clear(v);
 
-  dict_str_array_list_pair_t d1, d2;
-  dict_str_array_list_pair_init(d1);
-  dict_str_array_list_pair_init(d2);
-  dict_str_list_pair_t list;
-  dict_str_list_pair_init(list);
-  dict_str_array_list_pair_push_back(d1, list);
-  dict_str_array_list_pair_set(d1, d2);
-  dict_str_list_pair_clear(list);
-  dict_str_array_list_pair_clear(d1);
-  dict_str_array_list_pair_clear(d2);
 }
 
 int main(void)
