@@ -2431,11 +2431,10 @@ and in particular:
 * the inner cost of comparing the objects,
 * the load factor.
 
-For small, fast types (integer, or floats, or pair of such types),
+For very small, fast types (integer, or floats, or pair of such types),
 `DICT_OA_DEF2` may be the best to use (but slightly more complex to instantiate).
-For medium type, `DICT_DEF2` with mempool activated may be better.
-For even larger object, `DICT_STOREHASH_DEF2` may be better.
-But for most uses, `DICT_DEF2` should be good enough.
+It is unlikely you can see the difference, even for small types, except on memory consumption:
+`DICT_DEF2` should be good enough.
 
 #### `DICT_DEF2(name, key_type[, key_oplist], value_type[, value_oplist])`
 #### `DICT_DEF2_AS(name,  name_t, name_it_t, name_itref_t, key_type[, key_oplist], value_type[, value_oplist])`
@@ -2451,9 +2450,9 @@ Both oplist shall have at least the following operators (`INIT_SET`, `SET` and `
 otherwise it won't generate compilable code.
 The `key_oplist` shall also define the additional operators (`HASH` and `EQUAL`).
 
-Current implementation uses chained Hash-Table and as such, elements in the dictionary are **unordered**.
-However, elements are not moved on insertion / delete of other elements:
-even if the iterator may become invalid, the referenced element remains unmoved.
+Elements in the dictionary are **unordered**.
+On insertion of a new element, contained objects may moved.
+Maximum number of elements of this dictionary is 3'006'477'107 elements.
 
 The `_set_at` method overwrites the already existing value if `key` is already present in the dictionary
 (contrary to C++).
@@ -2497,26 +2496,13 @@ int main(void) {
 }
 ```
 
-#### `DICT_STOREHASH_DEF2(name, key_type[, key_oplist], value_type[, value_oplist])`
-#### `DICT_STOREHASH_DEF2_AS(name,  name_t, name_it_t, name_itref_t, key_type[, key_oplist], value_type[, value_oplist])`
-
-`DICT_STOREHASH_DEF2` defines the dictionary `name_t` and its associated methods as `static inline` functions
-just like `DICT_DEF2`.
-
-The only difference is that it stores (caches) the hash of each key alongside the key in the dictionary.
-This enables the container to avoid recomputing it in some occasions resulting in faster
-dictionary if the hash is costly to compute (which is usually the case for large object), or slower otherwise.
-
-`DICT_STOREHASH_DEF2_AS` is the same as `DICT_STOREHASH_DEF2`
-except the name of the types `name_t`, `name_it_t`, `name_itref_t` are provided.
-
 #### `DICT_OA_DEF2(name, key_type[, key_oplist], value_type[, value_oplist])`
 #### `DICT_OA_DEF2_AS(name,  name_t, name_it_t, name_itref_t, key_type[, key_oplist], value_type[, value_oplist])`
 
 `DICT_OA_DEF2` defines the dictionary `name_t` and its associated methods
 as `static inline` functions much like `DICT_DEF2`.
 The difference is that it uses an Open Addressing Hash-Table as container
-(breaking the property of not-moving object on dictionary modification).
+that stores the data with the table.
 
 The `key_oplist` shall also define the additional operators:
 `OOR_EQUAL` and `OOR_SET`
@@ -2529,7 +2515,7 @@ usage and is cache unfriendly).
 The elements may move when inserting / deleting other elements (and not just the iterators).
 
 This implementation is in general faster for small types of keys
-(like integer or float) but may be slower for larger types.
+(like integer or float) but are slower for larger types.
 
 `DICT_OA_DEF2_AS` is the same as `DICT_OA_DEF2`
 except the name of the types `name_t`, `name_it_t`, `name_itref_t` are provided.
