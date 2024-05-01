@@ -341,6 +341,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     /* Populate the initial table with the 'empty' representation which is 0 */ \
     for(m_index_t i = 0; i < M_D1CT_INITIAL_SIZE; i++) {                      \
       map->index[i].index = 0;                                                \
+      map->index[i].hash  = 0;                                                \
     }                                                                         \
     M_D1CT_CONTRACT(map);                                                     \
   }                                                                           \
@@ -442,8 +443,10 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
       h->index = index;                                                       \
                                                                               \
       /* First mark the extended space as empty */                            \
-      for(m_index_t i = oldSize ; i < newSize; i++)                           \
+      for(m_index_t i = oldSize ; i < newSize; i++) {                         \
         h->index[i].index = 0;                                                \
+        h->index[i].hash  = 0;                                                \
+      }                                                                       \
     }                                                                         \
                                                                               \
     /* Then let's rehash all the entries in their **exact** position.         \
