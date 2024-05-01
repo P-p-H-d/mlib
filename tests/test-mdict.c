@@ -37,7 +37,6 @@ DICT_DEF2(dict_str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
 DICT_OA_DEF2(dict_oa_int, int, M_OPEXTEND(M_BASIC_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int, M_OPEXTEND(M_BASIC_OPLIST, ADD(update_value M_IPTR)))
 END_COVERAGE
 
-DICT_STOREHASH_DEF2(dict_str2, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
 DICT_SET_DEF(dict_setstr, string_t, STRING_OPLIST)
 DICT_DEF2(dict_int, int, M_BASIC_OPLIST, int, M_BASIC_OPLIST)
 DICT_DEF2(dict_mpz, string_t, STRING_OPLIST, testobj_t, TESTOBJ_OPLIST)
@@ -405,6 +404,34 @@ static void test_init(void)
     assert (!dict_str_equal_p (d2, d1));
     dict_str_set_at (d2, STRING_CTE("X"), STRING_CTE("2"));
     assert (dict_str_equal_p (d2, d1));
+  }
+
+  // Create some items, delete some, create others, delete all
+  M_LET(str1, str2, STRING_OPLIST)
+  M_LET(d1, DICT_OPLIST(dict_str, STRING_OPLIST, STRING_OPLIST)){
+    for(int s = 32; s < 512; s++) {
+      for(int i = 0; i < s; i++) {
+        string_printf(str1, "%d", 2*i);
+        string_printf(str2, "%d", 2*i+1);
+        dict_str_set_at (d1, str1, str2);
+      }
+      for(int i = 0; i < s; i+=3) {
+        string_printf(str1, "%d", 2*i);
+        bool b = dict_str_erase (d1, str1);
+        assert (b);
+      }
+      for(int i = 0; i < s; i++) {
+        string_printf(str1, "%d", 2*i);
+        string_printf(str2, "%d", 2*i+1);
+        dict_str_set_at (d1, str1, str2);
+      }
+      for(int i = 0; i < s; i++) {
+        string_printf(str1, "%d", 2*i);
+        bool b = dict_str_erase (d1, str1);
+        assert (b);
+      }
+      assert(dict_str_empty_p(d1));
+    }
   }
 
   M_LET( (d1, (STRING_CTE("H1"), STRING_CTE("EE")), (("H2"), ("EF"))),

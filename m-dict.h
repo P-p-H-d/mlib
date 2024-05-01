@@ -253,6 +253,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     M_ASSERT( M_POWEROF2_P((dict)->mask+1));                                  \
     M_ASSERT( (dict)->mask+1 >= M_D1CT_INITIAL_SIZE);                         \
     M_ASSERT( (dict)->upper_limit <= (dict)->mask+1);                         \
+    M_ASSERT( (dict)->freelist_first_data != 0 || (dict)->count+2 == (dict)->freelist_count); \
   } while (0)
 
 
@@ -392,6 +393,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
   M_INLINE void                                                               \
   M_C3(m_d1ct_,name,_release_bucket)(dict_t map, m_index_t d)                 \
   {                                                                           \
+    M_ASSERT(d >= 2 && d < map->freelist_count);                              \
     map->data[d].freelist = map->freelist_first_data;                         \
     map->freelist_first_data = d;                                             \
   }                                                                           \
@@ -429,17 +431,22 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
                                                                               \
     /* resize can be called just to delete the items */                       \
     if (newSize > oldSize) {                                                  \
-      M_F(name, _freelist_ct) *data = M_CALL_REALLOC(key_oplist, M_F(name, _freelist_ct), h->data, (size_t) 2+newSize); \
-      if (M_UNLIKELY_NOMEM (data == NULL) ) {                                 \
-        M_MEMORY_FULL((2+newSize)*sizeof (M_F(name, _freelist_ct)));          \
-        return ;                                                              \
+      /* h->data is not always the same size than h->index: it may be bigger  \
+         if there is some erase of items: h->index will shrink, but not h->data \
+         To have an estimate of the size, we look at the maximum index of it: \
+         if it is bigger than our new size, then we don't need to reallocate */ \
+      if (newSize > h->freelist_count) {                                      \
+        h->data = M_CALL_REALLOC(key_oplist, M_F(name, _freelist_ct), h->data, (size_t) 2+newSize); \
+        if (M_UNLIKELY_NOMEM (h->data == NULL) ) {                            \
+          M_MEMORY_FULL((2+newSize)*sizeof (M_F(name, _freelist_ct)));        \
+          return ;                                                            \
+        }                                                                     \
       }                                                                       \
       m_indexhash_t *index = M_MEMORY_REALLOC(m_indexhash_t, h->index,(size_t) 0+newSize); \
       if (M_UNLIKELY_NOMEM (index == NULL) ) {                                \
         M_MEMORY_FULL(newSize*sizeof(m_indexhash_t));                         \
         return ;                                                              \
       }                                                                       \
-      h->data = data;                                                         \
       h->index = index;                                                       \
                                                                               \
       /* First mark the extended space as empty */                            \
