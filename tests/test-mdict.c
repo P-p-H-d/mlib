@@ -409,18 +409,29 @@ static void test_init(void)
   // Create some items, delete some, create others, delete all
   M_LET(str1, str2, STRING_OPLIST)
   M_LET(d1, DICT_OPLIST(dict_str, STRING_OPLIST, STRING_OPLIST)){
-    for(int s = 32; s < 512; s++) {
+    for(int s = 32; s < 5000; s++) {
       for(int i = 0; i < s; i++) {
         string_printf(str1, "%d", 2*i);
         string_printf(str2, "%d", 2*i+1);
         dict_str_set_at (d1, str1, str2);
       }
-      for(int i = 0; i < s; i+=3) {
+      for(int i = 0; i < s; i+=5) {
         string_printf(str1, "%d", 2*i);
         bool b = dict_str_erase (d1, str1);
         assert (b);
       }
       for(int i = 0; i < s; i++) {
+        string_printf(str1, "%d", 2*i);
+        string_t *p = dict_str_get (d1, str1);
+        if ( (i%5) == 0) {
+          assert(p == NULL);
+        } else {
+          assert (p != NULL);
+          string_printf(str2, "%d", 2*i+1);
+          assert( string_equal_p (*p, str2));
+        }
+      }
+      for(int i = 0; i < s; i+=5) {
         string_printf(str1, "%d", 2*i);
         string_printf(str2, "%d", 2*i+1);
         dict_str_set_at (d1, str1, str2);
