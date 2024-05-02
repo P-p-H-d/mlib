@@ -1487,24 +1487,16 @@ enum m_d1ct_oa_element_e {
     M_F(name, _pair_ct) *const data = dict->data;                             \
     const size_t mask = dict->mask;                                           \
     size_t p = M_CALL_HASH(key_oplist, key) & mask;                           \
-                                                                              \
-    /* Random access, and probably cache miss */                              \
-    if (M_LIKELY (M_CALL_EQUAL(key_oplist, data[p].key, key)) )               \
-      return &data[p].M_IF(isSet)(key, value);                                \
-    else if (M_LIKELY (M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_EMPTY)) ) \
-      return NULL;                                                            \
-                                                                              \
-    /* Unlikely case */                                                       \
     size_t s = 1;                                                             \
-    do {                                                                      \
+    while (true) {                                                                      \
+      /* Random access, and probably cache miss */                              \
+      if (M_LIKELY (M_CALL_EQUAL(key_oplist, data[p].key, key)) )               \
+        return &data[p].M_IF(isSet)(key, value);                                \
+      if (M_LIKELY (M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_EMPTY)) ) \
+        return NULL;                                                            \
       p = (p + M_D1CT_OA_PROBING(s)) & mask;                                  \
-      /* data[p].key may be OA_DELETED or OA_EMPTY */                         \
-      if (M_CALL_EQUAL(key_oplist, data[p].key, key))                         \
-        return &data[p].M_IF(isSet)(key, value);                              \
       M_ASSERT (s <= dict->mask);                                             \
-    } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_EMPTY) );   \
-                                                                              \
-    return NULL;                                                              \
+    } \
   }                                                                           \
                                                                               \
   M_IF_DEBUG(                                                                 \
