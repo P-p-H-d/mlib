@@ -378,6 +378,25 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     org->index = NULL;                                                        \
   }                                                                           \
                                                                               \
+                                                                              \
+  M_IF_DEBUG(                                                                 \
+  M_INLINE void                                                               \
+  M_C3(m_d1ct_,name,_control_after_resize)(const dict_t h)                    \
+  {                                                                           \
+    /* This function checks if the reshashing of the dict is ok */            \
+    size_t empty = 0;                                                         \
+    size_t del = 0;                                                           \
+    /* Count the number of empty elements and the number of deleted */        \
+    for(size_t i = 0 ; i <= h->mask ; i++) {                                  \
+      empty += h->index[i].index == 0;    \
+      del   += h->index[i].index == 1;  \
+      M_ASSERT( h->index[i].index < h->freelist_count); \
+    }                                                                         \
+    M_ASSERT(del == 0);                                                       \
+    M_ASSERT(empty + h->count == h->mask + 1);                                \
+  }                                                                           \
+  )                                                                           \
+  \
   M_INLINE m_index_t                                                          \
   M_C3(m_d1ct_,name,_get_free_bucket)(dict_t map)                             \
   {                                                                           \
@@ -410,7 +429,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     while (true) {                                                            \
       if (M_LIKELY (hash == map->index[p].hash)) {                            \
         m_index_t d = map->index[p].index;                                    \
-        if (d >=2 && M_CALL_EQUAL(key_oplist, map->data[d].pair.key, key)) {  \
+        if (M_LIKELY(d >=2 && M_CALL_EQUAL(key_oplist, map->data[d].pair.key, key))) {  \
           return &map->data[d].pair.M_IF(isSet)(key, value);                  \
         }                                                                     \
       }                                                                       \
@@ -504,6 +523,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     if (updateLimit == true) {                                                \
       M_C3(m_d1ct_,name,_update_limit)(h, newSize);                           \
     }                                                                         \
+    M_IF_DEBUG(  M_C3(m_d1ct_,name,_control_after_resize)(h);  )               \
   }                                                                           \
                                                                               \
   M_INLINE void                                                               \
@@ -570,6 +590,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
       M_ASSERT (h->index != NULL);                                            \
       /* FIXME: What to do for h->data ? */                                   \
     }                                                                         \
+    M_IF_DEBUG(  M_C3(m_d1ct_,name,_control_after_resize)(h);  )               \
     M_D1CT_CONTRACT(h);                                                       \
   }                                                                           \
                                                                               \
