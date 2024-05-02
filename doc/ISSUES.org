@@ -332,7 +332,7 @@ a fixed size will be good to have too for such interface.
 - Uniformization of the interface (See #31)
 - Provide static size for all QUEUE.
 
-* TODO #26 : Hash-Map for huge objects                          :ENHANCEMENT:
+* DONE #26 : Hash-Map for huge objects                          :ENHANCEMENT:
 
 Specialize Hashmap for huge objects on supported hardware:
 
