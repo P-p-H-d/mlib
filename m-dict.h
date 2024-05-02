@@ -388,15 +388,15 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     size_t del = 0;                                                           \
     /* Count the number of empty elements and the number of deleted */        \
     for(size_t i = 0 ; i <= h->mask ; i++) {                                  \
-      empty += h->index[i].index == 0;    \
-      del   += h->index[i].index == 1;  \
-      M_ASSERT( h->index[i].index < h->freelist_count); \
+      empty += h->index[i].index == 0;                                        \
+      del   += h->index[i].index == 1;                                        \
+      M_ASSERT( h->index[i].index < h->freelist_count);                       \
     }                                                                         \
     M_ASSERT(del == 0);                                                       \
     M_ASSERT(empty + h->count == h->mask + 1);                                \
   }                                                                           \
   )                                                                           \
-  \
+                                                                              \
   M_INLINE m_index_t                                                          \
   M_C3(m_d1ct_,name,_get_free_bucket)(dict_t map)                             \
   {                                                                           \
@@ -429,7 +429,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     while (true) {                                                            \
       if (M_LIKELY (hash == map->index[p].hash)) {                            \
         m_index_t d = map->index[p].index;                                    \
-        if (M_LIKELY(d >=2 && M_CALL_EQUAL(key_oplist, map->data[d].pair.key, key))) {  \
+        if (M_LIKELY(d >=2 && M_CALL_EQUAL(key_oplist, map->data[d].pair.key, key))) { \
           return &map->data[d].pair.M_IF(isSet)(key, value);                  \
         }                                                                     \
       }                                                                       \
@@ -523,7 +523,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     if (updateLimit == true) {                                                \
       M_C3(m_d1ct_,name,_update_limit)(h, newSize);                           \
     }                                                                         \
-    M_IF_DEBUG(  M_C3(m_d1ct_,name,_control_after_resize)(h);  )               \
+    M_IF_DEBUG(  M_C3(m_d1ct_,name,_control_after_resize)(h);  )              \
   }                                                                           \
                                                                               \
   M_INLINE void                                                               \
@@ -590,7 +590,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
       M_ASSERT (h->index != NULL);                                            \
       /* FIXME: What to do for h->data ? */                                   \
     }                                                                         \
-    M_IF_DEBUG(  M_C3(m_d1ct_,name,_control_after_resize)(h);  )               \
+    M_IF_DEBUG(  M_C3(m_d1ct_,name,_control_after_resize)(h);  )              \
     M_D1CT_CONTRACT(h);                                                       \
   }                                                                           \
                                                                               \
@@ -791,9 +791,10 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
   {                                                                           \
     M_ASSERT(it != NULL);                                                     \
     const M_F(name, _srcptr) d = it->dict;                                    \
-    m_index_t i = it->index+1;                                                \
-    while (i <= d->mask && d->index[i].index <= 1)                            \
+    m_index_t i = it->index;                                                  \
+    do {                                                                      \
       i++;                                                                    \
+    } while (M_LIKELY(i <= d->mask) && M_UNLIKELY(d->index[i].index <= 1));   \
     it->index = i;                                                            \
   }                                                                           \
                                                                               \
@@ -1488,15 +1489,15 @@ enum m_d1ct_oa_element_e {
     const size_t mask = dict->mask;                                           \
     size_t p = M_CALL_HASH(key_oplist, key) & mask;                           \
     size_t s = 1;                                                             \
-    while (true) {                                                                      \
-      /* Random access, and probably cache miss */                              \
-      if (M_LIKELY (M_CALL_EQUAL(key_oplist, data[p].key, key)) )               \
-        return &data[p].M_IF(isSet)(key, value);                                \
+    while (true) {                                                            \
+      /* Random access, and probably cache miss */                            \
+      if (M_LIKELY (M_CALL_EQUAL(key_oplist, data[p].key, key)) )             \
+        return &data[p].M_IF(isSet)(key, value);                              \
       if (M_LIKELY (M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_EMPTY)) ) \
-        return NULL;                                                            \
+        return NULL;                                                          \
       p = (p + M_D1CT_OA_PROBING(s)) & mask;                                  \
       M_ASSERT (s <= dict->mask);                                             \
-    } \
+    }                                                                         \
   }                                                                           \
                                                                               \
   M_IF_DEBUG(                                                                 \
@@ -1911,12 +1912,12 @@ enum m_d1ct_oa_element_e {
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
     M_D1CT_OA_CONTRACT (it->dict);                                            \
-    size_t i = it->index + 1;                                                 \
-    while (i <= it->dict->mask &&                                             \
-           (M_CALL_OOR_EQUAL(key_oplist, it->dict->data[i].key, M_D1CT_OA_EMPTY) \
-            || M_CALL_OOR_EQUAL(key_oplist, it->dict->data[i].key, M_D1CT_OA_DELETED))) { \
+    size_t i = it->index;                                                     \
+    do {                                                                      \
       i++;                                                                    \
-    }                                                                         \
+    } while (M_LIKELY (i <= it->dict->mask) &&                                \
+             M_UNLIKELY ((M_CALL_OOR_EQUAL(key_oplist, it->dict->data[i].key, M_D1CT_OA_EMPTY) \
+                          || M_CALL_OOR_EQUAL(key_oplist, it->dict->data[i].key, M_D1CT_OA_DELETED)))) ; \
     it->index = i;                                                            \
   }                                                                           \
                                                                               \
