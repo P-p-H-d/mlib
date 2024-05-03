@@ -310,6 +310,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
   typedef key_type M_F(name, _key_ct);                                        \
   typedef value_type M_F(name, _value_ct);                                    \
   typedef dict_it_t M_F(name, _it_ct);                                        \
+  typedef m_index_t M_F(name, _index_ct); \
                                                                               \
   M_INLINE void                                                               \
   M_C3(m_d1ct_,name,_update_limit)(dict_t map, m_index_t size)                \
@@ -942,6 +943,32 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     return map->count;                                                        \
   }                                                                           \
                                                                               \
+  M_INLINE void                                                               \
+  M_F(name,_reserve)(dict_t dict, size_t capacity)                            \
+  {                                                                           \
+    if (capacity == 0) {                                                      \
+      /* Perform a shrink to fit: copy everything to a new dict properly, and move it back */ \
+      dict_t tmp;                                                             \
+      M_F(name, _init_set)(tmp, dict);                                        \
+      M_F(name, _init_move)(dict, tmp);                                       \
+      return;                                                                 \
+    }                                                                         \
+    /* Get the size which will allow to fit this capacity                     \
+       NOTE: Strictly speaking we need to perform a round up to ensure        \
+       that no reallocation of the hash map occurs up to capacity */          \
+    M_F(name, _index_ct) size = (M_F(name, _index_ct))                        \
+      m_core_roundpow2 ((uint64_t) (1.0+(double) capacity * (1.0 / M_D1CT_OA_UPPER_BOUND))); \
+    M_ASSERT (M_POWEROF2_P(size));                                            \
+    /* Test for overflow of the computation */                                \
+    if (M_UNLIKELY_NOMEM (size < capacity)) {                                 \
+      M_MEMORY_FULL((size_t)-1);                                              \
+    }                                                                         \
+    if (size > dict->mask+1) {                                                \
+      dict->upper_limit = (M_F(name, _index_ct)) ((double) size * M_D1CT_OA_UPPER_BOUND) - 1; \
+      M_C3(m_d1ct_,name,_resize_up)(dict, size, false);                       \
+    }                                                                         \
+  }                                                                           \
+                                                                              \
   M_IF_METHOD(EQUAL, value_oplist)(                                           \
   M_INLINE bool                                                               \
   M_F(name, _equal_p)(const dict_t dict1, const dict_t dict2)                 \
@@ -1430,6 +1457,7 @@ enum m_d1ct_oa_element_e {
   typedef key_type M_F(name, _key_ct);                                        \
   typedef value_type M_F(name, _value_ct);                                    \
   typedef dict_it_t M_F(name, _it_ct);                                        \
+  typedef size_t M_F(name, _index_ct); \
                                                                               \
   M_INLINE void                                                               \
   M_C3(m_d1ct_,name,_update_limit)(dict_t dict, size_t size)                  \
@@ -1972,27 +2000,6 @@ enum m_d1ct_oa_element_e {
   M_F(name, _cref)(const dict_it_t it)                                        \
   {                                                                           \
     return M_CONST_CAST(it_deref_t, M_F(name, _ref)(it));                     \
-  }                                                                           \
-                                                                              \
-  M_INLINE void                                                               \
-  M_F(name,_reserve)(dict_t dict, size_t capacity)                            \
-  {                                                                           \
-    M_D1CT_OA_CONTRACT(dict);                                                 \
-    size_t size;                                                              \
-    /* Get the size which will allow to fit this capacity                     \
-       NOTE: Strictly speaking we need to perform a round up to ensure        \
-       that no reallocation of the hash map occurs up to capacity */          \
-    size = (size_t) m_core_roundpow2 ((uint64_t) ((double) capacity * (1.0 / coeff_up))); \
-    /* Test for overflow of the computation */                                \
-    if (M_UNLIKELY_NOMEM (size < capacity)) {                                 \
-      M_MEMORY_FULL((size_t)-1);                                              \
-    }                                                                         \
-    M_ASSERT (M_POWEROF2_P(size));                                            \
-    if (size > dict->mask+1) {                                                \
-      dict->upper_limit = (size_t) ((double) size * coeff_up) - 1;            \
-      M_C3(m_d1ct_,name,_resize_up)(dict, size, false);                       \
-    }                                                                         \
-    M_D1CT_OA_CONTRACT(dict);                                                 \
   }                                                                           \
                                                                               \
   M_D1CT_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t, it_deref_t)

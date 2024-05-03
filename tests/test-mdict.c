@@ -404,6 +404,10 @@ static void test_init(void)
     assert (!dict_str_equal_p (d2, d1));
     dict_str_set_at (d2, STRING_CTE("X"), STRING_CTE("2"));
     assert (dict_str_equal_p (d2, d1));
+    dict_str_reserve(d1, 0);
+    dict_str_equal_p (d2, d1);
+    dict_str_reserve(d2, 4000);
+    dict_str_equal_p (d2, d1);
   }
 
   // Create some items, delete some, create others, delete all
