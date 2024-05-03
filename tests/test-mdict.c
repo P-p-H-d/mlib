@@ -419,6 +419,8 @@ static void test_init(void)
         string_printf(str1, "%d", 2*i);
         bool b = dict_str_erase (d1, str1);
         assert (b);
+        b = dict_str_erase (d1, str1);
+        assert (!b);
       }
       for(int i = 0; i < s; i++) {
         string_printf(str1, "%d", 2*i);
@@ -435,6 +437,16 @@ static void test_init(void)
         string_printf(str1, "%d", 2*i);
         string_printf(str2, "%d", 2*i+1);
         dict_str_set_at (d1, str1, str2);
+      }
+      for(int i = 1; i < s; i+=5) {
+        string_printf(str1, "%d", 2*i);
+        bool b = dict_str_erase (d1, str1);
+        assert (b);
+      }
+      for(int i = 1; i < s; i+=5) {
+        string_printf(str1, "%d", 2*i);
+        string_printf(str2, "%d", 2*i+1);
+        string_set( *dict_str_safe_get(d1, str1), str2);
       }
       for(int i = 0; i < s; i++) {
         string_printf(str1, "%d", 2*i);
