@@ -950,7 +950,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
       /* Perform a shrink to fit: copy everything to a new dict properly, and move it back */ \
       dict_t tmp;                                                             \
       M_F(name, _init_set)(tmp, dict);                                        \
-      M_F(name, _init_move)(dict, tmp);                                       \
+      M_F(name, _move)(dict, tmp);                                            \
       return;                                                                 \
     }                                                                         \
     /* Get the size which will allow to fit this capacity                     \
