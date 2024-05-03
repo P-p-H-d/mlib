@@ -1571,7 +1571,7 @@ This method is only created if the INIT method is provided.
 Extend or reduce the capacity of the `container` to a rounded value based on `capacity`.
 If the given capacity is below the current size of the container,
 the capacity is set to a rounded value based on the size of the container.
-Therefore a capacity of 0 can be used to perform a shrink-to-fit operation on the container,
+Therefore a capacity of 0 is used to perform a shrink-to-fit operation on the container,
 i.e. reducing the container usage to the minimum possible allocation.
 
 ##### `void name_it(name_it_t it, const name_t container)`
@@ -2423,18 +2423,10 @@ and is associated to only one value.
 It is possible to search for a key in the dictionary and get back its value.
 
 Several dictionaries are proposed. The "best" to use depends on the data type
-and in particular:
-
-* the size of the data,
-* the inner cost of copying the object,
-* the inner cost of computing the hash of the object,
-* the inner cost of comparing the objects,
-* the load factor.
-
+and in particular the size of the data. 
 For very small, fast types (integer, or floats, or pair of such types),
 `DICT_OA_DEF2` may be the best to use (but slightly more complex to instantiate).
-It is unlikely you can see the difference, even for small types, except on memory consumption:
-`DICT_DEF2` should be good enough.
+However `DICT_DEF2` should be good enough for all scenarios.
 
 #### `DICT_DEF2(name, key_type[, key_oplist], value_type[, value_oplist])`
 #### `DICT_DEF2_AS(name,  name_t, name_it_t, name_itref_t, key_type[, key_oplist], value_type[, value_oplist])`
@@ -2687,6 +2679,7 @@ m_serial_return_code_t name_in_str(name_t container, m_serial_read_t serial)
 bool name_equal_p(const name_t dict1, const name_t dict2)
 void name_emplace[suffix](name_t container, keyargs...) [for dictionary set */
 void name_emplace_key[keysuffix]_val[valsuffix](name_t container, keyargs..., valargs...) /* for associative array */
+void name_reserve(name_t dict, size_t capacity)
 ```
 
 #### Specialized methods
