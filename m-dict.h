@@ -310,7 +310,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
   typedef key_type M_F(name, _key_ct);                                        \
   typedef value_type M_F(name, _value_ct);                                    \
   typedef dict_it_t M_F(name, _it_ct);                                        \
-  typedef m_index_t M_F(name, _index_ct); \
+  typedef m_index_t M_F(name, _index_ct);                                     \
                                                                               \
   M_INLINE void                                                               \
   M_C3(m_d1ct_,name,_update_limit)(dict_t map, m_index_t size)                \
@@ -407,6 +407,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
       map->freelist_first_data = map->data[d].freelist;                       \
       return d;                                                               \
     }                                                                         \
+    M_ASSERT(map->freelist_count <= 2+map->upper_limit);                      \
     return map->freelist_count++;                                             \
   }                                                                           \
                                                                               \
@@ -449,14 +450,19 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     M_ASSERT (newSize >= oldSize);                                            \
     M_ASSERT (M_POWEROF2_P(newSize));                                         \
                                                                               \
+    if (updateLimit == true) {                                                \
+      M_C3(m_d1ct_,name,_update_limit)(h, newSize);                           \
+    }                                                                         \
     /* resize can be called just to delete the items */                       \
     if (newSize > oldSize) {                                                  \
       /* h->data is not always the same size than h->index: it may be bigger  \
          if there is some erase of items: h->index will shrink, but not h->data \
          To have an estimate of the size, we look at the maximum index of it: \
          if it is bigger than our new size, then we don't need to reallocate */ \
-      if (newSize > h->freelist_count) {                                      \
-        h->data = M_CALL_REALLOC(key_oplist, M_F(name, _freelist_ct), h->data, (size_t) 2+newSize); \
+      /* We need to allocate '2' for the dummy first two entries in the table (not used), \
+         then we can have at maximum only up to 'upper_limit+1' data */       \
+      if (1+2+h->upper_limit > h->freelist_count) {                           \
+        h->data = M_CALL_REALLOC(key_oplist, M_F(name, _freelist_ct), h->data, (size_t) 1+2+h->upper_limit); \
         if (M_UNLIKELY_NOMEM (h->data == NULL) ) {                            \
           M_MEMORY_FULL((2+newSize)*sizeof (M_F(name, _freelist_ct)));        \
           return ;                                                            \
@@ -521,9 +527,6 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     m_array_index_clear(tmp);                                                 \
     h->mask = newSize-1;                                                      \
     h->count_delete = h->count;                                               \
-    if (updateLimit == true) {                                                \
-      M_C3(m_d1ct_,name,_update_limit)(h, newSize);                           \
-    }                                                                         \
     M_IF_DEBUG(  M_C3(m_d1ct_,name,_control_after_resize)(h);  )              \
   }                                                                           \
                                                                               \
@@ -607,6 +610,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
                                                                               \
     if (M_UNLIKELY (hash == map->index[p].hash)) {                            \
       m_index_t d = map->index[p].index;                                      \
+      M_ASSERT(d <= map->freelist_count);                                     \
       if (d >= 2 && M_CALL_EQUAL(key_oplist, map->data[d].pair.key, key)) {   \
         M_CALL_SET(value_oplist, map->data[d].pair.value, value);             \
         return;                                                               \
@@ -622,6 +626,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
         p = (p + M_D1CT_OA_PROBING(s)) & mask;                                \
         if (hash == (map->index[p].hash)) {                                   \
           m_index_t d = map->index[p].index;                                  \
+          M_ASSERT(d <= map->freelist_count);                                 \
           if (d >= 2 && M_CALL_EQUAL(key_oplist, map->data[d].pair.key, key)) { \
             M_CALL_SET(value_oplist, map->data[d].pair.value, value);         \
             return;                                                           \
@@ -666,6 +671,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
                                                                               \
     if (M_UNLIKELY (hash == map->index[p].hash)) {                            \
       m_index_t d = map->index[p].index;                                      \
+      M_ASSERT(d <= map->freelist_count);                                     \
       if (d >= 2 && M_CALL_EQUAL(key_oplist, map->data[d].pair.key, key)) {   \
         return & map->data[d].pair.M_IF(isSet)(key, value);                   \
       }                                                                       \
@@ -680,6 +686,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
         p = (p + M_D1CT_OA_PROBING(s)) & mask;                                \
         if (hash == (map->index[p].hash)) {                                   \
           m_index_t d = map->index[p].index;                                  \
+          M_ASSERT(d <= map->freelist_count);                                 \
           if (d >= 2 && M_CALL_EQUAL(key_oplist, map->data[d].pair.key, key)) { \
             return & map->data[d].pair.M_IF(isSet)(key, value);               \
           }                                                                   \
@@ -728,6 +735,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     while (true) {                                                            \
       if (M_LIKELY (hash == map->index[p].hash)) {                            \
         m_index_t d = map->index[p].index;                                    \
+        M_ASSERT(d <= map->freelist_count);                                   \
         if (d >= 2 && M_CALL_EQUAL(key_oplist, map->data[d].pair.key, key)) { \
           break;                                                              \
         }                                                                     \
@@ -738,6 +746,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
       M_ASSERT (s <= map->mask);                                              \
     }                                                                         \
     const m_index_t d = map->index[p].index;                                  \
+    M_ASSERT(d <= map->freelist_count);                                       \
     M_CALL_CLEAR(key_oplist, map->data[d].pair.key);                          \
     M_CALL_CLEAR(value_oplist, map->data[d].pair.value);                      \
     M_C3(m_d1ct_,name,_release_bucket)(map, d);                               \
@@ -1457,7 +1466,7 @@ enum m_d1ct_oa_element_e {
   typedef key_type M_F(name, _key_ct);                                        \
   typedef value_type M_F(name, _value_ct);                                    \
   typedef dict_it_t M_F(name, _it_ct);                                        \
-  typedef size_t M_F(name, _index_ct); \
+  typedef size_t M_F(name, _index_ct);                                        \
                                                                               \
   M_INLINE void                                                               \
   M_C3(m_d1ct_,name,_update_limit)(dict_t dict, size_t size)                  \
