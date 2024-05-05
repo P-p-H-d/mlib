@@ -328,7 +328,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     map->count_delete = 0;                                                    \
     M_C3(m_d1ct_,name,_update_limit)(map, M_D1CT_INITIAL_SIZE);               \
     /* The first 2 buckets are reserved for (empty) and (deleted) access. Allocation could be avoided */ \
-    map->data = M_CALL_REALLOC(key_oplist, M_F(name, _freelist_ct), NULL, (size_t)(2+M_D1CT_INITIAL_SIZE)); \
+    map->data = M_CALL_REALLOC(key_oplist, M_F(name, _freelist_ct), NULL, (size_t) 1+2+map->upper_limit); \
     if (M_UNLIKELY_NOMEM (map->data == NULL)) {                               \
       M_MEMORY_FULL( (2+M_D1CT_INITIAL_SIZE) * sizeof (M_F(name, _freelist_ct))); \
       return ;                                                                \
