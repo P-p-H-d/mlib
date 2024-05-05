@@ -257,7 +257,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
   } while (0)
 
 
-/* Define the structure of a chained dictionary for all kind of dictionaries
+/* Define the structure of a dictionary for map and set
  * name: prefix of the container,
  * key_type: type of the key
  * key_oplist: oplist of the key
