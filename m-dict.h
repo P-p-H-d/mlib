@@ -25,7 +25,6 @@
 #ifndef MSTARLIB_DICT_H
 #define MSTARLIB_DICT_H
 
-#include "m-list.h"
 #include "m-array.h"
 
 
