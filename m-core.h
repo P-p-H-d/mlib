@@ -132,11 +132,13 @@
 # define M_ATTR_NO_RETURN 
 #endif
 
-/* The cold attribute on functions is used to inform the compiler
-   that the function is unlikely to be executed. */
+/* The hot/cold attribute on functions is used to inform the compiler
+   that the function is likely/unlikely to be executed. */
 #if defined(__GNUC__)
+# define M_ATTR_HOT_FUNCTION     __attribute__ ((hot))
 # define M_ATTR_COLD_FUNCTION    __attribute__ ((cold))
 #else
+# define M_ATTR_HOT_FUNCTION
 # define M_ATTR_COLD_FUNCTION
 #endif
 
