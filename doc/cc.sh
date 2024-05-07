@@ -6,6 +6,7 @@ param2=""
 while test $# -gt 0 ; do
     case $1 in
         -c) param2="$param2 -c" ;;
+        -o) param2="$param2 -o $2" ; shift ;;
         *\.c)  param1="$param1 $1" ;;
         *) param1="$param1 $1" ; param2="$param2 $1" ;;
      esac
