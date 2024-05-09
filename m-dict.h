@@ -2021,8 +2021,110 @@ enum m_d1ct_oa_element_e {
     return M_CONST_CAST(it_deref_t, M_F(name, _ref)(it));                     \
   }                                                                           \
                                                                               \
-  M_D1CT_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t, it_deref_t)
+  M_D1CT_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t, it_deref_t) \
+  M_IF(isSet)(M_EAT, M_D1CT_OA_DEF_BULK)(name, key_type, key_oplist, value_type, value_oplist, isSet, coeff_down, coeff_up, dict_t, dict_it_t, it_deref_t)
 
+
+// Number of loads to perform in advance
+#ifndef M_USE_MAX_PREFETCH
+#define M_USE_MAX_PREFETCH 16
+#endif
+
+// WIP. Only if isSet is true for the time being
+#define M_D1CT_OA_DEF_BULK(name, key_type, key_oplist, value_type, value_oplist, isSet, coeff_down, coeff_up, dict_t, dict_it_t, it_deref_t) \
+                                                                              \
+M_INLINE void                                                                 \
+M_F(name, _bulk_get)(unsigned n, value_type val[M_VLA(n)], dict_t dict, key_type const key[M_VLA(n)], value_type def) \
+{                                                                             \
+  M_D1CT_OA_CONTRACT (dict);                                                  \
+  size_t h[M_USE_MAX_PREFETCH];                                               \
+  M_F(name, _pair_ct) *data = dict->data;                                     \
+  const size_t mask = dict->mask;                                             \
+  const unsigned num = M_MIN(M_USE_MAX_PREFETCH, n);                          \
+  for(unsigned i = 0 ; i < num; i++) {                                        \
+    h[i] = M_CALL_HASH(key_oplist, key[i]) & mask;                            \
+    M_PREFETCH(&data[h[i]]);                                                  \
+  }                                                                           \
+  for (unsigned i = 0; i < n; i++) {                                          \
+    size_t s = 1, p = h[i % M_USE_MAX_PREFETCH];                              \
+    if (i < n-M_USE_MAX_PREFETCH) {                                           \
+      h[i % M_USE_MAX_PREFETCH] = M_CALL_HASH(key_oplist, key[i+M_USE_MAX_PREFETCH]) & mask; \
+      M_PREFETCH(&data[h[i % M_USE_MAX_PREFETCH]]);                           \
+    }                                                                         \
+    while (true) {                                                            \
+      if (M_LIKELY (M_CALL_EQUAL(key_oplist, data[p].key, key[i]))) {         \
+        M_CALL_SET(value_oplist, val[i], data[p].value);                      \
+        break;                                                                \
+      }                                                                       \
+      if (M_LIKELY (M_CALL_OOR_EQUAL (key_oplist, data[p].key, M_D1CT_OA_EMPTY)) ) { \
+        M_CALL_SET(value_oplist, val[i], def);                                \
+        break;                                                                \
+      }                                                                       \
+      p = (p + M_D1CT_OA_PROBING(s)) & mask;                                  \
+      M_ASSERT(p <= mask);                                                    \
+    }                                                                         \
+  }                                                                           \
+}                                                                             \
+                                                                              \
+M_INLINE void                                                                 \
+M_F(name, _bulk_set)(dict_t dict, unsigned n, value_type const val[M_VLA(n)], key_type const key[M_VLA(n)]) \
+{                                                                             \
+  M_D1CT_OA_CONTRACT (dict);                                                  \
+  size_t h[M_USE_MAX_PREFETCH];                                               \
+  const unsigned num = M_MIN(M_USE_MAX_PREFETCH, n);                          \
+  for(unsigned i = 0 ; i < num; i++) {                                        \
+    h[i] = M_CALL_HASH(key_oplist, key[i]);                                   \
+    M_PREFETCH(&dict->data[h[i] & dict->mask]);                               \
+  }                                                                           \
+                                                                              \
+  for (unsigned i = 0; i < n; i++) {                                          \
+    size_t p = h[i % M_USE_MAX_PREFETCH] & dict->mask;                        \
+    if (i < n-M_USE_MAX_PREFETCH) {                                           \
+      h[i % M_USE_MAX_PREFETCH] = M_CALL_HASH(key_oplist, key[i+M_USE_MAX_PREFETCH]); \
+      M_PREFETCH(&dict->data[h[i % M_USE_MAX_PREFETCH] & dict->mask]);        \
+    }                                                                         \
+    if (M_UNLIKELY (M_CALL_EQUAL(key_oplist, dict->data[p].key, key[i]))) {   \
+      M_CALL_SET(value_oplist, dict->data[p].value, val[i]);                  \
+      continue;                                                               \
+    }                                                                         \
+    /* Search loop for insertion */                                           \
+    size_t s = 1;                                                             \
+    size_t delPos = SIZE_MAX;                                                 \
+    while (M_UNLIKELY (!M_CALL_OOR_EQUAL (key_oplist, dict->data[p].key, M_D1CT_OA_EMPTY)) ) { \
+      if (M_CALL_EQUAL(key_oplist,  dict->data[p].key, key[i])) {             \
+        M_CALL_SET(value_oplist, dict->data[p].value, val[i]);                \
+        goto next;                                                            \
+      }                                                                       \
+      if (M_CALL_OOR_EQUAL (key_oplist, dict->data[p].key, M_D1CT_OA_DELETED) \
+          && (delPos == SIZE_MAX))                                            \
+        delPos = p;                                                           \
+      p = (p + M_D1CT_OA_PROBING(s)) & dict->mask;                            \
+    }                                                                         \
+    /* Add new item */                                                        \
+    if (delPos != SIZE_MAX) {                                                 \
+      p = delPos;                                                             \
+      dict->count_delete --;                                                  \
+    }                                                                         \
+    M_CALL_INIT_SET(key_oplist, dict->data[p].key, key[i]);                   \
+    M_CALL_INIT_SET(value_oplist, dict->data[p].value, val[i]);               \
+    dict->count++;                                                            \
+    dict->count_delete ++;                                                    \
+                                                                              \
+    if (M_UNLIKELY (dict->count_delete >= dict->upper_limit)) {               \
+      size_t newSize = dict->mask+1;                                          \
+      if (dict->count > (dict->mask / 2)) {                                   \
+        newSize += newSize;                                                   \
+        if (M_UNLIKELY_NOMEM (newSize <= dict->mask+1)) {                     \
+          M_MEMORY_FULL((size_t)-1);                                          \
+        }                                                                     \
+      }                                                                       \
+      M_C3(m_d1ct_,name,_resize_up)(dict, newSize, true);                     \
+    }                                                                         \
+  next:                                                                       \
+    (void)0;                                                                  \
+  }                                                                           \
+  M_D1CT_OA_CONTRACT (dict);                                                  \
+}                                                                             \
 
 /******************************** INTERNAL ***********************************/
 
