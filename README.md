@@ -3342,16 +3342,18 @@ or NULL if there is no element in the B+Tree.
 
 ##### `void name_it_from(name_it_t it, const name_t tree, const type data)`
 
-Set the iterator `it` to the greatest element of `tree`
-lower of equal than `data` or the first element is there is none.
+Set the iterator `it` to the lowest element of `tree`
+greater or equal than `data` or the end iterator is there is none.
 
 ##### `bool name_it_until_p(const name_it_t it, const type data)`
 
-Return true if `it` references an element that is greater or equal than `data`.
+Return true if `it` references an element that is greater or equal than `data`
+or if it references no longer a valid element, false otherwise.
 
 ##### `bool name_it_while_p(const name_it_t it, const type data)`
 
 Return true if `it` references an element that is lower or equal than `data`.
+Otherwise (or if it references no longer a valid element) it returns false.
 
 _________________
 
