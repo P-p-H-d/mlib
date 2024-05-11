@@ -17,6 +17,7 @@ fill_in(multimap_t map)
         multimap_set_at(map, i, i*i*i);
 }
 
+// Count the number of occurence of a key
 static int
 count(multimap_t map, int key)
 {
@@ -29,6 +30,7 @@ count(multimap_t map, int key)
     return n;    
 }
 
+// Print the map in details
 static void
 print(multimap_t map)
 {
