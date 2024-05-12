@@ -147,7 +147,10 @@
 #if defined(__GNUC__)
 # define M_PREFETCH(p)           __builtin_prefetch((p), 0, 0)
 #else
-# define M_PREFETCH(p)           (void) 0
+# define M_PREFETCH(p) do {                                                   \
+    volatile char m_c = *(volatile char *) (p);                               \
+    (void) m_c;                                                               \
+  } while (0)
 #endif
 
 /* Ignore some warnings detected by some compilers in the library.
