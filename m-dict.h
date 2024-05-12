@@ -2047,7 +2047,7 @@ M_F(name, _bulk_get)(unsigned n, value_type val[M_VLA(n)], dict_t dict, key_type
   }                                                                           \
   for (unsigned i = 0; i < n; i++) {                                          \
     size_t s = 1, p = h[i % M_USE_MAX_PREFETCH];                              \
-    if (i < n-M_USE_MAX_PREFETCH) {                                           \
+    if (i+M_USE_MAX_PREFETCH < n) {                                           \
       h[i % M_USE_MAX_PREFETCH] = M_CALL_HASH(key_oplist, key[i+M_USE_MAX_PREFETCH]) & mask; \
       M_PREFETCH(&data[h[i % M_USE_MAX_PREFETCH]]);                           \
     }                                                                         \
@@ -2079,7 +2079,7 @@ M_F(name, _bulk_set)(dict_t dict, unsigned n, value_type const val[M_VLA(n)], ke
                                                                               \
   for (unsigned i = 0; i < n; i++) {                                          \
     size_t p = h[i % M_USE_MAX_PREFETCH] & dict->mask;                        \
-    if (i < n-M_USE_MAX_PREFETCH) {                                           \
+    if (i+M_USE_MAX_PREFETCH < n) {                                           \
       h[i % M_USE_MAX_PREFETCH] = M_CALL_HASH(key_oplist, key[i+M_USE_MAX_PREFETCH]); \
       M_PREFETCH(&dict->data[h[i % M_USE_MAX_PREFETCH] & dict->mask]);        \
     }                                                                         \
@@ -2141,7 +2141,7 @@ M_F(name, _bulk_update)(dict_t dict, unsigned n, value_type val[M_VLA(n)], key_t
                                                                               \
   for (unsigned i = 0; i < n; i++) {                                          \
     size_t p = h[i % M_USE_MAX_PREFETCH] & dict->mask;                        \
-    if (i < n-M_USE_MAX_PREFETCH) {                                           \
+    if (i+M_USE_MAX_PREFETCH < n) {                                           \
       h[i % M_USE_MAX_PREFETCH] = M_CALL_HASH(key_oplist, key[i+M_USE_MAX_PREFETCH]); \
       M_PREFETCH(&dict->data[h[i % M_USE_MAX_PREFETCH] & dict->mask]);        \
     }                                                                         \
