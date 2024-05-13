@@ -106,36 +106,23 @@
   M_VAR1ANT_DEFINE_SET(name, __VA_ARGS__)                                     \
   M_VAR1ANT_DEFINE_EMPLACE(name, __VA_ARGS__)                                 \
   M_VAR1ANT_DEFINE_TEST_P(name, __VA_ARGS__)                                  \
-  M_VAR1ANT_IF_ALL(INIT, __VA_ARGS__)                                         \
-  (M_VAR1ANT_DEFINE_INIT_FIELD(name, __VA_ARGS__),)                           \
+  M_VAR1ANT_IF_ALL(INIT, __VA_ARGS__)(M_VAR1ANT_DEFINE_INIT_FIELD, M_EAT)(name, __VA_ARGS__) \
   M_VAR1ANT_DEFINE_INIT_SETTER_FIELD(name, __VA_ARGS__)                       \
   M_VAR1ANT_DEFINE_SETTER_FIELD(name, __VA_ARGS__)                            \
   M_VAR1ANT_DEFINE_GETTER_FIELD(name, __VA_ARGS__)                            \
   M_VAR1ANT_DEFINE_RESET_FUNC(name, __VA_ARGS__)                              \
-  M_VAR1ANT_IF_ALL(HASH, __VA_ARGS__)                                         \
-  (M_VAR1ANT_DEFINE_HASH(name, __VA_ARGS__),)                                 \
-  M_VAR1ANT_IF_ALL(EQUAL, __VA_ARGS__)                                        \
-  (M_VAR1ANT_DEFINE_EQUAL(name, __VA_ARGS__),)                                \
-  M_VAR1ANT_IF_ALL(GET_STR, __VA_ARGS__)                                      \
-  (M_VAR1ANT_DEFINE_GET_STR(name, __VA_ARGS__),)                              \
-  M_VAR1ANT_IF_ALL2(PARSE_STR, INIT, __VA_ARGS__)                             \
-  (M_VAR1ANT_DEFINE_PARSE_STR(name, __VA_ARGS__),)                            \
-  M_VAR1ANT_IF_ALL(OUT_STR, __VA_ARGS__)                                      \
-  (M_VAR1ANT_DEFINE_OUT_STR(name, __VA_ARGS__),)                              \
-  M_VAR1ANT_IF_ALL2(IN_STR, INIT, __VA_ARGS__)                                \
-  (M_VAR1ANT_DEFINE_IN_STR(name, __VA_ARGS__),)                               \
-  M_VAR1ANT_IF_ALL(OUT_SERIAL, __VA_ARGS__)                                   \
-  (M_VAR1ANT_DEFINE_OUT_SERIAL(name, __VA_ARGS__),)                           \
-  M_VAR1ANT_IF_ALL2(IN_SERIAL, INIT, __VA_ARGS__)                             \
-  (M_VAR1ANT_DEFINE_IN_SERIAL(name, __VA_ARGS__),)                            \
-  M_VAR1ANT_IF_ALL(INIT_MOVE, __VA_ARGS__)                                    \
-  (M_VAR1ANT_DEFINE_INIT_MOVE(name, __VA_ARGS__),)                            \
-  M_VAR1ANT_IF_ALL(INIT_MOVE, __VA_ARGS__)                                    \
-  (M_VAR1ANT_DEFINE_MOVE(name, __VA_ARGS__),)                                 \
-  M_VAR1ANT_IF_ALL(INIT_MOVE, __VA_ARGS__)                                    \
-  (M_VAR1ANT_DEFINE_MOVER(name, __VA_ARGS__),)                                \
-  M_VAR1ANT_IF_ALL(SWAP, __VA_ARGS__)                                         \
-  (M_VAR1ANT_DEFINE_SWAP(name, __VA_ARGS__),)
+  M_VAR1ANT_IF_ALL(HASH, __VA_ARGS__)(M_VAR1ANT_DEFINE_HASH, M_EAT)(name, __VA_ARGS__) \
+  M_VAR1ANT_IF_ALL(EQUAL, __VA_ARGS__)(M_VAR1ANT_DEFINE_EQUAL, M_EAT)(name, __VA_ARGS__) \
+  M_VAR1ANT_IF_ALL(GET_STR, __VA_ARGS__)(M_VAR1ANT_DEFINE_GET_STR, M_EAT)(name, __VA_ARGS__) \
+  M_VAR1ANT_IF_ALL2(PARSE_STR, INIT, __VA_ARGS__)(M_VAR1ANT_DEFINE_PARSE_STR, M_EAT)(name, __VA_ARGS__) \
+  M_VAR1ANT_IF_ALL(OUT_STR, __VA_ARGS__)(M_VAR1ANT_DEFINE_OUT_STR, M_EAT)(name, __VA_ARGS__) \
+  M_VAR1ANT_IF_ALL2(IN_STR, INIT, __VA_ARGS__)(M_VAR1ANT_DEFINE_IN_STR, M_EAT)(name, __VA_ARGS__) \
+  M_VAR1ANT_IF_ALL(OUT_SERIAL, __VA_ARGS__)(M_VAR1ANT_DEFINE_OUT_SERIAL, M_EAT)(name, __VA_ARGS__) \
+  M_VAR1ANT_IF_ALL2(IN_SERIAL, INIT, __VA_ARGS__)(M_VAR1ANT_DEFINE_IN_SERIAL, M_EAT)(name, __VA_ARGS__) \
+  M_VAR1ANT_IF_ALL(INIT_MOVE, __VA_ARGS__)(M_VAR1ANT_DEFINE_INIT_MOVE, M_EAT)(name, __VA_ARGS__) \
+  M_VAR1ANT_IF_ALL(INIT_MOVE, __VA_ARGS__)(M_VAR1ANT_DEFINE_MOVE, M_EAT)(name, __VA_ARGS__) \
+  M_VAR1ANT_IF_ALL(INIT_MOVE, __VA_ARGS__)(M_VAR1ANT_DEFINE_MOVER, M_EAT)(name, __VA_ARGS__) \
+  M_VAR1ANT_IF_ALL(SWAP, __VA_ARGS__)(M_VAR1ANT_DEFINE_SWAP, M_EAT)(name, __VA_ARGS__)
 
 
 /* Get the field name, the type, the oplist or the methods
