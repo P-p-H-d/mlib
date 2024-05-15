@@ -289,6 +289,16 @@ static void test_double (void)
   M_LET(v, Vector) {
     assert (vector_empty_p(v) );
   }
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+  M_LET( (r, (2)), rvariant2_t) {
+    assert( rvariant2_value_p(r));
+    assert( *rvariant2_get_value(r) == 2);
+  }
+  M_LET( (r, (M_STRING_CTE("Hello"))), rvariant2_t) {
+    assert( rvariant2_name_p(r));
+    assert( string_equal_str_p(*rvariant2_get_name(r), "Hello"));
+  }
+#endif
 }
 
 int main(void)
