@@ -112,24 +112,6 @@
 #define m_typeof(x) typeof(x)
 #endif
 
-/* Warnings disabled for CLANG in C mode:
-   Due to the genericity of the _Generic generation,
-   we cannot avoid generating both T and const T in the generic association. */
-#if defined(__clang__) && __clang_major__ >= 15
-#define M_G3N_BEGIN_PROTECTED_CODE                                            \
-  _Pragma("clang diagnostic push")                                            \
-  _Pragma("clang diagnostic ignored \"-Wunreachable-code-generic-assoc\"")    
-
-#define M_G3N_END_PROTECTED_CODE                                              \
-  _Pragma("clang diagnostic pop")
-
-#else
-
-#define M_G3N_BEGIN_PROTECTED_CODE
-#define M_G3N_END_PROTECTED_CODE
-
-#endif
-
 // Instead of using expensive M_SEQ(1,50), precompute it:
 #define M_G3N_SEQ_INT                                                         \
   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,  \

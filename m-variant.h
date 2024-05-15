@@ -826,9 +826,11 @@ M_INLINE void                                                                 \
 #define M_VAR1ANT_INIT_WITH(oplist, dest, src)                                \
   M_VAR1ANT_INIT_WITH_B(M_GET_NAME oplist, M_GET_SIZE oplist, dest, src)
 #define M_VAR1ANT_INIT_WITH_B(name, num, dest, src)                           \
+  M_G3N_BEGIN_PROTECTED_CODE                                                  \
   _Generic( (src),                                                            \
   M_MAP2(M_VAR1ANT_INIT_WITH_FUNC, (name,dest,src), M_SEQ(1, num))            \
-  struct m_var1ant_dummy_s *: abort() )
+  struct m_var1ant_dummy_s *: /* cannot happen */ (void)0 )                   \
+  M_G3N_END_PROTECTED_CODE
 #define M_VAR1ANT_INIT_WITH_FUNC(triplet, num)                                \
   M_VAR1ANT_INIT_WITH_FUNC_EXPAND(M_TRIPLE_1 triplet, M_TRIPLE_2 triplet, M_TRIPLE_3 triplet, num)
 #define M_VAR1ANT_INIT_WITH_FUNC_EXPAND(name, dest, src, num)                 \

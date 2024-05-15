@@ -241,6 +241,24 @@
 
 #endif
 
+/* Warnings disabled for CLANG in C mode:
+   Due to the genericity of the _Generic generation,
+   we cannot avoid generating both T and const T in the generic association. */
+#if defined(__clang__) && __clang_major__ >= 15
+#define M_G3N_BEGIN_PROTECTED_CODE                                            \
+  _Pragma("clang diagnostic push")                                            \
+  _Pragma("clang diagnostic ignored \"-Wunreachable-code-generic-assoc\"")    
+
+#define M_G3N_END_PROTECTED_CODE                                              \
+  _Pragma("clang diagnostic pop")
+
+#else
+
+#define M_G3N_BEGIN_PROTECTED_CODE
+#define M_G3N_END_PROTECTED_CODE
+
+#endif
+
 
 /* Autodetect if Address sanitizer is run */
 #if defined(__has_feature)
