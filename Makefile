@@ -34,7 +34,7 @@ DESTDIR=
 
 # Package name & version.
 PACKAGE=m_lib-$(VERSION)
-VERSION=0.7.3
+VERSION=0.7.4
 
 # Define the contain of the distribution tarball
 HEADER=m-algo.h m-array.h m-atomic.h m-bitset.h m-bptree.h m-buffer.h m-c-mempool.h m-concurrent.h m-core.h m-deque.h m-dict.h m-funcobj.h m-generic.h m-genint.h m-i-list.h m-i-shared.h m-list.h m-mempool.h m-thread.h m-mutex.h m-prioqueue.h m-rbtree.h m-serial-bin.h m-serial-json.h m-shared.h m-snapshot.h m-string.h m-tree.h m-try.h m-tuple.h m-variant.h m-worker.h
