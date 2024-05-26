@@ -179,12 +179,21 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
 # define M_D1CT_OA_PROBING(s) ((s)++)
 #endif
 
-/* Lower Bound of the hash table */
+/* Lower Bound of the hash table
+   We shall have 2*M_D1CT_OA_LOWER_BOUND < M_D1CT_OA_UPPER_BOUND
+ */
 #ifndef M_D1CT_OA_LOWER_BOUND
 #define M_D1CT_OA_LOWER_BOUND 0.2
 #endif
 
-/* Upper Bound of the hash table  */
+/* Upper Bound of the hash table 
+   The container is designed for an upper bound in the range [0.5-0.75]
+   Using higher upper bound (even by a slow amount) will deteriorate a lot the performance:
+   an upper-bound of 0.875 is ~3 times slower than an upper bound of 0.7 for lockup of key not present.
+   This is due to the esperance of the number of reads before reading an empty value which is:
+   (1-q)*sum(q^k*(k+1),k=0 .. infinity) = 1/(1-q)
+   which is the estimated number of iteration before stopping the search loop.
+ */
 #ifndef M_D1CT_OA_UPPER_BOUND
 #define M_D1CT_OA_UPPER_BOUND 0.7
 #endif
