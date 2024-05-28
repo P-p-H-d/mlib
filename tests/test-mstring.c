@@ -777,7 +777,7 @@ static void test_rounding(void)
   // The final cast to size_t is due to clang which now gives
   // warning even if the cast an integer to a bigger size(!)
   const size_t max = (size_t) -(m_str1ng_size_t)1;
-  for(size_t a = max/2; a <= max; a++) {
+  for(size_t a = max/2; a <= max && a != 0; a++) {
     unsigned char m, e;
     size_t x = (size_t) a + a/2;
     size_t nx = m_str1ng_round_capacity(&m, &e, (m_str1ng_size_t) x);
