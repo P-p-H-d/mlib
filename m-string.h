@@ -1086,7 +1086,7 @@ m_string_set_ui(m_string_t v, unsigned int n)
 {
   M_STR1NG_CONTRACT (v);
   char buffer[M_STR1NG_INT_MAX_SIZE];
-  m_str1ng_fit2size(v, M_STR1NG_INT_MAX_SIZE);
+  m_str1ng_fit2size(v, M_STR1NG_INT_MAX_SIZE+1);
   unsigned i = 0, j = 0;
   do {
     // 0123456789 are mandatory in this order as characters, as per C standard.
@@ -1109,7 +1109,7 @@ m_string_set_si(m_string_t v, int n)
   M_STR1NG_CONTRACT (v);
   // Compute the maximum number of characters needed for the buffer.
   char buffer[M_STR1NG_INT_MAX_SIZE];
-  m_str1ng_fit2size(v, M_STR1NG_INT_MAX_SIZE);
+  m_str1ng_fit2size(v, M_STR1NG_INT_MAX_SIZE+1);
   unsigned i = 0, j = 0;
   bool neg = n < 0;
   unsigned n0 = neg ? 0U -(unsigned) n : (unsigned) n;
