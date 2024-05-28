@@ -71,15 +71,17 @@ m_ser1al_json_write_float(m_serial_write_t serial, const long double data, const
 M_INLINE m_serial_return_code_t
 m_ser1al_json_write_string(m_serial_write_t serial, const char data[], size_t length)
 {
+  M_ASSERT(length == (m_str1ng_size_t) length);
   M_ASSERT_SLOW(length == strlen(data) );
   FILE *f = (FILE *)serial->data[0].p;
   M_ASSERT(f != NULL && data != NULL);
   /* HACK: Build dummy string to reuse m_string_out_str */
   m_string_t v2;
   uintptr_t ptr = (uintptr_t) data;
-  v2->u.heap.size = length;
-  v2->u.heap.alloc = length + 1;
-  v2->ptr = (char*)ptr;
+  v2->u.heap.size = (m_str1ng_size_t) length;
+  v2->u.heap.alloc[sizeof(m_str1ng_size_t)-2] = 1;
+  v2->u.heap.alloc[sizeof(m_str1ng_size_t)-1] = 31;
+  v2->u.heap.ptr = (char*)ptr;
   m_string_out_str(f, v2);
   return M_UNLIKELY(ferror(f)) ? m_core_serial_fail() : M_SERIAL_OK_DONE;
 }
@@ -620,15 +622,17 @@ m_ser1al_str_json_write_float(m_serial_write_t serial, const long double data, c
 M_INLINE m_serial_return_code_t
 m_ser1al_str_json_write_string(m_serial_write_t serial, const char data[], size_t length)
 {
+  M_ASSERT(length == (m_str1ng_size_t) length);
   M_ASSERT_SLOW(length == strlen(data) );
   struct m_string_s *f = (struct m_string_s *)serial->data[0].p;
   M_ASSERT(f != NULL && data != NULL);
   /* HACK: Build dummy string to reuse m_string_get_str */
   m_string_t v2;
   uintptr_t ptr = (uintptr_t) data;
-  v2->u.heap.size = length;
-  v2->u.heap.alloc = length + 1;
-  v2->ptr = (char*)ptr;
+  v2->u.heap.size = (m_str1ng_size_t) length;
+  v2->u.heap.alloc[sizeof(m_str1ng_size_t)-2] = 1;
+  v2->u.heap.alloc[sizeof(m_str1ng_size_t)-1] = 31;
+  v2->u.heap.ptr = (char*)ptr;
   m_string_get_str(f, v2, true);
   return M_SERIAL_OK_DONE;
 }

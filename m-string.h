@@ -40,22 +40,39 @@ M_BEGIN_PROTECTED_CODE
     M_ASSERT_SLOW (m_string_size(v) == strlen(m_string_get_cstr(v)));         \
     M_ASSERT (m_string_get_cstr(v)[m_string_size(v)] == 0);                   \
     M_ASSERT (m_string_size(v) < m_string_capacity(v));                       \
-    M_ASSERT (m_string_capacity(v) < sizeof (m_str1ng_heap_ct) || !m_str1ng_stack_p(v)); \
   } while(0)
 
-// string if it is heap allocated
+/* Define the maximum size of a string
+   By default it is a little bit less than 2^32 bytes, which should be enough for
+   most programs. Otherwise it can be increased. */
+#ifdef M_USE_STRING_LARGE_INDEX
+typedef uint64_t m_str1ng_size_t;
+#define m_str1ng_size_clz m_core_clz64
+#else
+typedef uint32_t m_str1ng_size_t;
+#define m_str1ng_size_clz m_core_clz32
+#endif
+
+// The string representation if it heap allocated
 typedef struct m_str1ng_heap_s {
-  size_t size;
-  size_t alloc;
+  char *ptr;
+  m_str1ng_size_t size;
+  unsigned char   alloc[sizeof (m_str1ng_size_t)];
 } m_str1ng_heap_ct;
-// string if it is stack allocated
-typedef struct m_str1ng_stack_s {
-  char buffer[sizeof (m_str1ng_heap_ct)];
-} m_str1ng_stack_ct;
-// both cases of string are possible
+
+/* Define the union between a heap allocated string and its inline representation
+  If buffer[sizeof(m_str1ng_heap_ct)-2] == 0 then
+    It is a stack based string where buffer is the string, with a maximum allocation of 15 bytes
+    In this case buffer[sizeof(m_str1ng_heap_ct)-1] is the size of the string
+  Otherwise it is a heap representation then
+    ptr is the pointer to the data, size its size, and alloc a representation of the capacity:
+        alloc[sizeof (m_str1ng_size_t)-2] << alloc[sizeof (m_str1ng_size_t)-1]
+  we shall have alloc[sizeof (m_str1ng_size_t)-2] == buffer[sizeof(m_str1ng_heap_ct)-2]
+  so that in case of heap representation, the field buffer[sizeof(m_str1ng_heap_ct)-2] is != 0
+*/
 typedef union m_str1ng_union_u {
-  m_str1ng_heap_ct heap;
-  m_str1ng_stack_ct stack;
+  m_str1ng_heap_ct  heap;
+  char              buffer[sizeof (m_str1ng_heap_ct)];
 } m_str1ng_union_ct;
 
 /* State of the UTF8 decoding machine state */
@@ -101,7 +118,6 @@ typedef enum {
 /* This is the main structure of this module, representing a dynamic string */
 typedef struct m_string_s {
   m_str1ng_union_ct u;
-  char *ptr;
 } m_string_t[1];
 
 // Pointer to a Dynamic string
@@ -138,22 +154,15 @@ typedef struct m_string_it_s {
 */
 
 /* Internal method to test if the string is stack based or heap based
-   We test if the ptr is NULL or not.
-   This is not particularly efficient from a memory point of view
-   (as we could reuse the pointer field to store some data)
-   but it should be enough for most of "small" strings as most
-   of the strings are less than 14 characters (64 bits architecture).
-   Moreover it generates quite efficient code.
-   NOTE: We set the pointer to NULL (instead of storing a pointer to
-   the stack buffer for example) for stack based allocation so that
-   the string structure remains trivially movable (which is an important
-   property to have).
+   Stack representation ensures that the penultimate byte is 0.
+   By encoding, we ensure that the penultimate byte of 'alloc' (of the heap representation)
+   cannot be 0.
  */
 M_INLINE bool
 m_str1ng_stack_p(const m_string_t s)
 {
   // Function can be called when contract is not fulfilled
-  return (s->ptr == NULL);
+  return (s->u.buffer[sizeof(m_str1ng_heap_ct)-2] == 0);
 }
 
 /* Internal method to set the size of the string (excluding final nul char) */
@@ -164,9 +173,10 @@ m_str1ng_set_size(m_string_t s, size_t size)
   if (m_str1ng_stack_p(s)) {
     M_ASSERT (size < sizeof (m_str1ng_heap_ct) - 1);
     // The size of the string is stored as the last char of the buffer.
-    s->u.stack.buffer[sizeof (m_str1ng_heap_ct) - 1] = (char) size;
+    s->u.buffer[sizeof(m_str1ng_heap_ct)-1] = (char) size;
   } else {
-    s->u.heap.size = size;
+    M_ASSUME(size == (m_str1ng_size_t) size);
+    s->u.heap.size = (m_str1ng_size_t) size;
   }
 }
 
@@ -175,8 +185,7 @@ M_INLINE size_t
 m_string_size(const m_string_t s)
 {
   // Function can be called when contract is not fulfilled
-  // Reading both values before calling the '?' operator enables compiler to generate branchless code
-  const size_t s_stack = (size_t) s->u.stack.buffer[sizeof (m_str1ng_heap_ct) - 1];
+  const size_t s_stack = (size_t) s->u.buffer[sizeof(m_str1ng_heap_ct)-1];
   const size_t s_heap  = s->u.heap.size;
   return m_str1ng_stack_p(s) ?  s_stack : s_heap;
 }
@@ -186,10 +195,58 @@ M_INLINE size_t
 m_string_capacity(const m_string_t s)
 {
   // Function can be called when contract is not fulfilled
-  // Reading both values before calling the '?' operator enables compiler to generate branchless code
   const size_t c_stack = sizeof (m_str1ng_heap_ct) - 1;
-  const size_t c_heap  = s->u.heap.alloc;
+  const size_t c_heap  = (m_str1ng_size_t) s->u.heap.alloc[sizeof (m_str1ng_size_t)-2] << s->u.heap.alloc[sizeof (m_str1ng_size_t)-1];
   return m_str1ng_stack_p(s) ?  c_stack : c_heap;
+}
+
+/* Internal function to round up the allocation size to the next allowed representation
+   Return the rounded allocation and the pair (m,e) used to encode it
+   An overflow occurs if the result is strictly lower than 'alloc' before casting. 
+    */
+M_INLINE m_str1ng_size_t
+m_str1ng_round_capacity(unsigned char *m, unsigned char *e, m_str1ng_size_t alloc)
+{
+  // We will encode 'alloc' as a number m<<e with (m,e) being unsigned char.
+  // alloc is strictly greater than 0, but with casting to m_str1ng_size_t, it may be 0.
+  // Compute the number of bits needed to represent 'alloc'
+  unsigned b = (unsigned) sizeof(m_str1ng_size_t) * CHAR_BIT - m_str1ng_size_clz(alloc);
+  if (b <= CHAR_BIT) {
+    // It can be fully representable. No rounding needed.
+    *m = (unsigned char) alloc;
+    *e = 0;
+  } else {
+    /* It cannot be fully represented: Round it to the next upper representation of m << e
+       with m and e unsigned char.
+       Keep only the '7' upper bits of alloc, and round it to the next representation so that
+       m << e is bigger or equal to alloc.
+       Worst case is when alloc = 0x7F01 (i.e. all 7 upper bits are 1)
+       Performing the rounding will generate a carry, so we get for mantissa 0x80 which is on 8 bits.
+       That's why we shift by '7' and not by '8', so that 0x80 remains representable as an
+       unsigned char. Otherwise we would need to take into account this case, and shift mantissa by
+       one and increase exponent by one.
+       If alloc was >= 0xFE000001, rounding will overflow the max of a m_str1ng_size_t
+       and *m == 0.
+       This case should be handled by the caller as an overflow error
+       (return value is lower than input)
+    */
+    *m = (unsigned char) ((alloc + ((1U <<(b-(CHAR_BIT-1)))-1))>>(b-(CHAR_BIT-1)));
+    *e = (unsigned char) (b - (CHAR_BIT-1));
+  }
+  // Worst case is when the rounding overflow the size m_str1ng_size_t
+  M_ASSERT (((m_str1ng_size_t) *m << *e) >= alloc || *m == 0);
+  return (m_str1ng_size_t) *m << *e;
+}
+
+/* Internal function to save the allocation size to the next allowed representation
+  as returned by m_str1ng_round_capacity */
+M_INLINE void
+m_str1ng_set_capacity(m_string_t s, unsigned char m, unsigned char e)
+{
+  // Function can be called when contract is not fulfilled
+  M_ASSERT(m != 0);
+  s->u.heap.alloc[sizeof (m_str1ng_size_t)-2] = m;
+  s->u.heap.alloc[sizeof (m_str1ng_size_t)-1] = e;
 }
 
 /* Return a writable pointer to the array of char of the string */
@@ -197,8 +254,8 @@ M_INLINE char*
 m_str1ng_get_cstr(m_string_t v)
 {
   // Function can be called when contract is not fulfilled
-  char *const ptr_stack = &v->u.stack.buffer[0];
-  char *const ptr_heap  = v->ptr;
+  char *const ptr_stack = &v->u.buffer[0];
+  char *const ptr_heap  = v->u.heap.ptr;
   return m_str1ng_stack_p(v) ?  ptr_stack : ptr_heap;
 }
 
@@ -208,8 +265,8 @@ m_string_get_cstr(const m_string_t v)
 {
   // Function cannot be called when contract is not fulfilled
   // but it is called by contract (so no contract check to avoid infinite recursion).
-  const char *const ptr_stack = &v->u.stack.buffer[0];
-  const char *const ptr_heap  = v->ptr;
+  const char *const ptr_stack = &v->u.buffer[0];
+  const char *const ptr_heap  = v->u.heap.ptr;
   return m_str1ng_stack_p(v) ?  ptr_stack : ptr_heap;
 }
 
@@ -218,9 +275,7 @@ m_string_get_cstr(const m_string_t v)
 M_INLINE void
 m_string_init(m_string_t s)
 {
-  s->ptr = NULL;
-  s->u.stack.buffer[0] = 0;
-  m_str1ng_set_size(s, 0);
+  memset(s, 0, sizeof(m_string_t));
   M_STR1NG_CONTRACT(s);
 }
 
@@ -230,12 +285,13 @@ m_string_clear(m_string_t v)
 {
   M_STR1NG_CONTRACT(v);
   if (!m_str1ng_stack_p(v)) {    
-    M_MEMORY_FREE(v->ptr);
-    v->ptr   = NULL;
+    M_MEMORY_FREE(v->u.heap.ptr);
+    v->u.heap.ptr   = NULL;
   }
   /* This is not needed but is safer to make
      the string invalid so that it can be detected. */
-  v->u.stack.buffer[sizeof (m_str1ng_heap_ct) - 1] = CHAR_MAX;
+  v->u.buffer[sizeof(m_str1ng_heap_ct)-2] = 0;
+  v->u.buffer[sizeof(m_str1ng_heap_ct)-1] = CHAR_MAX;
 }
 
 M_INLINE m_string_ptr m_str1ng_init_ref(m_string_t v) { m_string_init(v); return v; }
@@ -248,10 +304,10 @@ M_INLINE char *
 m_string_clear_get_cstr(m_string_t v)
 {
   M_STR1NG_CONTRACT(v);
-  char *p = v->ptr;
+  char *p = v->u.heap.ptr;
   if (m_str1ng_stack_p(v)) {
     // The string was stack allocated.
-    p = v->u.stack.buffer;
+    p = &v->u.buffer[0];
     // Need to allocate a heap string to return the copy.
     size_t alloc = m_string_size(v)+1;
     char *ptr = M_MEMORY_REALLOC (char, NULL, alloc);
@@ -263,8 +319,8 @@ m_string_clear_get_cstr(m_string_t v)
     memcpy(ptr, p, alloc);
     p = ptr;
   }
-  v->ptr = NULL;
-  v->u.stack.buffer[sizeof (m_str1ng_heap_ct) - 1] = CHAR_MAX;
+  v->u.buffer[sizeof(m_str1ng_heap_ct)-2] = 0;
+  v->u.buffer[sizeof(m_str1ng_heap_ct)-1] = CHAR_MAX;
   return p;
 }
 
@@ -308,6 +364,7 @@ m_string_empty_p(const m_string_t v)
    Ensures that the string capacity is greater than size_alloc
    (size_alloc shall include the final null char).
    It may move the string from stack based to heap based.
+   The string 'v' no longer has a working size field.
    Return a pointer to the writable string.
 */
 M_INLINE char *
@@ -323,7 +380,9 @@ m_str1ng_fit2size (m_string_t v, size_t size_alloc)
   if (M_UNLIKELY (size_alloc > old_alloc)) {
     // Insufficient current allocation to store the new string
     // Perform an allocation on the heap.
-    size_t alloc = size_alloc + size_alloc / 2;
+    size_t alloc = (size_alloc + size_alloc / 2);
+    unsigned char m, e;
+    alloc = m_str1ng_round_capacity(&m, &e, (m_str1ng_size_t) alloc);
     if (M_UNLIKELY_NOMEM (alloc <= size_alloc)) {
       /* Overflow in alloc computation */
       M_MEMORY_FULL(sizeof (char) * alloc);
@@ -331,27 +390,28 @@ m_str1ng_fit2size (m_string_t v, size_t size_alloc)
       abort();
       return NULL;
     }
-    char *ptr = M_MEMORY_REALLOC (char, v->ptr, alloc);
+    char *ptr = m_str1ng_stack_p(v) ? NULL : v->u.heap.ptr;
+    ptr = M_MEMORY_REALLOC (char, ptr, alloc);
     if (M_UNLIKELY_NOMEM (ptr == NULL)) {
       M_MEMORY_FULL(sizeof (char) * alloc);
       // NOTE: Return is currently broken.
       abort();
       return NULL;
     }
-    // The pointer cannot be the stack buffer of the string.
-    // as it is heap allocated
-    M_ASSERT(ptr != &v->u.stack.buffer[0]);
+    // The pointer cannot be the stack buffer of the string as it is heap allocated
+    M_ASSERT(ptr != &v->u.buffer[0]);
     if (m_str1ng_stack_p(v)) {
       // The string was stack allocated.
       /* Copy the stack allocation into the new heap allocation */
-      const size_t size = (size_t) v->u.stack.buffer[sizeof (m_str1ng_heap_ct) - 1] + 1U;
-      M_ASSERT( size <= alloc);
-      M_ASSERT( size <= sizeof (v->u.stack.buffer)-1);
-      memcpy(ptr, &v->u.stack.buffer[0], size);
+      const size_t size = (size_t) v->u.buffer[sizeof(m_str1ng_heap_ct) - 1];
+      memcpy(ptr, &v->u.buffer[0], size+1);
     }
     // The string cannot be stack allocated anymore.
-    v->ptr = ptr;
-    v->u.heap.alloc = alloc;
+    v->u.heap.ptr = ptr;
+    m_str1ng_set_capacity(v, m, e);
+    // Size is not set as the function is called in context 
+    // where the caller already know the final size of the string,
+    // so it will update it.
     return ptr;
   }
   return m_str1ng_get_cstr(v);
@@ -374,32 +434,39 @@ m_string_reserve(m_string_t v, size_t alloc)
     // Allocation can fit in the stack space
     if (!m_str1ng_stack_p(v)) {
       /* Transform Heap Allocate to Stack Allocate */
-      char *ptr = &v->u.stack.buffer[0];
-      memcpy(ptr, v->ptr, size+1);
-      M_MEMORY_FREE(v->ptr);
-      v->ptr = NULL;
-      m_str1ng_set_size(v, size);
+      char *ptr = &v->u.buffer[0];
+      char *oldptr = v->u.heap.ptr;
+      memcpy(ptr, oldptr, size+1);
+      M_MEMORY_FREE(oldptr);
+      v->u.buffer[sizeof(m_string_t)-2] = 0;
+      v->u.buffer[sizeof(m_string_t)-1] = (char) size;
     } else {
       /* Already a stack based alloc: nothing to do */
     }
   } else {
     // Allocation cannot fit in the stack space
     // Need to allocate in heap space
-    // If the string is stack allocated, v->ptr is NULL
-    // and it will therefore perform the initial allocation
-    char *ptr = M_MEMORY_REALLOC (char, v->ptr, alloc);
+    unsigned char m, e;
+    size_t r_alloc = m_str1ng_round_capacity(&m, &e, (m_str1ng_size_t) alloc);
+    if (M_UNLIKELY_NOMEM (alloc > r_alloc)) {
+      M_MEMORY_FULL(sizeof (char) * alloc);
+      return;
+    } 
+    char *ptr = m_str1ng_stack_p(v) ? NULL : v->u.heap.ptr;
+    ptr = M_MEMORY_REALLOC (char, ptr, r_alloc);
     if (M_UNLIKELY_NOMEM (ptr == NULL) ) {
       M_MEMORY_FULL(sizeof (char) * alloc);
       return;
     }
     if (m_str1ng_stack_p(v)) {
       // Copy from stack space to heap space the string
-      char *ptr_stack = &v->u.stack.buffer[0];
+      char *ptr_stack = &v->u.buffer[0];
       memcpy(ptr, ptr_stack, size+1);
-      v->u.heap.size = size;
+      M_ASSERT(size == (m_str1ng_size_t) size);
+      v->u.heap.size = (m_str1ng_size_t) size;
     }
-    v->ptr = ptr;
-    v->u.heap.alloc = alloc;
+    v->u.heap.ptr = ptr;
+    m_str1ng_set_capacity(v, m, e);
   }
   M_STR1NG_CONTRACT (v);
 }
@@ -429,6 +496,7 @@ m_string_set_cstrn(m_string_t v, const char str[], size_t n)
   char *ptr = m_str1ng_fit2size(v, size+1);
   // The memcpy will not copy the final null char of the string
   memcpy(ptr, str, size);
+  // Cannot copy the final null char using memcpy
   ptr[size] = 0;
   m_str1ng_set_size(v, size);
   M_STR1NG_CONTRACT (v);
@@ -460,6 +528,7 @@ m_string_set_n(m_string_t v, const m_string_t ref, size_t offset, size_t length)
   char *ptr = m_str1ng_fit2size(v, size+1);
   // v may be equal to ref, so a memmove is needed instead of a memcpy
   memmove(ptr, m_string_get_cstr(ref) + offset, size);
+  // Cannot copy the final null char using memcpy
   ptr[size] = 0;
   m_str1ng_set_size(v, size);
   M_STR1NG_CONTRACT (v);
@@ -498,7 +567,8 @@ m_string_init_move(m_string_t v1, m_string_t v2)
   M_STR1NG_CONTRACT (v2);
   memcpy(v1, v2, sizeof (m_string_t));
   // Note: nullify v2 to be safer
-  v2->ptr   = NULL;
+  v2->u.buffer[sizeof(m_str1ng_heap_ct)-2] = 0;
+  v2->u.buffer[sizeof(m_str1ng_heap_ct)-1] = CHAR_MAX;
   M_STR1NG_CONTRACT (v1);
 }
 
@@ -508,11 +578,10 @@ m_string_swap(m_string_t v1, m_string_t v2)
 {
   M_STR1NG_CONTRACT (v1);
   M_STR1NG_CONTRACT (v2);
-  // Even if it is stack based, we swap the heap representation
-  // which alias the stack based
-  M_SWAP (size_t, v1->u.heap.size,  v2->u.heap.size);
-  M_SWAP (size_t, v1->u.heap.alloc, v2->u.heap.alloc);
-  M_SWAP (char *, v1->ptr,   v2->ptr);
+  m_string_t tmp;
+  memcpy(tmp, v1, sizeof(m_string_t));
+  memcpy(v1,  v2, sizeof(m_string_t));
+  memcpy(v2, tmp, sizeof(m_string_t));
   M_STR1NG_CONTRACT (v1);
   M_STR1NG_CONTRACT (v2);
 }
@@ -1389,15 +1458,15 @@ m_string_strim(m_string_t v, const char tab[])
 M_INLINE bool
 m_string_oor_equal_p(const m_string_t s, unsigned char n)
 {
-  return (s->ptr == NULL) & (s->u.heap.alloc == ~(size_t)n);
+  return (s->u.buffer[sizeof (m_str1ng_heap_ct)-2] == 0) & (s->u.buffer[sizeof (m_str1ng_heap_ct)-1] == (char) ~n);
 }
 
 /* Set the uninitialized string to the OOR value */
 M_INLINE void
 m_string_oor_set(m_string_t s, unsigned char n)
 {
-  s->ptr = NULL;
-  s->u.heap.alloc = ~(size_t)n;
+  s->u.buffer[sizeof (m_str1ng_heap_ct)-2] = 0;
+  s->u.buffer[sizeof (m_str1ng_heap_ct)-1] = (char) ~n;
 }
 
 /* I/O */
@@ -1917,15 +1986,14 @@ m_string_it_set_ref(m_string_it_t it, m_string_t s, m_string_unicode_t new_u)
   size_t old_u_size = (size_t) (str - it->ptr);
   // We need to replace old_u by new_u. Both are variable length
   size_t str_size = m_string_size(s);
-  m_str1ng_fit2size(s, str_size + new_u_size - old_u_size + 1);
-  ptr = m_str1ng_get_cstr(s); // ptr may be reallocated!
   if (new_u_size != old_u_size) {
+    ptr = m_str1ng_fit2size(s, str_size + new_u_size - old_u_size + 1);
     M_ASSUME( str_size+1 > (offset + old_u_size) );
     memmove(&ptr[offset+new_u_size], &ptr[offset + old_u_size],
             str_size+1 - offset - old_u_size);
+    m_str1ng_set_size(s, str_size + new_u_size - old_u_size);
   }
   memcpy(&ptr[offset], &buffer[0], new_u_size);
-  m_str1ng_set_size(s, str_size + new_u_size - old_u_size);
   it->ptr = &ptr[offset];
   M_STR1NG_IT_CONTRACT(it);
   M_STR1NG_CONTRACT(s);
@@ -2055,8 +2123,9 @@ m_string_utf8_p(m_string_t str)
 #ifndef __cplusplus
 /* Initialize a constant string with the given C string */
 # define M_STRING_CTE(s)                                                      \
-  (m_string_srcptr)((const m_string_t){{.u.heap = { .size = sizeof(s)-1, .alloc = sizeof(s) } , \
-        .ptr = ((struct { long long _n; char _d[sizeof (s)]; }){ 0, s })._d }})
+  (m_string_srcptr)((const m_string_t){{.u.heap = { .size = sizeof(s)-1,      \
+        .alloc = { [sizeof(m_str1ng_size_t)-2] = 1, [sizeof(m_str1ng_size_t)-1] = 31}, \
+        .ptr = ((struct { long long _n; char _d[sizeof (s)]; }){ 0, s })._d }}})
 #else
 namespace m_lib {
   template <unsigned int N>
@@ -2069,9 +2138,10 @@ namespace m_lib {
     inline m_aligned_string(const char lstr[])
       {
         this->string->u.heap.size = N -1;
-        this->string->u.heap.alloc = N;
+        this->string->u.heap.alloc[sizeof(m_str1ng_size_t)-2] = 1;
+        this->string->u.heap.alloc[sizeof(m_str1ng_size_t)-1] = 31;
         memcpy (this->str, lstr, N);
-        this->string->ptr = this->str;
+        this->string->u.heap.ptr = this->str;
       }
     };
 }
@@ -2563,9 +2633,10 @@ namespace m_lib {
     /* Build dummy string to reuse m_string_get_str */                        \
     uintptr_t ptr = (uintptr_t) &s->s[0];                                     \
     m_string_t v2;                                                            \
-    v2->u.heap.size = strlen(s->s);                                           \
-    v2->u.heap.alloc = v2->u.heap.size + 1;                                   \
-    v2->ptr = (char*)ptr;                                                     \
+    v2->u.heap.size = (m_str1ng_size_t) strlen(s->s);                         \
+    v2->u.heap.alloc[sizeof(m_str1ng_size_t)-2] = 1;                          \
+    v2->u.heap.alloc[sizeof(m_str1ng_size_t)-1] = 31;                         \
+    v2->u.heap.ptr = (char*)ptr;                                              \
     m_string_get_str(v, v2, append);                                          \
   }                                                                           \
                                                                               \
@@ -2577,9 +2648,10 @@ namespace m_lib {
     /* Build dummy string to reuse m_string_get_str */                        \
     uintptr_t ptr = (uintptr_t) &s->s[0];                                     \
     m_string_t v2;                                                            \
-    v2->u.heap.size = strlen(s->s);                                           \
-    v2->u.heap.alloc = v2->u.heap.size + 1;                                   \
-    v2->ptr = (char*)ptr;                                                     \
+    v2->u.heap.size = (m_str1ng_size_t) strlen(s->s);                         \
+    v2->u.heap.alloc[sizeof(m_str1ng_size_t)-2] = 1;                          \
+    v2->u.heap.alloc[sizeof(m_str1ng_size_t)-1] = 31;                         \
+    v2->u.heap.ptr = (char*)ptr;                                              \
     m_string_out_str(f, v2);                                                  \
   }                                                                           \
                                                                               \

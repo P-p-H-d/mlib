@@ -765,9 +765,34 @@ static void test0(void)
 
   string_init(s1);
   string_set_str(s1, "Hello");
-  string_reserve(s1, 128);
-  assert(string_equal_str_p(s1, "Hello"));
+  for(i = 0 ; i < 2049; i++) {
+    string_reserve(s1, i);
+    assert(string_equal_str_p(s1, "Hello"));
+  }
   string_clear(s1);
+}
+
+static void test_rounding(void)
+{
+  const size_t max = -(m_str1ng_size_t)1;
+  for(size_t a = max/2; a <= max; a++) {
+    unsigned char m, e;
+    size_t x = (size_t) a + a/2;
+    size_t nx = m_str1ng_round_capacity(&m, &e, (m_str1ng_size_t) x);
+    if (nx >= x) {
+      assert( x == (m_str1ng_size_t)x);
+    }
+  }
+  if (max != -(size_t)1) {
+    for(size_t a = max; a <= 2*max; a++) {
+      unsigned char m, e;
+      size_t x = (size_t) a + a/2;
+      size_t nx = m_str1ng_round_capacity(&m, &e, (m_str1ng_size_t) x);
+      if (nx >= x) {
+        assert( x == (m_str1ng_size_t)x);
+      }
+    }
+  }
 }
 
 static void test_int(void)
@@ -1005,6 +1030,7 @@ static void test_parse_standard_c_type(void)
 int main(void)
 {
   test0();
+  test_rounding();
   test_M_LET();
   test_parse_standard_c_type();
   test_utf8_basic();
