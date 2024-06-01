@@ -194,9 +194,9 @@
   typedef                                                                     \
   M_IF_METHOD(GENTYPE, M_VAR1ANT_GET_OPLIST a)( M_GET_GENTYPE M_VAR1ANT_GET_OPLIST a, M_VAR1ANT_GET_TYPE a) \
   M_C4(m_var1ant_, name, _gentype_, num);                                     \
-  typedef                                                               \
+  typedef                                                                     \
   M_IF_METHOD(GENTYPE, M_VAR1ANT_GET_OPLIST a)( const M_GET_GENTYPE M_VAR1ANT_GET_OPLIST a, M_VAR1ANT_GET_TYPE a const) \
-  M_C4(m_var1ant_, name, _const_gentype_, num); \
+  M_C4(m_var1ant_, name, _const_gentype_, num);                               \
   typedef M_VAR1ANT_GET_TYPE a M_C4(m_var1ant_, name, _type_, M_VAR1ANT_GET_FIELD a);
 
 #define M_VAR1ANT_DEFINE_UNION_ELE(name, a)                                   \
@@ -794,7 +794,7 @@ M_INLINE void                                                                 \
    M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(INIT_MOVE(M_F(name, _init_move)),), \
    M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(MOVE(M_F(name, _move)),),          \
    M_IF_METHOD_ALL(SWAP, __VA_ARGS__)(SWAP(M_F(name, _swap)),),               \
-   M_IF_METHOD_ALL(FIELD, __VA_ARGS__)(M_VAR1ANT_OPLIST_EMPLACE_TYPE(name, __VA_ARGS__),), \
+   M_IF_METHOD_ALL(FIELD, __VA_ARGS__)(M_VAR1ANT_OPLIST_EMPLACE_TYPE,M_EAT)(name, __VA_ARGS__), \
    )
 
 /* Expand to an EMPLACE_TYPE compatible with OPLIST definition
@@ -803,8 +803,8 @@ M_INLINE void                                                                 \
 #define M_VAR1ANT_OPLIST_EMPLACE_TYPE(name, ...) EMPLACE_TYPE( LIST(          \
  M_REDUCE2(M_VAR1ANT_OPLIST_EMPLACE_TYPE_EXPAND, M_ID, name, __VA_ARGS__)     \
                                                                    ))
-#define M_VAR1ANT_OPLIST_EMPLACE_TYPE_EXPAND(name, oplist)      \
-  ( M_C(_, M_GET_FIELD oplist), M_C4(name, _init_set_, M_GET_FIELD oplist),     \
+#define M_VAR1ANT_OPLIST_EMPLACE_TYPE_EXPAND(name, oplist)                    \
+  ( M_C(_, M_GET_FIELD oplist), M_C3(name, _init_set_, M_GET_FIELD oplist),   \
     M_C4(m_var1ant_, name, _type_, M_GET_FIELD oplist) )
 
 
