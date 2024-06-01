@@ -3386,6 +3386,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_GENTYPE_GENTYPE(a)     ,a,
 #define M_SUBTYPE_PTR_SUBTYPE_PTR(a) ,a,
 #define M_NAME_NAME(a)           ,a,
+#define M_FIELD_FIELD(a)         ,a,
 #define M_OPLIST_OPLIST(a)       ,a,
 #define M_SORT_SORT(a)           ,a,
 #define M_SPLICE_BACK_SPLICE_BACK(a) ,a,
@@ -3477,6 +3478,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_GET_SUBTYPE_PTR(...) M_GET_METHOD(SUBTYPE_PTR, M_NO_DEF_SUBTYPE_PTR, __VA_ARGS__)
 #define M_GET_GENTYPE(...)   M_GET_METHOD(GENTYPE,     M_NO_DEF_GENTYPE,   __VA_ARGS__)
 #define M_GET_NAME(...)      M_GET_METHOD(NAME,        M_NO_DEF_NAME,      __VA_ARGS__)
+#define M_GET_FIELD(...)     M_GET_METHOD(FIELD,       M_NO_DEF_FIELD,     __VA_ARGS__)
 #define M_GET_OPLIST(...)    M_GET_METHOD(OPLIST,      (),                 __VA_ARGS__)
 #define M_GET_SORT(...)      M_GET_METHOD(SORT,        M_NO_DEF_SORT,      __VA_ARGS__)
 #define M_GET_SPLICE_BACK(...) M_GET_METHOD(SPLICE_BACK, M_NO_DEF_SPLICE_BACK, __VA_ARGS__)
@@ -3558,6 +3560,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 //#define M_CALL_SUBTYPE_PTR(oplist, ...) M_APPLY_API(M_GET_SUBTYPE_PTR oplist, oplist, __VA_ARGS__)
 //#define M_CALL_GENTYPE(oplist, ...) M_APPLY_API(M_GET_GENTYPE oplist, oplist, __VA_ARGS__)
 //#define M_CALL_NAME(oplist, ...) M_APPLY_API(M_GET_NAME oplist, oplist, __VA_ARGS__)
+//#define M_CALL_FIELD(oplist, ...) M_APPLY_API(M_GET_FIELD oplist, oplist, __VA_ARGS__)
 //#define M_CALL_OPLIST(oplist, ...) M_APPLY_API(M_GET_OPLIST oplist, oplist, __VA_ARGS__)
 #define M_CALL_SORT(oplist, ...) M_APPLY_API(M_GET_SORT oplist, oplist, __VA_ARGS__)
 #define M_CALL_SPLICE_BACK(oplist, ...) M_APPLY_API(M_GET_SPLICE_BACK oplist, oplist, __VA_ARGS__)
