@@ -189,7 +189,8 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
 /* Upper Bound of the hash table 
    The container is designed for an upper bound in the range [0.5-0.75]
    Using higher upper bound (even by a slow amount) will deteriorate a lot the performance:
-   an upper-bound of 0.875 is ~3 times slower than an upper bound of 0.7 for lockup of key not present.
+   an upper-bound of 0.875 is ~3 times slower than an upper bound of 0.7 for lockup of key not present
+   (without considering prefetch of cache-lines which improve performance).
    This is due to the esperance of the number of reads before reading an empty value which is:
    (1-q)*sum(q^k*(k+1),k=0 .. infinity) = 1/(1-q)
    which is the estimated number of iteration before stopping the search loop.
