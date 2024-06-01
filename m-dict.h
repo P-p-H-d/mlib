@@ -617,23 +617,13 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     m_index_t hash = (m_index_t) M_CALL_HASH(key_oplist, key);                \
     m_index_t p = hash & mask;                                                \
                                                                               \
-    if (M_UNLIKELY (hash == map->index[p].hash)) {                            \
-      m_index_t d = map->index[p].index;                                      \
-      M_ASSERT(d <= map->freelist_count);                                     \
-      if (d >= 2 && M_CALL_EQUAL(key_oplist, map->data[d].pair.key, key)) {   \
-        M_CALL_SET(value_oplist, map->data[d].pair.value, value);             \
-        return;                                                               \
-      }                                                                       \
-    }                                                                         \
-                                                                              \
-    if (M_UNLIKELY( map->index[p].index != 0)) {                              \
+    /* Test if bucket is not empty ? (50 % likely) */                         \
+    if (map->index[p].index != 0) {                                           \
       /* Find the insertion point as the bucket[] is not empty */             \
       m_index_t delPos = (m_index_t) -1;                                      \
-      if (map->index[p].index == 1) delPos = p;                               \
       m_index_t s = 1U;                                                       \
       do {                                                                    \
-        p = (p + M_D1CT_OA_PROBING(s)) & mask;                                \
-        if (hash == (map->index[p].hash)) {                                   \
+        if (M_UNLIKELY(hash == (map->index[p].hash))) {                       \
           m_index_t d = map->index[p].index;                                  \
           M_ASSERT(d <= map->freelist_count);                                 \
           if (d >= 2 && M_CALL_EQUAL(key_oplist, map->data[d].pair.key, key)) { \
@@ -642,6 +632,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
           }                                                                   \
         }                                                                     \
         if (map->index[p].index == 1 && delPos == (m_index_t) -1) delPos = p; \
+        p = (p + M_D1CT_OA_PROBING(s)) & mask;                                \
       } while (map->index[p].index != 0);                                     \
       if (delPos != (m_index_t) -1) {                                         \
         p = delPos;                                                           \
@@ -1668,19 +1659,13 @@ enum m_d1ct_oa_element_e {
     const size_t mask = dict->mask;                                           \
     size_t p = M_CALL_HASH(key_oplist, key) & mask;                           \
                                                                               \
-    /* NOTE: Likely cache miss */                                             \
-    if (M_UNLIKELY (M_CALL_EQUAL(key_oplist, data[p].key, key)) ) {           \
-      M_CALL_SET(value_oplist, data[p].value, value);                         \
-      return;                                                                 \
-    }                                                                         \
-    if (M_UNLIKELY (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_EMPTY) ) ) { \
+    /* Test if bucket is not empty? (50% chance)  */                          \
+    if (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_EMPTY) ) {       \
       /* Find the insertion point as the bucket[] is not empty */             \
       size_t delPos = SIZE_MAX;                                               \
-      if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_DELETED)) delPos = p; \
       size_t s = 1U;                                                          \
       do {                                                                    \
-        p = (p + M_D1CT_OA_PROBING(s)) & mask;                                \
-        if (M_CALL_EQUAL(key_oplist, data[p].key, key)) {                     \
+        if (M_UNLIKELY(M_CALL_EQUAL(key_oplist, data[p].key, key))) {         \
           M_CALL_SET(value_oplist, data[p].value, value);                     \
           return;                                                             \
         }                                                                     \
@@ -1689,6 +1674,7 @@ enum m_d1ct_oa_element_e {
             && (delPos == (size_t)-1)) {                                      \
           delPos = p;                                                         \
         }                                                                     \
+        p = (p + M_D1CT_OA_PROBING(s)) & mask;                                \
       } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_EMPTY) ); \
       if (delPos != SIZE_MAX) {                                               \
         p = delPos;                                                           \
