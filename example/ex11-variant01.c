@@ -56,7 +56,7 @@ static void f(void)
   // Initialize, set as an integer of value '12' & afterward clear the object
   // () around 12 means that we want to 'emplace' object using the input '12' to construct the object in-place,
   // rather than setting it from an already existing 'obj_t'.
-  // It checks for the type of 12, find it is an integer, and initalize o with this value
+  // It checks for the type of 12, find it is an integer, and initialize o with this value
   // It won't work if there is multiple compatible type in the variant
   M_LET( (o, (12)), obj_t) {
     print_obj(o, "2nd init");
