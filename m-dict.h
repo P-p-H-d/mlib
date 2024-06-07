@@ -156,7 +156,7 @@
 /*****************************************************************************/
 
 // Define the maximum index
-#ifdef M_USE_64BITS_INDEX
+#ifdef M_USE_DICT_LARGE_INDEX
 typedef uint64_t m_index_t;
 #else
 typedef uint32_t m_index_t;
