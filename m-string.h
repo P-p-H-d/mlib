@@ -682,7 +682,8 @@ m_string_equal_p(const m_string_t v1, const m_string_t v2)
   M_ASSERT(v1 != NULL);
   M_ASSERT(v2 != NULL);
   /* Optimization: both strings shall have at least the same size */
-  return m_string_size(v1) == m_string_size(v2) && m_string_cmp(v1, v2) == 0;
+  return m_string_size(v1) == m_string_size(v2)
+      && memcmp(m_string_get_cstr(v1), m_string_get_cstr(v2), m_string_size(v1)) == 0;
 }
 
 /* Test if the string is equal to the C string 
