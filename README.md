@@ -6955,10 +6955,13 @@ M_LET( (b, a), string_t){ string_fputs(stdout, b); }
 
 > [!NOTE]
 > The user code shall not perform a return or a goto (or `longjmp`) within the next block
-> with a terget outside this block or a call to an exit function.
-> Otherwise the clear code of the object won't be called.
+> with a target outside this block.
+> Otherwise the clear code of the object isn't called.
 > However, you can use the break instruction to quit the block 
 > (the clear function will be executed) or throw an exception.
+
+If a call to an exit function in the next block is performed,
+the clear code of the object isn't called.
 
 You can chain the `M_LET` macro to create several different variables.
 
