@@ -6889,27 +6889,33 @@ for M_EACH(item, list, LIST_OPLIST) { action; }
 
 ##### `M_LET(var1[,var2[,...]], oplist|type)`
 
-This macro defines the variable `var1`(resp. `var2`, `...`) of oplist `oplist`.
-If a type (instead of an oplist) is used, the oplist of the type shall have been registered globally.
-It initializes `var1` (resp. `var2`, `...`) by calling the initialization method,
+This macro defines the variable `var1`(resp. `var2`, `...`) with the oplist `oplist` for the next block of code.
+A type can be used instead of an oplist, in which case the macro will use the oplist globally associated to this type.
+Then the oplist is used to get the constructor methods and destructor method of the type.
+
+It initializes `var1` (resp. `var2`, `...`) by calling the right initialization method
+in function of the given context
 and clears `var1` (resp. `var2`, `...`) by calling the clear method
 when the bracket associated to the `M_LET` go out of scope.
 
+If the exception model is activated, the clear method is also called if an exception is thrown in the next block of code.
+The ̀`M_LET` macro enables support of [RAII](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)
+
 Its formulation is based on the expression `let var1 as type in`
 
-Several forms are supported for the initialization method:
+Several forms are supported for the context of the initialization method:
 
 * If `var1` (resp. `var2`, `...`) has the form (`v1`, `arguments...`),
 then the variable `v1` will be initialized with the 
 contains of the initializing list `arguments...`.
-* If `arguments` is single and within parenthesis
+* If `arguments...` is a single argument within parenthesis
 or if there is more one argument
-or if the property `LET_AS_INIT_WITH` of the type is defined,
-it will use the operator `INIT_WITH` (if it exists) to emplace the variable
-with the given arguments. The arguments are therefore expected to be compatible with
-the `INIT_WITH` operator.
+or if the property `LET_AS_INIT_WITH` of the oplist is defined,
+then it uses the operator `INIT_WITH` (if it exists) to emplace the variable
+with the given arguments (The arguments are therefore expected to be compatible with
+the `INIT_WITH` operator).
 * Otherwise, it will use the operator `INIT_SET` (argument is expected
-to be the same type as the initialized type in such case).
+to be the same type as the initialized type in such case) if there is a single argument.
 * Otherwise, it will use the empty initializer `INIT` operator.
 
 > [!IMPORTANT]
@@ -6920,24 +6926,39 @@ to be the same type as the initialized type in such case).
 > with the `INIT_WITH` detection it is needed to put something outside the 
 > parenthesis like a cast).
 
-An argument shall not have any post effect when it is evaluated.
+An argument shall not have any post effect when it is evaluated as the macro may evaulate it multiple times.
 
 There shall be at most one `M_LET` macro per line of source code.
 
-Example:
+You shall not call the destructor operator with the next block of code.
+
+Examples:
 
 ```C
-M_LET(a, STRING_OPLIST) { do something with a }  or
+M_LET(a, STRING_OPLIST) { string_set_str(a, "Hello world"); string_fputs(stdout, a); }
+// a no longer exists
+```
+
+```C
 M_LET(a, b, c, string_t) { do something with a, b & c }
-M_LET( (a, ("Hello")), string_t) { do something with a initialized to "Hello" }
+// a, b, c no longer exists
+```
+
+```C
+M_LET( (a, ("Hello")), string_t) { string_fputs(stdout, a); }
+```
+
+```C
+M_LET( (a, ("Hello")), string_t)
+M_LET( (b, a), string_t){ string_fputs(stdout, b); }
 ```
 
 > [!NOTE]
-> The user code shall not perform a return or a goto (or `longjmp`) 
-> Outside the `{}` or a call to an exit function
+> The user code shall not perform a return or a goto (or `longjmp`) within the next block
+> with a terget outside this block or a call to an exit function.
 > Otherwise the clear code of the object won't be called.
 > However, you can use the break instruction to quit the block 
-> (the clear function will be executed).
+> (the clear function will be executed) or throw an exception.
 
 You can chain the `M_LET` macro to create several different variables.
 
