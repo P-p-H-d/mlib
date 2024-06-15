@@ -6890,7 +6890,7 @@ for M_EACH(item, list, LIST_OPLIST) { action; }
 ##### `M_LET(var1[,var2[,...]], oplist|type)`
 
 This macro defines the variable `var1`(resp. `var2`, `...`) with the oplist `oplist` for the next block of code.
-A type can be used instead of an oplist, in which case the macro will use the oplist globally associated to this type.
+A type can be used instead of an oplist, in which case the macro uses the oplist globally associated to this type.
 Then the oplist is used to get the constructor methods and destructor method of the type.
 
 It initializes `var1` (resp. `var2`, `...`) by calling the right initialization method
@@ -6899,7 +6899,7 @@ and clears `var1` (resp. `var2`, `...`) by calling the clear method
 when the bracket associated to the `M_LET` go out of scope.
 
 If the exception model is activated, the clear method is also called if an exception is thrown in the next block of code.
-The ̀`M_LET` macro enables support of [RAII](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)
+The `M_LET` macro enables support of [RAII](https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization)
 
 Its formulation is based on the expression `let var1 as type in`
 
