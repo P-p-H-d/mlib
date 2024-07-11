@@ -71,6 +71,10 @@
                 ((__VA_ARGS__, M_BASIC_OPLIST),                               \
                  (__VA_ARGS__ )))
 
+#define M_ILIST_INIT_FIELD(name, obj) do {                                    \
+    (obj).name.next = NULL;                                                   \
+    (obj).name.prev = NULL;                                                   \
+  } while(0)
 
 /*****************************************************************************/
 /******************************** INTERNAL ***********************************/
@@ -117,7 +121,6 @@ typedef struct m_il1st_head_s {
    IT_REF(M_F(name,_ref)),                                                    \
    IT_CREF(M_F(name,_cref)),                                                  \
    IT_REMOVE(M_F(name,_remove)),                                              \
-   M_IF_METHOD(NEW, oplist)(IT_INSERT(M_F(name,_insert)),),                   \
    OPLIST(oplist),                                                            \
    SPLICE_BACK(M_F(name,_splice_back))                                        \
    )
@@ -517,30 +520,22 @@ typedef struct m_il1st_head_s {
     type *obj = M_TYPE_FROM_FIELD(type, it->current,                          \
                                   struct m_il1st_head_s, name);               \
     M_F(name, _unlink)(obj);                                                  \
-    M_CALL_CLEAR(oplist, obj);                                                \
+    M_CALL_CLEAR(oplist, *obj);                                               \
     M_IF_METHOD(DEL, oplist)(M_CALL_DEL(oplist, obj), (void) 0);              \
     M_F(name, _next)(it);                                                     \
   }                                                                           \
                                                                               \
-  M_IF_METHOD2(NEW, INIT_SET, oplist)(                                        \
   M_INLINE void                                                               \
-  M_F(name, _insert)(list_t list, it_t it, type x)                            \
+  M_F(name, _insert)(list_t list, it_t it, type *p)                           \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
     M_IL1ST_NODE_CONTRACT(it->current);                                       \
-    type *p = M_CALL_NEW(oplist, type);                                       \
-    if (M_UNLIKELY_NOMEM (p == NULL)) {                                       \
-      M_MEMORY_FULL (sizeof (type));                                          \
-      return ;                                                                \
-    }                                                                         \
-    M_CALL_INIT_SET(oplist, *p, x);                                           \
     type *obj = M_F(name, _ref)(it);                                          \
     M_F(name, _push_after)(obj, p);                                           \
-    it->current = p;                                                          \
+    it->current = &p->name;                                                   \
     (void) list;                                                              \
     M_IL1ST_CONTRACT(name, list);                                             \
   }                                                                           \
-  , /* NEW & INIT_SET not defined */)                                         \
                                                                               \
   M_INLINE type *                                                             \
   M_F(name, _pop_back)(list_t list)                                           \

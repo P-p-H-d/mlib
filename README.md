@@ -4777,6 +4777,10 @@ It shall be put within the structure of the object to link, at the top
 level of the structure.
 See example of `ILIST_DEF`.
 
+#### `ILIST_INIT_FIELD(name, object)`
+
+Initialize the fields added by `ILIST_INTERFACE` of the object.
+
 #### `ILIST_DEF(name, type[, oplist])`
 #### `ILIST_DEF_AS(name, name_t, name_it_t, type[, oplist])`
 
@@ -4931,10 +4935,9 @@ or NULL if there is no more object.
 Return the object that is before the object `*obj` in the list
 or NULL if there is no more object.
 
-##### `void name_insert(name_t list, name_it_t it, type x)`
+##### `void name_insert(name_t list, name_it_t it, type *x)`
 
-This method is the same as the generic one,
-except it is only created if the `NEW` and `INIT_SET` methods are provided.
+This method is the same as the generic one, except it is really `x` that is added in the list, not a copy.
 
 ##### `void name_splice_back(name_t list1, name_t list2, name_it_t it)`
 
