@@ -62,7 +62,7 @@ typedef struct m_str1ng_heap_s {
 
 /* Define the union between a heap allocated string and its inline representation
   If buffer[sizeof(m_str1ng_heap_ct)-2] == 0 then
-    It is a stack based string where buffer is the string, with a maximum allocation of 15 bytes
+    It is a embedded based string where buffer is the string, with a maximum allocation of 15 bytes
     In this case buffer[sizeof(m_str1ng_heap_ct)-1] is the size of the string
   Otherwise it is a heap representation then
     ptr is the pointer to the data, size its size, and alloc a representation of the capacity:
@@ -153,13 +153,14 @@ typedef struct m_string_it_s {
    m_string_: public methods
 */
 
-/* Internal method to test if the string is stack based or heap based
-   Stack representation ensures that the penultimate byte is 0.
+/* Internal method to test if the characters of the string are fully embedded in the struct, 
+   or if the characters are allocated on the heap.
+   Embedded representation ensures that the penultimate byte is 0.
    By encoding, we ensure that the penultimate byte of 'alloc' (of the heap representation)
    cannot be 0.
  */
 M_INLINE bool
-m_str1ng_stack_p(const m_string_t s)
+m_str1ng_embedded_p(const m_string_t s)
 {
   // Function can be called when contract is not fulfilled
   return (s->u.buffer[sizeof(m_str1ng_heap_ct)-2] == 0);
@@ -170,7 +171,7 @@ M_INLINE void
 m_str1ng_set_size(m_string_t s, size_t size)
 {
   // Function can be called when contract is not fulfilled
-  if (m_str1ng_stack_p(s)) {
+  if (m_str1ng_embedded_p(s)) {
     M_ASSERT (size < sizeof (m_str1ng_heap_ct) - 1);
     // The size of the string is stored as the last char of the buffer.
     s->u.buffer[sizeof(m_str1ng_heap_ct)-1] = (char) size;
@@ -185,9 +186,9 @@ M_INLINE size_t
 m_string_size(const m_string_t s)
 {
   // Function can be called when contract is not fulfilled
-  const size_t s_stack = (size_t) s->u.buffer[sizeof(m_str1ng_heap_ct)-1];
+  const size_t s_embed = (size_t) s->u.buffer[sizeof(m_str1ng_heap_ct)-1];
   const size_t s_heap  = s->u.heap.size;
-  return m_str1ng_stack_p(s) ?  s_stack : s_heap;
+  return m_str1ng_embedded_p(s) ?  s_embed : s_heap;
 }
 
 /* Return the capacity of the string (including the final nul char) */
@@ -195,9 +196,9 @@ M_INLINE size_t
 m_string_capacity(const m_string_t s)
 {
   // Function can be called when contract is not fulfilled
-  const size_t c_stack = sizeof (m_str1ng_heap_ct) - 1;
+  const size_t c_embed = sizeof (m_str1ng_heap_ct) - 1;
   const size_t c_heap  = (m_str1ng_size_t) s->u.heap.alloc[sizeof (m_str1ng_size_t)-2] << s->u.heap.alloc[sizeof (m_str1ng_size_t)-1];
-  return m_str1ng_stack_p(s) ?  c_stack : c_heap;
+  return m_str1ng_embedded_p(s) ?  c_embed : c_heap;
 }
 
 /* Internal function to round up the allocation size to the next allowed representation
@@ -254,9 +255,9 @@ M_INLINE char*
 m_str1ng_get_cstr(m_string_t v)
 {
   // Function can be called when contract is not fulfilled
-  char *const ptr_stack = &v->u.buffer[0];
+  char *const ptr_embed = &v->u.buffer[0];
   char *const ptr_heap  = v->u.heap.ptr;
-  return m_str1ng_stack_p(v) ?  ptr_stack : ptr_heap;
+  return m_str1ng_embedded_p(v) ?  ptr_embed : ptr_heap;
 }
 
 /* Return the string view a classic C string (const char *) */
@@ -265,9 +266,9 @@ m_string_get_cstr(const m_string_t v)
 {
   // Function cannot be called when contract is not fulfilled
   // but it is called by contract (so no contract check to avoid infinite recursion).
-  const char *const ptr_stack = &v->u.buffer[0];
+  const char *const ptr_embed = &v->u.buffer[0];
   const char *const ptr_heap  = v->u.heap.ptr;
-  return m_str1ng_stack_p(v) ?  ptr_stack : ptr_heap;
+  return m_str1ng_embedded_p(v) ?  ptr_embed : ptr_heap;
 }
 
 /* Initialize the dynamic string (constructor) 
@@ -284,7 +285,7 @@ M_INLINE void
 m_string_clear(m_string_t v)
 {
   M_STR1NG_CONTRACT(v);
-  if (!m_str1ng_stack_p(v)) {    
+  if (!m_str1ng_embedded_p(v)) {    
     M_MEMORY_FREE(v->u.heap.ptr);
     v->u.heap.ptr   = NULL;
   }
@@ -305,8 +306,8 @@ m_string_clear_get_cstr(m_string_t v)
 {
   M_STR1NG_CONTRACT(v);
   char *p = v->u.heap.ptr;
-  if (m_str1ng_stack_p(v)) {
-    // The string was stack allocated.
+  if (m_str1ng_embedded_p(v)) {
+    // The characters are embedded in the string.
     p = &v->u.buffer[0];
     // Need to allocate a heap string to return the copy.
     size_t alloc = m_string_size(v)+1;
@@ -363,7 +364,7 @@ m_string_empty_p(const m_string_t v)
 /* Internal method to fit the string to the given size
    Ensures that the string capacity is greater than size_alloc
    (size_alloc shall include the final null char).
-   It may move the string from stack based to heap based.
+   It may transform the string from embedded based to heap based.
    The string 'v' no longer has a working size field.
    Return a pointer to the writable string.
 */
@@ -390,7 +391,7 @@ m_str1ng_fit2size (m_string_t v, size_t size_alloc)
       abort();
       return NULL;
     }
-    char *ptr = m_str1ng_stack_p(v) ? NULL : v->u.heap.ptr;
+    char *ptr = m_str1ng_embedded_p(v) ? NULL : v->u.heap.ptr;
     ptr = M_MEMORY_REALLOC (char, ptr, alloc);
     if (M_UNLIKELY_NOMEM (ptr == NULL)) {
       M_MEMORY_FULL(sizeof (char) * alloc);
@@ -398,15 +399,15 @@ m_str1ng_fit2size (m_string_t v, size_t size_alloc)
       abort();
       return NULL;
     }
-    // The pointer cannot be the stack buffer of the string as it is heap allocated
+    // The pointer cannot be the embedded buffer of the string as it is heap allocated
     M_ASSERT(ptr != &v->u.buffer[0]);
-    if (m_str1ng_stack_p(v)) {
-      // The string was stack allocated.
-      /* Copy the stack allocation into the new heap allocation */
+    if (m_str1ng_embedded_p(v)) {
+      // The string was fully embedded.
+      /* Copy the embedded characters into the new heap allocation */
       const size_t size = (size_t) v->u.buffer[sizeof(m_str1ng_heap_ct) - 1];
       memcpy(ptr, &v->u.buffer[0], size+1);
     }
-    // The string cannot be stack allocated anymore.
+    // The string cannot be fully embedded anymore.
     v->u.heap.ptr = ptr;
     m_str1ng_set_capacity(v, m, e);
     // Size is not set as the function is called in context 
@@ -431,20 +432,21 @@ m_string_reserve(m_string_t v, size_t alloc)
   }
   M_ASSERT (alloc > 0);
   if (alloc < sizeof (m_str1ng_heap_ct)) {
-    // Allocation can fit in the stack space
-    if (!m_str1ng_stack_p(v)) {
-      /* Transform Heap Allocate to Stack Allocate */
+    // All characters can fit in am embedded structure
+    if (!m_str1ng_embedded_p(v)) {
+      /* Move the characters from the heap to within the structure */
       char *ptr = &v->u.buffer[0];
       char *oldptr = v->u.heap.ptr;
       memcpy(ptr, oldptr, size+1);
+      // Free the allocated memory on the heap
       M_MEMORY_FREE(oldptr);
       v->u.buffer[sizeof(m_string_t)-2] = 0;
       v->u.buffer[sizeof(m_string_t)-1] = (char) size;
     } else {
-      /* Already a stack based alloc: nothing to do */
+      /* Already a fully embedded based type: nothing to do */
     }
   } else {
-    // Allocation cannot fit in the stack space
+    // Allocation cannot fit in the embedded structure space
     // Need to allocate in heap space
     unsigned char m, e;
     size_t r_alloc = m_str1ng_round_capacity(&m, &e, (m_str1ng_size_t) alloc);
@@ -452,16 +454,15 @@ m_string_reserve(m_string_t v, size_t alloc)
       M_MEMORY_FULL(sizeof (char) * alloc);
       return;
     } 
-    char *ptr = m_str1ng_stack_p(v) ? NULL : v->u.heap.ptr;
+    char *ptr = m_str1ng_embedded_p(v) ? NULL : v->u.heap.ptr;
     ptr = M_MEMORY_REALLOC (char, ptr, r_alloc);
     if (M_UNLIKELY_NOMEM (ptr == NULL) ) {
       M_MEMORY_FULL(sizeof (char) * alloc);
       return;
     }
-    if (m_str1ng_stack_p(v)) {
-      // Copy from stack space to heap space the string
-      char *ptr_stack = &v->u.buffer[0];
-      memcpy(ptr, ptr_stack, size+1);
+    if (m_str1ng_embedded_p(v)) {
+      // Copy the characters embedded in the structure to the allocated heap space
+      memcpy(ptr, &v->u.buffer[0], size+1);
       M_ASSERT(size == (m_str1ng_size_t) size);
       v->u.heap.size = (m_str1ng_size_t) size;
     }
@@ -675,7 +676,7 @@ m_string_equal_p(const m_string_t v1, const m_string_t v2)
 {
   /* m_string_equal_p can be called with (at most) one string which is an OOR value.
      In case of OOR value, .ptr is NULL and .alloc is the maximum or the maximum-1.
-     As it will detect a stack based string, it will read the size from the alloc fied
+     As it will detect a full embedded based string, it will read the size from the alloc fied
      as 0xFF or 0xFE. In both cases, the size cannot be equal to a normal string
      so the test m_string_size(v1) == m_string_size(v2) is false in this case.
   */
@@ -1283,7 +1284,7 @@ m_string_fgets(m_string_t v, FILE *f, m_string_fgets_t arg)
       M_IF_EXCEPTION( m_str1ng_get_cstr(v)[size] = 0 );
       /* The string buffer is not big enough:
          increase it and continue reading */
-      /* v cannot be stack alloc */
+      /* v cannot be a full embedded type */
       ptr   = m_str1ng_fit2size (v, alloc + alloc/2);
       alloc = m_string_capacity(v);
     }
