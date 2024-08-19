@@ -3322,12 +3322,13 @@ void name_emplace_key[keysuffix]_val[valsuffix](name_t container, keyargs..., va
 
 The following specialized methods are automatically created by the previous definition macro:
 
-##### `void name_pop(value_type *dest, name_t tree, const key_type data)`
+##### `bool name_pop_at(value_type *dest, name_t tree, const key_type data)`
 
 Pop `data` from the B+Tree `tree`
 and save the popped value into `dest` if the pointer is not NULL
 while keeping the tree balanced.
 Do nothing if `data` is no present in the B+Tree.
+Return true if `data` has been erased, false otherwise.
 
 ##### `value_type *name_min(const name_t tree)`
 ##### `const value_type *name_cmin(const name_t tree)`
