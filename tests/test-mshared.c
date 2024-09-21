@@ -38,6 +38,11 @@ SHARED_PTR_DEF_AS(SharedDouble, SharedDouble, double)
 SHARED_PTR_RELAXED_DEF_AS(SharedDouble2, SharedDouble2, double, M_BASIC_OPLIST)
 SHARED_RESOURCE_DEF_AS(SharedRessource, SharedRessource, SharedRessourceIt, double)
 
+// Test with incomplete structure
+struct incomplete_s;
+extern void incomplete_clear(struct incomplete_s *ptr);
+SHARED_PTR_DEF( shared_incomplete, struct incomplete_s, (INIT(0), CLEAR(API_2(incomplete_clear))) )
+
 static int f(const shared_int_t p)
 {
   return *shared_int_cref(p);

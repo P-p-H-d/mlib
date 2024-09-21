@@ -183,10 +183,12 @@ M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
   typedef shared_t M_F(name, _ct);                                            \
   typedef type     M_F(name, _subtype_ct);                                    \
                                                                               \
-  typedef struct M_F(name, _combine_s) {                                      \
-    struct M_F(name, _s) ptr;                                                 \
-    type data;                                                                \
-  } M_F(name, combine_ct)[1];                                                 \
+  M_IF(M_OR(M_TEST_METHOD_P(INIT, oplist), M_TEST_METHOD_ALTER_P(EMPLACE_TYPE, oplist)))( \
+    typedef struct M_F(name, _combine_s) {                                      \
+      struct M_F(name, _s) ptr;                                                 \
+      type data;                                                                \
+    } M_F(name, combine_ct)[1];                                                 \
+  , /* nothing to do */ )
 
 /* Define the core functions */
 #define M_SHAR3D_PTR_DEF_CORE(name, type, oplist, cpt_oplist, shared_t)       \

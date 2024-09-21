@@ -4456,6 +4456,12 @@ The object oplist is expected to have at least the following operators (`CLEAR` 
 There are designed to work with buffers with policy `BUFFER_PUSH_INIT_POP_MOVE`
 to send a shared pointer across multiple threads.
 
+If the type is an incomplete type, you need to disable the `INIT` operator and not defined the `EMPLACE_TYPE` operator in the given oplist like this:
+
+```C
+  (INIT(0), CLEAR(API_2(incomplete_clear))) )
+```
+
 `SHARED_PTR_DEF_AS` is the same as `SHARED_PTR_DEF` except the name of the type `name_t`
 is provided.
 
