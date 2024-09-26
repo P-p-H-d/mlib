@@ -78,7 +78,7 @@ m_bstring_clear(m_bstring_t s)
 {
     M_BSTRING_CONTRACT(s);
     M_MEMORY_FREE( s->ptr);
-    s->offset = -1U;
+    s->offset = (size_t) -1;
 }
 
 M_INLINE void
@@ -209,7 +209,7 @@ m_bstring_init_move(m_bstring_t v, m_bstring_t org)
 {
     M_BSTRING_CONTRACT (org);
     memcpy(v, org, sizeof (m_bstring_t));
-    org->offset = -1U;
+    org->offset = (size_t) -1;
 }
 
 M_INLINE void
