@@ -188,6 +188,7 @@ SYNTHESIS_DATA=	M-ALGO test-malgo.c.c test-malgo.synt			\
 		M-ARRAY test-marray.c.c test-marray.synt				\
 		M-BITSET ../m-bitset.h test-mbitset.synt				\
 		M-BBPTREE test-mbptree.c test-mbptree.synt				\
+		M-BSTRING ../m-bstring.h test-mbstring.synt 		    \
 		M-BUFFER test-mbuffer.c.c test-mbuffer.synt				\
 		M-CONCURRENT test-mconcurrent.c.c test-mconcurrent.synt	\
 		M-CORE ../m-core.h test-mcore.synt					    \
