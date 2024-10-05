@@ -212,6 +212,14 @@ m_bstring_push_back_bytes (m_bstring_t v, size_t n, const void *buffer)
 }
 
 M_INLINE void
+m_bstring_splice(m_bstring_t dst, m_bstring_t src)
+{
+    M_BSTRING_CONTRACT (src);
+    m_bstring_push_back_bytes(dst, m_bstring_size(src), m_bstr1ng_cstr(src));
+    m_bstring_reset(src);
+}
+
+M_INLINE void
 m_bstring_init_set(m_bstring_t v, const m_bstring_t org)
 {
   m_bstring_init(v);
@@ -580,6 +588,8 @@ m_bstring_in_serial(m_bstring_t v, m_serial_read_t f)
 #define bstring_out_serial m_bstring_out_serial
 #define bstring_in_serial m_bstring_in_serial
 #define bstring_swap m_bstring_swap
+#define bstring_splice m_bstring_splice
+#define BSTRING_OPLIST M_BSTRING_OPLIST
 
 #endif
 

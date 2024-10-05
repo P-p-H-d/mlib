@@ -42,6 +42,7 @@ M\*LIB: Generic type-safe Container Library for C language
     28. [JSON Serialization](#m-serial-json)
     29. [Binary Serialization](#m-serial-bin)
     30. [Generic interface](#m-generic)
+    31. [Byte String](#m-bstring)
 12. [Global User Customization](#global-user-customization)
 13. [License](#license)
 
@@ -172,6 +173,7 @@ The following containers are intrusive (You need to modify your structure to add
 Other headers offering other functionality are:
 
 * [m-string.h](#m-string): header for creating dynamic string of characters (UTF-8 support),
+* [m-bstring.h](#m-bstring): header for creating dynamic string of BYTE,
 * [m-bitset.h](#m-bitset): header for creating dynamic bitset (or "packed array of bool"),
 * [m-algo.h](#m-algo): header for providing various generic algorithms to the previous containers,
 * [m-funcobj.h](#m-funcobj): header for creating function object (used by algorithm generation),
@@ -5984,6 +5986,209 @@ Provide the `OOR_EQUAL_P` method of a string.
 ###### `void name_oor_set(bounded_t string, unsigned char n)`
 
 Provide the `OOR_SET` method of a string.
+
+_________________
+
+### M-BSTRING
+
+This header is for using dynamic [string](https://en.wikipedia.org/wiki/String_(computer_science)) of bytes (including null byte)
+The size of the string is automatically updated in function of the needs.
+
+Example:
+
+```C
+void f(void) {
+        bstring_t s1;
+        bstring_init (s1);
+        bstring_push_back (s1, 0);
+        bstring_clear(s1);
+}
+```
+
+#### Methods, types & constants
+
+The following methods are available:
+
+##### `bstring_t`
+
+This type defines a dynamic string of byte.
+
+##### `void bstring_init(bstring_t str)`
+
+Init the byte string `str` to an empty string.
+
+##### `void bstring_clear(bstring_t str)`
+
+Clear the byte string `str` and free any allocated memory.
+
+##### `void bstring_reset(bstring_t str)`
+
+Reset the byte string `str` to an empty string.
+
+##### `size_t bstring_size(const bstring_t str)`
+
+Return the size in bytes of the string.
+
+##### `size_t bstring_capacity(const bstring_t str)`
+
+Return the capacity in bytes of the string.
+The capacity is the number of bytes the string accept before a
+reallocation of the underlying array of char has to be performed.
+
+##### `uint8_t bstring_get_byte(const bstring_t v, size_t index)`
+
+Return the byte at position `index` of the byte string `v`.
+`index` shall be within the allowed range of bytes of the string.
+
+##### `void bstring_set_byte(bstring_t v, size_t index, const uint8_t c)`
+
+Set the byte at position `index` of the byte string `v` to `c`.
+`index` shall be within the allowed range of bytes of the string.
+
+##### `bool bstring_empty_p(const bstring_t v)`
+
+Return true if the byte string is empty, false otherwise.
+
+##### `void bstring_reserve(bstring_t v, size_t alloc)`
+
+Update the capacity of the byte string to be able to receive at least
+`alloc` bytes.
+Calling with `alloc` lower or equal than the size of the string
+enables the function to perform a shrink
+of the string to its exact needs. If the string is
+empty, it will free the memory.
+
+##### `void bstring_set (bstring_t v1, const bstring_t v2)`
+
+Set the byte string `v1` to the value of the string `v2`.
+
+##### `void bstring_init_set(bstring_t v1, const bstring_t v2)`
+
+Initialize `v1` to the value of the byte string `v2`.
+
+##### `void bstring_init_move(bstring_t v1, bstring_t v2)`
+
+Initialize `v1` by stealing as most resource from `v2` as possible
+and clear `v2` afterward.
+
+##### `void bstring_move(bstring_t v1, bstring_t v2)`
+
+Set `v1` by stealing as most resource from `v2` as possible
+and clear `v2` afterward.
+
+##### `void bstring_swap(bstring_t v1, bstring_t v2)`
+
+Swap the content of both byte strings.
+
+##### `void bstring_push_back (bstring_t v, uint8_t c)`
+
+Append the byte `c` to the byte string `v` 
+
+##### `void bstring_push_back_bytes (bstring_t v,  size_t n, const void *buffer)`
+
+Append the buffer of 'n' bytes to the byte string `v` 
+
+##### `void bstring_splice (bstring_t dst, bstring_t src)`
+
+Append the byte string `src` to the byte string `dst`,
+emptying 'src' afterwards. 
+
+##### `uint8_t bstring_pop_back (bstring_t v)`
+
+Pop the last byte of the byte string `v` 
+The byte string shall be not empty.
+
+##### `void bstring_pop_back_bytes (size_t n, void *buffer, bstring_t v)`
+
+Pop the 'n' last bytes of the byte string `v` and copy them in 'buffer'
+The byte string shall have at least 'n' bytes.
+
+##### `uint8_t bstring_pop_front (bstring_t v)`
+
+Pop the first byte of the byte string `v` 
+The byte string shall be not empty.
+
+##### `void bstring_pop_front_bytes (size_t n, void *buffer, bstring_t v)`
+
+Pop the 'n' first bytes of the byte string `v` and copy them in 'buffer'
+The byte string shall have at least 'n' bytes.
+
+##### `void m_bstring_push_bytes_at (m_bstring_t v, size_t pos, size_t n, const void *buffer)`
+
+Push (Insert) the 'n' bytes of 'buffer' at the position 'pos' of the byte string 'v'.
+The position 'pos' shall be within the boundary of the byte string (0 to the size of the byte string).
+
+##### `void m_bstring_pop_bytes_at(size_t n, void *buffer, m_bstring_t v, size_t pos)`
+
+Pop the 'n' bytes at position 'pos' of the byte string 'v' and copy them in 'buffer'
+The position 'pos' shall be within the boundary of the byte string (0 to the size of the byte string).
+The byte string shall have at least 'n' bytes from position 'pos' in the byte string.
+
+##### `int bstring_cmp_bytes(const bstring_t v1, size_t s2, const void *p2)`
+##### `int bstring_cmp(const bstring_t v1, const bstring_t str)`
+
+Perform a byte comparison of both byte strings
+by using the memcmp function and return the result of this comparison.
+
+##### `bool bstring_equal_bytes_p(const bstring_t v1, size_t s2, const void *p2)`
+##### `bool bstring_equal_p(const bstring_t v1, const bstring_t v2)`
+
+Return true if both strings are equal, false otherwise.
+
+##### `void m_bstring_resize (m_bstring_t v, size_t n)`
+
+Resize the byte string to be 'n' bytes,
+appending by 0 if it increases the size of the byte string,
+truncating otherwise.
+
+##### `void m_bstring_reserve (m_bstring_t v, size_t n)`
+
+Extend or reduce the capacity of the `c` to a rounded value based on `n`.
+If the given capacity is below the current size of the container,
+the capacity is set to a rounded value based on the size of the container.
+Therefore a capacity of 0 is used to perform a shrink-to-fit operation on the container,
+i.e. reducing the container usage to the minimum possible allocation.
+
+##### `const uint8_t * m_bstring_view(const m_bstring_t v, size_t offset, size_t size_requested)`
+
+Return a constant byte pointer to the sub string at position 'offset' and of size '##### `const uint8_t * m_bstring_view(const m_bstring_t v, size_t offset, size_t size_requested)`
+' of the byte string 'v'
+The position 'offset' shall be within the boundary of the byte string (0 to the size of the byte string).
+The byte string shall have at least 'size_requested' bytes from position 'offset' in the byte string.
+The returned pointer is valid until a modification is done on the byte string.
+
+##### `uint8_t *m_bstring_acquire_access(m_bstring_t v, size_t offset, size_t size_requested)`
+
+Acquire direct access to the byte string, allowing to write directly in it.
+Return a modifiable byte pointer to the sub string at position 'offset' and of size '##### `const uint8_t * m_bstring_view(const m_bstring_t v, size_t offset, size_t size_requested)`
+' of the byte string 'v'
+The position 'offset' shall be within the boundary of the byte string (0 to the size of the byte string).
+The byte string shall have at least 'size_requested' bytes from position 'offset' in the byte string.
+
+After calling this service, the container is put in direct access mode and won't allow any other API usage until `m_bstring_release_access` is called.
+
+##### `void m_bstring_release_access(m_bstring_t v)`
+
+Release direct access mode to the byte string, allowing other API calls to be performed.
+This service shall be the only one being called after calling `m_bstring_acquire_access`
+
+##### `bool bstring_fread(bstring_t v, FILE *f, size_t num)`
+
+Read from the opened file `f` a stream of 'num' bytes and set `v`
+with this stream.
+Return true if everything has been read, false otherwise.
+
+##### `size bstring_fwrite(FILE *f, const bstring_t v)`
+
+Put the byte string in the file, returning the number of bytes written.
+
+##### `size_t bstring_hash(const bstring_t v)`
+
+Return a hash of the byte string.
+
+##### `BSTRING_OPLIST`
+
+The oplist of a `bstring_t`
 
 _________________
 

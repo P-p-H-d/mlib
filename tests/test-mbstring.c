@@ -194,12 +194,16 @@ static void test2(void)
     assert (bstring_equal_p(b1, b2));
     assert (bstring_cmp(b1, b2) == 0);
 
+    bstring_splice(b2, b1);
+    assert(bstring_size(b2) == 202*2);
+    assert(bstring_size(b1) == 0);
+
     bstring_clear(b1);
     bstring_init_move(b1, b2);
-    assert(bstring_size(b1) == 202);
+    assert(bstring_size(b1) == 202*2);
     bstring_init(b2);
     bstring_move(b2,b1);
-    assert(bstring_size(b2) == 202);
+    assert(bstring_size(b2) == 202*2);
     bstring_clear(b2);
 }
 
