@@ -1297,6 +1297,8 @@ in fact, the only constraint is that the preprocessing concatenation between `ty
 Therefore the `type` cannot be a C array or a function pointer
 and you shall use a typedef as an intermediary named type for such types.
 
+The output parameters are listed fist, then the input/output parameters and finally the input parameters.
+
 This generic interface is specified as follow:
 
 ##### `void name_init(name_t container)`
