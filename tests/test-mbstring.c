@@ -33,6 +33,7 @@ static void test0(void)
     assert( bstring_empty_p(b) );
     assert( bstring_size(b) == 0);
     assert( bstring_capacity(b) == 0);
+    assert( bstring_hash(b) != 0);
     bstring_clear(b);
 
     bstring_init(b);
@@ -41,10 +42,12 @@ static void test0(void)
     assert( !bstring_empty_p(b) );
     assert( bstring_size(b) == 1);
     assert( bstring_capacity(b) != 0);
+    assert( bstring_hash(b) != 0);
     bstring_reset(b);
     assert( bstring_empty_p(b) );
     assert( bstring_size(b) == 0);
     assert( bstring_capacity(b) != 0);
+    assert( bstring_hash(b) != 0);
     bstring_clear(b);
 }
 
@@ -183,6 +186,10 @@ static void test2(void)
     assert (!bstring_equal_p(b1, b2));
     assert (bstring_cmp(b1, b2) < 0);
 
+    bstring_swap(b1, b2);
+    assert (bstring_cmp(b1, b2) > 0);
+    bstring_swap(b1, b2);
+
     bstring_set(b1, b2);
     assert (bstring_equal_p(b1, b2));
     assert (bstring_cmp(b1, b2) == 0);
@@ -261,6 +268,47 @@ static void test4(void)
     bstring_clear(b);
 }
 
+static void test_io(void)
+{
+    uint8_t tab1[] = { 1, 2, 3};
+    bstring_t b;
+
+    bstring_init(b);
+
+    FILE *f = fopen("a-mbstring.dat", "wb");
+    if (!f) abort();
+    size_t n = bstring_fwrite(f, b);
+    assert(n == 0);
+    fclose (f);
+
+    bstring_push_back_bytes(b, sizeof tab1, tab1);
+
+    f = fopen("a-mbstring.dat", "rb");
+    if (!f) abort();
+    bool success = bstring_fread(b, f, 0);
+    assert(success);
+    assert(bstring_size(b) == 0);
+    fclose (f);
+
+    bstring_push_back_bytes(b, sizeof tab1, tab1);
+
+    f = fopen("a-mbstring.dat", "wb");
+    if (!f) abort();
+    n = bstring_fwrite(f, b);
+    assert(n == sizeof tab1);
+    fclose (f);
+
+    f = fopen("a-mbstring.dat", "rb");
+    if (!f) abort();
+    success = bstring_fread(b, f, sizeof tab1);
+    assert(success);
+    assert(bstring_size(b) == sizeof tab1);
+    assert(m_bstring_equal_bytes_p(b, sizeof tab1, tab1));
+    fclose (f);
+
+    bstring_clear(b);
+}
+
 int main(void)
 {
     test0();
@@ -268,5 +316,6 @@ int main(void)
     test2();
     test3();
     test4();
+    test_io();
     exit(0);
 }
