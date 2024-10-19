@@ -343,7 +343,7 @@
     }                                                                         \
     M_CALL_SET(oplist, out->data, src->data);                                 \
     if (out < src) {                                                          \
-      M_F(name, _read_lock)(src);                                             \
+      M_F(name, _read_unlock)(src);                                           \
       M_F(name, _write_unlock)(out);                                          \
     } else {                                                                  \
       M_F(name, _write_unlock)(out);                                          \
