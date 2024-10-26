@@ -664,6 +664,7 @@ Other documented operators are:
 
 * `RESET(obj)`: Reset the object to its initialized state (Emptying the object if it is a container object).
 * `EMPTY_P(obj)` --> `bool`: Test if the container object is empty (true) or not.
+* `FULL_P(obj)` --> `bool`: Test if the container object is full (true) or not.
 * `GET_SIZE (container)` --> `size_t`: Return the number of elements in the container object.
 * `HASH (obj)` --> `size_t`: return a hash of the object (not a secure hash but one that is usable for a hash table). Default is performing a hash of the memory representation of the object. This default implementation is invalid if the object holds pointer to other objects or has spare fields.
 * `EQUAL(obj1, obj2)` --> `bool`: Compare the two objects for equality. Return true if both objects are equal, false otherwise. Default is using the C comparison operator. 'obj1' may be an OOR object (Out of Representation) for the Open Addressing dictionary (see `OOR_*` operators): in such cases, it shall return false.

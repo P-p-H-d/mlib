@@ -1315,6 +1315,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    ,POP(M_F(name,_pop))                                                       \
    ,OPLIST(oplist)                                                            \
    ,EMPTY_P(M_F(name, _empty_p)),                                             \
+   ,FULL_P(M_F(name, _full_p)),                                               \
    ,GET_SIZE(M_F(name, _size))                                                \
    )
 

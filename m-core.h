@@ -3406,6 +3406,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_X_IT_REMOVE_IT_REMOVE(a) ,a,
 #define M_X_IT_INSERT_IT_INSERT(a) ,a,
 #define M_X_EMPTY_P_EMPTY_P(a)     ,a,
+#define M_X_FULL_P_FULL_P(a)       ,a,
 #define M_X_ADD_ADD(a)             ,a,
 #define M_X_SUB_SUB(a)             ,a,
 #define M_X_MUL_MUL(a)             ,a,
@@ -3498,6 +3499,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_GET_IT_REMOVE(...) M_GET_METHOD(IT_REMOVE,   M_NO_DEF_IT_REMOVE, __VA_ARGS__)
 #define M_GET_IT_INSERT(...) M_GET_METHOD(IT_INSERT,   M_NO_DEF_IT_INSERT, __VA_ARGS__)
 #define M_GET_EMPTY_P(...)   M_GET_METHOD(EMPTY_P,     M_NO_DEF_EMPTY_P,   __VA_ARGS__)
+#define M_GET_FULL_P(...)    M_GET_METHOD(FULL_P,      M_NO_DEF_EMPTY_P,   __VA_ARGS__)
 #define M_GET_ADD(...)       M_GET_METHOD(ADD,         M_ADD_DEFAULT,      __VA_ARGS__)
 #define M_GET_SUB(...)       M_GET_METHOD(SUB,         M_SUB_DEFAULT,      __VA_ARGS__)
 #define M_GET_MUL(...)       M_GET_METHOD(MUL,         M_MUL_DEFAULT,      __VA_ARGS__)
@@ -3580,6 +3582,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_CALL_IT_REMOVE(oplist, ...) M_APPLY_API(M_GET_IT_REMOVE oplist, oplist, __VA_ARGS__)
 #define M_CALL_IT_INSERT(oplist, ...) M_APPLY_API(M_GET_IT_INSERT oplist, oplist, __VA_ARGS__)
 #define M_CALL_EMPTY_P(oplist, ...) M_APPLY_API(M_GET_EMPTY_P oplist, oplist, __VA_ARGS__)
+#define M_CALL_FULL_P(oplist, ...) M_APPLY_API(M_GET_FULL_P oplist, oplist, __VA_ARGS__)
 #define M_CALL_ADD(oplist, ...) M_APPLY_API(M_GET_ADD oplist, oplist, __VA_ARGS__)
 #define M_CALL_SUB(oplist, ...) M_APPLY_API(M_GET_SUB oplist, oplist, __VA_ARGS__)
 #define M_CALL_MUL(oplist, ...) M_APPLY_API(M_GET_MUL oplist, oplist, __VA_ARGS__)
@@ -3784,6 +3787,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_NO_DEF_IT_REMOVE(...)   M_NO_DEFAULT(IT_REMOVE, void)
 #define M_NO_DEF_IT_INSERT(...)   M_NO_DEFAULT(IT_INSET, void)
 #define M_NO_DEF_EMPTY_P(...)     M_NO_DEFAULT(EMPTY_P, bool)
+#define M_NO_DEF_FULL_P(...)      M_NO_DEFAULT(FULL_P, bool)
 #define M_NO_DEF_RESET(...)       M_NO_DEFAULT(RESET, void)
 #define M_NO_DEF_GET_KEY(...)     M_NO_DEFAULT(GET_KEY, void*)
 #define M_NO_DEF_SET_KEY(...)     M_NO_DEFAULT(SET_KEY, void)
@@ -4812,6 +4816,16 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_EMPLACE_LIST_TYPE_VAR_SINGLE(prefix, emplace_type)                  \
   , emplace_type const prefix
 
+/* Expand to the list of emplace type with their variable name
+   to use in the function declaration (doesn't start with a , but slower) */
+#define M_EMPLACE_LIST_TYPE_VAR_ALTER(prefix, emplace_type)                   \
+  M_IF(M_PARENTHESIS_P( emplace_type ))(M_EMPLACE_LIST_TYPE_VAR_ALTER_MULTI, M_EMPLACE_LIST_TYPE_VAR_ALTER_SINGLE)(prefix, emplace_type)
+#define M_EMPLACE_LIST_TYPE_VAR_ALTER_MULTI(prefix, emplace_type)             \
+  M_MAP3(M_EMPLACE_LIST_TYPE_VAR_ALTER_MULTI_F, prefix, M_ID emplace_type)
+#define M_EMPLACE_LIST_TYPE_VAR_ALTER_MULTI_F(prefix, num, type)              \
+  M_IF(M_EQUAL(1, num))( /*void*/, M_DEFERRED_COMMA) type const M_C(prefix, num)
+#define M_EMPLACE_LIST_TYPE_VAR_ALTER_SINGLE(prefix, emplace_type)            \
+  emplace_type const prefix
 
 /* Expand to the list of variable name based on the the declaration with
    emplace type to use in the INIT_WITH or specific method call (start with a ,) */
