@@ -3453,6 +3453,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 // As properties only
 #define M_X_LET_AS_INIT_WITH_LET_AS_INIT_WITH(a) ,a,
 #define M_X_NOCLEAR_NOCLEAR(a)     ,a,
+#define M_X_THREADSAFE_THREADSAFE(a)     ,a,
 
 /* From an oplist - an unorded list of methods : like "INIT(mpz_init),CLEAR(mpz_clear),SET(mpz_set)" -
    Return the given method in the oplist or the default method.
