@@ -29,19 +29,23 @@
 #include "m-atomic.h"
 #include "m-thread.h"
 
-/* Declare a shared weak pointer (not atomic). oplist is mandatory */
+/* Declare a shared weak pointer (not atomic, single thread) for use in header file.
+   oplist is mandatory but is only used to test if a function has to be declared */
 #define M_SHARED_WEAK_PTR_DECL(name, oplist)                                  \
     M_SHAR3D_PTR_DECL_P2(name, M_F(name, _t), oplist)
 
-/* Declare a shared weak pointer (not atomic). oplist is mandatory */
+/* Declare a shared weak pointer (not atomic, single thread) for use in header file.
+  oplist is mandatory but is only used to test if a function has to be declared */
 #define M_SHARED_WEAK_PTR_DECL_AS(name, shared_t, oplist)                     \
     M_SHAR3D_PTR_DECL_P2(name, shared_t, oplist)
 
-/* Declare a shared strong pointer (atomic & lock). oplist is mandatory */
+/* Declare a shared strong pointer (atomic & lock) for use in header file.
+  oplist is mandatory but is only used to test if a function has to be declared */
 #define M_SHARED_PTR_DECL(name, oplist)                                       \
     M_SHAR3D_PTR_DECL_P2(name, M_F(name, _t), oplist)
 
-/* Declare a shared strong pointer (atomic & lock). oplist is mandatory */
+/* Declare a shared strong pointer (atomic & lock) for use in header file.
+  oplist is mandatory but is only used to test if a function has to be declared */
 #define M_SHARED_PTR_DECL_AS(name, shared_t, oplist)                          \
     M_SHAR3D_PTR_DECL_P2(name, shared_t, oplist)
 
@@ -73,6 +77,7 @@
 
 /* Define a static inline a shared weak pointer (not atomic). oplist is optional */
 #define M_SHARED_WEAK_PTR_DEF_AS(name, shared_t, ...)                         \
+  M_SHARED_PTR_DECL_TYPE(name, shared_t,       )                              \
   M_SHAR3D_WEAK_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
     ((name, shared_t, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), static inline ), \
      (name, shared_t, __VA_ARGS__,                                        static inline )))
@@ -83,6 +88,7 @@
 
 /* Define a static inline a shared strong pointer (atomic & lock). oplist is optional */
 #define M_SHARED_PTR_DEF_AS(name, shared_t, ...)                              \
+  M_SHARED_PTR_DECL_TYPE(name, shared_t,       )                              \
   M_SHAR3D_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
     ((name, shared_t, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), static inline ), \
      (name, shared_t, __VA_ARGS__,                                        static inline )))
@@ -101,6 +107,7 @@
 #define M_SHAR3D_PTR_DECL_FAILURE(name, shared_t, oplist)                     \
   ((M_LIB_ERROR(ARGUMENT_OF_DECL_SHARED_POINTER_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
+/* Declare all functions assiated to the shared pointer */
 #define M_SHAR3D_PTR_DECL_P3(name, shared_t, oplist)                          \
     M_BEGIN_PROTECTED_CODE                                                    \
     M_SHARED_PTR_DECL_TYPE(name, shared_t, oplist)                            \
@@ -125,8 +132,9 @@
 
 /* Prepare a clean compilation failure */
 #define M_SHAR3D_WEAK_PTR_DEF_FAILURE(name, shared_t, type, oplist, fattr)    \
-  ((M_LIB_ERROR(ARGUMENT_OF_DECL_SHARED_POINTER_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
+  ((M_LIB_ERROR(ARGUMENT_OF_WEAK_DEF_SHARED_POINTER_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
+/* Define all functions assiated to the weak shared pointer as 'fattr' (can be static inline or extern) */
 #define M_SHAR3D_WEAK_PTR_DEF_P3(name, shared_t, type, oplist, fattr)         \
     M_BEGIN_PROTECTED_CODE                                                    \
     M_SHARED_PTR_NO_THRD_DEF_TYPE(name, shared_t, type, oplist)               \
@@ -152,8 +160,9 @@
 
 /* Prepare a clean compilation failure */
 #define M_SHAR3D_PTR_DEF_FAILURE(name, shared_t, type, oplist, fattr)         \
-  ((M_LIB_ERROR(ARGUMENT_OF_DECL_SHARED_POINTER_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
+  ((M_LIB_ERROR(ARGUMENT_OF_DEF_SHARED_POINTER_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
+/* Define all functions assiated to the shared pointer as 'fattr' (can be static inline or extern) */
 #define M_SHAR3D_PTR_DEF_P3(name, shared_t, type, oplist, fattr)              \
     M_BEGIN_PROTECTED_CODE                                                    \
     M_SHARED_PTR_DEF_TYPE(name, shared_t, type, oplist)                       \
@@ -169,101 +178,98 @@
     M_END_PROTECTED_CODE
 
 
-/* Declare the type of shared pointer. Opaque structure */
+/* Declare the type of shared pointer. Opaque structure for encapsulation */
 #define M_SHARED_PTR_DECL_TYPE(name, shared_t, oplist)                        \
     typedef struct M_C(name, _s) shared_t;
 
-// Definition of the type with no thread safety.
+/* Definition of the type with no thread safety (single thread) */
 #define M_SHARED_PTR_NO_THRD_DEF_TYPE(name, shared_t, type, oplist)           \
     struct M_C(name, _s) {                                                    \
         type        data; /* Allow safe casting from shared_t* to type* */    \
-        unsigned cpt;  /* Owner counter that acquire the data */              \
+        unsigned cpt;     /* Owner counter that acquire the data */           \
     };
 
-// Define the core functions without any thread safety
+/* Define the core functions without any thread safety */
 #define M_SHARED_PTR_NO_THRD_DEF_CORE(name, shared_t, type, oplist, fattr)    \
-                                                                              \
+/* Increment the number of owner (acquire the resource) */                    \
 fattr void M_F(name, _inc_owner)(shared_t *out)                               \
 {                                                                             \
     out->cpt ++;                                                              \
 }                                                                             \
-                                                                              \
+/* Decrement the number of owner (release the resource). Return true if it was the last owner */ \
 fattr bool M_F(name, _dec_owner)(shared_t *out)                               \
 {                                                                             \
     out->cpt --;                                                              \
     return 0 == out->cpt;                                                     \
 }                                                                             \
-                                                                              \
+/* Init the lock */                                                           \
 fattr void M_F(name, _init_lock)(shared_t *out)                               \
 {                                                                             \
     out->cpt = 0;                                                             \
 }                                                                             \
-                                                                              \
+/* Clear the lock */                                                          \
 fattr void M_F(name, _clear_lock)(shared_t *out)                              \
 {                                                                             \
+    M_ASSERT(out->cpt == 0);                                                  \
     (void) out;                                                               \
 }                                                                             \
-                                                                              \
+/* Enter the lock for reading the data */                                     \
 fattr void M_F(name, _read_lock)(const shared_t *out)                         \
 {                                                                             \
     (void) out;                                                               \
 }                                                                             \
-                                                                              \
-/* wait for some data to be read */                                           \
+/* wait for some new data to be available (within read_lock) */               \
 fattr void M_F(name, _read_wait)(const shared_t *out)                         \
 {                                                                             \
     (void) out;                                                               \
 }                                                                             \
-                                                                              \
+/* Leave the lock for reading the data (within read_lock) */                  \
 fattr void M_F(name, _read_unlock)(const shared_t *out)                       \
 {                                                                             \
     (void) out;                                                               \
 }                                                                             \
-                                                                              \
+/* Enter the lock for writing/updating the data */                            \
 fattr void M_F(name, _write_lock)(shared_t *out)                              \
 {                                                                             \
     (void) out;                                                               \
 }                                                                             \
-                                                                              \
-/* wait to be able to write in the data */                                    \
+/* wait to be able to write new data (within write_lock) */                   \
 fattr void M_F(name, _write_wait)(shared_t *out)                              \
 {                                                                             \
     (void) out;                                                               \
 }                                                                             \
-                                                                              \
-/* signal some write in the data */                                           \
+/* signal some new data are available (within write_lock) */                  \
 fattr void M_F(name, _write_signal)(shared_t *out)                            \
 {                                                                             \
     (void) out;                                                               \
 }                                                                             \
-                                                                              \
-/* signal some free slot in the data */                                       \
+/* signal some free slot are available (within write_lock) */                 \
 fattr void M_F(name, _free_signal)(shared_t *out)                             \
 {                                                                             \
     (void) out;                                                               \
 }                                                                             \
-                                                                              \
+/* Leaver the lock for writing/updating the data (within write_lock) */       \
 fattr void M_F(name, _write_unlock)(shared_t *out)                            \
 {                                                                             \
     (void) out;                                                               \
 }                                                                             \
-                                                                              \
+/* Return a pointer to the data */                                            \
 fattr type *M_F(name, _ref)(shared_t *out)                                    \
 {                                                                             \
     return &out->data;                                                        \
 }                                                                             \
-                                                                              \
+/* Return a const pointer to the data */                                      \
 fattr type const *M_F(name, _cref)(const shared_t *out)                       \
 {                                                                             \
     return &out->data;                                                        \
 }                                                                             \
-                                                                              \
+/* Perform a write lock on out and a read lock on src */                      \
 fattr void M_F(name, _write_read_lock)(shared_t *out, const shared_t *src)    \
 {                                                                             \
     (void) out;                                                               \
     (void) src;                                                               \
 }                                                                             \
-                                                                              \
+/* Leave the write lock on out and the read lock on src */                    \
 fattr void M_F(name, _write_read_unlock)(shared_t *out, const shared_t *src)  \
 {                                                                             \
     (void) out;                                                               \
@@ -271,8 +277,7 @@ fattr void M_F(name, _write_read_unlock)(shared_t *out, const shared_t *src)  \
 }                                                                             \
 
 
-
-// Definition of the type with thread safety.
+/* Definition of the type with thread safety. */
 //TODO: If PROPERTIES.THREADSAFE, disable the global lock as the container handles it itself.
 #define M_SHARED_PTR_DEF_TYPE(name, shared_t, type, oplist)                   \
     struct M_C(name, _s) {                                                    \
@@ -287,7 +292,8 @@ fattr void M_F(name, _write_read_unlock)(shared_t *out, const shared_t *src)  \
         , )                                                                   \
     };
 
-// NOTE: lock are exception free.
+/* Define the core functions with thread safety 
+   NOTE: lock are exception free. */
 #define M_SHARED_PTR_DEF_CORE(name, shared_t, type, oplist, fattr)            \
                                                                               \
 fattr void M_F(name, _inc_owner)(shared_t *out)                               \
@@ -344,7 +350,6 @@ fattr void M_F(name, _read_lock)(const shared_t *out)                         \
     m_core_backoff_clear(backoff);                                            \
 }                                                                             \
                                                                               \
-/* wait for some data to be read */                                           \
 fattr void M_F(name, _read_wait)(const shared_t *out)                         \
 {                                                                             \
     shared_t *self = (shared_t *)out;                                         \
@@ -369,7 +374,6 @@ fattr void M_F(name, _write_lock)(shared_t *out)                              \
     M_ASSERT(atomic_load(&out->num_reader) == 0);                             \
 }                                                                             \
                                                                               \
-/* wait to be able to write in the data */                                    \
 fattr void M_F(name, _write_wait)(shared_t *out)                              \
 {                                                                             \
     M_ASSERT(atomic_load(&out->num_reader) == 0);                             \
@@ -378,14 +382,12 @@ fattr void M_F(name, _write_wait)(shared_t *out)                              \
     ,)                                                                        \
 }                                                                             \
                                                                               \
-/* signal some write in the data */                                           \
 fattr void M_F(name, _write_signal)(shared_t *out)                            \
 {                                                                             \
     M_ASSERT(atomic_load(&out->num_reader) == 0);                             \
     m_cond_broadcast(out->there_is_data);                                     \
 }                                                                             \
                                                                               \
-/* signal some free slot in the data */                                       \
 fattr void M_F(name, _free_signal)(shared_t *out)                             \
 {                                                                             \
     M_ASSERT(atomic_load(&out->num_reader) == 0);                             \
@@ -440,6 +442,7 @@ fattr void M_F(name, _write_read_unlock)(shared_t *out, const shared_t *src)  \
 }                                                                             \
 
 
+/* Define the basic function of a shared pointer */
 #define M_SHARED_PTR_DECL_BASIC(name, shared_t, oplist)                       \
 M_IF_METHOD(INIT, oplist)( extern shared_t *M_F(name, _new)(void); , )        \
 M_IF_METHOD(INIT_SET, oplist)( extern shared_t *M_F(name, _new_copy)(const shared_t *); , ) \
@@ -459,7 +462,7 @@ M_IF_METHOD(INIT, oplist)(                                                    \
         shared_t *out = M_CALL_NEW(oplist, shared_t);                         \
         if (M_UNLIKELY_NOMEM( out == NULL)) {                                 \
             M_MEMORY_FULL(sizeof (shared_t));                                 \
-            M_ASSERT (0);                                                     \
+            abort();                                                          \
         }                                                                     \
         M_ON_EXCEPTION( M_CALL_FREE(oplist, out) )                            \
             M_CALL_INIT(oplist, out->data);                                   \
@@ -529,7 +532,7 @@ M_PAIR_2 name_attr shared_t *function_name(M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_
         shared_t *out = M_CALL_NEW(oplist, shared_t);                         \
         if (M_UNLIKELY_NOMEM( out == NULL)) {                                 \
             M_MEMORY_FULL(sizeof (shared_t));                                 \
-            M_ASSERT (0);                                                     \
+            abort();                                                          \
         }                                                                     \
         M_ON_EXCEPTION( M_CALL_FREE(oplist, out) )                            \
             M_EMPLACE_CALL_FUNC(a, init_func, oplist, out->data, exp_emplace_type); \
@@ -537,6 +540,8 @@ M_PAIR_2 name_attr shared_t *function_name(M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_
         return out;                                                           \
 }                                                                             \
 
+
+/* Define the extra function of a shared pointer */
 #define M_SHARED_PTR_DECL_EXTRA(name, shared_t, oplist)                       \
 M_IF_METHOD(SWAP, oplist)( extern void M_F(name, _swap)(shared_t *, shared_t *); , ) \
 M_IF_METHOD(RESET, oplist)( extern void M_F(name, _reset)(shared_t *); , )    \
@@ -560,6 +565,7 @@ M_IF_METHOD(SWAP, oplist)(                                                    \
         M_F(name, _write_lock)(o2);                                           \
         /* SWAP cannot throw exception */                                     \
         M_CALL_SWAP(oplist, o1->data, o2->data);                              \
+        /* It doesn't make sense to signal new data or new slot, Right? */    \
         M_F(name, _write_unlock)(o1);                                         \
         M_F(name, _write_unlock)(o2);                                         \
     }                                                                         \
@@ -621,6 +627,7 @@ M_IF_METHOD(EQUAL, oplist)(                                                   \
         if (o1 > o2) {                                                        \
             M_SWAP(const shared_t *, o1, o2);                                 \
         }                                                                     \
+        /* FIXME: OOR compare and constraint on OOR argument? */              \
         M_F(name, _read_lock)(o1);                                            \
         M_F(name, _read_lock)(o2);                                            \
         /* EQUAL cannot throw exception */                                    \
@@ -664,6 +671,8 @@ M_IF_METHOD(HASH, oplist)(                                                    \
     }                                                                         \
 , )                                                                           \
 
+
+/* Define the arithmetic operators */
 #define M_SHARED_PTR_DECL_ARITH(name, shared_t, oplist)                       \
 M_IF_METHOD(ADD, oplist)( extern void M_F(name, _add)(shared_t *, const shared_t *); , ) \
 M_IF_METHOD(SUB, oplist)( extern void M_F(name, _sub)(shared_t *, const shared_t *); , ) \
@@ -736,6 +745,7 @@ M_IF_METHOD(SPLICE, oplist)(                                                  \
 , )                                                                           \
 
 
+/* Define the key based operators */
 #define M_SHARED_PTR_DECL_KEY(name, shared_t, oplist, key_type, value_type)   \
 M_IF_METHOD(GET_KEY, oplist)( extern bool M_F(name, _get)(value_type *, const shared_t *, key_type const); , ) \
 M_IF_METHOD(SAFE_GET_KEY, oplist)( extern void M_F(name, _safe_get)(value_type *, shared_t *, key_type const); , ) \
@@ -800,6 +810,8 @@ M_IF_METHOD(ERASE_KEY, oplist)(                                               \
     }                                                                         \
 , )                                                                           \
 
+
+/* Define the push based operators */
 #define M_SHARED_PTR_DECL_PUSH(name, shared_t, oplist, sub_type)              \
 M_IF_METHOD(PUSH, oplist)( extern void M_F(name, _push)(shared_t *, sub_type const); , ) \
 M_IF_METHOD(PUSH_MOVE, oplist)( extern void M_F(name, _push_move)(shared_t *, sub_type *); , ) \
@@ -922,6 +934,8 @@ M_TRIPLE_2 name_attr bool function_name(shared_t *out, M_EMPLACE_LIST_TYPE_VAR_A
         return ret;                                                           \
 }                                                                             \
 
+
+/* Define the pop based operators */
 #define M_SHARED_PTR_DECL_POP(name, shared_t, oplist, sub_type)               \
 M_IF_METHOD(POP, oplist)( extern void M_F(name, _pop)(sub_type *const, shared_t *); , ) \
 M_IF_METHOD(POP_MOVE, oplist)( extern void M_F(name, _pop_move)(sub_type *, shared_t *); , ) \
@@ -994,6 +1008,10 @@ M_IF_METHOD(POP_MOVE, oplist)(                                                \
     }                                                                         \
 , )                                                                           \
 
+
+/* Define the iterator based operators
+   We cannot provide directly the iterator due to concenrency API,
+   so we produce an encapsulation of the major usage of them */
 #define M_SHARED_PTR_DECL_IT(name, shared_t, oplist, sub_type)                \
 M_IF_METHOD2(IT_FIRST, IT_REF, oplist)( extern int M_F(name, _apply)(shared_t *, int (*callback)(void *, sub_type*), void*); , ) \
 M_IF_METHOD2(IT_FIRST, IT_CREF, oplist)( extern int M_F(name, _for_each)(const shared_t *, int (*callback)(void *, const sub_type*), void*); , ) \
@@ -1080,6 +1098,8 @@ M_IF_METHOD2(IT_LAST, IT_CREF, oplist)(                                       \
     }                                                                         \
 , )                                                                           \
 
+
+/* Define the I/O based operators */
 #define M_SHARED_PTR_DECL_IO(name, shared_t, oplist)                          \
 M_IF_METHOD(OUT_STR, oplist)( extern void M_F(name, _out_str)(FILE *, const shared_t *); , ) \
 M_IF_METHOD(IN_STR, oplist)( extern bool M_F(name, _in_str)(shared_t *, FILE *); , ) \
