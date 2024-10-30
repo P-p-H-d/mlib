@@ -101,17 +101,6 @@
 /********************************** INTERNAL *********************************/
 /*****************************************************************************/
 
-/* Definition of the typeof keyword
-   In C23, we can use the standard keyword.
-   Otherwise we use some extensions of the compilers. */
-#ifdef _MSC_VER
-#define m_typeof(x) decltype(x)
-#elif defined(__GNUC__)   
-#define m_typeof(x) __typeof__(x)
-#else
-#define m_typeof(x) typeof(x)
-#endif
-
 // Instead of using expensive M_SEQ(1,50), precompute it:
 #define M_G3N_SEQ_INT                                                         \
   1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21,  \

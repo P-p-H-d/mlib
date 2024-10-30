@@ -142,7 +142,6 @@
 # define M_ATTR_COLD_FUNCTION
 #endif
 
-
 /* Prefetch . */
 #if defined(__GNUC__)
 # define M_PREFETCH(p)           __builtin_prefetch((p), 0, 0)
@@ -151,6 +150,17 @@
     volatile char m_c = *(volatile char *) (p);                               \
     (void) m_c;                                                               \
   } while (0)
+#endif
+
+/* Definition of the typeof keyword
+   In C23, we can use the standard keyword.
+   Otherwise we use some extensions of the compilers. */
+#ifdef _MSC_VER
+#define m_typeof(x) decltype(x)
+#elif defined(__GNUC__)   
+#define m_typeof(x) __typeof__(x)
+#else
+#define m_typeof(x) typeof(x)
 #endif
 
 /* Ignore some warnings detected by some compilers in the library.
