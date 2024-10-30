@@ -279,6 +279,7 @@ fattr void M_F(name, _write_read_unlock)(shared_t *out, const shared_t *src)  \
 
 /* Definition of the type with thread safety. */
 //TODO: If PROPERTIES.THREADSAFE, disable the global lock as the container handles it itself.
+//FIXME: Such a property may need to be more fine tuned than globaly.
 #define M_SHARED_PTR_DEF_TYPE(name, shared_t, type, oplist)                   \
     struct M_C(name, _s) {                                                    \
         type        data; /* Allow safe casting from shared_t* to type* */    \

@@ -33,7 +33,8 @@
  * so that for each variable defined using M_LET,
  * its destructor is still called when exceptions are thrown.
  * It is either the C++ try,
- * or it uses a GCC or CLANG extension,
+ * or it uses a GCC extension,
+ * or it uses a CLANG extension,
  * or the standard C compliant way (much slower).
  * The user can override the desired mechanism.
  */
@@ -159,6 +160,14 @@ struct m_exception_s {
 #undef M_IF_EXCEPTION
 #define M_IF_EXCEPTION(...) __VA_ARGS__
 
+// TODO: It will be good to make M_ON_EXCEPTION faster
+// to do that it may be able to use "Callback injection" instead of "longjmp injection"
+// Notice that "Callback injection" works only for GCC/CLANG where typeof extension
+// always works (need to move typeof definition to m-core from m-generic)
+// Therefore we can modify the macro so that the first argument is the data
+// to be passed. A void pointer to it is given to the callback, and the callback
+// gets back it using typeof and expand the on exception expressions.
+// If there is no argument (or 0?), it stills uses the "longjmp" injection.
 #undef M_ON_EXCEPTION
 #define M_ON_EXCEPTION(...)                                                   \
   for(bool cont = true; cont; cont = false)                                   \
@@ -252,7 +261,7 @@ namespace m_lib {
  * The main difficulty is the mechanism to register the CLEAR operators
  * to call when throwing an exception.
  * Contrary to the C++ back-end, it is not cost-free as it adds some 
- * instructions to the normal behavior of the program.
+ * instructions to the normal behavior of the program, usually 5 store instructions.
  */
 #else
 
@@ -385,6 +394,9 @@ m_catch(m_try_t state, unsigned error_code, const struct m_exception_s **excepti
   M_ASSERT(m_global_error_list == state);
   M_ASSERT(state->kind == M_STATE_EXCEPTION_IN_PROGRESS);
   *exception = &m_global_exception;
+  // If error_code is 0, we want to catch **all** errors.
+  // Otherwise we want to cache only the given error
+  // Return false if we don't catcht it.
   if (error_code != 0 && m_global_exception.error_code != error_code)
     return false;
   // The exception has been caught.
@@ -429,6 +441,9 @@ m_try_clear(m_try_t state)
 // * post: which is called after the constructor
 // * final: which is called before the destructor.
 
+// There is two mechanims: calling a CLEAR callback (faster but need compiler extension)
+// or using an intermediary jmpbuf_t longjmp (slower but standard compliant).
+
 // We register a call to the CLEAR callback.
 // We don't modify m_global_error_list until we have successfully called the INIT operator
 // to avoid registering the CLEAR operator on exception whereas the object is not initialized yet.
@@ -461,7 +476,8 @@ m_try_cb_final(m_try_t state)
   m_global_error_list = state->next;
 }
 
-// Pre initialization function. Save the stack frame for a longjmp
+// We register a longjmp here to handle the cleaning of the exception at this function.
+// Pre initialization function.
 M_INLINE bool
 m_try_jump_pre(m_try_t state)
 {
@@ -470,7 +486,7 @@ m_try_jump_pre(m_try_t state)
   return true;
 }
 
-// Post initialization function. Register the stack frame for a longjmp
+// Post initialization function. Save the stack frame for a longjmp
 M_INLINE void
 m_try_jump_post(m_try_t state)
 {
@@ -520,7 +536,7 @@ m_try_jump_final(m_try_t state)
 
 #elif M_USE_TRY_MECHANISM == 4
 // STD C compliant (without compiler extension): use of setjmp
-// This is the basic implementation in case of compiler unknown.
+// This is the basic implementation in case of unknown compiler.
 // It uses setjmp/longjmp, and as such, is much slower than
 // other implementations.
 
