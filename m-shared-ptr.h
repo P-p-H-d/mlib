@@ -93,11 +93,69 @@
     ((name, shared_t, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), static inline ), \
      (name, shared_t, __VA_ARGS__,                                        static inline )))
 
+/* Define the oplist of a shared pointer given its name and its oplist.
+   Oplist is mandatory.
+   USAGE: SHARED_PTR_OPLIST(name, oplist of the type) */
+#define M_SHARED_PTR_OPLIST(...)                                              \
+  M_SHAR3D_OPLIST_P1 ((__VA_ARGS__ ))
+
+/* Define the oplist of a shared pointer as a shared data given its name and its oplist.
+   Oplist is mandatory.
+   USAGE: SHARED_DATA_OPLIST(name, oplist of the type) */
+#define M_SHARED_DATA_OPLIST(...)                                             \
+  M_SHAR3D_DATA_OPLIST_P1 ((__VA_ARGS__ ))
 
 
 /*****************************************************************************/
 /********************************** INTERNAL *********************************/
 /*****************************************************************************/
+
+/* Deferred evaluation for the oplist definition,
+   so that all arguments are evaluated before further expansion */
+#define M_SHAR3D_OPLIST_P1(arg) M_SHAR3D_OPLIST_P2 arg
+
+/* Validation of the given oplist */
+#define M_SHAR3D_OPLIST_P2(name, oplist)                                      \
+  M_IF_OPLIST(oplist)(M_SHAR3D_OPLIST_P3, M_SHAR3D_OPLIST_FAILURE)(name, oplist)
+
+/* Prepare a clean compilation failure */
+#define M_SHAR3D_OPLIST_FAILURE(name, oplist)                                 \
+  ((M_LIB_ERROR(ARGUMENT_OF_SHARED_PTR_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
+
+/* OPLIST definition of a shared pointer */
+#define M_SHAR3D_OPLIST_P3(name, oplist)                                      \
+  (NAME(name), TYPE(struct M_C(name,_s) *)                                    \
+   ,M_IF_METHOD(INIT)(INIT(API_4(M_F(name, _new))),)                          \
+   ,INIT_SET(API_4(M_F(name, _acquire)))                                      \
+   ,SET(API_2(M_F(name, _set)))                                               \
+   ,CLEAR(M_F(name, _release))                                                \
+   ,INIT_MOVE(M_SET_BASIC)                                                    \
+   ,MOVE(M_SET_BASIC)                                                         \
+   )
+
+/* Deferred evaluation for the oplist definition,
+   so that all arguments are evaluated before further expansion */
+#define M_SHAR3D_DATA_OPLIST_P1(arg) M_SHAR3D_DATA_OPLIST_P2 arg
+
+/* Validation of the given oplist */
+#define M_SHAR3D_DATA_OPLIST_P2(name, oplist)                                 \
+  M_IF_OPLIST(oplist)(M_SHAR3D_DATA_OPLIST_P3, M_SHAR3D_DATA_OPLIST_FAILURE)(name, oplist)
+
+/* Prepare a clean compilation failure */
+#define M_SHAR3D_DATA_OPLIST_FAILURE(name, oplist)                            \
+  ((M_LIB_ERROR(ARGUMENT_OF_SHARED_DATA_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
+
+/* OPLIST definition of the shared data of a shared pointer */
+#define M_SHAR3D_DATA_OPLIST_P3(name, oplist)                                 \
+  (NAME(name), TYPE(struct M_C(name,_s) *)                                    \
+   ,M_IF_METHOD(INIT)(INIT(API_4(M_F(name, _new))),)                          \
+   ,M_IF_METHOD(INIT_SET)(INIT_SET(API_4(M_F(name, _new_copy))),)             \
+   ,M_IF_METHOD(SET)(SET(API_4(M_F(name, _copy))),)                           \
+   ,CLEAR(M_F(name, _clear))                                                  \
+   ,INIT_MOVE(M_SET_BASIC)                                                    \
+   ,MOVE(M_SET_BASIC)                                                         \
+   )
+
 
 /* Validation of the given oplist */
 #define M_SHAR3D_PTR_DECL_P2(name, shared_t, oplist)                          \
@@ -450,6 +508,7 @@ M_IF_METHOD(INIT_SET, oplist)( extern shared_t *M_F(name, _new_copy)(const share
 M_IF_METHOD(SET, oplist)( extern void M_F(name, _copy)(shared_t *, const shared_t *); , ) \
 extern shared_t *M_F(name, _acquire)(shared_t *);                             \
 extern void      M_F(name, _release)(shared_t *);                             \
+extern void      M_F(name, _set)(shared_t **, shared_t *);                    \
 extern void      M_F(name, _clear)(shared_t *);                               \
 M_EMPLACE_QUEUE_DEF(name, shared_t, M_F(name, _make), oplist, M_SHARED_PTR_DECL_BASIC_MAKE)
 
@@ -513,12 +572,18 @@ fattr shared_t *M_F(name, _acquire)(shared_t *out)                            \
                                                                               \
 fattr void M_F(name, _release)(shared_t *out)                                 \
 {                                                                             \
-    M_ASSERT(out != NULL);                                                    \
-    if (M_F(name, _dec_owner)(out)) {                                         \
+    if (out != NULL && M_F(name, _dec_owner)(out)) {                          \
         M_CALL_CLEAR(oplist, out->data);                                      \
         M_F(name, _clear_lock)(out);                                          \
         M_CALL_DEL(oplist, out);                                              \
     }                                                                         \
+}                                                                             \
+                                                                              \
+fattr void M_F(name, _set)(shared_t **dst, shared_t *out)                     \
+{                                                                             \
+    M_ASSERT(dst != NULL && out != NULL);                                     \
+    M_F(name, _release)(*dst);                                                \
+    *dst = M_F(name, _acquire)(out);                                          \
 }                                                                             \
                                                                               \
 fattr void M_F(name, _clear)(shared_t *out)                                   \
