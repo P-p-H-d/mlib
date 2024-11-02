@@ -35,8 +35,25 @@
  * It is either the C++ try,
  * or it uses a GCC extension,
  * or it uses a CLANG extension,
- * or the standard C compliant way (much slower).
+ * or the standard C compliant way through longjmp (slower).
  * The user can override the desired mechanism.
+ * 
+ * Performance Measures of the mechanism costs to create recursively 100000 empty strings (RAII / no exception)
+ *  TCC        : LET(longjmp): 6412 us ON_EXCEPTION(longjmp): 6550 us
+ *  CLANG      : LET(longjmp): 3922 us ON_EXCEPTION(longjmp): 3972 us
+ *  CLANG+BLOCK: LET(BLOCK):   3549 us ON_EXCEPTION(longjmp): 4196 us
+ *  GCC (O2)   : LET(nested):  1828 us ON_EXCEPTION(longjmp): 2033 us
+ *  G++ (O2/O3): LET(c++):     1850 us ON_EXCEPTION(c++):     1874 us
+ *  GCC (O3)   : LET(nested):  1377 us ON_EXCEPTION(longjmp): 1402 us
+ *  CLANG++(O2/O3): LET(c++):   428 us ON_EXCEPTION(c++):      433 us
+ * Therefore the C mechanism of try emulation is 3x times slower than the C++ "zero cost" implementation
+ * in this scenario where the mechanism cost is the most measurable.
+ * Most of the time difference comes from the size of the stack frame (memory bandwidth):
+ * * 240 bytes for CLANG(block/longjmp)
+ * * 80 bytes for GCC/nested
+ * * 96 bytes for GCC/longjmp
+ * * 64 bytes for G++ (!)
+ * * 16 bytes for CLANG++
  */
 #ifndef M_USE_TRY_MECHANISM
 # if defined(__has_extension)
@@ -160,14 +177,6 @@ struct m_exception_s {
 #undef M_IF_EXCEPTION
 #define M_IF_EXCEPTION(...) __VA_ARGS__
 
-// TODO: It will be good to make M_ON_EXCEPTION faster
-// to do that it may be able to use "Callback injection" instead of "longjmp injection"
-// Notice that "Callback injection" works only for GCC/CLANG where typeof extension
-// always works (need to move typeof definition to m-core from m-generic)
-// Therefore we can modify the macro so that the first argument is the data
-// to be passed. A void pointer to it is given to the callback, and the callback
-// gets back it using typeof and expand the on exception expressions.
-// If there is no argument (or 0?), it stills uses the "longjmp" injection.
 #undef M_ON_EXCEPTION
 #define M_ON_EXCEPTION(...)                                                   \
   for(bool cont = true; cont; cont = false)                                   \
@@ -301,12 +310,16 @@ typedef intptr_t           m_try_jmp_buf[5];
 // this point in the stack frame. Each nodes are linked together, so that we can
 // analyze the stack frame on exception.
 typedef struct m_try_s {
-  enum { M_STATE_TRY, M_STATE_EXCEPTION_IN_PROGRESS, M_STATE_EXCEPTION_CAUGHT,
-         M_STATE_CLEAR_JMPBUF, M_STATE_CLEAR_CB } kind;
-  struct m_try_s *next;
+  enum { M_STATE_TRY,                       // Try block starts
+         M_STATE_EXCEPTION_IN_PROGRESS,     // A try block or jmpbuf is being in progress (before being caught)
+         M_STATE_EXCEPTION_CAUGHT,          // An exception in progress has been successfully caught (==> no rethrow)
+         M_STATE_CLEAR_JMPBUF,              // Need to jmpbuf here to clear things
+         M_STATE_CLEAR_CB                   // Need to call the function to clear things
+      } kind;
+  struct m_try_s *next;                     // Next try block or clear mechanism on the stack frame.
   union {
-    m_try_jmp_buf buf;
-    struct { void (M_TRY_FUNC_OPERATOR func)(void*); void *data; } clear;
+    m_try_jmp_buf buf;                      // To use for M_STATE_CLEAR_JMPBUF
+    struct { void (M_TRY_FUNC_OPERATOR func)(void*); void *data; } clear; // To use for M_STATE_CLEAR_CB
   } data;
 } m_try_t[1];
 
@@ -322,7 +335,7 @@ typedef struct m_try_s {
 #define M_THROW_1(error_code)                                                 \
   m_throw( &(const struct m_exception_s) { error_code, __LINE__, 0, __FILE__, { 0 } } )
 
-// Throw the error code
+// Throw the error code and the associated data.
 #define M_THROW_N(error_code, ...)                                            \
   m_throw( &(const struct m_exception_s) { error_code, __LINE__, M_NARGS(__VA_ARGS__), __FILE__, \
         { __VA_ARGS__ } } )
@@ -343,6 +356,7 @@ extern M_ATTR_NO_RETURN M_ATTR_COLD_FUNCTION void m_throw(const struct m_excepti
 
 // Macro to add once in one source file to define theses global:
 #define M_TRY_DEF_ONCE_B()                                                    \
+  /* Define the global variables */                                           \
   M_THREAD_ATTR struct m_try_s *m_global_error_list;                          \
   M_THREAD_ATTR struct m_exception_s m_global_exception;                      \
                                                                               \
@@ -354,7 +368,7 @@ extern M_ATTR_NO_RETURN M_ATTR_COLD_FUNCTION void m_throw(const struct m_excepti
     /* Analyze the error list to see what has been registered */              \
     struct m_try_s *e = m_global_error_list;                                  \
     while (e != NULL) {                                                       \
-      /* A CLEAR operator has been registered: call it */                     \
+      /* A CLEAR by CB operator has been registered: call it */               \
       if (e->kind == M_STATE_CLEAR_CB) {                                      \
         e->data.clear.func(e->data.clear.data);                               \
       }                                                                       \
@@ -372,7 +386,7 @@ extern M_ATTR_NO_RETURN M_ATTR_COLD_FUNCTION void m_throw(const struct m_excepti
       /* Next stack frame */                                                  \
       e = e->next;                                                            \
     }                                                                         \
-    /* No exception found.                                                    \
+    /* No try block found.                                                    \
        Display the information and halt program . */                          \
     M_RAISE_FATAL("Exception '%u' raised by (%s:%d) is not caught. Program aborted.\n", \
                   exception->error_code, exception->filename, exception->line); \
@@ -511,7 +525,7 @@ m_try_jump_final(m_try_t state)
 # error M*LIB: Internal error. C++ back-end requested within C implementation.
 
 #elif M_USE_TRY_MECHANISM == 2
-// Use of CLANG blocks
+// Use of CLANG blocks, and register them as callback with a pointer to the variable
 
 #define M_LET_TRY_INJECT_PRE_B(cont, oplist, name)                            \
   for(m_try_t M_C(m_try_state_, name); cont &&                                \
@@ -523,7 +537,7 @@ m_try_jump_final(m_try_t state)
                       (void*) &name); cont; m_try_cb_final(M_C(m_try_state_, name)) )
 
 #elif M_USE_TRY_MECHANISM == 3
-// Use of GCC nested functions.
+// Use of GCC nested functions, and register them as callback with a pointer to the variable
 
 #define M_LET_TRY_INJECT_PRE_B(cont, oplist, name)                            \
   for(m_try_t M_C(m_try_state_, name); cont &&                                \
@@ -606,4 +620,3 @@ m_try_jump_final(m_try_t state)
 #define m_volatile volatile
 
 #endif
-

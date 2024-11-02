@@ -1011,7 +1011,7 @@ M_IF_METHOD(POP_MOVE, oplist)(                                                \
 
 
 /* Define the iterator based operators
-   We cannot provide directly the iterator due to concenrency API,
+   We cannot provide directly the iterator due to concurency API,
    so we produce an encapsulation of the major usage of them */
 #define M_SHARED_PTR_DECL_IT(name, shared_t, oplist, sub_type)                \
 M_IF_METHOD2(IT_FIRST, IT_REF, oplist)( extern int M_F(name, _apply)(shared_t *, int (*callback)(void *, sub_type*), void*); , ) \
