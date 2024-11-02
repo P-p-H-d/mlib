@@ -448,12 +448,12 @@ fattr void M_F(name, _write_read_unlock)(shared_t *out, const shared_t *src)  \
 M_IF_METHOD(INIT, oplist)( extern shared_t *M_F(name, _new)(void); , )        \
 M_IF_METHOD(INIT_SET, oplist)( extern shared_t *M_F(name, _new_copy)(const shared_t *); , ) \
 M_IF_METHOD(SET, oplist)( extern void M_F(name, _copy)(shared_t *, const shared_t *); , ) \
-extern shared_t *M_F(name, _acquire_owner)(shared_t *);                       \
-extern void      M_F(name, _release_owner)(shared_t *);                       \
+extern shared_t *M_F(name, _acquire)(shared_t *);                             \
+extern void      M_F(name, _release)(shared_t *);                             \
 extern void      M_F(name, _clear)(shared_t *);                               \
 M_EMPLACE_QUEUE_DEF(name, shared_t, M_F(name, _make), oplist, M_SHARED_PTR_DECL_BASIC_MAKE)
 
-#define M_SHARED_PTR_DECL_BASIC_MAKE(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
+#define M_SHARED_PTR_DECL_BASIC_MAKE(name, shared_t, function_name, oplist, init_func, exp_emplace_type) \
 extern shared_t *function_name(M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_emplace_type));
 
 #define M_SHARED_PTR_DEF_BASIC(name, shared_t, type, oplist, fattr)           \
@@ -504,14 +504,14 @@ M_IF_METHOD(SET, oplist)(                                                     \
     }                                                                         \
  , )                                                                          \
                                                                               \
-fattr shared_t *M_F(name, _acquire_owner)(shared_t *out)                      \
+fattr shared_t *M_F(name, _acquire)(shared_t *out)                            \
 {                                                                             \
     M_ASSERT(out != NULL);                                                    \
     M_F(name, _inc_owner)(out);                                               \
     return out;                                                               \
 }                                                                             \
                                                                               \
-fattr void M_F(name, _release_owner)(shared_t *out)                           \
+fattr void M_F(name, _release)(shared_t *out)                                 \
 {                                                                             \
     M_ASSERT(out != NULL);                                                    \
     if (M_F(name, _dec_owner)(out)) {                                         \
@@ -523,11 +523,11 @@ fattr void M_F(name, _release_owner)(shared_t *out)                           \
                                                                               \
 fattr void M_F(name, _clear)(shared_t *out)                                   \
 {                                                                             \
-    M_F(name, _release_owner)(out);                                           \
+    M_F(name, _release)(out);                                                 \
 }                                                                             \
 M_EMPLACE_QUEUE_DEF( (name, fattr), shared_t, M_F(name, _make), oplist, M_SHARED_PTR_DEF_BASIC_MAKE)
 
-#define M_SHARED_PTR_DEF_BASIC_MAKE(name_attr, name_t, function_name, oplist, init_func, exp_emplace_type) \
+#define M_SHARED_PTR_DEF_BASIC_MAKE(name_attr, shared_t, function_name, oplist, init_func, exp_emplace_type) \
 M_PAIR_2 name_attr shared_t *function_name(M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_emplace_type)) \
 {                                                                             \
         shared_t *out = M_CALL_NEW(oplist, shared_t);                         \
