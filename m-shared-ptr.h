@@ -88,7 +88,7 @@
 
 /* Define a static inline a shared strong pointer (atomic & lock). oplist is optional */
 #define M_SHARED_PTR_DEF_AS(name, shared_t, ...)                              \
-  M_SHARED_PTR_DECL_TYPE(name, shared_t,       )                              \
+  M_SHAR3D_PTR_DECL_TYPE(name, shared_t,       )                              \
   M_SHAR3D_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
     ((name, shared_t, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), static inline ), \
      (name, shared_t, __VA_ARGS__,                                        static inline )))
@@ -168,15 +168,15 @@
 /* Declare all functions assiated to the shared pointer */
 #define M_SHAR3D_PTR_DECL_P3(name, shared_t, oplist)                          \
     M_BEGIN_PROTECTED_CODE                                                    \
-    M_SHARED_PTR_DECL_TYPE(name, shared_t, oplist)                            \
-    M_SHARED_PTR_DECL_BASIC(name, shared_t, oplist)                           \
-    M_SHARED_PTR_DECL_EXTRA(name, shared_t, oplist)                           \
-    M_SHARED_PTR_DECL_ARITH(name, shared_t, oplist)                           \
-    M_SHARED_PTR_DECL_KEY(name, shared_t, oplist, M_GET_KEY_TYPE oplist, M_GET_VALUE_TYPE oplist) \
-    M_SHARED_PTR_DECL_PUSH(name, shared_t, oplist, M_GET_SUBTYPE oplist)      \
-    M_SHARED_PTR_DECL_POP(name, shared_t, oplist, M_GET_SUBTYPE oplist)       \
-    M_SHARED_PTR_DECL_IT(name, shared_t, oplist, M_GET_SUBTYPE oplist)        \
-    M_SHARED_PTR_DECL_IO(name, shared_t, oplist)                              \
+    M_SHAR3D_PTR_DECL_TYPE(name, shared_t, oplist)                            \
+    M_SHAR3D_PTR_DECL_BASIC(name, shared_t, oplist)                           \
+    M_SHAR3D_PTR_DECL_EXTRA(name, shared_t, oplist)                           \
+    M_SHAR3D_PTR_DECL_ARITH(name, shared_t, oplist)                           \
+    M_SHAR3D_PTR_DECL_KEY(name, shared_t, oplist, M_GET_KEY_TYPE oplist, M_GET_VALUE_TYPE oplist) \
+    M_SHAR3D_PTR_DECL_PUSH(name, shared_t, oplist, M_GET_SUBTYPE oplist)      \
+    M_SHAR3D_PTR_DECL_POP(name, shared_t, oplist, M_GET_SUBTYPE oplist)       \
+    M_SHAR3D_PTR_DECL_IT(name, shared_t, oplist, M_GET_SUBTYPE oplist)        \
+    M_SHAR3D_PTR_DECL_IO(name, shared_t, oplist)                              \
     M_END_PROTECTED_CODE
 
 
@@ -195,16 +195,16 @@
 /* Define all functions assiated to the weak shared pointer as 'fattr' (can be static inline or extern) */
 #define M_SHAR3D_WEAK_PTR_DEF_P3(name, shared_t, type, oplist, fattr)         \
     M_BEGIN_PROTECTED_CODE                                                    \
-    M_SHARED_PTR_NO_THRD_DEF_TYPE(name, shared_t, type, oplist)               \
-    M_SHARED_PTR_NO_THRD_DEF_CORE(name, shared_t, type, oplist, fattr)        \
-    M_SHARED_PTR_DEF_BASIC(name, shared_t, type, oplist, fattr)               \
-    M_SHARED_PTR_DEF_EXTRA(name, shared_t, type, oplist, fattr)               \
-    M_SHARED_PTR_DEF_ARITH(name, shared_t, type, oplist, fattr)               \
-    M_SHARED_PTR_DEF_KEY(name, shared_t, type, oplist, fattr, M_GET_KEY_TYPE oplist, M_GET_KEY_OPLIST oplist, M_GET_VALUE_TYPE oplist, M_GET_VALUE_OPLIST oplist) \
-    M_SHARED_PTR_DEF_PUSH(name, shared_t, type, oplist, fattr, M_GET_SUBTYPE oplist, M_GET_OPLIST oplist) \
-    M_SHARED_PTR_DEF_POP(name, shared_t, type, oplist, fattr, M_GET_SUBTYPE oplist, M_GET_OPLIST oplist) \
-    M_SHARED_PTR_DEF_IT(name, shared_t, type, oplist, fattr, M_GET_SUBTYPE oplist, M_GET_OPLIST oplist) \
-    M_SHARED_PTR_DEF_IO(name, shared_t, type, oplist, fattr)                  \
+    M_SHAR3D_PTR_NO_THRD_DEF_TYPE(name, shared_t, type, oplist)               \
+    M_SHAR3D_PTR_NO_THRD_DEF_CORE(name, shared_t, type, oplist, fattr)        \
+    M_SHAR3D_PTR_DEF_BASIC(name, shared_t, type, oplist, fattr)               \
+    M_SHAR3D_PTR_DEF_EXTRA(name, shared_t, type, oplist, fattr)               \
+    M_SHAR3D_PTR_DEF_ARITH(name, shared_t, type, oplist, fattr)               \
+    M_SHAR3D_PTR_DEF_KEY(name, shared_t, type, oplist, fattr, M_GET_KEY_TYPE oplist, M_GET_KEY_OPLIST oplist, M_GET_VALUE_TYPE oplist, M_GET_VALUE_OPLIST oplist) \
+    M_SHAR3D_PTR_DEF_PUSH(name, shared_t, type, oplist, fattr, M_GET_SUBTYPE oplist, M_GET_OPLIST oplist) \
+    M_SHAR3D_PTR_DEF_POP(name, shared_t, type, oplist, fattr, M_GET_SUBTYPE oplist, M_GET_OPLIST oplist) \
+    M_SHAR3D_PTR_DEF_IT(name, shared_t, type, oplist, fattr, M_GET_SUBTYPE oplist, M_GET_OPLIST oplist) \
+    M_SHAR3D_PTR_DEF_IO(name, shared_t, type, oplist, fattr)                  \
     M_END_PROTECTED_CODE
 
 
@@ -223,39 +223,39 @@
 /* Define all functions assiated to the shared pointer as 'fattr' (can be static inline or extern) */
 #define M_SHAR3D_PTR_DEF_P3(name, shared_t, type, oplist, fattr)              \
     M_BEGIN_PROTECTED_CODE                                                    \
-    M_SHARED_PTR_DEF_TYPE(name, shared_t, type, oplist)                       \
-    M_SHARED_PTR_DEF_CORE(name, shared_t, type, oplist, fattr)                \
-    M_SHARED_PTR_DEF_BASIC(name, shared_t, type, oplist, fattr)               \
-    M_SHARED_PTR_DEF_EXTRA(name, shared_t, type, oplist, fattr)               \
-    M_SHARED_PTR_DEF_ARITH(name, shared_t, type, oplist, fattr)               \
-    M_SHARED_PTR_DEF_KEY(name, shared_t, type, oplist, fattr, M_GET_KEY_TYPE oplist, M_GET_KEY_OPLIST oplist, M_GET_VALUE_TYPE oplist, M_GET_VALUE_OPLIST oplist) \
-    M_SHARED_PTR_DEF_PUSH(name, shared_t, type, oplist, fattr, M_GET_SUBTYPE oplist, M_GET_OPLIST oplist) \
-    M_SHARED_PTR_DEF_POP(name, shared_t, type, oplist, fattr, M_GET_SUBTYPE oplist, M_GET_OPLIST oplist) \
-    M_SHARED_PTR_DEF_IT(name, shared_t, type, oplist, fattr, M_GET_SUBTYPE oplist, M_GET_OPLIST oplist) \
-    M_SHARED_PTR_DEF_IO(name, shared_t, type, oplist, fattr)                  \
+    M_SHAR3D_PTR_DEF_TYPE(name, shared_t, type, oplist)                       \
+    M_SHAR3D_PTR_DEF_CORE(name, shared_t, type, oplist, fattr)                \
+    M_SHAR3D_PTR_DEF_BASIC(name, shared_t, type, oplist, fattr)               \
+    M_SHAR3D_PTR_DEF_EXTRA(name, shared_t, type, oplist, fattr)               \
+    M_SHAR3D_PTR_DEF_ARITH(name, shared_t, type, oplist, fattr)               \
+    M_SHAR3D_PTR_DEF_KEY(name, shared_t, type, oplist, fattr, M_GET_KEY_TYPE oplist, M_GET_KEY_OPLIST oplist, M_GET_VALUE_TYPE oplist, M_GET_VALUE_OPLIST oplist) \
+    M_SHAR3D_PTR_DEF_PUSH(name, shared_t, type, oplist, fattr, M_GET_SUBTYPE oplist, M_GET_OPLIST oplist) \
+    M_SHAR3D_PTR_DEF_POP(name, shared_t, type, oplist, fattr, M_GET_SUBTYPE oplist, M_GET_OPLIST oplist) \
+    M_SHAR3D_PTR_DEF_IT(name, shared_t, type, oplist, fattr, M_GET_SUBTYPE oplist, M_GET_OPLIST oplist) \
+    M_SHAR3D_PTR_DEF_IO(name, shared_t, type, oplist, fattr)                  \
     M_END_PROTECTED_CODE
 
 
 /* Declare the type of shared pointer. Opaque structure for encapsulation */
-#define M_SHARED_PTR_DECL_TYPE(name, shared_t, oplist)                        \
+#define M_SHAR3D_PTR_DECL_TYPE(name, shared_t, oplist)                        \
     typedef struct M_C(name, _s) shared_t;
 
 /* Definition of the type with no thread safety (single thread) */
-#define M_SHARED_PTR_NO_THRD_DEF_TYPE(name, shared_t, type, oplist)           \
+#define M_SHAR3D_PTR_NO_THRD_DEF_TYPE(name, shared_t, type, oplist)           \
     struct M_C(name, _s) {                                                    \
         type        data; /* Allow safe casting from shared_t* to type* */    \
         unsigned cpt;     /* Owner counter that acquire the data */           \
     };
 
 /* Define the core functions without any thread safety */
-#define M_SHARED_PTR_NO_THRD_DEF_CORE(name, shared_t, type, oplist, fattr)    \
+#define M_SHAR3D_PTR_NO_THRD_DEF_CORE(name, shared_t, type, oplist, fattr)    \
 /* Increment the number of owner (acquire the resource) */                    \
-fattr void M_F(name, _inc_owner)(shared_t *out)                               \
+fattr void M_C3(m_shar3d_, name, _inc_owner)(shared_t *out)                   \
 {                                                                             \
     out->cpt ++;                                                              \
 }                                                                             \
 /* Decrement the number of owner (release the resource). Return true if it was the last owner */ \
-fattr bool M_F(name, _dec_owner)(shared_t *out)                               \
+fattr bool M_C3(m_shar3d_, name, _dec_owner)(shared_t *out)                   \
 {                                                                             \
     out->cpt --;                                                              \
     return 0 == out->cpt;                                                     \
@@ -338,7 +338,7 @@ fattr void M_F(name, _write_read_unlock)(shared_t *out, const shared_t *src)  \
 /* Definition of the type with thread safety. */
 //TODO: If PROPERTIES.THREADSAFE, disable the global lock as the container handles it itself.
 //FIXME: Such a property may need to be more fine tuned than globaly.
-#define M_SHARED_PTR_DEF_TYPE(name, shared_t, type, oplist)                   \
+#define M_SHAR3D_PTR_DEF_TYPE(name, shared_t, type, oplist)                   \
     struct M_C(name, _s) {                                                    \
         type        data; /* Allow safe casting from shared_t* to type* */    \
         atomic_uint cpt;  /* Owner counter that acquire the data */           \
@@ -353,14 +353,14 @@ fattr void M_F(name, _write_read_unlock)(shared_t *out, const shared_t *src)  \
 
 /* Define the core functions with thread safety 
    NOTE: lock are exception free. */
-#define M_SHARED_PTR_DEF_CORE(name, shared_t, type, oplist, fattr)            \
+#define M_SHAR3D_PTR_DEF_CORE(name, shared_t, type, oplist, fattr)            \
                                                                               \
-fattr void M_F(name, _inc_owner)(shared_t *out)                               \
+fattr void M_C3(m_shar3d_, name, _inc_owner)(shared_t *out)                   \
 {                                                                             \
     atomic_fetch_add(&out->cpt, 1);                                           \
 }                                                                             \
                                                                               \
-fattr bool M_F(name, _dec_owner)(shared_t *out)                               \
+fattr bool M_C3(m_shar3d_, name, _dec_owner)(shared_t *out)                   \
 {                                                                             \
     return 1 == atomic_fetch_sub(&out->cpt, 1);                               \
 }                                                                             \
@@ -502,7 +502,7 @@ fattr void M_F(name, _write_read_unlock)(shared_t *out, const shared_t *src)  \
 
 
 /* Define the basic function of a shared pointer */
-#define M_SHARED_PTR_DECL_BASIC(name, shared_t, oplist)                       \
+#define M_SHAR3D_PTR_DECL_BASIC(name, shared_t, oplist)                       \
 M_IF_METHOD(INIT, oplist)( extern shared_t *M_F(name, _new)(void); , )        \
 M_IF_METHOD(INIT_SET, oplist)( extern shared_t *M_F(name, _new_copy)(const shared_t *); , ) \
 M_IF_METHOD(SET, oplist)( extern void M_F(name, _copy)(shared_t *, const shared_t *); , ) \
@@ -510,12 +510,12 @@ extern shared_t *M_F(name, _acquire)(shared_t *);                             \
 extern void      M_F(name, _release)(shared_t *);                             \
 extern void      M_F(name, _set)(shared_t **, shared_t *);                    \
 extern void      M_F(name, _clear)(shared_t *);                               \
-M_EMPLACE_QUEUE_DEF(name, shared_t, M_F(name, _make), oplist, M_SHARED_PTR_DECL_BASIC_MAKE)
+M_EMPLACE_QUEUE_DEF(name, shared_t, M_F(name, _make), oplist, M_SHAR3D_PTR_DECL_BASIC_MAKE)
 
-#define M_SHARED_PTR_DECL_BASIC_MAKE(name, shared_t, function_name, oplist, init_func, exp_emplace_type) \
+#define M_SHAR3D_PTR_DECL_BASIC_MAKE(name, shared_t, function_name, oplist, init_func, exp_emplace_type) \
 extern shared_t *function_name(M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_emplace_type));
 
-#define M_SHARED_PTR_DEF_BASIC(name, shared_t, type, oplist, fattr)           \
+#define M_SHAR3D_PTR_DEF_BASIC(name, shared_t, type, oplist, fattr)           \
 M_IF_METHOD(INIT, oplist)(                                                    \
     fattr shared_t *M_F(name, _new)(void)                                     \
     {                                                                         \
@@ -566,13 +566,13 @@ M_IF_METHOD(SET, oplist)(                                                     \
 fattr shared_t *M_F(name, _acquire)(shared_t *out)                            \
 {                                                                             \
     M_ASSERT(out != NULL);                                                    \
-    M_F(name, _inc_owner)(out);                                               \
+    M_C3(m_shar3d_, name, _inc_owner)(out);                                   \
     return out;                                                               \
 }                                                                             \
                                                                               \
 fattr void M_F(name, _release)(shared_t *out)                                 \
 {                                                                             \
-    if (out != NULL && M_F(name, _dec_owner)(out)) {                          \
+    if (out != NULL && M_C3(m_shar3d_, name, _dec_owner)(out)) {              \
         M_CALL_CLEAR(oplist, out->data);                                      \
         M_F(name, _clear_lock)(out);                                          \
         M_CALL_DEL(oplist, out);                                              \
@@ -590,9 +590,9 @@ fattr void M_F(name, _clear)(shared_t *out)                                   \
 {                                                                             \
     M_F(name, _release)(out);                                                 \
 }                                                                             \
-M_EMPLACE_QUEUE_DEF( (name, fattr), shared_t, M_F(name, _make), oplist, M_SHARED_PTR_DEF_BASIC_MAKE)
+M_EMPLACE_QUEUE_DEF( (name, fattr), shared_t, M_F(name, _make), oplist, M_SHAR3D_PTR_DEF_BASIC_MAKE)
 
-#define M_SHARED_PTR_DEF_BASIC_MAKE(name_attr, shared_t, function_name, oplist, init_func, exp_emplace_type) \
+#define M_SHAR3D_PTR_DEF_BASIC_MAKE(name_attr, shared_t, function_name, oplist, init_func, exp_emplace_type) \
 M_PAIR_2 name_attr shared_t *function_name(M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_emplace_type)) \
 {                                                                             \
         shared_t *out = M_CALL_NEW(oplist, shared_t);                         \
@@ -608,7 +608,7 @@ M_PAIR_2 name_attr shared_t *function_name(M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_
 
 
 /* Define the extra function of a shared pointer */
-#define M_SHARED_PTR_DECL_EXTRA(name, shared_t, oplist)                       \
+#define M_SHAR3D_PTR_DECL_EXTRA(name, shared_t, oplist)                       \
 M_IF_METHOD(SWAP, oplist)( extern void M_F(name, _swap)(shared_t *, shared_t *); , ) \
 M_IF_METHOD(RESET, oplist)( extern void M_F(name, _reset)(shared_t *); , )    \
 M_IF_METHOD(EMPTY_P, oplist)( extern bool M_F(name, _empty_p)(const shared_t *); , ) \
@@ -617,7 +617,7 @@ M_IF_METHOD(EQUAL, oplist)( extern bool M_F(name, _equal_p)(const shared_t *, co
 M_IF_METHOD(CMP, oplist)( extern int M_F(name, _cmp)(const shared_t *, const shared_t *); , ) \
 M_IF_METHOD(HASH, oplist)( extern size_t M_F(name, _hash)(const shared_t *); , ) \
 
-#define M_SHARED_PTR_DEF_EXTRA(name, shared_t, type, oplist, fattr)           \
+#define M_SHAR3D_PTR_DEF_EXTRA(name, shared_t, type, oplist, fattr)           \
 M_IF_METHOD(SWAP, oplist)(                                                    \
     fattr void M_F(name, _swap)(shared_t *o1, shared_t *o2)                   \
     {                                                                         \
@@ -739,14 +739,14 @@ M_IF_METHOD(HASH, oplist)(                                                    \
 
 
 /* Define the arithmetic operators */
-#define M_SHARED_PTR_DECL_ARITH(name, shared_t, oplist)                       \
+#define M_SHAR3D_PTR_DECL_ARITH(name, shared_t, oplist)                       \
 M_IF_METHOD(ADD, oplist)( extern void M_F(name, _add)(shared_t *, const shared_t *); , ) \
 M_IF_METHOD(SUB, oplist)( extern void M_F(name, _sub)(shared_t *, const shared_t *); , ) \
 M_IF_METHOD(MUL, oplist)( extern void M_F(name, _mul)(shared_t *, const shared_t *); , ) \
 M_IF_METHOD(DIV, oplist)( extern void M_F(name, _div)(shared_t *, const shared_t *); , ) \
 M_IF_METHOD(SPLICE, oplist)( extern void M_F(name, _splice)(shared_t *, shared_t *); , ) \
 
-#define M_SHARED_PTR_DEF_ARITH(name, shared_t, type, oplist, fattr)           \
+#define M_SHAR3D_PTR_DEF_ARITH(name, shared_t, type, oplist, fattr)           \
 M_IF_METHOD(ADD, oplist)(                                                     \
     fattr void M_F(name, _add)(shared_t *out, const shared_t *src)            \
     {                                                                         \
@@ -812,13 +812,13 @@ M_IF_METHOD(SPLICE, oplist)(                                                  \
 
 
 /* Define the key based operators */
-#define M_SHARED_PTR_DECL_KEY(name, shared_t, oplist, key_type, value_type)   \
+#define M_SHAR3D_PTR_DECL_KEY(name, shared_t, oplist, key_type, value_type)   \
 M_IF_METHOD(GET_KEY, oplist)( extern bool M_F(name, _get)(value_type *, const shared_t *, key_type const); , ) \
 M_IF_METHOD(SAFE_GET_KEY, oplist)( extern void M_F(name, _safe_get)(value_type *, shared_t *, key_type const); , ) \
 M_IF_METHOD(SET_KEY, oplist)( extern void M_F(name, _set_at)(shared_t *, key_type const, value_type const); , ) \
 M_IF_METHOD(ERASE_KEY, oplist)( extern void M_F(name, _erase_key)(shared_t *, key_type const); , )
 
-#define M_SHARED_PTR_DEF_KEY(name, shared_t, type, oplist, fattr, key_type, key_oplist, value_type, value_oplist) \
+#define M_SHAR3D_PTR_DEF_KEY(name, shared_t, type, oplist, fattr, key_type, key_oplist, value_type, value_oplist) \
 M_IF_METHOD(GET_KEY, oplist)(                                                 \
     fattr bool M_F(name, _get)(value_type *value, const shared_t *out, key_type const key) \
     {                                                                         \
@@ -878,21 +878,21 @@ M_IF_METHOD(ERASE_KEY, oplist)(                                               \
 
 
 /* Define the push based operators */
-#define M_SHARED_PTR_DECL_PUSH(name, shared_t, oplist, sub_type)              \
+#define M_SHAR3D_PTR_DECL_PUSH(name, shared_t, oplist, sub_type)              \
 M_IF_METHOD(PUSH, oplist)( extern void M_F(name, _push)(shared_t *, sub_type const); , ) \
 M_IF_METHOD(PUSH_MOVE, oplist)( extern void M_F(name, _push_move)(shared_t *, sub_type *); , ) \
 M_IF_METHOD(PUSH, oplist)( extern bool M_F(name, _try_push)(shared_t *, sub_type const); , ) \
 M_IF_METHOD(PUSH_MOVE, oplist)( extern bool M_F(name, _try_push_move)(shared_t *, sub_type *); , ) \
-M_EMPLACE_QUEUE_DEF(name, shared_t, M_F(name, _emplace), M_GET_OPLIST oplist, M_SHARED_PTR_DECL_EMPLACE) \
-M_EMPLACE_QUEUE_DEF(name, shared_t, M_F(name, _emplace), M_GET_OPLIST oplist, M_SHARED_PTR_DECL_TRY_EMPLACE)
+M_EMPLACE_QUEUE_DEF(name, shared_t, M_F(name, _emplace), M_GET_OPLIST oplist, M_SHAR3D_PTR_DECL_EMPLACE) \
+M_EMPLACE_QUEUE_DEF(name, shared_t, M_F(name, _emplace), M_GET_OPLIST oplist, M_SHAR3D_PTR_DECL_TRY_EMPLACE)
 
-#define M_SHARED_PTR_DECL_EMPLACE(name, shared_t, function_name, oplist, init_func, exp_emplace_type) \
+#define M_SHAR3D_PTR_DECL_EMPLACE(name, shared_t, function_name, oplist, init_func, exp_emplace_type) \
 extern void function_name(shared_t*, M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type));
 
-#define M_SHARED_PTR_DECL_TRY_EMPLACE(name, shared_t, function_name, oplist, init_func, exp_emplace_type) \
+#define M_SHAR3D_PTR_DECL_TRY_EMPLACE(name, shared_t, function_name, oplist, init_func, exp_emplace_type) \
 extern bool function_name(shared_t*, M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type));
 
-#define M_SHARED_PTR_DEF_PUSH(name, shared_t, type, oplist, fattr, sub_type, sub_oplist) \
+#define M_SHAR3D_PTR_DEF_PUSH(name, shared_t, type, oplist, fattr, sub_type, sub_oplist) \
 M_IF_METHOD(PUSH, oplist)(                                                    \
     fattr void M_F(name, _push)(shared_t *out, sub_type const value)          \
     {                                                                         \
@@ -956,11 +956,11 @@ M_IF_METHOD(PUSH_MOVE, oplist)(                                               \
         M_F(name, _write_unlock)(out);                                        \
         return ret;                                                           \
     }                                                                         \
-    M_EMPLACE_QUEUE_DEF( (name, fattr, type), shared_t, M_F(name, _emplace), oplist, M_SHARED_PTR_DEF_EMPLACE) \
-    M_EMPLACE_QUEUE_DEF( (name, fattr, type), shared_t, M_F(name, _try_emplace), oplist, M_SHARED_PTR_DEF_TRY_EMPLACE) \
+    M_EMPLACE_QUEUE_DEF( (name, fattr, type), shared_t, M_F(name, _emplace), oplist, M_SHAR3D_PTR_DEF_EMPLACE) \
+    M_EMPLACE_QUEUE_DEF( (name, fattr, type), shared_t, M_F(name, _try_emplace), oplist, M_SHAR3D_PTR_DEF_TRY_EMPLACE) \
 , )                                                                           \
 
-#define M_SHARED_PTR_DEF_EMPLACE(name_attr, shared_t, function_name, oplist, init_func, exp_emplace_type) \
+#define M_SHAR3D_PTR_DEF_EMPLACE(name_attr, shared_t, function_name, oplist, init_func, exp_emplace_type) \
 M_TRIPLE_2 name_attr void function_name(shared_t *out, M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_emplace_type)) \
 {                                                                             \
         M_ASSERT(out != NULL);                                                \
@@ -980,7 +980,7 @@ M_TRIPLE_2 name_attr void function_name(shared_t *out, M_EMPLACE_LIST_TYPE_VAR_A
         M_F(M_TRIPLE_1 name, _write_unlock)(out);                             \
 }                                                                             \
 
-#define M_SHARED_PTR_DEF_TRY_EMPLACE(name_attr, shared_t, function_name, oplist, init_func, exp_emplace_type) \
+#define M_SHAR3D_PTR_DEF_TRY_EMPLACE(name_attr, shared_t, function_name, oplist, init_func, exp_emplace_type) \
 M_TRIPLE_2 name_attr bool function_name(shared_t *out, M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_emplace_type)) \
 {                                                                             \
         M_ASSERT(out != NULL);                                                \
@@ -1002,13 +1002,13 @@ M_TRIPLE_2 name_attr bool function_name(shared_t *out, M_EMPLACE_LIST_TYPE_VAR_A
 
 
 /* Define the pop based operators */
-#define M_SHARED_PTR_DECL_POP(name, shared_t, oplist, sub_type)               \
+#define M_SHAR3D_PTR_DECL_POP(name, shared_t, oplist, sub_type)               \
 M_IF_METHOD(POP, oplist)( extern void M_F(name, _pop)(sub_type *const, shared_t *); , ) \
 M_IF_METHOD(POP_MOVE, oplist)( extern void M_F(name, _pop_move)(sub_type *, shared_t *); , ) \
 M_IF_METHOD(POP, oplist)( extern bool M_F(name, _try_pop)(sub_type*, shared_t *); , ) \
 M_IF_METHOD(POP_MOVE, oplist)( extern bool M_F(name, _try_pop_move)(sub_type *, shared_t *); , )
 
-#define M_SHARED_PTR_DEF_POP(name, shared_t, type, oplist, fattr, sub_type, sub_oplist) \
+#define M_SHAR3D_PTR_DEF_POP(name, shared_t, type, oplist, fattr, sub_type, sub_oplist) \
 M_IF_METHOD(POP, oplist)(                                                     \
     fattr void M_F(name, _pop)(sub_type *value, shared_t *out)                \
     {                                                                         \
@@ -1078,13 +1078,13 @@ M_IF_METHOD(POP_MOVE, oplist)(                                                \
 /* Define the iterator based operators
    We cannot provide directly the iterator due to concurency API,
    so we produce an encapsulation of the major usage of them */
-#define M_SHARED_PTR_DECL_IT(name, shared_t, oplist, sub_type)                \
+#define M_SHAR3D_PTR_DECL_IT(name, shared_t, oplist, sub_type)                \
 M_IF_METHOD2(IT_FIRST, IT_REF, oplist)( extern int M_F(name, _apply)(shared_t *, int (*callback)(void *, sub_type*), void*); , ) \
 M_IF_METHOD2(IT_FIRST, IT_CREF, oplist)( extern int M_F(name, _for_each)(const shared_t *, int (*callback)(void *, const sub_type*), void*); , ) \
 M_IF_METHOD2(IT_LAST, IT_REF, oplist)( extern int M_F(name, _r_apply)(shared_t *, int (*callback)(void *, sub_type*), void*); , ) \
 M_IF_METHOD2(IT_LAST, IT_CREF, oplist)( extern int M_F(name, _r_for_each)(const shared_t *, int (*callback)(void *, const sub_type*), void*); , ) \
 
-#define M_SHARED_PTR_DEF_IT(name, shared_t, type, oplist, fattr, sub_type, sub_oplist) \
+#define M_SHAR3D_PTR_DEF_IT(name, shared_t, type, oplist, fattr, sub_type, sub_oplist) \
 M_IF_METHOD2(IT_FIRST, IT_REF, oplist)(                                       \
     fattr int M_F(name, _apply)(shared_t *out, int (*callback)(void *, sub_type*), void*data) \
     {                                                                         \
@@ -1166,7 +1166,7 @@ M_IF_METHOD2(IT_LAST, IT_CREF, oplist)(                                       \
 
 
 /* Define the I/O based operators */
-#define M_SHARED_PTR_DECL_IO(name, shared_t, oplist)                          \
+#define M_SHAR3D_PTR_DECL_IO(name, shared_t, oplist)                          \
 M_IF_METHOD(OUT_STR, oplist)( extern void M_F(name, _out_str)(FILE *, const shared_t *); , ) \
 M_IF_METHOD(IN_STR, oplist)( extern bool M_F(name, _in_str)(shared_t *, FILE *); , ) \
 M_IF_METHOD(GET_STR, oplist)( extern void M_F(name, _get_str)(string_t, const shared_t *, bool); , ) \
@@ -1174,7 +1174,7 @@ M_IF_METHOD(PARSE_STR, oplist)( extern bool M_F(name, _parse_str)(shared_t *, co
 M_IF_METHOD(OUT_SERIAL, oplist)( extern m_serial_return_code_t M_F(name, _out_serial)(m_serial_write_t, const shared_t *); , ) \
 M_IF_METHOD(IN_SERIAL, oplist)( extern m_serial_return_code_t M_F(name, _in_serial)(shared_t *, m_serial_read_t); , ) \
 
-#define M_SHARED_PTR_DEF_IO(name, shared_t, type, oplist, fattr)              \
+#define M_SHAR3D_PTR_DEF_IO(name, shared_t, type, oplist, fattr)              \
 M_IF_METHOD(OUT_STR, oplist)(                                                 \
     fattr void M_F(name, _out_str)(FILE *file, const shared_t *out)           \
     {                                                                         \
