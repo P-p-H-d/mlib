@@ -77,7 +77,7 @@
 
 /* Define a static inline a shared weak pointer (not atomic). oplist is optional */
 #define M_SHARED_WEAK_PTR_DEF_AS(name, shared_t, ...)                         \
-  M_SHARED_PTR_DECL_TYPE(name, shared_t,       )                              \
+  M_SHAR3D_PTR_DECL_TYPE(name, shared_t,       )                              \
   M_SHAR3D_WEAK_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
     ((name, shared_t, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), static inline ), \
      (name, shared_t, __VA_ARGS__,                                        static inline )))
@@ -192,7 +192,7 @@
 #define M_SHAR3D_WEAK_PTR_DEF_FAILURE(name, shared_t, type, oplist, fattr)    \
   ((M_LIB_ERROR(ARGUMENT_OF_WEAK_DEF_SHARED_POINTER_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
-/* Define all functions assiated to the weak shared pointer as 'fattr' (can be static inline or extern) */
+/* Define all functions associated to the weak shared pointer as 'fattr' (can be static inline or extern) */
 #define M_SHAR3D_WEAK_PTR_DEF_P3(name, shared_t, type, oplist, fattr)         \
     M_BEGIN_PROTECTED_CODE                                                    \
     M_SHAR3D_PTR_NO_THRD_DEF_TYPE(name, shared_t, type, oplist)               \
@@ -263,7 +263,7 @@ fattr bool M_C3(m_shar3d_, name, _dec_owner)(shared_t *out)                   \
 /* Init the lock */                                                           \
 fattr void M_F(name, _init_lock)(shared_t *out)                               \
 {                                                                             \
-    out->cpt = 0;                                                             \
+    out->cpt = 1;                                                             \
 }                                                                             \
 /* Clear the lock */                                                          \
 fattr void M_F(name, _clear_lock)(shared_t *out)                              \
@@ -367,7 +367,7 @@ fattr bool M_C3(m_shar3d_, name, _dec_owner)(shared_t *out)                   \
                                                                               \
 fattr void M_F(name, _init_lock)(shared_t *out)                               \
 {                                                                             \
-    atomic_init(&out->cpt, 0);                                                \
+    atomic_init(&out->cpt, 1);                                                \
     m_mutex_init(out->lock);                                                  \
     atomic_init(&out->num_reader, 0);                                         \
     atomic_init(&out->num_waiting_writer, 0);                                 \
