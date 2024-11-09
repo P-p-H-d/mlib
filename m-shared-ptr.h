@@ -358,7 +358,7 @@ static inline  void M_F(name, _write_read_unlock)(shared_t *out, const shared_t 
 
 /* Definition of the type with thread safety. */
 //TODO: If PROPERTIES.THREADSAFE, disable the global lock as the container handles it itself.
-//FIXME: Such a property may need to be more fine tuned than globaly.
+//FIXME: Such a property may need to be more fine tuned than globally.
 #define M_SHAR3D_PTR_DEF_TYPE(name, shared_t, type, oplist)                   \
     struct M_C(name, _s) {                                                    \
         type        data; /* Allow safe casting from shared_t* to type* */    \
@@ -712,6 +712,7 @@ M_IF_METHOD(EQUAL, oplist)(                                                   \
     fattr bool M_F(name, _equal_p)(const shared_t *o1, const shared_t *o2)    \
     {                                                                         \
         M_ASSERT(o1 != NULL && o2 != NULL);                                   \
+        if (o1 == o2) return true;                                            \
         /* See comment above on _write_read_lock */                           \
         if (o1 > o2) {                                                        \
             M_SWAP(const shared_t *, o1, o2);                                 \
@@ -732,6 +733,7 @@ M_IF_METHOD(CMP, oplist)(                                                     \
     {                                                                         \
         M_ASSERT(o1 != NULL && o2 != NULL);                                   \
         int neg = 1;                                                          \
+        if (o1 == o2) return 0;                                               \
         /* See comment above on _write_read_lock */                           \
         if (o1 > o2) {                                                        \
             M_SWAP(const shared_t *, o1, o2);                                 \
