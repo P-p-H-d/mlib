@@ -29,6 +29,24 @@
 #include "m-atomic.h"
 #include "m-thread.h"
 
+/* There are two kinds of shared pointer:
+ * * weak shared pointer (support only one thread)
+ * * shared pointer (support for multiple threads both for the counter and lock for the data)
+ *
+ * There are 3 flavors:
+ * * DECL : for header files, declare only the functions.
+ * * DEF_EXTERN: for source files, define the functions (to be used with DECL)
+ * * DEF: for header/source files, define the function as static inline.
+ * 
+ * You can provide or not the name of the shared pointer (_AS)
+ * 
+ * Therefore we got 12 macros.
+ * 
+ * There are 2 oplists:
+ * * one to handle the shared pointer itself (ie.a copy create a new pointer to the data),
+ * * one to handle the data behind the shared pointer (ie. a copy create a new data)
+*/
+
 /* Declare a shared weak pointer (not atomic, single thread) for use in header file.
    oplist is mandatory but is only used to test if a function has to be declared */
 #define M_SHARED_WEAK_PTR_DECL(name, oplist)                                  \
@@ -92,6 +110,7 @@
   M_SHAR3D_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
     ((name, shared_t, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), static inline ), \
      (name, shared_t, __VA_ARGS__,                                        static inline )))
+
 
 /* Define the oplist of a shared pointer given its name and its oplist.
    Oplist is mandatory.
