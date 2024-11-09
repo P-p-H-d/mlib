@@ -167,7 +167,7 @@
 #define M_SHAR3D_PTR_DECL_FAILURE(name, shared_t, oplist)                     \
   ((M_LIB_ERROR(ARGUMENT_OF_DECL_SHARED_POINTER_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
-/* Declare all functions assiated to the shared pointer */
+/* Declare all functions associated to the shared pointer */
 #define M_SHAR3D_PTR_DECL_P3(name, shared_t, oplist)                          \
     M_BEGIN_PROTECTED_CODE                                                    \
     M_SHAR3D_PTR_DECL_TYPE(name, shared_t, oplist)                            \
@@ -252,85 +252,85 @@
 /* Define the core functions without any thread safety */
 #define M_SHAR3D_PTR_NO_THRD_DEF_CORE(name, shared_t, type, oplist, fattr)    \
 /* Increment the number of owner (acquire the resource) */                    \
-fattr void M_C3(m_shar3d_, name, _inc_owner)(shared_t *out)                   \
+static inline void M_C3(m_shar3d_, name, _inc_owner)(shared_t *out)           \
 {                                                                             \
     out->cpt ++;                                                              \
 }                                                                             \
 /* Decrement the number of owner (release the resource). Return true if it was the last owner */ \
-fattr bool M_C3(m_shar3d_, name, _dec_owner)(shared_t *out)                   \
+static inline bool M_C3(m_shar3d_, name, _dec_owner)(shared_t *out)           \
 {                                                                             \
     out->cpt --;                                                              \
     return 0 == out->cpt;                                                     \
 }                                                                             \
 /* Init the lock */                                                           \
-fattr void M_F(name, _init_lock)(shared_t *out)                               \
+static inline  void M_F(name, _init_lock)(shared_t *out)                      \
 {                                                                             \
     out->cpt = 1;                                                             \
 }                                                                             \
 /* Clear the lock */                                                          \
-fattr void M_F(name, _clear_lock)(shared_t *out)                              \
+static inline  void M_F(name, _clear_lock)(shared_t *out)                     \
 {                                                                             \
     M_ASSERT(out->cpt == 0);                                                  \
     (void) out;                                                               \
 }                                                                             \
 /* Enter the lock for reading the data */                                     \
-fattr void M_F(name, _read_lock)(const shared_t *out)                         \
+static inline  void M_F(name, _read_lock)(const shared_t *out)                \
 {                                                                             \
     (void) out;                                                               \
 }                                                                             \
 /* wait for some new data to be available (within read_lock) */               \
-fattr void M_F(name, _read_wait)(const shared_t *out)                         \
+static inline  void M_F(name, _read_wait)(const shared_t *out)                \
 {                                                                             \
     (void) out;                                                               \
 }                                                                             \
 /* Leave the lock for reading the data (within read_lock) */                  \
-fattr void M_F(name, _read_unlock)(const shared_t *out)                       \
+static inline  void M_F(name, _read_unlock)(const shared_t *out)              \
 {                                                                             \
     (void) out;                                                               \
 }                                                                             \
 /* Enter the lock for writing/updating the data */                            \
-fattr void M_F(name, _write_lock)(shared_t *out)                              \
+static inline  void M_F(name, _write_lock)(shared_t *out)                     \
 {                                                                             \
     (void) out;                                                               \
 }                                                                             \
 /* wait to be able to write new data (within write_lock) */                   \
-fattr void M_F(name, _write_wait)(shared_t *out)                              \
+static inline  void M_F(name, _write_wait)(shared_t *out)                     \
 {                                                                             \
     (void) out;                                                               \
 }                                                                             \
 /* signal some new data are available (within write_lock) */                  \
-fattr void M_F(name, _write_signal)(shared_t *out)                            \
+static inline  void M_F(name, _write_signal)(shared_t *out)                   \
 {                                                                             \
     (void) out;                                                               \
 }                                                                             \
 /* signal some free slot are available (within write_lock) */                 \
-fattr void M_F(name, _free_signal)(shared_t *out)                             \
+static inline  void M_F(name, _free_signal)(shared_t *out)                    \
 {                                                                             \
     (void) out;                                                               \
 }                                                                             \
 /* Leaver the lock for writing/updating the data (within write_lock) */       \
-fattr void M_F(name, _write_unlock)(shared_t *out)                            \
+static inline  void M_F(name, _write_unlock)(shared_t *out)                   \
 {                                                                             \
     (void) out;                                                               \
 }                                                                             \
 /* Return a pointer to the data */                                            \
-fattr type *M_F(name, _ref)(shared_t *out)                                    \
+static inline  type *M_F(name, _ref)(shared_t *out)                           \
 {                                                                             \
     return &out->data;                                                        \
 }                                                                             \
 /* Return a const pointer to the data */                                      \
-fattr type const *M_F(name, _cref)(const shared_t *out)                       \
+static inline  type const *M_F(name, _cref)(const shared_t *out)              \
 {                                                                             \
     return &out->data;                                                        \
 }                                                                             \
 /* Perform a write lock on out and a read lock on src */                      \
-fattr void M_F(name, _write_read_lock)(shared_t *out, const shared_t *src)    \
+static inline  void M_F(name, _write_read_lock)(shared_t *out, const shared_t *src) \
 {                                                                             \
     (void) out;                                                               \
     (void) src;                                                               \
 }                                                                             \
 /* Leave the write lock on out and the read lock on src */                    \
-fattr void M_F(name, _write_read_unlock)(shared_t *out, const shared_t *src)  \
+static inline  void M_F(name, _write_read_unlock)(shared_t *out, const shared_t *src) \
 {                                                                             \
     (void) out;                                                               \
     (void) src;                                                               \
@@ -357,17 +357,17 @@ fattr void M_F(name, _write_read_unlock)(shared_t *out, const shared_t *src)  \
    NOTE: lock are exception free. */
 #define M_SHAR3D_PTR_DEF_CORE(name, shared_t, type, oplist, fattr)            \
                                                                               \
-fattr void M_C3(m_shar3d_, name, _inc_owner)(shared_t *out)                   \
+static inline void M_C3(m_shar3d_, name, _inc_owner)(shared_t *out)           \
 {                                                                             \
     atomic_fetch_add(&out->cpt, 1);                                           \
 }                                                                             \
                                                                               \
-fattr bool M_C3(m_shar3d_, name, _dec_owner)(shared_t *out)                   \
+static inline bool M_C3(m_shar3d_, name, _dec_owner)(shared_t *out)           \
 {                                                                             \
     return 1 == atomic_fetch_sub(&out->cpt, 1);                               \
 }                                                                             \
                                                                               \
-fattr void M_F(name, _init_lock)(shared_t *out)                               \
+static inline void M_F(name, _init_lock)(shared_t *out)                       \
 {                                                                             \
     atomic_init(&out->cpt, 1);                                                \
     m_mutex_init(out->lock);                                                  \
@@ -377,16 +377,17 @@ fattr void M_F(name, _init_lock)(shared_t *out)                               \
     M_IF_METHOD(FULL_P, oplist)(m_cond_init(out->there_is_slot), (void)0);    \
 }                                                                             \
                                                                               \
-fattr void M_F(name, _clear_lock)(shared_t *out)                              \
+static inline void M_F(name, _clear_lock)(shared_t *out)                      \
 {                                                                             \
     m_mutex_clear(out->lock);                                                 \
     m_cond_clear(out->there_is_data);                                         \
     M_IF_METHOD(FULL_P, oplist)(m_cond_clear(out->there_is_slot), (void)0);   \
 }                                                                             \
                                                                               \
+fattr void M_F(name, _read_lock)(const shared_t *out);                        \
 fattr void M_F(name, _read_lock)(const shared_t *out)                         \
 {                                                                             \
-    shared_t *self = (shared_t *)out;                                         \
+    shared_t *self = (shared_t *)(uintptr_t)out;                              \
     m_core_backoff_ct   backoff;                                              \
     m_core_backoff_init(backoff);                                             \
     while (true) {                                                            \
@@ -411,15 +412,15 @@ fattr void M_F(name, _read_lock)(const shared_t *out)                         \
     m_core_backoff_clear(backoff);                                            \
 }                                                                             \
                                                                               \
-fattr void M_F(name, _read_wait)(const shared_t *out)                         \
+static inline void M_F(name, _read_wait)(const shared_t *out)                 \
 {                                                                             \
-    shared_t *self = (shared_t *)out;                                         \
+    shared_t *self = (shared_t *)(uintptr_t)out;                              \
     m_cond_wait(self->there_is_data, self->lock);                             \
 }                                                                             \
                                                                               \
-fattr void M_F(name, _read_unlock)(const shared_t *out)                       \
+static inline void M_F(name, _read_unlock)(const shared_t *out)               \
 {                                                                             \
-    shared_t *self = (shared_t *)out;                                         \
+    shared_t *self = (shared_t *)(uintptr_t)out;                              \
     unsigned int num = atomic_fetch_sub(&self->num_reader, 1);                \
     if (num == 1) {                                                           \
       /* We are the last reader thread: release the lock */                   \
@@ -427,7 +428,7 @@ fattr void M_F(name, _read_unlock)(const shared_t *out)                       \
     }                                                                         \
 }                                                                             \
                                                                               \
-fattr void M_F(name, _write_lock)(shared_t *out)                              \
+static inline void M_F(name, _write_lock)(shared_t *out)                      \
 {                                                                             \
     atomic_fetch_add(&out->num_waiting_writer, 1);                            \
     m_mutex_lock (out->lock);                                                 \
@@ -435,7 +436,7 @@ fattr void M_F(name, _write_lock)(shared_t *out)                              \
     M_ASSERT(atomic_load(&out->num_reader) == 0);                             \
 }                                                                             \
                                                                               \
-fattr void M_F(name, _write_wait)(shared_t *out)                              \
+static inline void M_F(name, _write_wait)(shared_t *out)                      \
 {                                                                             \
     M_ASSERT(atomic_load(&out->num_reader) == 0);                             \
     M_IF_METHOD(FULL_P, oplist)(                                              \
@@ -443,13 +444,13 @@ fattr void M_F(name, _write_wait)(shared_t *out)                              \
     ,)                                                                        \
 }                                                                             \
                                                                               \
-fattr void M_F(name, _write_signal)(shared_t *out)                            \
+static inline void M_F(name, _write_signal)(shared_t *out)                    \
 {                                                                             \
     M_ASSERT(atomic_load(&out->num_reader) == 0);                             \
     m_cond_broadcast(out->there_is_data);                                     \
 }                                                                             \
                                                                               \
-fattr void M_F(name, _free_signal)(shared_t *out)                             \
+static inline void M_F(name, _free_signal)(shared_t *out)                     \
 {                                                                             \
     M_ASSERT(atomic_load(&out->num_reader) == 0);                             \
     M_IF_METHOD(FULL_P, oplist)(                                              \
@@ -457,23 +458,23 @@ fattr void M_F(name, _free_signal)(shared_t *out)                             \
     , )                                                                       \
 }                                                                             \
                                                                               \
-fattr void M_F(name, _write_unlock)(shared_t *out)                            \
+static inline void M_F(name, _write_unlock)(shared_t *out)                    \
 {                                                                             \
     M_ASSERT(atomic_load(&out->num_reader) == 0);                             \
     m_mutex_unlock (out->lock);                                               \
 }                                                                             \
                                                                               \
-fattr type *M_F(name, _ref)(shared_t *out)                                    \
+static inline type *M_F(name, _ref)(shared_t *out)                            \
 {                                                                             \
     return &out->data;                                                        \
 }                                                                             \
                                                                               \
-fattr type const *M_F(name, _cref)(const shared_t *out)                       \
+static inline type const *M_F(name, _cref)(const shared_t *out)               \
 {                                                                             \
     return &out->data;                                                        \
 }                                                                             \
                                                                               \
-fattr void M_F(name, _write_read_lock)(shared_t *out, const shared_t *src)    \
+static inline void M_F(name, _write_read_lock)(shared_t *out, const shared_t *src) \
 {                                                                             \
     /* Need to order the locks in a total way to avoid lock deadlock.         \
        Indeed, two call to _set can be done in two threads with :             \
@@ -495,7 +496,7 @@ fattr void M_F(name, _write_read_lock)(shared_t *out, const shared_t *src)    \
     }                                                                         \
 }                                                                             \
                                                                               \
-fattr void M_F(name, _write_read_unlock)(shared_t *out, const shared_t *src)  \
+static inline void M_F(name, _write_read_unlock)(shared_t *out, const shared_t *src) \
 {                                                                             \
     /* NOTE: No need to order the unlock */                                   \
     M_F(name, _read_unlock)(src);                                             \
@@ -614,6 +615,7 @@ M_PAIR_2 name_attr shared_t *function_name(M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_
 M_IF_METHOD(SWAP, oplist)( extern void M_F(name, _swap)(shared_t *, shared_t *); , ) \
 M_IF_METHOD(RESET, oplist)( extern void M_F(name, _reset)(shared_t *); , )    \
 M_IF_METHOD(EMPTY_P, oplist)( extern bool M_F(name, _empty_p)(const shared_t *); , ) \
+M_IF_METHOD(FULL_P, oplist)( extern bool M_F(name, _full_p)(const shared_t *); , ) \
 M_IF_METHOD(GET_SIZE, oplist)( extern size_t M_F(name, _size)(const shared_t *); , ) \
 M_IF_METHOD(EQUAL, oplist)( extern bool M_F(name, _equal_p)(const shared_t *, const shared_t *); , ) \
 M_IF_METHOD(CMP, oplist)( extern int M_F(name, _cmp)(const shared_t *, const shared_t *); , ) \
@@ -818,7 +820,7 @@ M_IF_METHOD(SPLICE, oplist)(                                                  \
 M_IF_METHOD(GET_KEY, oplist)( extern bool M_F(name, _get)(value_type *, const shared_t *, key_type const); , ) \
 M_IF_METHOD(SAFE_GET_KEY, oplist)( extern void M_F(name, _safe_get)(value_type *, shared_t *, key_type const); , ) \
 M_IF_METHOD(SET_KEY, oplist)( extern void M_F(name, _set_at)(shared_t *, key_type const, value_type const); , ) \
-M_IF_METHOD(ERASE_KEY, oplist)( extern void M_F(name, _erase_key)(shared_t *, key_type const); , )
+M_IF_METHOD(ERASE_KEY, oplist)( extern bool M_F(name, _erase)(shared_t *, key_type const); , )
 
 #define M_SHAR3D_PTR_DEF_KEY(name, shared_t, type, oplist, fattr, key_type, key_oplist, value_type, value_oplist) \
 M_IF_METHOD(GET_KEY, oplist)(                                                 \
