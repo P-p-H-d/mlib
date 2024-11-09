@@ -32,22 +32,22 @@
 /* Declare a shared weak pointer (not atomic, single thread) for use in header file.
    oplist is mandatory but is only used to test if a function has to be declared */
 #define M_SHARED_WEAK_PTR_DECL(name, oplist)                                  \
-    M_SHAR3D_PTR_DECL_P2(name, M_F(name, _t), oplist)
+    M_SHAR3D_PTR_DECL_P1((name, M_F(name, _t), oplist))
 
 /* Declare a shared weak pointer (not atomic, single thread) for use in header file.
   oplist is mandatory but is only used to test if a function has to be declared */
 #define M_SHARED_WEAK_PTR_DECL_AS(name, shared_t, oplist)                     \
-    M_SHAR3D_PTR_DECL_P2(name, shared_t, oplist)
+    M_SHAR3D_PTR_DECL_P1((name, shared_t, oplist))
 
 /* Declare a shared strong pointer (atomic & lock) for use in header file.
   oplist is mandatory but is only used to test if a function has to be declared */
 #define M_SHARED_PTR_DECL(name, oplist)                                       \
-    M_SHAR3D_PTR_DECL_P2(name, M_F(name, _t), oplist)
+    M_SHAR3D_PTR_DECL_P1((name, M_F(name, _t), oplist))
 
 /* Declare a shared strong pointer (atomic & lock) for use in header file.
   oplist is mandatory but is only used to test if a function has to be declared */
 #define M_SHARED_PTR_DECL_AS(name, shared_t, oplist)                          \
-    M_SHAR3D_PTR_DECL_P2(name, shared_t, oplist)
+    M_SHAR3D_PTR_DECL_P1((name, shared_t, oplist))
 
 
 /* Define an external definition a shared weak pointer (not atomic). oplist is optional */
@@ -158,6 +158,8 @@
 
 
 /* Validation of the given oplist */
+#define M_SHAR3D_PTR_DECL_P1(arg) M_ID( M_SHAR3D_PTR_DECL_P2 arg )
+
 #define M_SHAR3D_PTR_DECL_P2(name, shared_t, oplist)                          \
   M_IF_OPLIST(oplist)(M_SHAR3D_PTR_DECL_P3, M_SHAR3D_PTR_DECL_FAILURE)(name, shared_t, oplist)
 
@@ -182,7 +184,7 @@
 
 /* Deferred evaluation for the oplist definition,
    so that all arguments are evaluated before further expansion */
-#define M_SHAR3D_WEAK_PTR_DEF_P1(arg) M_SHAR3D_WEAK_PTR_DEF_P2 arg
+#define M_SHAR3D_WEAK_PTR_DEF_P1(arg) M_ID( M_SHAR3D_WEAK_PTR_DEF_P2 arg )
 
 /* Validation of the given oplist */
 #define M_SHAR3D_WEAK_PTR_DEF_P2(name, shared_t, type, oplist, fattr)         \
@@ -210,7 +212,7 @@
 
 /* Deferred evaluation for the oplist definition,
    so that all arguments are evaluated before further expansion */
-#define M_SHAR3D_PTR_DEF_P1(arg) M_SHAR3D_PTR_DEF_P2 arg
+#define M_SHAR3D_PTR_DEF_P1(arg) M_ID( M_SHAR3D_PTR_DEF_P2 arg )
 
 /* Validation of the given oplist */
 #define M_SHAR3D_PTR_DEF_P2(name, shared_t, type, oplist, fattr)              \
@@ -220,7 +222,7 @@
 #define M_SHAR3D_PTR_DEF_FAILURE(name, shared_t, type, oplist, fattr)         \
   ((M_LIB_ERROR(ARGUMENT_OF_DEF_SHARED_POINTER_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
-/* Define all functions assiated to the shared pointer as 'fattr' (can be static inline or extern) */
+/* Define all functions associated to the shared pointer as 'fattr' (can be static inline or extern) */
 #define M_SHAR3D_PTR_DEF_P3(name, shared_t, type, oplist, fattr)              \
     M_BEGIN_PROTECTED_CODE                                                    \
     M_SHAR3D_PTR_DEF_TYPE(name, shared_t, type, oplist)                       \
@@ -884,13 +886,13 @@ M_IF_METHOD(PUSH_MOVE, oplist)( extern void M_F(name, _push_move)(shared_t *, su
 M_IF_METHOD(PUSH, oplist)( extern bool M_F(name, _try_push)(shared_t *, sub_type const); , ) \
 M_IF_METHOD(PUSH_MOVE, oplist)( extern bool M_F(name, _try_push_move)(shared_t *, sub_type *); , ) \
 M_EMPLACE_QUEUE_DEF(name, shared_t, M_F(name, _emplace), M_GET_OPLIST oplist, M_SHAR3D_PTR_DECL_EMPLACE) \
-M_EMPLACE_QUEUE_DEF(name, shared_t, M_F(name, _emplace), M_GET_OPLIST oplist, M_SHAR3D_PTR_DECL_TRY_EMPLACE)
+M_EMPLACE_QUEUE_DEF(name, shared_t, M_F(name, _try_emplace), M_GET_OPLIST oplist, M_SHAR3D_PTR_DECL_TRY_EMPLACE)
 
 #define M_SHAR3D_PTR_DECL_EMPLACE(name, shared_t, function_name, oplist, init_func, exp_emplace_type) \
-extern void function_name(shared_t*, M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type));
+extern void function_name(shared_t* M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type));
 
 #define M_SHAR3D_PTR_DECL_TRY_EMPLACE(name, shared_t, function_name, oplist, init_func, exp_emplace_type) \
-extern bool function_name(shared_t*, M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type));
+extern bool function_name(shared_t* M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type));
 
 #define M_SHAR3D_PTR_DEF_PUSH(name, shared_t, type, oplist, fattr, sub_type, sub_oplist) \
 M_IF_METHOD(PUSH, oplist)(                                                    \
@@ -956,47 +958,50 @@ M_IF_METHOD(PUSH_MOVE, oplist)(                                               \
         M_F(name, _write_unlock)(out);                                        \
         return ret;                                                           \
     }                                                                         \
-    M_EMPLACE_QUEUE_DEF( (name, fattr, type), shared_t, M_F(name, _emplace), oplist, M_SHAR3D_PTR_DEF_EMPLACE) \
-    M_EMPLACE_QUEUE_DEF( (name, fattr, type), shared_t, M_F(name, _try_emplace), oplist, M_SHAR3D_PTR_DEF_TRY_EMPLACE) \
+    M_EMPLACE_QUEUE_DEF( (name, fattr, type, oplist), shared_t, M_F(name, _emplace), sub_oplist, M_SHAR3D_PTR_DEF_EMPLACE) \
+    M_EMPLACE_QUEUE_DEF( (name, fattr, type, oplist), shared_t, M_F(name, _try_emplace), sub_oplist, M_SHAR3D_PTR_DEF_TRY_EMPLACE) \
 , )                                                                           \
 
-#define M_SHAR3D_PTR_DEF_EMPLACE(name_attr, shared_t, function_name, oplist, init_func, exp_emplace_type) \
-M_TRIPLE_2 name_attr void function_name(shared_t *out, M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_emplace_type)) \
+#define M_SHAR3D_PTR_DEF_EMPLACE(name_attr, shared_t, function_name, sub_oplist, init_func, exp_emplace_type) \
+    M_SHAR3D_PTR_DEF_EMPLACE_P2(M_QUAD_1 name_attr, M_QUAD_2 name_attr, M_QUAD_3 name_attr, M_QUAD_4 name_attr, shared_t, function_name, sub_oplist, init_func, exp_emplace_type)
+#define M_SHAR3D_PTR_DEF_EMPLACE_P2(name, fattr, type, oplist, shared_t, function_name, sub_oplist, init_func, exp_emplace_type) \
+fattr void function_name(shared_t *out M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type)) \
 {                                                                             \
         M_ASSERT(out != NULL);                                                \
-        M_F(M_TRIPLE_1 name, _write_lock)(out);                               \
+        M_F(name, _write_lock)(out);                                          \
         while (true) {                                                        \
             if (M_CALL_FULL_P(oplist, out->data) == false) {                  \
-                M_ON_EXCEPTION( M_F(M_TRIPLE_1 name, _write_unlock)(out) ) {  \
-                    M_TRIPLE_3 name tmp;                                      \
-                    M_EMPLACE_CALL_FUNC(a, init_func, oplist, tmp, exp_emplace_type); \
+                M_ON_EXCEPTION( M_F(name, _write_unlock)(out) ) {             \
+                    M_GET_TYPE sub_oplist tmp;                                \
+                    M_EMPLACE_CALL_FUNC(a, init_func, sub_oplist, tmp, exp_emplace_type); \
                     M_CALL_PUSH_MOVE(oplist, out->data, &tmp);                \
                     M_F(name, _write_signal)(out);                            \
                 }                                                             \
                 break;                                                        \
             }                                                                 \
-            M_F(M_TRIPLE_1 name, _write_wait)(out);                           \
+            M_F(name, _write_wait)(out);                                      \
         }                                                                     \
-        M_F(M_TRIPLE_1 name, _write_unlock)(out);                             \
+        M_F(name, _write_unlock)(out);                                        \
 }                                                                             \
 
-#define M_SHAR3D_PTR_DEF_TRY_EMPLACE(name_attr, shared_t, function_name, oplist, init_func, exp_emplace_type) \
-M_TRIPLE_2 name_attr bool function_name(shared_t *out, M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_emplace_type)) \
+#define M_SHAR3D_PTR_DEF_TRY_EMPLACE(name_attr, shared_t, function_name, sub_oplist, init_func, exp_emplace_type) \
+    M_SHAR3D_PTR_DEF_TRY_EMPLACE_P2(M_QUAD_1 name_attr, M_QUAD_2 name_attr, M_QUAD_3 name_attr, M_QUAD_4 name_attr, shared_t, function_name, sub_oplist, init_func, exp_emplace_type)
+#define M_SHAR3D_PTR_DEF_TRY_EMPLACE_P2(name, fattr, type, oplist, shared_t, function_name, sub_oplist, init_func, exp_emplace_type) \
+fattr bool function_name(shared_t *out M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type)) \
 {                                                                             \
         M_ASSERT(out != NULL);                                                \
         bool ret = false;                                                     \
-        M_F(M_TRIPLE_1 name, _write_lock)(out);                               \
+        M_F(name, _write_lock)(out);                                          \
         if (M_CALL_FULL_P(oplist, out->data) == false) {                      \
-            M_ON_EXCEPTION( M_F(M_TRIPLE_1 name, _write_unlock)(out) ) {      \
-                M_TRIPLE_3 name tmp;                                          \
-                M_EMPLACE_CALL_FUNC(a, init_func, oplist, tmp, exp_emplace_type); \
+            M_ON_EXCEPTION( M_F(name, _write_unlock)(out) ) {                 \
+                M_GET_TYPE sub_oplist tmp;                                    \
+                M_EMPLACE_CALL_FUNC(a, init_func, sub_oplist, tmp, exp_emplace_type); \
                 M_CALL_PUSH_MOVE(oplist, out->data, &tmp);                    \
                 M_F(name, _write_signal)(out);                                \
                 ret = true;                                                   \
             }                                                                 \
-            break;                                                            \
         }                                                                     \
-        M_F(M_TRIPLE_1 name, _write_unlock)(out);                             \
+        M_F(name, _write_unlock)(out);                                        \
         return ret;                                                           \
 }                                                                             \
 
