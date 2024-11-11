@@ -1105,7 +1105,7 @@
    ,RESET(M_F(name,_reset))                                                   \
    ,GET_SIZE(M_F(name, _size))                                                \
    ,PUSH(M_F(name,_push_back))                                                \
-   ,POP(M_F(name,_pop_back))                                                  \
+   ,POP(M_F(name,_pop_front))                                                 \
    ,OPLIST(oplist)                                                            \
    ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, _get_str)),)               \
    ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, _parse_str)),)         \
