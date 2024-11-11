@@ -134,7 +134,15 @@ void test(int select_test, int index,
     break;
 #endif
 
-#if M_TEST_METHOD_P(POP, CONT_OPL)
+#ifdef HAVE_POP_BACK
+  case 2:
+    if (!c1.empty()) {
+      M_C(CONT_NAME, _pop_back)(&b0, c0);
+      b1 = c1.back();
+      c1.pop_back();
+    }
+    break;
+#elif M_TEST_METHOD_P(POP, CONT_OPL)
   case 2:
    if (!c1.empty()) {
       M_CALL_POP(CONT_OPL, &b0, c0);

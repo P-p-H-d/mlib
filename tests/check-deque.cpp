@@ -56,4 +56,5 @@ void cmp_cont(deque_float_t a, std::deque<float> b)
 #define DEFAULT_NUMBER 1000000
 #define HAVE_PUSH_FRONT
 #define HAVE_POP_FRONT
+#define HAVE_POP_BACK
 #include "check-generic.hpp"
