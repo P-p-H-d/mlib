@@ -464,6 +464,7 @@ m_bstring_fread(m_bstring_t v, FILE *f, size_t num)
   M_BSTRING_CONTRACT (v);
   M_ASSERT (f != NULL);
   m_bstring_reset(v);
+  //TODO: option to read all the file num=-1?
   if (M_UNLIKELY(num == 0)) {
     return true;
   }
