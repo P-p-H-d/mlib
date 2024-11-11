@@ -354,6 +354,19 @@ static inline  void M_F(name, _write_read_unlock)(shared_t *out, const shared_t 
     (void) out;                                                               \
     (void) src;                                                               \
 }                                                                             \
+static inline void M_F(name, _write_read2_lock)(shared_t *out, const shared_t *src1, const shared_t *src2) \
+{                                                                             \
+    (void) out;                                                               \
+    (void) src1;                                                              \
+    (void) src2;                                                              \
+}                                                                             \
+                                                                              \
+static inline void M_F(name, _write_read2_unlock)(shared_t *out, const shared_t *src1, const shared_t *src2) \
+{                                                                             \
+    (void) out;                                                               \
+    (void) src1;                                                              \
+    (void) src2;                                                              \
+}                                                                             \
 
 
 /* Definition of the type with thread safety. */
@@ -519,6 +532,39 @@ static inline void M_F(name, _write_read_unlock)(shared_t *out, const shared_t *
 {                                                                             \
     /* NOTE: No need to order the unlock */                                   \
     M_F(name, _read_unlock)(src);                                             \
+    M_F(name, _write_unlock)(out);                                            \
+}                                                                             \
+                                                                              \
+static inline void M_F(name, _write_read2_lock)(shared_t *out, const shared_t *src1, const shared_t *src2) \
+{                                                                             \
+    /* See above  */                                                          \
+    if (src1 > src2) {                                                        \
+        M_SWAP(const shared_t *, src1, src2);                                 \
+    }                                                                         \
+    /* src1 < src2 */                                                         \
+    if (out < src1) {                                                         \
+        /* out < src1 < src2 */                                               \
+        M_F(name, _write_lock)(out);                                          \
+        M_F(name, _read_lock)(src1);                                          \
+        M_F(name, _read_lock)(src2);                                          \
+    } else if (out < src2) {                                                  \
+        /* src1 < out < src2 */                                               \
+        M_F(name, _read_lock)(src1);                                          \
+        M_F(name, _write_lock)(out);                                          \
+        M_F(name, _read_lock)(src2);                                          \
+    } else {                                                                  \
+        /* src1 < src2 < out */                                               \
+        M_F(name, _read_lock)(src1);                                          \
+        M_F(name, _read_lock)(src2);                                          \
+        M_F(name, _write_lock)(out);                                          \
+    }                                                                         \
+}                                                                             \
+                                                                              \
+static inline void M_F(name, _write_read2_unlock)(shared_t *out, const shared_t *src1, const shared_t *src2) \
+{                                                                             \
+    /* NOTE: No need to order the unlock */                                   \
+    M_F(name, _read_unlock)(src1);                                            \
+    M_F(name, _read_unlock)(src2);                                            \
     M_F(name, _write_unlock)(out);                                            \
 }                                                                             \
 
@@ -765,54 +811,54 @@ M_IF_METHOD(HASH, oplist)(                                                    \
 
 /* Define the arithmetic operators */
 #define M_SHAR3D_PTR_DECL_ARITH(name, shared_t, oplist)                       \
-M_IF_METHOD(ADD, oplist)( extern void M_F(name, _add)(shared_t *, const shared_t *); , ) \
-M_IF_METHOD(SUB, oplist)( extern void M_F(name, _sub)(shared_t *, const shared_t *); , ) \
-M_IF_METHOD(MUL, oplist)( extern void M_F(name, _mul)(shared_t *, const shared_t *); , ) \
-M_IF_METHOD(DIV, oplist)( extern void M_F(name, _div)(shared_t *, const shared_t *); , ) \
+M_IF_METHOD(ADD, oplist)( extern void M_F(name, _add)(shared_t *, const shared_t *, const shared_t *); , ) \
+M_IF_METHOD(SUB, oplist)( extern void M_F(name, _sub)(shared_t *, const shared_t *, const shared_t *); , ) \
+M_IF_METHOD(MUL, oplist)( extern void M_F(name, _mul)(shared_t *, const shared_t *, const shared_t *); , ) \
+M_IF_METHOD(DIV, oplist)( extern void M_F(name, _div)(shared_t *, const shared_t *, const shared_t *); , ) \
 M_IF_METHOD(SPLICE, oplist)( extern void M_F(name, _splice)(shared_t *, shared_t *); , ) \
 
 #define M_SHAR3D_PTR_DEF_ARITH(name, shared_t, type, oplist, fattr)           \
 M_IF_METHOD(ADD, oplist)(                                                     \
-    fattr void M_F(name, _add)(shared_t *out, const shared_t *src)            \
+    fattr void M_F(name, _add)(shared_t *out, const shared_t *src1, const shared_t *src2) \
     {                                                                         \
-        M_ASSERT(out != NULL && src != NULL);                                 \
-        M_F(name, _write_read_lock)(out, src);                                \
-        M_ON_EXCEPTION( M_F(name, _write_read_unlock)(out, src) )             \
-            M_CALL_ADD(oplist, out->data, src->data);                         \
-        M_F(name, _write_read_unlock)(out, src);                              \
+        M_ASSERT(out != NULL && src1 != NULL && src2 != NULL);                \
+        M_F(name, _write_read2_lock)(out, src1, src2);                        \
+        M_ON_EXCEPTION( M_F(name, _write_read2_unlock)(out, src1, src2) )     \
+            M_CALL_ADD(oplist, out->data, src1->data, src2->data);            \
+        M_F(name, _write_read2_unlock)(out, src1, src2);                      \
     }                                                                         \
 , )                                                                           \
                                                                               \
 M_IF_METHOD(SUB, oplist)(                                                     \
-    fattr void M_F(name, _sub)(shared_t *out, const shared_t *src)            \
+    fattr void M_F(name, _sub)(shared_t *out, const shared_t *src1, const shared_t *src2) \
     {                                                                         \
-        M_ASSERT(out != NULL && src != NULL);                                 \
-        M_F(name, _write_read_lock)(out, src);                                \
-        M_ON_EXCEPTION( M_F(name, _write_read_unlock)(out, src) )             \
-            M_CALL_SUB(oplist, out->data, src->data);                         \
-        M_F(name, _write_read_unlock)(out, src);                              \
+        M_ASSERT(out != NULL && src1 != NULL && src2 != NULL);                \
+        M_F(name, _write_read2_lock)(out, src1, src2);                        \
+        M_ON_EXCEPTION( M_F(name, _write_read2_unlock)(out, src1, src2) )     \
+            M_CALL_SUB(oplist, out->data, src1->data, src2->data);            \
+        M_F(name, _write_read2_unlock)(out, src1, src2);                      \
     }                                                                         \
 , )                                                                           \
                                                                               \
 M_IF_METHOD(MUL, oplist)(                                                     \
-    fattr void M_F(name, _mul)(shared_t *out, const shared_t *src)            \
+    fattr void M_F(name, _mul)(shared_t *out, const shared_t *src1, const shared_t *src2) \
     {                                                                         \
-        M_ASSERT(out != NULL && src != NULL);                                 \
-        M_F(name, _write_read_lock)(out, src);                                \
-        M_ON_EXCEPTION( M_F(name, _write_read_unlock)(out, src) )             \
-            M_CALL_MUL(oplist, out->data, src->data);                         \
-        M_F(name, _write_read_unlock)(out, src);                              \
+        M_ASSERT(out != NULL && src1 != NULL && src2 != NULL);                \
+        M_F(name, _write_read2_lock)(out, src1, src2);                        \
+        M_ON_EXCEPTION( M_F(name, _write_read2_unlock)(out, src1, src2) )     \
+            M_CALL_MUL(oplist, out->data, src1->data, src2->data);            \
+        M_F(name, _write_read2_unlock)(out, src1, src2);                      \
     }                                                                         \
 , )                                                                           \
                                                                               \
 M_IF_METHOD(DIV, oplist)(                                                     \
-    fattr void M_F(name, _div)(shared_t *out, const shared_t *src)            \
+    fattr void M_F(name, _div)(shared_t *out, const shared_t *src1, const shared_t *src2) \
     {                                                                         \
-        M_ASSERT(out != NULL && src != NULL);                                 \
-        M_F(name, _write_read_lock)(out, src);                                \
-        M_ON_EXCEPTION( M_F(name, _write_read_unlock)(out, src) )             \
-            M_CALL_DIV(oplist, out->data, src->data);                         \
-        M_F(name, _write_read_unlock)(out, src);                              \
+        M_ASSERT(out != NULL && src1 != NULL && src2 != NULL);                \
+        M_F(name, _write_read2_lock)(out, src1, src2);                        \
+        M_ON_EXCEPTION( M_F(name, _write_read2_unlock)(out, src1, src2) )     \
+            M_CALL_DIV(oplist, out->data, src1->data, src2->data);            \
+        M_F(name, _write_read2_unlock)(out, src1, src2);                      \
     }                                                                         \
 , )                                                                           \
                                                                               \
