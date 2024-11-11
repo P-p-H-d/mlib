@@ -11,6 +11,10 @@
 #include "m-tuple.h"
 #include "m-variant.h"
 
+// TEST WITH DOUBLE
+SHARED_PTR_DECL_AS(shared_double, SharedDouble, M_BASIC_OPLIST)
+SHARED_PTR_DEF_EXTERN_AS(shared_double, SharedDouble, double, M_BASIC_OPLIST)
+
 // TEST WITH STRING
 
 SHARED_PTR_DECL(shared_string, STRING_OPLIST)
@@ -175,6 +179,19 @@ SHARED_PTR_DEF(string_pool_ts, string_pool_t, M_OPL_string_pool_t() )
 DICT_SET_DEF(dict2, int)
 SHARED_PTR_DEF(shared_dict2, dict2_t, DICT_SET_OPLIST(dict2))
 
+/* OA dict needs more operators than the default ones to work */
+static inline bool int_oor_equal_p(int s, unsigned char n)
+{
+  return s == -n;
+}
+static inline void int_oor_set(int *s, unsigned char n)
+{
+  *s = -n;
+}
+#define INT_OA_OPLIST                                                   \
+  M_OPEXTEND(M_BASIC_OPLIST, OOR_EQUAL(int_oor_equal_p), OOR_SET(API_2(int_oor_set)))
+DICT_OA_DEF2(dict3, int, INT_OA_OPLIST, int, M_BASIC_OPLIST)
+SHARED_PTR_DEF(shared_dict3, dict3_t, DICT_OPLIST(dict3))
 
 // TEST WITH TUPLE
 TUPLE_DEF2(point, (x, int), (y, int))
@@ -192,7 +209,10 @@ SHARED_PTR_DEF(shared_dimension, dimension_t)
 
 // TEST WITH DEQUE
 DEQUE_DEF(deque1, int)
-SHARED_PTR_DEF(shared_deque1, deque1_t, DEQUE_OPLIST(deque1))
+// Provide a FULL_P operator
+static inline bool deque1_full_p(const deque1_t a) { return deque1_size(a) >= 10; }
+#define M_OPL_deque1_t() M_OPEXTEND( DEQUE_OPLIST(deque1, M_BASIC_OPLIST), SUBTYPE(int), FULL_P(deque1_full_p) )
+SHARED_PTR_DEF(shared_deque1, deque1_t)
 
 PRIOQUEUE_DEF(prio1, int)
 SHARED_PTR_DEF(shared_prio1, prio1_t, PRIOQUEUE_OPLIST(prio1))
@@ -208,11 +228,45 @@ SHARED_PTR_DEF(shared_bptree2, bptree2_t, BPTREE_OPLIST(bptree2))
 RBTREE_DEF(rbtree1, int)
 SHARED_PTR_DEF(shared_rbtree1, rbtree1_t, RBTREE_OPLIST(rbtree1))
 
+/********************************/
+
+static void conso(void *p)
+{
+  shared_deque1_t *ptr = (shared_deque1_t*) p;
+  for(int i = 0; i < 1000; i++) {
+    int j;
+    shared_deque1_pop(&j, ptr);
+    assert (j == i);
+  }
+  shared_deque1_release(ptr);
+}
+
+static void test_thread(void)
+{
+  m_thread_t idx;
+  shared_deque1_t *ptr = shared_deque1_new();
+  m_thread_create (idx, conso, shared_deque1_acquire(ptr));
+  for(int i = 0; i < 1000; i++) {
+    // shared_deque1 is full if number of stored element is >= 10
+    shared_deque1_push (ptr, i);
+  }
+  shared_deque1_release(ptr);
+  m_thread_join(idx);
+}
+
+static void test_double(void)
+{
+  SharedDouble *d = shared_double_new();
+  shared_double_reset(d);
+  shared_double_clear(d);
+}
 
 int main(void)
 {
     test_string();
     test_array();
     test_array_string();
+    test_thread();
+    test_double();
     exit(0);
 }
