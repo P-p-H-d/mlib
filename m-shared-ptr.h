@@ -508,6 +508,8 @@ static inline type const *M_F(name, _cref)(const shared_t *out)               \
                                                                               \
 static inline void M_F(name, _write_read_lock)(shared_t *out, const shared_t *src) \
 {                                                                             \
+    /* We cannot perform a write_lock and a read_lock on the same variable at the same time */ \
+    M_ASSERT(out != src);                                                     \
     /* Need to order the locks in a total way to avoid lock deadlock.         \
        Indeed, two call to _set can be done in two threads with :             \
        T1: A := B                                                             \
@@ -530,13 +532,39 @@ static inline void M_F(name, _write_read_lock)(shared_t *out, const shared_t *sr
                                                                               \
 static inline void M_F(name, _write_read_unlock)(shared_t *out, const shared_t *src) \
 {                                                                             \
+    M_ASSERT(out != src);                                                     \
     /* NOTE: No need to order the unlock */                                   \
     M_F(name, _read_unlock)(src);                                             \
     M_F(name, _write_unlock)(out);                                            \
 }                                                                             \
                                                                               \
-static inline void M_F(name, _write_read2_lock)(shared_t *out, const shared_t *src1, const shared_t *src2) \
+fattr void M_F(name, _write_read2_lock)(shared_t *out, const shared_t *src1, const shared_t *src2); \
+fattr void M_F(name, _write_read2_lock)(shared_t *out, const shared_t *src1, const shared_t *src2) \
 {                                                                             \
+    /* We can have out == src1 or out == src2 or src1 == src2 */              \
+    /* if src1 == src2, nothing special to do (read_lock are compatible each other )*/ \
+    if (out == src1) {                                                        \
+        if (out == src2) {                                                    \
+            M_F(name, _write_lock)(out);                                      \
+        } else if (out < src2) {                                              \
+            M_F(name, _write_lock)(out);                                      \
+            M_F(name, _read_lock)(src2);                                      \
+        } else {                                                              \
+            M_F(name, _read_lock)(src2);                                      \
+            M_F(name, _write_lock)(out);                                      \
+        }                                                                     \
+        return;                                                               \
+    } else if (out == src2) {                                                 \
+        M_ASSERT(out != src1);                                                \
+        if (out < src1) {                                                     \
+            M_F(name, _write_lock)(out);                                      \
+            M_F(name, _read_lock)(src1);                                      \
+        } else {                                                              \
+            M_F(name, _read_lock)(src1);                                      \
+            M_F(name, _write_lock)(out);                                      \
+        }                                                                     \
+        return;                                                               \
+    }                                                                         \
     /* See above  */                                                          \
     if (src1 > src2) {                                                        \
         M_SWAP(const shared_t *, src1, src2);                                 \
@@ -560,8 +588,25 @@ static inline void M_F(name, _write_read2_lock)(shared_t *out, const shared_t *s
     }                                                                         \
 }                                                                             \
                                                                               \
-static inline void M_F(name, _write_read2_unlock)(shared_t *out, const shared_t *src1, const shared_t *src2) \
+fattr void M_F(name, _write_read2_unlock)(shared_t *out, const shared_t *src1, const shared_t *src2); \
+fattr void M_F(name, _write_read2_unlock)(shared_t *out, const shared_t *src1, const shared_t *src2) \
 {                                                                             \
+    /* We can have out == src1 or out == src2 or src1 == src2 */              \
+    /* if src1 == src2, nothing special to do (read_lock are compatible each other )*/ \
+    if (out == src1) {                                                        \
+        if (out == src2) {                                                    \
+            M_F(name, _write_unlock)(out);                                    \
+        } else {                                                              \
+            M_F(name, _read_unlock)(src2);                                    \
+            M_F(name, _write_unlock)(out);                                    \
+        }                                                                     \
+        return;                                                               \
+    } else if (out == src2) {                                                 \
+        M_ASSERT(out != src1);                                                \
+        M_F(name, _read_unlock)(src1);                                        \
+        M_F(name, _write_unlock)(out);                                        \
+        return;                                                               \
+    }                                                                         \
     /* NOTE: No need to order the unlock */                                   \
     M_F(name, _read_unlock)(src1);                                            \
     M_F(name, _read_unlock)(src2);                                            \
