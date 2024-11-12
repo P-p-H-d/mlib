@@ -225,15 +225,15 @@ int main(void)
       M_PRINT("\nThe array is equal to ", (array, my_array_t), "\n");
     } /* All variables are automatically cleared beyond this point */
 
-    // Define an array of mpz_t as { 1, 2, 1 } (with auto promotion from integer / string / double)
-    // The auto-promotion uses _Generic feature and is available only in C11.
-    M_LET ( (az, (1), ("2"), (1.0)), array_mpz_t)
-    M_LET ( roots, array_mpfr_t) {
-      // Compute roots
-      compute_roots(roots, az);
-      // Display of roots:
-      M_PRINT("Roots of ", (az, array_mpz_t), " are ", (roots, array_mpfr_t), "\n");
-    }
+  // Define an array of mpz_t as { 1, 2, 1 } (with auto promotion from integer / string / double)
+  // The auto-promotion uses _Generic feature and is available only in C11.
+  M_LET ( (az, (1), ("2"), (1.0)), array_mpz_t)
+  M_LET ( roots, array_mpfr_t) {
+    // Compute roots
+    compute_roots(roots, az);
+    // Display of roots:
+    M_PRINT("Roots of ", (az, array_mpz_t), " are ", (roots, array_mpfr_t), "\n");
+  }
 
 }
 
