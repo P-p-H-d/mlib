@@ -39,6 +39,25 @@ static void test_string(void)
     assert(shared_string_equal_p(r, q));
     shared_string_set(&q, r);
     assert(shared_string_equal_p(r, q));
+    shared_string_t *r2 = shared_string_make("Hello world!");
+    shared_string_copy(q, r2);
+    assert(shared_string_equal_p(r2, q));
+    shared_string_set(&q, r);
+    assert(shared_string_equal_p(r, q));
+    assert(shared_string_cmp(r, q) == 0);
+    assert(shared_string_cmp(q, r) == 0);
+    shared_string_reset(q);
+    assert(!shared_string_equal_p(r2, q));
+    assert(shared_string_empty_p(q));
+    assert(shared_string_hash(q) != 0);
+    shared_string_swap(r2, r2);
+    shared_string_swap(r2, q);
+    assert(shared_string_empty_p(r2));
+    assert(!shared_string_empty_p(q));
+    shared_string_swap(q, r2);
+    assert(!shared_string_empty_p(r2));
+    assert(shared_string_empty_p(q));
+    shared_string_release(r2);
     shared_string_clear(q);
     shared_string_release(r);
     shared_string_clear(p2);
@@ -81,13 +100,15 @@ static void test_array(void)
     int j;
 
     for(int i = 0 ; i < 10; i++) {
+        assert(!shared_array_full_p(p));
+        assert(shared_array_size(p) == (size_t) i);
         b = shared_array_try_push(p, i);
         assert(b);
     }
     // We can only push 10 elements before being full.
     b = shared_array_try_push(p, 11);
     assert(!b);
-
+    assert(shared_array_full_p(p));
     shared_array_get(&j, p, 4);
     assert( j == 4);
 
@@ -124,6 +145,17 @@ static void test_array(void)
     }
     b = shared_array_try_pop(&j, p);
     assert(!b);
+
+    shared_array_safe_get(&r, p, 23);
+    assert(r == 0);
+    assert(shared_array_size(p) == 24);
+
+    shared_array_erase(p, 10);
+    assert(shared_array_size(p) == 23);
+
+    b = shared_array_get(&r, p, 22);
+    assert(b);
+    assert(r == 0);
 
     shared_array_release(p);
 }
