@@ -144,12 +144,12 @@
 /* OPLIST definition of a shared pointer */
 #define M_SHAR3D_OPLIST_P3(name, oplist)                                      \
   (NAME(name), TYPE(struct M_C(name,_s) *)                                    \
-   ,M_IF_METHOD(INIT)(INIT(API_4(M_F(name, _new))),)                          \
+   ,M_IF_METHOD(INIT, oplist)(INIT(API_1(M_SHAR3D_NEW_WRAPPER)),)             \
    ,INIT_SET(API_4(M_F(name, _acquire)))                                      \
    ,SET(API_2(M_F(name, _set)))                                               \
    ,CLEAR(M_F(name, _release))                                                \
-   ,INIT_MOVE(M_SET_BASIC)                                                    \
-   ,MOVE(M_SET_BASIC)                                                         \
+   ,INIT_MOVE(M_SET_DEFAULT)                                                  \
+   ,MOVE(M_SET_DEFAULT)                                                       \
    )
 
 /* Deferred evaluation for the oplist definition,
@@ -167,13 +167,17 @@
 /* OPLIST definition of the shared data of a shared pointer */
 #define M_SHAR3D_DATA_OPLIST_P3(name, oplist)                                 \
   (NAME(name), TYPE(struct M_C(name,_s) *)                                    \
-   ,M_IF_METHOD(INIT)(INIT(API_4(M_F(name, _new))),)                          \
-   ,M_IF_METHOD(INIT_SET)(INIT_SET(API_4(M_F(name, _new_copy))),)             \
-   ,M_IF_METHOD(SET)(SET(API_4(M_F(name, _copy))),)                           \
+   ,M_IF_METHOD(INIT, oplist)(INIT(API_1(M_SHAR3D_NEW_WRAPPER)),)             \
+   ,M_IF_METHOD(INIT_SET, oplist)(INIT_SET(API_4(M_F(name, _new_copy))),)     \
+   ,M_IF_METHOD(SET, oplist)(SET(API_4(M_F(name, _copy))),)                   \
    ,CLEAR(M_F(name, _clear))                                                  \
-   ,INIT_MOVE(M_SET_BASIC)                                                    \
-   ,MOVE(M_SET_BASIC)                                                         \
+   ,INIT_MOVE(M_SET_DEFAULT)                                                  \
+   ,MOVE(M_SET_DEFAULT)                                                       \
    )
+
+// Wrapper for _new
+// API_4 isn't fully working since there is only one output argument.
+#define M_SHAR3D_NEW_WRAPPER(oplist, x) ((x) = M_F(M_GET_NAME oplist, _new)())
 
 
 /* Validation of the given oplist */
@@ -1383,7 +1387,8 @@ M_IF_METHOD(IN_SERIAL, oplist)(                                               \
 #define SHARED_WEAK_PTR_DEF_AS M_SHARED_WEAK_PTR_DEF_AS
 #define SHARED_PTR_DEF M_SHARED_PTR_DEF
 #define SHARED_PTR_DEF_AS M_SHARED_PTR_DEF_AS
-
+#define SHARED_PTR_OPLIST M_SHARED_PTR_OPLIST
+#define SHARED_DATA_OPLIST M_SHARED_DATA_OPLIST
 #endif
 
 #endif
