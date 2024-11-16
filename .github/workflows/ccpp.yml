@@ -141,7 +141,7 @@ jobs:
     name: Build on aarch64
     steps:
       - uses: actions/checkout@v4
-      - uses: uraimo/run-on-arch-action@v2.5.0
+      - uses: uraimo/run-on-arch-action@v2
         name: Run commands on aarch64
         id: make
         timeout-minutes: 60
