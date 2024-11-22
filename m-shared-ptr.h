@@ -623,6 +623,7 @@ fattr void M_F(name, _write_read2_unlock)(shared_t *out, const shared_t *src1, c
 M_IF_METHOD(INIT, oplist)( extern shared_t *M_F(name, _new)(void); , )        \
 M_IF_METHOD(INIT_SET, oplist)( extern shared_t *M_F(name, _new_copy)(const shared_t *); , ) \
 M_IF_METHOD(SET, oplist)( extern void M_F(name, _copy)(shared_t *, const shared_t *); , ) \
+M_IF_METHOD2(INIT_SET, TYPE, oplist)( extern shared_t *M_F(name, _new_from)(M_GET_TYPE oplist const); , ) \
 extern shared_t *M_F(name, _acquire)(shared_t *);                             \
 extern void      M_F(name, _release)(shared_t *);                             \
 extern void      M_F(name, _set)(shared_t **, shared_t *);                    \
@@ -661,6 +662,21 @@ M_IF_METHOD(INIT_SET, oplist)(                                                \
         M_ON_EXCEPTION( M_F(name, _read_unlock)(src), M_CALL_FREE(oplist, out) ) \
             M_CALL_INIT_SET(oplist, out->data, src->data);                    \
         M_F(name, _read_unlock)(src);                                         \
+        M_F(name, _init_lock)(out);                                           \
+        return out;                                                           \
+    }                                                                         \
+                                                                              \
+    M_IF_METHOD(TYPE,oplist)( ,                                               \
+    fattr shared_t *M_F(name, _new_from)(type const src); )                   \
+    fattr shared_t *M_F(name, _new_from)(type const src)                      \
+    {                                                                         \
+        shared_t *out = M_CALL_NEW(oplist, shared_t);                         \
+        if (M_UNLIKELY_NOMEM( out == NULL)) {                                 \
+            M_MEMORY_FULL(sizeof (shared_t));                                 \
+            abort();                                                          \
+        }                                                                     \
+        M_ON_EXCEPTION( M_CALL_FREE(oplist, out) )                            \
+            M_CALL_INIT_SET(oplist, out->data, src);                          \
         M_F(name, _init_lock)(out);                                           \
         return out;                                                           \
     }                                                                         \

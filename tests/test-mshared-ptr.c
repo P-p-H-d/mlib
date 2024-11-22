@@ -15,6 +15,27 @@
 SHARED_PTR_DECL_AS(shared_double, SharedDouble, M_BASIC_OPLIST)
 SHARED_PTR_DEF_EXTERN_AS(shared_double, SharedDouble, double, M_BASIC_OPLIST)
 
+static void test_double(void)
+{
+  SharedDouble *p = shared_double_new();
+  SharedDouble *q = shared_double_new_from(2.0);
+  SharedDouble *r = shared_double_new_from(1.0);
+  SharedDouble *rr = shared_double_new_from(3.0);
+  shared_double_add(p, q, r);
+  assert(shared_double_equal_p(p, rr));
+  shared_double_sub(p, q, r);
+  assert(shared_double_equal_p(p, r));
+  shared_double_mul(p, q, r);
+  assert(shared_double_equal_p(p, q));
+  shared_double_div(p, q, r);
+  assert(shared_double_equal_p(p, q));
+  shared_double_reset(p);
+  shared_double_release(p);
+  shared_double_release(q);
+  shared_double_release(r);
+  shared_double_release(rr);
+}
+
 // TEST WITH STRING
 
 SHARED_PTR_DECL(shared_string, STRING_OPLIST)
@@ -286,19 +307,12 @@ static void test_thread(void)
   m_thread_join(idx);
 }
 
-static void test_double(void)
-{
-  SharedDouble *d = shared_double_new();
-  shared_double_reset(d);
-  shared_double_clear(d);
-}
-
 int main(void)
 {
     test_string();
+    test_double();
     test_array();
     test_array_string();
     test_thread();
-    test_double();
     exit(0);
 }
