@@ -204,12 +204,13 @@ SYNTHESIS_DATA=	M-ALGO test-malgo.c.c test-malgo.synt			\
 		M-RBTREE test-mrbtree.c.c test-mrbtree.synt				\
 		M-SERIAL-BIN ../m-serial-bin.h test-mserial-bin.synt	\
 		M-SERIAL-JSON ../m-serial-json.h test-mserial-json.synt	\
+		M-SHARED-PTR test-mshared-ptr.c.c test-mshared-ptr.synt	\
 		M-SHARED test-mshared.c.c test-mshared.synt				\
 		M-SNAPSHOT test-msnapshot.c.c test-msnapshot.synt		\
 		M-STRING ../m-string.h test-mstring.synt 				\
 		M-TREE test-mtree.c.c test-mtree.synt 				    \
 		M-THREAD ../m-thread.h test-mmutex.synt					\
-		M-TRY ../m-try.h test-mtry.synt					\
+		M-TRY ../m-try.h test-mtry.synt							\
 		M-TUPLE test-mtuple.c.c test-mtuple.synt 				\
 		M-VARIANT test-mvariant.c.c test-mvariant.synt 			\
 		M-WORKER ../m-worker.h test-mworker.synt		
