@@ -2046,7 +2046,7 @@ m_string_pop_u(m_string_unicode_t *u, m_string_t str)
 
 /* Compute the length in UTF8 code points in the string */
 M_INLINE size_t
-m_string_length_u(m_string_t str)
+m_string_length_u(const m_string_t str)
 {
   M_STR1NG_CONTRACT(str);
   return m_str1ng_utf8_length(m_string_get_cstr(str));
@@ -2054,7 +2054,7 @@ m_string_length_u(m_string_t str)
 
 /* Check if a string is a valid UTF8 encoded stream */
 M_INLINE bool
-m_string_utf8_p(m_string_t str)
+m_string_utf8_p(const m_string_t str)
 {
   M_STR1NG_CONTRACT(str);
   return m_str1ng_utf8_valid_str_p(m_string_get_cstr(str));
