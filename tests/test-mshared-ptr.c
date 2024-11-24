@@ -172,6 +172,38 @@ static void test_string(void)
     shared_string_clear(p2);
 }
 
+static void test_string_io(void)
+{
+  shared_string_t *p = shared_string_new();
+  shared_string_t *q = shared_string_make("Hello world");
+
+  FILE *f = m_core_fopen ("a-mshared-ptr.dat", "wt");
+  if (!f) abort();
+  shared_string_out_str(f, q);
+  fclose (f);
+
+  f = m_core_fopen ("a-mshared-ptr.dat", "rt");
+  if (!f) abort();
+  bool b = shared_string_in_str (p, f);
+  assert (b == true);
+  assert (shared_string_equal_p (p, q));
+  fclose(f);
+
+  shared_string_reset(p);
+  M_LET(str, STRING_OPLIST) {
+    shared_string_get_str(str, q, false);
+    assert (string_cmp_str (str, "\"Hello world\"") == 0);
+    const char *sp;
+    b = shared_string_parse_str(p, string_get_cstr(str), &sp);
+    assert(b);
+    assert(*sp == 0);
+    assert(shared_string_equal_p(p, q));
+  }
+
+  shared_string_clear(p);
+  shared_string_release(q);
+}
+
 
 // TEST WITH ARRAY
 ARRAY_DEF(array, int)
@@ -512,6 +544,7 @@ int main(void)
     test_string2();
     test_thread1_string();
     test_thread2_string();
+    test_string_io();
     test_double();
     test_array();
     test_array_string();
