@@ -511,9 +511,9 @@ static void test_thread1_string(void)
 static void conso_thread2_string(void *p)
 {
   shared_string_t *ptr = (shared_string_t*) p;
-  size_t size = shared_string_size(p);
+  size_t size = shared_string_size(ptr);
   for(int i = 0; i < 1000; i++) {
-    size_t n = shared_string_size(p);
+    size_t n = shared_string_size(ptr);
     assert( n >= size);
     size = n;
   }
