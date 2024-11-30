@@ -162,7 +162,7 @@ m_buff3r_number_init(m_buff3r_number_ct n, unsigned int policy)
 }
 
 M_INLINE unsigned int
-m_buff3r_number_load(m_buff3r_number_ct n, unsigned int policy)
+m_buff3r_number_load(const m_buff3r_number_ct n, unsigned int policy)
 {
   if (!M_BUFF3R_POLICY_P(policy, M_BUFFER_THREAD_UNSAFE))
     // Perform a memory acquire so that further usage of the buffer
@@ -527,7 +527,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
  }                                                                            \
                                                                               \
  M_INLINE bool                                                                \
- M_F(name, _empty_p)(buffer_t v)                                              \
+ M_F(name, _empty_p)(const buffer_t v)                                        \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
    /* If the buffer has been configured with deferred pop                     \
@@ -541,7 +541,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
  }                                                                            \
                                                                               \
  M_INLINE bool                                                                \
- M_F(name, _full_p)(buffer_t v)                                               \
+ M_F(name, _full_p)(const buffer_t v)                                         \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
    return m_buff3r_number_load (v->number[0], policy)                         \
@@ -549,7 +549,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
  }                                                                            \
                                                                               \
  M_INLINE size_t                                                              \
- M_F(name, _size)(buffer_t v)                                                 \
+ M_F(name, _size)(const buffer_t v)                                           \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
    return m_buff3r_number_load (v->number[0], policy);                        \
