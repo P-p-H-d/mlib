@@ -116,7 +116,7 @@ static void test_string(void)
     assert(p == r);
     assert(shared_string_equal_p(r, p));
     assert(!shared_string_equal_p(r, q));
-    shared_string_t *p2 = shared_string_new_copy(p);
+    shared_string_t *p2 = shared_string_clone(p);
     assert(p2 != p);
     assert(shared_string_equal_p(p2, p));
     bool b = shared_string_empty_p(p);
@@ -166,6 +166,8 @@ static void test_string(void)
     shared_string_swap(q, r2);
     assert(!shared_string_empty_p(r2));
     assert(shared_string_empty_p(q));
+    // todo: shared_string_splice
+    // todo: shared_string_erase
     shared_string_release(r2);
     shared_string_clear(q);
     shared_string_release(r);
