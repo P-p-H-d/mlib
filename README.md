@@ -4587,8 +4587,8 @@ void f(void) {
   shared_data_push(p, 23);
   shared_data_push(p, 32);
   // And send it through 2 channels of communication
-  comm_buffer_push(comm1, shared_data_acquire(p));
-  comm_buffer_push(comm2, shared_data_acquire(p));
+  comm_buffer_push(comm1, p); // shared_data_acquire is done by the buffer to acquite ownership of the data
+  comm_buffer_push(comm2, p);
   // Release our ownership of the data
   shared_data_clear(p);
 }
