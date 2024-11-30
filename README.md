@@ -25,7 +25,7 @@ M\*LIB: Generic type-safe Container Library for C language
     11. [Priority queue](#m-prioqueue)
     12. [Fixed buffer queue](#m-buffer)
     13. [Atomic Shared Register](#m-snapshot)
-    14. [Shared pointers](#m-shared)
+    14. [Shared pointers](#m-shared-ptr)
     15. [Intrusive Shared Pointers](#m-i-shared)
     16. [Intrusive list](#m-i-list)
     17. [Concurrent adapter](#m-concurrent)
@@ -161,14 +161,12 @@ The available containers of M\*LIB for thread synchronization are in the followi
 
 * [m-buffer.h](#m-buffer): header for creating fixed-size queue (or stack) of generic type (multiple producer / multiple consumer),
 * [m-snapshot](#m-snapshot): header for creating 'atomic buffer' (through triple buffer) for sharing synchronously big data (thread safe),
-* [m-shared.h](#m-shared): header for creating shared pointer of generic type,
-* [m-concurrent.h](#m-concurrent): header for transforming a container into a concurrent container (thread safe),
+* [m-shared-ptr.h](#m-shared-ptr): header for creating shared pointer of generic type,
 * m-c-mempool.h: WIP header for creating fast concurrent memory allocation.
 
 The following containers are intrusive (You need to modify your structure to add fields needed by the container) and are defined in:
 
 * [m-i-list.h](#m-i-list): header for creating doubly-linked intrusive list of generic type,
-* [m-i-shared.h](#m-i-shared): header for creating intrusive shared pointer of generic type (Thread Safe).
 
 Other headers offering other functionality are:
 
@@ -190,6 +188,11 @@ Finally, headers for compatibility with non C11 compilers:
 
 * [m-atomic.h](#m-atomic): header for ensuring compatibility between C's `stdatomic.h` and C++'s atomic header (provide also its own implementation if nothing is available),
 * [m-thread.h](#m-thread): header for providing a very thin layer across multiple implementation of mutex/threads (C11/PTHREAD/WIN32).
+
+The following headers are obsolete:
+* [m-shared.h](#m-shared): header for creating shared pointer of generic type,
+* [m-concurrent.h](#m-concurrent): header for transforming a container into a concurrent container (thread safe),
+* [m-i-shared.h](#m-i-shared): header for creating intrusive shared pointer of generic type (Thread Safe).
 
 Each containers define their iterators (if it is meaningful).
 
@@ -4434,7 +4437,501 @@ This function is thread-safe and performs atomic operation on the snapshot.
 
 _________________
 
+### M-SHARED-PTR
+
+This header is for creating shared pointer.
+A [shared pointer](https://en.wikipedia.org/wiki/Smart_pointer)
+ is a smart pointer that retains shared ownership of an object.
+Several shared pointers may own the same object, sharing ownership of this object.
+It is a mechanism to keep tracks of all registered users of an object
+and performs an automatic destruction of the object only when all users release
+their need on this object. As shared pointer owns no object if it is a null constant pointer.
+
+In addition, M\*LIB shared pointer provides methods that protects concurrent access of the object by different threads,
+transforming a standard container (`LIST`, `ARRAY`, `DICT`, `DEQUE`, ...)
+into an equivalent container but compatible with concurrent access by different threads.
+In practice, it puts a mutex lock to access the container.
+As such it is quite generic. However, it is less efficient than containers
+specially tuned for multiple threads.
+
+Finally, M\*LIB shared pointer provides abstraction between declaration and definition,
+enabling to decouple then.
+
+There are two kinds of shared pointer:
+
+* weak shared pointer (don't support thread concurrency)
+* shared pointer (support for multiple threads both for the counter and lock for the data)
+
+with 3 flavors:
+
+* `_DECL`       : for header files, declare only the functions and opaque type.
+* `_DEF_EXTERN` : for source files, define the functions (to be used with DECL)
+* `_DEF`        : for header/source files, define the function as static inline.
+
+You can provide or not the name of the shared pointer (`_AS`). Therefore we got 12 macros to generate the shared pointers.
+
+There are also two oplists for this object, depending on how you want to handle it:
+
+* one to handle the shared pointer itself (ie. the copy method creates a new owner of the same shared data),
+* one to handle the data behind the shared pointer (ie. the copy method create a new shared data)
+
+There are designed to work with buffers created with policy `BUFFER_PUSH_INIT_POP_MOVE`
+so that we can send a shared pointer across multiple threads, and destroying the object
+only when all threads have terminated their job.
+
+Two level of API are created:
+
+* the public one, created by `_DECL` generation macro to be used by everyone,
+* the private one, created by `_DEF` and `_DEF_EXTERN` generation macro to be used by the implementation only.
+
+The only mandatory operator is `CLEAR`.
+
+#### `SHARED_PTR_DECL(name, oplist)`
+#### `SHARED_PTR_DECL_AS(name, name_type, oplist)`
+#### `SHARED_WEAK_PTR_DECL(name, oplist)`
+#### `SHARED_WEAK_PTR_DECL_AS(name, name_type, oplist)`
+
+Declare the shared pointer `name_t *` as a C pointer to an opaque structure and
+declare also the associated public methods.
+
+`name` shall be a C identifier that will be used to identify the shared pointer.
+It will be used to create the type and functions to handle the container.
+This declaration shall be done once per name and per compilation unit.
+A corresponding definition `SHARED_PTR_DEF_EXTERN`
+(resp. `SHARED_PTR_DEF_EXTERN_AS`, `SHARED_WEAK_PTR_DEF_EXTERN` and `SHARED_WEAK_PTR_DEF_EXTERN_AS`)
+shall be done once in **one** compilation unit.
+
+`SHARED_PTR_DECL` and `SHARED_PTR_DECL_AS` create a shared pointer qualified as _strong_ since the tracking of ownership is atomic and the destruction of the object is thread safe. In addition, there is also a lock protecting the integrity of the data.
+They shall be used to track ownership of an object in multi thread program.
+
+`SHARED_WEAK_PTR_DECL` and `SHARED_WEAK_PTR_DECL_AS` create a shared pointer qualified as _weak_ since the tracking of ownership is non atomic and the destruction of the object is not thread safe. There is also no lock protecting the integrity of the data.
+They shall be used to track ownership of an object in a single thread program.
+
+The given `oplist` is **mandatory** but it might be a simplified oplist (even if a real oplist works).
+This parameter is only used for two reasons:
+
+* to identify if a method of a shared pointer exists: for example, the method `name_new()` is created only if the `INIT` operator is provided.
+* to provides the sub-types of the type: the key type, the value type, the subtype, the emplace types, the oplist of the subtype, the emplace types of the subtype, ...
+
+As such, a simplified oplist like `(INIT(1), INIT_SET(1))` is valid for the _declaration_ only.
+
+Theses macros should be put typically in header files.
+
+`SHARED_PTR_DECL_AS` (resp. `SHARED_WEAK_PTR_DECL_AS`) is the same as `SHARED_PTR_DECL` (resp. `SHARED_WEAK_PTR_DECL`)
+except the type of the shared pointer `name_type` is given as parameter instead of defined as `name_t`.
+
+
+#### `SHARED_PTR_DEF_EXTERN(name, type[, oplist])`
+#### `SHARED_PTR_DEF_AS_EXTERN(name, name_type, type[, oplist])`
+#### `SHARED_WEAK_PTR_DEF_EXTERN(name, type[, oplist])`
+#### `SHARED_WEAK_PTR_DEF_AS_EXTERN(name, name_type, type[, oplist])`
+
+Define the shared pointer `name_t *` as a C pointer to an opaque structure that encapsulate the access to the C type
+`type` which oplist is `oplist` and the associated public and private methods as external linkage.
+`oplist` parameter is optional. If not present, it will look for a globaly registered oplist.
+It shall match with the `oplist`argument given to the corresponding `_DECL`macro with the same `name`.
+
+It shall be done once in **one** compilation unit.
+Theses macros should be put typically in one source file.
+
+See `SHARED_PTR_DECL` for additional information.
+
+
+#### `SHARED_PTR_DEF(name, type[, oplist])`
+#### `SHARED_PTR_DEF_AS(name, name_type, type[, oplist])`
+#### `SHARED_WEAK_PTR_DEF(name, type[, oplist])`
+#### `SHARED_WEAK_PTR_DEF_AS(name, name_type, type[, oplist])`
+
+Define the shared pointer `name_t *` as a C pointer to an opaque structure that encapsulate the access to the C type
+`type` which oplist is `oplist` and the associated public and private methods as static inline.
+`oplist` parameter is optional. If not present, it will look for a globaly registered oplist.
+
+This definition shall be done once per name and per compilation unit.
+
+See `SHARED_PTR_DECL` for additional information.
+
+
+#### `SHARED_PTR_OPLIST(name, oplist)`
+
+Define the oplist of the shared pointer `name` view as a pointer (i.e. share ownership).
+The parameter `oplist` can be a simplified oplist of the encapsulated type (See `_DECL` macros).
+
+
+#### `SHARED_DATA_OPLIST(name, oplist)`
+
+Define the oplist of the shared pointer `name` view as an object (i.e. copy object).
+The parameter `oplist` can be a simplified oplist of the encapsulated type (See `_DECL` macros).
+
+Example:
+
+```C
+#include "m-shared-ptr.h"
+#include "m-buffer.h"
+
+// To put in one header
+// Define a shared data that supports pushing/popping integer
+#define OPL (INIT(1),INIT_SET(1),SET(1),CLEAR(1),SUBTYPE(int),PUSH(1),POP(1))
+SHARED_PTR_DECL(shared_data, OPL)
+
+// Define a communication buffer of this shared data that supports sending/receiving the shared pointer
+#define OPL_COMM (INIT(1),INIT_SET(1),SET(1),CLEAR(1),SUBTYPE(shared_data_t*),PUSH(1),POP(1))
+SHARED_PTR_DECL(comm_buffer, OPL_COMM)
+
+extern comm_buffer_t *comm1, *comm2;
+
+// A C file using the header
+void f(void) {
+  // Create a new shared data
+  shared_data_t *p = shared_data_new();
+  // Push some data in it
+  shared_data_push(p, 23);
+  shared_data_push(p, 32);
+  // And send it through 2 channels of communication
+  comm_buffer_push(comm1, shared_data_acquire(p));
+  comm_buffer_push(comm2, shared_data_acquire(p));
+  // Release our ownership of the data
+  shared_data_clear(p);
+}
+
+// To put in one C file
+#include "m-array.h"
+
+// Define the shared_data as an encapsulation of an array of int
+ARRAY_DEF(array, int)
+SHARED_PTR_DEF_EXTERN(shared_data, array_t, ARRAY_OPLIST(array, M_BASIC_OPLIST))
+
+// Define the communication buffer as an encapsulation of a buffer
+BUFFER_DEF(buffer, shared_data_t *, 10, BUFFER_QUEUE|BUFFER_PUSH_INIT_POP_MOVE, SHARED_PTR_OPLIST(shared_data, OPL))
+SHARED_PTR_DEF_EXTERN(comm_buffer, buffer_t, BUFFER_OPLIST(buffer, SHARED_PTR_OPLIST(shared_data, OPL)))
+
+comm_buffer_t *comm1, *comm2;
+```
+
+#### Created types
+
+The following types are automatically defined by the previous definition macro if not provided by the user:
+
+##### `name_t`
+
+Opaque structure of the shared object, for which `name_t *`is a shared pointer.
+
+#### Public interface
+
+##### `name_t *name_new(void)`
+
+Create a new shared object initialized with its `INIT` operator and return a shared pointer to it.
+This method is created only if the `INIT` operator is defined.
+
+##### `name_t *name_clone(const name_t *src)`
+
+Create a new shared object initialized with the content of `*src`, creating effectively a clone.
+This method is created only if the `INIT_SET` operator is defined.
+
+##### `name_t *name_make[<emplace_suffix>](<emplace_args>)`
+
+Create a new shared object initialized with the content of `<emplace_args>`.
+This method is created only if the `EMPLACE_TYPE` operator is defined.
+
+##### `void name_copy(name_t *out, const name_t *src)`
+
+Copy into the shared object `*out` the content of `*src`, creating effectively a copy if the shared pointers are not the same.
+This method is created only if the `SET` operator is defined.
+
+##### `name_t *name_acquire(name_t *out)`
+
+Acquire a new ownership of the pointer, returning the same pointer but with one more registered owner.
+
+##### `void name_release(name_t *out)`
+
+Release the ownership of the pointer.
+If there is no longer any owner of the shared data, it is destroyed using its `CLEAR` method and the allocated memory freed.
+
+##### `void name_clear(name_t *out)`
+
+Alias of `name_release`
+
+##### `void name_set(name_t **dst, name_t *out)`
+
+Release the current ownership of `*dst` and set `*dst` as a new owner of `*out`
+(Copy of pointer)
+
+##### `void name_swap(name_t *a, name_t *b)`
+
+Swap the content of the shared objects `*a` and `*b`
+This method is created only if the `SWAP` operator is defined.
+
+##### `void name_reset(name_t *a)`
+
+Reset the content of the shared object `*a`.
+This method is created only if the `RESET` operator is defined.
+
+##### `bool name_empty_p(const name_t *a)`
+
+Test if the shared object `*a` is empty (return true) or not (return false).
+This method is created only if the `EMPTY_P` operator is defined.
+
+##### `bool name_full_p(const name_t *a)`
+
+Test if the shared object `*a` is full (return true) or not (return false).
+This method is created only if the `FULL_P` operator is defined.
+
+##### `size_t name_size(const name_t *a)`
+
+Return the number of elements of the shared object `*a`
+This method is created only if the `GET_SIZE` operator is defined.
+
+##### `bool name_equal_p(const name_t *a, const name_t *a)`
+
+Test if the shared objects `*a` and `*b` are equal (return true) or not (return false).
+This method is created only if the `EQUAL` operator is defined.
+
+##### `int name_cmp(const name_t *a, const name_t *b)`
+
+Compare the order of the shared objects `*a` and `*b`, returning their relative order.
+This method is created only if the `CMP` operator is defined.
+
+##### `size_t name_hash(const name_t *)`
+
+Return the hash of the shared object `*a`.
+This method is created only if the `HASH` operator is defined.
+
+##### `void name_add(name_t *a, const name_t *b, const name_t *c)`
+
+Compute in `*a` the sum of `*b`and `*c`
+This method is created only if the `ADD` operator is defined.
+
+##### `void name_sub(name_t *a, const name_t *b, const name_t *c)`
+
+Compute in `*a` the difference of `*b`and `*c`
+This method is created only if the `SUB` operator is defined.
+
+##### `void name_mul(name_t *a, const name_t *b, const name_t *c)`
+
+Compute in `*a` the product of `*b`and `*c`
+This method is created only if the `MUL` operator is defined.
+
+##### `void name_div(name_t *a, const name_t *b, const name_t *c)`
+
+Compute in `*a` the dividend of `*b`and `*c`
+This method is created only if the `DIV` operator is defined.
+
+##### `void name_splice(name_t *a, name_t *b)`
+
+Append in `*a` all elements of `*b` and reset `*b`.
+This method is created only if the `SPLICE` operator is defined.
+
+##### `bool name_get(value_type *val, const name_t *a, key_type const key)`
+
+Set `*val` to the value associated to the key `key` in the shared object `*a`
+Return true in this case. If there is no association for `key`, return false
+if the called `GET_KEY` operator supports returning NULL for the encapsulated container.
+This method is created only if the `GET_KEY` operator is defined.
+
+##### `void name_safe_get(value_type *val, name_t *a, key_type const key)`
+
+Set `*val` to the value associated to the key `key` in the shared object `*a`,
+creating a new entry for `key` if needed.
+This method is created only if the `GET_SAFE_KEY` operator is defined.
+
+##### `void name_set_at(name_t *a, key_type const key, value_type const val)`
+
+Set the association of `key` to `val` in `*a`
+This method is created only if the `SET_KEY` operator is defined.
+
+##### `bool name_erase(name_t *a, key_type const key)`
+
+Erase the association of `key` in `*a` if it exists (return true in this case).
+Otherwise return false.
+This method is created only if the `ERASE_KEY` operator is defined.
+
+##### `void name_push(name_t *a, sub_type const el)`
+
+Push in `*a` the element `el`, waiting forever for the container to be not full if needed.
+This method is created only if the `PUSH` operator is defined.
+
+##### `void name_push_move(name_t *a, sub_type *el)`
+
+Push in `*a` the element `*el`, stealing as much resource from it as possible, waiting forever for the container to be not full if needed.
+Afterwards `*el` is cleared.
+This method is created only if the `PUSH_MOVE` operator is defined.
+
+##### `void name_emplace<emplace_suffix>(name_t* a[, <emplace_args> args])`
+
+Try to push in `*a` the element constructed from the arguments `args` if possible, waiting forever for the container to be not full if needed.
+This method is created only if the `PUSH_MOVE` operator and the `EMPLACE_TYPE` of the sub_type (within the sub-oplist operator `OPLIST`) are defined.
+
+##### `bool name_try_push(name_t *a, sub_type const el)`
+
+Try to push in `*a` the element `el`,if it is not full (return true in this case).
+Return false otherwise (cannot push element)
+This method is created only if the `PUSH` operator is defined.
+
+##### `bool name_try_push_move(name_t *a, sub_type *el)`
+
+Try to push in `*a` the element `*el`,if the container is not full and clear `*el` (return true in this case).
+Return false otherwise (cannot push element) and `*el` is still initializated.
+This method is created only if the `PUSH_MOVE` operator is defined.
+
+##### `bool name_try_emplace<emplace_suffix>(name_t *a[, <emplace_args> args])`
+
+Try to push in `*a` the element constructed from the arguments `args`, if the container is not full (return true in this case).
+Return false otherwise (cannot push element).
+This method is created only if the `PUSH_MOVE` operator and the `EMPLACE_TYPE` of the sub_type (within the sub `OPLIST`) are defined.
+
+##### `void name_pop(sub_type *const el, name_t *a)`
+
+Pop the element from `*a` and set `*el` with it, waiting forever for an element to be available.
+This method is created only if the `POP` operator is defined.
+
+##### `void name_pop_move(sub_type *el, name_t *a)`
+
+Pop the element from `*a` and initialize `*el` with it, stealing as much resource as possible, waiting forever for an element to be available.
+This method is created only if the `POP_MOVE` operator is defined.
+
+##### `bool name_try_pop(sub_type*, name_t *)`
+
+Pop the element from `*a` and set `*el` with it if an element to be available (return true in this case).
+Otherwise return false.
+This method is created only if the `POP` operator is defined.
+
+##### `bool name_try_pop_move(sub_type *, name_t *)`
+
+Pop the element from `*a` and initialize `*el` with it, stealing as much resource as possible, if an element is available (return true in this case).
+Otherwise return false.
+This method is created only if the `POP_MOVE` operator is defined.
+
+##### `int name_apply(name_t *a, int (*callback(void *data, sub_type*), void *data)`
+
+Apply the callback `callback` to all elements of the container `*a` from front to back.
+The callback may modify the given element if possible.
+`data` is a user parameter given to the callback at user convenience.
+If the callback returns a non null argument, the function stops and returns immediately with this error code.
+This method is created only if the `IT_FIRST`, `IT_NEXT` and `IT_REF` operators are defined.
+
+##### `int name_for_each(const name_t *a, int (*callback)(void *data, const sub_type*), void *data)`
+
+Apply the callback `callback` to all elements of the container `*a` from front to back.
+The callback shall not modify the given element.
+`data` is a user parameter given to the callback at user convenience.
+If the callback returns a non null argument, the function stops and returns immediately with this error code.
+This method is created only if the `IT_FIRST`, `IT_NEXT` and `IT_CREF` operators are defined.
+
+##### `int name_r_apply(name_t *, int (*callback(void *data, sub_type*), void*data)`
+
+Apply the callback `callback` to all elements of the container `*a` from back to front.
+The callback may modify the given element if possible.
+`data` is a user parameter given to the callback at user convenience.
+If the callback returns a non null argument, the function stops and returns immediately with this error code.
+This method is created only if the `IT_LAST`, `IT_PREVIOUS` and `IT_REF` operators are defined.
+
+##### `int name_r_for_each(const name_t *, int (*callback)(void *data, const sub_type*), void*data)`
+
+Apply the callback `callback` to all elements of the container `*a` from back to front.
+The callback shall not modify the given element.
+`data` is a user parameter given to the callback at user convenience.
+If the callback returns a non null argument, the function stops and returns immediately with this error code.
+This method is created only if the `IT_LAST`, `IT_PREVIOUS` and `IT_CREF` operators are defined.
+
+##### `void name_out_str(FILE *f, const name_t *a)`
+
+Output `*a` into the FILE `*f`
+This method is created only if the `OUT_STR` operator is defined.
+
+##### `bool name_in_str(name_t *a, FILE *f)`
+
+Read `*a` from the FILE `f`
+This method is created only if the `IN_STR` operator is defined.
+
+##### `void name_get_str(string_t str, const name_t *a, bool append)`
+
+Output `*a` into the string `str`, appending it if `append` is true.
+This method is created only if the `GET_STR` operator is defined.
+
+##### `bool name_parse_str(name_t *a, const char *str, const char **endptr)`
+
+Set `*a` to the value read from the string `str`.
+`*endptr` is set to the end of the parsing in the string if `endptr` is not null.
+This method is created only if the `PARSE_STR` operator is defined.
+
+##### `m_serial_return_code_t name_out_serial(m_serial_write_t serial, const name_t *a)`
+
+Output `*a` into the serial object `serial`.
+This method is created only if the `OUT_SERIAL` operator is defined.
+
+##### `m_serial_return_code_t name_in_serial(name_t *a, m_serial_read_t serial)`
+
+Set `*a` to the value read from the serial object `serial`.
+This method is created only if the `IN_SERIAL` operator is defined.
+
+#### Private interface
+
+The private interface is only availale for the implementation.
+
+##### `void name_init_lock(name_t *out)`
+
+This function shall be called from a custom constructor to initialize the part of the shared object not linked to the encapsulated type.
+It initialize the internal locks and counters of the opaque structure of the object.
+
+##### `void name_read_lock(const name_t *out)`
+
+Enter the lock of the object for reading its state (The object shall hold no lock). This lock is non recursive.
+An object shall not be at the same time in read lock and in write lock (it is exclusive).
+
+##### `void name_read_wait(const name_t *out)`
+
+Wait for the object to receive new data.
+It shall be called within the read lock.
+
+##### `void name_read_unlock(const name_t *out)`
+
+Leave the lock of the object for reading its state.
+It shall be called after `name_read_lock`
+
+##### `void name_write_lock(name_t *out)`
+
+Enter the lock of the object for writing its state (The object shall hold no lock). This lock is non recursive.
+An object shall not be at the same time in read lock and in write lock (it is exclusive).
+
+##### `void name_write_wait(name_t *out) `
+
+Wait for the object to create some more space to store more data.
+It shall be called within the write lock.
+
+##### `void name_write_signal(name_t *out)`
+
+Signal to the threads that some new data have been appended in the object.
+It shall be called within the write lock.
+
+##### `void name_free_signal(name_t *out)`
+
+Signal to the threads that some space to store more data have been created.
+It shall be called within the write lock.
+
+##### `void name_write_unlock(name_t *out)`
+
+Leave the lock of the object for writing its state.
+It shall be called after `name_write_lock`
+
+##### `type *name_ref(name_t *out)`
+
+Return a pointer to the encapsulated object.
+
+##### `type const *name_cref(const name_t *out)`
+
+Return a constant pointer to the encapsulated object.
+
+##### `name_t *name_new_from(type const src)`
+
+Create a new shared object initialized with its `INIT_SET` operator on the given `src` and return a shared pointer to it.
+This method is created only if the `INIT_SET` operator is defined.
+
+
+_________________
+
 ### M-SHARED
+
+> [!NOTE]
+> This header is obsolete: M-SHARED-PTR should be used instead.
 
 This header is for creating shared pointer.
 A [shared pointer](https://en.wikipedia.org/wiki/Smart_pointer)
@@ -4602,6 +5099,9 @@ TODO: Document shared resource
 _________________
 
 ### M-I-SHARED
+
+> [!NOTE]
+> This header is obsolete: M-SHARED-PTR should be used instead.
 
 This header is for creating intrusive shared pointer.
 
@@ -4966,6 +5466,9 @@ Afterwards, `list2` is emptied.
 _________________
 
 ### M-CONCURRENT
+
+> [!NOTE]
+> This header is obsolete: M-SHARED-PTR should be used instead.
 
 This header is for transforming a standard container (`LIST`, `ARRAY`, `DICT`, `DEQUE`, ...)
 into an equivalent container but compatible with concurrent access by different threads. 
