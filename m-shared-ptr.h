@@ -168,7 +168,7 @@
 #define M_SHAR3D_DATA_OPLIST_P3(name, oplist)                                 \
   (NAME(name), TYPE(struct M_C(name,_s) *)                                    \
    ,M_IF_METHOD(INIT, oplist)(INIT(API_1(M_SHAR3D_NEW_WRAPPER)),)             \
-   ,M_IF_METHOD(INIT_SET, oplist)(INIT_SET(API_4(M_F(name, _new_copy))),)     \
+   ,M_IF_METHOD(INIT_SET, oplist)(INIT_SET(API_4(M_F(name, _clone))),)        \
    ,M_IF_METHOD(SET, oplist)(SET(API_4(M_F(name, _copy))),)                   \
    ,CLEAR(M_F(name, _clear))                                                  \
    ,INIT_MOVE(M_SET_DEFAULT)                                                  \
@@ -597,7 +597,7 @@ fattr void M_F(name, _write_read2_unlock)(shared_t *out, const shared_t *src1, c
 /* Define the basic function of a shared pointer */
 #define M_SHAR3D_PTR_DECL_BASIC(name, shared_t, oplist)                       \
 M_IF_METHOD(INIT, oplist)( extern shared_t *M_F(name, _new)(void); , )        \
-M_IF_METHOD(INIT_SET, oplist)( extern shared_t *M_F(name, _new_copy)(const shared_t *); , ) \
+M_IF_METHOD(INIT_SET, oplist)( extern shared_t *M_F(name, _clone)(const shared_t *); , ) \
 M_IF_METHOD(SET, oplist)( extern void M_F(name, _copy)(shared_t *, const shared_t *); , ) \
 M_IF_METHOD2(INIT_SET, TYPE, oplist)( extern shared_t *M_F(name, _new_from)(M_GET_TYPE oplist const); , ) \
 extern shared_t *M_F(name, _acquire)(shared_t *);                             \
@@ -626,7 +626,7 @@ M_IF_METHOD(INIT, oplist)(                                                    \
 , )                                                                           \
                                                                               \
 M_IF_METHOD(INIT_SET, oplist)(                                                \
-    fattr shared_t *M_F(name, _new_copy)(const shared_t *src)                 \
+    fattr shared_t *M_F(name, _clone)(const shared_t *src)                    \
     {                                                                         \
         M_ASSERT(src != NULL);                                                \
         shared_t *out = M_CALL_NEW(oplist, shared_t);                         \
