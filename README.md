@@ -4529,7 +4529,9 @@ except the type of the shared pointer `name_type` is given as parameter instead 
 Define the shared pointer `name_t *` as a C pointer to an opaque structure that encapsulate the access to the C type
 `type` which oplist is `oplist` and the associated public and private methods as external linkage.
 `oplist` parameter is optional. If not present, it will look for a globaly registered oplist.
-It shall match with the `oplist`argument given to the corresponding `_DECL`macro with the same `name`.
+It shall match with the `oplist`argument given to the corresponding `_DECL`macro with the same `name`,
+meaning it shall provide at least all operators of the oplist provided to the corresponding `_DECL`macro
+and all operator types shall be the same.
 
 It shall be done once in **one** compilation unit.
 Theses macros should be put typically in one source file.
@@ -4542,7 +4544,8 @@ See `SHARED_PTR_DECL` for additional information.
 #### `SHARED_WEAK_PTR_DEF(name, type[, oplist])`
 #### `SHARED_WEAK_PTR_DEF_AS(name, name_type, type[, oplist])`
 
-Define the shared pointer `name_t *` as a C pointer to an opaque structure that encapsulate the access to the C type
+Define the shared pointer `name_t *` as a C pointer to an opaque structure that encapsulate the access to the C
+object (aka the shared object) of type
 `type` which oplist is `oplist` and the associated public and private methods as static inline.
 `oplist` parameter is optional. If not present, it will look for a globaly registered oplist.
 
@@ -4600,7 +4603,7 @@ void f(void) {
 ARRAY_DEF(array, int)
 SHARED_PTR_DEF_EXTERN(shared_data, array_t, ARRAY_OPLIST(array, M_BASIC_OPLIST))
 
-// Define the communication buffer as an encapsulation of a buffer
+// Define the communication buffer as an encapsulation of a 10-size circular buffer over the shared_data
 BUFFER_DEF(buffer, shared_data_t *, 10, BUFFER_QUEUE|BUFFER_PUSH_INIT_POP_MOVE, SHARED_PTR_OPLIST(shared_data, OPL))
 SHARED_PTR_DEF_EXTERN(comm_buffer, buffer_t, BUFFER_OPLIST(buffer, SHARED_PTR_OPLIST(shared_data, OPL)))
 
@@ -4616,6 +4619,8 @@ The following types are automatically defined by the previous definition macro i
 Opaque structure of the shared object, for which `name_t *`is a shared pointer.
 
 #### Public interface
+
+The public interface is declared and defined to be used by the user of the shared object / shared pointer.
 
 ##### `name_t *name_new(void)`
 
@@ -4866,6 +4871,7 @@ This method is created only if the `IN_SERIAL` operator is defined.
 #### Private interface
 
 The private interface is only availale for the implementation.
+It is used by the implementator of the shared object to provide additional, more specialized, functions to its user for the shared object.
 
 ##### `void name_init_lock(name_t *out)`
 
