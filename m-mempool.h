@@ -115,7 +115,7 @@
     mem->free_list = NULL;                                                    \
     mem->current_segment = M_MEMORY_ALLOC(M_F(name,_segment_ct));             \
     if (M_UNLIKELY_NOMEM(mem->current_segment == NULL)) {                     \
-      M_MEMORY_FULL(sizeof (M_F(name,_segment_ct)));                          \
+      M_MEMORY_FULL(M_F(name,_segment_ct), 1);                                \
       return;                                                                 \
     }                                                                         \
     mem->current_segment->next = NULL;                                        \
@@ -157,7 +157,7 @@
     if (M_UNLIKELY (count >= M_USE_MEMPOOL_MAX_PER_SEGMENT(type))) {          \
       M_F(name,_segment_ct) *new_segment = M_MEMORY_ALLOC (M_F(name,_segment_ct)); \
       if (M_UNLIKELY_NOMEM (new_segment == NULL)) {                           \
-        M_MEMORY_FULL(sizeof (M_F(name,_segment_ct)));                        \
+        M_MEMORY_FULL(M_F(name,_segment_ct), 1);                              \
         return NULL;                                                          \
       }                                                                       \
       new_segment->next = segment;                                            \

@@ -318,7 +318,7 @@ typedef enum {
     if (n == NULL) {                                                          \
       n = M_C3(m_rbtr33_,name,_new)();                                        \
       if (M_UNLIKELY_NOMEM (n == NULL)) {                                     \
-        M_MEMORY_FULL(sizeof (node_t));                                       \
+        M_MEMORY_FULL(node_t, 1);                                             \
         return;                                                               \
       }                                                                       \
       /* Copy the data in the root node */                                    \
@@ -359,7 +359,7 @@ typedef enum {
     /* Create new node to store the data */                                   \
     n = M_C3(m_rbtr33_,name,_new)();                                          \
     if (M_UNLIKELY_NOMEM (n == NULL) ) {                                      \
-      M_MEMORY_FULL (sizeof (node_t));                                        \
+      M_MEMORY_FULL (node_t, 1);                                              \
       return;                                                                 \
     }                                                                         \
     /* Copy the data and mark the node as red */                              \
@@ -690,7 +690,7 @@ typedef enum {
     if (o == NULL) return NULL;                                               \
     node_t *n = M_C3(m_rbtr33_,name,_new)();                                  \
     if (M_UNLIKELY_NOMEM (n == NULL) ) {                                      \
-      M_MEMORY_FULL (sizeof (node_t));                                        \
+      M_MEMORY_FULL (node_t, 1);                                              \
       return NULL;                                                            \
     }                                                                         \
     M_CALL_INIT_SET(oplist, n->data, o->data);                                \

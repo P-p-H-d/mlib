@@ -313,7 +313,7 @@ m_string_clear_get_cstr(m_string_t v)
     size_t alloc = m_string_size(v)+1;
     char *ptr = M_MEMORY_REALLOC (char, NULL, 0, alloc);
     if (M_UNLIKELY_NOMEM (ptr == NULL)) {
-      M_MEMORY_FULL(sizeof (char) * alloc);
+      M_MEMORY_FULL(char, alloc);
       return NULL;
     }
     M_ASSERT(ptr != NULL && p != NULL);
@@ -386,7 +386,7 @@ m_str1ng_fit2size (m_string_t v, size_t size_alloc)
     alloc = m_str1ng_round_capacity(&m, &e, (m_str1ng_size_t) alloc);
     if (M_UNLIKELY_NOMEM (alloc <= size_alloc)) {
       /* Overflow in alloc computation */
-      M_MEMORY_FULL(sizeof (char) * alloc);
+      M_MEMORY_FULL(char, alloc);
       // NOTE: Return is currently broken.
       abort();
       return NULL;
@@ -395,7 +395,7 @@ m_str1ng_fit2size (m_string_t v, size_t size_alloc)
     //FIXME: old_alloc may not be NULL if ptr is NULL.
     ptr = M_MEMORY_REALLOC (char, ptr, old_alloc, alloc);
     if (M_UNLIKELY_NOMEM (ptr == NULL)) {
-      M_MEMORY_FULL(sizeof (char) * alloc);
+      M_MEMORY_FULL(char, alloc);
       // NOTE: Return is currently broken.
       abort();
       return NULL;
@@ -452,13 +452,13 @@ m_string_reserve(m_string_t v, size_t alloc)
     unsigned char m, e;
     size_t r_alloc = m_str1ng_round_capacity(&m, &e, (m_str1ng_size_t) alloc);
     if (M_UNLIKELY_NOMEM (alloc > r_alloc)) {
-      M_MEMORY_FULL(sizeof (char) * alloc);
+      M_MEMORY_FULL(char, alloc);
       return;
     } 
     char *ptr = m_str1ng_embedded_p(v) ? NULL : v->u.heap.ptr;
     ptr = M_MEMORY_REALLOC (char, ptr, m_string_capacity(v), r_alloc);
     if (M_UNLIKELY_NOMEM (ptr == NULL) ) {
-      M_MEMORY_FULL(sizeof (char) * alloc);
+      M_MEMORY_FULL(char, alloc);
       return;
     }
     if (m_str1ng_embedded_p(v)) {

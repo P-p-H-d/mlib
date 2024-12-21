@@ -321,7 +321,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
   M_BUFF3R_IF_CTE_SIZE(m_size)( /* Statically allocated */ ,                  \
     v->data = M_CALL_REALLOC(oplist, M_F(name, _el_ct), NULL, 0, M_BUFF3R_SIZE(m_size)); \
     if (M_UNLIKELY_NOMEM (v->data == NULL)) {                                 \
-      M_MEMORY_FULL (M_BUFF3R_SIZE(m_size)*sizeof(M_F(name, _el_ct)));        \
+      M_MEMORY_FULL (M_F(name, _el_ct), M_BUFF3R_SIZE(m_size));               \
       return;                                                                 \
     }                                                                         \
   )                                                                           \
@@ -908,7 +908,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     buffer->size = (unsigned int) size;                                       \
     buffer->Tab = M_CALL_REALLOC(oplist, M_F(name, _el_ct), NULL, 0, size);   \
     if (M_UNLIKELY_NOMEM (buffer->Tab == NULL)) {                             \
-      M_MEMORY_FULL (size*sizeof(M_F(name, _el_ct) ));                        \
+      M_MEMORY_FULL (M_F(name, _el_ct), size);                                \
       return;                                                                 \
     }                                                                         \
     for(unsigned int j = 0; j < (unsigned int) size; j++) {                   \
@@ -1250,7 +1250,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     buffer->size = (unsigned int) size;                                       \
     buffer->Tab = M_CALL_REALLOC(oplist, M_F(name, _el_ct), NULL, 0, size);   \
     if (M_UNLIKELY_NOMEM (buffer->Tab == NULL)) {                             \
-      M_MEMORY_FULL (size*sizeof(M_F(name, _el_ct) ));                        \
+      M_MEMORY_FULL (M_F(name, _el_ct), size);                                \
       return;                                                                 \
     }                                                                         \
     if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \

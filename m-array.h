@@ -244,7 +244,7 @@
       const size_t alloc = s->size;                                           \
       type *ptr = M_CALL_REALLOC(oplist, type, d->ptr, d->alloc, alloc);      \
       if (M_UNLIKELY_NOMEM (ptr == NULL)) {                                   \
-        M_MEMORY_FULL(sizeof (type) * alloc);                                 \
+        M_MEMORY_FULL(type, alloc);                                           \
         return ;                                                              \
       }                                                                       \
       d->ptr = ptr;                                                           \
@@ -325,13 +325,13 @@
       M_ASSERT(v->size == v->alloc);                                          \
       size_t alloc = M_CALL_INC_ALLOC(oplist, v->alloc);                      \
       if (M_UNLIKELY_NOMEM (alloc <= v->alloc)) {                             \
-        M_MEMORY_FULL(sizeof (type) * alloc);                                 \
+        M_MEMORY_FULL(type, alloc);                                           \
         return NULL;                                                          \
       }                                                                       \
       M_ASSERT (alloc > v->size);                                             \
       type *ptr = M_CALL_REALLOC(oplist, type, v->ptr, v->alloc, alloc);      \
       if (M_UNLIKELY_NOMEM (ptr == NULL) ) {                                  \
-        M_MEMORY_FULL(sizeof (type) * alloc);                                 \
+        M_MEMORY_FULL(type, alloc);                                           \
         return NULL;                                                          \
       }                                                                       \
       v->ptr = ptr;                                                           \
@@ -394,13 +394,13 @@
       M_ASSERT(v->size == v->alloc);                                          \
       size_t alloc = M_CALL_INC_ALLOC(oplist, v->alloc);                      \
       if (M_UNLIKELY_NOMEM (alloc <= v->alloc)) {                             \
-        M_MEMORY_FULL(sizeof (type) * alloc);                                 \
+        M_MEMORY_FULL(type, alloc);                                           \
         return ;                                                              \
       }                                                                       \
       M_ASSERT (alloc > v->size);                                             \
       type *ptr = M_CALL_REALLOC(oplist, type, v->ptr, v->alloc, alloc);      \
       if (M_UNLIKELY_NOMEM (ptr == NULL) ) {                                  \
-        M_MEMORY_FULL(sizeof (type) * alloc);                                 \
+        M_MEMORY_FULL(type, alloc);                                           \
         return;                                                               \
       }                                                                       \
       v->ptr = ptr;                                                           \
@@ -432,7 +432,7 @@
         size_t alloc = size ;                                                 \
         type *ptr = M_CALL_REALLOC(oplist, type, v->ptr, v->alloc, alloc);    \
         if (M_UNLIKELY_NOMEM (ptr == NULL) ) {                                \
-          M_MEMORY_FULL(sizeof (type) * alloc);                               \
+          M_MEMORY_FULL(type, alloc);                                         \
           return;                                                             \
         }                                                                     \
         v->ptr = ptr;                                                         \
@@ -463,7 +463,7 @@
     } else {                                                                  \
       type *ptr = M_CALL_REALLOC(oplist, type, v->ptr, v->alloc, alloc);      \
       if (M_UNLIKELY_NOMEM (ptr == NULL) ) {                                  \
-        M_MEMORY_FULL(sizeof (type) * alloc);                                 \
+        M_MEMORY_FULL(type, alloc);                                           \
         return;                                                               \
       }                                                                       \
       v->ptr = ptr;                                                           \
@@ -485,12 +485,12 @@
         size_t alloc = M_CALL_INC_ALLOC(oplist, size) ;                       \
         /* In case of overflow of size_t */                                   \
         if (M_UNLIKELY_NOMEM (alloc <= v->alloc)) {                           \
-          M_MEMORY_FULL(sizeof (type) * alloc);                               \
+          M_MEMORY_FULL(type, alloc);                                         \
           return NULL;                                                        \
         }                                                                     \
         type *ptr = M_CALL_REALLOC(oplist, type, v->ptr, v->alloc, alloc);    \
         if (M_UNLIKELY_NOMEM (ptr == NULL) ) {                                \
-          M_MEMORY_FULL(sizeof (type) * alloc);                               \
+          M_MEMORY_FULL(type, alloc);                                         \
           return NULL;                                                        \
         }                                                                     \
         v->ptr = ptr;                                                         \
@@ -608,19 +608,19 @@
     if (M_UNLIKELY_NOMEM (size <= v->size)) {                                 \
       /* Unlikely case of nothing to do */                                    \
       if (num == 0) return;                                                   \
-      M_MEMORY_FULL(sizeof (type) * v->size);                                 \
+      M_MEMORY_FULL(type, v->size);                                           \
       return ;                                                                \
     }                                                                         \
     /* Test if alloc array is sufficient */                                   \
     if (size > v->alloc) {                                                    \
       size_t alloc = M_CALL_INC_ALLOC(oplist, size) ;                         \
       if (M_UNLIKELY_NOMEM (alloc <= v->alloc)) {                             \
-        M_MEMORY_FULL(sizeof (type) * alloc);                                 \
+        M_MEMORY_FULL(type, alloc);                                           \
         return ;                                                              \
       }                                                                       \
       type *ptr = M_CALL_REALLOC(oplist, type, v->ptr, v->alloc, alloc);      \
       if (M_UNLIKELY_NOMEM (ptr == NULL) ) {                                  \
-        M_MEMORY_FULL(sizeof (type) * alloc);                                 \
+        M_MEMORY_FULL(type, alloc);                                           \
         return;                                                               \
       }                                                                       \
       v->ptr = ptr;                                                           \
@@ -910,7 +910,7 @@
     /* NOTE: if size is <= 4, no need to perform an allocation */             \
     type *temp = M_CALL_REALLOC(oplist, type, NULL, 0, l->size);              \
     if (M_UNLIKELY_NOMEM (temp == NULL)) {                                    \
-      M_MEMORY_FULL(sizeof (type) * l->size);                                 \
+      M_MEMORY_FULL(type, l->size);                                           \
       return ;                                                                \
     }                                                                         \
     M_C3(m_arra4_,name,_stable_sort_noalloc)(l->ptr, l->size, temp);          \
@@ -968,7 +968,7 @@
       if (newSize > a1->alloc) {                                              \
         type *ptr = M_CALL_REALLOC(oplist, type, a1->ptr, a1->alloc, newSize); \
         if (M_UNLIKELY_NOMEM (ptr == NULL) ) {                                \
-          M_MEMORY_FULL(sizeof (type) * newSize);                             \
+          M_MEMORY_FULL(type, newSize);                                       \
         }                                                                     \
         a1->ptr = ptr;                                                        \
         a1->alloc = newSize;                                                  \

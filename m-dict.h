@@ -339,14 +339,14 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     /* The first 2 buckets are reserved for (empty) and (deleted) access. Allocation could be avoided */ \
     map->data = M_CALL_REALLOC(key_oplist, M_F(name, _freelist_ct), NULL, 0, (size_t) 1+2+map->upper_limit); \
     if (M_UNLIKELY_NOMEM (map->data == NULL)) {                               \
-      M_MEMORY_FULL( (2+M_D1CT_INITIAL_SIZE) * sizeof (M_F(name, _freelist_ct))); \
+      M_MEMORY_FULL(M_F(name, _freelist_ct), 2+M_D1CT_INITIAL_SIZE);          \
       return ;                                                                \
     }                                                                         \
     map->freelist_first_data = 0;                                             \
     map->freelist_count = 2;                                                  \
     map->index = M_CALL_REALLOC(key_oplist, m_indexhash_t, NULL, 0, (size_t)(0+M_D1CT_INITIAL_SIZE)); \
     if (M_UNLIKELY_NOMEM (map->index == NULL)) {                              \
-      M_MEMORY_FULL( (2+M_D1CT_INITIAL_SIZE) * sizeof (m_indexhash_t));       \
+      M_MEMORY_FULL(m_indexhash_t, 2+M_D1CT_INITIAL_SIZE);                    \
       return ;                                                                \
     }                                                                         \
     /* Populate the initial table with the 'empty' representation which is 0 */ \
@@ -475,13 +475,13 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
       /*FIXME; oldsize incorrect */                                           \
         h->data = M_CALL_REALLOC(key_oplist, M_F(name, _freelist_ct), h->data, -1, (size_t) 1+2+h->upper_limit); \
         if (M_UNLIKELY_NOMEM (h->data == NULL) ) {                            \
-          M_MEMORY_FULL((2+newSize)*sizeof (M_F(name, _freelist_ct)));        \
+          M_MEMORY_FULL(M_F(name, _freelist_ct), 2+newSize);                  \
           return ;                                                            \
         }                                                                     \
       }                                                                       \
       m_indexhash_t *index = M_CALL_REALLOC(key_oplist, m_indexhash_t, h->index, oldSize, (size_t)0+newSize); \
       if (M_UNLIKELY_NOMEM (index == NULL) ) {                                \
-        M_MEMORY_FULL(newSize*sizeof(m_indexhash_t));                         \
+        M_MEMORY_FULL(m_indexhash_t, newSize);                                \
         return ;                                                              \
       }                                                                       \
       h->index = index;                                                       \
@@ -655,7 +655,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
       if (map->count > newSize/2) {                                           \
         newSize += newSize;                                                   \
         if (M_UNLIKELY_NOMEM (newSize <= map->mask+1)) {                      \
-          M_MEMORY_FULL((size_t)-1);                                          \
+          M_MEMORY_FULL(char, (size_t)-1);                                    \
         }                                                                     \
       }                                                                       \
       M_C3(m_d1ct_,name,_resize_up)(map, newSize, true);                      \
@@ -714,7 +714,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
       if (map->count > newSize/2) {                                           \
         newSize += newSize;                                                   \
         if (M_UNLIKELY_NOMEM (newSize <= map->mask+1)) {                      \
-          M_MEMORY_FULL((size_t)-1);                                          \
+          M_MEMORY_FULL(char, (size_t)-1);                                    \
         }                                                                     \
       }                                                                       \
       M_C3(m_d1ct_,name,_resize_up)(map, newSize, true);                      \
@@ -972,7 +972,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     M_ASSERT (M_POWEROF2_P(size));                                            \
     /* Test for overflow of the computation */                                \
     if (M_UNLIKELY_NOMEM (size < capacity)) {                                 \
-      M_MEMORY_FULL((size_t)-1);                                              \
+      M_MEMORY_FULL(char, (size_t)-1);                                        \
     }                                                                         \
     if (size > dict->mask+1) {                                                \
       dict->upper_limit = (M_F(name, _index_ct)) ((double) size * M_D1CT_OA_UPPER_BOUND) - 1; \
@@ -1489,7 +1489,7 @@ enum m_d1ct_oa_element_e {
     M_C3(m_d1ct_,name,_update_limit)(dict, M_D1CT_INITIAL_SIZE);              \
     dict->data = M_CALL_REALLOC(key_oplist, M_F(name, _pair_ct), NULL, 0, M_D1CT_INITIAL_SIZE); \
     if (M_UNLIKELY_NOMEM (dict->data == NULL)) {                              \
-      M_MEMORY_FULL(sizeof (M_F(name, _pair_ct)) * M_D1CT_INITIAL_SIZE);      \
+      M_MEMORY_FULL(M_F(name, _pair_ct), M_D1CT_INITIAL_SIZE);                \
       return ;                                                                \
     }                                                                         \
     /* Populate the initial table with the 'empty' representation */          \
@@ -1570,7 +1570,7 @@ enum m_d1ct_oa_element_e {
     if (newSize > oldSize) {                                                  \
       data = M_CALL_REALLOC(key_oplist, M_F(name, _pair_ct), data, oldSize, newSize); \
       if (M_UNLIKELY_NOMEM (data == NULL) ) {                                 \
-        M_MEMORY_FULL(sizeof (M_F(name, _pair_ct)) * newSize);                \
+        M_MEMORY_FULL(M_F(name, _pair_ct), newSize);                          \
         return ;                                                              \
       }                                                                       \
                                                                               \
@@ -1695,7 +1695,7 @@ enum m_d1ct_oa_element_e {
       if (dict->count > (dict->mask / 2)) {                                   \
         newSize += newSize;                                                   \
         if (M_UNLIKELY_NOMEM (newSize <= dict->mask+1)) {                     \
-          M_MEMORY_FULL((size_t)-1);                                          \
+          M_MEMORY_FULL(char, (size_t)-1);                                    \
         }                                                                     \
       }                                                                       \
       M_C3(m_d1ct_,name,_resize_up)(dict, newSize, true);                     \
@@ -1749,7 +1749,7 @@ enum m_d1ct_oa_element_e {
       if (dict->count > (dict->mask / 2)) {                                   \
         newSize += newSize;                                                   \
         if (M_UNLIKELY_NOMEM (newSize <= dict->mask+1)) {                     \
-          M_MEMORY_FULL((size_t)-1);                                          \
+          M_MEMORY_FULL(char, (size_t)-1);                                    \
         }                                                                     \
       }                                                                       \
       M_C3(m_d1ct_,name,_resize_up)(dict, newSize, true);                     \
@@ -2114,7 +2114,7 @@ M_F(name, _bulk_set)(dict_t dict, unsigned n, value_type const val[M_VLA(n)], ke
       if (dict->count > (dict->mask / 2)) {                                   \
         newSize += newSize;                                                   \
         if (M_UNLIKELY_NOMEM (newSize <= dict->mask+1)) {                     \
-          M_MEMORY_FULL((size_t)-1);                                          \
+          M_MEMORY_FULL(char, (size_t)-1);                                    \
         }                                                                     \
       }                                                                       \
       M_C3(m_d1ct_,name,_resize_up)(dict, newSize, true);                     \
@@ -2177,7 +2177,7 @@ M_F(name, _bulk_update)(dict_t dict, unsigned n, value_type val[M_VLA(n)], key_t
       if (dict->count > (dict->mask / 2)) {                                   \
         newSize += newSize;                                                   \
         if (M_UNLIKELY_NOMEM (newSize <= dict->mask+1)) {                     \
-          M_MEMORY_FULL((size_t)-1);                                          \
+          M_MEMORY_FULL(char, (size_t)-1);                                    \
         }                                                                     \
       }                                                                       \
       M_C3(m_d1ct_,name,_resize_up)(dict, newSize, true);                     \

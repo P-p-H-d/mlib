@@ -192,7 +192,7 @@ M_BEGIN_PROTECTED_CODE
   {                                                                           \
     type *ptr = M_CALL_NEW(oplist, type);                                     \
     if (M_UNLIKELY_NOMEM (ptr == NULL)) {                                     \
-      M_MEMORY_FULL(sizeof(type));                                            \
+      M_MEMORY_FULL(type, 1);                                                 \
       return NULL;                                                            \
     }                                                                         \
     M_CALL_INIT(oplist, *ptr);                                                \

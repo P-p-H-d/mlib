@@ -278,7 +278,7 @@
     struct M_F(name, _s) *next;                                               \
     next = M_C3(m_l1st_,name,_new)();                                         \
     if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
-      M_MEMORY_FULL(sizeof (struct M_F(name, _s)));                           \
+      M_MEMORY_FULL(struct M_F(name, _s), 1);                                 \
       return NULL;                                                            \
     }                                                                         \
     type *ret = &next->data;                                                  \
@@ -499,7 +499,7 @@
     M_ASSERT(M_F(name, _sublist_p)(list, insertion_point));                   \
     struct M_F(name, _s) *next = M_C3(m_l1st_,name,_new)();                   \
     if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
-      M_MEMORY_FULL(sizeof (struct M_F(name, _s)));                           \
+      M_MEMORY_FULL(struct M_F(name, _s), 1);                                 \
       return;                                                                 \
     }                                                                         \
     M_ON_EXCEPTION( M_C3(m_l1st_,name,_del)(next))                            \
@@ -552,7 +552,7 @@
     while (it_org != NULL) {                                                  \
       next = M_C3(m_l1st_,name,_new)();                                       \
       if (M_UNLIKELY_NOMEM (next == NULL)) {                                  \
-        M_MEMORY_FULL(sizeof (struct M_F(name, _s)));                         \
+        M_MEMORY_FULL(struct M_F(name, _s), 1);                               \
         *update_list = NULL;                                                  \
         return;                                                               \
       }                                                                       \
@@ -1062,7 +1062,7 @@
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     struct M_F(name, _s) *next = M_C3(m_l1st_,name,_new)();                   \
     if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
-      M_MEMORY_FULL(sizeof (struct M_F(name, _s)));                           \
+      M_MEMORY_FULL(struct M_F(name, _s), 1);                                 \
       return NULL;                                                            \
     }                                                                         \
     type *ret = &next->data;                                                  \
@@ -1180,7 +1180,7 @@
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     struct M_F(name, _s) *next = M_C3(m_l1st_,name,_new)();                   \
     if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
-      M_MEMORY_FULL(sizeof (struct M_F(name, _s)));                           \
+      M_MEMORY_FULL(struct M_F(name, _s), 1);                                 \
       return NULL;                                                            \
     }                                                                         \
     type *ret = &next->data;                                                  \
@@ -1344,7 +1344,7 @@
     M_ASSERT (insertion_point != NULL);                                       \
     struct M_F(name, _s) *m_volatile next = M_C3(m_l1st_,name,_new)();        \
     if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
-      M_MEMORY_FULL(sizeof (struct M_F(name, _s)));                           \
+      M_MEMORY_FULL(struct M_F(name, _s), 1);                                 \
       return;                                                                 \
     }                                                                         \
     M_ON_EXCEPTION( M_C3(m_l1st_,name,_del)(next))                            \
@@ -1406,7 +1406,7 @@
     while (it_org != NULL) {                                                  \
       next = M_C3(m_l1st_,name,_new)();                                       \
       if (M_UNLIKELY_NOMEM (next == NULL)) {                                  \
-        M_MEMORY_FULL(sizeof (struct M_F(name, _s)));                         \
+        M_MEMORY_FULL(struct M_F(name, _s), 1);                               \
         return;                                                               \
       }                                                                       \
       M_CALL_INIT_SET(oplist, next->data, it_org->data);                      \

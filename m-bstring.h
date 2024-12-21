@@ -180,7 +180,7 @@ m_bstr1ng_fit2size (m_bstring_t v, size_t size_alloc, bool exact_alloc)
   }
   return &v->ptr[v->offset];
   allocation_error:
-    M_MEMORY_FULL(size_alloc);
+    M_MEMORY_FULL(uint8_t, size_alloc);
     // NOTE: Return is currently broken.
     abort();
     return NULL;
@@ -409,7 +409,7 @@ m_bstring_reserve (m_bstring_t v, size_t n)
     } else {
         uint8_t *ptr = M_MEMORY_REALLOC (uint8_t, v->ptr, v->alloc, n);
         if (M_UNLIKELY_NOMEM (ptr == NULL)) {
-            M_MEMORY_FULL(n);
+            M_MEMORY_FULL(uint8_t, n);
         }
         // The string cannot be fully embedded anymore.
         v->ptr = ptr;
