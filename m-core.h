@@ -398,13 +398,14 @@ M_BEGIN_PROTECTED_CODE
 #endif
 
 /* This macro is called on memory allocation failure.
- * By default, it raises a fatal error.
+ * By default, it raises a fatal error and abort execution.
  * NOTE: Can be overloaded by user code.
 */
 #ifndef M_MEMORY_FULL
-#define M_MEMORY_FULL(size)                                                   \
-  M_RAISE_FATAL("Cannot allocate %zu bytes of memory at (%s:%s:%d).\n",       \
-                (size_t) (size), __FILE__, __func__, __LINE__)
+#define M_MEMORY_FULL(type, number)                                           \
+  M_RAISE_FATAL("Cannot allocate %zu objects of type '%s' (size '%zu') at (%s:%s:%d).\n", \
+                (size_t) (number), M_AS_STR(type), sizeof (type),             \
+                __FILE__, __func__, __LINE__)
 #endif
 
 
