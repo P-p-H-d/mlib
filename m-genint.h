@@ -109,7 +109,7 @@ m_genint_init(m_genint_t s, unsigned int n)
   M_ASSERT (s != NULL && n > 0 && n <= M_GENINT_MAX_ALLOC);
   const size_t alloc = (n + M_GEN1NT_LIMBSIZE - 1) / M_GEN1NT_LIMBSIZE;
   const unsigned int index  = n % M_GEN1NT_LIMBSIZE;
-  atomic_ullong *ptr = M_MEMORY_REALLOC (atomic_ullong, NULL, alloc);
+  atomic_ullong *ptr = M_MEMORY_REALLOC (atomic_ullong, NULL, 0, alloc);
   if (M_UNLIKELY_NOMEM (ptr == NULL)) {
     M_MEMORY_FULL(alloc);
     return;
@@ -130,7 +130,7 @@ M_INLINE void
 m_genint_clear(m_genint_t s)
 {
   M_GEN1NT_CONTRACT(s);
-  M_MEMORY_FREE(s->data);
+  M_MEMORY_FREE(atomic_ullong, s->data, s->alloc);
   s->data = NULL;
 }
 
