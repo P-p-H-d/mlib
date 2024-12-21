@@ -76,8 +76,8 @@ static void my_array_free(void *ptr)
 }
 
 // Allocate for array of objects
-# define MY_MEMORY_REALLOC(type, ptr, n) my_array_alloc (sizeof (type), ptr, n)
-# define MY_MEMORY_FREE(ptr)             my_array_free(ptr)
+# define MY_MEMORY_REALLOC(type, ptr, o, n) my_array_alloc (sizeof (type), ptr, n)
+# define MY_MEMORY_FREE(type, ptr, n)       my_array_free(ptr)
 
 ////////////////////////////////////////////////////////////
 
