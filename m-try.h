@@ -620,7 +620,7 @@ _Pragma("GCC diagnostic pop")
 
 // In case of MEMORY FULL errors, throw an error instead of aborting.
 #undef  M_MEMORY_FULL
-#define M_MEMORY_FULL(size)    M_THROW(M_ERROR_MEMORY, (intptr_t)(size))
+#define M_MEMORY_FULL(type, size)    M_THROW(M_ERROR_MEMORY, (intptr_t)sizeof(type), (intptr_t)(size))
 
 // Add attribute volatile if exceptions are enabled
 #undef  m_volatile
