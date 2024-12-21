@@ -7876,9 +7876,9 @@ The pointer was previously allocated by the macro `M_MEMORY_REALLOC`.
 
 The default used function is the `free` function of the LIBC.
 
-##### `void M_MEMORY_FULL (size_t size)`
+##### `void M_MEMORY_FULL (type, number)`
 
-This macro is called by M\*LIB when a memory error has been detected.
+This macro is called by M\*LIB when a memory error has been detected when trying to allocate an array of `number` type `type`.
 The parameter `size` is what was tried to be allocated (as a hint).
 The macro can:
 
