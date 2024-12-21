@@ -86,3 +86,12 @@ V0.7.2: * Rename m-mutex.h header in m-thread.h
 V0.7.3 : * DICT_STOREHASH_DEF2 / DICT_STOREHASH_DEF2_AS are deprecated.
           Use DICT_DEF2 / DICT_DEF2_AS
           
+V0.7.4 : * REALLOC / FREE operators are incompatible:
+           Add the old number of elements of the array as argument of REALLOC
+           Add the number of elements of the array and its base type as arguments of FREE.
+           You need to ignore the new arguments.
+           Also impact M_MEMORY_REALLOC & M_MEMORY_FREE
+           This allows more and efficient integration into custom allocators.
+         * M_MEMORY_FULL: replace the failed size allocation size argument
+         into the base type and the number of elements that failed to be allocated.
+         
