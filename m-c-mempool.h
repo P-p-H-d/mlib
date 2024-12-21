@@ -464,7 +464,7 @@ M_BEGIN_PROTECTED_CODE
   {                                                                           \
     const size_t max_thread =  gc_mem->max_thread;                            \
     /* Initialize the thread data of the mempool */                           \
-    mem->thread_data = M_MEMORY_REALLOC(M_F(name, _lfmp_thread_ct), NULL, max_thread); \
+    mem->thread_data = M_MEMORY_REALLOC(M_F(name, _lfmp_thread_ct), NULL, 0, max_thread); \
     if (M_UNLIKELY_NOMEM (mem->thread_data == NULL)) {                        \
       M_MEMORY_FULL(max_thread * sizeof(M_F(name, _lfmp_thread_ct)));         \
       return;                                                                 \
@@ -497,7 +497,7 @@ M_BEGIN_PROTECTED_CODE
     for(unsigned i = 0; i < max_thread;i++) {                                 \
       M_F(name, _lfmp_thread_clear)(&mem->thread_data[i]);                    \
     }                                                                         \
-    M_MEMORY_FREE(mem->thread_data);                                          \
+    M_MEMORY_FREE(M_F(name, _lfmp_thread_ct), mem->thread_data, mem->gc_mem->max_thread); \
     mem->thread_data = NULL;                                                  \
     M_F(name, _lflist_clear)(mem->empty);                                     \
     M_F(name, _lflist_clear)(mem->free);                                      \
@@ -587,7 +587,7 @@ m_gc_init(m_gc_t gc_mem, size_t max_thread)
 
   atomic_init(&gc_mem->ticket, 0UL);
   m_genint_init(gc_mem->thread_alloc, (unsigned int) max_thread);
-  gc_mem->thread_data = M_MEMORY_REALLOC(m_gc_lfmp_thread_ct, NULL, max_thread);
+  gc_mem->thread_data = M_MEMORY_REALLOC(m_gc_lfmp_thread_ct, NULL, 0, max_thread);
   if (M_UNLIKELY_NOMEM (gc_mem->thread_data == NULL)) {
     M_MEMORY_FULL(max_thread * sizeof(m_gc_lfmp_thread_ct));
     return;
@@ -608,7 +608,7 @@ m_gc_clear(m_gc_t gc_mem)
   for(m_gc_tid_t i = 0; i < gc_mem->max_thread;i++) {
     m_core_backoff_clear(gc_mem->thread_data[i].bkoff);
   }
-  M_MEMORY_FREE(gc_mem->thread_data);
+  M_MEMORY_FREE(m_gc_lfmp_thread_ct, gc_mem->thread_data, gc_mem->max_thread);
   gc_mem->thread_data = NULL;
   m_genint_clear(gc_mem->thread_alloc);
 }
@@ -757,7 +757,7 @@ m_vlapool_init(m_vlapool_t mem, m_gc_t gc_mem)
   const size_t max_thread =  gc_mem->max_thread;
 
   /* Initialize the thread data of the vlapool */
-  mem->thread_data = M_MEMORY_REALLOC(m_vlapool_lfmp_thread_ct, NULL, max_thread);
+  mem->thread_data = M_MEMORY_REALLOC(m_vlapool_lfmp_thread_ct, NULL, 0, max_thread);
   if (M_UNLIKELY_NOMEM (mem->thread_data == NULL)) {
     M_MEMORY_FULL(max_thread * sizeof(m_vlapool_lfmp_thread_ct));
     return;
@@ -784,7 +784,7 @@ m_vlapool_clear(m_vlapool_t mem)
   for(unsigned i = 0; i < max_thread;i++) {
     m_vlapool_lfmp_thread_clear(&mem->thread_data[i]);
   }
-  M_MEMORY_FREE(mem->thread_data);
+  M_MEMORY_FREE(m_vlapool_lfmp_thread_ct, mem->thread_data, mem->gc_mem->max_thread);
   mem->thread_data = NULL;
   m_vlapool_lflist_clear(mem->empty);
   M_ASSERT(m_vlapool_lflist_empty_p(mem->to_be_reclaimed));
@@ -807,7 +807,7 @@ m_vlapool_new(m_vlapool_t mem, m_gc_tid_t id, size_t size)
   size += offsetof(struct m_vlapool_slist_node_s, data);
 
   // Simply wrap around a system call to get the memory
-  char *ptr = M_MEMORY_REALLOC(char, NULL, size);
+  char *ptr = M_MEMORY_REALLOC(char, NULL, 0, size);
   return (ptr == NULL) ? NULL : M_ASSIGN_CAST(void *, ptr + offsetof(struct m_vlapool_slist_node_s, data));
 }
 

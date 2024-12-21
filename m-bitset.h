@@ -105,7 +105,7 @@ M_INLINE void
 m_bitset_clear(m_bitset_t t)
 {
   m_bitset_reset(t);
-  M_MEMORY_FREE(t->ptr);
+  M_MEMORY_FREE(m_b1tset_limb_ct, t->ptr, t->alloc);
   // This is not really needed, but is safer
   // This representation is invalid and will be detected by the contract.
   // A C compiler should be able to optimize out theses initializations.
@@ -124,7 +124,7 @@ m_bitset_set(m_bitset_t d, const m_bitset_t s)
   if (M_LIKELY (s->size > 0)) {
     // Test if enough space in target
     if (s->size > M_B1TSET_FROM_ALLOC (d->alloc)) {
-      m_b1tset_limb_ct *ptr = M_MEMORY_REALLOC (m_b1tset_limb_ct, d->ptr, needAlloc);
+      m_b1tset_limb_ct *ptr = M_MEMORY_REALLOC (m_b1tset_limb_ct, d->ptr, d->alloc, needAlloc);
       if (M_UNLIKELY_NOMEM (ptr == NULL)) {
         M_MEMORY_FULL(needAlloc);
         return ;
@@ -216,7 +216,7 @@ m_bitset_push_back (m_bitset_t v, bool x)
       return;
     }
     // Alloc memory
-    m_b1tset_limb_ct *ptr = M_MEMORY_REALLOC (m_b1tset_limb_ct, v->ptr, needAlloc);
+    m_b1tset_limb_ct *ptr = M_MEMORY_REALLOC (m_b1tset_limb_ct, v->ptr, v->alloc, needAlloc);
     // Check if success
     if (M_UNLIKELY_NOMEM (ptr == NULL) ) {
       M_MEMORY_FULL(needAlloc * sizeof(m_b1tset_limb_ct));
@@ -255,7 +255,7 @@ m_bitset_resize (m_bitset_t v, size_t size)
   size_t newAlloc = M_B1TSET_TO_ALLOC (size);
   if (newAlloc > v->alloc) {
     // Allocate more limbs to store the bitset.
-    m_b1tset_limb_ct *ptr = M_MEMORY_REALLOC (m_b1tset_limb_ct, v->ptr, newAlloc);
+    m_b1tset_limb_ct *ptr = M_MEMORY_REALLOC (m_b1tset_limb_ct, v->ptr, v->alloc, newAlloc);
     if (M_UNLIKELY_NOMEM (ptr == NULL) ) {
       M_MEMORY_FULL(newAlloc * sizeof(m_b1tset_limb_ct));
       return;
@@ -302,12 +302,12 @@ m_bitset_reserve (m_bitset_t v, size_t alloc)
   }
   if (M_UNLIKELY (newAlloc == 0)) {
     // Free all memory used by the bitsets
-    M_MEMORY_FREE (v->ptr);
+    M_MEMORY_FREE (m_b1tset_limb_ct, v->ptr, v->alloc);
     v->size = v->alloc = 0;
     v->ptr = NULL;
   } else {
     // Allocate more memory or reduce memory usage
-    m_b1tset_limb_ct *ptr = M_MEMORY_REALLOC (m_b1tset_limb_ct, v->ptr, newAlloc);
+    m_b1tset_limb_ct *ptr = M_MEMORY_REALLOC (m_b1tset_limb_ct, v->ptr, v->alloc, newAlloc);
     if (M_UNLIKELY_NOMEM (ptr == NULL) ) {
       M_MEMORY_FULL(newAlloc * sizeof(m_b1tset_limb_ct));
       return;

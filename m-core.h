@@ -379,21 +379,21 @@ M_BEGIN_PROTECTED_CODE
 #endif
 
 /* Define allocators for array 
- * void *M_MEMORY_REALLOC(type, ptr, n): Return a pointer to a new array of 'n' object of type 'type'
- *    If ptr is NULL, it creates a new array.
- *    If ptr is not null, it reallocates the given array to the new size.
+ * void *M_MEMORY_REALLOC(type, ptr, o, n): Return a pointer to a new array of 'n' object of type 'type'
+ *    If ptr is NULL, it creates a new array of type 'type' and size 'n'
+ *    If ptr is not null, it reallocates the given array of type 'type' and size 'o' to the new size.
  *    It returns NULL in case of memory allocation failure.
- * void M_MEMORY_FREE(ptr): Free the object associated to the array.
+ * void M_MEMORY_FREE(type, ptr, o): Free the object associated to the array of type 'type' at base 'ptr' of size 'o'.
  */
 #ifndef M_MEMORY_REALLOC
 #ifdef __cplusplus
 # include <cstdlib>
-# define M_MEMORY_REALLOC(type, ptr, n)                                       \
+# define M_MEMORY_REALLOC(type, ptr, o, n)                                    \
   ((type*) (M_UNLIKELY ((n) > SIZE_MAX / sizeof(type)) ? NULL : std::realloc ((ptr), (n)*sizeof (type))))
-# define M_MEMORY_FREE(ptr) std::free(ptr)
+# define M_MEMORY_FREE(type, ptr, o) std::free(ptr)
 #else
-# define M_MEMORY_REALLOC(type, ptr, n) (M_UNLIKELY ((n) > SIZE_MAX / sizeof(type)) ? NULL : realloc ((ptr), (n)*sizeof (type)))
-# define M_MEMORY_FREE(ptr) free(ptr)
+# define M_MEMORY_REALLOC(type, ptr, o, n) (M_UNLIKELY ((n) > SIZE_MAX / sizeof(type)) ? NULL : realloc ((ptr), (n)*sizeof (type)))
+# define M_MEMORY_FREE(type, ptr, o) free(ptr)
 #endif
 #endif
 
@@ -3942,8 +3942,8 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_FALSE_DEFAULT(...)    false
 #define M_NEW_DEFAULT(a)        M_MEMORY_ALLOC(a)
 #define M_DEL_DEFAULT(a)        M_MEMORY_DEL(a)
-#define M_REALLOC_DEFAULT(t,p,s) M_MEMORY_REALLOC(t,p,s)
-#define M_FREE_DEFAULT(a)       M_MEMORY_FREE(a)
+#define M_REALLOC_DEFAULT(t,p,o,s) M_MEMORY_REALLOC(t,p,o,s)
+#define M_FREE_DEFAULT(t,a,o)     M_MEMORY_FREE(t,a,o)
 #define M_EQUAL_DEFAULT(a,b)    ((a) == (b))
 #define M_CMP_DEFAULT(a,b)      ((a) < (b) ? -1 : (a) > (b))
 #define M_ADD_DEFAULT(a,b,c)    ((a) = (b) + (c))

@@ -445,7 +445,7 @@ M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
   {                                                                           \
     M_ASSERT(s != NULL);                                                      \
     M_ASSERT (n > 0 && n < UINT_MAX);                                         \
-    s->buffer = M_CALL_REALLOC(oplist, M_F(name, _atype_ct), NULL, n);        \
+    s->buffer = M_CALL_REALLOC(oplist, M_F(name, _atype_ct), NULL, 0, n);     \
     if (M_UNLIKELY_NOMEM (s->buffer == NULL)) {                               \
       M_MEMORY_FULL(sizeof(M_F(name, _atype_ct)) * n);                        \
       return;                                                                 \
@@ -466,7 +466,7 @@ M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
     for(size_t i = 0; i < n; i++) {                                           \
       M_CALL_CLEAR(oplist, s->buffer[i].x);                                   \
     }                                                                         \
-    M_CALL_FREE(oplist, s->buffer);                                           \
+    M_CALL_FREE(oplist, M_F(name, _atype_ct), s->buffer, n);                  \
     s->buffer = NULL;                                                         \
     m_genint_clear(s->core);                                                  \
   }                                                                           \

@@ -337,14 +337,14 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     map->count_delete = 0;                                                    \
     M_C3(m_d1ct_,name,_update_limit)(map, M_D1CT_INITIAL_SIZE);               \
     /* The first 2 buckets are reserved for (empty) and (deleted) access. Allocation could be avoided */ \
-    map->data = M_CALL_REALLOC(key_oplist, M_F(name, _freelist_ct), NULL, (size_t) 1+2+map->upper_limit); \
+    map->data = M_CALL_REALLOC(key_oplist, M_F(name, _freelist_ct), NULL, 0, (size_t) 1+2+map->upper_limit); \
     if (M_UNLIKELY_NOMEM (map->data == NULL)) {                               \
       M_MEMORY_FULL( (2+M_D1CT_INITIAL_SIZE) * sizeof (M_F(name, _freelist_ct))); \
       return ;                                                                \
     }                                                                         \
     map->freelist_first_data = 0;                                             \
     map->freelist_count = 2;                                                  \
-    map->index = M_CALL_REALLOC(key_oplist, m_indexhash_t, NULL, (size_t)(0+M_D1CT_INITIAL_SIZE)); \
+    map->index = M_CALL_REALLOC(key_oplist, m_indexhash_t, NULL, 0, (size_t)(0+M_D1CT_INITIAL_SIZE)); \
     if (M_UNLIKELY_NOMEM (map->index == NULL)) {                              \
       M_MEMORY_FULL( (2+M_D1CT_INITIAL_SIZE) * sizeof (m_indexhash_t));       \
       return ;                                                                \
@@ -371,8 +371,9 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
         M_CALL_CLEAR(value_oplist, map->data[d].pair.value);                  \
       }                                                                       \
     }                                                                         \
-    M_CALL_FREE(key_oplist, map->index);                                      \
-    M_CALL_FREE(key_oplist, map->data);                                       \
+    M_CALL_FREE(key_oplist, m_indexhash_t, map->index, map->mask+1);          \
+    /* FIXME: How much? */                                                    \
+    M_CALL_FREE(key_oplist, M_F(name, _freelist_ct), map->data, -1);          \
     /* Mark the dictionary as cleared */                                      \
     map->data = NULL;                                                         \
     map->index = NULL;                                                        \
@@ -471,13 +472,14 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
       /* We need to allocate '2' for the dummy first two entries in the table (not used), \
          then we can have at maximum only up to 'upper_limit+1' data */       \
       if (1+2+h->upper_limit > h->freelist_count) {                           \
-        h->data = M_CALL_REALLOC(key_oplist, M_F(name, _freelist_ct), h->data, (size_t) 1+2+h->upper_limit); \
+      /*FIXME; oldsize incorrect */                                           \
+        h->data = M_CALL_REALLOC(key_oplist, M_F(name, _freelist_ct), h->data, -1, (size_t) 1+2+h->upper_limit); \
         if (M_UNLIKELY_NOMEM (h->data == NULL) ) {                            \
           M_MEMORY_FULL((2+newSize)*sizeof (M_F(name, _freelist_ct)));        \
           return ;                                                            \
         }                                                                     \
       }                                                                       \
-      m_indexhash_t *index = M_MEMORY_REALLOC(m_indexhash_t, h->index,(size_t) 0+newSize); \
+      m_indexhash_t *index = M_CALL_REALLOC(key_oplist, m_indexhash_t, h->index, oldSize, (size_t)0+newSize); \
       if (M_UNLIKELY_NOMEM (index == NULL) ) {                                \
         M_MEMORY_FULL(newSize*sizeof(m_indexhash_t));                         \
         return ;                                                              \
@@ -599,7 +601,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     if (newSize != oldSize) {                                                 \
       h->mask = newSize-1;                                                    \
       M_C3(m_d1ct_,name,_update_limit)(h, newSize);                           \
-      h->index = M_CALL_REALLOC(key_oplist, m_indexhash_t, h->index, (size_t)0+newSize); \
+      h->index = M_CALL_REALLOC(key_oplist, m_indexhash_t, h->index, oldSize, (size_t)0+newSize); \
       M_ASSERT (h->index != NULL);                                            \
       /* FIXME: What to do for h->data ? */                                   \
     }                                                                         \
@@ -1485,7 +1487,7 @@ enum m_d1ct_oa_element_e {
     dict->count = 0;                                                          \
     dict->count_delete = 0;                                                   \
     M_C3(m_d1ct_,name,_update_limit)(dict, M_D1CT_INITIAL_SIZE);              \
-    dict->data = M_CALL_REALLOC(key_oplist, M_F(name, _pair_ct), NULL, M_D1CT_INITIAL_SIZE); \
+    dict->data = M_CALL_REALLOC(key_oplist, M_F(name, _pair_ct), NULL, 0, M_D1CT_INITIAL_SIZE); \
     if (M_UNLIKELY_NOMEM (dict->data == NULL)) {                              \
       M_MEMORY_FULL(sizeof (M_F(name, _pair_ct)) * M_D1CT_INITIAL_SIZE);      \
       return ;                                                                \
@@ -1509,7 +1511,7 @@ enum m_d1ct_oa_element_e {
         M_CALL_CLEAR(value_oplist, dict->data[i].value);                      \
       }                                                                       \
     }                                                                         \
-    M_CALL_FREE(key_oplist, dict->data);                                      \
+    M_CALL_FREE(key_oplist, M_F(name, _pair_ct), dict->data, dict->mask+1);   \
     /* Not really needed, but safer */                                        \
     dict->mask = 0;                                                           \
     dict->data = NULL;                                                        \
@@ -1566,7 +1568,7 @@ enum m_d1ct_oa_element_e {
     M_F(name, _pair_ct) *data = h->data;                                      \
     /* resize can be called just to delete the items */                       \
     if (newSize > oldSize) {                                                  \
-      data = M_CALL_REALLOC(key_oplist, M_F(name, _pair_ct), data, newSize);  \
+      data = M_CALL_REALLOC(key_oplist, M_F(name, _pair_ct), data, oldSize, newSize); \
       if (M_UNLIKELY_NOMEM (data == NULL) ) {                                 \
         M_MEMORY_FULL(sizeof (M_F(name, _pair_ct)) * newSize);                \
         return ;                                                              \
@@ -1833,7 +1835,7 @@ enum m_d1ct_oa_element_e {
     if (newSize != oldSize) {                                                 \
       h->mask = newSize-1;                                                    \
       M_C3(m_d1ct_,name,_update_limit)(h, newSize);                           \
-      h->data = M_CALL_REALLOC(key_oplist, M_F(name, _pair_ct), data, newSize); \
+      h->data = M_CALL_REALLOC(key_oplist, M_F(name, _pair_ct), data, oldSize, newSize); \
       M_ASSERT (h->data != NULL);                                             \
     }                                                                         \
     M_IF_DEBUG (M_ASSERT (M_C3(m_d1ct_,name,_control_after_resize)(h));)      \

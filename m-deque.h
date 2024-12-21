@@ -127,7 +127,12 @@
      The interfaces are compatible.                                           \
   */                                                                          \
   /* FIXME: How can I separate public types and private implementation? */    \
-  M_ILIST_DEF(M_F(name, _node_list), node_t, (DEL(M_GET_FREE oplist)) )       \
+  static inline void M_F(name, _del_node)(node_t *ptr)                        \
+  {                                                                           \
+  /* FIXME: ptr->size can be incorrect as old size ! */                       \
+    M_CALL_FREE(oplist, char, ptr, sizeof(node_t) + ptr->size * sizeof(type)); \
+  }                                                                           \
+  M_ILIST_DEF(M_F(name, _node_list), node_t, (DEL(M_F(name, _del_node))) )      \
                                                                               \
   /* Define an internal iterator */                                           \
   typedef struct M_F(name, _it2_s) {                                          \
@@ -182,7 +187,7 @@
     }                                                                         \
     /* Alloc a new node with dynamic size */                                  \
     node_t*n = (node_t*) (void*)                                              \
-      M_CALL_REALLOC(oplist, char, NULL,                                      \
+      M_CALL_REALLOC(oplist, char, NULL, 0,                                   \
                      sizeof(node_t) + def * sizeof(type) );                   \
     if (M_UNLIKELY_NOMEM (n==NULL)) {                                         \
       M_MEMORY_FULL(sizeof(node_t)+def * sizeof(type));                       \
@@ -711,7 +716,8 @@
         /* Node deletion */                                                   \
         M_ASSERT(d->count > 1);                                               \
         M_F(name, _node_list_unlink)(n);                                      \
-        M_CALL_FREE(oplist, n);                                               \
+        /* FIXME: oldsize broken as size is corrupted! */                     \
+        M_CALL_FREE(oplist, char, n, sizeof(node_t) + n->size * sizeof(type) ); \
       } else {                                                                \
         memmove(&n->data[it->index], &n->data[it->index+1],                   \
                 sizeof(type) * (it->node->size - it->index - 1));             \

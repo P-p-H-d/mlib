@@ -409,7 +409,7 @@ m_worker_init(m_worker_t g, int numWorker, unsigned int extraQueue, void (*reset
   // numWorker can still be 0 if it is a single core cpu (no worker available)
   M_ASSERT(numWorker >= 0);
   size_t numWorker_st = (size_t) numWorker;
-  g->worker = M_MEMORY_REALLOC(m_work3r_thread_ct, NULL, numWorker_st);
+  g->worker = M_MEMORY_REALLOC(m_work3r_thread_ct, NULL, 0, numWorker_st);
   if (M_UNLIKELY_NOMEM (g->worker == NULL)) {
     M_MEMORY_FULL(sizeof (m_work3r_thread_ct) * numWorker_st);
     return;
@@ -454,7 +454,7 @@ m_worker_clear(m_worker_t g)
     m_thread_join(g->worker[i].id);
   }
   // Clear memory
-  M_MEMORY_FREE(g->worker);
+  M_MEMORY_FREE(m_work3r_thread_ct, g->worker, g->numWorker_g);
   m_mutex_clear(g->lock);
   m_cond_clear(g->a_thread_ends);
   m_work3r_queue_clear(g->queue_g);
