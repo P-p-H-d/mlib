@@ -245,7 +245,7 @@ typedef int32_t m_tr33_index_t;
     M_F(name, _clear)(tree_t tree) {                                          \
         M_F(name, _reset)(tree);                                              \
         struct M_F(name,_node_s)*ptr = tree->tab == NULL ? NULL : tree->tab-1;\
-        M_CALL_FREE(oplist, ptr);                                             \
+        M_CALL_FREE(oplist, struct M_F(name, _node_s), ptr, tree->capacity+1); \
         /* This is so reusing the object implies an assertion failure */      \
         tree->size = 1;                                                       \
         tree->tab = NULL;                                                     \
@@ -268,7 +268,7 @@ typedef int32_t m_tr33_index_t;
            as M_TR33_NO_NODE is -1. This enables avoiding testing for         \
            M_TR33_NO_NODE in some cases, performing branchless code. */       \
         struct M_F(name,_node_s)*ptr = tree->tab == NULL ? NULL : tree->tab-1;\
-        ptr = M_CALL_REALLOC(oplist, struct M_F(name, _node_s), ptr, alloc+1);\
+        ptr = M_CALL_REALLOC(oplist, struct M_F(name, _node_s), ptr, tree->capacity+1, alloc+1); \
         if (M_UNLIKELY_NOMEM (ptr == NULL) ) {                                \
             M_MEMORY_FULL(sizeof (struct M_F(name, _node_s)) * alloc);        \
             return;                                                           \
@@ -322,7 +322,7 @@ typedef int32_t m_tr33_index_t;
             as M_TR33_NO_NODE is -1. This enables avoiding testing for        \
             M_TR33_NO_NODE in some cases, performing branchless code. */      \
             struct M_F(name,_node_s)*ptr = tree->tab == NULL ? NULL : tree->tab-1; \
-            ptr = M_CALL_REALLOC(oplist, struct M_F(name, _node_s), ptr, alloc+1); \
+            ptr = M_CALL_REALLOC(oplist, struct M_F(name, _node_s), ptr, tree->capacity+1, alloc+1); \
             if (M_UNLIKELY_NOMEM (ptr == NULL) ) {                            \
                 M_MEMORY_FULL(sizeof (struct M_F(name, _node_s)) * alloc);    \
                 return M_TR33_NO_NODE;                                        \
@@ -1134,7 +1134,7 @@ typedef int32_t m_tr33_index_t;
             tree->tab = NULL;                                                 \
         } else {                                                              \
             struct M_F(name, _node_s) *ptr =                                  \
-                M_CALL_REALLOC(oplist, struct M_F(name, _node_s), NULL, alloc+1); \
+                M_CALL_REALLOC(oplist, struct M_F(name, _node_s), NULL, 0, alloc+1); \
             if (M_UNLIKELY_NOMEM (ptr == NULL) ) {                            \
                 M_MEMORY_FULL(sizeof(struct M_F(name, _node_s)) * alloc);     \
                 return;                                                       \
