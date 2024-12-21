@@ -391,7 +391,7 @@ m_snapsh0t_mrsw_init(m_snapsh0t_mrsw_ct s, size_t n)
   n += M_SNAPSH0T_SPMC_EXTRA_BUFFER;
 
   // Initialize the counters to zero (no reader use it)
-  atomic_uint *ptr = M_MEMORY_REALLOC (atomic_uint, NULL, n);
+  atomic_uint *ptr = M_MEMORY_REALLOC (atomic_uint, NULL, 0, n);
   if (M_UNLIKELY_NOMEM (ptr == NULL)) {
     M_MEMORY_FULL(sizeof (atomic_uint) * n);
     return;
@@ -419,7 +419,7 @@ M_INLINE void
 m_snapsh0t_mrsw_clear(m_snapsh0t_mrsw_ct s)
 {
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
-  M_MEMORY_FREE (s->cptTab);
+  M_MEMORY_FREE (atomic_uint, s->cptTab, s->n_reader-M_SNAPSH0T_SPMC_EXTRA_BUFFER);
   m_genint_clear(s->freeList);
   s->cptTab = NULL;
   s->n_reader = 0;
@@ -645,7 +645,7 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
     M_ASSERT (snap != NULL);                                                  \
     M_ASSERT (nReader > 0 && nReader <= M_SNAPSH0T_SPMC_MAX_READER);          \
     snap->data = M_CALL_REALLOC(oplist, M_F(name, _aligned_type_ct),          \
-                                NULL, nReader+M_SNAPSH0T_SPMC_EXTRA_BUFFER);  \
+                                NULL, 0, nReader+M_SNAPSH0T_SPMC_EXTRA_BUFFER); \
     if (M_UNLIKELY_NOMEM (snap->data == NULL)) {                              \
       M_MEMORY_FULL(sizeof(M_F(name, _aligned_type_ct)) *                     \
                     (nReader+M_SNAPSH0T_SPMC_EXTRA_BUFFER));                  \
@@ -666,7 +666,7 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
     for(size_t i = 0; i < nReader + M_SNAPSH0T_SPMC_EXTRA_BUFFER; i++) {      \
       M_CALL_CLEAR(oplist, snap->data[i].x);                                  \
     }                                                                         \
-    M_CALL_FREE(oplist, snap->data);                                          \
+    M_CALL_FREE(oplist, M_F(name, _aligned_type_ct), snap->data, nReader + M_SNAPSH0T_SPMC_EXTRA_BUFFER); \
     m_snapsh0t_mrsw_clear(snap->core);                                        \
   }                                                                           \
                                                                               \
