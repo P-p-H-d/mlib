@@ -319,7 +319,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
   }                                                                           \
                                                                               \
   M_BUFF3R_IF_CTE_SIZE(m_size)( /* Statically allocated */ ,                  \
-    v->data = M_CALL_REALLOC(oplist, M_F(name, _el_ct), NULL, M_BUFF3R_SIZE(m_size)); \
+    v->data = M_CALL_REALLOC(oplist, M_F(name, _el_ct), NULL, 0, M_BUFF3R_SIZE(m_size)); \
     if (M_UNLIKELY_NOMEM (v->data == NULL)) {                                 \
       M_MEMORY_FULL (M_BUFF3R_SIZE(m_size)*sizeof(M_F(name, _el_ct)));        \
       return;                                                                 \
@@ -371,7 +371,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
    M_C3(m_buff3r_,name,_clear_obj)(v);                                        \
    M_BUFF3R_IF_CTE_SIZE(m_size)( ,                                            \
-     M_CALL_FREE(oplist, v->data);                                            \
+     M_CALL_FREE(oplist, M_F(name, _el_ct), v->data, M_BUFF3R_SIZE(m_size));  \
      v->data = NULL;                                                          \
    )                                                                          \
    v->overwrite = 0;                                                          \
@@ -906,7 +906,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     atomic_init(&buffer->ProdIdx, (unsigned int) size);                       \
     atomic_init(&buffer->ConsoIdx, (unsigned int) size);                      \
     buffer->size = (unsigned int) size;                                       \
-    buffer->Tab = M_CALL_REALLOC(oplist, M_F(name, _el_ct), NULL, size);      \
+    buffer->Tab = M_CALL_REALLOC(oplist, M_F(name, _el_ct), NULL, 0, size);   \
     if (M_UNLIKELY_NOMEM (buffer->Tab == NULL)) {                             \
       M_MEMORY_FULL (size*sizeof(M_F(name, _el_ct) ));                        \
       return;                                                                 \
@@ -940,7 +940,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
           j = 0;                                                              \
       }                                                                       \
     }                                                                         \
-    M_CALL_FREE(oplist, buffer->Tab);                                         \
+    M_CALL_FREE(oplist, M_F(name, _el_ct), buffer->Tab, M_BUFF3R_SIZE(m_size)); \
     buffer->Tab = NULL; /* safer */                                           \
     buffer->size = 3;                                                         \
   }                                                                           \
@@ -1248,7 +1248,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     atomic_init(&buffer->prodIdx, (unsigned int) size);                       \
     atomic_init(&buffer->consoIdx, (unsigned int) size);                      \
     buffer->size = (unsigned int) size;                                       \
-    buffer->Tab = M_CALL_REALLOC(oplist, M_F(name, _el_ct), NULL, size);      \
+    buffer->Tab = M_CALL_REALLOC(oplist, M_F(name, _el_ct), NULL, 0, size);   \
     if (M_UNLIKELY_NOMEM (buffer->Tab == NULL)) {                             \
       M_MEMORY_FULL (size*sizeof(M_F(name, _el_ct) ));                        \
       return;                                                                 \
@@ -1281,7 +1281,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
           j = 0;                                                              \
       }                                                                       \
     }                                                                         \
-    M_CALL_FREE(oplist, buffer->Tab);                                         \
+    M_CALL_FREE(oplist, M_F(name, _el_ct), buffer->Tab, M_BUFF3R_SIZE(m_size)); \
     buffer->Tab = NULL; /* safer */                                           \
     buffer->size = 3;                                                         \
   }                                                                           \
