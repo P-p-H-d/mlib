@@ -211,7 +211,7 @@ M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
     }                                                                         \
     ptr = M_CALL_NEW(oplist, struct M_F(name, _s));                           \
     if (M_UNLIKELY_NOMEM (ptr == NULL)) {                                     \
-      M_MEMORY_FULL(sizeof(struct M_F(name, _s)));                            \
+      M_MEMORY_FULL(struct M_F(name, _s), 1);                                 \
       return;                                                                 \
     }                                                                         \
     ptr->data = data;                                                         \
@@ -229,7 +229,7 @@ M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
     struct M_F(name, _combine_s) *p =                                         \
       M_CALL_NEW(oplist, struct M_F(name, _combine_s));                       \
     if (M_UNLIKELY_NOMEM (p == NULL)) {                                       \
-      M_MEMORY_FULL(sizeof(struct M_F(name, _combine_s)));                    \
+      M_MEMORY_FULL(struct M_F(name, _combine_s), 1);                         \
       return;                                                                 \
     }                                                                         \
     struct M_F(name, _s) *ptr = &p->ptr;                                      \
@@ -376,7 +376,7 @@ M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
     struct M_F(name, _combine_s) *p =                                         \
       M_CALL_NEW(oplist, struct M_F(name, _combine_s));                       \
     if (M_UNLIKELY_NOMEM (p == NULL)) {                                       \
-      M_MEMORY_FULL(sizeof(struct M_F(name, _combine_s)));                    \
+      M_MEMORY_FULL(struct M_F(name, _combine_s), 1);                         \
       return;                                                                 \
     }                                                                         \
     struct M_F(name, _s) *ptr = &p->ptr;                                      \
@@ -447,7 +447,7 @@ M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
     M_ASSERT (n > 0 && n < UINT_MAX);                                         \
     s->buffer = M_CALL_REALLOC(oplist, M_F(name, _atype_ct), NULL, 0, n);     \
     if (M_UNLIKELY_NOMEM (s->buffer == NULL)) {                               \
-      M_MEMORY_FULL(sizeof(M_F(name, _atype_ct)) * n);                        \
+      M_MEMORY_FULL(M_F(name, _atype_ct), n);                                 \
       return;                                                                 \
     }                                                                         \
     for(size_t i = 0; i < n; i++) {                                           \
