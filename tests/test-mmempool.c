@@ -21,12 +21,10 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdio.h>
-#include <stdlib.h>
-
+#include "test-obj.h"
 #include "m-mempool.h"
-
 #include "coverage.h"
+
 START_COVERAGE
 MEMPOOL_DEF(mempool_uint, unsigned int)
 END_COVERAGE

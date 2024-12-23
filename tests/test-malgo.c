@@ -20,6 +20,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#include "test-obj.h"
 #include "m-list.h"
 #include "m-i-list.h"
 #include "m-array.h"
@@ -28,8 +29,6 @@
 #include "m-dict.h"
 #include "m-tuple.h"
 #include "m-algo.h"
-
-#include "test-obj.h"
 
 typedef struct over_s {
   unsigned long data;

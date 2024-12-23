@@ -20,10 +20,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include <stdio.h>
-
+#include "test-obj.h"
 #include "m-shared-ptr.h"
-
 #include "m-string.h"
 #include "m-array.h"
 #include "m-bptree.h"
@@ -34,7 +32,6 @@
 #include "m-rbtree.h"
 #include "m-tuple.h"
 #include "m-variant.h"
-
 #include "coverage.h"
 
 // TEST WITH INT
