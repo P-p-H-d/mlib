@@ -497,7 +497,7 @@ M_BEGIN_PROTECTED_CODE
     for(unsigned i = 0; i < max_thread;i++) {                                 \
       M_F(name, _lfmp_thread_clear)(&mem->thread_data[i]);                    \
     }                                                                         \
-    M_MEMORY_FREE(M_F(name, _lfmp_thread_ct), mem->thread_data, mem->gc_mem->max_thread); \
+    M_MEMORY_FREE(M_F(name, _lfmp_thread_ct), mem->thread_data, max_thread);  \
     mem->thread_data = NULL;                                                  \
     M_F(name, _lflist_clear)(mem->empty);                                     \
     M_F(name, _lflist_clear)(mem->free);                                      \
@@ -784,7 +784,7 @@ m_vlapool_clear(m_vlapool_t mem)
   for(unsigned i = 0; i < max_thread;i++) {
     m_vlapool_lfmp_thread_clear(&mem->thread_data[i]);
   }
-  M_MEMORY_FREE(m_vlapool_lfmp_thread_ct, mem->thread_data, mem->gc_mem->max_thread);
+  M_MEMORY_FREE(m_vlapool_lfmp_thread_ct, mem->thread_data, max_thread);
   mem->thread_data = NULL;
   m_vlapool_lflist_clear(mem->empty);
   M_ASSERT(m_vlapool_lflist_empty_p(mem->to_be_reclaimed));
@@ -808,7 +808,12 @@ m_vlapool_new(m_vlapool_t mem, m_gc_tid_t id, size_t size)
 
   // Simply wrap around a system call to get the memory
   char *ptr = M_MEMORY_REALLOC(char, NULL, 0, size);
-  return (ptr == NULL) ? NULL : M_ASSIGN_CAST(void *, ptr + offsetof(struct m_vlapool_slist_node_s, data));
+  // TODO: save the allocated size somewhere (create a new field in vla)
+  // FIXME: Bug, we call DEL operator to free the node, but we have allocated it with the REALLOC one!
+  // And they are not necessarily compatible as per the spec (even if they are if they both use 'free')
+  // And the generic used slist expects to use the DEL one, since the vlapool abuse the memory system.
+  // Honnestly, it is fundamentally broken and it needs a huge rewrite.
+  return M_UNLIKELY (ptr == NULL) ? NULL : M_ASSIGN_CAST(void *, ptr + offsetof(struct m_vlapool_slist_node_s, data));
 }
 
 M_INLINE void
