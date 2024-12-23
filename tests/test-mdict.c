@@ -21,17 +21,16 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include <stdint.h>
-#include <assert.h>
+#include "test-obj.h"
 #include "m-dict.h"
 #include "m-array.h"
 #include "m-string.h"
-#include "test-obj.h"
+#include "coverage.h"
 
 static inline bool oor_equal_p(int k, unsigned char n) { return k == (int)-n-1; }
 static inline void oor_set(int *k, unsigned char n) { *k = (int)-n-1; }
 static inline void update_value (int *p, const int p1, const int p2) { *p = p1 + p2; }
-#include "coverage.h"
+
 START_COVERAGE
 DICT_DEF2(dict_str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
 DICT_OA_DEF2(dict_oa_int, int, M_OPEXTEND(M_BASIC_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int, M_OPEXTEND(M_BASIC_OPLIST, ADD(update_value M_IPTR)))
