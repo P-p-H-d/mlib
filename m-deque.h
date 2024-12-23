@@ -116,7 +116,7 @@
                                                                               \
   typedef struct M_F(name, _node_s) {                                         \
     M_ILIST_INTERFACE(M_F(name, _node_list), struct M_F(name, _node_s));      \
-    size_t size;                                                              \
+    size_t size, capacity;                                                    \
     type  data[M_MIN_FLEX_ARRAY_SIZE];                                        \
   } node_t;                                                                   \
                                                                               \
@@ -129,8 +129,7 @@
   /* FIXME: How can I separate public types and private implementation? */    \
   static inline void M_F(name, _del_node)(node_t *ptr)                        \
   {                                                                           \
-  /* FIXME: ptr->size can be incorrect as old size ! */                       \
-    M_CALL_FREE(oplist, char, ptr, sizeof(node_t) + ptr->size * sizeof(type)); \
+    M_CALL_FREE(oplist, char, ptr, sizeof(node_t) + ptr->capacity * sizeof(type)); \
   }                                                                           \
   M_ILIST_DEF(M_F(name, _node_list), node_t, (DEL(M_F(name, _del_node))) )      \
                                                                               \
@@ -196,6 +195,7 @@
     }                                                                         \
     /* Initialize the node */                                                 \
     n->size = def;                                                            \
+    n->capacity = def;                                                        \
     M_F(name, _node_list_init_field)(n);                                      \
     /* Increase the next bucket allocation */                                 \
     /* Do not increase it too much if there are few items */                  \
@@ -716,8 +716,7 @@
         /* Node deletion */                                                   \
         M_ASSERT(d->count > 1);                                               \
         M_F(name, _node_list_unlink)(n);                                      \
-        /* FIXME: oldsize broken as size is corrupted! */                     \
-        M_CALL_FREE(oplist, char, n, sizeof(node_t) + n->size * sizeof(type) ); \
+        M_CALL_FREE(oplist, char, n, sizeof(node_t) + n->capacity * sizeof(type) ); \
       } else {                                                                \
         memmove(&n->data[it->index], &n->data[it->index+1],                   \
                 sizeof(type) * (it->node->size - it->index - 1));             \
