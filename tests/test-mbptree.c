@@ -20,11 +20,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include <stdio.h>
-#include <stdlib.h>
+#include "test-obj.h"
 #include "m-string.h"
 #include "m-bptree.h"
-#include "test-obj.h"
 #include "coverage.h"
 
 START_COVERAGE
