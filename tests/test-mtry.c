@@ -51,7 +51,6 @@ static bool test_final_in_progress;
 
 #include "test-obj.h"
 #include "coverage.h"
-
 #include "m-try.h"
 
 M_TRY_DEF_ONCE()
