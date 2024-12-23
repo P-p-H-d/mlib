@@ -20,12 +20,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include <assert.h>
 #include "test-obj.h"
-
 #include "m-shared.h"
-
 #include "coverage.h"
+
 START_COVERAGE
 SHARED_PTR_DEF(shared_int, int)
 SHARED_RESOURCE_DEF(shared_ressource, testobj_t, TESTOBJ_OPLIST)
