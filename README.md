@@ -643,7 +643,7 @@ Other documented operators are:
 * `NEW(type)` --> `type pointer`: allocate a new object (with suitable alignment and size) and return a pointer to it. The returned object is **not initialized** (a constructor operator shall be called afterward). The default method is `M_MEMORY_ALLOC` (that allocates from the heap). It returns NULL in case of failure.
 * `DEL(&obj)`: free the allocated uninitialized object `obj`. The destructor of the pointed object shall be called before freeing the memory by calling this method. The object shall have been allocated by the associated NEW method. `sizeof obj` is the size of the allocated object. The default method is `M_MEMORY_DEL` (that frees to the heap). `obj` shall not be NULL and shall be of the proper type.
 * `REALLOC(type, pointer, previous_number, new_number)` --> `pointer`: reallocate the given array of `previous_number` elements of type `type` referenced by `pointer` (either a NULL pointer or a pointer returned by a previous call to `REALLOC`) to an array of `new_number` objects of type `type` and return a pointer to this new array. Previously objects pointed by the pointer are kept up to the minimum of the new size and old one but may have moved from their original positions (if the array is reallocated otherwhere). New objects are not initialized (a constructor operator shall be called afterward). Freed objects are not cleared (A destructor operator shall be called before). The default is `M_MEMORY_REALLOC` (that allocates from the heap). It returns NULL in case of failure in which case the original array is not modified. If `pointer` is NULL, then `previous_number` should be 0.
-* `FREE(type, pointer, number)`: free the allocated uninitialized array of `number` elements of type `type` referenced by `pointer`. The destructor of the pointed objects shall be called before freeing the memory. The memory of the objects shall have been allocated by the associated REALLOC method. The default is `M_MEMORY_FREE` (that frees to the heap).
+* `FREE(type, pointer, number)`: free the allocated uninitialized array of `number` elements of type `type` referenced by `pointer`. The destructor of the pointed objects shall be called before freeing the memory. The memory of the objects shall have been allocated by the associated REALLOC method. The default is `M_MEMORY_FREE` (that frees to the heap). If pointer is NULL, then the function shall do nothing.
 * `INC_ALLOC(size_t s)` --> `size_t`: Define the growing policy of an array (or equivalent structure). It returns a new allocation size based on the old allocation size (`s`). Default policy is to get the maximum between `2*s` and 16. In case of overflow, it shall return a number less or equal than the original size.
 
 > [!NOTE]
@@ -7872,7 +7872,7 @@ The default used function is the `realloc` function of the LIBC.
 
 Delete the cleared array of `number` objects of type `type pointed by the pointer `ptr`.
 The pointer was previously allocated by the macro `M_MEMORY_REALLOC`.
-`ptr` can not be NULL.
+If `ptr` is NULL, the function shall do nothing.
 
 The default used function is the `free` function of the LIBC.
 
