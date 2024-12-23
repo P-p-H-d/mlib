@@ -130,7 +130,7 @@ M_INLINE void
 m_genint_clear(m_genint_t s)
 {
   M_GEN1NT_CONTRACT(s);
-  M_MEMORY_FREE(atomic_ullong, s->data, s->alloc);
+  M_MEMORY_FREE(atomic_ullong, s->data, s->max+1);
   s->data = NULL;
 }
 

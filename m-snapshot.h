@@ -419,7 +419,7 @@ M_INLINE void
 m_snapsh0t_mrsw_clear(m_snapsh0t_mrsw_ct s)
 {
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
-  M_MEMORY_FREE (atomic_uint, s->cptTab, s->n_reader-M_SNAPSH0T_SPMC_EXTRA_BUFFER);
+  M_MEMORY_FREE (atomic_uint, s->cptTab, s->n_reader+M_SNAPSH0T_SPMC_EXTRA_BUFFER);
   m_genint_clear(s->freeList);
   s->cptTab = NULL;
   s->n_reader = 0;
