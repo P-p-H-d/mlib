@@ -29,9 +29,8 @@
 #define M_F(a,b) M_OVERRIDE_F(a,b)
 #define M_OVERRIDE__method() , _get_method ,
 #define M_OVERRIDE__method2() , _get_method2
-#include "m-core.h"
-
 #include "test-obj.h"
+#include "m-core.h"
 
 static bool tmp_init(void) { return true; }
 static bool tmp_get_method(void) { return true; }

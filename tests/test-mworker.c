@@ -20,9 +20,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include "m-core.h"
+#include "test-obj.h"
 #include "coverage.h"
-
 #include "m-worker.h"
 
 /* Compute Fibonacci number using thread systems. */

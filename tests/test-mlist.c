@@ -20,12 +20,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include <stdio.h>
 #include "test-obj.h"
 #include "m-string.h"
 #include "m-list.h"
-
 #include "coverage.h"
+
 START_COVERAGE
 LIST_DEF(list_uint, unsigned int)
 LIST_DEF(list_mpz, testobj_t, TESTOBJ_OPLIST)

@@ -25,6 +25,52 @@
 
 #include <stdbool.h>
 #include <assert.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// First overwrite memory handling function so that we can check if everything is ok
+#ifdef M_MEMORY_REALLOC
+# error ERROR: Do not include M*LIB headers before this header.
+#endif
+
+static size_t amount_allocated = 0;
+
+static inline void *overloaded_realloc(size_t st, void *ptr, size_t o, size_t n)
+{
+  size_t *p = (size_t *) ptr;
+  if (p != NULL) {
+    p -= 2;
+    assert(p[0] == st);
+    assert(p[1] == o);
+    amount_allocated -= st * o;
+  }
+  p = (size_t *) realloc(p, 2*sizeof(size_t) + st * n);
+  assert(p != NULL);
+  p[0] = st;
+  p[1] = n;
+  amount_allocated += st * n;
+  return (void*) (&p[2]);
+}
+
+static inline void overloaded_free(size_t st, void *ptr, size_t n)
+{
+  size_t *p = (size_t *) ptr;
+  if (p == NULL) {
+    return;
+  }
+  p -= 2;
+  assert(p[0] == st);
+  assert(p[1] == n);
+  amount_allocated -= st * n;
+  free(p);
+}
+
+#define M_MEMORY_REALLOC(type, ptr, o, n)  (type *) overloaded_realloc(sizeof(type), ptr, o, n)
+#define M_MEMORY_FREE(type, ptr, o)                 overloaded_free(sizeof(type), ptr, o)
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #include "m-string.h"
 
@@ -45,6 +91,8 @@ static inline void testobj_final_check(void)
 {
   // All created testobj shall have been cleared at the end.
   assert(testobj_init_counter == 0);
+  // All memory allocations shall be cleared
+  assert(amount_allocated == 0);
 }
 
 static inline void testobj_init(testobj_t z)

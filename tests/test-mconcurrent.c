@@ -22,7 +22,6 @@
 */
 #include <stdio.h>
 #include "test-obj.h"
-#include "coverage.h"
 
 #include "m-array.h"
 #include "m-bptree.h"
@@ -35,6 +34,7 @@
 #include "m-variant.h"
 
 #include "m-concurrent.h"
+#include "coverage.h"
 
 TUPLE_DEF2(point, (x, int), (y, int))
 #define M_OPL_point_t() TUPLE_OPLIST(point, M_BASIC_OPLIST, M_BASIC_OPLIST)

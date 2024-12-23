@@ -21,14 +21,12 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <stdbool.h>
-#include <assert.h>
-#include "coverage.h"
-
+#include "test-obj.h"
 #include "m-string.h"
 #include "m-array.h"
 #include "m-list.h"
 #include "m-generic.h"
+#include "coverage.h"
 
 // Generic is not supported if not C11
 // TCC has some issues in the preprocessing.

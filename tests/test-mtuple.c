@@ -20,13 +20,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include <stdio.h>
 #include "test-obj.h"
 #include "m-string.h"
-
 #include "m-tuple.h"
-
 #include "coverage.h"
+
 START_COVERAGE
 TUPLE_DEF2(pair,
            (key, string_t, (INIT(string_init), INIT_SET(string_init_set), SET(string_set), CLEAR(string_clear))),

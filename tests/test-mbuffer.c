@@ -20,10 +20,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include "m-buffer.h"
-
 #include "test-obj.h"
+#include "m-buffer.h"
 #include "coverage.h"
+
 START_COVERAGE
 // Define a fixed queue of unsigned int
 BUFFER_DEF(buffer_uint, unsigned int, 10, BUFFER_QUEUE|BUFFER_BLOCKING)
