@@ -296,7 +296,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     m_index_t count, count_delete;                                            \
     m_index_t upper_limit, lower_limit;                                       \
     m_index_t mask;                                                           \
-    m_index_t freelist_first_data, freelist_count;                            \
+    m_index_t freelist_first_data, freelist_count, freelist_cap;              \
     m_indexhash_t *index;                                                     \
     M_F(name, _freelist_ct) *data;                                            \
   } dict_t[1];                                                                \
@@ -344,6 +344,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     }                                                                         \
     map->freelist_first_data = 0;                                             \
     map->freelist_count = 2;                                                  \
+    map->freelist_cap = 1+2+map->upper_limit;                                 \
     map->index = M_CALL_REALLOC(key_oplist, m_indexhash_t, NULL, 0, (size_t)(0+M_D1CT_INITIAL_SIZE)); \
     if (M_UNLIKELY_NOMEM (map->index == NULL)) {                              \
       M_MEMORY_FULL(m_indexhash_t, 2+M_D1CT_INITIAL_SIZE);                    \
@@ -372,8 +373,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
       }                                                                       \
     }                                                                         \
     M_CALL_FREE(key_oplist, m_indexhash_t, map->index, map->mask+1);          \
-    /* FIXME: How much? */                                                    \
-    M_CALL_FREE(key_oplist, M_F(name, _freelist_ct), map->data, -1);          \
+    M_CALL_FREE(key_oplist, M_F(name, _freelist_ct), map->data, map->freelist_cap); \
     /* Mark the dictionary as cleared */                                      \
     map->data = NULL;                                                         \
     map->index = NULL;                                                        \
@@ -467,17 +467,16 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     if (newSize > oldSize) {                                                  \
       /* h->data is not always the same size than h->index: it may be bigger  \
          if there is some erase of items: h->index will shrink, but not h->data \
-         To have an estimate of the size, we look at the maximum index of it: \
          if it is bigger than our new size, then we don't need to reallocate */ \
       /* We need to allocate '2' for the dummy first two entries in the table (not used), \
          then we can have at maximum only up to 'upper_limit+1' data */       \
-      if (1+2+h->upper_limit > h->freelist_count) {                           \
-      /*FIXME; oldsize incorrect */                                           \
-        h->data = M_CALL_REALLOC(key_oplist, M_F(name, _freelist_ct), h->data, -1, (size_t) 1+2+h->upper_limit); \
+      if (1+2+h->upper_limit > h->freelist_cap) {                             \
+        h->data = M_CALL_REALLOC(key_oplist, M_F(name, _freelist_ct), h->data, h->freelist_cap, (size_t) 1+2+h->upper_limit); \
         if (M_UNLIKELY_NOMEM (h->data == NULL) ) {                            \
           M_MEMORY_FULL(M_F(name, _freelist_ct), 2+newSize);                  \
           return ;                                                            \
         }                                                                     \
+        h->freelist_cap = 1+2+h->upper_limit;                                 \
       }                                                                       \
       m_indexhash_t *index = M_CALL_REALLOC(key_oplist, m_indexhash_t, h->index, oldSize, (size_t)0+newSize); \
       if (M_UNLIKELY_NOMEM (index == NULL) ) {                                \

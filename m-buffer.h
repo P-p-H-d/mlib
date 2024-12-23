@@ -940,7 +940,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
           j = 0;                                                              \
       }                                                                       \
     }                                                                         \
-    M_CALL_FREE(oplist, M_F(name, _el_ct), buffer->Tab, M_BUFF3R_SIZE(m_size)); \
+    M_CALL_FREE(oplist, M_F(name, _el_ct), buffer->Tab, buffer->size);        \
     buffer->Tab = NULL; /* safer */                                           \
     buffer->size = 3;                                                         \
   }                                                                           \
@@ -1281,7 +1281,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
           j = 0;                                                              \
       }                                                                       \
     }                                                                         \
-    M_CALL_FREE(oplist, M_F(name, _el_ct), buffer->Tab, M_BUFF3R_SIZE(m_size)); \
+    M_CALL_FREE(oplist, M_F(name, _el_ct), buffer->Tab, buffer->size);        \
     buffer->Tab = NULL; /* safer */                                           \
     buffer->size = 3;                                                         \
   }                                                                           \
