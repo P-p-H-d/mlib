@@ -1929,6 +1929,7 @@ and `it1` references the inserted element in `list1`.
 Move all the element of the list `list2` into the list `list1`,
 moving the last element of `list2` after the first element of `list1`.
 Afterwards, `list2` remains initialized but is emptied.
+`list1` and `list2` shall reference different objects.
 
 ##### `void name_reverse(name_t list)`
 
@@ -2082,6 +2083,7 @@ Afterwards, `it` points to the next element of `list2`.
 Move all the element of the list `list2` into the list `list1`,
 moving the last element of `list2` after the first element of `list1`.
 Afterwards, `list2` is emptied.
+`list1` and `list2` shall reference different objects.
 
 ##### `void name_reverse(name_t list)`
 
@@ -2294,6 +2296,7 @@ comparisons.
 
 Move all the elements of the array `array2` to the end of the array `array1`.
 Afterwards, `array2` is empty.
+`array1` and `array2` shall reference different objects.
 
 _________________
 
@@ -2702,6 +2705,7 @@ If there is the same key between `dict2` into `dict1`,
 then their values are added (as per the `ADD` method of the value type).
 Afterward `dict2` is reset (i.e. empty).
 This method is only defined if the value type defines an `ADD` method.
+`dict1` and `dict2` shall reference different objects.
 
 _________________
 
@@ -4724,6 +4728,7 @@ This method is created only if the `DIV` operator is defined.
 
 Append in `*a` all elements of `*b` and reset `*b`.
 This method is created only if the `SPLICE` operator is defined.
+`a` and `b` shall reference different objects.
 
 ##### `bool name_get(value_type *val, const name_t *a, key_type const key)`
 
@@ -5468,6 +5473,7 @@ Afterwards, `it` points to the next element of `list2`.
 Move all the element of `list2` into `list1`, moving the last element
 of `list2` after the first element of `list1`.
 Afterwards, `list2` is emptied.
+`list1` and `list2` shall reference different objects.
 
 _________________
 
@@ -6602,6 +6608,7 @@ Append the buffer of 'n' bytes to the byte string `v`
 
 Append the byte string `src` to the byte string `dst`,
 emptying 'src' afterwards. 
+`dst` and `src` shall reference different objects.
 
 ##### `uint8_t bstring_pop_back (bstring_t v)`
 

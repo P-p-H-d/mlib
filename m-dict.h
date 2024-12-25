@@ -1223,6 +1223,7 @@ ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
   M_F(name, _splice)(dict_t d1, dict_t d2)                                    \
   {                                                                           \
     dict_it_t it;                                                             \
+    M_ASSERT(d1 != d2);                                                       \
     /* NOTE: Despite using set_at, the accessing of the item in d1            \
        is not as random as other uses of the HASH table as d2                 \
        uses the same order than d1 */                                         \

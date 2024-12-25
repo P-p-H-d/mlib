@@ -958,6 +958,7 @@
   {                                                                           \
     M_ARRA4_CONTRACT(a1);                                                     \
     M_ARRA4_CONTRACT(a2);                                                     \
+    M_ASSERT(a1 != a2);                                                       \
     if (M_LIKELY (a2->size > 0)) {                                            \
       size_t newSize = a1->size + a2->size;                                   \
       /* To overflow newSize, we need to a1 and a2 a little bit above         \

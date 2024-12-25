@@ -214,7 +214,9 @@ m_bstring_push_back_bytes (m_bstring_t v, size_t n, const void *buffer)
 M_INLINE void
 m_bstring_splice(m_bstring_t dst, m_bstring_t src)
 {
+    M_BSTRING_CONTRACT (dst);
     M_BSTRING_CONTRACT (src);
+    M_ASSERT(src != dst);
     m_bstring_push_back_bytes(dst, m_bstring_size(src), m_bstr1ng_cstr(src));
     m_bstring_reset(src);
 }
