@@ -379,7 +379,9 @@ int main(void) {
 As the `mpz_t` type needs proper initialization, copy and destroy functions
 we need to tell to the container how to handle such a type.
 This is done by giving it the oplist associated to the type.
-An oplist is an associative array where the operators are associated to methods.
+An oplist is an associative array where an operator is associated to its associated method.
+This associative array only exists in the preprocessing step of the compilation,
+resulting in no runtime cost and strict aliasing check.
 
 In the example, we tell to the container to use
 the `mpz_init` function for the `INIT` operator of the type (aka constructor),
@@ -448,7 +450,7 @@ int main(void) {
 }
 ```
 
-There are two ways a container can known what is the oplist of a type:
+There are two ways a container can known which oplist is to be used for the type:
 
 * either the oplist is passed explicitly for each definition of container and for the `M_LET` and `M_EACH` macros,
 * or the oplist is registered globally by defining a new macro starting with the prefix `M_OPL_` and finishing with the name of type (don't forget the parenthesis and the suffix _t if needed). The macros performing the definition of container and the `M_LET` and `M_EACH` will test if such macro is defined. If it is defined, it will be used. Otherwise, default methods are used.
