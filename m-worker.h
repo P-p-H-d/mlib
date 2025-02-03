@@ -142,7 +142,7 @@ typedef struct m_work3r_thread_s {
 } m_work3r_thread_ct;
 
 /* Definition of the queue that will record the work orders */
-BUFFER_DEF(m_work3r_queue, m_work3r_order_ct, 0,
+M_BUFFER_DEF(m_work3r_queue, m_work3r_order_ct, 0,
            BUFFER_QUEUE|BUFFER_UNBLOCKING_PUSH|BUFFER_BLOCKING_POP|BUFFER_THREAD_SAFE|BUFFER_DEFERRED_POP, M_WORK3R_OPLIST)
 
 /* Definition the global pool of workers */
