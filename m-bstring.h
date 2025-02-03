@@ -258,7 +258,7 @@ m_bstring_hash(const m_bstring_t v)
 }
 
 M_INLINE int
-m_bstring_cmp(const m_bstring_t v1, m_bstring_t v2)
+m_bstring_cmp(const m_bstring_t v1, const m_bstring_t v2)
 {
     M_BSTRING_CONTRACT (v1);
     M_BSTRING_CONTRACT (v2);
@@ -286,7 +286,7 @@ m_bstring_cmp_bytes(const m_bstring_t v1, size_t s2, const void *p2)
 }
 
 M_INLINE bool
-m_bstring_equal_p(const m_bstring_t v1, m_bstring_t v2)
+m_bstring_equal_p(const m_bstring_t v1, const m_bstring_t v2)
 {
     M_BSTRING_CONTRACT (v1);
     M_BSTRING_CONTRACT (v2);
