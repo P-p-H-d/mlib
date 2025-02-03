@@ -23,6 +23,17 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#ifdef __GNUC__
+#if __GNUC__ >= 12
+  /* Issue with GCC 12. It reports a variable as being not initialized
+     whereas it is obviously initialized.
+     See also https://gcc.gnu.org/bugzilla/show_bug.cgi?id=109530
+  */
+  _Pragma("GCC diagnostic push")
+  _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
+#endif
+#endif
+
 # if !defined(__cplusplus)
 // The test shall finish with a raise fatal.
 #define M_RAISE_FATAL(...) do {                                         \
@@ -399,24 +410,9 @@ static void test3(void)
   assert(flow ++ == 0);
   M_TRY(test1) {
     assert(flow ++ == 1);
-#ifdef __GNUC__
-#if __GNUC__ >= 13
-  /* Issue with GCC 13. It reports a variable as being not initialized
-     whereas it is obviously initialized.
-     See also https://gcc.gnu.org/bugzilla/show_bug.cgi?id=109530
-  */
-  _Pragma("GCC diagnostic push")
-  _Pragma("GCC diagnostic ignored \"-Wmaybe-uninitialized\"")
-#endif
-#endif
     M_DEFER( assert(flow++ == 3) ) {
       assert(flow ++ == 2);
     }
-#ifdef __GNUC__
-#if __GNUC__ >= 13
-  _Pragma("GCC diagnostic pop")
-#endif
-#endif
   } M_CATCH(test1, M_ERROR_MEMORY) {
     assert(0);
   }
@@ -642,6 +638,12 @@ static void test_final(void)
   exit(0);
 #endif
 }
+
+#ifdef __GNUC__
+#if __GNUC__ >= 12
+  _Pragma("GCC diagnostic pop")
+#endif
+#endif
 
 int main(void)
 {
