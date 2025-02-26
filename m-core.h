@@ -379,11 +379,13 @@ M_BEGIN_PROTECTED_CODE
 #endif
 
 /* Define allocators for array 
- * void *M_MEMORY_REALLOC(type, ptr, o, n): Return a pointer to a new array of 'n' object of type 'type'
+ * void *M_MEMORY_REALLOC(type, ptr, o, n, perm): Return a pointer to a new array of 'n' object of type 'type'.
  *    If ptr is NULL, it creates a new array of type 'type' and size 'n'
  *    If ptr is not null, it reallocates the given array of type 'type' and size 'o' to the new size.
  *    It returns NULL in case of memory allocation failure.
  * void M_MEMORY_FREE(type, ptr, o): Free the object associated to the array of type 'type' at base 'ptr' of size 'o'.
+ * By default, old size do nothing.
+ * Can use local optional named parameter "m_pool" which is defined by the called of the macro if M_USE_POOL is defined.
  */
 #ifndef M_MEMORY_REALLOC
 #ifdef __cplusplus
@@ -408,6 +410,40 @@ M_BEGIN_PROTECTED_CODE
                 __FILE__, __func__, __LINE__)
 #endif
 
+
+#ifndef M_USE_POOL
+// Memory pool parameter not used for memory function. Stub it with 0 as it won't be used (global definition).
+# define M_P_EXPAND
+# define M_R_EXPAND
+# define M_R
+# define M_ASSERT_POOL()
+#else
+// Memory pool parameter is used for function using memory. (local definition to the function).
+// Expand to a prototype to a function that may not trigger exception
+# define M_P_EXPAND M_USE_POOL m_pool, 
+# define M_R_EXPAND m_pool ,
+# define M_R(...) (m_pool, __VA_ARGS__)
+# define M_ASSERT_POOL() (void) m_pool
+#endif
+
+// Expand to a prototype of a function that may trigger exception / accept memory context
+// TODO: If not M_F, M_INLINE overloaded and no M_P_EXPAND, simplify M_P
+// (faster build: 0.54s instead of 0.80s in extreme expanding
+# define M_P(rettype, name, suffix, ...) M_INLINE rettype M_F(name, suffix)(M_P_EXPAND __VA_ARGS__)
+//#define M_P(rettype, name, suffix, ...) static inline rettype name ## suffix(__VA_ARGS__)
+
+// Expand to a prototype of a function that may not trigger exception or accept memory context
+# define M_N(rettype, name, suffix, ...) M_INLINE rettype M_F(name, suffix)(__VA_ARGS__)
+
+
+// TODO: Add for API special, the support of the POOL special keyword ==> m_pool
+// Or document m_pool directly? Can still be overriden later.
+
+// TODO: Add for all Assertions: M_ASSERT_POOL()
+// to avoid warnings about unused parameter m_pool.
+// Pb: Also included for functions without the pool parameter!
+
+// FIXME: Not sense to do it for a shared pointer: it is shared across all memory contexts!
 
 /************************************************************/
 /*********************  ERROR handling **********************/
@@ -440,6 +476,7 @@ M_BEGIN_PROTECTED_CODE
  * NOTE: Can be overriden by user if it needs to keep finer access 
  * on the assertions.
  */
+//TODO: If NDEBUG, simply do nothing "no expression", to speed up compilation speed.
 #ifndef M_ASSERT
 #define M_ASSERT(expr) assert(expr)
 #endif
@@ -450,6 +487,7 @@ M_BEGIN_PROTECTED_CODE
  * NOTE: Can be overriden by user if it needs to keep finer access 
  * on the assertions.
  */
+//TODO: If NDEBUG, simply do nothing "no expression", to speed up compilation speed.
 #ifndef M_ASSERT_SLOW
 # if defined(M_USE_ADDITIONAL_CHECKS) && M_USE_ADDITIONAL_CHECKS
 #  define M_ASSERT_SLOW(n) assert(n)
@@ -2772,7 +2810,7 @@ M_INLINE char m_core_str_nospace(const char **str)
 
 /* Transform a C variable into a m_string_t (needs m-string.h) */
 #define M_GET_STRING_ARG(str, x, append)                                      \
-  (append ? m_string_cat_printf : m_string_printf) (str, M_PRINTF_FORMAT(x), M_CORE_PRINTF_ARG(x))
+  (append ? m_string_cat_printf : m_string_printf) M_R(str, M_PRINTF_FORMAT(x), M_CORE_PRINTF_ARG(x))
 
 /* No use of GET_STR if no inclusion of m-string */
 #define M_GET_STR_METHOD_FOR_DEFAULT_TYPE /* */
@@ -3662,6 +3700,14 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_OPLAPI_5(method, oplist, x, ...)   , x = M_DELAY3(method)(oplist, __VA_ARGS__)
 #define M_OPLAPI_6(method, oplist, x, ...)   , M_DELAY3(method)(&x, &__VA_ARGS__)
 #define M_OPLAPI_7(method, oplist, x, ...)   , M_DELAY3(method)(oplist, &x, &__VA_ARGS__)
+#define M_OPLAPI_0P(method, oplist, ...)      , M_DELAY3(method)(m_pool, __VA_ARGS__)
+#define M_OPLAPI_1P(method, oplist, ...)      , M_DELAY3(method)(oplist, m_pool, __VA_ARGS__)
+#define M_OPLAPI_2P(method, oplist, ...)      , M_DELAY3(method)(m_pool, & __VA_ARGS__)
+#define M_OPLAPI_3P(method, oplist, ...)      , M_DELAY3(method)(oplist, m_pool, &__VA_ARGS__)
+#define M_OPLAPI_4P(method, oplist, x, ...)   , x = M_DELAY3(method)(m_pool, __VA_ARGS__)
+#define M_OPLAPI_5P(method, oplist, x, ...)   , x = M_DELAY3(method)(oplist, m_pool, __VA_ARGS__)
+#define M_OPLAPI_6P(method, oplist, x, ...)   , M_DELAY3(method)(m_pool, &x, &__VA_ARGS__)
+#define M_OPLAPI_7P(method, oplist, x, ...)   , M_DELAY3(method)(oplist, m_pool, &x, &__VA_ARGS__)
 /* API transformation support for indirection */
 #define M_OPLAPI_INDIRECT_0          M_OPLAPI_ERROR
 #define M_OPLAPI_INDIRECT_API_0(...) M_OPLAPI_0
@@ -3680,6 +3726,22 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_OPLAPI_EXTRACT_API_6(...)  __VA_ARGS__
 #define M_OPLAPI_INDIRECT_API_7(...) M_OPLAPI_7
 #define M_OPLAPI_EXTRACT_API_7(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_0P(...) M_OPLAPI_0P
+#define M_OPLAPI_EXTRACT_API_0P(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_1P(...) M_OPLAPI_1P
+#define M_OPLAPI_EXTRACT_API_1P(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_2P(...) M_OPLAPI_2P
+#define M_OPLAPI_EXTRACT_API_2P(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_3P(...) M_OPLAPI_3P
+#define M_OPLAPI_EXTRACT_API_3P(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_4P(...) M_OPLAPI_4P
+#define M_OPLAPI_EXTRACT_API_4P(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_5P(...) M_OPLAPI_5P
+#define M_OPLAPI_EXTRACT_API_5P(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_6P(...) M_OPLAPI_6P
+#define M_OPLAPI_EXTRACT_API_6P(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_7P(...) M_OPLAPI_7P
+#define M_OPLAPI_EXTRACT_API_7P(...)  __VA_ARGS__
 
 
 /* Generic API transformation.
@@ -3777,6 +3839,11 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
   "The " #operator " operator has no method associated in the given OPLIST."),\
   (return_type) 0)
 
+// TODO: Use default INIT_MOVE which assume trivially movable type
+// by getting throught API_2 the oplist and the size of the type
+// If no type defined and no INIT_MOVE defined, just use sizeof (dst)
+// Most types are trivially movable. Can remove macro M_DO_INIT_MOVE to use M_CALL_INIT_MOVE
+// If disabled in oplist, M_CALL_INIT_MOVE will generate an error.
 #define M_NO_DEF_INIT_MOVE(...)   M_NO_DEFAULT(INIT_MOVE, void)
 #define M_NO_DEF_INIT_WITH(...)   M_NO_DEFAULT(INIT_WITH, void)
 #define M_NO_DEF_MOVE(...)        M_NO_DEFAULT(MOVE, void)
@@ -4150,7 +4217,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_ENUM_IN_SERIAL(oplist, var, serial)                                 \
   ( var = (M_GET_TYPE oplist)(true ? m_core_in_serial_enum(serial) : 0), (serial)->tmp.r)
 #define M_ENUM_GET_STR(str, var, append)                                      \
-  ((append ? m_string_cat_printf : m_string_printf) (str, "%lld", (long long) (var) ))
+  ((append ? m_string_cat_printf : m_string_printf) M_R(str, "%lld", (long long) (var) ))
 #define M_ENUM_PARSE(oplist, var, str, endptr)                                \
   ( var = (M_GET_TYPE oplist) (true ? m_core_parse1_enum(str) : 0), m_core_parse2_enum(str, endptr))
 
@@ -4269,6 +4336,8 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_IPTR(...) ( & __VA_ARGS__ )
 
 /* Perform an INIT_MOVE if present, or emulate it using INIT_SET/CLEAR */
+/* FIXME: Use INIT_MOVE if present or assume trivially movable otherwise? */
+/* A non trivially movable type shall provide an INIT_MOVE method or disable it */
 #define M_DO_INIT_MOVE(oplist, dest, src) do {                                \
     M_IF_METHOD(INIT_MOVE, oplist)(M_CALL_INIT_MOVE(oplist, (dest), (src)),   \
                                    M_CALL_INIT_SET(oplist, (dest), (src)) ;   \
@@ -4527,7 +4596,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
       for( init; cont ; cont = false)                                         \
         M_DEFER_TRY_INJECT_POST(cont, clear)                                  \
           for( (void) 0; cont; cont = false)
-
+  
 
 /* If exceptions are activated, M_CHAIN_OBJ enables support for chaining
   initialization at the begining of a constructor for the fields of the constructed

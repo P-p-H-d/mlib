@@ -281,8 +281,7 @@ m_string_init(m_string_t s)
 }
 
 /* Clear the Dynamic string (destructor) */
-M_INLINE void
-m_string_clear(m_string_t v)
+M_P(void, m_string, _clear, m_string_t v)
 {
   M_STR1NG_CONTRACT(v);
   if (!m_str1ng_embedded_p(v)) {    
@@ -301,8 +300,7 @@ M_INLINE m_string_ptr m_str1ng_init_ref(m_string_t v) { m_string_init(v); return
   and return a heap pointer to the string.
   The ownership of the data is transferred back to the caller
   and the returned pointer has to be released by M_MEMORY_FREE. */
-M_INLINE char *
-m_string_clear_get_cstr(m_string_t v)
+M_P(char *, m_string, _clear_get_cstr, m_string_t v)
 {
   M_STR1NG_CONTRACT(v);
   char *p = v->u.heap.ptr;
@@ -368,8 +366,7 @@ m_string_empty_p(const m_string_t v)
    The string 'v' no longer has a working size field.
    Return a pointer to the writable string.
 */
-M_INLINE char *
-m_str1ng_fit2size (m_string_t v, size_t size_alloc)
+M_P(char *, m_str1ng, _fit2size, m_string_t v, size_t size_alloc)
 {
   M_ASSERT_INDEX (0, size_alloc);
   // Note: this function may be called in context where the contract
@@ -422,8 +419,7 @@ m_str1ng_fit2size (m_string_t v, size_t size_alloc)
 /* Modify the string capacity to be able to handle at least 'alloc'
    characters (including final nul char).
    It may reduce the allocation of the string if possible */
-M_INLINE void
-m_string_reserve(m_string_t v, size_t alloc)
+M_P(void, m_string, _reserve, m_string_t v, size_t alloc)
 {
   M_STR1NG_CONTRACT (v);
   const size_t size = m_string_size(v);
@@ -474,13 +470,12 @@ m_string_reserve(m_string_t v, size_t alloc)
 }
 
 /* Set the string to the C string str */
-M_INLINE void
-m_string_set_cstr(m_string_t v, const char str[])
+M_P(void, m_string, _set_cstr, m_string_t v, const char str[])
 {
   M_STR1NG_CONTRACT (v);
   M_ASSERT(str != NULL);
   size_t size = strlen(str);
-  char *ptr = m_str1ng_fit2size(v, size+1);
+  char *ptr = m_str1ng_fit2size M_R(v, size+1);
   // The memcpy will also copy the final null char of the string
   memcpy(ptr, str, size+1);
   m_str1ng_set_size(v, size);
@@ -488,14 +483,13 @@ m_string_set_cstr(m_string_t v, const char str[])
 }
 
 /* Set the string to the n first characters of the C string str */
-M_INLINE void
-m_string_set_cstrn(m_string_t v, const char str[], size_t n)
+M_P(void, m_string, _set_cstrn, m_string_t v, const char str[], size_t n)
 {
   M_STR1NG_CONTRACT (v);
   M_ASSERT(str != NULL);
   size_t len  = strlen(str);
   size_t size = M_MIN (len, n);
-  char *ptr = m_str1ng_fit2size(v, size+1);
+  char *ptr = m_str1ng_fit2size M_R(v, size+1);
   // The memcpy will not copy the final null char of the string
   memcpy(ptr, str, size);
   // Cannot copy the final null char using memcpy
@@ -505,14 +499,13 @@ m_string_set_cstrn(m_string_t v, const char str[], size_t n)
 }
 
 /* Set the string to the other one */
-M_INLINE void
-m_string_set (m_string_t v1, const m_string_t v2)
+M_P(void, m_string, _set, m_string_t v1, const m_string_t v2)
 {
   M_STR1NG_CONTRACT (v1);
   M_STR1NG_CONTRACT (v2);
   if (M_LIKELY (v1 != v2)) {
     const size_t size = m_string_size(v2);
-    char *ptr = m_str1ng_fit2size(v1, size+1);
+    char *ptr = m_str1ng_fit2size M_R(v1, size+1);
     memcpy(ptr, m_string_get_cstr(v2), size+1);
     m_str1ng_set_size(v1, size);
   }
@@ -520,14 +513,13 @@ m_string_set (m_string_t v1, const m_string_t v2)
 }
 
 /* Set the string to the n first characters of other one */
-M_INLINE void
-m_string_set_n(m_string_t v, const m_string_t ref, size_t offset, size_t length)
+M_P(void, m_string, _set_n, m_string_t v, const m_string_t ref, size_t offset, size_t length)
 {
   M_STR1NG_CONTRACT (v);
   M_STR1NG_CONTRACT (ref);
   M_ASSERT_INDEX (offset, m_string_size(ref) + 1);
   size_t size = M_MIN (m_string_size(ref) - offset, length);
-  char *ptr = m_str1ng_fit2size(v, size+1);
+  char *ptr = m_str1ng_fit2size M_R(v, size+1);
   // v may be equal to ref, so a memmove is needed instead of a memcpy
   memmove(ptr, m_string_get_cstr(ref) + offset, size);
   // Cannot copy the final null char using memcpy
@@ -538,26 +530,24 @@ m_string_set_n(m_string_t v, const m_string_t ref, size_t offset, size_t length)
 
 /* Initialize the string and set it to the other one 
    (constructor) */
-M_INLINE void
-m_string_init_set(m_string_t v1, const m_string_t v2)
+M_P(void, m_string, _init_set, m_string_t v1, const m_string_t v2)
 {
   // In case of exception, v1 remains initialized,
   // but without any allocation done.
   // Therefore it is safe, not to clear v1 on exception.
   m_string_init(v1);
-  m_string_set(v1,v2);
+  m_string_set M_R(v1,v2);
 }
 
 /* Initialize the string and set it to the C string
    (constructor) */
-M_INLINE void
-m_string_init_set_cstr(m_string_t v1, const char str[])
+M_P(void, m_string, _init_set_cstr, m_string_t v1, const char str[])
 {
   // In case of exception, v1 remains initialized,
   // but without any allocation done.
   // Therefore it is safe, not to clear v1 on exception.
   m_string_init(v1);
-  m_string_set_cstr(v1, str);
+  m_string_set_cstr M_R(v1, str);
 }
 
 /* Initialize the string, set it to the other one,
@@ -591,20 +581,18 @@ m_string_swap(m_string_t v1, m_string_t v2)
 /* Set the string to the other one,
    and destroy the other one.
    (destructor) */
-M_INLINE void
-m_string_move(m_string_t v1, m_string_t v2)
+M_P(void, m_string, _move, m_string_t v1, m_string_t v2)
 {
-  m_string_clear(v1);
+  m_string_clear M_R(v1);
   m_string_init_move(v1,v2);
 }
 
 /* Push the byte-character 'c' in the string 'v' */
-M_INLINE void
-m_string_push_back (m_string_t v, char c)
+M_P(void, m_string, _push_back, m_string_t v, char c)
 {
   M_STR1NG_CONTRACT (v);
   const size_t size = m_string_size(v);
-  char *ptr = m_str1ng_fit2size(v, size+2);
+  char *ptr = m_str1ng_fit2size M_R(v, size+2);
   ptr[size+0] = c;
   ptr[size+1] = 0;
   m_str1ng_set_size(v, size+1);
@@ -612,29 +600,27 @@ m_string_push_back (m_string_t v, char c)
 }
 
 /* Concatenate the string with the C string */
-M_INLINE void
-m_string_cat_cstr(m_string_t v, const char str[])
+M_P(void, m_string, _cat_cstr, m_string_t v, const char str[])
 {
   M_STR1NG_CONTRACT (v);
   M_ASSERT (str != NULL);
   const size_t old_size = m_string_size(v);
   const size_t size = strlen(str);
-  char *ptr = m_str1ng_fit2size(v, old_size + size + 1);
+  char *ptr = m_str1ng_fit2size M_R(v, old_size + size + 1);
   memcpy(&ptr[old_size], str, size + 1);
   m_str1ng_set_size(v, old_size + size);
   M_STR1NG_CONTRACT (v);
 }
 
 /* Concatenate the string with the other string */
-M_INLINE void
-m_string_cat(m_string_t v, const m_string_t v2)
+M_P(void, m_string, _cat, m_string_t v, const m_string_t v2)
 {
   M_STR1NG_CONTRACT (v2);
   M_STR1NG_CONTRACT (v);
   const size_t size = m_string_size(v2);
   if (M_LIKELY (size > 0)) {
     const size_t old_size = m_string_size(v);
-    char *ptr = m_str1ng_fit2size(v, old_size + size + 1);
+    char *ptr = m_str1ng_fit2size M_R(v, old_size + size + 1);
     memcpy(&ptr[old_size], m_string_get_cstr(v2), size);
     ptr[old_size + size] = 0;
     m_str1ng_set_size(v, old_size + size);
@@ -876,8 +862,7 @@ m_string_mid (m_string_t v, size_t index, size_t size)
    into the C string str2 from start
    By default, start is zero.
 */
-M_INLINE size_t
-m_string_replace_cstr (m_string_t v, const char str1[], const char str2[], size_t start)
+M_P(size_t, m_string, _replace_cstr, m_string_t v, const char str1[], const char str2[], size_t start)
 {
   M_STR1NG_CONTRACT (v);
   M_ASSERT (str1 != NULL && str2 != NULL);
@@ -887,7 +872,7 @@ m_string_replace_cstr (m_string_t v, const char str1[], const char str2[], size_
     const size_t str2_l = strlen(str2);
     const size_t size   = m_string_size(v);
     M_ASSERT(size + 1 + str2_l > str1_l);
-    char *ptr = m_str1ng_fit2size (v, size + str2_l - str1_l + 1);
+    char *ptr = m_str1ng_fit2size M_R(v, size + str2_l - str1_l + 1);
     if (str1_l != str2_l) {
       memmove(&ptr[i+str2_l], &ptr[i+str1_l], size - i - str1_l + 1);
       m_str1ng_set_size(v, size + str2_l - str1_l);
@@ -902,19 +887,17 @@ m_string_replace_cstr (m_string_t v, const char str1[], const char str2[], size_
    into the C string v2 from start
    By default, start is zero.
 */
-M_INLINE size_t
-m_string_replace (m_string_t v, const m_string_t v1, const m_string_t v2, size_t start)
+M_P(size_t, m_string, _replace, m_string_t v, const m_string_t v1, const m_string_t v2, size_t start)
 {
   M_STR1NG_CONTRACT (v);
   M_STR1NG_CONTRACT (v1);
   M_STR1NG_CONTRACT (v2);
-  return m_string_replace_cstr(v, m_string_get_cstr(v1), m_string_get_cstr(v2), start);
+  return m_string_replace_cstr M_R(v, m_string_get_cstr(v1), m_string_get_cstr(v2), start);
 }
 
 /* Replace in the string the sub-string at position 'pos' for 'len' bytes
    into the C string str2. */
-M_INLINE void
-m_string_replace_at (m_string_t v, size_t pos, size_t len, const char str2[])
+M_P(void, m_string, _replace_at, m_string_t v, size_t pos, size_t len, const char str2[])
 {
   M_STR1NG_CONTRACT (v);
   M_ASSERT(str2 != NULL);
@@ -925,7 +908,7 @@ m_string_replace_at (m_string_t v, size_t pos, size_t len, const char str2[])
   if (str1_l != str2_l) {
     // Move bytes from the string 
     M_ASSERT_INDEX (str1_l, size + str2_l + 1);
-    ptr = m_str1ng_fit2size (v, size + str2_l - str1_l + 1);
+    ptr = m_str1ng_fit2size M_R(v, size + str2_l - str1_l + 1);
     M_ASSERT_INDEX (pos + str1_l, size + 1);
     M_ASSUME (pos + str1_l < size + 1);
     memmove(&ptr[pos+str2_l], &ptr[pos+str1_l], size - pos - str1_l + 1);
@@ -1002,8 +985,7 @@ m_str1ng_strstr_r(char org[], char src[], const char pattern[], size_t pattern_s
 }
 
 /* Replace all occurences of str1 into str2 when strlen(str1) < strlen(str2) */
-M_INLINE void
-m_str1ng_replace_all_cstr_1lo2 (m_string_t v, const char str1[], size_t str1len, const char str2[], size_t str2len)
+M_P(void, m_str1ng, _replace_all_cstr_1lo2, m_string_t v, const char str1[], size_t str1len, const char str2[], size_t str2len)
 {
   M_STR1NG_CONTRACT (v);
   M_ASSERT(str1len < str2len);
@@ -1014,7 +996,7 @@ m_str1ng_replace_all_cstr_1lo2 (m_string_t v, const char str1[], size_t str1len,
    */
   size_t vlen = m_string_size(v);
   size_t alloc = 1 + vlen / str1len * str2len;
-  char *org = m_str1ng_fit2size(v, alloc);
+  char *org = m_str1ng_fit2size M_R(v, alloc);
   char *src = org + vlen - 1;
   char *end = org + m_string_capacity(v);
   char *dst = end;
@@ -1044,8 +1026,7 @@ m_str1ng_replace_all_cstr_1lo2 (m_string_t v, const char str1[], size_t str1len,
   M_STR1NG_CONTRACT (v);
 }
 
-M_INLINE void
-m_string_replace_all_cstr (m_string_t v, const char str1[], const char str2[])
+M_P(void, m_string, _replace_all_cstr, m_string_t v, const char str1[], const char str2[])
 {
   size_t str1_l = strlen(str1);
   size_t str2_l = strlen(str2);
@@ -1053,12 +1034,11 @@ m_string_replace_all_cstr (m_string_t v, const char str1[], const char str2[])
   if (str1_l >= str2_l) {
     m_str1ng_replace_all_cstr_1ge2(v, str1, str1_l, str2, str2_l );
   } else {
-    m_str1ng_replace_all_cstr_1lo2(v, str1, str1_l, str2, str2_l );
+    m_str1ng_replace_all_cstr_1lo2 M_R(v, str1, str1_l, str2, str2_l);
   }
 }
 
-M_INLINE void
-m_string_replace_all (m_string_t v, const m_string_t str1, const m_string_t str2)
+M_P(void, m_string, _replace_all, m_string_t v, const m_string_t str1, const m_string_t str2)
 {
   size_t str1_l = m_string_size(str1);
   size_t str2_l = m_string_size(str2);
@@ -1067,7 +1047,7 @@ m_string_replace_all (m_string_t v, const m_string_t str1, const m_string_t str2
   if (str1_l >= str2_l) {
     m_str1ng_replace_all_cstr_1ge2(v, m_string_get_cstr(str1), str1_l, m_string_get_cstr(str2), str2_l );
   } else {
-    m_str1ng_replace_all_cstr_1lo2(v, m_string_get_cstr(str1), str1_l, m_string_get_cstr(str2), str2_l );
+    m_str1ng_replace_all_cstr_1lo2 M_R(v, m_string_get_cstr(str1), str1_l, m_string_get_cstr(str2), str2_l);
   }
 }
 
@@ -1084,12 +1064,11 @@ m_string_replace_all (m_string_t v, const m_string_t str1, const m_string_t str2
 # error Unexpected UINT_MAX value (workaround: Define M_USE_FAST_STRING_CONV to 0).
 #endif
 
-M_INLINE void
-m_string_set_ui(m_string_t v, unsigned int n)
+M_P(void, m_string, _set_ui, m_string_t v, unsigned int n)
 {
   M_STR1NG_CONTRACT (v);
   char buffer[M_STR1NG_INT_MAX_SIZE];
-  m_str1ng_fit2size(v, M_STR1NG_INT_MAX_SIZE+1);
+  char *d = m_str1ng_fit2size M_R(v, M_STR1NG_INT_MAX_SIZE+1);
   unsigned i = 0, j = 0;
   do {
     // 0123456789 are mandatory in this order as characters, as per C standard.
@@ -1097,7 +1076,6 @@ m_string_set_ui(m_string_t v, unsigned int n)
     n /= 10U;
   } while (n != 0);
   M_ASSERT_INDEX(i, M_STR1NG_INT_MAX_SIZE);
-  char *d = m_str1ng_get_cstr(v);
   while (i > 0) {
     d[j++] = buffer[--i];
   }
@@ -1106,13 +1084,12 @@ m_string_set_ui(m_string_t v, unsigned int n)
   M_STR1NG_CONTRACT (v);
 }
 
-M_INLINE void
-m_string_set_si(m_string_t v, int n)
+M_P(void, m_string, _set_si, m_string_t v, int n)
 {
   M_STR1NG_CONTRACT (v);
   // Compute the maximum number of characters needed for the buffer.
   char buffer[M_STR1NG_INT_MAX_SIZE];
-  m_str1ng_fit2size(v, M_STR1NG_INT_MAX_SIZE+1);
+  char *d = m_str1ng_fit2size M_R(v, M_STR1NG_INT_MAX_SIZE+1);
   unsigned i = 0, j = 0;
   bool neg = n < 0;
   unsigned n0 = neg ? 0U -(unsigned) n : (unsigned) n;
@@ -1122,7 +1099,6 @@ m_string_set_si(m_string_t v, int n)
     n0 /= 10U;
   } while (n0 != 0);
   M_ASSERT_INDEX(i, M_STR1NG_INT_MAX_SIZE);
-  char *d = m_str1ng_get_cstr(v);
   if (neg) d[j++] = '-';
   while (i > 0) {
     d[j++] = buffer[--i];
@@ -1136,8 +1112,7 @@ m_string_set_si(m_string_t v, int n)
 #if M_USE_STDARG
 
 /* Format in the string the given printf format */
-M_INLINE int
-m_string_vprintf (m_string_t v, const char format[], va_list args)
+M_P(int, m_string, _vprintf, m_string_t v, const char format[], va_list args)
 {
   M_STR1NG_CONTRACT (v);
   M_ASSERT (format != NULL);
@@ -1153,7 +1128,7 @@ m_string_vprintf (m_string_t v, const char format[], va_list args)
     M_IF_EXCEPTION( m_str1ng_set_size(v, 0) );
     M_IF_EXCEPTION( m_str1ng_get_cstr(v)[0] = 0 );
     // We have to realloc our string to fit the needed size
-    ptr = m_str1ng_fit2size (v, (size_t) size + 1);
+    ptr = m_str1ng_fit2size M_R(v, (size_t) size + 1);
     alloc = m_string_capacity(v);
     // and redo the parsing.
     size = vsnprintf (ptr, alloc, format, args_org);
@@ -1162,7 +1137,7 @@ m_string_vprintf (m_string_t v, const char format[], va_list args)
   if (M_LIKELY (size >= 0)) {
     m_str1ng_set_size(v, (size_t) size);
   } else {
-    // An error occured during the conversion: Assign an empty string.
+    // An error occurred during the conversion: Assign an empty string.
     m_str1ng_set_size(v, 0);
     ptr[0] = 0;
   }
@@ -1172,21 +1147,20 @@ m_string_vprintf (m_string_t v, const char format[], va_list args)
 }
 
 /* Format in the string the given printf format */
-M_INLINE int
-m_string_printf (m_string_t v, const char format[], ...)
+// FIXME: BROKEN to add a parameter **after** the '...'!
+M_P(int, m_string, _printf, m_string_t v, const char format[], ...)
 {
   M_STR1NG_CONTRACT (v);
   M_ASSERT (format != NULL);
   va_list args;
   va_start (args, format);
-  int ret = m_string_vprintf(v, format, args);
+  int ret = m_string_vprintf M_R(v, format, args);
   va_end (args);
   return ret;
 }
 
 /* Append to the string the formatted string of the given printf format */
-M_INLINE int
-m_string_cat_vprintf (m_string_t v, const char format[], va_list args)
+M_P(int, m_string, _cat_vprintf, m_string_t v, const char format[], va_list args)
 {
   M_STR1NG_CONTRACT (v);
   M_ASSERT (format != NULL);
@@ -1203,7 +1177,7 @@ m_string_cat_vprintf (m_string_t v, const char format[], va_list args)
     M_IF_EXCEPTION( m_str1ng_set_size(v, old_size) );
     M_IF_EXCEPTION( m_str1ng_get_cstr(v)[old_size] = 0 );
     // We have to realloc our string to fit the needed size
-    ptr = m_str1ng_fit2size (v, old_size + (size_t) size + 1);
+    ptr = m_str1ng_fit2size M_R(v, old_size + (size_t) size + 1);
     alloc = m_string_capacity(v);
     // and redo the parsing.
     size = vsnprintf (&ptr[old_size], alloc - old_size, format, args_org);
@@ -1222,28 +1196,26 @@ m_string_cat_vprintf (m_string_t v, const char format[], va_list args)
 }
 
 /* Append to the string the formatted string of the given printf format */
-M_INLINE int
-m_string_cat_printf (m_string_t v, const char format[], ...)
+//FIXME:
+M_P(int, m_string, _cat_printf, m_string_t v, const char format[], ...)
 {
   M_STR1NG_CONTRACT (v);
   M_ASSERT (format != NULL);
   va_list args;
   va_start (args, format);
-  int ret = m_string_cat_vprintf(v, format, args);
+  int ret = m_string_cat_vprintf M_R(v, format, args);
   va_end (args);
   return ret;
 }
 
 #if M_USE_FAST_STRING_CONV == 0
-M_INLINE void
-m_string_set_ui(m_string_t v, unsigned int n)
+M_P(void, m_string, _set_ui, m_string_t v, unsigned int n)
 {
-  m_string_printf(v, "%u", n);
+  m_string_printf M_R(v, "%u", n);
 }
-M_INLINE void
-m_string_set_si(m_string_t v, int n)
+M_P(void, m_string, _set_si, m_string_t v, int n)
 {
-  m_string_printf(v, "%d", n);
+  m_string_printf M_R(v, "%d", n);
 }
 #endif
 
@@ -1252,12 +1224,11 @@ m_string_set_si(m_string_t v, int n)
 #if M_USE_STDIO
 
 /* Get a line/pure-line/file from the FILE and store it in the string */
-M_INLINE bool
-m_string_fgets(m_string_t v, FILE *f, m_string_fgets_t arg)
+M_P(bool, m_string, _fgets, m_string_t v, FILE *f, m_string_fgets_t arg)
 {
   M_STR1NG_CONTRACT(v);
   M_ASSERT (f != NULL);
-  char *ptr = m_str1ng_fit2size (v, 100);
+  char *ptr = m_str1ng_fit2size M_R(v, 100);
   size_t size = 0;
   size_t alloc = m_string_capacity(v);
   ptr[0] = 0;
@@ -1286,7 +1257,7 @@ m_string_fgets(m_string_t v, FILE *f, m_string_fgets_t arg)
       /* The string buffer is not big enough:
          increase it and continue reading */
       /* v cannot be a full embedded type */
-      ptr   = m_str1ng_fit2size (v, alloc + alloc/2);
+      ptr   = m_str1ng_fit2size M_R(v, alloc + alloc/2);
       alloc = m_string_capacity(v);
     }
   }
@@ -1299,8 +1270,7 @@ m_string_fgets(m_string_t v, FILE *f, m_string_fgets_t arg)
    Words are supposed to be separated each other by the given list of separator
    separator shall be a CONSTANT C array.
  */
-M_INLINE bool
-m_string_fget_word (m_string_t v, const char separator[], FILE *f)
+M_P(bool, m_string, _fget_word, m_string_t v, const char separator[], FILE *f)
 {
   char buffer[128];
   char c = 0;
@@ -1345,7 +1315,7 @@ m_string_fget_word (m_string_t v, const char separator[], FILE *f)
     /* Next char is not a separator: continue parsing */
     m_str1ng_set_size(v, size);
     M_IF_EXCEPTION( m_str1ng_get_cstr(v)[size] = 0);
-    ptr = m_str1ng_fit2size (v, alloc + alloc/2);
+    ptr = m_str1ng_fit2size M_R(v, alloc + alloc/2);
     alloc = m_string_capacity(v);
     M_ASSERT (alloc > size + 1);
     ptr[size++] = c;
@@ -1480,8 +1450,7 @@ m_string_oor_set(m_string_t s, unsigned char n)
 
 /* Transform the string 'v2' into a formatted string
    and set it to (or append in) the string 'v'. */
-M_INLINE void
-m_string_get_str(m_string_t v, const m_string_t v2, bool append)
+M_P(void, m_string, _get_str, m_string_t v, const m_string_t v2, bool append)
 {
   M_STR1NG_CONTRACT(v2);
   M_STR1NG_CONTRACT(v);
@@ -1489,7 +1458,7 @@ m_string_get_str(m_string_t v, const m_string_t v2, bool append)
   size_t size = append ? m_string_size(v) : 0;
   size_t v2_size = m_string_size(v2);
   size_t targetSize = size + v2_size + 3;
-  char *ptr = m_str1ng_fit2size(v, targetSize);
+  char *ptr = m_str1ng_fit2size M_R(v, targetSize);
   ptr[size ++] = '"';
   for(size_t i = 0 ; i < v2_size; i++) {
     const char c = m_string_get_char(v2,i);
@@ -1501,7 +1470,7 @@ m_string_get_str(m_string_t v, const m_string_t v2, bool append)
     case '\r':
       // Special characters which can be displayed in a short form.
       m_str1ng_set_size(v, size);
-      ptr = m_str1ng_fit2size(v, ++targetSize);
+      ptr = m_str1ng_fit2size M_R(v, ++targetSize);
       ptr[size ++] = '\\';
       // This string acts as a perfect hashmap which supposes an ASCII mapping
       // and (c^(c>>5)) is the hash function
@@ -1512,7 +1481,7 @@ m_string_get_str(m_string_t v, const m_string_t v2, bool append)
         targetSize += 3;
         m_str1ng_set_size(v, size);
         M_IF_EXCEPTION(m_str1ng_get_cstr(v)[size] = 0);
-        ptr = m_str1ng_fit2size(v, targetSize);
+        ptr = m_str1ng_fit2size M_R(v, targetSize);
         int d1 = c & 0x07, d2 = (c>>3) & 0x07, d3 = (c>>6) & 0x07;
         ptr[size ++] = '\\';
         ptr[size ++] = (char) ('0' + d3);
@@ -1572,8 +1541,7 @@ m_string_out_str(FILE *f, const m_string_t v)
 /* Read the formatted string from the FILE
    and set the converted value in the string 'v'.
    Return true in case of success */
-M_INLINE bool
-m_string_in_str(m_string_t v, FILE *f)
+M_P(bool, m_string, _in_str, m_string_t v, FILE *f)
 {
   M_STR1NG_CONTRACT(v);
   M_ASSERT (f != NULL);
@@ -1610,7 +1578,7 @@ m_string_in_str(m_string_t v, FILE *f)
         break;
       }
     }
-    m_string_push_back (v, (char) c);
+    m_string_push_back M_R(v, (char) c);
     c = fgetc(f);
   }
   return c == '"';
@@ -1623,8 +1591,7 @@ m_string_in_str(m_string_t v, FILE *f)
    Return true in case of success
    If endptr is not null, update the position of the parsing.
 */
-M_INLINE bool
-m_string_parse_str(m_string_t v, const char str[], const char **endptr)
+M_P(bool, m_string, _parse_str, m_string_t v, const char str[], const char **endptr)
 {
   M_STR1NG_CONTRACT(v);
   M_ASSERT (str != NULL);
@@ -1662,7 +1629,7 @@ m_string_parse_str(m_string_t v, const char str[], const char **endptr)
         break;
       }
     }
-    m_string_push_back (v, (char) c);
+    m_string_push_back M_R(v, (char) c);
     c = *str++;
   }
   success = (c == '"');
@@ -1678,6 +1645,7 @@ m_string_parse_str(m_string_t v, const char str[], const char **endptr)
 M_INLINE m_serial_return_code_t
 m_string_out_serial(m_serial_write_t serial, const m_string_t v)
 {
+  //FIXME: What to do for memory context? Can be passed through serial
   M_ASSERT (serial != NULL && serial->m_interface != NULL);
   return serial->m_interface->write_string(serial, m_string_get_cstr(v), m_string_size(v) );
 }
@@ -1955,8 +1923,7 @@ m_string_cref (m_string_it_t it)
 }
 
 /* Update the value referenced by the iterator to the given value */
-M_INLINE void
-m_string_it_set_ref(m_string_it_t it, m_string_t s, m_string_unicode_t new_u)
+M_P(void, m_string, _it_set_ref, m_string_it_t it, m_string_t s, m_string_unicode_t new_u)
 {
   M_STR1NG_IT_CONTRACT(it);
   M_STR1NG_CONTRACT(s);
@@ -1965,7 +1932,7 @@ m_string_it_set_ref(m_string_it_t it, m_string_t s, m_string_unicode_t new_u)
   M_ASSUME( it->ptr >= ptr);
   size_t offset = (size_t) (it->ptr - ptr);
   // Special case if the unicode codepoint is 0
-  if (new_u == 0) {
+  if (M_UNLIKELY(new_u == 0)) {
     // Null the string
     m_str1ng_set_size(s, offset);
     ptr[offset] = 0;
@@ -1989,8 +1956,8 @@ m_string_it_set_ref(m_string_it_t it, m_string_t s, m_string_unicode_t new_u)
   size_t old_u_size = (size_t) (str - it->ptr);
   // We need to replace old_u by new_u. Both are variable length
   size_t str_size = m_string_size(s);
-  if (new_u_size != old_u_size) {
-    ptr = m_str1ng_fit2size(s, str_size + new_u_size - old_u_size + 1);
+  if (M_UNLIKELY (new_u_size != old_u_size)) {
+    ptr = m_str1ng_fit2size M_R(s, str_size + new_u_size - old_u_size + 1);
     M_ASSUME( str_size+1 > (offset + old_u_size) );
     memmove(&ptr[offset+new_u_size], &ptr[offset + old_u_size],
             str_size+1 - offset - old_u_size);
@@ -2004,13 +1971,12 @@ m_string_it_set_ref(m_string_it_t it, m_string_t s, m_string_unicode_t new_u)
 }
 
 /* Push unicode code point into string, encoding it in UTF8 */
-M_INLINE void
-m_string_push_u (m_string_t str, m_string_unicode_t u)
+M_P(void, m_string, _push_u, m_string_t str, m_string_unicode_t u)
 {
   M_STR1NG_CONTRACT(str);
   char buffer[4+1];
   m_str1ng_utf8_encode(buffer, u);
-  m_string_cat_cstr(str, buffer);
+  m_string_cat_cstr M_R(str, buffer);
 }
 
 /* Pop last unicode code point into string, encoding it in UTF8 */
@@ -2153,13 +2119,22 @@ namespace m_lib {
   m_lib::m_aligned_string<sizeof (s)>(s).string
 #endif
 
+#ifdef M_USE_POOL
 /* Initialize and set a string to the given formatted value. */
+#define m_string_init_printf(pool, v, ...)                                    \
+  (m_string_printf ( pool, m_str1ng_init_ref(v), __VA_ARGS__) )
+
+/* Initialize and set a string to the given formatted value. */
+#define m_string_init_vprintf(pool, v, format, args)                          \
+  (m_string_vprintf ( pool, m_str1ng_init_ref(v), format, args) )
+#else
 #define m_string_init_printf(v, ...)                                          \
   (m_string_printf ( m_str1ng_init_ref(v), __VA_ARGS__) )
 
 /* Initialize and set a string to the given formatted value. */
 #define m_string_init_vprintf(v, format, args)                                \
   (m_string_vprintf ( m_str1ng_init_ref(v), format, args) )
+#endif
 
 /* Initialize a string with the given list of arguments.
    Check if it is a formatted input or not by counting the number of arguments.
@@ -2169,10 +2144,10 @@ namespace m_lib {
    C string and string. */
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)
 #define M_STR1NG_INIT_WITH(v, ...)                                            \
-  M_IF_NARGS_EQ1(__VA_ARGS__)(m_string_init_set, m_string_init_printf)(v, __VA_ARGS__)
+  M_IF_NARGS_EQ1(__VA_ARGS__)(m_string_init_set, m_string_init_printf)M_R(v, __VA_ARGS__)
 #else
 #define M_STR1NG_INIT_WITH(v, ...)                                            \
-  M_IF_NARGS_EQ1(__VA_ARGS__)(m_string_init_set_cstr, m_string_init_printf)(v, __VA_ARGS__)
+  M_IF_NARGS_EQ1(__VA_ARGS__)(m_string_init_set_cstr, m_string_init_printf)M_R(v, __VA_ARGS__)
 #endif
 
 /* Define the OPLIST of a STRING */
@@ -2200,6 +2175,31 @@ namespace m_lib {
    ,IT_CREF(m_string_cref), PUSH(m_string_push_u)                             \
    ,EMPLACE_TYPE(const char*)                                                 \
    )
+
+#define M_STRING_POOL_OPLIST                                                  \
+   (INIT(m_string_init),INIT_SET(API_0P(m_string_init_set)), SET(API_0P(m_string_set)), \
+    INIT_WITH(M_STR1NG_INIT_WITH),                                            \
+    INIT_MOVE(m_string_init_move), MOVE(API_0P(m_string_move)),               \
+    SWAP(m_string_swap), RESET(m_string_reset),                               \
+    EMPTY_P(m_string_empty_p),                                                \
+    CLEAR(API_0P(m_string_clear)), HASH(m_string_hash), EQUAL(m_string_equal_p), \
+    CMP(m_string_cmp), TYPE(m_string_t), GENTYPE(struct m_string_s*),         \
+    PARSE_STR(API_0P(m_string_parse_str)), GET_STR(API_0P(m_string_get_str)), \
+    OUT_STR(m_string_out_str), IN_STR(API_0P(m_string_in_str)),               \
+    OUT_SERIAL(m_string_out_serial), IN_SERIAL(m_string_in_serial),           \
+    EXT_ALGO(M_STR1NG_SPLIT),                                                 \
+    OOR_EQUAL(m_string_oor_equal_p), OOR_SET(m_string_oor_set)                \
+    ,SUBTYPE(m_string_unicode_t)                                              \
+    ,IT_TYPE(m_string_it_t)                                                   \
+    ,IT_FIRST(m_string_it)                                                    \
+    ,IT_END(m_string_it_end)                                                  \
+    ,IT_SET(m_string_it_set)                                                  \
+    ,IT_END_P(m_string_end_p)                                                 \
+    ,IT_EQUAL_P(m_string_it_equal_p)                                          \
+    ,IT_NEXT(m_string_next)                                                   \
+    ,IT_CREF(m_string_cref), PUSH(m_string_push_u)                            \
+    ,EMPLACE_TYPE(const char*)                                                \
+    )
 
 /* Register the OPLIST as a global one */
 #define M_OPL_m_string_t() M_STRING_OPLIST
@@ -2274,10 +2274,28 @@ namespace m_lib {
            )(a,b,c)
 
 /* Init & Set the string a to the string (or C string) b (constructor) */
+#ifdef M_USE_POOL
+#define m_string_init_set(p, a,b)                                             \
+    _Generic((b)+0,                                                           \
+    char*: m_string_init_set_cstr,                                            \
+    const char *: m_string_init_set_cstr,                                     \
+    default : m_string_init_set                                               \
+    )(p,a,b)
+#else
 #define m_string_init_set(a,b) M_STR1NG_SELECT2(m_string_init_set, m_string_init_set_cstr, a, b)
+#endif
 
 /* Set the string a to the string (or C string) b */
+#ifdef M_USE_POOL
+#define m_string_set(p, a,b)                                                  \
+    _Generic((b)+0,                                                           \
+    char*: m_string_set_cstr,                                                 \
+    const char *: m_string_set_cstr,                                          \
+    default : m_string_set                                                    \
+    )(p,a,b)
+#else
 #define m_string_set(a,b) M_STR1NG_SELECT2(m_string_set, m_string_set_cstr, a, b)
+#endif
 
 /* Concatenate the string (or C string) b to the string a */
 #define m_string_cat(a,b) M_STR1NG_SELECT2(m_string_cat, m_string_cat_cstr, a, b)
