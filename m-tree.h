@@ -1300,7 +1300,7 @@ typedef int32_t m_tr33_index_t;
 #define M_TR33_DEF_P4_IO(name, type, oplist, tree_t, it_t)                    \
 M_IF_METHOD(GET_STR, oplist)(                                                 \
 M_INLINE void                                                                 \
-M_F(name, _get_str)(string_t str, /*const*/ tree_t tree, bool append) {       \
+M_F(name, _get_str)(m_string_t str, /*const*/ tree_t tree, bool append) {     \
     (append ? m_string_cat_cstr : m_string_set_cstr) (str, "[");              \
     it_t it = M_F(name, _it)(tree);                                           \
     while (!M_F(name, _end_p)(it)) {                                          \

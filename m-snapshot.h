@@ -774,7 +774,7 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
   {                                                                           \
     M_SNAPSH0T_SPMC_CONTRACT(snap->core);                                     \
     const M_F(name, _mrsw_aligned_type_ct) *oldx;                             \
-    oldx = M_CTYPE_FROM_FIELD(M_F(name, _mrsw_aligned_type_ct), old, type, x); \
+    oldx = (const M_F(name, _mrsw_aligned_type_ct) *) old;                    \
     M_ASSERT (oldx >= snap->core->data);                                      \
     M_ASSERT (oldx < snap->core->data + snap->core->core->n_reader + M_SNAPSH0T_SPMC_EXTRA_BUFFER); \
     M_ASSERT(snap->core->core->n_reader + M_SNAPSH0T_SPMC_EXTRA_BUFFER < UINT_MAX); \

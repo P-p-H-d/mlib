@@ -178,11 +178,11 @@
  * Created Function objects are part of the public interface */
 #define M_ALG0_DEF_FUNCOBJ(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
-  FUNC_OBJ_ITF_DEF(M_F(name, _test_obj), bool, type_t const)                  \
-  FUNC_OBJ_ITF_DEF(M_F(name, _eq_obj), bool, type_t const, type_t const )     \
-  FUNC_OBJ_ITF_DEF(M_F(name, _cmp_obj), int, type_t const, type_t const )     \
-  FUNC_OBJ_ITF_DEF(M_F(name, _transform_obj), void, type_t *, type_t const )  \
-  FUNC_OBJ_ITF_DEF(M_F(name, _apply_obj), void, type_t * )                    \
+  M_FUNC_OBJ_ITF_DEF(M_F(name, _test_obj), bool, type_t const)                \
+  M_FUNC_OBJ_ITF_DEF(M_F(name, _eq_obj), bool, type_t const, type_t const )   \
+  M_FUNC_OBJ_ITF_DEF(M_F(name, _cmp_obj), int, type_t const, type_t const )   \
+  M_FUNC_OBJ_ITF_DEF(M_F(name, _transform_obj), void, type_t *, type_t const )\
+  M_FUNC_OBJ_ITF_DEF(M_F(name, _apply_obj), void, type_t * )                  \
   
 
 /* Define the sort functions with the CMP operator using the order selected */

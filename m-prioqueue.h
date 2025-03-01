@@ -131,7 +131,7 @@
 */
 #define M_PR1OQUEUE_DEF_P3(name, type, oplist, prioqueue_t, it_t)             \
   /* Definition of the internal array used to construct the priority queue */ \
-  ARRAY_DEF(M_F(name, _array), type, oplist)                                  \
+  M_ARRAY_DEF(M_F(name, _array), type, oplist)                                \
   M_PR1OQUEUE_DEF_TYPE(name, type, oplist, prioqueue_t, it_t)                 \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
   M_PR1OQUEUE_DEF_CORE(name, type, oplist, prioqueue_t, it_t)                 \
@@ -476,7 +476,7 @@
                                                                               \
   M_IF_METHOD(GET_STR, oplist)(                                               \
   M_INLINE void                                                               \
-  M_F(name, _get_str)(string_t str, const prioqueue_t p, bool append)         \
+  M_F(name, _get_str)(m_string_t str, const prioqueue_t p, bool append)       \
   {                                                                           \
     M_F(name, _array_get_str)(str, p->array, append);                         \
   }                                                                           \

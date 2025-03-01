@@ -400,7 +400,7 @@ m_ser1al_bin_read_float(m_serial_read_t serial, long double *r, const size_t siz
    Set 's' with the string if succeeds 
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 M_INLINE  m_serial_return_code_t
-m_ser1al_bin_read_string(m_serial_read_t serial, struct string_s *s){
+m_ser1al_bin_read_string(m_serial_read_t serial, struct m_string_s *s){
   FILE *f = (FILE*) serial->data[0].p;
   M_ASSERT(f != NULL && s != NULL);
   // First read the number of non null characters

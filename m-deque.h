@@ -115,7 +115,7 @@
 #define M_D3QU3_DEF_TYPE(name, type, oplist, deque_t, it_t, node_t)           \
                                                                               \
   typedef struct M_F(name, _node_s) {                                         \
-    ILIST_INTERFACE(M_F(name, _node_list), struct M_F(name, _node_s));        \
+    M_ILIST_INTERFACE(M_F(name, _node_list), struct M_F(name, _node_s));      \
     size_t size;                                                              \
     type  data[M_MIN_FLEX_ARRAY_SIZE];                                        \
   } node_t;                                                                   \
@@ -127,7 +127,7 @@
      The interfaces are compatible.                                           \
   */                                                                          \
   /* FIXME: How can I separate public types and private implementation? */    \
-  ILIST_DEF(M_F(name, _node_list), node_t, (DEL(M_GET_FREE oplist)) )         \
+  M_ILIST_DEF(M_F(name, _node_list), node_t, (DEL(M_GET_FREE oplist)) )       \
                                                                               \
   /* Define an internal iterator */                                           \
   typedef struct M_F(name, _it2_s) {                                          \
