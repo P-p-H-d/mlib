@@ -1,7 +1,7 @@
 /*
  * Test that the bitset module properly support exceptions
  * 
- * Copyright (c) 2017-2024, Patrick Pelissier
+ * Copyright (c) 2017-2025, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
