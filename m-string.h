@@ -2202,7 +2202,11 @@ namespace m_lib {
     )
 
 /* Register the OPLIST as a global one */
+#ifdef M_USE_POOL
+#define M_OPL_m_string_t() M_STRING_POOL_OPLIST
+#else
 #define M_OPL_m_string_t() M_STRING_OPLIST
+#endif
 
 /* Register the string_t oplist as a generic type */
 #define M_GENERIC_ORG_MLIB_COMP_CORE_OPLIST_1() M_STRING_OPLIST
