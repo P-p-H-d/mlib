@@ -131,7 +131,7 @@
   {                                                                           \
     M_CALL_FREE(oplist, char, ptr, sizeof(node_t) + ptr->capacity * sizeof(type)); \
   }                                                                           \
-  M_ILIST_DEF(M_F(name, _node_list), node_t, (DEL(M_F(name, _del_node))) )      \
+  M_ILIST_DEF(M_F(name, _node_list), node_t, (DEL(M_F(name, _del_node))) )    \
                                                                               \
   /* Define an internal iterator */                                           \
   typedef struct M_F(name, _it2_s) {                                          \
