@@ -522,7 +522,7 @@
     M_F(name, _write_unlock)(out);                                            \
   }                                                                           \
                                                                               \
-  M_EMPLACE_QUEUE_DEF(name, concurrent_t, M_F(name, _emplace), M_GET_OPLIST oplist, M_EMPLACE_QUEUE_GENE) \
+  M_EMPLACE_QUEUE_DEF(name, concurrent_t, _emplace, M_GET_OPLIST oplist, M_EMPLACE_QUEUE_GENE) \
   ,)                                                                          \
                                                                               \
   M_IF_METHOD(POP, oplist)(                                                   \

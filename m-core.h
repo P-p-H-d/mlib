@@ -5081,10 +5081,10 @@ m_core_parse2_enum (const char str[], const char **endptr)
   M_ID( M_C(M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF, isSet)(name, name_t, key_oplist, val_oplist) )
 #define M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF0(name, name_t, key_oplist, val_oplist) \
   M_EMPLACE_ASS_ARRAY_DEF(name, name_t, M_F(name, _emplace), key_oplist, val_oplist, M_EMPLACE_ASS_ARRA1_BOTH_GENE, M_EMPLACE_ASS_ARRA1_KEY_GENE, M_EMPLACE_ASS_ARRA1_VAL_GENE) \
-  M_EMPLACE_QUEUE_DEF(name, name_t, M_F(name, _get_emplace), key_oplist, M_EMPLACE_GET_GENE)
+  M_EMPLACE_QUEUE_DEF(name, name_t, _get_emplace, key_oplist, M_EMPLACE_GET_GENE)
 #define M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF1(name, name_t, key_oplist, val_oplist) \
-  M_EMPLACE_QUEUE_DEF(name, name_t, M_F(name, _emplace), key_oplist, M_EMPLACE_QUEUE_GENE) \
-  M_EMPLACE_QUEUE_DEF(name, name_t, M_F(name, _get_emplace), key_oplist, M_EMPLACE_GET_GENE)
+  M_EMPLACE_QUEUE_DEF(name, name_t, _emplace, key_oplist, M_EMPLACE_QUEUE_GENE) \
+  M_EMPLACE_QUEUE_DEF(name, name_t, _get_emplace, key_oplist, M_EMPLACE_GET_GENE)
 
 
 /* Definition of the emplace_back function for associative arrays.
@@ -5138,13 +5138,13 @@ m_core_parse2_enum (const char str[], const char **endptr)
    This definition is far from being efficient but works for the current interface.
 */
 #define M_EMPLACE_QUEUE_GENE(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  M_INLINE void                                                               \
-  function_name(name_t v                                                      \
+  M_P(void, name, function_name, name_t v                                     \
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
     M_GET_TYPE oplist data;                                                   \
     M_EMPLACE_CALL_FUNC(a, init_func, oplist, data, exp_emplace_type);        \
-    M_F(name, _push)(v, data);                                                \
+    /* FIXME: Why name##_push and not M_CALL_PUSH? */                         \
+    M_F(name, _push) M_R(v, data);                                            \
     M_CALL_CLEAR(oplist, data);                                               \
   }
 
@@ -5155,7 +5155,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 */
 #define M_EMPLACE_GET_GENE(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
   M_INLINE M_F(name, _value_ct) *                                             \
-  function_name(name_t const v                                                \
+  M_F(name, function_name)(name_t const v                                     \
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
     M_GET_TYPE oplist data;                                                   \
