@@ -103,8 +103,7 @@ typedef struct m_genint_s {
  * meaning it can be used to index global unique resources shared 
  * for all threads.
  */
-M_INLINE void
-m_genint_init(m_genint_t s, unsigned int n)
+M_P(void, m_genint, _init, m_genint_t s, unsigned int n)
 {
   M_ASSERT (s != NULL && n > 0 && n <= M_GENINT_MAX_ALLOC);
   const size_t alloc = (n + M_GEN1NT_LIMBSIZE - 1) / M_GEN1NT_LIMBSIZE;
@@ -126,8 +125,7 @@ m_genint_init(m_genint_t s, unsigned int n)
 }
 
 /* Clear an integer generator (Destructor) */
-M_INLINE void
-m_genint_clear(m_genint_t s)
+M_P(void, m_genint, _clear, m_genint_t s)
 {
   M_GEN1NT_CONTRACT(s);
   M_MEMORY_FREE(atomic_ullong, s->data, s->max+1);
