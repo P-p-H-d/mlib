@@ -27,6 +27,9 @@
 
 #include "m-core.h"
 
+// TODO: Full rework of the mempool module to provide a generic arena allocator
+// instead using the new pool context pointer.
+
 /* Fast, fixed size, thread unsafe allocator based on memory regions.
    No oplist is needed.
    USAGE:
