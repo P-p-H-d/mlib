@@ -269,7 +269,7 @@ typedef struct m_worker_sync_s {
         M_MEMORY_FULL(struct M_C3(m_worker_, name, _s), 1);                   \
       }                                                                       \
       p->callback = callback;                                                 \
-      M_MAP3(M_WORK3R_SPAWN_EXTEND_DEF_EMPLACE_FIELD_COPY, data, __VA_ARGS__) \
+      M_MAP3(M_WORK3R_SPAWN_EXTEND_DEF_EMPLACE_FIELD_INIT_SET, data, __VA_ARGS__) \
       const m_work3r_order_ct w = { block, p, M_C3(m_work3r_, name, _callback) M_WORK3R_EXTRA_ORDER }; \
       if (m_work3r_queue_push (block->worker->queue_g, w) == true) {          \
         atomic_fetch_add (&block->num_spawn, 1);                              \
@@ -288,7 +288,7 @@ typedef struct m_worker_sync_s {
 #define M_WORK3R_SPAWN_EXTEND_DEF_EMPLACE_FIELD(data, num, oplist)            \
   M_GET_TYPE oplist M_C(param, num)
 
-#define M_WORK3R_SPAWN_EXTEND_DEF_EMPLACE_FIELD_COPY(data, num, oplist)       \
+#define M_WORK3R_SPAWN_EXTEND_DEF_EMPLACE_FIELD_INIT_SET(data, num, oplist)   \
   M_CALL_INIT_SET(oplist, p-> M_C(field, num), M_C(param, num) );
 
 #define M_WORK3R_SPAWN_EXTEND_DEF_EMPLACE_FIELD_ALONE(data, num, oplist)      \
