@@ -258,7 +258,7 @@ m_buff3r_number_dec(m_buff3r_number_ct n, unsigned int policy)
   M_BUFF3R_DEF_TYPE(name, type, m_size, policy, oplist, buffer_t)             \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
   M_BUFF3R_DEF_CORE(name, type, m_size, policy, oplist, buffer_t)             \
-  M_EMPLACE_QUEUE_DEF(name, buffer_t, M_F(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
+  M_EMPLACE_QUEUE_DEF(name, buffer_t, _emplace, oplist, M_EMPLACE_QUEUE_GENE)
 
 /* Define the type of a buffer */
 #define M_BUFF3R_DEF_TYPE(name, type, m_size, policy, oplist, buffer_t)       \
@@ -798,7 +798,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
   M_QU3UE_MPMC_DEF_TYPE(name, type, policy, oplist, buffer_t)                 \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
   M_QU3UE_MPMC_DEF_CORE(name, type, policy, oplist, buffer_t)                 \
-  M_EMPLACE_QUEUE_DEF(name, buffer_t, M_F(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
+  M_EMPLACE_QUEUE_DEF(name, buffer_t, _emplace, oplist, M_EMPLACE_QUEUE_GENE)
 
 /* Define the type of a MPMC queue */
 #define M_QU3UE_MPMC_DEF_TYPE(name, type, policy, oplist, buffer_t)           \
@@ -1033,7 +1033,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
   M_QU3UE_SPSC_DEF_TYPE(name, type, policy, oplist, buffer_t)                 \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
   M_QU3UE_SPSC_DEF_CORE(name, type, policy, oplist, buffer_t)                 \
-  M_EMPLACE_QUEUE_DEF(name, buffer_t, M_F(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
+  M_EMPLACE_QUEUE_DEF(name, buffer_t, _emplace, oplist, M_EMPLACE_QUEUE_GENE)
 
 /* Define the type of a SPSC queue */
 #define M_QU3UE_SPSC_DEF_TYPE(name, type, policy, oplist, buffer_t)           \

@@ -25,7 +25,6 @@
 #ifndef MSTARLIB_PRIOQUEUE_H
 #define MSTARLIB_PRIOQUEUE_H
 
-#include "m-core.h"
 #include "m-array.h"            /* Priority queue are built upon array */
 
 /* Priority queue based on binary heap implementation */
@@ -137,7 +136,7 @@
   M_PR1OQUEUE_DEF_CORE(name, type, oplist, prioqueue_t, it_t)                 \
   M_PR1OQUEUE_DEF_IT(name, type, oplist, prioqueue_t, it_t)                   \
   M_PR1OQUEUE_DEF_IO(name, type, oplist, prioqueue_t, it_t)                   \
-  M_EMPLACE_QUEUE_DEF(name, prioqueue_t, M_F(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
+  M_EMPLACE_QUEUE_DEF(name, prioqueue_t, _emplace, oplist, M_EMPLACE_QUEUE_GENE)
 
 /* Define the types */
 #define M_PR1OQUEUE_DEF_TYPE(name, type, oplist, prioqueue_t, it_t)           \
@@ -167,22 +166,19 @@
     M_F(name, _array_init)(p->array);                                         \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _init_set)(prioqueue_t p, prioqueue_t const o)                    \
+  M_P(void, name, _init_set, prioqueue_t p, prioqueue_t const o)              \
   {                                                                           \
-    M_F(name, _array_init_set)(p->array, o->array);                           \
+    M_F(name, _array_init_set) M_R(p->array, o->array);                       \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _set)(prioqueue_t p, prioqueue_t const o)                         \
+  M_P(void, name, _set, prioqueue_t p, prioqueue_t const o)                   \
   {                                                                           \
-    M_F(name, _array_set)(p->array, o->array);                                \
+    M_F(name, _array_set) M_R(p->array, o->array);                            \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _clear)(prioqueue_t p)                                            \
+  M_P(void, name, _clear, prioqueue_t p)                                      \
   {                                                                           \
-    M_F(name, _array_clear)(p->array);                                        \
+    M_F(name, _array_clear) M_R(p->array);                                    \
   }                                                                           \
                                                                               \
   M_INLINE void                                                               \
@@ -191,10 +187,9 @@
     M_F(name, _array_init_move)(p->array, o->array);                          \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _move)(prioqueue_t p, prioqueue_t o)                              \
+  M_P(void, name, _move, prioqueue_t p, prioqueue_t o)                        \
   {                                                                           \
-    M_F(name, _array_move)(p->array, o->array);                               \
+    M_F(name, _array_move) M_R(p->array, o->array);                           \
   }                                                                           \
                                                                               \
   M_INLINE void                                                               \
@@ -203,10 +198,9 @@
     M_F(name, _array_swap)(p->array, o->array);                               \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _reset)(prioqueue_t p)                                            \
+  M_P(void, name, _reset, prioqueue_t p)                                      \
   {                                                                           \
-    M_F(name, _array_reset)(p->array);                                        \
+    M_F(name, _array_reset)M_R(p->array);                                     \
   }                                                                           \
                                                                               \
   M_INLINE size_t                                                             \
@@ -249,11 +243,10 @@
     return M_F(name, _array_size)(p->array);                                  \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _push)(prioqueue_t p, type const x)                               \
+  M_P(void, name, _push, prioqueue_t p, type const x)                         \
   {                                                                           \
     /* Push back the new element at the end of the array */                   \
-    M_F(name, _array_push_back)(p->array, x);                                 \
+    M_F(name, _array_push_back) M_R(p->array, x);                             \
                                                                               \
     /* Reorder the array by swapping with its parent                          \
      * until it reaches the right position */                                 \
@@ -273,14 +266,13 @@
     return M_F(name, _array_cget)(p->array, 0);                               \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _pop)(type *x, prioqueue_t p)                                     \
+  M_P(void, name, _pop, type *x, prioqueue_t p)                               \
   {                                                                           \
     /* Swap the front element with the last element */                        \
     size_t size = M_F(name, _array_size)(p->array)-1;                         \
     M_F(name, _array_swap_at) (p->array, 0, size);                            \
     /* Swap the new last element  */                                          \
-    M_F(name, _array_pop_back)(x, p->array);                                  \
+    M_F(name, _array_pop_back) M_R(x, p->array);                              \
                                                                               \
     /* Reorder the heap */                                                    \
     size_t i = 0;                                                             \
@@ -323,8 +315,7 @@
      return i;                                                                \
    }                                                                          \
                                                                               \
-   M_INLINE bool                                                              \
-   M_F(name, _erase)(prioqueue_t p, type const x)                             \
+   M_P(bool, name, _erase, prioqueue_t p, type const x)                       \
    {                                                                          \
      /* First pass: search for an item EQUAL to x */                          \
      size_t size = M_F(name, _array_size)(p->array);                          \
@@ -335,7 +326,7 @@
      /* Swap the found item and the last element */                           \
      size--;                                                                  \
      M_F(name, _array_swap_at) (p->array, i, size);                           \
-     M_F(name, _array_pop_back)(NULL, p->array);                              \
+     M_F(name, _array_pop_back) M_R(NULL, p->array);                          \
      /* Move back the last swapped element to its right position in the heap */ \
      while (true) {                                                           \
        size_t child = M_F(name, _i_lchild)(i);                                \
@@ -352,8 +343,7 @@
      return true;                                                             \
    }                                                                          \
                                                                               \
-   M_INLINE void                                                              \
-   M_F(name, _update)(prioqueue_t p, type const xold, type const xnew)        \
+   M_P(void, name, _update, prioqueue_t p, type const xold, type const xnew)  \
    {                                                                          \
      /* NOTE: xold can be the same pointer than xnew */                       \
      /* First pass: search for an item EQUAL to x */                          \
@@ -364,7 +354,7 @@
      /* Test if the position of the old data is further or nearer than the new */ \
      int cmp = M_CALL_CMP(oplist, *M_F(name, _array_cget)(p->array, i), xnew); \
      /* Set the found item to the new element */                              \
-     M_F(name, _array_set_at) (p->array, i, xnew);                            \
+     M_F(name, _array_set_at) M_R(p->array, i, xnew);                         \
      if (cmp < 0) {                                                           \
       /* Move back the updated element to its new position, further in the heap */ \
       while (true) {                                                          \
@@ -467,26 +457,23 @@
   ,/* No OUT_STR */)                                                          \
                                                                               \
   M_IF_METHOD(IN_STR, oplist)(                                                \
-  M_INLINE bool                                                               \
-  M_F(name, _in_str)(prioqueue_t p, FILE *file)                               \
+  M_P(bool, name, _in_str, prioqueue_t p, FILE *file)                         \
   {                                                                           \
-    return M_F(name, _array_in_str)(p->array, file);                          \
+    return M_F(name, _array_in_str)M_R(p->array, file);                       \
   }                                                                           \
   ,/* No IN_STR */)                                                           \
                                                                               \
   M_IF_METHOD(GET_STR, oplist)(                                               \
-  M_INLINE void                                                               \
-  M_F(name, _get_str)(m_string_t str, const prioqueue_t p, bool append)       \
+  M_P(void, name, _get_str, m_string_t str, const prioqueue_t p, bool append) \
   {                                                                           \
-    M_F(name, _array_get_str)(str, p->array, append);                         \
+    M_F(name, _array_get_str)M_R(str, p->array, append);                      \
   }                                                                           \
   ,/* No GET_STR */)                                                          \
                                                                               \
   M_IF_METHOD(PARSE_STR, oplist)(                                             \
-  M_INLINE bool                                                               \
-  M_F(name, _parse_str)(prioqueue_t p, const char str[], const char **endp)   \
+  M_P(bool, name, _parse_str, prioqueue_t p, const char str[], const char **endp) \
   {                                                                           \
-    return M_F(name, _array_parse_str)(p->array, str, endp);                  \
+    return M_F(name, _array_parse_str)M_R(p->array, str, endp);               \
   }                                                                           \
   ,/* No PARSE_STR */)                                                        \
                                                                               \
@@ -499,10 +486,9 @@
   ,/* No OUT_SERIAL */)                                                       \
                                                                               \
   M_IF_METHOD2(IN_SERIAL, INIT, oplist)(                                      \
-  M_INLINE m_serial_return_code_t                                             \
-  M_F(name, _in_serial)(prioqueue_t p, m_serial_read_t f)                     \
+  M_P(m_serial_return_code_t, name, _in_serial, prioqueue_t p, m_serial_read_t f) \
   {                                                                           \
-    return M_F(name, _array_in_serial)(p->array, f);                          \
+    return M_F(name, _array_in_serial)M_R(p->array, f);                       \
   }                                                                           \
   ,/* No in_SERIAL */)                                                        \
 

@@ -180,7 +180,7 @@ typedef enum {
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
   M_RBTR33_DEF_CORE(name, type, oplist, tree_t, node_t, it_t)                 \
   M_RBTR33_DEF_IO(name, type, oplist, tree_t, node_t, it_t)                   \
-  M_EMPLACE_QUEUE_DEF(name, tree_t, M_F(name, _emplace), oplist, M_EMPLACE_QUEUE_GENE)
+  M_EMPLACE_QUEUE_DEF(name, tree_t, _emplace, oplist, M_EMPLACE_QUEUE_GENE)
 
 /* Define the types associated to a R/B Tree */
 #define M_RBTR33_DEF_TYPE(name, type, oplist, tree_t, node_t, it_t)           \

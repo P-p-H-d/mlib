@@ -80,6 +80,7 @@
 /* OPLIST definition of a dynamic array */
 /* FIXME: Do we want to export some methods as they are slow and 
    are not fit to be used for building other methods (like _it_remove)? */
+//TODO: ARRAY_POOL_OPLIST
 #define M_ARRA4_OPLIST_P3(name, oplist)                                       \
   (INIT(M_F(name, _init))                                                     \
    ,M_IF_METHOD2(INIT_SET,SET, oplist)(INIT_SET(M_F(name, _init_set)),)       \
