@@ -318,7 +318,7 @@ typedef struct m_try_s {
       } kind;
   struct m_try_s *next;                     // Next try block or clear mechanism on the stack frame.
   union {
-    m_try_jmp_buf buf;                      // To use for M_STATE_CLEAR_JMPBUF
+    m_try_jmp_buf buffer;                   // To use for M_STATE_CLEAR_JMPBUF
     struct { void (M_TRY_FUNC_OPERATOR func)(void*); void *data; } clear; // To use for M_STATE_CLEAR_CB
   } data;
 } m_try_t[1];
@@ -328,8 +328,8 @@ typedef struct m_try_s {
 #define M_TRY_B(cont, buf, exception)                                         \
  for(bool cont = true ; cont ; cont = false)                                  \
    for(m_try_t buf ; cont ; m_try_clear(buf), cont = false )                  \
-     for(const struct m_exception_s *exception = NULL; cont; cont = false, exception = exception) \
-       if (m_try_init(buf))
+     for(const struct m_exception_s *exception = (m_try_init(buf), NULL); cont; cont = false, exception = exception) \
+       if (m_try_setjmp((buf->data.buffer)) == 0)
 
 // Throw the error code
 #define M_THROW_1(error_code)                                                 \
@@ -381,7 +381,7 @@ extern M_ATTR_NO_RETURN M_ATTR_COLD_FUNCTION void m_throw(const struct m_excepti
         m_exception_set(&m_global_exception, exception);                      \
         e->kind = M_STATE_EXCEPTION_IN_PROGRESS;                              \
         m_global_error_list = e;                                              \
-        m_try_longjmp(e->data.buf, 1);                                        \
+        m_try_longjmp(e->data.buffer, 1);                                     \
       }                                                                       \
       /* Next stack frame */                                                  \
       e = e->next;                                                            \
@@ -421,6 +421,14 @@ m_catch(m_try_t state, unsigned error_code, const struct m_exception_s **excepti
   return true;
 }
 
+#if defined(__GNUC__)
+#if __GNUC__ >= 12
+/* Warnings disabled for GNU C in C mode (Affecting a global variable to the address of a local variable) */
+_Pragma("GCC diagnostic push")
+_Pragma("GCC diagnostic ignored \"-Wdangling-pointer\"")
+#endif
+#endif
+
 // Initialize the state to a TRY state.
 M_INLINE void
 m_try_init(m_try_t state)
@@ -428,10 +436,8 @@ m_try_init(m_try_t state)
   state->kind = M_STATE_TRY;
   state->next = m_global_error_list;
   m_global_error_list = state;
-  // setjmp needs to be done in the MACRO.
+  // setjmp cannot be done here
 }
-#define m_try_init(s)                                                         \
-  M_LIKELY ((m_try_init(s), m_try_setjmp(((s)->data.buf)) != 1))
 
 // Disable the current TRY block.
 M_INLINE void
@@ -504,11 +510,9 @@ m_try_jump_pre(m_try_t state)
 M_INLINE void
 m_try_jump_post(m_try_t state)
 {
+  M_ASSERT(state->next == m_global_error_list);
   m_global_error_list = state;
 }
-// And call setjmp to register the position in the code.
-#define m_try_jump_post(s)                                                    \
-  M_LIKELY ((m_try_jump_post(s), m_try_setjmp(((s)->data.buf)) != 1))
 
 // The object will be cleared.
 // We can pop the stack frame of the errors.
@@ -518,6 +522,11 @@ m_try_jump_final(m_try_t state)
   m_global_error_list = state->next;
 }
 
+#if defined(__GNUC__)
+#if __GNUC__ >= 12
+_Pragma("GCC diagnostic pop")
+#endif
+#endif
 
 // Implement the M_LET injection macros, so that the CLEAR operator is called on exception
 //
@@ -564,9 +573,8 @@ m_try_jump_final(m_try_t state)
 // Register the stack frame and tests for the longjmp.
 // In which case call the CLEAR operator, unstack the error list and rethrow the error.
 #define M_LET_TRY_INJECT_POST_B(cont, oplist, name)                           \
-  for( ; cont ; m_try_jump_final(M_C(m_try_state_, name)))                    \
-    if (m_try_jump_post(M_C(m_try_state_, name))                              \
-        || (M_CALL_CLEAR(oplist, name), m_try_jump_final(M_C(m_try_state_, name)), m_rethrow(), false))
+  for(m_try_jump_post(M_C(m_try_state_, name)); cont ; m_try_jump_final(M_C(m_try_state_, name))) \
+    if (m_try_setjmp(M_C(m_try_state_, name)->data.buffer) != 0) { M_CALL_CLEAR(oplist, name); m_try_jump_final(M_C(m_try_state_, name)); m_rethrow(); } else
 
 #else
 # error M*LIB: Invalid value for M_USE_TRY_MECHANISM [1..4]
@@ -583,9 +591,8 @@ m_try_jump_final(m_try_t state)
 // Register the stack frame and tests for the longjmp.
 // In which case call the CLEAR operator, unstack the error list and rethrow the error.
 #define M_DEFER_TRY_INJECT_POST_B(cont, ...)                                  \
-  for( ; cont ; m_try_jump_final(M_C(m_try_state_, cont)))                    \
-    if (m_try_jump_post(M_C(m_try_state_, cont))                              \
-        || (__VA_ARGS__ , m_try_jump_final(M_C(m_try_state_, cont)), m_rethrow(), false))
+  for(m_try_jump_post(M_C(m_try_state_, cont)); cont ; m_try_jump_final(M_C(m_try_state_, cont))) \
+  if (m_try_setjmp(M_C(m_try_state_, cont)->data.buffer) != 0) { __VA_ARGS__; m_try_jump_final(M_C(m_try_state_, cont)); m_rethrow(); } else
 
 #endif /* cplusplus */
 
