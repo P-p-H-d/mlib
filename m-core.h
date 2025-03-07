@@ -401,6 +401,7 @@ M_BEGIN_PROTECTED_CODE
 
 /* This macro is called on memory allocation failure.
  * By default, it raises a fatal error and abort execution.
+ * It shall never continue execution.
  * NOTE: Can be overloaded by user code.
 */
 #ifndef M_MEMORY_FULL
