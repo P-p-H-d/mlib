@@ -86,6 +86,8 @@
 
 /********************************** INTERNAL ************************************/
 
+//TODO: Provide an update scheme for mempool using new memory allocator context.
+
 /* Deferred evaluation for the oplist definition,
    so that all arguments are evaluated before further expansion */
 #define M_L1ST_OPLIST_P1(arg) M_L1ST_OPLIST_P2 arg
@@ -155,29 +157,6 @@
 #define M_L1ST_DEF_FAILURE(name, type, oplist, list_t, it_t)                  \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(LIST_DEF): the given argument is not a valid oplist: " #oplist)
 
-/* Define allocation functions. If MEMPOOL, we need to define it */
-#define M_L1ST_MEMPOOL_DEF(name, type, oplist, list_t, list_it_t)             \
-  M_IF_METHOD(MEMPOOL, oplist)(                                               \
-                                                                              \
-    MEMPOOL_DEF(M_F(name, _mempool), struct M_F(name, _s))                    \
-    M_GET_MEMPOOL_LINKAGE oplist M_F(name, _mempool_t) M_GET_MEMPOOL oplist;  \
-    M_INLINE struct M_F(name, _s) *M_C3(m_l1st_,name,_new)(void) {            \
-      return M_F(name, _mempool_alloc)(M_GET_MEMPOOL oplist);                 \
-    }                                                                         \
-    M_INLINE void M_C3(m_l1st_,name,_del)(struct M_F(name, _s) *ptr) {        \
-      M_F(name, _mempool_free)(M_GET_MEMPOOL oplist, ptr);                    \
-    }                                                                         \
-                                                                              \
-    , /* No mempool allocation */                                             \
-                                                                              \
-    M_INLINE struct M_F(name, _s) *M_C3(m_l1st_,name,_new)(void) {            \
-      return M_CALL_NEW(oplist, struct M_F(name, _s));                        \
-    }                                                                         \
-    M_INLINE void M_C3(m_l1st_,name,_del)(struct M_F(name, _s) *ptr) {        \
-      M_CALL_DEL(oplist, ptr);                                                \
-    }                                                                         \
-    )                                                                         \
-
 
 /* Internal list definition
    - name: prefix to be used
@@ -190,9 +169,8 @@
 #define M_L1ST_DEF_P3(name, type, oplist, list_t, it_t)                       \
   M_L1ST_DEF_TYPE(name, type, oplist, list_t, it_t)                           \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
-  M_L1ST_MEMPOOL_DEF(name, type, oplist, list_t, it_t)                        \
   M_L1ST_DEF_P4(name, type, oplist, list_t, it_t)                             \
-  M_EMPLACE_QUEUE_DEF(name, list_t, M_F(name, _emplace_back), oplist, M_L1ST_EMPLACE_DEF) \
+  M_EMPLACE_QUEUE_DEF(name, list_t, _emplace_back, oplist, M_L1ST_EMPLACE_DEF) \
   M_L1ST_ITBASE_DEF(name, type, oplist, list_t, it_t)
 
 
@@ -242,8 +220,7 @@
     *v = NULL;                                                                \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _reset)(list_t v)                                                 \
+  M_P(void,name, _reset, list_t v)                                            \
   {                                                                           \
     M_L1ST_CONTRACT(v);                                                       \
     struct M_F(name, _s) *it = *v;                                            \
@@ -251,16 +228,15 @@
     while (it != NULL) {                                                      \
       struct M_F(name, _s) *next = it->next;                                  \
       M_CALL_CLEAR(oplist, it->data);                                         \
-      M_C3(m_l1st_,name,_del)(it);                                            \
+      M_CALL_DEL(oplist, it);                                                 \
       it = next;                                                              \
     }                                                                         \
     M_L1ST_CONTRACT(v);                                                       \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _clear)(list_t v)                                                 \
+  M_P(void, name, _clear, list_t v)                                           \
   {                                                                           \
-    M_F(name, _reset)(v);                                                     \
+    M_F(name, _reset)M_R(v);                                                  \
   }                                                                           \
                                                                               \
   M_INLINE type  *                                                            \
@@ -271,12 +247,10 @@
     return &((*v)->data);                                                     \
   }                                                                           \
                                                                               \
-  M_INLINE type *                                                             \
-  M_F(name, _push_raw)(list_t v)                                              \
+  M_P(type *, name, _push_raw, list_t v)                                      \
   {                                                                           \
     M_L1ST_CONTRACT(v);                                                       \
-    struct M_F(name, _s) *next;                                               \
-    next = M_C3(m_l1st_,name,_new)();                                         \
+    struct M_F(name, _s) *next = M_CALL_NEW(oplist, struct M_F(name, _s));    \
     if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
       M_MEMORY_FULL(struct M_F(name, _s), 1);                                 \
       return NULL;                                                            \
@@ -288,35 +262,32 @@
     return ret;                                                               \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _push_back)(list_t v, type const x)                               \
+  M_P(void, name, _push_back, list_t v, type const x)                         \
   {                                                                           \
-    type *data = M_F(name, _push_raw)(v);                                     \
+    type *data = M_F(name, _push_raw)M_R(v);                                  \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
     M_IF_EXCEPTION(struct M_F(name, _s) *next = *v );                         \
-    M_ON_EXCEPTION( *v = next->next, M_C3(m_l1st_,name,_del)(next)) {         \
+    M_ON_EXCEPTION( *v = next->next, M_CALL_DEL(oplist, next)) {              \
       M_CALL_INIT_SET(oplist, *data, x);                                      \
     }                                                                         \
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
-  M_INLINE type *                                                             \
-  M_F(name, _push_new)(list_t v)                                              \
+  M_P(type *, name, _push_new, list_t v)                                      \
   {                                                                           \
-    type *data = M_F(name, _push_raw)(v);                                     \
+    type *data = M_F(name, _push_raw)M_R(v);                                  \
     if (M_UNLIKELY (data == NULL))                                            \
       return NULL;                                                            \
     M_IF_EXCEPTION(struct M_F(name, _s) *next = *v );                         \
-    M_ON_EXCEPTION( *v = next->next, M_C3(m_l1st_,name,_del)(next)) {         \
+    M_ON_EXCEPTION( *v = next->next, M_CALL_DEL(oplist, next)) {              \
       M_CALL_INIT(oplist, *data);                                             \
     }                                                                         \
     return data;                                                              \
   }                                                                           \
   , /* No INIT */)                                                            \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _pop_back)(type *data, list_t v)                                  \
+  M_P(void, name, _pop_back, type *data, list_t v)                            \
   {                                                                           \
     M_L1ST_CONTRACT(v);                                                       \
     M_ASSERT(*v != NULL);                                                     \
@@ -327,29 +298,27 @@
     }                                                                         \
     struct M_F(name, _s) *tofree = *v;                                        \
     *v = (*v)->next;                                                          \
-    M_C3(m_l1st_,name,_del)(tofree);                                          \
+    M_CALL_DEL(oplist, tofree);                                               \
     M_L1ST_CONTRACT(v);                                                       \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _push_move)(list_t v, type *x)                                    \
+  M_P(void, name, _push_move, list_t v, type *x)                              \
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
-    type *data = M_F(name, _push_raw)(v);                                     \
+    type *data = M_F(name, _push_raw)M_R(v);                                  \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
     M_DO_INIT_MOVE (oplist, *data, *x);                                       \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _pop_move)(type *data, list_t v)                                  \
+  M_P(void, name, _pop_move, type *data, list_t v)                            \
   {                                                                           \
     M_L1ST_CONTRACT(v);                                                       \
     M_ASSERT(*v != NULL && data != NULL);                                     \
     M_DO_INIT_MOVE (oplist, *data, (*v)->data);                               \
     struct M_F(name, _s) *tofree = *v;                                        \
     *v = (*v)->next;                                                          \
-    M_C3(m_l1st_,name,_del)(tofree);                                          \
+    M_CALL_DEL(oplist, tofree);                                               \
     M_L1ST_CONTRACT(v);                                                       \
   }                                                                           \
                                                                               \
@@ -490,19 +459,17 @@
     return M_CONST_CAST(type, M_F(name, _get)(l,i));                          \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _insert)(list_t list, it_t insertion_point,                       \
-                     type const x)                                            \
+  M_P(void, name, _insert, list_t list, it_t insertion_point, type const x)   \
   {                                                                           \
     M_L1ST_CONTRACT(list);                                                    \
     M_ASSERT (insertion_point != NULL);                                       \
-    M_ASSERT(M_F(name, _sublist_p)(list, insertion_point));                   \
-    struct M_F(name, _s) *next = M_C3(m_l1st_,name,_new)();                   \
+    M_ASSERT (M_F(name, _sublist_p)(list, insertion_point));                  \
+    struct M_F(name, _s) *next = M_CALL_NEW(oplist, struct M_F(name, _s));    \
     if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
       M_MEMORY_FULL(struct M_F(name, _s), 1);                                 \
       return;                                                                 \
     }                                                                         \
-    M_ON_EXCEPTION( M_C3(m_l1st_,name,_del)(next))                            \
+    M_ON_EXCEPTION( M_CALL_DEL(oplist, next))                                 \
       M_CALL_INIT_SET(oplist, next->data, x);                                 \
     struct M_F(name, _s) *current = insertion_point->current;                 \
     if (M_UNLIKELY (current == NULL)) {                                       \
@@ -518,13 +485,12 @@
     M_L1ST_CONTRACT(list);                                                    \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _remove)(list_t list, it_t removing_point)                        \
+  M_P(void, name, _remove, list_t list, it_t removing_point)                  \
   {                                                                           \
     M_L1ST_CONTRACT(list);                                                    \
     M_ASSERT (removing_point != NULL);                                        \
     M_ASSERT (removing_point->current != NULL);                               \
-    M_ASSERT(M_F(name, _sublist_p)(list, removing_point));                    \
+    M_ASSERT (M_F(name, _sublist_p)(list, removing_point));                   \
     struct M_F(name, _s) *next = removing_point->current->next;               \
     if (M_UNLIKELY (removing_point->previous == NULL)) {                      \
       *list = next;                                                           \
@@ -532,13 +498,12 @@
       removing_point->previous->next = next;                                  \
     }                                                                         \
     M_CALL_CLEAR(oplist, removing_point->current->data);                      \
-    M_C3(m_l1st_,name,_del) (removing_point->current);                        \
+    M_CALL_DEL(oplist, removing_point->current);                              \
     removing_point->current = next;                                           \
     M_L1ST_CONTRACT(list);                                                    \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _init_set)(list_t list, const list_t org)                         \
+  M_P(void, name, _init_set, list_t list, const list_t org)                   \
   {                                                                           \
     M_L1ST_CONTRACT(org);                                                     \
     struct M_F(name, _s) *m_volatile next = NULL;                             \
@@ -546,11 +511,12 @@
     struct M_F(name, _s) **update_list;                                       \
     update_list = list;                                                       \
     it_org = *org;                                                            \
-    /* On exceptions, free node and clear list*/                              \
+    /* If exceptions, always keep list as a valid list */                     \
     M_IF_EXCEPTION(*update_list = NULL);                                      \
-    M_ON_EXCEPTION(M_C3(m_l1st_,name,_del)(next), M_F(name, _clear)(list) )   \
+    /* On exceptions, free node and clear list*/                              \
+    M_ON_EXCEPTION(M_CALL_DEL(oplist, next), M_F(name, _clear)(list) )        \
     while (it_org != NULL) {                                                  \
-      next = M_C3(m_l1st_,name,_new)();                                       \
+      next = M_CALL_NEW(oplist, struct M_F(name, _s));                        \
       if (M_UNLIKELY_NOMEM (next == NULL)) {                                  \
         M_MEMORY_FULL(struct M_F(name, _s), 1);                               \
         *update_list = NULL;                                                  \
@@ -566,13 +532,12 @@
     M_L1ST_CONTRACT(list);                                                    \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _set)(list_t list, const list_t org)                              \
+  M_P(void, name, _set, list_t list, const list_t org)                        \
   {                                                                           \
     if (M_UNLIKELY (list == org)) return;                                     \
     M_ON_EXCEPTION(M_F(name, _init)(list) ) {                                 \
-      M_F(name, _clear)(list);                                                \
-      M_F(name, _init_set)(list, org);                                        \
+      M_F(name, _clear)M_R(list);                                             \
+      M_F(name, _init_set)M_R(list, org);                                     \
     }                                                                         \
   }                                                                           \
                                                                               \
@@ -585,11 +550,10 @@
     *org = NULL;  /* safer */                                                 \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _move)(list_t list, list_t org)                                   \
+  M_P(void, name, _move, list_t list, list_t org)                             \
   {                                                                           \
     M_ASSERT (list != org);                                                   \
-    M_F(name, _clear)(list);                                                  \
+    M_F(name, _clear)M_R(list);                                               \
     M_F(name, _init_move)(list, org);                                         \
   }                                                                           \
                                                                               \
@@ -699,12 +663,10 @@
 #define M_L1ST_ITBASE_DEF(name, type, oplist, list_t, it_t)                   \
                                                                               \
   M_IF_METHOD(GET_STR, oplist)(                                               \
-  M_INLINE void                                                               \
-  M_F(name, _get_str)(m_string_t str, const list_t list,                      \
-                      bool append)                                            \
+  M_P(void, name, _get_str, m_string_t str, const list_t list, bool append)   \
   {                                                                           \
     M_ASSERT (str != NULL && list != NULL);                                   \
-    (append ? m_string_cat_cstr : m_string_set_cstr) (str, "[");              \
+    (append ? m_string_cat_cstr : m_string_set_cstr) M_R(str, "[");           \
     it_t it;                                                                  \
     for (M_F(name, _it)(it, list) ;                                           \
          !M_F(name, _end_p)(it);                                              \
@@ -712,9 +674,9 @@
       type const *item = M_F(name, _cref)(it);                                \
       M_CALL_GET_STR(oplist, str, *item, true);                               \
       if (!M_F(name, _last_p)(it))                                            \
-        m_string_push_back (str, M_GET_SEPARATOR oplist);                     \
+        m_string_push_back M_R(str, M_GET_SEPARATOR oplist);                  \
     }                                                                         \
-    m_string_push_back (str, ']');                                            \
+    m_string_push_back M_R(str, ']');                                         \
   }                                                                           \
   , /* no str */ )                                                            \
                                                                               \
@@ -738,11 +700,10 @@
   , /* no out_str */ )                                                        \
                                                                               \
   M_IF_METHOD2(PARSE_STR, INIT, oplist)(                                      \
-  M_INLINE bool                                                               \
-  M_F(name, _parse_str)(list_t list, const char str[], const char **endp)     \
+  M_P(bool, name, _parse_str, list_t list, const char str[], const char **endp) \
   {                                                                           \
     M_ASSERT (str != NULL && list != NULL);                                   \
-    M_F(name,_reset)(list);                                                   \
+    M_F(name,_reset)M_R(list);                                                \
     bool success = false;                                                     \
     int c = *str++;                                                           \
     if (M_UNLIKELY (c != '[')) goto exit;                                     \
@@ -755,7 +716,7 @@
         bool b = M_CALL_PARSE_STR(oplist, item, str, &str);                   \
         c = m_core_str_nospace(&str);                                         \
         if (b == false || c == 0) { c = 0; break; }                           \
-        M_F(name, _push_back)(list, item);                                    \
+        M_F(name, _push_back)M_R(list, item);                                 \
       } while (c == M_GET_SEPARATOR oplist);                                  \
       success = (c == ']');                                                   \
     }                                                                         \
@@ -767,11 +728,10 @@
   , /* no PARSE_STR & INIT */ )                                               \
                                                                               \
   M_IF_METHOD2(IN_STR, INIT, oplist)(                                         \
-  M_INLINE bool                                                               \
-  M_F(name, _in_str)(list_t list, FILE *file)                                 \
+  M_P(bool, name, _in_str, list_t list, FILE *file)                           \
   {                                                                           \
     M_ASSERT (file != NULL && list != NULL);                                  \
-    M_F(name,_reset)(list);                                                   \
+    M_F(name,_reset)M_R(list);                                                \
     int c = fgetc(file);                                                      \
     if (M_UNLIKELY (c != '[')) return false;                                  \
     c = fgetc(file);                                                          \
@@ -783,7 +743,7 @@
         bool b = M_CALL_IN_STR(oplist, item, file);                           \
         c = m_core_fgetc_nospace(file);                                       \
         if (b == false || c == EOF) { c = 0; break; }                         \
-        M_F(name, _push_back)(list, item);                                    \
+        M_F(name, _push_back)M_R(list, item);                                 \
       } while (c == M_GET_SEPARATOR oplist);                                  \
     }                                                                         \
     M_F(name, _reverse)(list);                                                \
@@ -821,22 +781,21 @@
   , /* no OUT_SERIAL */ )                                                     \
                                                                               \
   M_IF_METHOD2(IN_SERIAL, INIT, oplist)(                                      \
-  M_INLINE m_serial_return_code_t                                             \
-  M_F(name, _in_serial)(list_t list, m_serial_read_t f)                       \
+  M_P(m_serial_return_code_t, name, _in_serial, list_t list, m_serial_read_t f) \
   {                                                                           \
     M_ASSERT (list != NULL);                                                  \
     M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_return_code_t ret;                                               \
     m_serial_local_t local;                                                   \
     size_t estimated_size = 0;                                                \
-    M_F(name,_reset)(list);                                                   \
+    M_F(name,_reset)M_R(list);                                                \
     ret = f->m_interface->read_array_start(local, f, &estimated_size);        \
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;                 \
     M_QLET(1, item, type, oplist) {                                           \
       do {                                                                    \
         ret = M_CALL_IN_SERIAL(oplist, item, f);                              \
         if (ret != M_SERIAL_OK_DONE) { break; }                               \
-        M_F(name, _push_back)(list, item);                                    \
+        M_F(name, _push_back)M_R(list, item);                                 \
         ret = f->m_interface->read_array_next(local, f);                      \
       } while (ret == M_SERIAL_OK_CONTINUE);                                  \
     }                                                                         \
@@ -890,15 +849,13 @@
 
 /* Definition of the emplace_back function for single list */
 #define M_L1ST_EMPLACE_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  M_INLINE void                                                               \
-  function_name(name_t v                                                      \
-                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  M_P(void, name, function_name, name_t v M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) ) \
   {                                                                           \
-    M_F(name, _subtype_ct) *data = M_F(name, _push_raw)(v);                   \
+    M_F(name, _subtype_ct) *data = M_F(name, _push_raw)M_R(v);                \
     if (M_UNLIKELY (data == NULL) )                                           \
       return;                                                                 \
     M_IF_EXCEPTION(struct M_F(name, _s) *next = *v );                         \
-    M_ON_EXCEPTION( *v = next->next, M_C3(m_l1st_,name,_del)(next)) {         \
+    M_ON_EXCEPTION( *v = next->next, M_CALL_DEL(oplist, next)) {              \
       M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);     \
     }                                                                         \
   }
@@ -906,15 +863,13 @@
 
 /* Definition of the emplace_back function for dual push list */
 #define M_L1ST_EMPLACE_BACK_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  M_INLINE void                                                               \
-  function_name(name_t v                                                      \
-                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  M_P(void, name, function_name, name_t v M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) ) \
   {                                                                           \
-    M_F(name, _subtype_ct) *data = M_F(name, _push_back_raw)(v);              \
+    M_F(name, _subtype_ct) *data = M_F(name, _push_back_raw)M_R(v);           \
     if (M_UNLIKELY (data == NULL) )                                           \
       return;                                                                 \
     M_IF_EXCEPTION(struct M_F(name, _s) *next = v->back);                     \
-    M_ON_EXCEPTION( v->back = next->next, v->front = (v->front == next) ? NULL : v->front, M_C3(m_l1st_,name,_del)(next)) { \
+    M_ON_EXCEPTION( v->back = next->next, v->front = (v->front == next) ? NULL : v->front, M_CALL_DEL(oplist, next)) { \
       M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);     \
     }                                                                         \
   }
@@ -922,17 +877,15 @@
 
 /* Definition of the emplace_front function for dual push list */
 #define M_L1ST_EMPLACE_FRONT_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  M_INLINE void                                                               \
-  function_name(name_t v                                                      \
-                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  M_P(void, name, function_name, name_t v M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) ) \
   {                                                                           \
     M_IF_EXCEPTION(struct M_F(name, _s) *front = v->front, *back = v->back);  \
-    M_F(name, _subtype_ct) *data = M_F(name, _push_front_raw)(v);             \
+    M_F(name, _subtype_ct) *data = M_F(name, _push_front_raw)M_R(v);          \
     if (M_UNLIKELY (data == NULL) )                                           \
       return;                                                                 \
     M_IF_EXCEPTION(struct M_F(name, _s) *m_volatile tofree = v->front);       \
     M_IF_EXCEPTION(M_ASSERT(tofree != NULL));                                 \
-    M_ON_EXCEPTION( v->back = back, v->front = front, (front != NULL ? front : tofree)->next = NULL, M_C3(m_l1st_,name,_del)(tofree)) { \
+    M_ON_EXCEPTION( v->back = back, v->front = front, (front != NULL ? front : tofree)->next = NULL, M_CALL_DEL(oplist, tofree)) { \
       M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);     \
     }                                                                         \
   }
@@ -969,10 +922,9 @@
 #define M_L1ST_DUAL_PUSH_DEF_P3(name, type, oplist, list_t, it_t)             \
   M_L1ST_DUAL_PUSH_DEF_TYPE(name, type, oplist, list_t, it_t)                 \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
-  M_L1ST_MEMPOOL_DEF(name, type, oplist, list_t, it_t)                        \
   M_L1ST_DUAL_PUSH_DEF_P4(name, type, oplist, list_t, it_t)                   \
-  M_EMPLACE_QUEUE_DEF(name, list_t, M_F(name, _emplace_back), oplist, M_L1ST_EMPLACE_BACK_DEF) \
-  M_EMPLACE_QUEUE_DEF(name, list_t, M_F(name, _emplace_front), oplist, M_L1ST_EMPLACE_FRONT_DEF) \
+  M_EMPLACE_QUEUE_DEF(name, list_t, _emplace_back, oplist, M_L1ST_EMPLACE_BACK_DEF) \
+  M_EMPLACE_QUEUE_DEF(name, list_t, _emplace_front, oplist, M_L1ST_EMPLACE_FRONT_DEF) \
   M_L1ST_ITBASE_DEF(name, type, oplist, list_t, it_t)
 
 
@@ -1026,15 +978,14 @@
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _reset)(list_t v)                                                 \
+  M_P(void, name, _reset, list_t v)                                           \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     struct M_F(name, _s) *it = v->back;                                       \
     while (it != NULL) {                                                      \
       struct M_F(name, _s) *next = it->next;                                  \
       M_CALL_CLEAR(oplist, it->data);                                         \
-      M_C3(m_l1st_,name,_del)(it);                                            \
+      M_CALL_DEL(oplist, it);                                                 \
       it = next;                                                              \
     }                                                                         \
     v->front = NULL;                                                          \
@@ -1042,10 +993,9 @@
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _clear)(list_t v)                                                 \
+  M_P(void, name, _clear, list_t v)                                           \
   {                                                                           \
-    M_F(name, _reset)(v);                                                     \
+    M_F(name, _reset)M_R(v);                                                  \
   }                                                                           \
                                                                               \
   M_INLINE type *                                                             \
@@ -1056,11 +1006,10 @@
     return &(v->back->data);                                                  \
   }                                                                           \
                                                                               \
-  M_INLINE type *                                                             \
-  M_F(name, _push_back_raw)(list_t v)                                         \
+  M_P(type *, name, _push_back_raw, list_t v)                                 \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
-    struct M_F(name, _s) *next = M_C3(m_l1st_,name,_new)();                   \
+    struct M_F(name, _s) *next = M_CALL_NEW(oplist, struct M_F(name, _s));    \
     if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
       M_MEMORY_FULL(struct M_F(name, _s), 1);                                 \
       return NULL;                                                            \
@@ -1069,7 +1018,7 @@
     next->next = v->back;                                                     \
     v->back = next;                                                           \
     /* Update front too if the list was empty */                              \
-    /* This C code shall generate branchless code */                          \
+    /* This C code should generate branchless code */                         \
     struct M_F(name, _s) *front = v->front;                                   \
     front = (front == NULL) ? next : front;                                   \
     v->front = front;                                                         \
@@ -1078,57 +1027,51 @@
   }                                                                           \
                                                                               \
   /* Internal, for INIT_WITH */                                               \
-  M_INLINE type *                                                             \
-  M_F(name, _push_raw)(list_t d)                                              \
+  M_P(type *, name, _push_raw, list_t d)                                      \
   {                                                                           \
-    return M_F(name, _push_back_raw)(d);                                      \
+    return M_F(name, _push_back_raw)M_R(d);                                   \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _push_back)(list_t v, type const x)                               \
+  M_P(void, name, _push_back, list_t v, type const x)                         \
   {                                                                           \
-    type *data = M_F(name, _push_back_raw)(v);                                \
+    type *data = M_F(name, _push_back_raw)M_R(v);                             \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
     M_IF_EXCEPTION(struct M_F(name, _s) *next = v->back);                     \
-    M_ON_EXCEPTION( v->back = next->next, v->front = (v->front == next) ? NULL : v->front, M_C3(m_l1st_,name,_del)(next)) { \
+    M_ON_EXCEPTION( v->back = next->next, v->front = (v->front == next) ? NULL : v->front, M_CALL_DEL(oplist, next)) { \
       M_CALL_INIT_SET(oplist, *data, x);                                      \
     }                                                                         \
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
-  M_INLINE type *                                                             \
-  M_F(name, _push_back_new)(list_t v)                                         \
+  M_P(type *, name, _push_back_new, list_t v)                                 \
   {                                                                           \
-    type *data = M_F(name, _push_back_raw)(v);                                \
+    type *data = M_F(name, _push_back_raw)M_R(v);                             \
     if (M_UNLIKELY (data == NULL))                                            \
       return NULL;                                                            \
     M_IF_EXCEPTION(struct M_F(name, _s) *next = v->back);                     \
-    M_ON_EXCEPTION( v->back = next->next, v->front = (v->front == next) ? NULL : v->front, M_C3(m_l1st_,name,_del)(next)) { \
+    M_ON_EXCEPTION( v->back = next->next, v->front = (v->front == next) ? NULL : v->front, M_CALL_DEL(oplist, next)) { \
       M_CALL_INIT(oplist, *data);                                             \
     }                                                                         \
     return data;                                                              \
   }                                                                           \
   , /* No INIT */ )                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _push_back_move)(list_t v, type *x)                               \
+  M_P(void, name, _push_back_move, list_t v, type *x)                         \
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
-    type *data = M_F(name, _push_back_raw)(v);                                \
+    type *data = M_F(name, _push_back_raw)M_R(v);                             \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
     M_DO_INIT_MOVE (oplist, *data, *x);                                       \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _push_move)(list_t v, type *x)                                    \
+  M_P(void, name, _push_move, list_t v, type *x)                              \
   {                                                                           \
-    M_F(name, _push_back_move)(v, x);                                         \
+    M_F(name, _push_back_move)M_R(v, x);                                      \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _pop_back)(type *data, list_t v)                                  \
+  M_P(void, name, _pop_back, type *data, list_t v)                            \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     M_ASSERT (v->back != NULL);                                               \
@@ -1139,7 +1082,7 @@
       M_CALL_CLEAR(oplist, tofree->data);                                     \
     }                                                                         \
     v->back = tofree->next;                                                   \
-    M_C3(m_l1st_,name,_del)(tofree);                                          \
+    M_CALL_DEL(oplist, tofree);                                               \
     /* Update front too if the list became empty */                           \
     /* This C code shall generate branchless code */                          \
     struct M_F(name, _s) *front = v->front;                                   \
@@ -1148,8 +1091,7 @@
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _pop_move)(type *data, list_t v)                                  \
+  M_P(void, name, _pop_move, type *data, list_t v)                            \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     M_ASSERT (v->back != NULL);                                               \
@@ -1157,7 +1099,7 @@
     struct M_F(name, _s) *tofree = v->back;                                   \
     M_DO_INIT_MOVE (oplist, *data, tofree->data);                             \
     v->back = tofree->next;                                                   \
-    M_C3(m_l1st_,name,_del)(tofree);                                          \
+    M_CALL_DEL(oplist, tofree);                                               \
     /* Update front too if the list became empty */                           \
     /* This C code shall generate branchless code */                          \
     struct M_F(name, _s) *front = v->front;                                   \
@@ -1174,11 +1116,10 @@
     return &(v->front->data);                                                 \
   }                                                                           \
                                                                               \
-  M_INLINE type *                                                             \
-  M_F(name, _push_front_raw)(list_t v)                                        \
+  M_P(type *, name, _push_front_raw, list_t v)                                \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
-    struct M_F(name, _s) *next = M_C3(m_l1st_,name,_new)();                   \
+    struct M_F(name, _s) *next = M_CALL_NEW(oplist, struct M_F(name, _s));    \
     if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
       M_MEMORY_FULL(struct M_F(name, _s), 1);                                 \
       return NULL;                                                            \
@@ -1196,22 +1137,20 @@
     return ret;                                                               \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _push_front)(list_t v, type const x)                              \
+  M_P(void, name, _push_front, list_t v, type const x)                        \
   {                                                                           \
     M_IF_EXCEPTION(struct M_F(name, _s) *front = v->front, *back = v->back);  \
-    type *data = M_F(name, _push_front_raw)(v);                               \
+    type *data = M_F(name, _push_front_raw)M_R(v);                            \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
     M_IF_EXCEPTION(struct M_F(name, _s) *m_volatile tofree = v->front);       \
     M_IF_EXCEPTION(M_ASSERT(tofree != NULL));                                 \
-    M_ON_EXCEPTION( v->back = back, v->front = front, (front != NULL ? front : tofree)->next = NULL, M_C3(m_l1st_,name,_del)(tofree)) { \
+    M_ON_EXCEPTION( v->back = back, v->front = front, (front != NULL ? front : tofree)->next = NULL, M_CALL_DEL(oplist, tofree)) { \
       M_CALL_INIT_SET(oplist, *data, x);                                      \
     }                                                                         \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _push_front_move)(list_t v, type *x)                              \
+  M_P(void, name, _push_front_move, list_t v, type *x)                        \
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
     type *data = M_F(name, _push_front_raw)(v);                               \
@@ -1221,8 +1160,7 @@
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
-  M_INLINE type *                                                             \
-  M_F(name, _push_front_new)(list_t v)                                        \
+  M_P(type *, name, _push_front_new, list_t v)                                \
   {                                                                           \
     M_IF_EXCEPTION(struct M_F(name, _s) *front = v->front, *back = v->back);  \
     type *data = M_F(name, _push_front_raw)(v);                               \
@@ -1230,7 +1168,7 @@
       return NULL;                                                            \
     M_IF_EXCEPTION(struct M_F(name, _s) *m_volatile tofree = v->front);       \
     M_IF_EXCEPTION(M_ASSERT(tofree != NULL));                                 \
-    M_ON_EXCEPTION( v->back = back, v->front = front, (front != NULL ? front : tofree)->next = NULL, M_C3(m_l1st_,name,_del)(tofree)) { \
+    M_ON_EXCEPTION( v->back = back, v->front = front, (front != NULL ? front : tofree)->next = NULL, M_CALL_DEL(oplist, tofree)) { \
       M_CALL_INIT(oplist, *data);                                             \
     }                                                                         \
     return data;                                                              \
@@ -1336,18 +1274,16 @@
     return size;                                                              \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _insert)(list_t list, it_t insertion_point,                       \
-                     type const x)                                            \
+  M_P(void, name, _insert, list_t list, it_t insertion_point, type const x)   \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(list);                                          \
     M_ASSERT (insertion_point != NULL);                                       \
-    struct M_F(name, _s) *m_volatile next = M_C3(m_l1st_,name,_new)();        \
+    struct M_F(name, _s) *m_volatile next = M_CALL_NEW(oplist, struct M_F(name, _s)); \
     if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
       M_MEMORY_FULL(struct M_F(name, _s), 1);                                 \
       return;                                                                 \
     }                                                                         \
-    M_ON_EXCEPTION( M_C3(m_l1st_,name,_del)(next))                            \
+    M_ON_EXCEPTION( M_CALL_DEL(oplist, next))                                 \
       M_CALL_INIT_SET(oplist, next->data, x);                                 \
     if (M_UNLIKELY (insertion_point->current == NULL)) {                      \
       next->next = list->back;                                                \
@@ -1366,8 +1302,7 @@
     }                                                                         \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _remove)(list_t list, it_t removing_point)                        \
+  M_P(void, name, _remove, list_t list, it_t removing_point)                  \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(list);                                          \
     M_ASSERT (removing_point != NULL);                                        \
@@ -1385,12 +1320,11 @@
     list->front = front;                                                      \
     /* Remove node */                                                         \
     M_CALL_CLEAR(oplist, removing_point->current->data);                      \
-    M_C3(m_l1st_,name,_del) (removing_point->current);                        \
+    M_CALL_DEL(oplist, removing_point->current);                              \
     removing_point->current = next;                                           \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _set)(list_t list, const list_t org)                              \
+  M_P(void, name, _set, list_t list, const list_t org)                        \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(list);                                          \
     M_L1ST_DUAL_PUSH_CONTRACT(org);                                           \
@@ -1398,13 +1332,13 @@
     struct M_F(name, _s) *it_org;                                             \
     struct M_F(name, _s) **update_list;                                       \
     if (M_UNLIKELY (list == org)) return;                                     \
-    M_F(name, _reset)(list);                                                  \
+    M_F(name, _reset)M_R(list);                                               \
     update_list = &list->back;                                                \
     it_org = org->back;                                                       \
     M_ASSERT(*update_list == NULL);                                           \
-    M_ON_EXCEPTION(M_C3(m_l1st_,name,_del)(next) )                            \
+    M_ON_EXCEPTION(M_CALL_DEL(oplist, next) )                                 \
     while (it_org != NULL) {                                                  \
-      next = M_C3(m_l1st_,name,_new)();                                       \
+      next = M_CALL_NEW(oplist, struct M_F(name, _s));                        \
       if (M_UNLIKELY_NOMEM (next == NULL)) {                                  \
         M_MEMORY_FULL(struct M_F(name, _s), 1);                               \
         return;                                                               \
@@ -1421,8 +1355,7 @@
     }                                                                         \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _init_set)(list_t list, const list_t org)                         \
+  M_P(void, name, _init_set, list_t list, const list_t org)                   \
   {                                                                           \
     M_ASSERT (list != org);                                                   \
     M_ON_EXCEPTION( M_F(name, _clear)(list)) {                                \
@@ -1441,10 +1374,9 @@
     org->front = NULL;                                                        \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _move)(list_t list, list_t org)                                   \
+  M_P(void, name, _move, list_t list, list_t org)                             \
   {                                                                           \
-    M_F(name, _clear)(list);                                                  \
+    M_F(name, _clear)M_R(list);                                               \
     M_F(name, _init_move)(list, org);                                         \
   }                                                                           \
                                                                               \
