@@ -412,33 +412,37 @@ M_BEGIN_PROTECTED_CODE
 #endif
 
 
+// FIXME: Rename to M_USE_MEMORY_CONTEXT?
 #ifndef M_USE_POOL
 // Memory pool parameter not used for memory function. Stub it with 0 as it won't be used (global definition).
 # define M_P_EXPAND
+# define M_P_EXPAND_void void
 # define M_R_EXPAND
+# define M_R_EXPAND_void
 # define M_R
 # define M_ASSERT_POOL()
 #else
 // Memory pool parameter is used for function using memory. (local definition to the function).
 // Expand to a prototype to a function that may not trigger exception
 # define M_P_EXPAND M_USE_POOL m_pool, 
+# define M_P_EXPAND_void M_USE_POOL m_pool
 # define M_R_EXPAND m_pool ,
+# define M_R_EXPAND_void m_pool
 # define M_R(...) (m_pool, __VA_ARGS__)
 # define M_ASSERT_POOL() (void) m_pool
 #endif
 
-// Expand to a prototype of a function that may trigger exception / accept memory context
-// TODO: If not M_F, M_INLINE overloaded and no M_P_EXPAND, simplify M_P
-// (faster build: 0.54s instead of 0.80s in extreme expanding
+// M_P: Expand to a prototype of a function that may trigger exception / accept memory context
+// M_N: Expand to a prototype of a function that may not trigger exception or accept memory context
+// If not M_F, no overloaded M_INLINE and no M_P_EXPAND, simplify M_P
+// (faster build: 0.54s instead of 0.80s in extreme expanding)
+#if !defined(M_USE_POOL) && !defined(M_F) && !defined(M_USE_FINE_GRAINED_LINKAGE) && !defined(M_USE_DEF) && !defined(M_USE_DECL)
+# define M_P(rettype, name, suffix, ...) static inline rettype name ## suffix(__VA_ARGS__)
+# define M_N(rettype, name, suffix, ...) static inline rettype name ## suffix(__VA_ARGS__)
+#else
 # define M_P(rettype, name, suffix, ...) M_INLINE rettype M_F(name, suffix)(M_P_EXPAND __VA_ARGS__)
-//#define M_P(rettype, name, suffix, ...) static inline rettype name ## suffix(__VA_ARGS__)
-
-// Expand to a prototype of a function that may not trigger exception or accept memory context
 # define M_N(rettype, name, suffix, ...) M_INLINE rettype M_F(name, suffix)(__VA_ARGS__)
-
-
-// TODO: Add for API special, the support of the POOL special keyword ==> m_pool
-// Or document m_pool directly? Can still be overriden later.
+#endif
 
 // TODO: Add for all Assertions: M_ASSERT_POOL()
 // to avoid warnings about unused parameter m_pool.
