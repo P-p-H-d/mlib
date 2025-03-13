@@ -27,7 +27,6 @@
 
 #include "m-array.h"
 
-
 /* Define a dictionary associating the key key_type to the value value_type and its associated functions.
    USAGE:
      DICT_DEF2(name, key_type, key_oplist, value_type, value_oplist)
@@ -155,14 +154,14 @@
 /******************************** INTERNAL ***********************************/
 /*****************************************************************************/
 
-// Define the maximum index
+// Define the maximum index type (implying the maximum allowed size)
 #ifdef M_USE_DICT_LARGE_INDEX
 typedef uint64_t m_index_t;
 #else
 typedef uint32_t m_index_t;
 #endif
 
-// Define a pair index / hash
+// Define a pair index of the cell where the (key,value) is stored / hash of the key.
 typedef struct {
   m_index_t index;
   m_index_t hash;
@@ -328,8 +327,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     map->lower_limit = (size <= M_D1CT_INITIAL_SIZE) ? 0 : (m_index_t) ((double) size * M_D1CT_OA_LOWER_BOUND) ; \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _init)(dict_t map)                                                \
+  M_P(void, name, _init, dict_t map)                                          \
   {                                                                           \
     M_ASSERT (map != NULL);                                                   \
     map->mask = M_D1CT_INITIAL_SIZE-1;                                        \
@@ -358,8 +356,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     M_D1CT_CONTRACT(map);                                                     \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name,_clear)(dict_t map)                                                \
+  M_P(void, name,_clear, dict_t map)                                          \
   {                                                                           \
     M_D1CT_CONTRACT(map);                                                     \
     /* Clear objects */                                                       \
@@ -384,7 +381,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
   {                                                                           \
     M_D1CT_CONTRACT(org);                                                     \
     memcpy(map, org, sizeof (dict_t));                                        \
-    /* Mark the original dictionary as cleared */                             \
+    /* Mark the original dictionary as cleared (invalid representation) */    \
     org->data = NULL;                                                         \
     org->index = NULL;                                                        \
   }                                                                           \
@@ -452,8 +449,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     }                                                                         \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_C3(m_d1ct_,name,_resize_up)(dict_t h, m_index_t newSize, bool updateLimit) \
+  M_P(void, name, _i_resize_up, dict_t h, m_index_t newSize, bool updateLimit) \
   {                                                                           \
     /* NOTE: Contract may not be fulfilled here */                            \
     m_index_t oldSize = h->mask+1;                                            \
@@ -512,7 +508,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
           h->index[p].hash  = hash;                                           \
         } else {                                                              \
           m_indexhash_t t = { ind, hash };                                    \
-          m_array_index_push_back(tmp, t);                                    \
+          m_array_index_push_back M_R(tmp, t);                                \
         }                                                                     \
       }                                                                       \
     }                                                                         \
@@ -522,7 +518,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
       which contains what we weren't be able to fit in the first pass */      \
     while (m_array_index_size(tmp) > 0) {                                     \
       m_indexhash_t ind;                                                      \
-      m_array_index_pop_back(&ind, tmp);                                      \
+      m_array_index_pop_back M_R(&ind, tmp);                                  \
       m_index_t p = ind.hash & mask;                                          \
       /* NOTE: since the first pass, the bucket might be free now */          \
       m_index_t s = 1;                                                        \
@@ -534,14 +530,13 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
       h->index[p].hash  = ind.hash;                                           \
     }                                                                         \
                                                                               \
-    m_array_index_clear(tmp);                                                 \
+    m_array_index_clear M_R(tmp);                                             \
     h->mask = newSize-1;                                                      \
     h->count_delete = h->count;                                               \
     M_IF_DEBUG(  M_C3(m_d1ct_,name,_control_after_resize)(h);  )              \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_C3(m_d1ct_,name,_resize_down)(dict_t h, m_index_t newSize)                \
+  M_P(void, name, _i_resize_down, dict_t h, m_index_t newSize)                \
   {                                                                           \
     /* NOTE: Contract may not be fulfilled here */                            \
     m_index_t oldSize = h->mask+1;                                            \
@@ -564,7 +559,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
           h->index[p].hash  = hash;                                           \
         } else {                                                              \
           m_indexhash_t t = { ind, hash };                                    \
-          m_array_index_push_back(tmp, t);                                    \
+          m_array_index_push_back M_R(tmp, t);                                \
         }                                                                     \
       }                                                                       \
     }                                                                         \
@@ -584,7 +579,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     /* Pass 3: scan failed moved entries and move them back */                \
     while (m_array_index_size(tmp) > 0) {                                     \
       m_indexhash_t ind;                                                      \
-      m_array_index_pop_back(&ind, tmp);                                      \
+      m_array_index_pop_back M_R(&ind, tmp);                                  \
       m_index_t p = ind.hash & mask;                                          \
       m_index_t s = 1;                                                        \
       while (h->index[p].index != 0) {                                        \
@@ -595,7 +590,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
       h->index[p].hash  = ind.hash;                                           \
     }                                                                         \
                                                                               \
-    m_array_index_clear(tmp);                                                 \
+    m_array_index_clear M_R(tmp);                                             \
     h->count_delete = h->count;                                               \
     if (newSize != oldSize) {                                                 \
       h->mask = newSize-1;                                                    \
@@ -608,10 +603,9 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     M_D1CT_CONTRACT(h);                                                       \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_IF(isSet)(M_F(name, _push), M_F(name, _set_at))                           \
-       (dict_t map, key_type const key                                        \
-        M_IF(isSet)(, M_DEFERRED_COMMA value_type const value))               \
+  M_IF(isSet)(                                                                \
+    M_P(void, name, _push, dict_t map, key_type const key) ,                  \
+    M_P(void, name, _set_at, dict_t map, key_type const key, value_type const value)) \
   {                                                                           \
     M_D1CT_CONTRACT(map);                                                     \
     const m_index_t mask = map->mask;                                         \
@@ -657,13 +651,12 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
           M_MEMORY_FULL(char, (size_t)-1);                                    \
         }                                                                     \
       }                                                                       \
-      M_C3(m_d1ct_,name,_resize_up)(map, newSize, true);                      \
+      M_F(name,_i_resize_up)M_R(map, newSize, true);                          \
     }                                                                         \
     M_D1CT_CONTRACT(map);                                                     \
   }                                                                           \
                                                                               \
-  M_INLINE value_type *                                                       \
-  M_F(name, _safe_get)(dict_t map, key_type const key)                        \
+  M_P(value_type *, name, _safe_get, dict_t map, key_type const key)          \
   {                                                                           \
     M_D1CT_CONTRACT(map);                                                     \
     const m_index_t mask = map->mask;                                         \
@@ -716,15 +709,14 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
           M_MEMORY_FULL(char, (size_t)-1);                                    \
         }                                                                     \
       }                                                                       \
-      M_C3(m_d1ct_,name,_resize_up)(map, newSize, true);                      \
+      M_F(name,_i_resize_up)M_R(map, newSize, true);                          \
     }                                                                         \
     M_D1CT_CONTRACT(map);                                                     \
     /* bucket index won't move even if resize is done */                      \
     return &map->data[d].pair.M_IF(isSet)(key, value);                        \
   }                                                                           \
                                                                               \
-  M_INLINE bool                                                               \
-  M_F(name, _erase)(dict_t map, key_type const key)                           \
+  M_P(bool, name, _erase, dict_t map, key_type const key)                     \
   {                                                                           \
     M_D1CT_CONTRACT(map);                                                     \
                                                                               \
@@ -755,7 +747,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     M_ASSERT (map->count >= 1);                                               \
     map->count--;                                                             \
     if (M_UNLIKELY (map->count < map->lower_limit)) {                         \
-      M_C3(m_d1ct_,name,_resize_down)(map, (map->mask+1) >> 1);               \
+      M_F(name,_i_resize_down)M_R(map, (map->mask+1) >> 1);                   \
     }                                                                         \
     M_D1CT_CONTRACT(map);                                                     \
     return true;                                                              \
@@ -880,39 +872,35 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
 #define M_D1CT_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t, it_deref_t) \
                                                                               \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _init_set)(dict_t map, const dict_t org)                          \
+  M_P(void, name, _init_set, dict_t map, const dict_t org)                    \
   {                                                                           \
     dict_it_t it;                                                             \
     M_ASSERT (map != org);                                                    \
-    M_F(name, _init)(map);                                                    \
+    M_F(name, _init)M_R(map);                                                 \
     /* Naive implementation. No need to optimize such access */               \
     for (M_F(name,_it)(it, org); !M_F(name,_end_p)(it); M_F(name,_next)(it)){ \
       M_IF(isSet)(                                                            \
-        M_F(name,_push)(map, * M_F(name,_ref)(it) )                           \
-      , M_F(name,_set_at)(map, M_F(name,_ref)(it)->key, M_F(name,_ref)(it)->value) \
+        M_F(name,_push)M_R(map, * M_F(name,_ref)(it) )                        \
+      , M_F(name,_set_at)M_R(map, M_F(name,_ref)(it)->key, M_F(name,_ref)(it)->value) \
       );                                                                      \
     }                                                                         \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _set)(dict_t map, const dict_t org)                               \
+  M_P(void, name, _set, dict_t map, const dict_t org)                         \
   {                                                                           \
     if (M_LIKELY (map != org)) {                                              \
       /* Naive implementation. No need to optimize such access */             \
-      M_F(name, _clear)(map);                                                 \
-      M_F(name, _init_set)(map, org);                                         \
+      M_F(name, _clear)M_R(map);                                              \
+      M_F(name, _init_set)M_R(map, org);                                      \
     }                                                                         \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _move)(dict_t map, dict_t org)                                    \
+  M_P(void, name, _move, dict_t map, dict_t org)                              \
   {                                                                           \
     M_ASSERT (map != org);                                                    \
-    M_F(name,_clear)(map);                                                    \
+    M_F(name,_clear)M_R(map);                                                 \
     M_F(name,_init_move)(map, org);                                           \
   }                                                                           \
-                                                                              \
                                                                               \
   M_INLINE void                                                               \
   M_F(name, _swap)(dict_t d1, dict_t d2)                                      \
@@ -924,13 +912,12 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     memcpy( d2, tmp, sizeof (dict_t));                                        \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _reset)(dict_t d)                                                 \
+  M_P(void, name, _reset, dict_t d)                                           \
   {                                                                           \
     if (d->count == 0) return;                                                \
     /* Naive algorithm. Not work optimizing it */                             \
-    M_F(name, _clear)(d);                                                     \
-    M_F(name, _init)(d);                                                      \
+    M_F(name, _clear)M_R(d);                                                  \
+    M_F(name, _init)M_R(d);                                                   \
   }                                                                           \
                                                                               \
   M_INLINE value_type const *                                                 \
@@ -953,14 +940,13 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     return map->count;                                                        \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name,_reserve)(dict_t dict, size_t capacity)                            \
+  M_P(void, name,_reserve, dict_t dict, size_t capacity)                      \
   {                                                                           \
     if (capacity == 0) {                                                      \
       /* Perform a shrink to fit: copy everything to a new dict properly, and move it back */ \
       dict_t tmp;                                                             \
-      M_F(name, _init_set)(tmp, dict);                                        \
-      M_F(name, _move)(dict, tmp);                                            \
+      M_F(name, _init_set)M_R(tmp, dict);                                     \
+      M_F(name, _move)M_R(dict, tmp);                                         \
       return;                                                                 \
     }                                                                         \
     /* Get the size which will allow to fit this capacity                     \
@@ -975,7 +961,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     }                                                                         \
     if (size > dict->mask+1) {                                                \
       dict->upper_limit = (M_F(name, _index_ct)) ((double) size * M_D1CT_OA_UPPER_BOUND) - 1; \
-      M_C3(m_d1ct_,name,_resize_up)(dict, size, false);                       \
+      M_F(name,_i_resize_up)M_R(dict, size, false);                           \
     }                                                                         \
   }                                                                           \
                                                                               \
@@ -1010,28 +996,27 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
   , /* no value equal */ )                                                    \
                                                                               \
   M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(                        \
-  M_INLINE void                                                               \
-  M_F(name, _get_str)(m_string_t str, const dict_t dict, const bool append)   \
+  M_P(void, name, _get_str, m_string_t str, const dict_t dict, const bool append) \
   {                                                                           \
-    (append ? m_string_cat_cstr : m_string_set_cstr) (str, "{");              \
+    (append ? m_string_cat_cstr : m_string_set_cstr)M_R(str, "{");            \
     dict_it_t it;                                                             \
     bool print_comma = false;                                                 \
     for (M_F(name, _it)(it, dict) ;                                           \
          !M_F(name, _end_p)(it);                                              \
          M_F(name, _next)(it)){                                               \
       if (print_comma)                                                        \
-        m_string_push_back (str, ',');                                        \
+        m_string_push_back M_R(str, ',');                                     \
       const it_deref_t *item = M_F(name, _cref)(it);                          \
       M_IF(isSet)(                                                            \
                   M_CALL_GET_STR(key_oplist, str, *item, true);               \
                   ,                                                           \
                   M_CALL_GET_STR(key_oplist, str, item->key, true);           \
-                  m_string_push_back (str, ':');                              \
+                  m_string_push_back M_R(str, ':');                           \
                   M_CALL_GET_STR(value_oplist, str, item->value, true);       \
                   )                                                           \
       print_comma = true;                                                     \
     }                                                                         \
-    m_string_push_back (str, '}');                                            \
+    m_string_push_back M_R(str, '}');                                         \
   }                                                                           \
   , /* no GET_STR */ )                                                        \
                                                                               \
@@ -1063,11 +1048,10 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
   , /* no OUT_STR */ )                                                        \
                                                                               \
   M_IF_METHOD_BOTH(PARSE_STR, key_oplist, value_oplist)(                      \
-  M_INLINE bool                                                               \
-  M_F(name, _parse_str)(dict_t dict, const char str[], const char **endp)     \
+  M_P(bool, name, _parse_str, dict_t dict, const char str[], const char **endp) \
   {                                                                           \
     M_ASSERT (str != NULL);                                                   \
-    M_F(name, _reset)(dict);                                                  \
+    M_F(name, _reset)M_R(dict);                                               \
     int c = m_core_str_nospace(&str);                                         \
     if (M_UNLIKELY (c != '{')) { c = 0; goto exit; }                          \
     c = m_core_str_nospace(&str);                                             \
@@ -1081,7 +1065,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
         bool b = M_CALL_PARSE_STR(key_oplist, key, str, &str);                \
         M_IF(isSet)(                                                          \
             if (b == false) { c = 0; break; }                                 \
-            M_F(name, _push)(dict, key);                                      \
+            M_F(name, _push)M_R(dict, key);                                   \
           , /* is a map */                                                    \
             c = m_core_str_nospace(&str);                                     \
             if (b == false || c != ':') { c = 0; break; }                     \
@@ -1089,7 +1073,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
             str--;                                                            \
             b = M_CALL_PARSE_STR(value_oplist, value, str, &str);             \
             if (b == false) { c = 0; break; }                                 \
-            M_F(name, _set_at)(dict, key, value);                             \
+            M_F(name, _set_at)M_R(dict, key, value);                          \
           )                                                                   \
         c = m_core_str_nospace(&str);                                         \
       } while (c == ',');                                                     \
@@ -1101,11 +1085,10 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
   , /* no PARSE_STR */ )                                                      \
                                                                               \
   M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(                         \
-  M_INLINE bool                                                               \
-  M_F(name, _in_str)(dict_t dict, FILE *file)                                 \
+  M_P(bool, name, _in_str, dict_t dict, FILE *file)                           \
   {                                                                           \
     M_ASSERT (file != NULL);                                                  \
-    M_F(name, _reset)(dict);                                                  \
+    M_F(name, _reset)M_R(dict);                                               \
     int c = m_core_fgetc_nospace(file);                                       \
     if (M_UNLIKELY (c != '{')) return false;                                  \
     c = m_core_fgetc_nospace(file);                                           \
@@ -1121,7 +1104,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
         bool b = M_CALL_IN_STR(key_oplist, key, file);                        \
         M_IF(isSet)(                                                          \
             if (M_UNLIKELY (b == false)) { c = 0; break; }                    \
-            M_F(name, _push)(dict, key);                                      \
+            M_F(name, _push)M_R(dict, key);                                   \
         , /* is map */                                                        \
             c = m_core_fgetc_nospace(file);                                   \
             if (M_UNLIKELY (b == false || c != ':')) { c = 0; break; }        \
@@ -1130,7 +1113,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
             ungetc(c, file);                                                  \
             b = M_CALL_IN_STR(value_oplist, value, file);                     \
             if (M_UNLIKELY (b == false)) { c = 0; break; }                    \
-            M_F(name, _set_at)(dict, key, value);                             \
+            M_F(name, _set_at)M_R(dict, key, value);                          \
         )                                                                     \
       c = m_core_fgetc_nospace(file);                                         \
       } while (c == ',');                                                     \
@@ -1183,14 +1166,13 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
   , /* no OUT_SERIAL */ )                                                     \
                                                                               \
   M_IF_METHOD_BOTH(IN_SERIAL, key_oplist, value_oplist)(                      \
-  M_INLINE m_serial_return_code_t                                             \
-  M_F(name, _in_serial)(dict_t t1, m_serial_read_t f)                         \
+  M_P(m_serial_return_code_t, name, _in_serial, dict_t t1, m_serial_read_t f) \
   {                                                                           \
     M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
     size_t estimated_size = 0;                                                \
-    M_F(name,_reset)(t1);                                                     \
+    M_F(name,_reset)M_R(t1);                                                  \
     M_QLET(1, key, key_type, key_oplist)                                      \
     M_IF(isSet)(,M_QLET(2, value, value_type, value_oplist)) {                \
         M_IF(isSet)(                                                          \
@@ -1199,7 +1181,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
             do {                                                              \
               ret = M_CALL_IN_SERIAL(key_oplist, key, f);                     \
               if (ret != M_SERIAL_OK_DONE) break;                             \
-              M_F(name, _push)(t1, key);                                      \
+              M_F(name, _push)M_R(t1, key);                                   \
             } while ((ret = f->m_interface->read_array_next(local, f)) == M_SERIAL_OK_CONTINUE); \
         , /* is map */                                                        \
             ret = f->m_interface->read_map_start(local, f, &estimated_size);  \
@@ -1211,7 +1193,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
               if (ret != M_SERIAL_OK_CONTINUE) break;                         \
               ret = M_CALL_IN_SERIAL(value_oplist, value, f);                 \
               if (ret != M_SERIAL_OK_DONE) break;                             \
-              M_F(name, _set_at)(t1, key, value);                             \
+              M_F(name, _set_at)M_R(t1, key, value);                          \
             } while ((ret = f->m_interface->read_map_next(local, f)) == M_SERIAL_OK_CONTINUE); \
         ) /* End of IF isSet */                                               \
     }                                                                         \
@@ -1220,8 +1202,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
   , /* no in_serial */ )                                                      \
                                                                               \
   M_IF(isSet)(                                                                \
-  M_INLINE void                                                               \
-  M_F(name, _splice)(dict_t d1, dict_t d2)                                    \
+  M_P(void, name, _splice, dict_t d1, dict_t d2)                              \
   {                                                                           \
     dict_it_t it;                                                             \
     M_ASSERT(d1 != d2);                                                       \
@@ -1230,14 +1211,13 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
        uses the same order than d1 */                                         \
     for (M_F(name, _it)(it, d2); !M_F(name, _end_p)(it); M_F(name, _next)(it)){ \
       const it_deref_t *item = M_F(name, _cref)(it);                          \
-      M_F(name, _push)(d1, *item);                                            \
+      M_F(name, _push)M_R(d1, *item);                                         \
     }                                                                         \
-    M_F(name, _reset)(d2);                                                    \
+    M_F(name, _reset)M_R(d2);                                                 \
   }                                                                           \
   ,                                                                           \
   M_IF_METHOD(ADD, value_oplist)(                                             \
-  M_INLINE void                                                               \
-  M_F(name, _splice)(dict_t d1, dict_t d2)                                    \
+  M_P(void, name, _splice, dict_t d1, dict_t d2)                              \
   {                                                                           \
     dict_it_t it;                                                             \
     /* NOTE: Despite using set_at, the accessing of the item in d1            \
@@ -1247,12 +1227,12 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
       const struct M_F(name, _pair_s) *item = M_F(name, _cref)(it);           \
       value_type *ptr = M_F(name, _get)(d1, item->key);                       \
       if (ptr == NULL) {                                                      \
-        M_F(name, _set_at)(d1, item->key, item->value);                       \
+        M_F(name, _set_at)M_R(d1, item->key, item->value);                    \
       } else {                                                                \
         M_CALL_ADD(value_oplist, *ptr, *ptr, item->value);                    \
       }                                                                       \
     }                                                                         \
-    M_F(name, _reset)(d2);                                                    \
+    M_F(name, _reset)M_R(d2);                                                 \
   }                                                                           \
   , /* NO UPDATE */) )                                                        \
                                                                               \
@@ -1478,8 +1458,7 @@ enum m_d1ct_oa_element_e {
     dict->lower_limit = (size <= M_D1CT_INITIAL_SIZE) ? 0 : (size_t) ((double) size * coeff_down) ; \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _init)(dict_t dict)                                               \
+  M_P(void, name, _init, dict_t dict)                                         \
   {                                                                           \
     M_ASSERT(0 <= (coeff_down) && (coeff_down)*2 < (coeff_up) && (coeff_up) < 1); \
     dict->mask = M_D1CT_INITIAL_SIZE-1;                                       \
@@ -1499,8 +1478,7 @@ enum m_d1ct_oa_element_e {
     M_D1CT_OA_CONTRACT(dict);                                                 \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _clear)(dict_t dict)                                              \
+  M_P(void, name, _clear, dict_t dict)                                        \
   {                                                                           \
     M_D1CT_OA_CONTRACT(dict);                                                 \
     for(size_t i = 0; i <= dict->mask; i++) {                                 \
@@ -1558,8 +1536,7 @@ enum m_d1ct_oa_element_e {
   }                                                                           \
   )                                                                           \
                                                                               \
-  M_INLINE void M_ATTR_COLD_FUNCTION                                          \
-  M_C3(m_d1ct_,name,_resize_up)(dict_t h, size_t newSize, bool updateLimit)   \
+  M_P(void, name, _i_resize_up, dict_t h, size_t newSize, bool updateLimit)   \
   {                                                                           \
     size_t oldSize = h->mask+1;                                               \
     M_ASSERT (newSize >= oldSize);                                            \
@@ -1596,7 +1573,7 @@ enum m_d1ct_oa_element_e {
        Reserve a little bit of array to avoid reallocation if possible */     \
     M_F(name, _array_pair_ct) tmp;                                            \
     M_F(name, _array_pair_init)(tmp);                                         \
-    M_F(name, _array_pair_reserve)(tmp, oldSize >> 2);                        \
+    M_F(name, _array_pair_reserve)M_R(tmp, oldSize >> 2);                     \
     const size_t mask = (newSize -1);                                         \
                                                                               \
     for(size_t i = 0 ; i < oldSize; i++) {                                    \
@@ -1609,7 +1586,7 @@ enum m_d1ct_oa_element_e {
             M_DO_INIT_MOVE(key_oplist, data[p].key, data[i].key);             \
             M_DO_INIT_MOVE(value_oplist, data[p].value, data[i].value);       \
           } else {                                                            \
-            M_F(name, _pair_ct) *ptr = M_F(name, _array_pair_push_raw) (tmp); \
+            M_F(name, _pair_ct) *ptr = M_F(name, _array_pair_push_raw)M_R(tmp); \
             M_DO_INIT_MOVE(key_oplist, ptr->key, data[i].key);                \
             M_DO_INIT_MOVE(value_oplist, ptr->value, data[i].value);          \
           }                                                                   \
@@ -1636,7 +1613,7 @@ enum m_d1ct_oa_element_e {
       M_F(name, _array_pair_pop_move)(&data[p], tmp);                         \
     }                                                                         \
                                                                               \
-    M_F(name, _array_pair_clear) (tmp);                                       \
+    M_F(name, _array_pair_clear)M_R(tmp);                                     \
     h->mask = newSize-1;                                                      \
     h->count_delete = h->count;                                               \
     if (updateLimit == true) {                                                \
@@ -1647,10 +1624,9 @@ enum m_d1ct_oa_element_e {
     M_D1CT_OA_CONTRACT(h);                                                    \
   }                                                                           \
                                                                               \
-  M_INLINE void M_ATTR_HOT_FUNCTION                                           \
-  M_IF(isSet)(M_F(name, _push), M_F(name,_set_at))                            \
-       (dict_t dict, key_type const key                                       \
-        M_IF(isSet)(, M_DEFERRED_COMMA value_type const value) )              \
+  M_IF(isSet)(                                                                \
+    M_P(void, name, _push, dict_t dict, key_type const key) ,                 \
+    M_P(void, name, _set_at, dict_t dict, key_type const key, value_type const value)) \
   {                                                                           \
     M_D1CT_OA_CONTRACT(dict);                                                 \
     /* NOTE: key can not be the representation of empty or deleted */         \
@@ -1697,13 +1673,12 @@ enum m_d1ct_oa_element_e {
           M_MEMORY_FULL(char, (size_t)-1);                                    \
         }                                                                     \
       }                                                                       \
-      M_C3(m_d1ct_,name,_resize_up)(dict, newSize, true);                     \
+      M_F(name,_i_resize_up)M_R(dict, newSize, true);                         \
     }                                                                         \
     M_D1CT_OA_CONTRACT(dict);                                                 \
   }                                                                           \
                                                                               \
-  M_INLINE value_type * M_ATTR_HOT_FUNCTION                                   \
-  M_F(name,_safe_get)(dict_t dict, key_type const key)                        \
+  M_P(value_type *, name,_safe_get, dict_t dict, key_type const key)          \
   {                                                                           \
     M_D1CT_OA_CONTRACT(dict);                                                 \
     /* NOTE: key can not be the representation of empty or deleted */         \
@@ -1751,21 +1726,15 @@ enum m_d1ct_oa_element_e {
           M_MEMORY_FULL(char, (size_t)-1);                                    \
         }                                                                     \
       }                                                                       \
-      M_C3(m_d1ct_,name,_resize_up)(dict, newSize, true);                     \
+      M_F(name,_i_resize_up)M_R(dict, newSize, true);                         \
       /* data is now invalid */                                               \
       return M_F(name, _get)(dict, key);                                      \
     }                                                                         \
     M_D1CT_OA_CONTRACT(dict);                                                 \
     return &data[p].M_IF(isSet)(key, value);                                  \
   }                                                                           \
-  M_INLINE M_ATTR_DEPRECATED value_type *                                     \
-  M_F(name,_get_at)(dict_t dict, key_type const key)                          \
-  {                                                                           \
-    return M_F(name,_safe_get)(dict, key);                                    \
-  }                                                                           \
                                                                               \
-  M_INLINE void M_ATTR_COLD_FUNCTION                                          \
-  M_C3(m_d1ct_,name,_resize_down)(dict_t h, size_t newSize)                   \
+  M_P(void, name, _i_resize_down, dict_t h, size_t newSize)                   \
   {                                                                           \
     size_t oldSize = h->mask+1;                                               \
     M_ASSERT (newSize <= oldSize && M_POWEROF2_P(newSize));                   \
@@ -1791,7 +1760,7 @@ enum m_d1ct_oa_element_e {
           M_DO_INIT_MOVE(key_oplist, data[p].key, data[i].key);               \
           M_DO_INIT_MOVE(value_oplist, data[p].value, data[i].value);         \
         } else {                                                              \
-          M_F(name, _pair_ct) *ptr = M_F(name, _array_pair_push_raw) (tmp);   \
+          M_F(name, _pair_ct) *ptr = M_F(name, _array_pair_push_raw)M_R(tmp); \
           M_DO_INIT_MOVE(key_oplist, ptr->key, data[i].key);                  \
           M_DO_INIT_MOVE(value_oplist, ptr->value, data[i].value);            \
         }                                                                     \
@@ -1829,7 +1798,7 @@ enum m_d1ct_oa_element_e {
       M_F(name, _array_pair_pop_move)(&data[p], tmp);                         \
     }                                                                         \
                                                                               \
-    M_F(name, _array_pair_clear) (tmp);                                       \
+    M_F(name, _array_pair_clear) M_R(tmp);                                    \
     h->count_delete = h->count;                                               \
     if (newSize != oldSize) {                                                 \
       h->mask = newSize-1;                                                    \
@@ -1842,8 +1811,7 @@ enum m_d1ct_oa_element_e {
     M_D1CT_OA_CONTRACT(h);                                                    \
   }                                                                           \
                                                                               \
-  M_INLINE bool                                                               \
-  M_F(name,_erase)(dict_t dict, key_type const key)                           \
+  M_P(bool, name,_erase, dict_t dict, key_type const key)                     \
   {                                                                           \
     M_D1CT_OA_CONTRACT(dict);                                                 \
     /* NOTE: key can't be the representation of empty or deleted */           \
@@ -1872,7 +1840,7 @@ enum m_d1ct_oa_element_e {
     M_ASSERT (dict->count >= 1);                                              \
     dict->count--;                                                            \
     if (M_UNLIKELY (dict->count < dict->lower_limit)) {                       \
-      M_C3(m_d1ct_,name,_resize_down)(dict, (dict->mask+1) >> 1);             \
+      M_F(name,_i_resize_down)M_R(dict, (dict->mask+1) >> 1);                 \
     }                                                                         \
     M_D1CT_OA_CONTRACT(dict);                                                 \
     return true;                                                              \
@@ -2028,13 +1996,13 @@ enum m_d1ct_oa_element_e {
 #define M_USE_MAX_PREFETCH 16
 #endif
 
-// WIP. Only if isSet is true for the time being
+// WIP. Only if isSet is false for the time being
 #define M_D1CT_OA_DEF_BULK(name, key_type, key_oplist, value_type, value_oplist, isSet, coeff_down, coeff_up, dict_t, dict_it_t, it_deref_t) \
                                                                               \
-M_INLINE void                                                                 \
-M_F(name, _bulk_get)(unsigned n, value_type val[M_VLA(n)], dict_t dict, key_type const key[M_VLA(n)], value_type def) \
+M_P(void, name, _bulk_get, unsigned n, value_type val[M_VLA(n)], dict_t dict, key_type const key[M_VLA(n)], value_type def) \
 {                                                                             \
   M_D1CT_OA_CONTRACT (dict);                                                  \
+  M_ASSERT_POOL();                                                            \
   size_t h[M_USE_MAX_PREFETCH];                                               \
   M_F(name, _pair_ct) *data = dict->data;                                     \
   const size_t mask = dict->mask;                                             \
@@ -2064,8 +2032,7 @@ M_F(name, _bulk_get)(unsigned n, value_type val[M_VLA(n)], dict_t dict, key_type
   }                                                                           \
 }                                                                             \
                                                                               \
-M_INLINE void                                                                 \
-M_F(name, _bulk_set)(dict_t dict, unsigned n, value_type const val[M_VLA(n)], key_type const key[M_VLA(n)]) \
+M_P(void, name, _bulk_set, dict_t dict, unsigned n, value_type const val[M_VLA(n)], key_type const key[M_VLA(n)]) \
 {                                                                             \
   M_D1CT_OA_CONTRACT (dict);                                                  \
   size_t h[M_USE_MAX_PREFETCH];                                               \
@@ -2116,7 +2083,7 @@ M_F(name, _bulk_set)(dict_t dict, unsigned n, value_type const val[M_VLA(n)], ke
           M_MEMORY_FULL(char, (size_t)-1);                                    \
         }                                                                     \
       }                                                                       \
-      M_C3(m_d1ct_,name,_resize_up)(dict, newSize, true);                     \
+      M_F(name,_i_resize_up)M_R(dict, newSize, true);                         \
     }                                                                         \
   next:                                                                       \
     (void)0;                                                                  \
@@ -2125,9 +2092,8 @@ M_F(name, _bulk_set)(dict_t dict, unsigned n, value_type const val[M_VLA(n)], ke
 }                                                                             \
                                                                               \
                                                                               \
-M_INLINE void                                                                 \
-M_F(name, _bulk_update)(dict_t dict, unsigned n, value_type val[M_VLA(n)], key_type const key[M_VLA(n)], value_type def, \
-                        void (*update)(dict_t dict, key_type const key, value_type *storeval, value_type *newval)) \
+M_P(void, name, _bulk_update, dict_t dict, unsigned n, value_type val[M_VLA(n)], key_type const key[M_VLA(n)], value_type def, \
+                        void (*update)(dict_t dict, key_type const key, value_type *storedval, value_type *newval)) \
 {                                                                             \
   M_D1CT_OA_CONTRACT (dict);                                                  \
   size_t h[M_USE_MAX_PREFETCH];                                               \
@@ -2179,7 +2145,7 @@ M_F(name, _bulk_update)(dict_t dict, unsigned n, value_type val[M_VLA(n)], key_t
           M_MEMORY_FULL(char, (size_t)-1);                                    \
         }                                                                     \
       }                                                                       \
-      M_C3(m_d1ct_,name,_resize_up)(dict, newSize, true);                     \
+      M_F(name,_i_resize_up)M_R(dict, newSize, true);                         \
     }                                                                         \
   next:                                                                       \
     (void)0;                                                                  \
