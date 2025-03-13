@@ -5085,7 +5085,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF(isSet, name, name_t, key_oplist, val_oplist) \
   M_ID( M_C(M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF, isSet)(name, name_t, key_oplist, val_oplist) )
 #define M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF0(name, name_t, key_oplist, val_oplist) \
-  M_EMPLACE_ASS_ARRAY_DEF(name, name_t, M_F(name, _emplace), key_oplist, val_oplist, M_EMPLACE_ASS_ARRA1_BOTH_GENE, M_EMPLACE_ASS_ARRA1_KEY_GENE, M_EMPLACE_ASS_ARRA1_VAL_GENE) \
+  M_EMPLACE_ASS_ARRAY_DEF(name, name_t, _emplace, key_oplist, val_oplist, M_EMPLACE_ASS_ARRA1_BOTH_GENE, M_EMPLACE_ASS_ARRA1_KEY_GENE, M_EMPLACE_ASS_ARRA1_VAL_GENE) \
   M_EMPLACE_QUEUE_DEF(name, name_t, _get_emplace, key_oplist, M_EMPLACE_GET_GENE)
 #define M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF1(name, name_t, key_oplist, val_oplist) \
   M_EMPLACE_QUEUE_DEF(name, name_t, _emplace, key_oplist, M_EMPLACE_QUEUE_GENE) \
@@ -5100,39 +5100,36 @@ m_core_parse2_enum (const char str[], const char **endptr)
    one for value only.
 */
 #define M_EMPLACE_ASS_ARRA1_BOTH_GENE(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
-  M_INLINE void                                                               \
-  function_name(name_t v                                                      \
+  M_P(void, name, function_name, name_t v                                     \
                 M_EMPLACE_LIST_TYPE_VAR(akey, key_emplace_type)               \
                 M_EMPLACE_LIST_TYPE_VAR(aval, val_emplace_type)               \
   ){                                                                          \
     M_F(name, _key_ct) key;                                                   \
     M_EMPLACE_CALL_FUNC(akey, key_init_func, key_oplist, key, key_emplace_type); \
     M_F(name, _value_ct) *val;                                                \
-    val = M_F(name, _safe_get)(v, key);                                       \
+    val = M_F(name, _safe_get)M_R(v, key);                                    \
     M_CALL_CLEAR(val_oplist, *val);                                           \
     M_EMPLACE_CALL_FUNC(aval, val_init_func, val_oplist, *val, val_emplace_type); \
     M_CALL_CLEAR(key_oplist, key);                                            \
   }                                                                           \
 
 #define M_EMPLACE_ASS_ARRA1_KEY_GENE(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
-  M_INLINE void                                                               \
-  function_name(name_t v                                                      \
+  M_P(void, name, function_name, name_t v                                     \
                 M_EMPLACE_LIST_TYPE_VAR(akey, key_emplace_type)               \
                 , M_F(name, _value_ct) const val                              \
   ){                                                                          \
     M_F(name, _key_ct) key;                                                   \
     M_EMPLACE_CALL_FUNC(akey, key_init_func, key_oplist, key, key_emplace_type); \
-    M_F(name, _set_at)(v, key, val);                                          \
+    M_F(name, _set_at)M_R(v, key, val);                                       \
     M_CALL_CLEAR(key_oplist, key);                                            \
   }                                                                           \
 
 #define M_EMPLACE_ASS_ARRA1_VAL_GENE(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
-  M_INLINE void                                                               \
-  function_name(name_t v, M_F(name, _key_ct) const key                        \
+  M_P(void, name, function_name, name_t v, M_F(name, _key_ct) const key       \
                 M_EMPLACE_LIST_TYPE_VAR(aval, val_emplace_type)               \
   ){                                                                          \
     M_F(name, _value_ct) *val;                                                \
-    val = M_F(name, _safe_get)(v, key);                                       \
+    val = M_F(name, _safe_get)M_R(v, key);                                    \
     M_CALL_CLEAR(val_oplist, *val);                                           \
     M_EMPLACE_CALL_FUNC(aval, val_init_func, val_oplist, *val, val_emplace_type); \
   }                                                                           \
@@ -5159,9 +5156,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
    This definition is far from being efficient but works for the current interface.
 */
 #define M_EMPLACE_GET_GENE(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  M_INLINE M_F(name, _value_ct) *                                             \
-  M_F(name, function_name)(name_t const v                                     \
-                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  M_P(M_F(name, _value_ct) *, name, function_name, name_t const v M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) ) \
   {                                                                           \
     M_GET_TYPE oplist data;                                                   \
     M_EMPLACE_CALL_FUNC(a, init_func, oplist, data, exp_emplace_type);        \
