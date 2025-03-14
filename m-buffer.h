@@ -300,10 +300,10 @@ m_buff3r_number_dec(m_buff3r_number_ct n, unsigned int policy)
 /* Define the core functionalities of a buffer */
 #define M_BUFF3R_DEF_CORE(name, type, m_size, policy, oplist, buffer_t)       \
                                                                               \
-M_INLINE void                                                                 \
-M_F(name, _init)(buffer_t v, size_t size)                                     \
+M_P(void, name, _init, buffer_t v, size_t size)                               \
 {                                                                             \
   M_ASSERT(size <= UINT_MAX);                                                 \
+  M_ASSERT_POOL();                                                            \
   M_BUFF3R_IF_CTE_SIZE(m_size)(M_ASSERT(size == m_size), v->capacity = size); \
   v->idx_prod = v->idx_cons = v->overwrite = 0;                               \
   m_buff3r_number_init (v->number[0], policy);                                \
@@ -334,17 +334,16 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
 }                                                                             \
                                                                               \
  M_BUFF3R_IF_CTE_SIZE(m_size)(                                                \
- M_INLINE void                                                                \
- M_C3(m_buff3r_,name,_init)(buffer_t v)                                       \
+ M_P(void, name,_i_init, buffer_t v)                                          \
  {                                                                            \
-   M_F(name, _init)(v, m_size);                                               \
+   M_F(name, _init)M_R(v, m_size);                                            \
  }                                                                            \
  , )                                                                          \
                                                                               \
- M_INLINE void                                                                \
- M_C3(m_buff3r_,name,_clear_obj)(buffer_t v)                                  \
+ M_P(void, name, _i_clear_obj, buffer_t v)                                    \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
+   M_ASSERT_POOL();                                                           \
    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {           \
      for(size_t i = 0; i < M_BUFF3R_SIZE(m_size); i++) {                      \
        M_CALL_CLEAR(oplist, v->data[i].x);                                    \
@@ -365,11 +364,10 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
  }                                                                            \
                                                                               \
- M_INLINE void                                                                \
- M_F(name, _clear)(buffer_t v)                                                \
+ M_P(void, name, _clear, buffer_t v)                                          \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
-   M_C3(m_buff3r_,name,_clear_obj)(v);                                        \
+   M_F(name,_i_clear_obj)M_R(v);                                              \
    M_BUFF3R_IF_CTE_SIZE(m_size)( ,                                            \
      M_CALL_FREE(oplist, M_F(name, _el_ct), v->data, M_BUFF3R_SIZE(m_size));  \
      v->data = NULL;                                                          \
@@ -383,8 +381,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    }                                                                          \
  }                                                                            \
                                                                               \
- M_INLINE void                                                                \
- M_F(name, _reset)(buffer_t v)                                                \
+ M_P(void, name, _reset, buffer_t v)                                          \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_THREAD_UNSAFE)) {                \
@@ -393,7 +390,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    }                                                                          \
    M_BUFF3R_PROTECTED_CONTRACT(policy, v, m_size);                            \
    if (M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE))              \
-     M_C3(m_buff3r_,name,_clear_obj)(v);                                      \
+     M_F(name,_i_clear_obj)M_R(v);                                            \
    v->idx_prod = v->idx_cons = 0;                                             \
    m_buff3r_number_store (v->number[0], 0U, policy);                          \
    if (M_BUFF3R_POLICY_P(policy, M_BUFFER_DEFERRED_POP))                      \
@@ -406,14 +403,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
  }                                                                            \
                                                                               \
- M_INLINE void M_ATTR_DEPRECATED                                              \
- M_F(name, _clean)(buffer_t v)                                                \
- {                                                                            \
-   M_F(name,_reset)(v);                                                       \
- }                                                                            \
-                                                                              \
- M_INLINE void                                                                \
- M_F(name, _init_set)(buffer_t dest, const buffer_t src)                      \
+ M_P(void, name, _init_set, buffer_t dest, const buffer_t src)                \
  {                                                                            \
    /* un-const 'src', so that we can lock it (semantically it is const) */    \
    M_F(name, _uptr_ct) vu;                                                    \
@@ -421,7 +411,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    M_F(name, _ptr) v = vu.ptr;                                                \
    M_ASSERT (dest != v);                                                      \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
-   M_F(name, _init)(dest, M_BUFF3R_SIZE(m_size));                             \
+   M_F(name, _init)M_R(dest, M_BUFF3R_SIZE(m_size));                          \
    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_THREAD_UNSAFE)) {                \
      m_mutex_lock(v->mutexPush);                                              \
      m_mutex_lock(v->mutexPop);                                               \
@@ -456,8 +446,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    M_BUFF3R_CONTRACT(dest, m_size);                                           \
  }                                                                            \
                                                                               \
- M_INLINE void                                                                \
- M_F(name, _set)(buffer_t dest, const buffer_t src)                           \
+ M_P(void, name, _set, buffer_t dest, const buffer_t src)                     \
  {                                                                            \
    /* un-const 'src', so that we can lock it (semantically it is const) */    \
    M_F(name, _uptr_ct) vu;                                                    \
@@ -484,7 +473,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    }                                                                          \
                                                                               \
    M_BUFF3R_PROTECTED_CONTRACT(policy, v, m_size);                            \
-   M_C3(m_buff3r_,name,_clear_obj)(dest);                                     \
+   M_F(name,_i_clear_obj)M_R(dest);                                           \
                                                                               \
    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {           \
      for(size_t i = 0; i < M_BUFF3R_SIZE(m_size); i++) {                      \
@@ -555,11 +544,10 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    return m_buff3r_number_load (v->number[0], policy);                        \
  }                                                                            \
                                                                               \
- M_INLINE bool                                                                \
- M_F(name, _push_blocking)(buffer_t v, type const data, bool blocking)        \
+ M_P(bool, name, _push_blocking, buffer_t v, type const data, bool blocking)  \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
-                                                                              \
+   M_ASSERT_POOL();                                                           \
    /* Producer Mutex lock (mutex lock performs an acquire memory barrier) */  \
    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_THREAD_UNSAFE)) {                \
      m_mutex_lock(v->mutexPush);                                              \
@@ -635,12 +623,11 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
    return true;                                                               \
  }                                                                            \
                                                                               \
- M_INLINE bool                                                                \
- M_F(name, _pop_blocking)(type *data, buffer_t v, bool blocking)              \
+ M_P(bool, name, _pop_blocking, type *data, buffer_t v, bool blocking)        \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
    M_ASSERT (data != NULL);                                                   \
-                                                                              \
+   M_ASSERT_POOL();                                                           \
    /* consumer lock (mutex lock performs an acquire memory barrier) */        \
    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_THREAD_UNSAFE)) {                \
      m_mutex_lock(v->mutexPop);                                               \
@@ -706,17 +693,15 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
  }                                                                            \
                                                                               \
                                                                               \
- M_INLINE bool                                                                \
- M_F(name, _push)(buffer_t v, type const data)                                \
+ M_P(bool, name, _push, buffer_t v, type const data)                          \
  {                                                                            \
-   return M_F(name, _push_blocking)(v, data,                                  \
+   return M_F(name, _push_blocking)M_R(v, data,                               \
                              !M_BUFF3R_POLICY_P((policy), M_BUFFER_UNBLOCKING_PUSH)); \
  }                                                                            \
                                                                               \
- M_INLINE bool                                                                \
- M_F(name, _pop)(type *data, buffer_t v)                                      \
+ M_P(bool, name, _pop, type *data, buffer_t v)                                \
  {                                                                            \
-   return M_F(name, _pop_blocking)(data, v,                                   \
+   return M_F(name, _pop_blocking)M_R(data, v,                                \
                             !M_BUFF3R_POLICY_P((policy), M_BUFFER_UNBLOCKING_POP)); \
  }                                                                            \
                                                                               \
@@ -833,10 +818,10 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
 
 /* Define the core functionalities of a MPMC queue */
 #define M_QU3UE_MPMC_DEF_CORE(name, type, policy, oplist, buffer_t)           \
-  M_INLINE bool                                                               \
-  M_F(name, _push)(buffer_t table, type const x)                              \
+  M_P(bool, name, _push, buffer_t table, type const x)                        \
   {                                                                           \
     M_QU3UE_MPMC_CONTRACT(table);                                             \
+    M_ASSERT_POOL();                                                          \
     unsigned int idx = atomic_load_explicit(&table->ProdIdx,                  \
                                             memory_order_relaxed);            \
     const unsigned int i = idx & (table->size -1);                            \
@@ -867,18 +852,18 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     return true;                                                              \
   }                                                                           \
                                                                               \
-  M_INLINE bool                                                               \
-  M_F(name, _pop)(type *ptr, buffer_t table)                                  \
+  M_P(bool, name, _pop, type *ptr, buffer_t table)                            \
   {                                                                           \
     M_QU3UE_MPMC_CONTRACT(table);                                             \
     M_ASSERT (ptr != NULL);                                                   \
+    M_ASSERT_POOL();                                                          \
     unsigned int iC = atomic_load_explicit(&table->ConsoIdx,                  \
                                            memory_order_relaxed);             \
     const unsigned int i = (iC & (table->size -1));                           \
     const unsigned int seq = atomic_load_explicit(&table->Tab[i].seq,         \
                                                   memory_order_acquire);      \
     if (seq != 2 * iC) {                                                      \
-      /* Nothing in buffer to consumme (or unlikely preemption) */            \
+      /* Nothing in buffer to consume (or unlikely preemption) */             \
       return false;                                                           \
     }                                                                         \
     if (M_UNLIKELY (!atomic_compare_exchange_strong_explicit(&table->ConsoIdx, \
@@ -896,8 +881,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     return true;                                                              \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _init)(buffer_t buffer, size_t size)                              \
+  M_P(void, name, _init, buffer_t buffer, size_t size)                        \
   {                                                                           \
     M_ASSERT (buffer != NULL);                                                \
     M_ASSERT( M_POWEROF2_P(size));                                            \
@@ -920,8 +904,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     M_QU3UE_MPMC_CONTRACT(buffer);                                            \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _clear)(buffer_t buffer)                                          \
+  M_P(void, name, _clear, buffer_t buffer)                                    \
   {                                                                           \
     M_QU3UE_MPMC_CONTRACT(buffer);                                            \
     if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
@@ -1060,10 +1043,10 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
 /* Define the core functionalities of a SPSC queue */
 #define M_QU3UE_SPSC_DEF_CORE(name, type, policy, oplist, buffer_t)           \
                                                                               \
-  M_INLINE bool                                                               \
-  M_F(name, _push)(buffer_t table, type const x)                              \
+  M_P(bool, name, _push, buffer_t table, type const x)                        \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
+    M_ASSERT_POOL();                                                          \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
                                           memory_order_relaxed);              \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
@@ -1081,10 +1064,10 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     return true;                                                              \
   }                                                                           \
                                                                               \
-  M_INLINE bool                                                               \
-  M_F(name, _push_move)(buffer_t table, type *x)                              \
+  M_P(bool, name, _push_move, buffer_t table, type *x)                        \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
+    M_ASSERT_POOL();                                                          \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
                                           memory_order_relaxed);              \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
@@ -1102,11 +1085,11 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     return true;                                                              \
   }                                                                           \
                                                                               \
-  M_INLINE bool                                                               \
-  M_F(name, _pop)(type *ptr, buffer_t table)                                  \
+  M_P(bool, name, _pop, type *ptr, buffer_t table)                            \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
     M_ASSERT (ptr != NULL);                                                   \
+    M_ASSERT_POOL();                                                          \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
                                           memory_order_relaxed);              \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
@@ -1124,12 +1107,12 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     return true;                                                              \
   }                                                                           \
                                                                               \
-  M_INLINE unsigned                                                           \
-  M_F(name, _push_bulk)(buffer_t table, unsigned n, type const x[])           \
+  M_P(unsigned, name, _push_bulk, buffer_t table, unsigned n, type const x[]) \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
     M_ASSERT (x != NULL);                                                     \
     M_ASSERT (n <= table->size);                                              \
+    M_ASSERT_POOL();                                                          \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
                                           memory_order_relaxed);              \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
@@ -1150,12 +1133,12 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     return max;                                                               \
   }                                                                           \
                                                                               \
-  M_INLINE unsigned                                                           \
-  M_F(name, _pop_bulk)(unsigned int n, type ptr[], buffer_t table)            \
+  M_P(unsigned, name, _pop_bulk, unsigned n, type ptr[], buffer_t table)      \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
     M_ASSERT (ptr != NULL);                                                   \
     M_ASSERT (n <= table->size);                                              \
+    M_ASSERT_POOL();                                                          \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
                                           memory_order_relaxed);              \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
@@ -1176,10 +1159,10 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     return max;                                                               \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _push_force)(buffer_t table, type const x)                        \
+  M_P(void, name, _push_force, buffer_t table, type const x)                  \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
+    M_ASSERT_POOL();                                                          \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
                                           memory_order_relaxed);              \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
@@ -1238,8 +1221,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     return M_F(name, _size)(v) >= v->size;                                    \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _init)(buffer_t buffer, size_t size)                              \
+  M_P(void, name, _init, buffer_t buffer, size_t size)                        \
   {                                                                           \
     M_ASSERT (buffer != NULL);                                                \
     M_ASSERT( M_POWEROF2_P(size));                                            \
@@ -1261,8 +1243,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
     M_QU3UE_SPSC_CONTRACT(buffer);                                            \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _clear)(buffer_t buffer)                                          \
+  M_P(void, name, _clear, buffer_t buffer)                                    \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(buffer);                                            \
     if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
@@ -1303,7 +1284,7 @@ M_F(name, _init)(buffer_t v, size_t size)                                     \
 
 /* OPLIST definition of a buffer */
 #define M_BUFF3R_OPLIST_P3(name, oplist)                                      \
-  (INIT(M_C3(m_buff3r_,name, _init))                                          \
+  (INIT(M_F(name, _i_init))                                                   \
    ,INIT_SET(M_F(name, _init_set))                                            \
    ,SET(M_F(name, _set))                                                      \
    ,CLEAR(M_F(name, _clear))                                                  \
