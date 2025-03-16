@@ -253,7 +253,6 @@
     struct M_F(name, _s) *next = M_CALL_NEW(oplist, struct M_F(name, _s));    \
     if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
       M_MEMORY_FULL(struct M_F(name, _s), 1);                                 \
-      return NULL;                                                            \
     }                                                                         \
     type *ret = &next->data;                                                  \
     next->next = *v;                                                          \
@@ -467,7 +466,6 @@
     struct M_F(name, _s) *next = M_CALL_NEW(oplist, struct M_F(name, _s));    \
     if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
       M_MEMORY_FULL(struct M_F(name, _s), 1);                                 \
-      return;                                                                 \
     }                                                                         \
     M_ON_EXCEPTION( M_CALL_DEL(oplist, next))                                 \
       M_CALL_INIT_SET(oplist, next->data, x);                                 \
@@ -519,8 +517,6 @@
       next = M_CALL_NEW(oplist, struct M_F(name, _s));                        \
       if (M_UNLIKELY_NOMEM (next == NULL)) {                                  \
         M_MEMORY_FULL(struct M_F(name, _s), 1);                               \
-        *update_list = NULL;                                                  \
-        return;                                                               \
       }                                                                       \
       M_CALL_INIT_SET(oplist, next->data, it_org->data);                      \
       *update_list = next;                                                    \
@@ -1012,7 +1008,6 @@
     struct M_F(name, _s) *next = M_CALL_NEW(oplist, struct M_F(name, _s));    \
     if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
       M_MEMORY_FULL(struct M_F(name, _s), 1);                                 \
-      return NULL;                                                            \
     }                                                                         \
     type *ret = &next->data;                                                  \
     next->next = v->back;                                                     \
@@ -1122,7 +1117,6 @@
     struct M_F(name, _s) *next = M_CALL_NEW(oplist, struct M_F(name, _s));    \
     if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
       M_MEMORY_FULL(struct M_F(name, _s), 1);                                 \
-      return NULL;                                                            \
     }                                                                         \
     type *ret = &next->data;                                                  \
     next->next = NULL;                                                        \
@@ -1281,7 +1275,6 @@
     struct M_F(name, _s) *m_volatile next = M_CALL_NEW(oplist, struct M_F(name, _s)); \
     if (M_UNLIKELY_NOMEM (next == NULL)) {                                    \
       M_MEMORY_FULL(struct M_F(name, _s), 1);                                 \
-      return;                                                                 \
     }                                                                         \
     M_ON_EXCEPTION( M_CALL_DEL(oplist, next))                                 \
       M_CALL_INIT_SET(oplist, next->data, x);                                 \
@@ -1341,7 +1334,6 @@
       next = M_CALL_NEW(oplist, struct M_F(name, _s));                        \
       if (M_UNLIKELY_NOMEM (next == NULL)) {                                  \
         M_MEMORY_FULL(struct M_F(name, _s), 1);                               \
-        return;                                                               \
       }                                                                       \
       M_CALL_INIT_SET(oplist, next->data, it_org->data);                      \
       /* Link new node to the previous one*/                                  \

@@ -288,7 +288,6 @@ typedef enum {
       n = M_CALL_NEW(oplist, node_t);                                         \
       if (M_UNLIKELY_NOMEM (n == NULL)) {                                     \
         M_MEMORY_FULL(node_t, 1);                                             \
-        return;                                                               \
       }                                                                       \
       /* Copy the data in the root node */                                    \
       M_CALL_INIT_SET(oplist, n->data, data);                                 \
@@ -329,7 +328,6 @@ typedef enum {
     n = M_CALL_NEW(oplist, node_t);                                           \
     if (M_UNLIKELY_NOMEM (n == NULL) ) {                                      \
       M_MEMORY_FULL (node_t, 1);                                              \
-      return;                                                                 \
     }                                                                         \
     /* Copy the data and mark the node as red */                              \
     M_CALL_INIT_SET(oplist, n->data, data);                                   \
@@ -659,7 +657,6 @@ typedef enum {
     node_t *n = M_CALL_NEW(oplist, node_t);                                   \
     if (M_UNLIKELY_NOMEM (n == NULL) ) {                                      \
       M_MEMORY_FULL (node_t, 1);                                              \
-      return NULL;                                                            \
     }                                                                         \
     M_CALL_INIT_SET(oplist, n->data, o->data);                                \
     n->child[0] = M_F(name,_i_copy_node)M_R(o->child[0]);                     \

@@ -616,7 +616,6 @@ M_IF_METHOD(INIT, oplist)(                                                    \
         shared_t *out = M_CALL_NEW(oplist, shared_t);                         \
         if (M_UNLIKELY_NOMEM( out == NULL)) {                                 \
             M_MEMORY_FULL(shared_t, 1);                                       \
-            abort();                                                          \
         }                                                                     \
         M_ON_EXCEPTION( M_CALL_DEL(oplist, out) )                             \
             M_CALL_INIT(oplist, out->data);                                   \
@@ -632,7 +631,6 @@ M_IF_METHOD(INIT_SET, oplist)(                                                \
         shared_t *out = M_CALL_NEW(oplist, shared_t);                         \
         if (M_UNLIKELY_NOMEM( out == NULL)) {                                 \
             M_MEMORY_FULL(shared_t, 1);                                       \
-            abort();                                                          \
         }                                                                     \
         M_F(name, _read_lock)(src);                                           \
         M_ON_EXCEPTION( M_F(name, _read_unlock)(src), M_CALL_DEL(oplist, out) ) \
@@ -649,7 +647,6 @@ M_IF_METHOD(INIT_SET, oplist)(                                                \
         shared_t *out = M_CALL_NEW(oplist, shared_t);                         \
         if (M_UNLIKELY_NOMEM( out == NULL)) {                                 \
             M_MEMORY_FULL(shared_t, 1);                                       \
-            abort();                                                          \
         }                                                                     \
         M_ON_EXCEPTION( M_CALL_DEL(oplist, out) )                             \
             M_CALL_INIT_SET(oplist, out->data, src);                          \
@@ -707,7 +704,6 @@ M_PAIR_2 name_attr shared_t *function_name(M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_
         shared_t *out = M_CALL_NEW(oplist, shared_t);                         \
         if (M_UNLIKELY_NOMEM( out == NULL)) {                                 \
             M_MEMORY_FULL(shared_t, 1);                                       \
-            abort();                                                          \
         }                                                                     \
         M_ON_EXCEPTION( M_CALL_DEL(oplist, out) )                             \
             M_EMPLACE_CALL_FUNC(a, init_func, oplist, out->data, exp_emplace_type); \

@@ -322,7 +322,6 @@ M_P(void, name, _init, buffer_t v, size_t size)                               \
     v->data = M_CALL_REALLOC(oplist, M_F(name, _el_ct), NULL, 0, M_BUFF3R_SIZE(m_size)); \
     if (M_UNLIKELY_NOMEM (v->data == NULL)) {                                 \
       M_MEMORY_FULL (M_F(name, _el_ct), M_BUFF3R_SIZE(m_size));               \
-      return;                                                                 \
     }                                                                         \
   )                                                                           \
   if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {            \
@@ -893,7 +892,6 @@ M_P(void, name, _init, buffer_t v, size_t size)                               \
     buffer->Tab = M_CALL_REALLOC(oplist, M_F(name, _el_ct), NULL, 0, size);   \
     if (M_UNLIKELY_NOMEM (buffer->Tab == NULL)) {                             \
       M_MEMORY_FULL (M_F(name, _el_ct), size);                                \
-      return;                                                                 \
     }                                                                         \
     for(unsigned int j = 0; j < (unsigned int) size; j++) {                   \
       atomic_init(&buffer->Tab[j].seq, 2*j+1U);                               \
@@ -1233,7 +1231,6 @@ M_P(void, name, _init, buffer_t v, size_t size)                               \
     buffer->Tab = M_CALL_REALLOC(oplist, M_F(name, _el_ct), NULL, 0, size);   \
     if (M_UNLIKELY_NOMEM (buffer->Tab == NULL)) {                             \
       M_MEMORY_FULL (M_F(name, _el_ct), size);                                \
-      return;                                                                 \
     }                                                                         \
     if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
       for(unsigned int j = 0; j < (unsigned int) size; j++) {                 \
