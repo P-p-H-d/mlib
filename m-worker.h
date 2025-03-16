@@ -412,7 +412,6 @@ m_worker_init(m_worker_t g, int numWorker, unsigned int extraQueue, void (*reset
   g->worker = M_MEMORY_REALLOC(m_work3r_thread_ct, NULL, 0, numWorker_st);
   if (M_UNLIKELY_NOMEM (g->worker == NULL)) {
     M_MEMORY_FULL(m_work3r_thread_ct, numWorker_st);
-    return;
   }
   m_work3r_queue_init(g->queue_g, numWorker_st + extraQueue);
   g->numWorker_g = (unsigned int) numWorker_st;

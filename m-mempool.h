@@ -119,7 +119,6 @@
     mem->current_segment = M_MEMORY_ALLOC(M_F(name,_segment_ct));             \
     if (M_UNLIKELY_NOMEM(mem->current_segment == NULL)) {                     \
       M_MEMORY_FULL(M_F(name,_segment_ct), 1);                                \
-      return;                                                                 \
     }                                                                         \
     mem->current_segment->next = NULL;                                        \
     mem->current_segment->count = 0;                                          \
@@ -161,7 +160,6 @@
       M_F(name,_segment_ct) *new_segment = M_MEMORY_ALLOC (M_F(name,_segment_ct)); \
       if (M_UNLIKELY_NOMEM (new_segment == NULL)) {                           \
         M_MEMORY_FULL(M_F(name,_segment_ct), 1);                              \
-        return NULL;                                                          \
       }                                                                       \
       new_segment->next = segment;                                            \
       new_segment->count = 0;                                                 \

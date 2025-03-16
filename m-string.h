@@ -312,7 +312,6 @@ M_P(char *, m_string, _clear_get_cstr, m_string_t v)
     char *ptr = M_MEMORY_REALLOC (char, NULL, 0, alloc);
     if (M_UNLIKELY_NOMEM (ptr == NULL)) {
       M_MEMORY_FULL(char, alloc);
-      return NULL;
     }
     M_ASSERT(ptr != NULL && p != NULL);
     memcpy(ptr, p, alloc);
@@ -384,18 +383,12 @@ M_P(char *, m_str1ng, _fit2size, m_string_t v, size_t size_alloc)
     if (M_UNLIKELY_NOMEM (alloc <= size_alloc)) {
       /* Overflow in alloc computation */
       M_MEMORY_FULL(char, alloc);
-      // NOTE: Return is currently broken.
-      abort();
-      return NULL;
     }
     char *ptr = m_str1ng_embedded_p(v) ? NULL : v->u.heap.ptr;
     //FIXME: old_alloc may not be NULL if ptr is NULL.
     ptr = M_MEMORY_REALLOC (char, ptr, old_alloc, alloc);
     if (M_UNLIKELY_NOMEM (ptr == NULL)) {
       M_MEMORY_FULL(char, alloc);
-      // NOTE: Return is currently broken.
-      abort();
-      return NULL;
     }
     // The pointer cannot be the embedded buffer of the string as it is heap allocated
     M_ASSERT(ptr != &v->u.buffer[0]);
@@ -449,13 +442,11 @@ M_P(void, m_string, _reserve, m_string_t v, size_t alloc)
     size_t r_alloc = m_str1ng_round_capacity(&m, &e, (m_str1ng_size_t) alloc);
     if (M_UNLIKELY_NOMEM (alloc > r_alloc)) {
       M_MEMORY_FULL(char, alloc);
-      return;
     } 
     char *ptr = m_str1ng_embedded_p(v) ? NULL : v->u.heap.ptr;
     ptr = M_MEMORY_REALLOC (char, ptr, m_string_capacity(v), r_alloc);
     if (M_UNLIKELY_NOMEM (ptr == NULL) ) {
       M_MEMORY_FULL(char, alloc);
-      return;
     }
     if (m_str1ng_embedded_p(v)) {
       // Copy the characters embedded in the structure to the allocated heap space

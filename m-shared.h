@@ -212,7 +212,6 @@ M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
     ptr = M_CALL_NEW(oplist, struct M_F(name, _s));                           \
     if (M_UNLIKELY_NOMEM (ptr == NULL)) {                                     \
       M_MEMORY_FULL(struct M_F(name, _s), 1);                                 \
-      return;                                                                 \
     }                                                                         \
     ptr->data = data;                                                         \
     M_CALL_INIT_SET(cpt_oplist, &ptr->cpt, 1);                                \
@@ -230,7 +229,6 @@ M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
       M_CALL_NEW(oplist, struct M_F(name, _combine_s));                       \
     if (M_UNLIKELY_NOMEM (p == NULL)) {                                       \
       M_MEMORY_FULL(struct M_F(name, _combine_s), 1);                         \
-      return;                                                                 \
     }                                                                         \
     struct M_F(name, _s) *ptr = &p->ptr;                                      \
     ptr->combineAlloc = true;                                                 \
@@ -377,7 +375,6 @@ M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
       M_CALL_NEW(oplist, struct M_F(name, _combine_s));                       \
     if (M_UNLIKELY_NOMEM (p == NULL)) {                                       \
       M_MEMORY_FULL(struct M_F(name, _combine_s), 1);                         \
-      return;                                                                 \
     }                                                                         \
     struct M_F(name, _s) *ptr = &p->ptr;                                      \
     ptr->combineAlloc = true;                                                 \
@@ -448,7 +445,6 @@ M_INLINE int m_shar3d_integer_cref(int *p) { return *p; }
     s->buffer = M_CALL_REALLOC(oplist, M_F(name, _atype_ct), NULL, 0, n);     \
     if (M_UNLIKELY_NOMEM (s->buffer == NULL)) {                               \
       M_MEMORY_FULL(M_F(name, _atype_ct), n);                                 \
-      return;                                                                 \
     }                                                                         \
     for(size_t i = 0; i < n; i++) {                                           \
       M_CALL_INIT(oplist, s->buffer[i].x);                                    \

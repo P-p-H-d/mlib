@@ -313,7 +313,6 @@ M_BEGIN_PROTECTED_CODE
     node = M_MEMORY_ALLOC(M_F(name, _lf_node_t));                             \
     if (M_UNLIKELY_NOMEM (node == NULL)) {                                    \
       M_MEMORY_FULL(M_F(name, _lf_node_t), 1);                                \
-      return NULL;                                                            \
     }                                                                         \
     atomic_init(&node->next, (M_F(name, _lf_node_t) *) 0);                    \
     atomic_init(&node->cpt, 0UL);                                             \
@@ -323,7 +322,6 @@ M_BEGIN_PROTECTED_CODE
       n = M_MEMORY_ALLOC(M_F(name, _slist_node_ct));                          \
       if (M_UNLIKELY_NOMEM (n == NULL)) {                                     \
         M_MEMORY_FULL(M_F(name, _lf_node_t), 1);                              \
-        return NULL;                                                          \
       }                                                                       \
       M_F(name, _slist_push)(node->list, n);                                  \
     }                                                                         \
@@ -467,7 +465,6 @@ M_BEGIN_PROTECTED_CODE
     mem->thread_data = M_MEMORY_REALLOC(M_F(name, _lfmp_thread_ct), NULL, 0, max_thread); \
     if (M_UNLIKELY_NOMEM (mem->thread_data == NULL)) {                        \
       M_MEMORY_FULL(M_F(name, _lfmp_thread_ct), max_thread);                  \
-      return;                                                                 \
     }                                                                         \
     for(unsigned i = 0; i < max_thread;i++) {                                 \
       M_F(name, _lfmp_thread_init)(&mem->thread_data[i]);                     \
@@ -590,7 +587,6 @@ m_gc_init(m_gc_t gc_mem, size_t max_thread)
   gc_mem->thread_data = M_MEMORY_REALLOC(m_gc_lfmp_thread_ct, NULL, 0, max_thread);
   if (M_UNLIKELY_NOMEM (gc_mem->thread_data == NULL)) {
     M_MEMORY_FULL(m_gc_lfmp_thread_ct, max_thread);
-    return;
   }
   for(unsigned i = 0; i < max_thread;i++) {
     atomic_init(&gc_mem->thread_data[i].ticket, ULONG_MAX);

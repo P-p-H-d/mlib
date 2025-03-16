@@ -111,7 +111,6 @@ M_P(void, m_genint, _init, m_genint_t s, unsigned int n)
   atomic_ullong *ptr = M_MEMORY_REALLOC (atomic_ullong, NULL, 0, alloc);
   if (M_UNLIKELY_NOMEM (ptr == NULL)) {
     M_MEMORY_FULL(atomic_ullong, alloc);
-    return;
   }
   s->n = n;
   s->data = ptr;

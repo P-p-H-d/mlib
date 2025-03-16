@@ -125,7 +125,6 @@ M_P(void, m_bitset, _set, m_bitset_t d, const m_bitset_t s)
       m_b1tset_limb_ct *ptr = M_MEMORY_REALLOC (m_b1tset_limb_ct, d->ptr, d->alloc, needAlloc);
       if (M_UNLIKELY_NOMEM (ptr == NULL)) {
         M_MEMORY_FULL(m_b1tset_limb_ct, needAlloc);
-        return ;
       }
       d->ptr = ptr;
       d->alloc = needAlloc;
@@ -208,14 +207,12 @@ M_P(void, m_bitset, _push_back, m_bitset_t v, bool x)
     // Check for integer overflow
     if (M_UNLIKELY_NOMEM (needAlloc <= v->alloc)) {
       M_MEMORY_FULL(m_b1tset_limb_ct, needAlloc);
-      return;
     }
     // Alloc memory
     m_b1tset_limb_ct *ptr = M_MEMORY_REALLOC (m_b1tset_limb_ct, v->ptr, v->alloc, needAlloc);
     // Check if success
     if (M_UNLIKELY_NOMEM (ptr == NULL) ) {
       M_MEMORY_FULL(m_b1tset_limb_ct, needAlloc);
-      return;
     }
     v->ptr = ptr;
     v->alloc = needAlloc;
@@ -242,8 +239,7 @@ M_P(void, m_bitset, _resize, m_bitset_t v, size_t size)
   M_B1TSET_CONTRACT (v);
   // Check for overflow
   if (M_UNLIKELY_NOMEM (size >= ((size_t)-1) - M_B1TSET_LIMB_BIT)) {
-    M_MEMORY_FULL(char, (size_t) -1);
-    return;
+    M_MEMORY_FULL(char, -(size_t)1);
   }
   // Compute the needed allocation.
   size_t newAlloc = M_B1TSET_TO_ALLOC (size);
@@ -252,7 +248,6 @@ M_P(void, m_bitset, _resize, m_bitset_t v, size_t size)
     m_b1tset_limb_ct *ptr = M_MEMORY_REALLOC (m_b1tset_limb_ct, v->ptr, v->alloc, newAlloc);
     if (M_UNLIKELY_NOMEM (ptr == NULL) ) {
       M_MEMORY_FULL(m_b1tset_limb_ct, newAlloc);
-      return;
     }
     v->ptr = ptr;
     v->alloc = newAlloc;
@@ -303,7 +298,6 @@ M_P(void, m_bitset, _reserve, m_bitset_t v, size_t alloc)
     m_b1tset_limb_ct *ptr = M_MEMORY_REALLOC (m_b1tset_limb_ct, v->ptr, v->alloc, newAlloc);
     if (M_UNLIKELY_NOMEM (ptr == NULL) ) {
       M_MEMORY_FULL(m_b1tset_limb_ct, newAlloc);
-      return;
     }
     v->ptr = ptr;
     v->alloc = newAlloc;

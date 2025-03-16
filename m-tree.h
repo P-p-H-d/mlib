@@ -261,7 +261,6 @@ typedef int32_t m_tr33_index_t;
         /* Realloc the array */                                               \
         if (M_UNLIKELY_NOMEM (alloc >= INT32_MAX)) {                          \
             M_MEMORY_FULL(struct M_F(name, _node_s), alloc);                  \
-            return;                                                           \
         }                                                                     \
         /* Allocate one more term in the array so that tab[-1] exists.        \
            This enables performing latter tab[M_TR33_NO_NODE].x = something;  \
@@ -271,7 +270,6 @@ typedef int32_t m_tr33_index_t;
         ptr = M_CALL_REALLOC(oplist, struct M_F(name, _node_s), ptr, (size_t)(tree->capacity+1), alloc+1); \
         if (M_UNLIKELY_NOMEM (ptr == NULL) ) {                                \
             M_MEMORY_FULL(struct M_F(name, _node_s), alloc);                  \
-            return;                                                           \
         }                                                                     \
         /* Skip the first term to keep it as empty & unused */                \
         ptr++;                                                                \
@@ -315,7 +313,6 @@ typedef int32_t m_tr33_index_t;
             alloc += tree->allow_realloc;                                     \
             if (M_UNLIKELY_NOMEM (alloc >= INT32_MAX)) {                      \
                 M_MEMORY_FULL(struct M_F(name, _node_s), alloc);              \
-                return M_TR33_NO_NODE;                                        \
             }                                                                 \
             /* Allocate one more term in the array so that tab[-1] exists.    \
             This enables performing latter tab[M_TR33_NO_NODE].x = something; \
@@ -325,7 +322,6 @@ typedef int32_t m_tr33_index_t;
             ptr = M_CALL_REALLOC(oplist, struct M_F(name, _node_s), ptr, (size_t)(tree->capacity+1), alloc+1); \
             if (M_UNLIKELY_NOMEM (ptr == NULL) ) {                            \
                 M_MEMORY_FULL(struct M_F(name, _node_s), alloc);              \
-                return M_TR33_NO_NODE;                                        \
             }                                                                 \
             /* Skip the first term to keep it as empty & unused */            \
             ptr++;                                                            \
@@ -1137,7 +1133,6 @@ typedef int32_t m_tr33_index_t;
                 M_CALL_REALLOC(oplist, struct M_F(name, _node_s), NULL, 0, alloc+1); \
             if (M_UNLIKELY_NOMEM (ptr == NULL) ) {                            \
                 M_MEMORY_FULL(struct M_F(name, _node_s), alloc);              \
-                return;                                                       \
             }                                                                 \
             tree->tab = ++ptr;                                                \
             /* We don't scan recursively the node tree, but sequentially */   \

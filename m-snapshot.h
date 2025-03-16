@@ -394,7 +394,6 @@ m_snapsh0t_mrsw_init(m_snapsh0t_mrsw_ct s, size_t n)
   atomic_uint *ptr = M_MEMORY_REALLOC (atomic_uint, NULL, 0, n);
   if (M_UNLIKELY_NOMEM (ptr == NULL)) {
     M_MEMORY_FULL(atomic_uint, n);
-    return;
   }
   s->cptTab = ptr;
   for(size_t i = 0; i < n; i++)
@@ -649,7 +648,6 @@ m_snapsh0t_mrsw_read_end(m_snapsh0t_mrsw_ct s, unsigned int idx)
     if (M_UNLIKELY_NOMEM (snap->data == NULL)) {                              \
       M_MEMORY_FULL(M_F(name, _aligned_type_ct),                              \
                     (nReader+M_SNAPSH0T_SPMC_EXTRA_BUFFER));                  \
-      return;                                                                 \
     }                                                                         \
     for(size_t i = 0; i < nReader + M_SNAPSH0T_SPMC_EXTRA_BUFFER; i++) {      \
       M_CALL_INIT(oplist, snap->data[i].x);                                   \
