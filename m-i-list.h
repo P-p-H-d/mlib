@@ -210,8 +210,7 @@ typedef struct m_il1st_head_s {
     M_IL1ST_CONTRACT(name, list);                                             \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _reset)(list_t list)                                              \
+  M_P(void, name, _reset, list_t list)                                        \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
     for(struct m_il1st_head_s *it = list->name.next, *next ;                  \
@@ -232,11 +231,10 @@ typedef struct m_il1st_head_s {
     M_IL1ST_CONTRACT(name, list);                                             \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _clear)(list_t list)                                              \
+  M_P(void, name, _clear, list_t list)                                        \
   {                                                                           \
     /* Nothing to do more than clean the list itself */                       \
-    M_F(name, _reset)(list);                                                  \
+    M_F(name, _reset)M_R(list);                                               \
     /* For safety purpose (create invalid representation of object) */        \
     list->name.next = NULL;                                                   \
     list->name.prev = NULL;                                                   \
@@ -267,10 +265,9 @@ typedef struct m_il1st_head_s {
     M_IL1ST_CONTRACT(name, list);                                             \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _move)(list_t list, list_t ref)                                   \
+  M_P(void, name, _move, list_t list, list_t ref)                             \
   {                                                                           \
-    M_F(name, _clear)(list);                                                  \
+    M_F(name, _clear)M_R(list);                                               \
     M_F(name, _init_move)(list, ref);                                         \
   }                                                                           \
                                                                               \
@@ -511,8 +508,7 @@ typedef struct m_il1st_head_s {
     return M_CONST_CAST(type, ptr);                                           \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _remove)(list_t list, it_t it)                                    \
+  M_P(void, name, _remove, list_t list, it_t it)                              \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
     M_IL1ST_NODE_CONTRACT(it->current);                                       \
