@@ -99,8 +99,15 @@
   M_D3QU3_DEF_TYPE(name, type, oplist, deque_t, it_t, node_t)                 \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
   M_D3QU3_DEF_CORE(name, type, oplist, deque_t, it_t, node_t)                 \
-  M_EMPLACE_QUEUE_DEF(name, deque_t, M_F(name, _emplace_back), oplist, M_D3QUE_EMPLACE_BACK_DEF) \
-  M_EMPLACE_QUEUE_DEF(name, deque_t, M_F(name, _emplace_front), oplist, M_D3QUE_EMPLACE_FRONT_DEF)
+  M_EMPLACE_QUEUE_DEF(name, deque_t, _emplace_back, oplist, M_D3QUE_EMPLACE_BACK_DEF) \
+  M_EMPLACE_QUEUE_DEF(name, deque_t, _emplace_front, oplist, M_D3QUE_EMPLACE_FRONT_DEF)
+
+// OPLIST for the node deletion
+#ifdef M_USE_POOL
+#define M_D3QU3_NODE_DEL_OPLIST(name) (DEL(API_0P(M_F(name, _node_list_i_del))))
+#else
+#define M_D3QU3_NODE_DEL_OPLIST(name) (DEL(M_F(name, _node_list_i_del)))
+#endif
 
 /* Define the types.
    It is a linked list of buckets of the types,
@@ -124,14 +131,13 @@
      M_GET_REALLOC for the allocation). But we want to delete the nodes       \
      automatically with the intrusive list used for storing the nodes:        \
      so we register as a DEL operator the FREE operator of the oplist.        \
-     The interfaces are compatible.                                           \
   */                                                                          \
   /* FIXME: How can I separate public types and private implementation? */    \
-  static inline void M_F(name, _del_node)(node_t *ptr)                        \
+  M_P(void, name, _node_list_i_del, node_t *ptr)                              \
   {                                                                           \
     M_CALL_FREE(oplist, char, ptr, sizeof(node_t) + ptr->capacity * sizeof(type)); \
   }                                                                           \
-  M_ILIST_DEF(M_F(name, _node_list), node_t, (DEL(M_F(name, _del_node))) )    \
+  M_ILIST_DEF(M_F(name, _node_list), node_t, M_D3QU3_NODE_DEL_OPLIST(name) )  \
                                                                               \
   /* Define an internal iterator */                                           \
   typedef struct M_F(name, _it2_s) {                                          \
@@ -174,24 +180,18 @@
 #define M_D3QU3_DEF_CORE(name, type, oplist, deque_t, it_t, node_t)           \
                                                                               \
   /* Allocate a new node for a deque */                                       \
-  M_INLINE node_t*                                                            \
-  M_C3(m_d3qu3_,name,_new_node)(deque_t d)                                    \
+  M_P(node_t*, name, _i_new_node, deque_t d)                                  \
   {                                                                           \
     size_t def = d->default_size;                                             \
     /* Test for overflow of the size computation */                           \
     if (M_UNLIKELY_NOMEM (def > SIZE_MAX / sizeof (type) - sizeof(node_t))) { \
       M_MEMORY_FULL(char, sizeof(node_t)+def * sizeof(type));                 \
-      abort();                                                                \
-      return NULL;                                                            \
     }                                                                         \
     /* Alloc a new node with dynamic size */                                  \
     node_t*n = (node_t*) (void*)                                              \
-      M_CALL_REALLOC(oplist, char, NULL, 0,                                   \
-                     sizeof(node_t) + def * sizeof(type) );                   \
+      M_CALL_REALLOC(oplist, char, NULL, 0, sizeof(node_t) + def * sizeof(type) ); \
     if (M_UNLIKELY_NOMEM (n==NULL)) {                                         \
       M_MEMORY_FULL(char, sizeof(node_t)+def * sizeof(type));                 \
-      abort();                                                                \
-      return NULL;                                                            \
     }                                                                         \
     /* Initialize the node */                                                 \
     n->size = def;                                                            \
@@ -205,13 +205,12 @@
     return n;                                                                 \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _init)(deque_t d)                                                 \
+  M_P(void, name, _init, deque_t d)                                           \
   {                                                                           \
     M_F(name, _node_list_init)(d->list);                                      \
     d->default_size = M_USE_DEQUE_DEFAULT_SIZE;                               \
     d->count        = 0;                                                      \
-    node_t *n = M_C3(m_d3qu3_,name,_new_node)(d);                             \
+    node_t *n = M_F(name,_i_new_node)M_R(d);                                  \
     M_F(name, _node_list_push_back)(d->list, n);                              \
     d->front->node  = n;                                                      \
     d->front->index = M_USE_DEQUE_DEFAULT_SIZE/2;                             \
@@ -220,10 +219,10 @@
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _reset)(deque_t d)                                                \
+  M_P(void, name, _reset, deque_t d)                                          \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
+    M_ASSERT_POOL();                                                          \
     node_t *min_node = NULL;                                                  \
     for(node_t *n = d->front->node;                                           \
         n != NULL ;                                                           \
@@ -245,31 +244,29 @@
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _clear)(deque_t d)                                                \
+  M_P(void, name, _clear, deque_t d)                                          \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
-    M_F(name, _reset)(d);                                                     \
-    /* We have registered the delete operator to clear all objects */         \
-    M_F(name, _node_list_clear)(d->list);                                     \
-    /* It is safer to clean some variables */                                 \
+    M_F(name, _reset)M_R(d);                                                  \
+    /* We have registered the delete operator to clear all node objects */    \
+    M_F(name, _node_list_clear)M_R(d->list);                                  \
+    /* It is safer to clean some variables to mark d as invalid */            \
     d->front->node  = NULL;                                                   \
     d->back->node   = NULL;                                                   \
     d->count = 0;                                                             \
   }                                                                           \
                                                                               \
-  M_INLINE type *                                                             \
-  M_F(name, _push_back_raw)(deque_t d)                                        \
+  M_P(type *, name, _push_back_raw, deque_t d)                                \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     node_t *n = d->back->node;                                                \
     size_t index = d->back->index;                                            \
     if (M_UNLIKELY (n->size <= index)) {                                      \
-      /* try to get an already allocated node */                              \
+      /* Cannot fit in the current node, try to get another allocated node */ \
       n = M_F(name, _node_list_next_obj)(d->list, n);                         \
       if (n == NULL) {                                                        \
-        /* No node exists, allocate a new one */                              \
-        n = M_C3(m_d3qu3_,name,_new_node)(d);                                 \
+        /* No another node exists: allocate a new one */                      \
+        n = M_F(name,_i_new_node)M_R(d);                                      \
         M_F(name, _node_list_push_back)(d->list, n);                          \
       }                                                                       \
       d->back->node = n;                                                      \
@@ -283,27 +280,24 @@
     return ret;                                                               \
   }                                                                           \
                                                                               \
-  /* Internal, for INIT_WITH */                                               \
-  M_INLINE type *                                                             \
-  M_F(name, _push_raw)(deque_t d)                                             \
+  /* Internal, for generic INIT_WITH */                                       \
+  M_P(type *, name, _push_raw, deque_t d)                                     \
   {                                                                           \
-    return M_F(name, _push_back_raw)(d);                                      \
+    return M_F(name, _push_back_raw)M_R(d);                                   \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _push_back)(deque_t d, type const x)                              \
+  M_P(void, name, _push_back, deque_t d, type const x)                        \
   {                                                                           \
-    type *p = M_F(name, _push_back_raw)(d);                                   \
+    type *p = M_F(name, _push_back_raw)M_R(d);                                \
     M_ON_EXCEPTION(d->back->index --, d->count--) {                           \
       M_CALL_INIT_SET(oplist, *p, x);                                         \
     }                                                                         \
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
-  M_INLINE type *                                                             \
-  M_F(name, _push_back_new)(deque_t d)                                        \
+  M_P(type *, name, _push_back_new, deque_t d)                                \
   {                                                                           \
-    type *p = M_F(name, _push_back_raw)(d);                                   \
+    type *p = M_F(name, _push_back_raw)M_R(d);                                \
     M_ON_EXCEPTION(d->back->index --, d->count--) {                           \
       M_CALL_INIT(oplist, *p);                                                \
     }                                                                         \
@@ -311,16 +305,14 @@
   }                                                                           \
   , )                                                                         \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _push_back_move)(deque_t d, type *x)                              \
+  M_P(void, name, _push_back_move, deque_t d, type *x)                        \
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
-    type *p = M_F(name, _push_back_raw)(d);                                   \
+    type *p = M_F(name, _push_back_raw)M_R(d);                                \
     M_DO_INIT_MOVE (oplist, *p, *x);                                          \
   }                                                                           \
                                                                               \
-  M_INLINE type*                                                              \
-  M_F(name, _push_front_raw)(deque_t d)                                       \
+  M_P(type *, name, _push_front_raw, deque_t d)                               \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     node_t *n = d->front->node;                                               \
@@ -330,7 +322,7 @@
     if (M_UNLIKELY (n->size <= index)) {                                      \
       n = M_F(name, _node_list_previous_obj)(d->list, n);                     \
       if (n == NULL) {                                                        \
-        n = M_C3(m_d3qu3_,name,_new_node)(d);                                 \
+        n = M_F(name,_i_new_node)M_R(d);                                      \
         M_F(name, _node_list_push_front)(d->list, n);                         \
       }                                                                       \
       d->front->node = n;                                                     \
@@ -343,20 +335,18 @@
     return ret;                                                               \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _push_front)(deque_t d, type const x)                             \
+  M_P(void, name, _push_front, deque_t d, type const x)                       \
   {                                                                           \
-    type *p = M_F(name, _push_front_raw)(d);                                  \
+    type *p = M_F(name, _push_front_raw)M_R(d);                               \
     M_ON_EXCEPTION(d->front->index ++, d->count--) {                          \
       M_CALL_INIT_SET(oplist, *p, x);                                         \
     }                                                                         \
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
-  M_INLINE type *                                                             \
-  M_F(name, _push_front_new)(deque_t d)                                       \
+  M_P(type *, name, _push_front_new, deque_t d)                               \
   {                                                                           \
-    type *p = M_F(name, _push_front_raw)(d);                                  \
+    type *p = M_F(name, _push_front_raw)M_R(d);                               \
     M_ON_EXCEPTION(d->front->index ++, d->count--) {                          \
       M_CALL_INIT(oplist, *p);                                                \
     }                                                                         \
@@ -364,19 +354,18 @@
   }                                                                           \
   ,)                                                                          \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _push_front_move)(deque_t d, type *x)                             \
+  M_P(void, name, _push_front_move, deque_t d, type *x)                       \
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
-    type *p = M_F(name, _push_front_raw)(d);                                  \
+    type *p = M_F(name, _push_front_raw)M_R(d);                               \
     M_DO_INIT_MOVE (oplist, *p, *x);                                          \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _pop_back)(type *ptr, deque_t d)                                  \
+  M_P(void, name, _pop_back, type *ptr, deque_t d)                            \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT(d->count > 0);                                                   \
+    M_ASSERT_POOL();                                                          \
     node_t *n = d->back->node;                                                \
     size_t index = d->back->index;                                            \
     index --;                                                                 \
@@ -396,34 +385,35 @@
       index = n->size-1;                                                      \
     }                                                                         \
     if (ptr != NULL)                                                          \
-      M_DO_MOVE(oplist, *ptr, n->data[index]); else                           \
-    M_CALL_CLEAR(oplist,  n->data[index]);                                    \
+      M_DO_MOVE(oplist, *ptr, n->data[index]);                                \
+    else                                                                      \
+      M_CALL_CLEAR(oplist,  n->data[index]);                                  \
     d->count --;                                                              \
     d->back->index = index;                                                   \
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
-  M_INLINE void                                                               \
-  M_F(name, _pop_back_move)(type *ptr, deque_t d)                             \
+  M_P(void, name, _pop_back_move, type *ptr, deque_t d)                       \
   {                                                                           \
     M_ASSERT(ptr != NULL);                                                    \
     /* Note: Lazy implementation. Can be improved if needed */                \
     M_CALL_INIT(oplist, *ptr);                                                \
-    M_F(name, _pop_back)(ptr, d);                                             \
+    M_F(name, _pop_back)M_R(ptr, d);                                          \
   }                                                                           \
   , )                                                                         \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _pop_front)(type *ptr, deque_t d)                                 \
+  M_P(void, name, _pop_front, type *ptr, deque_t d)                           \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT(d->count > 0);                                                   \
+    M_ASSERT_POOL();                                                          \
     node_t *n = d->front->node;                                               \
     size_t index = d->front->index;                                           \
     if (ptr != NULL)                                                          \
-      M_DO_MOVE(oplist, *ptr, n->data[index]); else                           \
-    M_CALL_CLEAR(oplist, n->data[index]);                                     \
+      M_DO_MOVE(oplist, *ptr, n->data[index]);                                \
+    else                                                                      \
+      M_CALL_CLEAR(oplist, n->data[index]);                                   \
     index++;                                                                  \
     if (M_UNLIKELY (n->size <= index)) {                                      \
       /* If there is a previous node,                                         \
@@ -456,13 +446,12 @@
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
-  M_INLINE void                                                               \
-  M_F(name, _pop_front_move)(type *ptr, deque_t d)                            \
+  M_P(void, name, _pop_front_move, type *ptr, deque_t d)                      \
   {                                                                           \
     M_ASSERT(ptr != NULL);                                                    \
     /* Note: Lazy implementation */                                           \
     M_CALL_INIT(oplist, *ptr);                                                \
-    M_F(name, _pop_front)(ptr, d);                                            \
+    M_F(name, _pop_front)M_R(ptr, d);                                         \
   }                                                                           \
   ,)                                                                          \
                                                                               \
@@ -668,8 +657,7 @@
     return M_CONST_CAST(type, &it->node->data[it->index]);                    \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _remove)(deque_t d, it_t it)                                      \
+  M_P(void, name, _remove, deque_t d, it_t it)                                \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT (it != NULL && it->node != NULL);                                \
@@ -731,14 +719,13 @@
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _init_set)(deque_t d, const deque_t src)                          \
+  M_P(void, name, _init_set, deque_t d, const deque_t src)                    \
   {                                                                           \
     M_D3QU3_CONTRACT(src);                                                    \
     M_ASSERT (d != NULL);                                                     \
     M_F(name, _node_list_init)(d->list);                                      \
     d->default_size = M_USE_DEQUE_DEFAULT_SIZE + src->count;                  \
-    node_t *n = M_C3(m_d3qu3_,name,_new_node)(d);                             \
+    node_t *n = M_F(name,_i_new_node)M_R(d);                                  \
     d->count        = src->count;                                             \
     d->default_size /= 2;                                                     \
     M_F(name, _node_list_push_back)(d->list, n);                              \
@@ -758,15 +745,14 @@
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _set)(deque_t d, deque_t const src)                               \
+  M_P(void, name, _set, deque_t d, deque_t const src)                         \
   {                                                                           \
     if (M_UNLIKELY (src == d))                                                \
       return;                                                                 \
     /* TODO: Reuse memory of d! */                                            \
     M_ON_EXCEPTION( M_F(name, _init)(d) ) {                                   \
-      M_F(name, _clear)(d);                                                   \
-      M_F(name, _init_set)(d, src);                                           \
+      M_F(name, _clear)M_R(d);                                                \
+      M_F(name, _init_set)M_R(d, src);                                        \
     }                                                                         \
   }                                                                           \
                                                                               \
@@ -786,12 +772,11 @@
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _move)(deque_t d, deque_t src)                                    \
+  M_P(void, name, _move, deque_t d, deque_t src)                              \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_D3QU3_CONTRACT(src);                                                    \
-    M_F(name, _clear)(d);                                                     \
+    M_F(name, _clear)M_R(d);                                                  \
     M_F(name, _init_move)(d, src);                                            \
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
@@ -837,10 +822,10 @@
     return M_CONST_CAST(type, M_F(name, _get)(d, key));                       \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _set_at)(deque_t d, size_t key, type const x)                     \
+  M_P(void, name, _set_at, deque_t d, size_t key, type const x)               \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
+    M_ASSERT_POOL();                                                          \
     M_ASSERT_INDEX (key, d->count);                                           \
     type *p = M_F(name, _get)(d, key);                                        \
     M_CALL_SET(oplist, *p, x);                                                \
@@ -900,11 +885,10 @@
   , /* NO SWAP */)                                                            \
                                                                               \
   M_IF_METHOD(GET_STR, oplist)(                                               \
-  M_INLINE void                                                               \
-  M_F(name, _get_str)(m_string_t str, deque_t const deque, bool append)       \
+  M_P(void, name, _get_str, m_string_t str, deque_t const deque, bool append) \
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
-    (append ? m_string_cat_cstr : m_string_set_cstr) (str, "[");              \
+    (append ? m_string_cat_cstr : m_string_set_cstr) M_R(str, "[");           \
     it_t it;                                                                  \
     for (M_F(name, _it)(it, deque) ;                                          \
          !M_F(name, _end_p)(it);                                              \
@@ -912,9 +896,9 @@
       type const *item = M_F(name, _cref)(it);                                \
       M_CALL_GET_STR(oplist, str, *item, true);                               \
       if (!M_F(name, _last_p)(it))                                            \
-        m_string_push_back (str, M_GET_SEPARATOR oplist);                     \
+        m_string_push_back M_R(str, M_GET_SEPARATOR oplist);                  \
     }                                                                         \
-    m_string_push_back (str, ']');                                            \
+    m_string_push_back M_R(str, ']');                                         \
   }                                                                           \
   , /* no GET_STR */ )                                                        \
                                                                               \
@@ -939,12 +923,11 @@
   , /* no OUT_STR */ )                                                        \
                                                                               \
   M_IF_METHOD2(PARSE_STR, INIT, oplist)(                                      \
-  M_INLINE bool                                                               \
-  M_F(name, _parse_str)(deque_t deque, const char str[], const char **endp)   \
+  M_P(bool, name, _parse_str, deque_t deque, const char str[], const char **endp) \
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
     M_ASSERT (str != NULL);                                                   \
-    M_F(name,_reset)(deque);                                                  \
+    M_F(name,_reset)M_R(deque);                                               \
     int c = *str++;                                                           \
     if (M_UNLIKELY (c != '[')) { c = 0; goto exit; }                          \
     c = *str++;                                                               \
@@ -955,7 +938,7 @@
         bool b = M_CALL_PARSE_STR(oplist, item, str, &str);                   \
         c = m_core_str_nospace(&str);                                         \
         if (b == false || c == 0) { c = 0; break; }                           \
-        M_F(name, _push_back)(deque, item);                                   \
+        M_F(name, _push_back)M_R(deque, item);                                \
       } while (c == M_GET_SEPARATOR oplist);                                  \
     }                                                                         \
   exit:                                                                       \
@@ -966,12 +949,11 @@
   , /* no PARSE_STR */ )                                                      \
                                                                               \
   M_IF_METHOD2(IN_STR, INIT, oplist)(                                         \
-  M_INLINE bool                                                               \
-  M_F(name, _in_str)(deque_t deque, FILE *file)                               \
+  M_P(bool, name, _in_str, deque_t deque, FILE *file)                         \
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
     M_ASSERT (file != NULL);                                                  \
-    M_F(name,_reset)(deque);                                                  \
+    M_F(name,_reset)M_R(deque);                                               \
     int c = fgetc(file);                                                      \
     if (M_UNLIKELY (c != '[')) return false;                                  \
     c = fgetc(file);                                                          \
@@ -983,7 +965,7 @@
         bool b = M_CALL_IN_STR(oplist, item, file);                           \
         c = m_core_fgetc_nospace(file);                                       \
         if (b == false || c == EOF) { c = 0; break; }                         \
-        M_F(name, _push_back)(deque, item);                                   \
+        M_F(name, _push_back)M_R(deque, item);                                \
       } while (c == M_GET_SEPARATOR oplist);                                  \
     }                                                                         \
     M_D3QU3_CONTRACT(deque);                                                  \
@@ -1017,22 +999,21 @@
   , /* no OUT_SERIAL */ )                                                     \
                                                                               \
   M_IF_METHOD2(IN_SERIAL, INIT, oplist)(                                      \
-  M_INLINE m_serial_return_code_t                                             \
-  M_F(name, _in_serial)(deque_t deque, m_serial_read_t f)                     \
+  M_P(m_serial_return_code_t, name, _in_serial, deque_t deque, m_serial_read_t f) \
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
     M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
     size_t estimated_size = 0;                                                \
-    M_F(name,_reset)(deque);                                                  \
+    M_F(name,_reset)M_R(deque);                                               \
     ret = f->m_interface->read_array_start(local, f, &estimated_size);        \
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;                 \
     M_QLET(1, item, type, oplist) {                                           \
       do {                                                                    \
         ret = M_CALL_IN_SERIAL(oplist, item, f);                              \
         if (ret != M_SERIAL_OK_DONE) { break; }                               \
-        M_F(name, _push_back)(deque, item);                                   \
+        M_F(name, _push_back)M_R(deque, item);                                \
         ret = f->m_interface->read_array_next(local, f);                      \
       } while (ret == M_SERIAL_OK_CONTINUE);                                  \
     }                                                                         \
@@ -1042,11 +1023,9 @@
 
 /* Definition of the emplace_back function for deque */
 #define M_D3QUE_EMPLACE_BACK_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  M_INLINE void                                                               \
-  function_name(name_t v                                                      \
-                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  M_P(void, name, function_name, name_t v M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) ) \
   {                                                                           \
-    M_F(name, _subtype_ct) *data = M_F(name, _push_back_raw)(v);              \
+    M_F(name, _subtype_ct) *data = M_F(name, _push_back_raw)M_R(v);           \
     M_ON_EXCEPTION(v->back->index --, v->count--) {                           \
       M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);     \
     }                                                                         \
@@ -1055,11 +1034,9 @@
 
 /* Definition of the emplace_front function for deque */
 #define M_D3QUE_EMPLACE_FRONT_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  M_INLINE void                                                               \
-  function_name(name_t v                                                      \
-                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  M_P(void, name, function_name, name_t v M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) ) \
   {                                                                           \
-    M_F(name, _subtype_ct) *data = M_F(name, _push_front_raw)(v);             \
+    M_F(name, _subtype_ct) *data = M_F(name, _push_front_raw)M_R(v);          \
     M_ON_EXCEPTION(v->front->index ++, v->count--) {                          \
       M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);     \
     }                                                                         \
