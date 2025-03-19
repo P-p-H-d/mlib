@@ -756,7 +756,6 @@ m_vlapool_init(m_vlapool_t mem, m_gc_t gc_mem)
   mem->thread_data = M_MEMORY_REALLOC(m_vlapool_lfmp_thread_ct, NULL, 0, max_thread);
   if (M_UNLIKELY_NOMEM (mem->thread_data == NULL)) {
     M_MEMORY_FULL(m_vlapool_lfmp_thread_ct, max_thread);
-    return;
   }
   for(unsigned i = 0; i < max_thread;i++) {
     m_vlapool_lfmp_thread_init(&mem->thread_data[i]);

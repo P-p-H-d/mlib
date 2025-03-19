@@ -414,7 +414,6 @@
     node_t n = M_CALL_NEW(key_oplist, struct M_F(name, _node_s));             \
     if (M_UNLIKELY_NOMEM (n == NULL)) {                                       \
       M_MEMORY_FULL(node_t, 1);                                               \
-      M_ASSERT (0);                                                           \
     }                                                                         \
     n->next = NULL;                                                           \
     n->num = 0;                                                               \
