@@ -179,9 +179,6 @@ M_P(uint8_t *, m_bstr1ng, _fit2size, m_bstring_t v, size_t size_alloc, bool exac
   return &v->ptr[v->offset];
   allocation_error:
     M_MEMORY_FULL(uint8_t, size_alloc);
-    // NOTE: Return is currently broken.
-    abort();
-    return NULL;
 }
 
 /* Push the byte 'c' in the bstring 'v' */
