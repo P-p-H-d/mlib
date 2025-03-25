@@ -284,8 +284,7 @@
       case M_F(name, _EMPTY): /* fallthrough */                               \
       default: M_ASSUME(my->type == M_F(name, _EMPTY)); break;                \
     }                                                                         \
-    /* Invalid representation */                                              \
-    my->type = M_F(name, _EMPTY) - 1;                                         \
+    my->type = M_F(name, _EMPTY);                                             \
   }
 
 #define M_VAR1ANT_DEFINE_CLEAR_FUNC(name, a)                                  \
