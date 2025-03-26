@@ -140,6 +140,11 @@ M_TUPLE_DEF2(tuple2, (num, int), (name, string_t, M_STRING_POOL_OPLIST) )
 M_VARIANT_DEF2(variant1, (num, int) )
 M_VARIANT_DEF2(variant2, (num, int), (name, string_t, M_STRING_POOL_OPLIST) )
 
+#include "m-worker.h"
+
+M_WORKER_SPAWN_DEF2(worker_int, (in, int) )
+M_WORKER_SPAWN_DEF2(worker_str, (str, string_t, M_STRING_POOL_OPLIST) )
+
 int main(void)
 {
     return 0;
