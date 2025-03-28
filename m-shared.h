@@ -29,6 +29,10 @@
 #include "m-atomic.h"
 #include "m-genint.h"
 
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ > 201710L
+#warning The header m-shared.h is obsolete. Use m-shared-ptr header instead.
+#endif
+
 M_BEGIN_PROTECTED_CODE
 
 /* Define shared pointer and its function.

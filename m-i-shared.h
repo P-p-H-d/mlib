@@ -28,6 +28,10 @@
 #include "m-core.h"
 #include "m-atomic.h"
 
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ > 201710L
+#warning The header m-i-shared.h is obsolete. Use m-shared-ptr header instead.
+#endif
+
 M_BEGIN_PROTECTED_CODE
 
 /* Define the oplist of a intrusive shared pointer.
