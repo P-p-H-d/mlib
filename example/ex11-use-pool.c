@@ -145,6 +145,11 @@ M_VARIANT_DEF2(variant2, (num, int), (name, string_t, M_STRING_POOL_OPLIST) )
 M_WORKER_SPAWN_DEF2(worker_int, (in, int) )
 M_WORKER_SPAWN_DEF2(worker_str, (str, string_t, M_STRING_POOL_OPLIST) )
 
+#include "m-shared-ptr.h"
+
+M_SHARED_PTR_DEF(shared_int, int)
+M_SHARED_PTR_DEF(shared_str, string_t, M_STRING_POOL_OPLIST)
+
 int main(void)
 {
     return 0;

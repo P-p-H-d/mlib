@@ -2188,7 +2188,7 @@ namespace m_lib {
     ,IT_END_P(m_string_end_p)                                                 \
     ,IT_EQUAL_P(m_string_it_equal_p)                                          \
     ,IT_NEXT(m_string_next)                                                   \
-    ,IT_CREF(m_string_cref), PUSH(m_string_push_u)                            \
+    ,IT_CREF(m_string_cref), PUSH(API_0P(m_string_push_u))                    \
     ,EMPLACE_TYPE(const char*)                                                \
     )
 

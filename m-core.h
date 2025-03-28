@@ -446,7 +446,7 @@ M_BEGIN_PROTECTED_CODE
 # define M_R_EXPAND_void m_pool
 # define M_R(...) (m_pool, __VA_ARGS__)
 # define M_ASSERT_POOL() (void) m_pool
-# define M_GLOBAL_POOL() M_USE_POOL m_pool = { 0 }
+# define M_GLOBAL_POOL() M_USE_POOL m_pool = { 0 }; (void) m_pool
 #endif
 
 // M_P: Expand to a prototype of a function that may trigger exception / accept memory context
