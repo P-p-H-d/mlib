@@ -29,6 +29,10 @@
 #include "m-thread.h"
 #include "m-atomic.h"
 
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ > 201710L
+#warning The header m-concurrent.h is obsolete. Use m-shared-ptr header instead.
+#endif
+
 /* Define a protected concurrent container and its associated functions
    based on the given container.
    USAGE: CONCURRENT_DEF(name, type [, oplist_of_the_type]) */
