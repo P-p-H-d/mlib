@@ -52,22 +52,22 @@ int f(string_t x, bitset_t b, bstring_t y)
 #include "m-array.h"
 
 ARRAY_DEF(array, int)
-ARRAY_DEF(array_str, string_t, M_STRING_POOL_OPLIST)
+ARRAY_DEF(array_str, string_t)
 
 #include "m-prioqueue.h"
 
 PRIOQUEUE_DEF(prio, int)
-PRIOQUEUE_DEF(prio_str, string_t, M_STRING_POOL_OPLIST)
+PRIOQUEUE_DEF(prio_str, string_t)
 
 #include "m-rbtree.h"
 
 RBTREE_DEF(rbtree, int)
-RBTREE_DEF(rbtree_str, string_t, M_STRING_POOL_OPLIST)
+RBTREE_DEF(rbtree_str, string_t)
 
 #include "m-list.h"
 
 LIST_DEF(list, int)
-LIST_DEF(list_str, string_t, M_STRING_POOL_OPLIST)
+LIST_DEF(list_str, string_t)
 
 #include "m-bptree.h"
 
@@ -76,10 +76,10 @@ BPTREE_DEF2(bptree, 5, int, int)
 #include "m-dict.h"
 
 DICT_DEF2(dict, int, int)
-DICT_DEF2(dict_str, string_t, M_STRING_POOL_OPLIST, string_t, M_STRING_POOL_OPLIST)
+DICT_DEF2(dict_str, string_t, string_t)
 
 DICT_SET_DEF(set, int)
-DICT_SET_DEF(set_str, string_t, M_STRING_POOL_OPLIST)
+DICT_SET_DEF(set_str, string_t)
 
 static inline bool oor_equal_p(int k, char n)
 {
@@ -94,11 +94,11 @@ static inline int  oor_set(char n)
 DICT_OA_DEF2(dict_oa,
     int, M_OPEXTEND(M_BASIC_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(API_4(oor_set))),
     int, M_BASIC_OPLIST)
-DICT_OA_DEF2(dict2_str, string_t, M_STRING_POOL_OPLIST, string_t, M_STRING_POOL_OPLIST)
+DICT_OA_DEF2(dict2_str, string_t, string_t)
 
 DICT_OASET_DEF(set_oa,
     int, M_OPEXTEND(M_BASIC_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(API_4(oor_set))) )
-DICT_OASET_DEF(set2_str, string_t, M_STRING_POOL_OPLIST)
+DICT_OASET_DEF(set2_str, string_t)
 
 #include "m-buffer.h"
 
@@ -108,16 +108,16 @@ BUFFER_DEF(buffer2, int, 0, M_BUFFER_STACK)
 M_QUEUE_MPMC_DEF(queue1, int, M_BUFFER_STACK)
 M_QUEUE_SPSC_DEF(queue2, int, M_BUFFER_STACK)
 
-BUFFER_DEF(buffer11, string_t, 10, M_BUFFER_QUEUE, M_STRING_POOL_OPLIST)
-BUFFER_DEF(buffer22, string_t, 0, M_BUFFER_STACK, M_STRING_POOL_OPLIST)
+BUFFER_DEF(buffer11, string_t, 10, M_BUFFER_QUEUE)
+BUFFER_DEF(buffer22, string_t, 0, M_BUFFER_STACK)
 
-M_QUEUE_MPMC_DEF(queue11, string_t, M_BUFFER_STACK, M_STRING_POOL_OPLIST)
-M_QUEUE_SPSC_DEF(queue22, string_t, M_BUFFER_STACK, M_STRING_POOL_OPLIST)
+M_QUEUE_MPMC_DEF(queue11, string_t, M_BUFFER_STACK)
+M_QUEUE_SPSC_DEF(queue22, string_t, M_BUFFER_STACK)
 
 #include "m-deque.h"
 
 M_DEQUE_DEF(deque, int)
-M_DEQUE_DEF(deque_str, string_t, M_STRING_POOL_OPLIST)
+M_DEQUE_DEF(deque_str, string_t)
 
 #include "m-snapshot.h"
 
@@ -128,27 +128,27 @@ M_SNAPSHOT_MPMC_DEF(snap3, int)
 #include "m-tree.h"
 
 M_TREE_DEF(tree, int)
-M_TREE_DEF(tree_str, string_t, M_STRING_POOL_OPLIST)
+M_TREE_DEF(tree_str, string_t)
 
 #include "m-tuple.h"
 
 M_TUPLE_DEF2(tuple1, (num, int) )
-M_TUPLE_DEF2(tuple2, (num, int), (name, string_t, M_STRING_POOL_OPLIST) )
+M_TUPLE_DEF2(tuple2, (num, int), (name, string_t) )
 
 #include "m-variant.h"
 
 M_VARIANT_DEF2(variant1, (num, int) )
-M_VARIANT_DEF2(variant2, (num, int), (name, string_t, M_STRING_POOL_OPLIST) )
+M_VARIANT_DEF2(variant2, (num, int), (name, string_t) )
 
 #include "m-worker.h"
 
 M_WORKER_SPAWN_DEF2(worker_int, (in, int) )
-M_WORKER_SPAWN_DEF2(worker_str, (str, string_t, M_STRING_POOL_OPLIST) )
+M_WORKER_SPAWN_DEF2(worker_str, (str, string_t) )
 
 #include "m-shared-ptr.h"
 
 M_SHARED_PTR_DEF(shared_int, int)
-M_SHARED_PTR_DEF(shared_str, string_t, M_STRING_POOL_OPLIST)
+M_SHARED_PTR_DEF(shared_str, string_t)
 
 int main(void)
 {

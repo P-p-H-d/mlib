@@ -2142,6 +2142,7 @@ namespace m_lib {
 #endif
 
 /* Define the OPLIST of a STRING */
+#ifndef M_USE_POOL
 #define M_STRING_OPLIST                                                       \
   (INIT(m_string_init),INIT_SET(m_string_init_set), SET(m_string_set),        \
    INIT_WITH(M_STR1NG_INIT_WITH),                                             \
@@ -2166,8 +2167,8 @@ namespace m_lib {
    ,IT_CREF(m_string_cref), PUSH(m_string_push_u)                             \
    ,EMPLACE_TYPE(const char*)                                                 \
    )
-
-#define M_STRING_POOL_OPLIST                                                  \
+#else
+#define M_STRING_OPLIST                                                       \
    (INIT(m_string_init),INIT_SET(API_0P(m_string_init_set)), SET(API_0P(m_string_set)), \
     INIT_WITH(M_STR1NG_INIT_WITH),                                            \
     INIT_MOVE(m_string_init_move), MOVE(API_0P(m_string_move)),               \
@@ -2191,13 +2192,10 @@ namespace m_lib {
     ,IT_CREF(m_string_cref), PUSH(API_0P(m_string_push_u))                    \
     ,EMPLACE_TYPE(const char*)                                                \
     )
+#endif
 
 /* Register the OPLIST as a global one */
-#ifdef M_USE_POOL
-#define M_OPL_m_string_t() M_STRING_POOL_OPLIST
-#else
 #define M_OPL_m_string_t() M_STRING_OPLIST
-#endif
 
 /* Register the string_t oplist as a generic type */
 #define M_GENERIC_ORG_MLIB_COMP_CORE_OPLIST_1() M_STRING_OPLIST
