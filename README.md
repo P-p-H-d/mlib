@@ -1142,23 +1142,25 @@ The list of errors it can generate:
 * `M_LIB_MISSING_METHOD`: a required operator doesn't define any method in the given oplist. You need to complete the oplist with the missing method.
 * `M_LIB_TYPE_MISMATCH`: the given oplist and the type do not match each other. You need to give the right oplist for this type.
 * `M_LIB_NOT_A_BASIC_TYPE`: The oplist `M_BASIC_OPLIST` (directly or indirectly) has been used with the given type, but the given type is not a basic C type (int/float). You need to give the right oplist for this type.
+* `M_LIB_DIMENSION_ERROR`: a macro expects a number of arguments and doesn't get it.
 
+Compilers can be very verbose on the error message:
 You should focus mainly on the first reported error/warning
 even if the link between what the compiler report and what the error is
-is not immediate. The error is always in one of the **oplist definition**.
+is not immediate. The error is likely in one of the **oplist definition**.
 
 Examples of typical errors:
 
 * lack of inclusion of an header,
 * overriding locally operator names by macros (like `NEW`, `DEL`, `INIT`, `OPLIST`, `...`),
 * lack of `( )` or double level of `( )` around the oplist,
-* an unknown variable (example using `BASIC_OPLIST` instead of `M_BASIC_OPLIST`),
-* the name given to the oplist is not the same as the one used to define the methods,
-* use of a type instead of an oplist in the `OPLIST` definition,
+* an unknown or incorrectly spelled variable (example using `BASIC_OPLIST` instead of `M_BASIC_OPLIST`),
+* the `name` parameter given to the oplist is not the same as the one used to expand the methods,
+* use of a non registered type instead of an oplist in the `OPLIST` definition (there is no registered type using `M_OPL_` or the registered type doesn't match the name of the type),
 * a missing sub oplist in the `OPLIST` definition.
 
-A good way to avoid these errors is to register the oplist globally as soon
-as you define the container.
+A good way to avoid these errors is to register the oplist of the type globally as soon
+as you define the container (to associated its oplist to the type).
 
 In case of difficulties, debugging can be done by generating the preprocessed file
 (by usually calling the compiler with the `-E` option instead of `-c`)
@@ -1182,7 +1184,7 @@ your compiler. There are often completely useless and misleading:
 
 Due to the unfortunate [weak](https://en.wikipedia.org/wiki/Strong_and_weak_typing#Pointers) nature of the C language for pointers,
 you should turn incompatible pointer type warning into an error in your compiler.
-For GCC / CLANG, uses `-Werror=incompatible-pointer-types`
+For GCC / CLANG, uses `-Werror=incompatible-pointer-types` or compile in C23 mode.
 
 For MS Visual C++ compiler , you need the following options:
 
