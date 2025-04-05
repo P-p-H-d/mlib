@@ -342,9 +342,9 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
                                                                               \
    dest->idx_prod = v->idx_prod;                                              \
    dest->idx_cons = v->idx_cons;                                              \
-   atomic_store_explicit (&dest->number[0], v->number[0], memory_order_relaxed); \
+   atomic_store_explicit (&dest->number[0], atomic_load_explicit(&v->number[0], memory_order_relaxed), memory_order_relaxed); \
    if (M_BUFF3R_POLICY_P(policy, M_BUFFER_DEFERRED_POP))                      \
-     atomic_store_explicit(&dest->number[1], v->number[1], memory_order_relaxed); \
+     atomic_store_explicit(&dest->number[1], atomic_load_explicit(&v->number[1], memory_order_relaxed), memory_order_relaxed); \
                                                                               \
    m_mutex_unlock(v->mutexPop);                                               \
    m_mutex_unlock(v->mutexPush);                                              \
@@ -396,9 +396,9 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
                                                                               \
    dest->idx_prod = v->idx_prod;                                              \
    dest->idx_cons = v->idx_cons;                                              \
-   atomic_store_explicit(&dest->number[0], v->number[0], memory_order_relaxed); \
+   atomic_store_explicit(&dest->number[0], atomic_load_explicit(&v->number[0], memory_order_relaxed), memory_order_relaxed); \
    if (M_BUFF3R_POLICY_P(policy, M_BUFFER_DEFERRED_POP))                      \
-     atomic_store_explicit(&dest->number[1], v->number[1], memory_order_relaxed); \
+     atomic_store_explicit(&dest->number[1], atomic_load_explicit(&v->number[1], memory_order_relaxed), memory_order_relaxed); \
                                                                               \
    m_cond_broadcast(v->there_is_room_for_data);                               \
    m_cond_broadcast(v->there_is_data);                                        \
