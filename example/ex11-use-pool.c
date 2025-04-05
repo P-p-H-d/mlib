@@ -150,6 +150,12 @@ M_WORKER_SPAWN_DEF2(worker_str, (str, string_t) )
 M_SHARED_PTR_DEF(shared_int, int)
 M_SHARED_PTR_DEF(shared_str, string_t)
 
+#include "m-queue.h"
+
+M_QUEUE_DEF(queue_10, int, 10 )
+M_STACK_DEF(stack_20, string_t, 20)
+
+
 int main(void)
 {
     return 0;

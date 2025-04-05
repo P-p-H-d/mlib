@@ -198,6 +198,7 @@ SYNTHESIS_DATA=	M-ALGO test-malgo.c.c test-malgo.synt			\
 		M-GENINT ../m-genint.h test-mgenint.synt				\
 		M-I-LIST test-milist.c.c test-milist.synt				\
 		M-I-SHARED test-mishared.c.c test-mishared.synt			\
+		M-QUEUE test-mqueue.c.c test-mqueue.synt			    \
 		M-LIST test-mlist.c.c test-mlist.synt					\
 		M-MEMPOOL test-mmempool.c.c test-mmempool.synt			\
 		M-PRIOQUEUE test-mprioqueue.c.c test-mprioqueue.synt	\

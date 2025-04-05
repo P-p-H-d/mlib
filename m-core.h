@@ -461,11 +461,8 @@ M_BEGIN_PROTECTED_CODE
 # define M_N(rettype, name, suffix, ...) M_INLINE rettype M_F(name, suffix)(__VA_ARGS__)
 #endif
 
-// TODO: Add for all Assertions: M_ASSERT_POOL()
-// to avoid warnings about unused parameter m_pool.
-// Pb: Also included for functions without the pool parameter!
-
-// FIXME: Not sense to do it for a shared pointer: it is shared across all memory contexts!
+// TODO: 'pool' seems not the right term. Rename 'pool' into 'localmem' ? 'arena'? memcontext? context?
+// TODO: M_USE_GLOBAL_POOL , value for setting the global pool.
 
 /************************************************************/
 /*********************  ERROR handling **********************/
@@ -5162,7 +5159,6 @@ m_core_parse2_enum (const char str[], const char **endptr)
   {                                                                           \
     M_GET_TYPE oplist data;                                                   \
     M_EMPLACE_CALL_FUNC(a, init_func, oplist, data, exp_emplace_type);        \
-    /* FIXME: Why name##_push and not M_CALL_PUSH? */                         \
     M_F(name, _push) M_R(v, data);                                            \
     M_CALL_CLEAR(oplist, data);                                               \
   }
