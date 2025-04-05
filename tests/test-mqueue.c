@@ -29,7 +29,7 @@ STACK_DEF(stack_obj, testobj_t, 0, TESTOBJ_OPLIST)
 END_COVERAGE
 
 M_QUEUE_DEF(queue_obj, testobj_t, 10, TESTOBJ_OPLIST)
-M_STACK_DEF(stack, int, 15)
+M_STACK_DEF(stack_int, int, 15)
 QUEUE_DEF(buffer_llong, long long, 0)
 
 static void test_obj(void)
