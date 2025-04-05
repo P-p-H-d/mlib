@@ -94,4 +94,6 @@ V0.8.0 : * REALLOC / FREE operators are incompatible:
            This allows more and efficient integration into custom allocators.
          * M_MEMORY_FULL: replace the failed size allocation size argument
          into the base type and the number of elements that failed to be allocated.
-         
+         * m-buffer: non-thread safe queue & stack are moved into their dedicated header (m-queue)
+         * m-buffer: Remove buffer blocking policy and thread safe (_push / _pop returns now void) 
+             

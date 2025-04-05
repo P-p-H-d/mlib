@@ -3878,8 +3878,8 @@ void name_reset(buffer_t buffer)                  /* Thread safe */
 bool name_empty_p(const buffer_t buffer)          /* Thread safe */
 size_t name_size(const buffer_t buffer)           /* Thread safe */
 size_t name_capacity(const buffer_t buffer)       /* Thread safe */
-bool name_push(buffer_t buffer, const type data)
-bool name_pop(type *data, buffer_t buffer)
+void name_push(buffer_t buffer, const type data)
+void name_pop(type *data, buffer_t buffer)
 ```
 
 #### Specialized methods
