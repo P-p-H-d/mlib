@@ -146,7 +146,7 @@ using std::memory_order_seq_cst;
 #endif
 
 /* Non working C++ atomic header, nor working stdatomic.h found.
-   Write a compatible layer using mutex as slin as possible.
+   Write a compatible layer using mutex as slim as possible.
    Supports only up to 64-bits atomic (sizeof long long to be more precise).
    The locks are never properly cleared and remain active until
    the end of the program.
