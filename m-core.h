@@ -412,19 +412,22 @@ M_BEGIN_PROTECTED_CODE
 #endif
 
 
-// FIXME: Rename to M_USE_MEMORY_CONTEXT?
 /* In order to support context for memory functions, the prototypes and usages of some functions are modified
- * so that they accept a first argument 'm_pool' which is the memory context parameter.
+ * so that they can accept a first argument 'm_pool' which is the memory context parameter.
  * For some functions, there is no meaning of a local memory context parameter: for all data shared between threads,
  * only a global memory context has any meaning. For such cases, the memory context parameter is not requested to
  * the used but set to 0.
- * several macros are defined **globally**. Theses macros expand to nothing if memory context is not requested. 
+ * This is controlled through M_USE_POOL parameter that define the type of the memory context parameter.
+ *
+ * Several macros are defined **globally** to support such features. 
+ * They expand to nothing if the memory context parameter is not requested. 
  * * M_P_EXPAND: expand to the first parameter 'm_pool' of type M_USE_POOL for a function that may use memory context.
- * * M_P_EXPAND_void: same but assume that there is no argument
- * * M_R_EXPAND: expand to the first parameter 'm_pool'
+ * * M_P_EXPAND_void: same but assume that there is no argument in the initial funciton.
+ * * M_R_EXPAND: expand to the first parameter 'm_pool' (followed by a comma)
  * * M_R_EXPAND_void: same but assume that there is no argument
  * * M_R: add the parameter m_pool to the function call if needed,
  * * M_P: define the prototype of a function that may have the parameter m_pool.
+ * * M_N: define the prototype of a function that don't need the parameter m_pool.
  * * M_ASSERT_POOL: avoid warning of unused m_pool argument
  * * M_GLOBAL_POOL: define m_pool to zero, meaning it is a global memory context.
  */
@@ -438,6 +441,10 @@ M_BEGIN_PROTECTED_CODE
 # define M_ASSERT_POOL()
 # define M_GLOBAL_POOL()
 #else
+// Default global value is to set to 0 the global pool.
+#ifndef M_USE_GLOBAL_POOL
+#define M_USE_GLOBAL_POOL(x) M_USE_POOL x = { 0 }
+#endif
 // Memory pool parameter is used for function using memory. (local definition to the function).
 // Expand to a prototype to a function that may not trigger exception
 # define M_P_EXPAND M_USE_POOL m_pool, 
@@ -446,7 +453,7 @@ M_BEGIN_PROTECTED_CODE
 # define M_R_EXPAND_void m_pool
 # define M_R(...) (m_pool, __VA_ARGS__)
 # define M_ASSERT_POOL() (void) m_pool
-# define M_GLOBAL_POOL() M_USE_POOL m_pool = { 0 }; (void) m_pool
+# define M_GLOBAL_POOL() M_USE_GLOBAL_POOL(m_pool); (void) m_pool
 #endif
 
 // M_P: Expand to a prototype of a function that may trigger exception / accept memory context
@@ -462,7 +469,7 @@ M_BEGIN_PROTECTED_CODE
 #endif
 
 // TODO: 'pool' seems not the right term. Rename 'pool' into 'localmem' ? 'arena'? memcontext? context?
-// TODO: M_USE_GLOBAL_POOL , value for setting the global pool.
+// Rename to M_USE_MEMORY_CONTEXT? M_USE_MEMCONTEXT
 
 /************************************************************/
 /*********************  ERROR handling **********************/
