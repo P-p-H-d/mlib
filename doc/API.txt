@@ -86,14 +86,16 @@ V0.7.2: * Rename m-mutex.h header in m-thread.h
 V0.7.3 : * DICT_STOREHASH_DEF2 / DICT_STOREHASH_DEF2_AS are deprecated.
           Use DICT_DEF2 / DICT_DEF2_AS
           
-V0.8.0 : * REALLOC / FREE operators are incompatible:
+V0.8.0 : * The prototypes of REALLOC / FREE operators are incompatible:
            Add the old number of elements of the array as argument of REALLOC
            Add the number of elements of the array and its base type as arguments of FREE.
-           You need to ignore the new arguments.
+           (You can ignore the new arguments which are only hints provided to memory functions).
            Also impact M_MEMORY_REALLOC & M_MEMORY_FREE
            This allows more and efficient integration into custom allocators.
          * M_MEMORY_FULL: replace the failed size allocation size argument
          into the base type and the number of elements that failed to be allocated.
          * m-buffer: non-thread safe queue & stack are moved into their dedicated header (m-queue) BUFFER_THREAD_UNSAFE is no longer supported.
          * m-buffer: Remove buffer blocking policy and thread safe (_push / _pop returns now void) 
+         * m-buffer push / pop no longer return a bool (it was undocumented)
+         * Remove MEMPOOL support from list & R/B tree
          * m-mempool: Header is obsolete (and no longer useful at all as lists & RB Tree no longer can use it. To remove?). Use new M_USE_POOL interface to pass local pool context.
