@@ -94,6 +94,6 @@ V0.8.0 : * REALLOC / FREE operators are incompatible:
            This allows more and efficient integration into custom allocators.
          * M_MEMORY_FULL: replace the failed size allocation size argument
          into the base type and the number of elements that failed to be allocated.
-         * m-buffer: non-thread safe queue & stack are moved into their dedicated header (m-queue)
+         * m-buffer: non-thread safe queue & stack are moved into their dedicated header (m-queue) BUFFER_THREAD_UNSAFE is no longer supported.
          * m-buffer: Remove buffer blocking policy and thread safe (_push / _pop returns now void) 
-             
+         * m-mempool: Header is obsolete (and no longer useful at all as lists & RB Tree no longer can use it. To remove?). Use new M_USE_POOL interface to pass local pool context.

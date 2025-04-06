@@ -14,27 +14,27 @@ M\*LIB: Generic type-safe Container Library for C language
 11. [API Documentation](#api-documentation)
     1. [Generic methods](#generic-methods)
     2. [List](#m-list)
-    3. [Array](#m-array)
-    4. [Deque](#m-deque)
+    3. [Intrusive list](#m-i-list)
+    4. [Array](#m-array)
     5. [Dictionary](#m-dict)
-    6. [Tuple](#m-tuple)
-    7. [Variant](#m-variant)
-    8. [Red/Black Tree](#m-rbtree)
-    9. [B+ Tree](#m-bptree)
-    10. [Generic Tree](#m-tree)
-    11. [Priority queue](#m-prioqueue)
-    12. [Fixed buffer queue](#m-buffer)
-    13. [Atomic Shared Register](#m-snapshot)
-    14. [Shared pointers](#m-shared-ptr)
-    15. [Intrusive Shared Pointers](#m-i-shared)
-    16. [Intrusive list](#m-i-list)
-    17. [Concurrent adapter](#m-concurrent)
-    18. [Bitset](#m-bitset)
-    19. [String](#m-string)
-    20. [Core preprocessing](#m-core)
-    21. [Thread](#m-thread)
-    22. [Worker threads](#m-worker)
-    23. [Atomic](#m-atomic)
+    6. [Red/Black Tree](#m-rbtree)
+    7. [B+ Tree](#m-bptree)
+    8. [Generic Tree](#m-tree)
+    9. [Tuple](#m-tuple)
+    10. [Variant](#m-variant)
+    11. [Double end queue](#m-deque)
+    12. [Priority queue](#m-prioqueue)
+    13. [Fixed size queue / stack](#m-queue)
+    14. [Shared Fixed size queue](#m-buffer)
+    15. [Atomic Shared Register](#m-snapshot)
+    16. [Shared pointers](#m-shared-ptr)
+    17. [Intrusive Shared Pointers](#m-i-shared)
+    18. [Concurrent adapter](#m-concurrent)
+    19. [Bitset](#m-bitset)
+    20. [String](#m-string)
+    21. [Byte String](#m-bstring)
+    22. [Core preprocessing](#m-core)
+    23. [Worker threads](#m-worker)
     24. [Generic algorithms](#m-algo)
     25. [Function objects](#m-funcobj)
     26. [Exception handling](#m-try)
@@ -42,7 +42,8 @@ M\*LIB: Generic type-safe Container Library for C language
     28. [JSON Serialization](#m-serial-json)
     29. [Binary Serialization](#m-serial-bin)
     30. [Generic interface](#m-generic)
-    31. [Byte String](#m-bstring)
+    31. [Thread](#m-thread)
+    32. [Atomic](#m-atomic)
 12. [Global User Customization](#global-user-customization)
 13. [License](#license)
 
@@ -149,17 +150,18 @@ The following headers define containers that don't require the user structure to
 * [m-array.h](#m-array): header for creating dynamic array of generic type,
 * [m-list.h](#m-list): header for creating singly-linked list of generic type,
 * [m-deque.h](#m-deque): header for creating dynamic double-ended queue of generic type,
+* [m-queue.h](#m-queue): header for creating static queue or stack of generic type,
+* [m-prioqueue.h](#m-prioqueue): header for creating dynamic priority queue of generic type.
 * [m-dict.h](#m-dict): header for creating unordered associative array (through hashmap) or unordered set of generic type,
 * [m-rbtree.h](#m-rbtree): header for creating ordered set (through Red/Black binary sorted tree) of generic type,
 * [m-bptree.h](#m-bptree): header for creating ordered map/set/multimap/multiset (through sorted B+TREE) of generic type,
 * [m-tree.h](#m-tree): header for creating arbitrary tree of generic type,
 * [m-tuple.h](#m-tuple): header for creating arbitrary tuple of generic types,
 * [m-variant.h](#m-variant): header for creating arbitrary variant of generic type,
-* [m-prioqueue.h](#m-prioqueue): header for creating dynamic priority queue of generic type.
 
 The available containers of M\*LIB for thread synchronization are in the following headers:
 
-* [m-buffer.h](#m-buffer): header for creating fixed-size queue (or stack) of generic type (multiple producer / multiple consumer),
+* [m-buffer.h](#m-buffer): header for creating fixed-size queue (or stack) of generic type (multiple producer / multiple consumer) used for transferring data from a thread to another,
 * [m-snapshot](#m-snapshot): header for creating 'atomic buffer' (through triple buffer) for sharing synchronously big data (thread safe),
 * [m-shared-ptr.h](#m-shared-ptr): header for creating shared pointer of generic type,
 
@@ -3793,9 +3795,122 @@ This method is defined only if the `EQUAL` method is defined.
 
 _________________
 
+### M-QUEUE
+
+This header implements a fixed circular queue or stack.
+
+A [circular buffer](https://en.wikipedia.org/wiki/Circular_buffer) 
+(or ring buffer or circular queue) is a data structure using a single, bounded buffer
+as if its head was connected to its tail.
+
+#### QUEUE_DEF(name, type, size, [, oplist])
+#### QUEUE_DEF_AS(name,  name_t, type, size, [, oplist])
+
+Define the circular queue `name_t` and its associated methods as `static inline` functions.
+This queue is not thread-safe (See m-buffer header for a thread safe variant).
+The order of the elements in the container is FIFO (First In, First Out).
+
+`name` shall be a C identifier that will be used to identify the queue.
+It will be used to create all the types (including the iterator)
+and functions to handle the container.
+This definition shall be done once per name and per compilation unit.
+
+The `size` parameter defined the fixed size of the queue.
+It can be 0. In this case, the fixed size is defined at initialization time only
+and the needed objects to handle the queue are allocated at initialization time too.
+Otherwise the needed objects are embedded within the structure, preventing
+any other allocations.
+
+The size of the queue shall be lower or equal than the maximum of the type `unsigned int`.
+
+The oplist shall have at least the following operators (`INIT_SET`, `SET` and `CLEAR`),
+otherwise it won't generate compilable code.
+
+`QUEUE_DEF_AS` is the same as `QUEUE_DEF` except the name of the type `name_t` is provided.
+
+Example:
+
+```C
+QUEUE_DEF(queue_uint, unsigned int, 10)
+
+queue_uint_t g_buff;
+
+void f(unsigned int i) {
+        queue_uint_init(g_buff, 10);
+        queue_uint_push(g_buff, i);
+        queue_uint_pop(&i, g_buff);
+        queue_uint_clear(g_buff);
+}
+```
+
+#### STACK_DEF(name, type, size, [, oplist])
+#### STACK_DEF_AS(name,  name_t, type, size, [, oplist])
+
+Define the fixed size stack `name_t` and its associated methods as `static inline` functions.
+This stack is not thread-safe (See m-buffer header for a thread safe variant).
+The order of the elements in the container is FILO (First In, Last Out).
+
+`name` shall be a C identifier that will be used to identify the stack.
+It will be used to create all the types (including the iterator)
+and functions to handle the container.
+This definition shall be done once per name and per compilation unit.
+
+The `size` parameter defined the fixed size of the stack.
+It can be 0. In this case, the fixed size is defined at initialization time only
+and the needed objects to handle the stack are allocated at initialization time too.
+Otherwise the needed objects are embedded within the structure, preventing
+any other allocations.
+
+The size of the stack shall be lower or equal than the maximum of the type `unsigned int`.
+
+The oplist shall have at least the following operators (`INIT_SET`, `SET` and `CLEAR`),
+otherwise it won't generate compilable code.
+
+`STACK_DEF_AS` is the same as `STACK_DEF` except the name of the type `name_t` is provided.
+
+
+#### Created types
+
+The following types are automatically defined by the previous definition macro if not provided by the user:
+
+##### `name_t`
+
+Type of the circular queue (or stack).
+
+#### Generic methods
+
+The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+
+```C
+void name_clear(queue_t queue)
+void name_reset(queue_t queue)
+bool name_empty_p(const queue_t queue)
+size_t name_size(const queue_t queue)
+size_t name_capacity(const queue_t queue)
+void name_push(queue_t queue, const type data)
+void name_pop(type *data, queue_t queue)
+```
+
+#### Specialized methods
+
+The following specialized methods are automatically created by the previous definition macro:
+
+##### `void name_init(queue_t queue, size_t size)`
+
+Initialize the queue (or stack) `queue` for `size` elements.
+The `size` argument shall be the same as the one used to create the container, or the size used to create it was `0` (ie. runtime fixed size).
+The size of the queue shall be lower or equal than `UINT_MAX`.
+
+##### `bool name_full_p(const queue_t queue)`
+
+Return true if the queue (or stack) is full, false otherwise.
+
+
+_________________
+
 ### M-BUFFER
 
-This header implements different kind of fixed circular buffer.
+This header implements different kind of fixed circular buffer used for threading purpose.
 
 A [circular buffer](https://en.wikipedia.org/wiki/Circular_buffer) 
 (or ring buffer or circular queue) is a data structure using a single, bounded buffer
@@ -3808,7 +3923,7 @@ Define the buffer `name_t` and its associated methods as `static inline` functio
 A buffer is a fixed circular queue implementing a queue (or stack) interface.
 It can be used to transfer message from multiple producer threads to multiple consumer threads.
 This is done internally using a mutex and conditional waits
-(if it is built with the `BUFFER_THREAD_SAFE` option — default)
+See m-queue for a non thread safe variant.
 
 `name` shall be a C identifier that will be used to identify the buffer.
 It will be used to create all the types (including the iterator)
@@ -3821,21 +3936,18 @@ and the needed objects to handle the buffer are allocated at initialization time
 Otherwise the needed objects are embedded within the structure, preventing
 any other allocations.
 
-The size of the buffer shall be lower or equal than the maximum of the type `int`.
+The size of the buffer shall be lower or equal than the maximum of the type `unsigned int`.
 
 Multiple additional policy can be applied to the buffer by performing a logical or of the following properties:
 
 * `BUFFER_QUEUE` — define a FIFO queue (default),
 * `BUFFER_STACK` — define a stack (exclusive with `BUFFER_QUEUE`),
-* `BUFFER_THREAD_SAFE` — define thread safe functions (default),
-* `BUFFER_THREAD_UNSAFE` — define thread unsafe functions (exclusive with `BUFFER_THREAD_SAFE`),
 * `BUFFER_PUSH_INIT_POP_MOVE` — change the behavior of `PUSH` to push a new initialized object, and `POP` as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared_ptr semantic). In practice, it works as if `POP` performs the initialization of the object. 
 * `BUFFER_PUSH_OVERWRITE` — `PUSH` overwrites the last entry if the queue is full instead of blocking,
 * `BUFFER_DEFERRED_POP` — do not consider the object to be fully popped from the buffer by calling the pop method until the call to `pop_deferred` ; this enables to handle object that are in-progress of being consumed by the thread.
 
 This container is designed to be used for synchronization inter-threads of data
-(and the buffer variable should be a global shared one). A function tagged "thread safe"
-is thread safe only if the container has been generated with the `THREAD_SAFE` option.
+(and the buffer variable should be a global shared one).
 
 The oplist shall have at least the following operators (`INIT_SET`, `SET` and `CLEAR`),
 otherwise it won't generate compilable code.
@@ -3941,6 +4053,7 @@ If the buffer is built with the `BUFFER_DEFERRED_POP` option,
 the object being popped is considered fully release (freeing a
 space in the queue).
 Otherwise it does nothing.
+
 
 #### `QUEUE_MPMC_DEF(name, type, policy[, oplist])`
 #### `QUEUE_MPMC_DEF_AS(name, name_t, type, policy[, oplist])`
@@ -9056,6 +9169,9 @@ The line and filename fields of the exception are filled automatically by the ma
 _________________
 
 ### M-MEMPOOL
+
+> [!NOTE]
+> This header is obsolete: `M_USE_POOL` should be used instead to pass custom memory context to containers.
 
 This header is for generating specialized and optimized memory pools:
 it will generate specialized functions to allocate and free only one kind of an object.
