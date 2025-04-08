@@ -208,10 +208,13 @@ dict_read_from_file(dict_mph_t dict, array_string_t arr, const char filename[])
         // Not clean as items of 'dict' points are linked to items of 'arr'
         // and the containers are not aware of this link.
         array_string_push_back (arr, str);
-        dict_mph_set_at(dict, string_get_cstr(*array_string_back(arr)), line);
-        line++;
       }
     }
+  }
+  // Now 'arr' won't change anymore and we can get reliable pointers from it.
+  for M_EACH(item, arr, array_string_t) {
+      dict_mph_set_at(dict, string_get_cstr(*item), line);
+      line++;
   }
   fclose(f);
 }

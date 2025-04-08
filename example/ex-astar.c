@@ -61,11 +61,11 @@ static void astar(array_point_t path, const string_t maze, int width)
         for (size_t i = 0; i < 8; i++) {
           point_emplace(next, current->x + deltas[i].x, current->y + deltas[i].y, 0);
           if (string_get_char(maze, point_index(next, width)) != '#') {
-            int *new_cost = cost_point_get(costs, current);
+            int new_cost  = *cost_point_get(costs, current);
             int *cost     = cost_point_get(costs, next);
-            if (cost == NULL || *new_cost < *cost) {
-              cost_point_set_at(costs, next, *new_cost);
-              next->priority = *new_cost + abs(goal->x - next->x) + abs(goal->y - next->y);
+            if (cost == NULL || new_cost < *cost) {
+              cost_point_set_at(costs, next, new_cost);
+              next->priority = new_cost + abs(goal->x - next->x) + abs(goal->y - next->y);
               prio_point_push(front, next);
               step_point_set_at(from, next, current);
             }
