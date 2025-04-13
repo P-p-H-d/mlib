@@ -4756,12 +4756,12 @@ m_core_parse2_enum (const char str[], const char **endptr)
    so it reverses the final order.
 */
 #define M_INIT_VAI(oplist, dest, ...)                                         \
-  (void)(M_GET_INIT oplist (dest) ,                                           \
-         M_MAP2_C(M_INIT_VAI_FUNC, (dest, M_GET_PUSH oplist) , __VA_ARGS__)   \
-         M_IF_METHOD(REVERSE, oplist)(M_DEFERRED_COMMA M_GET_REVERSE oplist (dest), ) \
+  (void)(M_CALL_INIT(oplist, dest) ,                                           \
+         M_MAP2_C(M_INIT_VAI_FUNC, (dest, oplist) , __VA_ARGS__)   \
+         M_IF_METHOD(REVERSE, oplist)(M_DEFERRED_COMMA M_CALL_REVERSE(oplist, dest), ) \
          )
 #define M_INIT_VAI_FUNC(d, a)                                                 \
-  M_PAIR_2 d (M_PAIR_1 d, a)
+  M_CALL_PUSH(M_PAIR_2 d, M_PAIR_1 d, a)
 
 
 /* Initialize the container 'dest' as per 'oplist' INIT operator
