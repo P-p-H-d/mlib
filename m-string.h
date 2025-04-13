@@ -1187,7 +1187,6 @@ M_P(int, m_string, _cat_vprintf, m_string_t v, const char format[], va_list args
 }
 
 /* Append to the string the formatted string of the given printf format */
-//FIXME:
 M_P(int, m_string, _cat_printf, m_string_t v, const char format[], ...)
 {
   M_STR1NG_CONTRACT (v);
@@ -1633,23 +1632,20 @@ M_P(bool, m_string, _parse_str, m_string_t v, const char str[], const char **end
    and output it in the given serializer
    See serialization for return code.
 */
-M_INLINE m_serial_return_code_t
-m_string_out_serial(m_serial_write_t serial, const m_string_t v)
+M_P(m_serial_return_code_t, m_string, _out_serial, m_serial_write_t serial, const m_string_t v)
 {
-  //FIXME: What to do for memory context? Can be passed through serial
   M_ASSERT (serial != NULL && serial->m_interface != NULL);
-  return serial->m_interface->write_string(serial, m_string_get_cstr(v), m_string_size(v) );
+  return serial->m_interface->write_string M_R(serial, m_string_get_cstr(v), m_string_size(v) );
 }
 
 /* Read the formatted string from the serializer
    and set the converted value in the string 'v'.
    See serialization for return code.
 */
-M_INLINE m_serial_return_code_t
-m_string_in_serial(m_string_t v, m_serial_read_t serial)
+M_P(m_serial_return_code_t, m_string, _in_serial, m_string_t v, m_serial_read_t serial)
 {
   M_ASSERT (serial != NULL && serial->m_interface != NULL);
-  return serial->m_interface->read_string(serial, v);
+  return serial->m_interface->read_string M_R(serial, v);
 }
 
 /* UTF8 character classification:
@@ -2178,7 +2174,7 @@ namespace m_lib {
     CMP(m_string_cmp), TYPE(m_string_t), GENTYPE(struct m_string_s*),         \
     PARSE_STR(API_0P(m_string_parse_str)), GET_STR(API_0P(m_string_get_str)), \
     OUT_STR(m_string_out_str), IN_STR(API_0P(m_string_in_str)),               \
-    OUT_SERIAL(m_string_out_serial), IN_SERIAL(m_string_in_serial),           \
+    OUT_SERIAL(API_0P(m_string_out_serial)), IN_SERIAL(API_0P(m_string_in_serial)), \
     EXT_ALGO(M_STR1NG_SPLIT),                                                 \
     OOR_EQUAL(m_string_oor_equal_p), OOR_SET(m_string_oor_set)                \
     ,SUBTYPE(m_string_unicode_t)                                              \
@@ -2695,25 +2691,23 @@ namespace m_lib {
     return ret;                                                               \
   }                                                                           \
                                                                               \
-  M_INLINE m_serial_return_code_t                                             \
-  M_F(name, _out_serial)(m_serial_write_t serial, const bounded_t v)          \
+  M_P(m_serial_return_code_t, name, _out_serial, m_serial_write_t serial, const bounded_t v) \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(v, max_size);                                   \
     M_ASSERT (serial != NULL && serial->m_interface != NULL);                 \
-    return serial->m_interface->write_string(serial, v->s, strlen(v->s) );    \
+    return serial->m_interface->write_string M_R(serial, v->s, strlen(v->s) ); \
   }                                                                           \
                                                                               \
-  M_INLINE m_serial_return_code_t                                             \
-  M_F(name, _in_serial)(bounded_t v, m_serial_read_t serial)                  \
+  M_P(m_serial_return_code_t, name, _in_serial, bounded_t v, m_serial_read_t serial) \
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(v, max_size);                                   \
     M_ASSERT (serial != NULL && serial->m_interface != NULL);                 \
     m_string_t tmp;                                                           \
     /* TODO: Not optimum */                                                   \
     m_string_init(tmp);                                                       \
-    m_serial_return_code_t r = serial->m_interface->read_string(serial, tmp); \
+    m_serial_return_code_t r = serial->m_interface->read_string M_R(serial, tmp); \
     m_core_strncpy(v->s, max_size+1, m_string_get_cstr(tmp), max_size);       \
-    m_string_clear(tmp);                                                      \
+    m_string_clear M_R(tmp);                                                  \
     M_BOUNDED_STR1NG_CONTRACT(v, max_size);                                   \
     return r;                                                                 \
   }

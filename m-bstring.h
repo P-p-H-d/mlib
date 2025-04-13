@@ -480,8 +480,7 @@ M_P(bool, m_bstring, _fread, m_bstring_t v, FILE *f, size_t num)
    and output it in the given serializer
    See serialization for return code.
 */
-M_INLINE m_serial_return_code_t
-m_bstring_out_serial(m_serial_write_t serial, const m_bstring_t v)
+M_P(m_serial_return_code_t, m_bstring, _out_serial, m_serial_write_t serial, const m_bstring_t v)
 {
   M_ASSERT (serial != NULL && serial->m_interface != NULL);
   M_BSTRING_CONTRACT (v);
@@ -489,15 +488,15 @@ m_bstring_out_serial(m_serial_write_t serial, const m_bstring_t v)
   m_serial_return_code_t ret;
   size_t size = m_bstring_size(v);
   uint8_t *ptr = m_bstr1ng_cstr(v);
-  ret = serial->m_interface->write_array_start(local, serial, size);
+  ret = serial->m_interface->write_array_start M_R(local, serial, size);
   if (size > 0) {
-    ret |= serial->m_interface->write_integer(serial, ptr[0], 1);
+    ret |= serial->m_interface->write_integer M_R(serial, ptr[0], 1);
     for(size_t i = 1; i < size; i++) {
-        ret |= serial->m_interface->write_array_next(local, serial);
-        ret |= serial->m_interface->write_integer(serial, ptr[i], 1);
+        ret |= serial->m_interface->write_array_next M_R(local, serial);
+        ret |= serial->m_interface->write_integer M_R(serial, ptr[i], 1);
     }
   }
-  ret |= serial->m_interface->write_array_end(local, serial);
+  ret |= serial->m_interface->write_array_end M_R(local, serial);
   return ret;
 }
 

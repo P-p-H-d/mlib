@@ -412,17 +412,20 @@ M_BEGIN_PROTECTED_CODE
 #endif
 
 
-/* In order to support context for memory functions, the prototypes and usages of some functions are modified
+/* In order to support local context for memory functions, the prototypes and usages of some functions are modified
  * so that they can accept a first argument 'm_pool' which is the memory context parameter.
- * For some functions, there is no meaning of a local memory context parameter: for all data shared between threads,
- * only a global memory context has any meaning. For such cases, the memory context parameter is not requested to
- * the used but set to 0.
- * This is controlled through M_USE_POOL parameter that define the type of the memory context parameter.
  *
- * Several macros are defined **globally** to support such features. 
- * They expand to nothing if the memory context parameter is not requested. 
+ * For some functions, there is no meaning of a local memory context parameter:
+ * for all data shared between threads, only a global memory context has any meaning.
+ * For such cases, the memory context parameter is globally requested to the user through M_USE_GLOBAL_POOL or set to 0.
+ *
+ * This is controlled through M_USE_POOL parameter that define the type of the memory context parameter
+ * to be used globally for all M*LIB. There is no possibility to support only some containers and not others.
+ *
+ * Several macros are defined **globally** to support such features and being internally used by M*LIB containers.
+ * They expand to nothing if the memory context parameter is not requested:
  * * M_P_EXPAND: expand to the first parameter 'm_pool' of type M_USE_POOL for a function that may use memory context.
- * * M_P_EXPAND_void: same but assume that there is no argument in the initial funciton.
+ * * M_P_EXPAND_void: same but assume that there is no argument in the initial function.
  * * M_R_EXPAND: expand to the first parameter 'm_pool' (followed by a comma)
  * * M_R_EXPAND_void: same but assume that there is no argument
  * * M_R: add the parameter m_pool to the function call if needed,
@@ -458,7 +461,8 @@ M_BEGIN_PROTECTED_CODE
 
 // M_P: Expand to a prototype of a function that may trigger exception / accept memory context
 // M_N: Expand to a prototype of a function that may not trigger exception or accept memory context
-// If not M_F, no overloaded M_INLINE and no M_P_EXPAND, simplify M_P
+// If not user M_F, no overloaded M_INLINE and no M_P_EXPAND,
+// simplify definition of M_P/M_N to provide faster compile time.
 // (faster build: 0.54s instead of 0.80s in extreme expanding)
 #if !defined(M_USE_POOL) && !defined(M_F) && !defined(M_USE_FINE_GRAINED_LINKAGE) && !defined(M_USE_DEF) && !defined(M_USE_DECL)
 # define M_P(rettype, name, suffix, ...) static inline rettype name ## suffix(__VA_ARGS__)
@@ -5201,6 +5205,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
  * each time it is called with a pseudo random wait.
  * It is used to avoid too many threads trying to grab some atomic
  * variables at the same times (it makes the threads waits randomly).
+ * Initialization is cheap.
  */
 typedef struct m_core_backoff_s {
   unsigned int count;               // Number of times it has been run
@@ -5274,7 +5279,7 @@ struct m_string_s;
  * - OK & done (object is fully parsed),
  * - OK & continue parsing (object is partially parsed)
  * - Fail parsing
- * - Fail parsing with given arguments (give explicit size)
+ * - Fail parsing with given arguments (give explicit size) but a retry will succeed.
  */
 typedef enum m_serial_return_code_e {
   M_SERIAL_OK_DONE = 0, M_SERIAL_OK_CONTINUE = 1, M_SERIAL_FAIL = 2, M_SERIAL_FAIL_RETRY = 4
@@ -5354,7 +5359,7 @@ typedef struct m_serial_read_interface_s {
   m_serial_return_code_t (*read_boolean)(m_serial_read_t,bool *);
   m_serial_return_code_t (*read_integer)(m_serial_read_t, long long *, const size_t size_of_type);
   m_serial_return_code_t (*read_float)(m_serial_read_t, long double *, const size_t size_of_type);
-  m_serial_return_code_t (*read_string)(m_serial_read_t, struct m_string_s *);
+  m_serial_return_code_t (*read_string)(M_P_EXPAND m_serial_read_t, struct m_string_s *);
   m_serial_return_code_t (*read_array_start)(m_serial_local_t, m_serial_read_t, size_t *);
   m_serial_return_code_t (*read_array_next)(m_serial_local_t, m_serial_read_t);
   m_serial_return_code_t (*read_map_start)(m_serial_local_t, m_serial_read_t, size_t *);
@@ -5384,22 +5389,22 @@ typedef struct m_serial_write_s {
  * All function pointers shall be not null.
  */
 typedef struct m_serial_write_interface_s {
-  m_serial_return_code_t (*write_boolean)(m_serial_write_t,const bool data);
-  m_serial_return_code_t (*write_integer)(m_serial_write_t,const long long data, const size_t size_of_type);
-  m_serial_return_code_t (*write_float)(m_serial_write_t, const long double data, const size_t size_of_type);
-  m_serial_return_code_t (*write_string)(m_serial_write_t,const char data[], size_t len);
-  m_serial_return_code_t (*write_array_start)(m_serial_local_t, m_serial_write_t, const size_t number_of_elements);
-  m_serial_return_code_t (*write_array_next)(m_serial_local_t, m_serial_write_t);
-  m_serial_return_code_t (*write_array_end)(m_serial_local_t, m_serial_write_t);
-  m_serial_return_code_t (*write_map_start)(m_serial_local_t, m_serial_write_t, const size_t number_of_elements);
-  m_serial_return_code_t (*write_map_value)(m_serial_local_t, m_serial_write_t);
-  m_serial_return_code_t (*write_map_next)(m_serial_local_t, m_serial_write_t);
-  m_serial_return_code_t (*write_map_end)(m_serial_local_t, m_serial_write_t);
-  m_serial_return_code_t (*write_tuple_start)(m_serial_local_t, m_serial_write_t);
-  m_serial_return_code_t (*write_tuple_id)(m_serial_local_t, m_serial_write_t, const char * const field_name[], const int max, const int index);
-  m_serial_return_code_t (*write_tuple_end)(m_serial_local_t, m_serial_write_t);
-  m_serial_return_code_t (*write_variant_start)(m_serial_local_t, m_serial_write_t, const char * const field_name[], const int max, const int index);
-  m_serial_return_code_t (*write_variant_end)(m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_boolean)(M_P_EXPAND m_serial_write_t,const bool data);
+  m_serial_return_code_t (*write_integer)(M_P_EXPAND m_serial_write_t,const long long data, const size_t size_of_type);
+  m_serial_return_code_t (*write_float)(M_P_EXPAND m_serial_write_t, const long double data, const size_t size_of_type);
+  m_serial_return_code_t (*write_string)(M_P_EXPAND m_serial_write_t,const char data[], size_t len);
+  m_serial_return_code_t (*write_array_start)(M_P_EXPAND m_serial_local_t, m_serial_write_t, const size_t number_of_elements);
+  m_serial_return_code_t (*write_array_next)(M_P_EXPAND m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_array_end)(M_P_EXPAND m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_map_start)(M_P_EXPAND m_serial_local_t, m_serial_write_t, const size_t number_of_elements);
+  m_serial_return_code_t (*write_map_value)(M_P_EXPAND m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_map_next)(M_P_EXPAND m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_map_end)(M_P_EXPAND m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_tuple_start)(M_P_EXPAND m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_tuple_id)(M_P_EXPAND m_serial_local_t, m_serial_write_t, const char * const field_name[], const int max, const int index);
+  m_serial_return_code_t (*write_tuple_end)(M_P_EXPAND m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_variant_start)(M_P_EXPAND m_serial_local_t, m_serial_write_t, const char * const field_name[], const int max, const int index);
+  m_serial_return_code_t (*write_variant_end)(M_P_EXPAND m_serial_local_t, m_serial_write_t);
 } m_serial_write_interface_t;
 
 
@@ -5409,23 +5414,23 @@ typedef struct m_serial_write_interface_s {
 */
 #define M_OUT_SERIAL_DEFAULT_ARG(serial, x)                                   \
   _Generic(((void)0,(x)),                                                     \
-           bool: (serial)->m_interface->write_boolean(serial, M_AS_TYPE(bool, (x))), \
-           char: (serial)->m_interface->write_integer(serial, M_AS_TYPE(char,(x)), sizeof (x)), \
-           signed char: (serial)->m_interface->write_integer(serial, M_AS_TYPE(signed char,(x)), sizeof (x)), \
-           unsigned char: (serial)->m_interface->write_integer(serial, (long long) M_AS_TYPE(unsigned char,(x)), sizeof (x)), \
-           signed short: (serial)->m_interface->write_integer(serial, M_AS_TYPE(signed short,(x)), sizeof (x)), \
-           unsigned short: (serial)->m_interface->write_integer(serial, (long long) M_AS_TYPE(unsigned short,(x)), sizeof (x)), \
-           signed int: (serial)->m_interface->write_integer(serial, M_AS_TYPE(signed int,(x)), sizeof (x)), \
-           unsigned int: (serial)->m_interface->write_integer(serial, (long long) M_AS_TYPE(unsigned int,(x)), sizeof (x)), \
-           long int: (serial)->m_interface->write_integer(serial, M_AS_TYPE(long,(x)), sizeof (x)), \
-           unsigned long int: (serial)->m_interface->write_integer(serial, (long long) M_AS_TYPE(unsigned long,(x)), sizeof (x)), \
-           long long int: (serial)->m_interface->write_integer(serial, M_AS_TYPE(long long,(x)), sizeof (x)), \
-           unsigned long long int: (serial)->m_interface->write_integer(serial, (long long) M_AS_TYPE(unsigned long long,(x)), sizeof (x)), \
-           float: (serial)->m_interface->write_float(serial, M_AS_TYPE(float,(x)), sizeof (x)), \
-           double: (serial)->m_interface->write_float(serial, M_AS_TYPE(double,(x)), sizeof (x)), \
-           long double: (serial)->m_interface->write_float(serial, M_AS_TYPE(long double,(x)), sizeof (x)), \
-           const char *: (serial)->m_interface->write_string(serial, M_AS_TYPE(const char *,(x)), m_core_out_serial_strlen(M_AS_TYPE(const char *,(x))) ), \
-           char *: (serial)->m_interface->write_string(serial, M_AS_TYPE(char *,(x)), m_core_out_serial_strlen(M_AS_TYPE(const char *,(x))) ), \
+           bool: (serial)->m_interface->write_boolean M_R(serial, M_AS_TYPE(bool, (x))), \
+           char: (serial)->m_interface->write_integer M_R(serial, M_AS_TYPE(char,(x)), sizeof (x)), \
+           signed char: (serial)->m_interface->write_integer M_R(serial, M_AS_TYPE(signed char,(x)), sizeof (x)), \
+           unsigned char: (serial)->m_interface->write_integer M_R(serial, (long long) M_AS_TYPE(unsigned char,(x)), sizeof (x)), \
+           signed short: (serial)->m_interface->write_integer M_R(serial, M_AS_TYPE(signed short,(x)), sizeof (x)), \
+           unsigned short: (serial)->m_interface->write_integer M_R(serial, (long long) M_AS_TYPE(unsigned short,(x)), sizeof (x)), \
+           signed int: (serial)->m_interface->write_integer M_R(serial, M_AS_TYPE(signed int,(x)), sizeof (x)), \
+           unsigned int: (serial)->m_interface->write_integer M_R(serial, (long long) M_AS_TYPE(unsigned int,(x)), sizeof (x)), \
+           long int: (serial)->m_interface->write_integer M_R(serial, M_AS_TYPE(long,(x)), sizeof (x)), \
+           unsigned long int: (serial)->m_interface->write_integer M_R(serial, (long long) M_AS_TYPE(unsigned long,(x)), sizeof (x)), \
+           long long int: (serial)->m_interface->write_integer M_R(serial, M_AS_TYPE(long long,(x)), sizeof (x)), \
+           unsigned long long int: (serial)->m_interface->write_integer M_R(serial, (long long) M_AS_TYPE(unsigned long long,(x)), sizeof (x)), \
+           float: (serial)->m_interface->write_float M_R(serial, M_AS_TYPE(float,(x)), sizeof (x)), \
+           double: (serial)->m_interface->write_float M_R(serial, M_AS_TYPE(double,(x)), sizeof (x)), \
+           long double: (serial)->m_interface->write_float M_R(serial, M_AS_TYPE(long double,(x)), sizeof (x)), \
+           const char *: (serial)->m_interface->write_string M_R(serial, M_AS_TYPE(const char *,(x)), m_core_out_serial_strlen(M_AS_TYPE(const char *,(x))) ), \
+           char *: (serial)->m_interface->write_string M_R(serial, M_AS_TYPE(char *,(x)), m_core_out_serial_strlen(M_AS_TYPE(const char *,(x))) ), \
            const void *: M_SERIAL_FAIL /* unsupported */,                     \
            void *: M_SERIAL_FAIL /* unsupported */)
 

@@ -690,8 +690,7 @@ M_INLINE void                                                                 \
 
 /* Define the OUT_SERIAL function */
 #define M_VAR1ANT_DEFINE_OUT_SERIAL(name, ...)                                \
-  M_INLINE m_serial_return_code_t                                             \
-  M_F(name, _out_serial)(m_serial_write_t f, M_F(name,_ct) const el)          \
+  M_P(m_serial_return_code_t, name, _out_serial, m_serial_write_t f, M_F(name,_ct) const el) \
   {                                                                           \
     M_VAR1ANT_CONTRACT(name, el);                                             \
     const int field_max = M_NARGS(__VA_ARGS__);                               \
@@ -702,18 +701,18 @@ M_INLINE void                                                                 \
     m_serial_return_code_t ret;                                               \
     switch (el->type) {                                                       \
     case M_F(name, _EMPTY):                                                   \
-      return f->m_interface->write_variant_start(local, f, field_name, field_max, -1); \
+      return f->m_interface->write_variant_start M_R(local, f, field_name, field_max, -1); \
       break;                                                                  \
     M_MAP2(M_VAR1ANT_DEFINE_OUT_SERIAL_FUNC , name, __VA_ARGS__)              \
     default: M_ASSUME(false); break;                                          \
     }                                                                         \
-    ret |= f->m_interface->write_variant_end(local, f);                       \
+    ret |= f->m_interface->write_variant_end M_R(local, f);                   \
     return ret & M_SERIAL_FAIL;                                               \
   }
 
 #define M_VAR1ANT_DEFINE_OUT_SERIAL_FUNC(name, a)                             \
   case M_C4(name, _, M_VAR1ANT_GET_FIELD a, _value):                          \
-  ret = f->m_interface->write_variant_start(local, f, field_name, field_max,  \
+  ret = f->m_interface->write_variant_start M_R(local, f, field_name, field_max, \
                        M_C4(name, _, M_VAR1ANT_GET_FIELD a, _value) -1);      \
   M_VAR1ANT_CALL_OUT_SERIAL(a, f, el -> value . M_VAR1ANT_GET_FIELD a);       \
   break;

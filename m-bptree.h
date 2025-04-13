@@ -1383,8 +1383,7 @@
   , /* no in_str */ )                                                         \
                                                                               \
   M_IF_METHOD_BOTH(OUT_SERIAL, key_oplist, value_oplist)(                     \
-  M_INLINE m_serial_return_code_t                                             \
-  M_F(name, _out_serial)(m_serial_write_t f, tree_t const t1)                 \
+  M_P(m_serial_return_code_t, name, _out_serial, m_serial_write_t f, tree_t const t1) \
   {                                                                           \
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, t1);                            \
     M_ASSERT (f != NULL && f->m_interface != NULL);                           \
@@ -1396,31 +1395,31 @@
     /* Format is different between associative container                      \
        & set container */                                                     \
     M_IF(isMap)(                                                              \
-                ret = f->m_interface->write_map_start(local, f, t1->size);    \
+                ret = f->m_interface->write_map_start M_R(local, f, t1->size); \
                 for (M_F(name, _it)(it, t1) ;                                 \
                      !M_F(name, _end_p)(it);                                  \
                      M_F(name, _next)(it)){                                   \
                   item = M_F(name, _cref)(it);                                \
                   if (first_done)                                             \
-                    ret |= f->m_interface->write_map_next(local, f);          \
+                    ret |= f->m_interface->write_map_next M_R(local, f);      \
                   ret |= M_CALL_OUT_SERIAL(key_oplist, f, *item->key_ptr);    \
-                  ret |= f->m_interface->write_map_value(local, f);           \
+                  ret |= f->m_interface->write_map_value M_R(local, f);       \
                   ret |= M_CALL_OUT_SERIAL(value_oplist, f, *item->value_ptr); \
                   first_done = true;                                          \
                 }                                                             \
-                ret |= f->m_interface->write_map_end(local, f);               \
+                ret |= f->m_interface->write_map_end M_R(local, f);           \
                 ,                                                             \
-                ret = f->m_interface->write_array_start(local, f, t1->size);  \
+                ret = f->m_interface->write_array_start M_R(local, f, t1->size); \
                 for (M_F(name, _it)(it, t1) ;                                 \
                      !M_F(name, _end_p)(it);                                  \
                      M_F(name, _next)(it)){                                   \
                   item = M_F(name, _cref)(it);                                \
                   if (first_done)                                             \
-                    ret |= f->m_interface->write_array_next(local, f);        \
+                    ret |= f->m_interface->write_array_next M_R(local, f);    \
                   ret |= M_CALL_OUT_SERIAL(key_oplist, f, *item);             \
                   first_done = true;                                          \
                 }                                                             \
-                ret |= f->m_interface->write_array_end(local, f);             \
+                ret |= f->m_interface->write_array_end M_R(local, f);         \
                                                                         )     \
       return ret & M_SERIAL_FAIL;                                             \
   }                                                                           \

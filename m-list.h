@@ -748,18 +748,17 @@
   , /* no IN_STR & INIT */ )                                                  \
                                                                               \
   M_IF_METHOD(OUT_SERIAL, oplist)(                                            \
-  M_INLINE m_serial_return_code_t                                             \
-  M_F(name, _out_serial)(m_serial_write_t f, const list_t list)               \
+  M_P(m_serial_return_code_t, name, _out_serial, m_serial_write_t f, const list_t list) \
   {                                                                           \
     M_ASSERT (list != NULL);                                                  \
     M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_return_code_t ret;                                               \
     m_serial_local_t local;                                                   \
     bool first_done = false;                                                  \
-    ret = f->m_interface->write_array_start(local, f, (size_t)-1);            \
+    ret = f->m_interface->write_array_start M_R(local, f, (size_t)-1);        \
     if (ret == M_SERIAL_FAIL_RETRY) {                                         \
       size_t n = M_F(name, _size)(list);                                      \
-      ret = f->m_interface->write_array_start(local, f, n);                   \
+      ret = f->m_interface->write_array_start M_R(local, f, n);               \
     }                                                                         \
     it_t it;                                                                  \
     for (M_F(name, _it)(it, list) ;                                           \
@@ -767,11 +766,11 @@
          M_F(name, _next)(it)){                                               \
       type const *item = M_F(name, _cref)(it);                                \
       if (first_done)                                                         \
-        ret |= f->m_interface->write_array_next(local, f);                    \
+        ret |= f->m_interface->write_array_next M_R(local, f);                \
       ret |= M_CALL_OUT_SERIAL(oplist, f, *item);                             \
       first_done = true;                                                      \
     }                                                                         \
-    ret |= f->m_interface->write_array_end(local, f);                         \
+    ret |= f->m_interface->write_array_end M_R(local, f);                     \
     return ret & M_SERIAL_FAIL;                                               \
   }                                                                           \
   , /* no OUT_SERIAL */ )                                                     \
