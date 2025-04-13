@@ -534,26 +534,27 @@ M_P(m_serial_return_code_t, m_bstring, _in_serial, m_bstring_t v, m_serial_read_
 }
 
 /* Define the OPLIST of a BYTE STRING */
+#ifndef M_USE_POOL
 #define M_BSTRING_OPLIST                                                      \
   (INIT(m_bstring_init),INIT_SET(m_bstring_init_set), SET(m_bstring_set),     \
    INIT_MOVE(m_bstring_init_move), MOVE(m_bstring_move),                      \
-   SWAP(m_bstring_swap), RESET(m_bstring_reset),                              \
-   EMPTY_P(m_bstring_empty_p),                                                \
+   SWAP(m_bstring_swap), RESET(m_bstring_reset), EMPTY_P(m_bstring_empty_p),  \
+   SUBTYPE(uint8_t), PUSH(m_bstring_push),                                    \
    CLEAR(m_bstring_clear), HASH(m_bstring_hash), EQUAL(m_bstring_equal_p),    \
    CMP(m_bstring_cmp), TYPE(m_bstring_t), GENTYPE(struct m_bstring_s*),       \
    OUT_SERIAL(m_bstring_out_serial), IN_SERIAL(m_bstring_in_serial),          \
    )
-
-/* Define the OPLIST of a BYTE STRING using POOL */
-#define M_BSTRING_POOL_OPLIST                                                 \
+#else
+#define M_BSTRING_OPLIST                                                        \
   (INIT(m_bstring_init),INIT_SET(API_0P(m_bstring_init_set)), SET(API_0P(m_bstring_set)), \
    INIT_MOVE(m_bstring_init_move), MOVE(API_0P(m_bstring_move)),              \
-   SWAP(m_bstring_swap), RESET(m_bstring_reset),                              \
-   EMPTY_P(m_bstring_empty_p),                                                \
+   SWAP(m_bstring_swap), RESET(m_bstring_reset), EMPTY_P(m_bstring_empty_p),  \
+   SUBTYPE(uint8_t), PUSH(API_0P(m_bstring_push)),                            \
    CLEAR(API_0P(m_bstring_clear)), HASH(m_bstring_hash), EQUAL(m_bstring_equal_p), \
    CMP(m_bstring_cmp), TYPE(m_bstring_t), GENTYPE(struct m_bstring_s*),       \
-   OUT_SERIAL(m_bstring_out_serial), IN_SERIAL(API_0P(m_bstring_in_serial=)   \
+   OUT_SERIAL(API_0P(m_bstring_out_serial)), IN_SERIAL(API_0P(m_bstring_in_serial=) \
    )
+#endif
 
 /********************************************************************************/
 /*                                                                              */
