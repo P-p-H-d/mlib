@@ -29,9 +29,7 @@
 #include "coverage.h"
 
 // Generic is not supported if not C11
-// TCC has some issues in the preprocessing.
-// See https://lists.nongnu.org/archive/html/tinycc-devel/2023-12/msg00004.html
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && !defined(__TINYC__)
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L 
 
 ARRAY_DEF(array_int, int)
 #define M_OPL_array_int_t() ARRAY_OPLIST(array_int, M_BASIC_OPLIST)

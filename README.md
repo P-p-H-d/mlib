@@ -9407,9 +9407,6 @@ If no type is associated to this variable, an error is reported by the compiler.
 
 This header needs a C23 compliant compiler or a C11 compiler providing the typeof extension (like GCC, CLANG, MSVC).
 
-> [!NOTE] 
-> TCC is not supported yet due to some bugs in the compiler.
-
 This provides the same level of flexibility of the C++. However, there is some drawbacks of using this generic interface:
 
 * Error messages can be more complex,
