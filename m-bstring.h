@@ -453,6 +453,10 @@ m_bstring_fwrite(FILE *f, const m_bstring_t v)
 {
   M_BSTRING_CONTRACT (v);
   M_ASSERT (f != NULL);
+  if (M_UNLIKELY(m_bstring_size(v) == 0)) {
+    return 0;
+  }
+  M_ASSERT(m_bstr1ng_cstr(v) != NULL);
   return fwrite(m_bstr1ng_cstr(v), 1, m_bstring_size(v), f);
 }
 
