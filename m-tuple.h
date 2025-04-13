@@ -563,8 +563,7 @@ namespace m_lib {
 
 /* Define a OUT_SERIAL method by calling the OUT_SERIAL methods for all params */
 #define M_TUPL3_DEFINE_OUT_SERIAL(name, ...)                                  \
-  M_INLINE m_serial_return_code_t                                             \
-  M_F(name, _out_serial)(m_serial_write_t f, M_F(name,_ct) const el)          \
+  M_P(m_serial_return_code_t, name, _out_serial, m_serial_write_t f, M_F(name,_ct) const el) \
   {                                                                           \
     M_TUPL3_CONTRACT(el);                                                     \
     M_ASSERT (f != NULL && f->m_interface != NULL);                           \
@@ -575,15 +574,15 @@ namespace m_lib {
     int index = 0;                                                            \
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
-    ret = f->m_interface->write_tuple_start(local, f);                        \
+    ret = f->m_interface->write_tuple_start M_R(local, f);                    \
     M_MAP(M_TUPL3_DEFINE_OUT_SERIAL_FUNC , __VA_ARGS__)                       \
     M_ASSERT( index == field_max);                                            \
-    ret |= f->m_interface->write_tuple_end(local, f);                         \
+    ret |= f->m_interface->write_tuple_end M_R(local, f);                     \
     return ret & M_SERIAL_FAIL;                                               \
   }
 
 #define M_TUPL3_DEFINE_OUT_SERIAL_FUNC(a)                                     \
-  f->m_interface->write_tuple_id(local, f, field_name, field_max, index);     \
+  f->m_interface->write_tuple_id M_R(local, f, field_name, field_max, index); \
   M_TUPL3_CALL_OUT_SERIAL(a, f, el -> M_TUPL3_GET_FIELD a);                   \
   index++;                                                                    \
 

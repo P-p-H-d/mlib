@@ -1050,22 +1050,21 @@
   , /* no IN_STR & INIT */ )                                                  \
                                                                               \
   M_IF_METHOD(OUT_SERIAL, oplist)(                                            \
-  M_INLINE m_serial_return_code_t                                             \
-  M_F(name, _out_serial)(m_serial_write_t f, const array_t array)             \
+  M_P(m_serial_return_code_t, name, _out_serial, m_serial_write_t f, const array_t array) \
   {                                                                           \
     M_ARRA4_CONTRACT(array);                                                  \
     M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_return_code_t ret;                                               \
     m_serial_local_t local;                                                   \
-    ret = f->m_interface->write_array_start(local, f, array->size);           \
+    ret = f->m_interface->write_array_start M_R(local, f, array->size);       \
     for (size_t i = 0; i < array->size; i++) {                                \
       type const *item = M_F(name, _cget)(array, i);                          \
       if (i != 0) {                                                           \
-        ret |= f->m_interface->write_array_next(local, f);                    \
+        ret |= f->m_interface->write_array_next M_R(local, f);                \
       }                                                                       \
       ret |= M_CALL_OUT_SERIAL(oplist, f, *item);                             \
     }                                                                         \
-    ret |= f->m_interface->write_array_end(local, f);                         \
+    ret |= f->m_interface->write_array_end M_R(local, f);                     \
     return ret & M_SERIAL_FAIL;                                               \
   }                                                                           \
   , /* no OUT_SERIAL */ )                                                     \

@@ -155,6 +155,9 @@ M_SHARED_PTR_DEF(shared_str, string_t)
 M_QUEUE_DEF(queue_10, int, 10 )
 M_STACK_DEF(stack_20, string_t, 20)
 
+#include "m-serial-json.h"
+
+#include "m-serial-bin.h"
 
 int main(void)
 {

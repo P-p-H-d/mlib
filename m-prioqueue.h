@@ -478,10 +478,9 @@
   ,/* No PARSE_STR */)                                                        \
                                                                               \
   M_IF_METHOD(OUT_SERIAL, oplist)(                                            \
-  M_INLINE m_serial_return_code_t                                             \
-  M_F(name, _out_serial)(m_serial_write_t f, const prioqueue_t p)             \
+  M_P(m_serial_return_code_t, name, _out_serial, m_serial_write_t f, const prioqueue_t p) \
   {                                                                           \
-    return M_F(name, _array_out_serial)(f, p->array);                         \
+    return M_F(name, _array_out_serial) M_R(f, p->array);                     \
   }                                                                           \
   ,/* No OUT_SERIAL */)                                                       \
                                                                               \
