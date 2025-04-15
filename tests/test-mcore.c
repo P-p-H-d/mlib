@@ -746,65 +746,54 @@ typedef struct { int b,c; } ts;
 static void f_ti(ti x)
 {
   ti y;
-  M_MOVE_A1_DEFAULT(y,x);
+  M_COPY_A1_DEFAULT(y,x);
   assert(y[0] == 9);
-  assert(x[0] == 0);
 }
 
 static void f_ts(ts x)
 {
   ts y;
-  M_MOVE_DEFAULT(y,x);
+  M_SET_DEFAULT(y,x);
   assert(y.b == 2);
   assert(y.c == 3);
-  assert(x.b == 0);
-  assert(x.c == 0);
 }
 
 static void f_ts2(ts *x)
 {
   ts y;
-  M_MOVE_DEFAULT(y,*x);
+  M_SET_DEFAULT(y,*x);
   assert(y.b == 2);
   assert(y.c == 3);
-  assert(x->b == 0);
-  assert(x->c == 0);
 }
 
 static void test_move_default(void)
 {
   int o, p;
   o = 9;
-  M_MOVE_DEFAULT(p, o);
+  M_SET_DEFAULT(p, o);
   assert(p == 9);
-  assert(o == 0);
 
   double u, k;
   k = -1.0;
   u = 9.5;
-  M_MOVE_DEFAULT(k, u);
+  M_SET_DEFAULT(k, u);
   assert(k == 9.5);
-  assert(u == 0.0); // NOTE: memset(0) sets an IEEE-754 number to 0.0
 
   int *ptr = &o, *m;
-  M_MOVE_DEFAULT(m, ptr);
-  assert( ptr == NULL);
-  assert( m == &o);
-  
+  M_SET_DEFAULT(m, ptr);
+  (void)m;
+
   ti x, y;
   x[0] = 9;
-  M_MOVE_A1_DEFAULT(y, x);
+  M_COPY_A1_DEFAULT(y, x);
   assert(y[0] == 9);
-  assert(x[0] == 0);
   
   x[0] = 9;
   f_ti(x);
-  assert(x[0] == 0);
   
   ts y2, x2 = {  2, 3};
-  M_MOVE_DEFAULT(y2, x2);
+  M_SET_DEFAULT(y2, x2);
   assert(y2.b == 2 && y2.c == 3);
-  assert(x2.b == 0 && x2.c == 0);
 
   x2.b = 2; x2.c = 3;
   f_ts(x2);
@@ -812,8 +801,6 @@ static void test_move_default(void)
   assert(x2.c == 3);
 
   f_ts2(&x2);
-  assert(x2.b == 0);
-  assert(x2.c == 0);
 }
 
 static void test_builtin(void)

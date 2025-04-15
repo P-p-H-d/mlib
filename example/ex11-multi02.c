@@ -35,6 +35,7 @@ mpz_fast_hash(const mpz_t z)
 #define M_OPL_mpz_t()                                                   \
   (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), \
    INIT_WITH(API_1(M_INIT_WITH_THROUGH_EMPLACE_TYPE)),                  \
+   INIT_MOVE(M_COPY_A1_DEFAULT)                                       \
    EQUAL( API( mpz_cmp, EQ(0), ARG1, ARG2)),                            \
    CMP(mpz_cmp),                                                        \
    HASH(mpz_fast_hash),                                                 \
@@ -77,7 +78,8 @@ mpfr_fast_hash (const mpfr_t f)
 /* Define the OPLIST of a mpfr_t and register it globally */
 #define M_OPL_mpfr_t()                                                   \
   (INIT(mpfr_init), INIT_SET(API(mpfr_init_set, VOID, ARG1, ARG2, MPFR_RNDN)), SET(API(mpfr_set, VOID, ARG1, ARG2, MPFR_RNDN)), CLEAR(mpfr_clear), \
-   INIT_WITH(API_1(M_INIT_WITH_THROUGH_EMPLACE_TYPE)),                  \
+   INIT_WITH(API_1(M_INIT_WITH_THROUGH_EMPLACE_TYPE)),                   \
+   INIT_MOVE(M_COPY_A1_DEFAULT)                                        \
    EQUAL( API( mpfr_cmp, EQ(0), ARG1, ARG2)),                            \
    CMP(mpfr_cmp),                                                        \
    HASH(mpfr_fast_hash),                                                 \

@@ -307,14 +307,14 @@
     type *data = M_F(name, _push_raw)M_R(v);                                  \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
-    M_DO_INIT_MOVE (oplist, *data, *x);                                       \
+    M_CALL_INIT_MOVE (oplist, *data, *x);                                     \
   }                                                                           \
                                                                               \
   M_P(void, name, _pop_move, type *data, list_t v)                            \
   {                                                                           \
     M_L1ST_CONTRACT(v);                                                       \
     M_ASSERT(*v != NULL && data != NULL);                                     \
-    M_DO_INIT_MOVE (oplist, *data, (*v)->data);                               \
+    M_CALL_INIT_MOVE (oplist, *data, (*v)->data);                             \
     struct M_F(name, _s) *tofree = *v;                                        \
     *v = (*v)->next;                                                          \
     M_CALL_DEL(oplist, tofree);                                               \
@@ -1057,7 +1057,7 @@
     type *data = M_F(name, _push_back_raw)M_R(v);                             \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
-    M_DO_INIT_MOVE (oplist, *data, *x);                                       \
+    M_CALL_INIT_MOVE (oplist, *data, *x);                                     \
   }                                                                           \
                                                                               \
   M_P(void, name, _push_move, list_t v, type *x)                              \
@@ -1091,7 +1091,7 @@
     M_ASSERT (v->back != NULL);                                               \
     M_ASSERT (data != NULL);                                                  \
     struct M_F(name, _s) *tofree = v->back;                                   \
-    M_DO_INIT_MOVE (oplist, *data, tofree->data);                             \
+    M_CALL_INIT_MOVE (oplist, *data, tofree->data);                           \
     v->back = tofree->next;                                                   \
     M_CALL_DEL(oplist, tofree);                                               \
     /* Update front too if the list became empty */                           \
@@ -1149,7 +1149,7 @@
     type *data = M_F(name, _push_front_raw)(v);                               \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
-    M_DO_INIT_MOVE (oplist, *data, *x);                                       \
+    M_CALL_INIT_MOVE (oplist, *data, *x);                                     \
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \

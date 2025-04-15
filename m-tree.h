@@ -476,7 +476,7 @@ typedef int32_t m_tr33_index_t;
                                                                               \
     M_P(it_t, name, _move_up, it_t pos, type *data) {                         \
         it_t it = M_F(name, _insert_up_raw)M_R(pos);                          \
-        M_DO_INIT_MOVE(oplist, it.tree->tab[it.index].data, *data);           \
+        M_CALL_INIT_MOVE(oplist, it.tree->tab[it.index].data, *data);         \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return it;                                                            \
     }                                                                         \
@@ -510,7 +510,7 @@ typedef int32_t m_tr33_index_t;
                                                                               \
     M_P(it_t, name, _move_down, it_t pos, type *data) {                       \
         it_t it = M_F(name, _insert_down_raw)M_R(pos);                        \
-        M_DO_INIT_MOVE(oplist, it.tree->tab[it.index].data, *data);           \
+        M_CALL_INIT_MOVE(oplist, it.tree->tab[it.index].data, *data);         \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return it;                                                            \
     }                                                                         \
@@ -544,7 +544,7 @@ typedef int32_t m_tr33_index_t;
                                                                               \
     M_P(it_t, name, _move_child, it_t pos, type *data) {                      \
         it_t it = M_F(name, _insert_child_raw)M_R(pos);                       \
-        M_DO_INIT_MOVE(oplist, it.tree->tab[it.index].data, *data);           \
+        M_CALL_INIT_MOVE(oplist, it.tree->tab[it.index].data, *data);         \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return it;                                                            \
     }                                                                         \
@@ -581,7 +581,7 @@ typedef int32_t m_tr33_index_t;
                                                                               \
     M_P(it_t, name, _move_left, it_t pos, type *data) {                       \
         it_t it = M_F(name, _insert_left_raw)M_R(pos);                        \
-        M_DO_INIT_MOVE(oplist, it.tree->tab[it.index].data, *data);           \
+        M_CALL_INIT_MOVE(oplist, it.tree->tab[it.index].data, *data);         \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return it;                                                            \
     }                                                                         \
@@ -612,7 +612,7 @@ typedef int32_t m_tr33_index_t;
                                                                               \
     M_P(it_t, name, _move_right, it_t pos, type *data) {                      \
         it_t it = M_F(name, _insert_right_raw)M_R(pos);                       \
-        M_DO_INIT_MOVE(oplist, it.tree->tab[it.index].data, *data);           \
+        M_CALL_INIT_MOVE(oplist, it.tree->tab[it.index].data, *data);         \
         M_TR33_IT_CONTRACT(it, true);                                         \
         return it;                                                            \
     }                                                                         \

@@ -3545,7 +3545,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 /* Get the given method */
 #define M_GET_INIT(...)      M_GET_METHOD(INIT,        M_INIT_DEFAULT,     __VA_ARGS__)
 #define M_GET_INIT_SET(...)  M_GET_METHOD(INIT_SET,    M_SET_DEFAULT,      __VA_ARGS__)
-#define M_GET_INIT_MOVE(...) M_GET_METHOD(INIT_MOVE,   M_NO_DEF_INIT_MOVE, __VA_ARGS__)
+#define M_GET_INIT_MOVE(...) M_GET_METHOD(INIT_MOVE,   M_SET_DEFAULT,     __VA_ARGS__)
 #define M_GET_INIT_WITH(...) M_GET_METHOD(INIT_WITH,   M_NO_DEF_INIT_WITH, __VA_ARGS__)
 #define M_GET_SET(...)       M_GET_METHOD(SET,         M_SET_DEFAULT,      __VA_ARGS__)
 #define M_GET_MOVE(...)      M_GET_METHOD(MOVE,        M_NO_DEF_MOVE,      __VA_ARGS__)
@@ -3869,12 +3869,6 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
   "The " #operator " operator has no method associated in the given OPLIST."),\
   (return_type) 0)
 
-// TODO: Use default INIT_MOVE which assume trivially movable type
-// by getting throught API_2 the oplist and the size of the type
-// If no type defined and no INIT_MOVE defined, just use sizeof (dst)
-// Most types are trivially movable. Can remove macro M_DO_INIT_MOVE to use M_CALL_INIT_MOVE
-// If disabled in oplist, M_CALL_INIT_MOVE will generate an error.
-#define M_NO_DEF_INIT_MOVE(...)   M_NO_DEFAULT(INIT_MOVE, void)
 #define M_NO_DEF_INIT_WITH(...)   M_NO_DEFAULT(INIT_WITH, void)
 #define M_NO_DEF_MOVE(...)        M_NO_DEFAULT(MOVE, void)
 #define M_NO_DEF_SWAP(...)        M_NO_DEFAULT(SWAP, void)
@@ -4063,9 +4057,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 /* NOTE: Theses operators are NOT compatible with the '[1]' tricks
    if the variable is defined as a parameter of a function
    (sizeof (a) is not portable). */
-#define M_MOVE_DEFAULT(a,b)     (M_CHECK_SAME(a, b), M_MEMCPY_DEFAULT(a, b), memset(&(b), 0, sizeof (a)))
-#define M_MEMCPY_DEFAULT(a,b)   (M_CHECK_SAME(a, b), memcpy(&(a), &(b), sizeof (a)))
-#define M_MEMSET_DEFAULT(a)     (memset(&(a), 0, sizeof (a)))
+#define M_RESET_DEFAULT(a)      (memset(&(a), 0, sizeof (a)))
 #define M_MEMCMP1_DEFAULT(a,b)  (M_CHECK_SAME(a, b), memcmp(&(a), &(b), sizeof (a)) == 0)
 #define M_MEMCMP2_DEFAULT(a,b)  (M_CHECK_SAME(a, b), memcmp(&(a), &(b), sizeof (a)))
 #define M_SWAP_DEFAULT(el1, el2) do {                                         \
@@ -4076,28 +4068,35 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
     memcpy(&(el2), &_tmp, sizeof (el1));                                      \
   } while (0)
 
+/* Default oplist for plain structure */
+#define M_POD_OPLIST                                                          \
+  (INIT(M_RESET_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT), \
+   EQUAL(M_MEMCMP1_DEFAULT), CMP(M_MEMCMP2_DEFAULT), HASH(M_HASH_POD_DEFAULT), SWAP(M_SWAP_DEFAULT), \
+   INIT_MOVE(M_SET_DEFAULT) )
+
+
 /* NOTE: Theses operators are to be used with the '[1]' tricks
    if the variable is defined as a parameter of a function
    (sizeof (a) is not portable). */
-#define M_MOVE_A1_DEFAULT(a,b)     (M_CHECK_SAME(a[0], b[0]), M_MEMCPY_A1_DEFAULT(a, b), M_MEMSET_A1_DEFAULT(b))
-#define M_MEMCPY_A1_DEFAULT(a,b)   (M_CHECK_SAME(a[0], b[0]), memcpy(&(a[0]), &(b[0]), sizeof (a[0])))
-#define M_MEMSET_A1_DEFAULT(a)     (memset(&(a[0]), 0, sizeof (a[0])))
+#define M_COPY_A1_DEFAULT(a,b)   (M_CHECK_SAME(a[0], b[0]), memcpy(&(a[0]), &(b[0]), sizeof (a[0])))
+#define M_RESET_A1_DEFAULT(a)      (memset(&(a[0]), 0, sizeof (a[0])))
 #define M_MEMCMP1_A1_DEFAULT(a,b)  (M_CHECK_SAME(a[0],b[0]), memcmp(&(a[0]), &(b[0]), sizeof (a[0])) == 0)
 #define M_MEMCMP2_A1_DEFAULT(a,b)  (M_CHECK_SAME(a[0], b[0]), memcmp(&(a[0]), &(b[0]), sizeof (a[0])))
 #define M_HASH_A1_DEFAULT(a)       (m_core_hash((const void*) &(a[0]), sizeof (a[0])) )
+#define M_SWAP_A1_DEFAULT(a, b) do {                                          \
+  char _tmp[sizeof (a[0])];                                                   \
+  M_CHECK_SAME(a[0], b[0]);                                                   \
+  memcpy(&_tmp, &(a[0]), sizeof (a[0]));                                      \
+  memcpy(&(a[0]), &(b[0]), sizeof (a[0]));                                    \
+  memcpy(&(b[0]), &_tmp, sizeof (a[0]));                                      \
+} while (0)
 
-/* Default oplist for plain structure */
-#define M_POD_OPLIST                                                          \
-  (INIT(M_MEMSET_DEFAULT), INIT_SET(M_MEMCPY_DEFAULT), SET(M_MEMCPY_DEFAULT), \
-   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_MEMCMP1_DEFAULT), CMP(M_MEMCMP2_DEFAULT), \
-   HASH(M_HASH_POD_DEFAULT), SWAP(M_SWAP_DEFAULT))
-
-
-/* Default oplist for a structure defined with an array of size 1 */
+/* Default oplist for a structure defined with an array of size 1.
+   MOVE operator is not defined since the object may need to release some data */
 #define M_A1_OPLIST                                                           \
-  (INIT(M_MEMSET_A1_DEFAULT), INIT_SET(M_MEMCPY_A1_DEFAULT), SET(M_MEMCPY_A1_DEFAULT), \
-   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_MEMCMP1_A1_DEFAULT), CMP(M_MEMCMP2_A1_DEFAULT), \
-   HASH(M_HASH_A1_DEFAULT))
+  (INIT(M_RESET_A1_DEFAULT), INIT_SET(M_COPY_A1_DEFAULT), SET(M_COPY_A1_DEFAULT), CLEAR(M_NOTHING_DEFAULT), \
+   EQUAL(M_MEMCMP1_A1_DEFAULT), CMP(M_MEMCMP2_A1_DEFAULT), HASH(M_HASH_A1_DEFAULT), SWAP(M_SWAP_A1_DEFAULT), \
+   INIT_MOVE(M_COPY_A1_DEFAULT) )
 
 
 /* Oplist for a type that does nothing and shall not be instanciated */
@@ -4122,7 +4121,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #  define M_BASIC_OPLIST                                                      \
   (INIT(M_INIT_BASIC), INIT_SET(M_SET_BASIC), SET(M_SET_BASIC),               \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_BASIC), CMP(M_CMP_BASIC),          \
-   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
+   INIT_MOVE(M_SET_DEFAULT), MOVE(M_SET_DEFAULT) ,                            \
    RESET(M_INIT_BASIC), PROPERTIES( (NOCLEAR(1)) ),                           \
    ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
    MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
@@ -4135,7 +4134,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #   define M_BASIC_OPLIST                                                     \
   (INIT(M_INIT_BASIC), INIT_SET(M_SET_BASIC), SET(M_SET_BASIC),               \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_BASIC), CMP(M_CMP_BASIC),          \
-   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
+   INIT_MOVE(M_SET_DEFAULT), MOVE(M_SET_DEFAULT) ,                            \
    RESET(M_INIT_BASIC), PROPERTIES( (NOCLEAR(1)) ),                           \
    ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
    MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
@@ -4148,7 +4147,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 # define M_BASIC_OPLIST                                                       \
   (INIT(M_INIT_BASIC), INIT_SET(M_SET_BASIC), SET(M_SET_BASIC),               \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_BASIC), CMP(M_CMP_BASIC),          \
-   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
+   INIT_MOVE(M_SET_DEFAULT), MOVE(M_SET_DEFAULT) ,                            \
    RESET(M_INIT_BASIC), PROPERTIES( (NOCLEAR(1)) ),                           \
    ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
    MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
@@ -4179,7 +4178,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
   (INIT(API_1(M_ENUM_INIT)), INIT_SET(M_SET_DEFAULT),                         \
    SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT),                              \
    EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),                                \
-   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
+   INIT_MOVE(M_SET_DEFAULT), MOVE(M_SET_DEFAULT) ,                            \
    HASH(M_HASH_POD_DEFAULT), SWAP(M_SWAP_DEFAULT),                            \
    TYPE(type), OPLIST(init),                                                  \
    IN_STR(API_1(M_ENUM_FSCAN)), OUT_STR(M_ENUM_FPRINT),                       \
@@ -4192,7 +4191,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
   (INIT(API_1(M_ENUM_INIT)), INIT_SET(M_SET_DEFAULT),                         \
    SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT),                              \
    EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),                                \
-   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
+   INIT_MOVE(M_SET_DEFAULT), MOVE(M_SET_DEFAULT) ,                            \
    HASH(M_HASH_POD_DEFAULT), SWAP(M_SWAP_DEFAULT),                            \
    TYPE(type), OPLIST(init),                                                  \
    IN_SERIAL(API_1(M_ENUM_IN_SERIAL)), OUT_SERIAL(M_ENUM_OUT_SERIAL),         \
@@ -4255,32 +4254,29 @@ m_core_parse2_enum (const char str[], const char **endptr)
 /* Default oplist for standard types of pointers.
  */
 #define M_PTR_OPLIST                                                          \
-  (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),         \
-   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT),                          \
-   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
-   SWAP(M_SWAP_DEFAULT)                         )
+  (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT), \
+   EQUAL(M_EQUAL_DEFAULT), SWAP(M_SWAP_DEFAULT)                               \
+   INIT_MOVE(M_SET_DEFAULT), MOVE(M_SET_DEFAULT) )
 
 
-/* Default oplist for complex objects with "classic" names for methods.
+/* Default oplist for complex objects (using [1] trick) with "classic" names for methods.
  */
 #define M_CLASSIC_OPLIST(name) (                                              \
-  INIT(M_F(name, _init)),                                                     \
-  INIT_SET(M_F(name, _init_set)),                                             \
-  SET(M_F(name, _set)),                                                       \
-  CLEAR(M_F(name, _clear)),                                                   \
-  TYPE(M_F(name, _t)) )
+  INIT(M_F(name, _init)), INIT_SET(M_F(name, _init_set)), SET(M_F(name, _set)), CLEAR(M_F(name, _clear)), \
+  INIT_MOVE(M_COPY_A1_DEFAULT), TYPE(M_F(name, _t)) )
 
 
-/* OPLIST for 'const char *' string (with NO memory allocation).
+/* Default oplist for 'const char *' string (with NO memory allocation).
  */
 #define M_CSTR_EQUAL(a,b) (strcmp((a),(b)) == 0)
 #define M_CSTR_OUT_STR(file, str) fprintf(file, "%s", str)
-#define M_CSTR_OPLIST (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT),         \
-                       SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT),          \
-                       HASH(m_core_cstr_hash), EQUAL(M_CSTR_EQUAL),           \
-                       CMP(strcmp), TYPE(const char *),                       \
-                       OUT_STR(M_CSTR_OUT_STR) )
+#define M_CSTR_OPLIST                                                         \
+  (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT), \
+   HASH(m_core_cstr_hash), EQUAL(M_CSTR_EQUAL), CMP(strcmp), SWAP(M_SWAP_DEFAULT), \
+   INIT_MOVE(M_SET_DEFAULT), MOVE(M_SET_DEFAULT), TYPE(const char *),         \
+   OUT_STR(M_CSTR_OUT_STR) )
 
+/****************************************************************************/
 
 /* From an oplist (...) return ... (Like M_ID but for OPLIST) */
 #define M_OPFLAT(...)     __VA_ARGS__
@@ -4364,15 +4360,6 @@ m_core_parse2_enum (const char str[], const char **endptr)
 /* By putting this after a method in an oplist, we transform the argument list
    so that the first argument becomes a pointer to the destination (OBSOLETE MACRO) */
 #define M_IPTR(...) ( & __VA_ARGS__ )
-
-/* Perform an INIT_MOVE if present, or emulate it using INIT_SET/CLEAR */
-/* FIXME: Use INIT_MOVE if present or assume trivially movable otherwise? */
-/* A non trivially movable type shall provide an INIT_MOVE method or disable it */
-#define M_DO_INIT_MOVE(oplist, dest, src) do {                                \
-    M_IF_METHOD(INIT_MOVE, oplist)(M_CALL_INIT_MOVE(oplist, (dest), (src)),   \
-                                   M_CALL_INIT_SET(oplist, (dest), (src)) ;   \
-                                   M_CALL_CLEAR(oplist, (src) ));             \
-  } while (0)
 
 /* Perform a MOVE if present, or emulate it using CLEAR/INIT_MOVE
    if possible, or with SET/CLEAR otherwise                            */
@@ -4756,8 +4743,8 @@ m_core_parse2_enum (const char str[], const char **endptr)
    so it reverses the final order.
 */
 #define M_INIT_VAI(oplist, dest, ...)                                         \
-  (void)(M_CALL_INIT(oplist, dest) ,                                           \
-         M_MAP2_C(M_INIT_VAI_FUNC, (dest, oplist) , __VA_ARGS__)   \
+  (void)(M_CALL_INIT(oplist, dest) ,                                          \
+         M_MAP2_C(M_INIT_VAI_FUNC, (dest, oplist) , __VA_ARGS__)              \
          M_IF_METHOD(REVERSE, oplist)(M_DEFERRED_COMMA M_CALL_REVERSE(oplist, dest), ) \
          )
 #define M_INIT_VAI_FUNC(d, a)                                                 \

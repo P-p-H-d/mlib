@@ -541,7 +541,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
      if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {         \
        M_CALL_SET(oplist, *data, v->data[v->idx_cons].x);                     \
      } else {                                                                 \
-       M_DO_INIT_MOVE (oplist, *data, v->data[v->idx_cons].x);                \
+       M_CALL_INIT_MOVE (oplist, *data, v->data[v->idx_cons].x);              \
      }                                                                        \
      v->idx_cons = (v->idx_cons == M_BUFF3R_SIZE(m_size)-1) ? 0 : (v->idx_cons + 1); \
    } else {                                                                   \
@@ -550,7 +550,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
      if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {         \
        M_CALL_SET(oplist, *data, v->data[v->idx_prod].x);                     \
      } else {                                                                 \
-       M_DO_INIT_MOVE (oplist, *data, v->data[v->idx_prod].x);                \
+       M_CALL_INIT_MOVE (oplist, *data, v->data[v->idx_prod].x);              \
      }                                                                        \
    }                                                                          \
                                                                               \
@@ -767,7 +767,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
     if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
       M_CALL_SET(oplist, *ptr, table->Tab[i].x);                              \
     } else {                                                                  \
-      M_DO_INIT_MOVE (oplist, *ptr, table->Tab[i].x);                         \
+      M_CALL_INIT_MOVE (oplist, *ptr, table->Tab[i].x);                       \
     }                                                                         \
     atomic_store_explicit(&table->Tab[i].seq, 2*iC + 1, memory_order_release); \
     M_QU3UE_MPMC_CONTRACT(table);                                             \
@@ -971,7 +971,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
     if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
       M_DO_MOVE(oplist, table->Tab[i].x, *x);                                 \
     } else {                                                                  \
-      M_DO_INIT_MOVE(oplist, table->Tab[i].x, *x);                            \
+      M_CALL_INIT_MOVE(oplist, table->Tab[i].x, *x);                          \
     }                                                                         \
     atomic_store_explicit(&table->prodIdx, w+1, memory_order_release);        \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
@@ -993,7 +993,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
     if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
       M_CALL_SET(oplist, *ptr , table->Tab[i].x);                             \
     } else {                                                                  \
-      M_DO_INIT_MOVE (oplist, *ptr, table->Tab[i].x);                         \
+      M_CALL_INIT_MOVE (oplist, *ptr, table->Tab[i].x);                       \
     }                                                                         \
     atomic_store_explicit(&table->consoIdx, r+1, memory_order_release);       \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
@@ -1044,7 +1044,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
       if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {        \
         M_CALL_SET(oplist, ptr[k], table->Tab[i].x);                          \
       } else {                                                                \
-        M_DO_INIT_MOVE (oplist, ptr[k], table->Tab[i].x);                     \
+        M_CALL_INIT_MOVE (oplist, ptr[k], table->Tab[i].x);                   \
       }                                                                       \
     }                                                                         \
     atomic_store_explicit(&table->consoIdx, r+max, memory_order_release);     \

@@ -1421,8 +1421,8 @@ enum m_d1ct_oa_element_e {
                                                                               \
   /* NOTE: We don't want a real oplist for this sub type */                   \
   M_ARRAY_DEF(M_F(name, _array_pair), M_F(name, _pair_ct),                    \
-            (INIT(M_NOTHING_DEFAULT), SET(M_MEMCPY_DEFAULT),                  \
-             INIT_SET(M_MEMCPY_DEFAULT), CLEAR(M_NOTHING_DEFAULT)))           \
+            (INIT(M_NOTHING_DEFAULT), SET(M_SET_DEFAULT),                     \
+             INIT_SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT)))              \
                                                                               \
   typedef struct M_F(name,_s) {                                               \
     size_t mask, count, count_delete;                                         \
@@ -1576,12 +1576,12 @@ enum m_d1ct_oa_element_e {
         if (p != i) {                                                         \
           if (M_LIKELY (M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_EMPTY) \
                       || M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_DELETED))) { \
-            M_DO_INIT_MOVE(key_oplist, data[p].key, data[i].key);             \
-            M_DO_INIT_MOVE(value_oplist, data[p].value, data[i].value);       \
+            M_CALL_INIT_MOVE(key_oplist, data[p].key, data[i].key);           \
+            M_CALL_INIT_MOVE(value_oplist, data[p].value, data[i].value);     \
           } else {                                                            \
             M_F(name, _pair_ct) *ptr = M_F(name, _array_pair_push_raw)M_R(tmp); \
-            M_DO_INIT_MOVE(key_oplist, ptr->key, data[i].key);                \
-            M_DO_INIT_MOVE(value_oplist, ptr->value, data[i].value);          \
+            M_CALL_INIT_MOVE(key_oplist, ptr->key, data[i].key);              \
+            M_CALL_INIT_MOVE(value_oplist, ptr->value, data[i].value);        \
           }                                                                   \
           M_CALL_OOR_SET(key_oplist, data[i].key, M_D1CT_OA_EMPTY);           \
         }                                                                     \
@@ -1750,12 +1750,12 @@ enum m_d1ct_oa_element_e {
       if (p != i) {                                                           \
         if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_EMPTY)        \
             || M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_DELETED)) { \
-          M_DO_INIT_MOVE(key_oplist, data[p].key, data[i].key);               \
-          M_DO_INIT_MOVE(value_oplist, data[p].value, data[i].value);         \
+          M_CALL_INIT_MOVE(key_oplist, data[p].key, data[i].key);             \
+          M_CALL_INIT_MOVE(value_oplist, data[p].value, data[i].value);       \
         } else {                                                              \
           M_F(name, _pair_ct) *ptr = M_F(name, _array_pair_push_raw)M_R(tmp); \
-          M_DO_INIT_MOVE(key_oplist, ptr->key, data[i].key);                  \
-          M_DO_INIT_MOVE(value_oplist, ptr->value, data[i].value);            \
+          M_CALL_INIT_MOVE(key_oplist, ptr->key, data[i].key);                \
+          M_CALL_INIT_MOVE(value_oplist, ptr->value, data[i].value);          \
         }                                                                     \
         M_CALL_OOR_SET(key_oplist, data[i].key, M_D1CT_OA_EMPTY);             \
       }                                                                       \
@@ -1773,8 +1773,8 @@ enum m_d1ct_oa_element_e {
             M_ASSERT (s <= h->mask);                                          \
           } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_EMPTY) ); \
         }                                                                     \
-        M_DO_INIT_MOVE(key_oplist, data[p].key, data[i].key);                 \
-        M_DO_INIT_MOVE(value_oplist, data[p].value, data[i].value);           \
+        M_CALL_INIT_MOVE(key_oplist, data[p].key, data[i].key);               \
+        M_CALL_INIT_MOVE(value_oplist, data[p].value, data[i].value);         \
       }                                                                       \
     }                                                                         \
     /* Pass 3: scan moved entries and move them back */                       \
