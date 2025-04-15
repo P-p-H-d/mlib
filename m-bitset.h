@@ -870,7 +870,7 @@ m_bitset_popcount(const m_bitset_t set)
    ,EQUAL(m_bitset_equal_p)                                                   \
    )
 #else
-#define M_BITSET_OPLIST                                                  \
+#define M_BITSET_OPLIST                                                       \
   (INIT(m_bitset_init)                                                        \
    ,INIT_SET(API_0P(m_bitset_init_set))                                       \
    ,INIT_WITH(API_1(M_INIT_VAI))                                              \

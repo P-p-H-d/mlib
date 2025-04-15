@@ -545,7 +545,7 @@ M_P(m_serial_return_code_t, m_bstring, _in_serial, m_bstring_t v, m_serial_read_
    OUT_SERIAL(m_bstring_out_serial), IN_SERIAL(m_bstring_in_serial),          \
    )
 #else
-#define M_BSTRING_OPLIST                                                        \
+#define M_BSTRING_OPLIST                                                      \
   (INIT(m_bstring_init),INIT_SET(API_0P(m_bstring_init_set)), SET(API_0P(m_bstring_set)), \
    INIT_MOVE(m_bstring_init_move), MOVE(API_0P(m_bstring_move)),              \
    SWAP(m_bstring_swap), RESET(m_bstring_reset), EMPTY_P(m_bstring_empty_p),  \
