@@ -2357,6 +2357,7 @@ namespace m_lib {
    INIT_SET(M_F(name,_init_set)),                                             \
    SET(M_F(name,_set)),                                                       \
    CLEAR(M_F(name,_clear)),                                                   \
+   INIT_MOVE(M_COPY_A1_DEFAULT),                                              \
    NAME(name),                                                                \
    INIT_WITH( API_1(M_BOUNDED_STR1NG_INIT_WITH)),                             \
    HASH(M_F(name,_hash)),                                                     \

@@ -309,7 +309,7 @@
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
     type *p = M_F(name, _push_back_raw)M_R(d);                                \
-    M_DO_INIT_MOVE (oplist, *p, *x);                                          \
+    M_CALL_INIT_MOVE (oplist, *p, *x);                                        \
   }                                                                           \
                                                                               \
   M_P(type *, name, _push_front_raw, deque_t d)                               \
@@ -358,7 +358,7 @@
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
     type *p = M_F(name, _push_front_raw)M_R(d);                               \
-    M_DO_INIT_MOVE (oplist, *p, *x);                                          \
+    M_CALL_INIT_MOVE (oplist, *p, *x);                                        \
   }                                                                           \
                                                                               \
   M_P(void, name, _pop_back, type *ptr, deque_t d)                            \

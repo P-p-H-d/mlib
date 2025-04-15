@@ -1,7 +1,7 @@
 *Long term issues*
 ==========================================================
 
-* TODO #34 : Pass old size arguments to memory allocator        :ENHANCEMENT:
+* DONE #34 : Pass old size arguments to memory allocator        :ENHANCEMENT:
 
 ** State
 
@@ -53,7 +53,7 @@ function due to the copy of the object one per one. Each copied sub object
 may throw an exception, so we always need to have the container in a correct
 state so that it can be cleanup.
 
-* TODO #32 : User specialization fields in the container        :ENHANCEMENT:
+* DONE #32 : User specialization fields in the container        :ENHANCEMENT:
 ** State
 
 Some methods of a contained object may need to have some options that 
@@ -452,7 +452,7 @@ as DPRIORITY_QUEUE_DEF ?
 NOTE: Needs for such container?
 On hold until a user needs it.
 
-* TODO #23 : Strict MOVE semantic to clarify                    :ENHANCEMENT:
+* DONE #23 : Strict MOVE semantic to clarify                    :ENHANCEMENT:
 
 ** State
 

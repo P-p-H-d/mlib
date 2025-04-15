@@ -236,6 +236,7 @@ static inline size_t test_obj_except__hash(const test_obj_except__t z)
    INIT_SET(test_obj_except__init_set),                                          \
    SET(test_obj_except__set),                                                    \
    CLEAR(test_obj_except__clear),                                                \
+   INIT_MOVE(M_COPY_A1_DEFAULT),                                      \
    TYPE(test_obj_except__t),                                                     \
    ADD(test_obj_except__add),                                                    \
    OUT_STR(test_obj_except__out_str),                                            \

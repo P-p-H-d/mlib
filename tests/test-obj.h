@@ -227,11 +227,12 @@ static inline void testobj_str(string_t str, const testobj_t z, bool append)
 // This enables testing good macro expansion in OPLIST usage
 #define testobj_clear_indirect(op, x) testobj_clear(x)
 
-#define TESTOBJ_OPLIST							\
+#define TESTOBJ_OPLIST							                                    \
   (INIT(testobj_init),                                                  \
    INIT_SET(testobj_init_set),                                          \
    SET(testobj_set),                                                    \
    CLEAR(API_1(testobj_clear_indirect)),                                \
+   INIT_MOVE(M_COPY_A1_DEFAULT),                                      \
    TYPE(testobj_t),                                                     \
    OUT_STR(testobj_out_str),                                            \
    IN_STR(testobj_in_str),                                              \
@@ -242,11 +243,12 @@ static inline void testobj_str(string_t str, const testobj_t z, bool append)
    EMPLACE_TYPE( LIST( (_ui, testobj_init_set_ui, unsigned int), (_str, testobj_init_set_str, const char *), ( /*empty*/, testobj_init_set, testobj_t) ) ) \
    )
 
-#define TESTOBJ_CMP_OPLIST						\
+#define TESTOBJ_CMP_OPLIST						                                  \
   (INIT(testobj_init),                                                  \
    INIT_SET(testobj_init_set),                                          \
    SET(testobj_set),                                                    \
    CLEAR(testobj_clear),                                                \
+   INIT_MOVE(M_COPY_A1_DEFAULT),                                      \
    TYPE(testobj_t),                                                     \
    OUT_STR(testobj_out_str),                                            \
    IN_STR(testobj_in_str),                                              \

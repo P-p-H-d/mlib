@@ -99,3 +99,5 @@ V0.8.0 : * The prototypes of REALLOC / FREE operators are incompatible:
          * m-buffer push / pop no longer return a bool (it was undocumented)
          * Remove MEMPOOL support from list & R/B tree
          * m-mempool: Header is obsolete (and no longer useful at all as lists & RB Tree no longer can use it. To remove?). Use new M_USE_POOL interface to pass local pool context.
+         * M*LIB becomes stricter for INIT_MOVE: Emulation layer using CLEAR+INIT_SET when missing INIT_MOVE operator has been removed: either default INIT_MOVE operator (operator '=') is working, or a methode is provided for INIT_MOVE or it is disabled.
+          (It's because supporting emulation layer with new memory context parameter was complicated)

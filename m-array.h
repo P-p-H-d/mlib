@@ -173,7 +173,6 @@
 #define M_ARRA4_DEF_P3(name, type, oplist, array_t, it_t)                     \
   M_ARRA4_DEF_TYPE(name, type, oplist, array_t, it_t)                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
-  /* TODO: Check if type has not disabled INIT_MOVE */                        \
   M_ARRA4_DEF_CORE(name, type, oplist, array_t, it_t)                         \
   M_ARRA4_DEF_IO(name, type, oplist, array_t, it_t)                           \
   M_EMPLACE_QUEUE_DEF(name, array_t, _emplace_back, oplist, M_ARRA4_EMPLACE_DEF)
@@ -365,16 +364,14 @@
   }                                                                           \
   , /* No INIT */ )                                                           \
                                                                               \
-  M_IF_AT_LEAST_METHOD(INIT_SET, INIT_MOVE, oplist)(                          \
   M_P(void, name, _push_move, array_t v, type *x)                             \
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
     type *data = M_F(name, _push_raw) M_R(v);                                 \
     if (M_UNLIKELY (data == NULL) )                                           \
       return;                                                                 \
-    M_DO_INIT_MOVE (oplist, *data, *x);                                       \
+    M_CALL_INIT_MOVE (oplist, *data, *x);                                     \
   }                                                                           \
-  , /* INIT_SET | INIT_MOVE */ )                                              \
                                                                               \
   M_IF_METHOD(INIT_SET, oplist)(                                              \
   M_P(void, name, _push_at, array_t v, size_t key, type const x)              \
@@ -490,7 +487,6 @@
   }                                                                           \
   , /* No INIT */)                                                            \
                                                                               \
-  M_IF_AT_LEAST_METHOD(SET, INIT_MOVE, oplist)(                               \
   M_P(void, name, _pop_back, type *dest, array_t v)                           \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
@@ -505,11 +501,7 @@
     }                                                                         \
     M_ARRA4_CONTRACT(v);                                                      \
   }                                                                           \
-  , /* SET | INIT_MOVE */ )                                                   \
                                                                               \
-  M_IF_AT_LEAST_METHOD(INIT_SET, INIT_MOVE, oplist)(                          \
-    /* FIXME: type has to be trivially movable (imposed by array) ! */        \
-    /* FIXME: Really allocation or allocation free? */                        \
   M_INLINE void                                                               \
   M_F(name, _pop_move)(type *dest, array_t v)                                 \
   {                                                                           \
@@ -518,11 +510,9 @@
     M_ASSERT_INDEX(0, v->size);                                               \
     M_ASSERT (dest != NULL);                                                  \
     v->size--;                                                                \
-    /* FIXME: M_DO_INIT_MOVE may use INIT_SET so allocator !*/                \
-    M_DO_INIT_MOVE (oplist, *dest, v->ptr[v->size]);                          \
+    M_CALL_INIT_MOVE (oplist, *dest, v->ptr[v->size]);                        \
     M_ARRA4_CONTRACT(v);                                                      \
   }                                                                           \
-  , /* INIT_SET | INIT_MOVE */ )                                              \
                                                                               \
   /* TODO: Factorize all INIT dependent methods within the same IF*/          \
   M_IF_METHOD(INIT, oplist)(                                                  \
@@ -556,14 +546,12 @@
     return v->alloc;                                                          \
   }                                                                           \
                                                                               \
-  M_IF_AT_LEAST_METHOD(SET, INIT_MOVE, oplist)(                               \
   M_P(void, name, _pop_at, type *dest, array_t v, size_t i)                   \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
     M_ASSERT_POOL();                                                          \
     M_ASSERT (v->size > 0 && v->ptr != NULL);                                 \
     M_ASSERT_INDEX(i, v->size);                                               \
-    /* FIXME: type is trivially movable */                                    \
     if (dest)                                                                 \
       M_DO_MOVE (oplist, *dest, v->ptr[i]);                                   \
     else                                                                      \
@@ -580,7 +568,6 @@
     M_F(name, _pop_at) M_R(NULL, a, i);                                       \
     return true;                                                              \
   }                                                                           \
-  , /* SET | INIT_MOVE */ )                                                   \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
   M_P(void, name, _insert_v, array_t v, size_t i, size_t num)                 \
@@ -644,7 +631,6 @@
     M_ARRA4_CONTRACT(v2);                                                     \
   }                                                                           \
                                                                               \
-  M_IF_AT_LEAST_METHOD(INIT_SET,INIT_MOVE,oplist) (                           \
   M_INLINE void                                                               \
   M_F(name, _swap_at)(array_t v, size_t i, size_t j)                          \
   {                                                                           \
@@ -653,12 +639,11 @@
     M_ASSERT_INDEX(i, v->size);                                               \
     M_ASSERT_INDEX(j, v->size);                                               \
     type tmp;                                                                 \
-    M_DO_INIT_MOVE(oplist, tmp, v->ptr[i]);                                   \
-    M_DO_INIT_MOVE(oplist, v->ptr[i], v->ptr[j]);                             \
-    M_DO_INIT_MOVE(oplist, v->ptr[j], tmp);                                   \
+    M_CALL_INIT_MOVE(oplist, tmp, v->ptr[i]);                                 \
+    M_CALL_INIT_MOVE(oplist, v->ptr[i], v->ptr[j]);                           \
+    M_CALL_INIT_MOVE(oplist, v->ptr[j], tmp);                                 \
     M_ARRA4_CONTRACT(v);                                                      \
   }                                                                           \
-  , /* INIT_SET | INIT_MOVE */ )                                              \
                                                                               \
   M_INLINE type *                                                             \
   M_F(name, _get)(const array_t v, size_t i)                                  \
@@ -849,7 +834,7 @@
         k += n1+n2;                                                           \
         for (;;) {                                                            \
           if (M_CALL_CMP(oplist, *el1, *el2) <= 0) {                          \
-            M_DO_INIT_MOVE(oplist, *dest, *el1);                              \
+            M_CALL_INIT_MOVE(oplist, *dest, *el1);                            \
             dest++;                                                           \
             el1++;                                                            \
             if (M_UNLIKELY(-- n1 == 0)) {                                     \
@@ -860,7 +845,7 @@
               break;                                                          \
             }                                                                 \
           } else {                                                            \
-            M_DO_INIT_MOVE(oplist, *dest, *el2);                              \
+            M_CALL_INIT_MOVE(oplist, *dest, *el2);                            \
             dest++;                                                           \
             el2++;                                                            \
             if (M_UNLIKELY(-- n2 == 0)) {                                     \

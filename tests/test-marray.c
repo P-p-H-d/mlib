@@ -33,9 +33,9 @@ END_COVERAGE
 #define ARRAY_UINT_OPLIST ARRAY_OPLIST(array_uint)
 
 // Array with the minimum number of methods.
-ARRAY_DEF(array_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear)))
-ARRAY_DEF(array_min2_z, testobj_t, (INIT(testobj_init), CLEAR(testobj_clear)))
-ARRAY_DEF(array_min3_z, testobj_t, (CLEAR(testobj_clear)))
+ARRAY_DEF(array_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear), INIT_MOVE(M_COPY_A1_DEFAULT) ))
+ARRAY_DEF(array_min2_z, testobj_t, (INIT(testobj_init), CLEAR(testobj_clear), INIT_MOVE(M_COPY_A1_DEFAULT) ) )
+ARRAY_DEF(array_min3_z, testobj_t, (CLEAR(testobj_clear), INIT_MOVE(M_COPY_A1_DEFAULT)))
 
 ARRAY_DEF(array_ulong, uint64_t)
 ARRAY_DEF(array_string, string_t)
