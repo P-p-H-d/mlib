@@ -891,10 +891,9 @@
             dest++;                                                           \
             el1++;                                                            \
             if (M_UNLIKELY(-- n1 == 0)) {                                     \
-              if (n2 > 0) {                                                   \
-                memcpy (dest, el2, n2 * sizeof (type));                       \
-                dest += n2;                                                   \
-              }                                                               \
+              M_ASSERT (n2 > 0);                                              \
+              memcpy (dest, el2, n2 * sizeof (type));                         \
+              dest += n2;                                                     \
               break;                                                          \
             }                                                                 \
           } else {                                                            \
@@ -902,10 +901,9 @@
             dest++;                                                           \
             el2++;                                                            \
             if (M_UNLIKELY(-- n2 == 0)) {                                     \
-              if (n1 > 0) {                                                   \
-                memcpy (dest, el1, n1 * sizeof (type));                       \
-                dest += n1;                                                   \
-              }                                                               \
+              M_ASSERT (n1 > 0);                                              \
+              memcpy (dest, el1, n1 * sizeof (type));                         \
+              dest += n1;                                                     \
               break;                                                          \
             }                                                                 \
           }                                                                   \
