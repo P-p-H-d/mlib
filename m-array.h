@@ -80,7 +80,7 @@
 /* OPLIST definition of a dynamic array */
 /* FIXME: Do we want to export some methods as they are slow and 
    are not fit to be used for building other methods (like _it_remove)? */
-//TODO: ARRAY_POOL_OPLIST
+#ifndef M_USE_POOL
 #define M_ARRA4_OPLIST_P3(name, oplist)                                       \
   (INIT(M_F(name, _init))                                                     \
    ,M_IF_METHOD2(INIT_SET,SET, oplist)(INIT_SET(M_F(name, _init_set)),)       \
@@ -133,7 +133,60 @@
    ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, _equal_p)),)                   \
    ,M_IF_METHOD(HASH, oplist)(HASH(M_F(name, _hash)),)                        \
    )
-
+#else
+#define M_ARRA4_OPLIST_P3(name, oplist)                                       \
+  (INIT(M_F(name, _init))                                                     \
+   ,M_IF_METHOD2(INIT_SET,SET, oplist)(INIT_SET(API_0P(M_F(name, _init_set))),) \
+   ,M_IF_METHOD(INIT_SET, oplist)(INIT_WITH(API_1(M_INIT_WITH_VAI)),)         \
+   ,M_IF_METHOD2(INIT_SET,SET, oplist)(SET(API_0P(M_F(name, _set))), )        \
+   ,CLEAR(API_0P(M_F(name, _clear)))                                          \
+   ,INIT_MOVE(M_F(name, _init_move))                                          \
+   ,MOVE(API_0P(M_F(name, _move)))                                            \
+   ,SWAP(M_F(name, _swap))                                                    \
+   ,TYPE(M_F(name,_ct)) , GENTYPE(struct M_F(name,_s)*)                       \
+   ,NAME(name)                                                                \
+   ,SUBTYPE(M_F(name, _subtype_ct))                                           \
+   ,EMPTY_P(M_F(name,_empty_p))                                               \
+   ,IT_TYPE(M_F(name,_it_ct)),                                                \
+   ,IT_FIRST(M_F(name,_it))                                                   \
+   ,IT_LAST(M_F(name,_it_last))                                               \
+   ,IT_END(M_F(name,_it_end))                                                 \
+   ,IT_SET(M_F(name,_it_set))                                                 \
+   ,IT_END_P(M_F(name,_end_p))                                                \
+   ,IT_LAST_P(M_F(name,_last_p))                                              \
+   ,IT_EQUAL_P(M_F(name,_it_equal_p))                                         \
+   ,IT_NEXT(M_F(name,_next))                                                  \
+   ,IT_PREVIOUS(M_F(name,_previous))                                          \
+   ,IT_REF(M_F(name,_ref))                                                    \
+   ,IT_CREF(M_F(name,_cref))                                                  \
+   ,M_IF_METHOD(INIT_SET, oplist)(IT_INSERT(API_0P(M_F(name,_insert))) ,)     \
+   ,IT_REMOVE(API_0P(M_F(name,_remove)))                                      \
+   ,RESET(API_0P(M_F(name,_reset)))                                           \
+   ,KEY_TYPE(size_t)                                                          \
+   ,VALUE_TYPE(M_F(name, _subtype_ct))                                        \
+   ,KEY_OPLIST(M_BASIC_OPLIST)                                                \
+   ,VALUE_OPLIST(oplist)                                                      \
+   ,M_IF_METHOD(SET, oplist)(SET_KEY(API_0P(M_F(name, _set_at))) ,)           \
+   ,GET_KEY(M_F(name, _get))                                                  \
+   ,M_IF_METHOD(INIT, oplist)(SAFE_GET_KEY(API_0P(M_F(name, _safe_get))) ,)   \
+   ,ERASE_KEY(API_0P(M_F(name, _erase)))                                      \
+   ,GET_SIZE(M_F(name, _size))                                                \
+   ,M_IF_METHOD(INIT_SET, oplist)(PUSH(API_0P(M_F(name,_push_back))) ,)       \
+   ,POP(API_0P(M_F(name,_pop_back)))                                          \
+   ,PUSH_MOVE(API_0P(M_F(name,_push_move)))                                   \
+   ,POP_MOVE(M_F(name,_pop_move))                                             \
+   ,OPLIST(oplist)                                                            \
+   ,M_IF_METHOD(CMP, oplist)(SORT(M_F(name, _special_sort)),)                 \
+   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(API_0P(M_F(name, _get_str))),)       \
+   ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(API_0P(M_F(name, _parse_str))),) \
+   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, _out_str)),)               \
+   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(API_0P(M_F(name, _in_str))),)          \
+   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(API_0P(M_F(name, _out_serial))),) \
+   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(API_0P(M_F(name, _in_serial))),) \
+   ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, _equal_p)),)                   \
+   ,M_IF_METHOD(HASH, oplist)(HASH(M_F(name, _hash)),)                        \
+   )
+#endif
 
 /********************************** INTERNAL *********************************/
 
