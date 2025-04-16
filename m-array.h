@@ -107,7 +107,7 @@
    ,IT_REF(M_F(name,_ref))                                                    \
    ,IT_CREF(M_F(name,_cref))                                                  \
    ,M_IF_METHOD(INIT_SET, oplist)(IT_INSERT(M_F(name,_insert)) ,)             \
-   ,M_IF_AT_LEAST_METHOD(SET,INIT_MOVE,oplist)(IT_REMOVE(M_F(name,_remove)),) \
+   ,IT_REMOVE(M_F(name,_remove))                                              \
    ,RESET(M_F(name,_reset))                                                   \
    ,KEY_TYPE(size_t)                                                          \
    ,VALUE_TYPE(M_F(name, _subtype_ct))                                        \
@@ -116,12 +116,12 @@
    ,M_IF_METHOD(SET, oplist)(SET_KEY(M_F(name, _set_at)) ,)                   \
    ,GET_KEY(M_F(name, _get))                                                  \
    ,M_IF_METHOD(INIT, oplist)(SAFE_GET_KEY(M_F(name, _safe_get)) ,)           \
-   ,M_IF_AT_LEAST_METHOD(SET,INIT_MOVE,oplist)(ERASE_KEY(M_F(name, _erase)),) \
+   ,ERASE_KEY(M_F(name, _erase))                                              \
    ,GET_SIZE(M_F(name, _size))                                                \
    ,M_IF_METHOD(INIT_SET, oplist)(PUSH(M_F(name,_push_back)) ,)               \
-   ,M_IF_AT_LEAST_METHOD(SET,INIT_MOVE,oplist)(POP(M_F(name,_pop_back)) ,)    \
-   ,M_IF_AT_LEAST_METHOD(INIT_SET,INIT_MOVE,oplist)(PUSH_MOVE(M_F(name,_push_move)) ,) \
-   ,M_IF_AT_LEAST_METHOD(INIT_SET,INIT_MOVE,oplist)(POP_MOVE(M_F(name,_pop_move)) ,) \
+   ,POP(M_F(name,_pop_back))                                                  \
+   ,PUSH_MOVE(M_F(name,_push_move))                                           \
+   ,POP_MOVE(M_F(name,_pop_move))                                             \
    ,OPLIST(oplist)                                                            \
    ,M_IF_METHOD(CMP, oplist)(SORT(M_F(name, _special_sort)),)                 \
    ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, _get_str)),)               \
