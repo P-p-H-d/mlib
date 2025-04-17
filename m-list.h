@@ -101,6 +101,7 @@
   ((M_LIB_ERROR(ARGUMENT_OF_LIST_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* OPLIST definition of a list and list_dual_push */
+#ifndef M_USE_POOL
 #define M_L1ST_OPLIST_P3(name, oplist)                                        \
   (INIT(M_F(name, _init)),                                                    \
    INIT_SET(M_F(name, _init_set)),                                            \
@@ -144,6 +145,51 @@
    ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, _equal_p)),)                   \
    ,M_IF_METHOD(HASH, oplist)(HASH(M_F(name, _hash)),)                        \
    )
+#else
+#define M_L1ST_OPLIST_P3(name, oplist)                                        \
+  (INIT(M_F(name, _init)),                                                    \
+   INIT_SET(API_0P(M_F(name, _init_set))),                                    \
+   INIT_WITH(API_1(M_INIT_WITH_VAI)),                                         \
+   SET(API_0P(M_F(name, _set))),                                              \
+   CLEAR(API_0P(M_F(name, _clear))),                                          \
+   MOVE(API_0P(M_F(name, _move))),                                            \
+   INIT_MOVE(M_F(name, _init_move)),                                          \
+   SWAP(M_F(name, _swap)),                                                    \
+   NAME(name),                                                                \
+   TYPE(M_F(name,_ct)), GENTYPE(struct M_F(name,_s)**),                       \
+   SUBTYPE(M_F(name,_subtype_ct)),                                            \
+   EMPTY_P(M_F(name,_empty_p)),                                               \
+   IT_TYPE(M_F(name, _it_ct)),                                                \
+   IT_FIRST(M_F(name,_it)),                                                   \
+   IT_END(M_F(name,_it_end)),                                                 \
+   IT_SET(M_F(name,_it_set)),                                                 \
+   IT_END_P(M_F(name,_end_p)),                                                \
+   IT_EQUAL_P(M_F(name,_it_equal_p)),                                         \
+   IT_LAST_P(M_F(name,_last_p)),                                              \
+   IT_NEXT(M_F(name,_next)),                                                  \
+   IT_REF(M_F(name,_ref)),                                                    \
+   IT_CREF(M_F(name,_cref)),                                                  \
+   IT_INSERT(API_0P(M_F(name, _insert))),                                     \
+   IT_REMOVE(API_0P(M_F(name,_remove))),                                      \
+   RESET(API_0P(M_F(name,_reset))),                                           \
+   PUSH(API_0P(M_F(name,_push_back))),                                        \
+   POP(API_0P(M_F(name,_pop_back))),                                          \
+   PUSH_MOVE(API_0P(M_F(name,_push_move))),                                   \
+   POP_MOVE(API_0P(M_F(name,_pop_move)))                                      \
+   ,SPLICE_BACK(M_F(name,_splice_back))                                       \
+   ,SPLICE_AT(M_F(name,_splice_at))                                           \
+   ,REVERSE(M_F(name,_reverse))                                               \
+   ,OPLIST(oplist)                                                            \
+   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(API_0P(M_F(name, _get_str))),)       \
+   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, _out_str)),)               \
+   ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(API_0P(M_F(name, _parse_str))),) \
+   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(API_0P(M_F(name, _in_str))),)          \
+   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(API_0P(M_F(name, _out_serial))),) \
+   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(API_0P(M_F(name, _in_serial))),) \
+   ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, _equal_p)),)                   \
+   ,M_IF_METHOD(HASH, oplist)(HASH(M_F(name, _hash)),)                        \
+   )
+#endif
 
 /* Deferred evaluation for the list definition,
    so that all arguments are evaluated before further expansion */
