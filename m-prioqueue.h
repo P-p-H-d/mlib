@@ -71,6 +71,7 @@
   ((M_LIB_ERROR(ARGUMENT_OF_PRIOQUEUE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* Define oplist of a priority queue */
+#ifndef M_USE_POOL
 #define M_PR1OQUEUE_OPLIST_P3(name, oplist)                                   \
   (INIT(M_F(name, _init))                                                     \
    ,INIT_SET(M_F(name, _init_set))                                            \
@@ -105,7 +106,42 @@
    ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, _out_serial)),)      \
    ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, _in_serial)),)         \
    )
-
+#else
+#define M_PR1OQUEUE_OPLIST_P3(name, oplist)                                   \
+  (INIT(M_F(name, _init))                                                     \
+   ,INIT_SET(API_0P(M_F(name, _init_set)))                                    \
+   ,INIT_WITH(API_1(M_INIT_VAI))                                              \
+   ,SET(API_0P(M_F(name, _set)))                                              \
+   ,CLEAR(API_0P(M_F(name, _clear)))                                          \
+   ,INIT_MOVE(M_F(name, _init_move))                                          \
+   ,MOVE(API_0P(M_F(name, _move)))                                            \
+   ,SWAP(M_F(name, _swap))                                                    \
+   ,NAME(name)                                                                \
+   ,TYPE(M_F(name,_ct)), GENTYPE(struct M_F(name,_s)*)                        \
+   ,SUBTYPE(M_F(name, _subtype_ct))                                           \
+   ,RESET(API_0P(M_F(name,_reset)))                                           \
+   ,PUSH(API_0P(M_F(name,_push)))                                             \
+   ,POP(API_0P(M_F(name,_pop)))                                               \
+   ,OPLIST(oplist)                                                            \
+   ,EMPTY_P(M_F(name, _empty_p))                                              \
+   ,GET_SIZE(M_F(name, _size))                                                \
+   ,IT_TYPE(M_F(name, _it_ct))                                                \
+   ,IT_FIRST(M_F(name,_it))                                                   \
+   ,IT_END(M_F(name,_it_end))                                                 \
+   ,IT_SET(M_F(name,_it_set))                                                 \
+   ,IT_END_P(M_F(name,_end_p))                                                \
+   ,IT_EQUAL_P(M_F(name,_it_equal_p))                                         \
+   ,IT_LAST_P(M_F(name,_last_p))                                              \
+   ,IT_NEXT(M_F(name,_next))                                                  \
+   ,IT_CREF(M_F(name,_cref))                                                  \
+   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(API_0P(M_F(name, _get_str))),)       \
+   ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(API_0P(M_F(name, _parse_str))),) \
+   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, _out_str)),)               \
+   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(API_0P(M_F(name, _in_str))),)          \
+   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(API_0P(M_F(name, _out_serial))),) \
+   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(API_0P(M_F(name, _in_serial))),) \
+   )
+#endif
 
 /********************************** INTERNAL *********************************/
 

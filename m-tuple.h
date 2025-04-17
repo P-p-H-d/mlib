@@ -746,6 +746,7 @@ namespace m_lib {
   ((M_LIB_ERROR(ONE_ARGUMENT_OF_M_TUPL3_OPLIST_IS_NOT_AN_OPLIST, name, __VA_ARGS__)))
 
 /* Define the TUPLE oplist */
+#ifndef M_USE_POOL
 #define M_TUPL3_OPLIST_P3(name, ...)                                          \
   (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_F(name,_init)),),                \
    INIT_SET(M_F(name, _init_set)),                                            \
@@ -770,6 +771,31 @@ namespace m_lib {
    M_IF_METHOD_ALL(RESET, __VA_ARGS__)(RESET(M_F(name, _reset)),),            \
    EMPLACE_TYPE( ( M_REDUCE2(M_TUPL3_OPLIST_SUBTYPE, M_ID, name, M_SEQ(1, M_NARGS(__VA_ARGS__))) ) ) \
    )
+#else
+#define M_TUPL3_OPLIST_P3(name, ...)                                          \
+  (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(API_0P(INIT(M_F(name,_init))),),        \
+   INIT_SET(API_0P(M_F(name, _init_set))),                                    \
+   INIT_WITH(API_1(M_TUPL3_INIT_WITH)),                                       \
+   SET(API_0P(M_F(name,_set))),                                               \
+   CLEAR(API_0P(M_F(name, _clear))),                                          \
+   NAME(name), TYPE(M_F(name,_ct)), GENTYPE(struct M_F(name,_s)*),            \
+   OPLIST( (__VA_ARGS__) ),                                                   \
+   M_IF_METHOD_ALL(CMP, __VA_ARGS__)(CMP(M_F(name, _cmp)),),                  \
+   M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_F(name, _hash)),),               \
+   M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)(EQUAL(M_F(name, _equal_p)),),          \
+   M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(API_0P(M_F(name, _get_str))),), \
+   M_IF_METHOD_ALL(PARSE_STR, __VA_ARGS__)(PARSE_STR(API_0P(M_F(name, _parse_str))),), \
+   M_IF_METHOD_ALL(IN_STR, __VA_ARGS__)(IN_STR(API_0P(M_F(name, _in_str))),), \
+   M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_F(name, _out_str)),),      \
+   M_IF_METHOD_ALL(IN_SERIAL, __VA_ARGS__)(IN_SERIAL(API_0P(M_F(name, _in_serial))),), \
+   M_IF_METHOD_ALL(OUT_SERIAL, __VA_ARGS__)(OUT_SERIAL(API_0P(M_F(name, _out_serial))),), \
+   M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(INIT_MOVE(M_F(name, _init_move)),), \
+   M_IF_METHOD_ALL(MOVE, __VA_ARGS__)(MOVE(API_0P(M_F(name, _move))),),       \
+   M_IF_METHOD_ALL(SWAP, __VA_ARGS__)(SWAP(M_F(name, _swap)),),               \
+   M_IF_METHOD_ALL(RESET, __VA_ARGS__)(RESET(API_0P(M_F(name, _reset))),),    \
+   EMPLACE_TYPE( ( M_REDUCE2(M_TUPL3_OPLIST_SUBTYPE, M_ID, name, M_SEQ(1, M_NARGS(__VA_ARGS__))) ) ) \
+   )
+#endif
 
 /* Support for EMPLACE_TYPE in OPLIST. It refers the created internal type alias */
 #define M_TUPL3_OPLIST_SUBTYPE(name, num)                                     \

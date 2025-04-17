@@ -775,6 +775,7 @@ M_INLINE void                                                                 \
   ((M_LIB_ERROR(ONE_ARGUMENT_OF_VARIANT_OPLIST_IS_NOT_AN_OPLIST, name, __VA_ARGS__)))
 
 /* Define the oplist */
+#ifndef M_USE_POOL
 #define M_VAR1ANT_OPLIST_P3(name, ...)                                        \
   (INIT(M_F(name,_init)),                                                     \
    INIT_SET(M_F(name, _init_set)),                                            \
@@ -799,6 +800,31 @@ M_INLINE void                                                                 \
    M_IF_METHOD_ALL(SWAP, __VA_ARGS__)(SWAP(M_F(name, _swap)),),               \
    M_IF_METHOD_ALL(FIELD, __VA_ARGS__)(M_VAR1ANT_OPLIST_EMPLACE_TYPE,M_EAT)(name, __VA_ARGS__), \
    )
+#else
+#define M_VAR1ANT_OPLIST_P3(name, ...)                                        \
+  (INIT(M_F(name,_init)),                                                     \
+   INIT_SET(API_0P(M_F(name, _init_set))),                                    \
+   SET(API_0P(M_F(name,_set))),                                               \
+   CLEAR(API_0P(M_F(name, _clear))),                                          \
+   RESET(API_0P(M_F(name, _reset))),                                          \
+   NAME(name), TYPE(M_F(name,_ct)), GENTYPE(struct M_F(name,_s)*),            \
+   EMPTY_P(M_F(name,_empty_p)),                                               \
+   SIZE( M_NARGS(__VA_ARGS__) ),                                              \
+   INIT_WITH( API_1(M_VAR1ANT_INIT_WITH) ),                                   \
+   M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_F(name, _hash)),),               \
+   M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)(EQUAL(M_F(name, _equal_p)),),          \
+   M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(API_0P(M_F(name, _get_str))),), \
+   M_IF_METHOD2_ALL(PARSE_STR, INIT, __VA_ARGS__)(PARSE_STR(API_0P(M_F(name, _parse_str))),), \
+   M_IF_METHOD2_ALL(IN_STR, INIT, __VA_ARGS__)(IN_STR(API_0P(M_F(name, _in_str))),), \
+   M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_F(name, _out_str)),),      \
+   M_IF_METHOD2_ALL(IN_SERIAL, INIT, __VA_ARGS__)(IN_SERIAL(API_0P(M_F(name, _in_serial))),), \
+   M_IF_METHOD_ALL(OUT_SERIAL, __VA_ARGS__)(OUT_SERIAL(API_0P(M_F(name, _out_serial))),), \
+   M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(INIT_MOVE(M_F(name, _init_move)),), \
+   M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(MOVE(API_0P(M_F(name, _move))),),  \
+   M_IF_METHOD_ALL(SWAP, __VA_ARGS__)(SWAP(M_F(name, _swap)),),               \
+   M_IF_METHOD_ALL(FIELD, __VA_ARGS__)(M_VAR1ANT_OPLIST_EMPLACE_TYPE,M_EAT)(name, __VA_ARGS__), \
+   )
+#endif
 
 /* Expand to an EMPLACE_TYPE compatible with OPLIST definition
    (Use M_REDUCE2 which is already used by M_IF_METHOD_ALL)

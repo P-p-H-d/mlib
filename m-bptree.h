@@ -156,6 +156,7 @@
   ((M_LIB_ERROR(ARGUMENT_OF_BPTREE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* OPLIST definition of a b+tree (global tree) */
+#ifndef M_USE_POOL
 #define M_BPTR33_KEY_OPLIST_P3(name, oplist)                                  \
   (INIT(M_F(name, _init)),                                                    \
    INIT_SET(M_F(name, _init_set)),                                            \
@@ -189,7 +190,40 @@
    M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, _equal_p)),),                   \
    M_IF_METHOD(HASH, oplist)(HASH(M_F(name, _hash)),)                         \
    )
-
+#else
+#define M_BPTR33_KEY_OPLIST_P3(name, oplist)                                  \
+  (INIT(API_0P(M_F(name, _init))),                                            \
+   INIT_SET(API_0P(M_F(name, _init_set))),                                    \
+   INIT_WITH(API_1(M_INIT_VAI)),                                              \
+   SET(API_0P(M_F(name, _set))),                                              \
+   CLEAR(API_0P(M_F(name, _clear))),                                          \
+   INIT_MOVE(M_F(name, _init_move)),                                          \
+   MOVE(API_0P(M_F(name, _move))),                                            \
+   SWAP(M_F(name, _swap)),                                                    \
+   NAME(name), TYPE(M_F(name,_ct)), GENTYPE(struct M_F(name,_s)*),            \
+   SUBTYPE(M_F(name, _subtype_ct)),                                           \
+   IT_TYPE(M_F(name, _it_ct)),                                                \
+   IT_FIRST(M_F(name,_it)),                                                   \
+   IT_SET(M_F(name,_it_set)),                                                 \
+   IT_END(M_F(name,_it_end)),                                                 \
+   IT_END_P(M_F(name,_end_p)),                                                \
+   IT_EQUAL_P(M_F(name,_it_equal_p)),                                         \
+   IT_NEXT(M_F(name,_next)),                                                  \
+   IT_CREF(M_F(name,_cref)),                                                  \
+   RESET(API_0P(M_F(name,_reset))),                                           \
+   PUSH(API_0P(M_F(name,_push))),                                             \
+   GET_MIN(M_F(name,_min)),                                                   \
+   GET_MAX(M_F(name,_max)),                                                   \
+   M_IF_METHOD(GET_STR, oplist)(API_0P(GET_STR(M_F(name, _get_str))),),       \
+   M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(API_0P(M_F(name, _parse_str))),), \
+   M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, _out_str)),),               \
+   M_IF_METHOD(IN_STR, oplist)(IN_STR(API_0P(M_F(name, _in_str))),),          \
+   M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(API_0P(M_F(name, _out_serial))),), \
+   M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(API_0P(M_F(name, _in_serial))),), \
+   M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, _equal_p)),),                   \
+   M_IF_METHOD(HASH, oplist)(HASH(M_F(name, _hash)),)                         \
+   )
+#endif
 
 /* Deferred evaluation */
 #define M_BPTR33_OPLIST2_P1(arg) M_BPTR33_OPLIST2_P2 arg
@@ -205,6 +239,7 @@
   ((M_LIB_ERROR(ARGUMENT_OF_BPTREE_OPLIST_IS_NOT_AN_OPLIST, name, key_oplist, value_oplist)))
 
 /* Final definition of the oplist (associative array) */
+#ifndef M_USE_POOL
 #define M_BPTR33_OPLIST2_P4(name, key_oplist, value_oplist)                   \
   (INIT(M_F(name, _init)),                                                    \
    INIT_SET(M_F(name, _init_set)),                                            \
@@ -233,7 +268,7 @@
    VALUE_TYPE(M_F(name, _value_ct)),                                          \
    SET_KEY(M_F(name, _set_at)),                                               \
    GET_KEY(M_F(name, _get)),                                                  \
-   SAFE_GET_KEY(M_F(name, _safe_get))                                         \
+   SAFE_GET_KEY(M_F(name, _safe_get)),                                        \
    ERASE_KEY(M_F(name, _erase)),                                              \
    KEY_OPLIST(key_oplist),                                                    \
    VALUE_OPLIST(value_oplist),                                                \
@@ -245,7 +280,47 @@
    M_IF_METHOD_BOTH(EQUAL, key_oplist, value_oplist)(EQUAL(M_F(name, _equal_p)),), \
    M_IF_METHOD_BOTH(HASH, key_oplist, value_oplist)(HASH(M_F(name, _hash)),)  \
    )
-
+#else
+#define M_BPTR33_OPLIST2_P4(name, key_oplist, value_oplist)                   \
+  (INIT(API_0P(M_F(name, _init))),                                            \
+   INIT_SET(API_0P(M_F(name, _init_set))),                                    \
+   INIT_WITH(API_1(M_INIT_KEY_VAI)),                                          \
+   SET(API_0P(M_F(name, _set))),                                              \
+   CLEAR(API_0P(M_F(name, _clear))),                                          \
+   INIT_MOVE(M_F(name, _init_move)),                                          \
+   MOVE(API_0P(M_F(name, _move))),                                            \
+   SWAP(M_F(name, _swap)),                                                    \
+   NAME(name), TYPE(M_F(name,_ct)), GENTYPE(struct M_F(name,_s)*),            \
+   SUBTYPE(M_F(name, _subtype_ct)),                                           \
+   EMPTY_P(M_F(name,_empty_p)),                                               \
+   IT_TYPE(M_F(name, _it_ct)),                                                \
+   IT_FIRST(M_F(name,_it)),                                                   \
+   IT_SET(M_F(name,_it_set)),                                                 \
+   IT_END(M_F(name,_it_end)),                                                 \
+   IT_END_P(M_F(name,_end_p)),                                                \
+   IT_EQUAL_P(M_F(name,_it_equal_p)),                                         \
+   IT_NEXT(M_F(name,_next)),                                                  \
+   IT_CREF(M_F(name,_cref)),                                                  \
+   RESET(API_0P(M_F(name,_reset))),                                           \
+   GET_MIN(M_F(name,_min)),                                                   \
+   GET_MAX(M_F(name,_max)),                                                   \
+   KEY_TYPE(M_F(name, _key_ct)),                                              \
+   VALUE_TYPE(M_F(name, _value_ct)),                                          \
+   SET_KEY(API_0P(M_F(name, _set_at))),                                       \
+   GET_KEY(M_F(name, _get)),                                                  \
+   SAFE_GET_KEY(API_0P(M_F(name, _safe_get))),                                \
+   ERASE_KEY(API_0P(M_F(name, _erase))),                                      \
+   KEY_OPLIST(key_oplist),                                                    \
+   VALUE_OPLIST(value_oplist),                                                \
+   M_IF_METHOD_BOTH(PARSE_STR, key_oplist, value_oplist)(PARSE_STR(API_0P(M_F(name, _parse_str))),), \
+   M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(OUT_STR(M_F(name, _out_str)),), \
+   M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(IN_STR(API_0P(M_F(name, _in_str))),), \
+   M_IF_METHOD_BOTH(OUT_SERIAL, key_oplist, value_oplist)(OUT_SERIAL(API_0P(M_F(name, _out_serial))),), \
+   M_IF_METHOD_BOTH(IN_SERIAL, key_oplist, value_oplist)(IN_SERIAL(API_0P(M_F(name, _in_serial))),), \
+   M_IF_METHOD_BOTH(EQUAL, key_oplist, value_oplist)(EQUAL(M_F(name, _equal_p)),), \
+   M_IF_METHOD_BOTH(HASH, key_oplist, value_oplist)(HASH(M_F(name, _hash)),)  \
+   )
+#endif
 
 /******************************** INTERNAL ***********************************/
 

@@ -1253,6 +1253,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
 /* Define the oplist of a dictionary
    NOTE: IT_REF is not exported so that the contained appears as not modifiable
    by algorithm.*/
+#ifndef M_USE_POOL
 #define M_D1CT_OPLIST_P4(name, key_oplist, value_oplist)                      \
   (INIT(M_F(name, _init)),                                                    \
    INIT_SET(M_F(name, _init_set)),                                            \
@@ -1292,6 +1293,46 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
    ,M_IF_METHOD_BOTH(IN_SERIAL, key_oplist, value_oplist)(IN_SERIAL(M_F(name, _in_serial)),) \
    ,M_IF_METHOD(EQUAL, value_oplist)(EQUAL(M_F(name, _equal_p)),)             \
    )
+#else
+#define M_D1CT_OPLIST_P4(name, key_oplist, value_oplist)                      \
+  (INIT(API_0P(M_F(name, _init))),                                            \
+   INIT_SET(API_0P(M_F(name, _init_set))),                                    \
+   INIT_WITH(API_1(M_INIT_KEY_VAI)),                                          \
+   SET(API_0P(M_F(name, _set))),                                              \
+   CLEAR(API_0P(M_F(name, _clear))),                                          \
+   INIT_MOVE(M_F(name, _init_move)),                                          \
+   MOVE(API_0P(M_F(name, _move))),                                            \
+   SWAP(M_F(name, _swap)),                                                    \
+   RESET(API_0P(M_F(name, _reset))),                                          \
+   NAME(name), TYPE(M_F(name, _ct)), GENTYPE(struct M_F(name,_s)*),           \
+   SUBTYPE(M_F(name, _subtype_ct)),                                           \
+   EMPTY_P(M_F(name,_empty_p)),                                               \
+   IT_TYPE(M_F(name, _it_ct)),                                                \
+   IT_FIRST(M_F(name,_it)),                                                   \
+   IT_SET(M_F(name, _it_set)),                                                \
+   IT_END(M_F(name,_it_end)),                                                 \
+   IT_END_P(M_F(name,_end_p)),                                                \
+   IT_LAST_P(M_F(name,_last_p)),                                              \
+   IT_NEXT(M_F(name,_next)),                                                  \
+   IT_CREF(M_F(name,_cref))                                                   \
+   ,KEY_TYPE(M_F(name, _key_ct))                                              \
+   ,VALUE_TYPE(M_F(name, _value_ct))                                          \
+   ,SET_KEY(API_0P(M_F(name, _set_at)))                                       \
+   ,GET_KEY(M_F(name, _get))                                                  \
+   ,SAFE_GET_KEY(API_0P(M_F(name, _safe_get)))                                \
+   ,ERASE_KEY(API_0P(M_F(name, _erase)))                                      \
+   ,KEY_OPLIST(key_oplist)                                                    \
+   ,VALUE_OPLIST(value_oplist)                                                \
+   ,GET_SIZE(M_F(name, _size))                                                \
+   ,M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(API_0P(GET_STR(M_F(name, _get_str))),) \
+   ,M_IF_METHOD_BOTH(PARSE_STR, key_oplist, value_oplist)(API_0P(PARSE_STR(M_F(name, _parse_str))),) \
+   ,M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(OUT_STR(M_F(name, _out_str)),) \
+   ,M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(IN_STR(API_0P(M_F(name, _in_str))),) \
+   ,M_IF_METHOD_BOTH(OUT_SERIAL, key_oplist, value_oplist)(OUT_SERIAL(API_0P(M_F(name, _out_serial))),) \
+   ,M_IF_METHOD_BOTH(IN_SERIAL, key_oplist, value_oplist)(IN_SERIAL(API_0P(M_F(name, _in_serial))),) \
+   ,M_IF_METHOD(EQUAL, value_oplist)(EQUAL(M_F(name, _equal_p)),)             \
+   )
+#endif
 
 /* Deferred evaluation for the definition,
    so that all arguments are evaluated before further expansion */
@@ -1308,6 +1349,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
 /* Define the oplist of a set
    Note: IT_REF is not exported so that the contained appears as not modifiable
 */
+#ifndef M_USE_POOL
 #define M_D1CT_SET_OPLIST_P3(name, oplist)                                    \
   (INIT(M_F(name, _init)),                                                    \
    INIT_SET(M_F(name, _init_set)),                                            \
@@ -1348,6 +1390,47 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
    ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, _in_serial)),)         \
    ,EQUAL(M_F(name, _equal_p)),                                               \
    )
+#else
+#define M_D1CT_SET_OPLIST_P3(name, oplist)                                    \
+  (INIT(API_0P(M_F(name, _init))),                                            \
+   INIT_SET(API_0P(M_F(name, _init_set))),                                    \
+   INIT_WITH(API_1(M_INIT_VAI)),                                              \
+   SET(API_0P(M_F(name, _set))),                                              \
+   CLEAR(API_0P(M_F(name, _clear))),                                          \
+   INIT_MOVE(M_F(name, _init_move)),                                          \
+   MOVE(API_0P(M_F(name, _move))),                                            \
+   SWAP(M_F(name, _swap)),                                                    \
+   RESET(API_0P(M_F(name, _reset))),                                          \
+   NAME(name), TYPE(M_F(name, _ct)), GENTYPE(struct M_F(name,_s)*),           \
+   SUBTYPE(M_F(name, _subtype_ct)),                                           \
+   EMPTY_P(M_F(name,_empty_p)),                                               \
+   PUSH(API_0P(M_F(name,_push))),                                             \
+   KEY_TYPE(M_F(name, _key_ct)),                                              \
+   VALUE_TYPE(M_F(name, _key_ct)),                                            \
+   GET_KEY(M_F(name, _get)),                                                  \
+   SAFE_GET_KEY(API_0P(M_F(name, _safe_get))),                                \
+   ERASE_KEY(API_0P(M_F(name, _erase))),                                      \
+   KEY_OPLIST(oplist),                                                        \
+   VALUE_OPLIST(oplist),                                                      \
+   GET_SIZE(M_F(name, _size)),                                                \
+   IT_TYPE(M_F(name, _it_ct)),                                                \
+   IT_FIRST(M_F(name,_it)),                                                   \
+   IT_SET(M_F(name, _it_set)),                                                \
+   IT_END(M_F(name,_it_end)),                                                 \
+   IT_END_P(M_F(name,_end_p)),                                                \
+   IT_LAST_P(M_F(name,_last_p)),                                              \
+   IT_NEXT(M_F(name,_next)),                                                  \
+   IT_CREF(M_F(name,_cref))                                                   \
+   ,OPLIST(oplist)                                                            \
+   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(API_0P(M_F(name, _get_str))),)       \
+   ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(API_0P(M_F(name, _parse_str))),) \
+   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, _out_str)),)               \
+   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(API_0P(M_F(name, _in_str))),)          \
+   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(API_0P(M_F(name, _out_serial))),) \
+   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(API_0P(M_F(name, _in_serial))),) \
+   ,EQUAL(M_F(name, _equal_p)),                                               \
+   )
+#endif
 
 
 /******************************** INTERNAL ***********************************/

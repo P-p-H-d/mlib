@@ -87,16 +87,16 @@
 
 /* OPLIST definition of a buffer */
 #define M_QUEU3_OPLIST_P3(name, oplist)                                       \
-  (INIT(M_F(name, _i_init))                                                   \
-  ,INIT_SET(M_F(name, _init_set))                                             \
-  ,SET(M_F(name, _set))                                                       \
-  ,CLEAR(M_F(name, _clear))                                                   \
+  (INIT(API_0P(M_F(name, _i_init)))                                           \
+  ,INIT_SET(API_0P(M_F(name, _init_set)))                                     \
+  ,SET(API_0P(M_F(name, _set)))                                               \
+  ,CLEAR(API_0P(M_F(name, _clear)))                                           \
   ,NAME(name)                                                                 \
   ,TYPE(M_F(name,_ct)), GENTYPE(struct M_F(name,_s)*)                         \
   ,SUBTYPE(M_F(name, _subtype_ct))                                            \
-  ,RESET(M_F(name,_reset))                                                    \
-  ,PUSH(M_F(name,_push))                                                      \
-  ,POP(M_F(name,_pop))                                                        \
+  ,RESET(API_0P(M_F(name,_reset)))                                            \
+  ,PUSH(API_0P(M_F(name,_push)))                                              \
+  ,POP(API_0P(M_F(name,_pop)))                                                \
   ,OPLIST(oplist)                                                             \
   ,EMPTY_P(M_F(name, _empty_p)),                                              \
   ,FULL_P(M_F(name, _full_p)),                                                \
