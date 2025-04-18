@@ -162,7 +162,6 @@ The available containers of M\*LIB for thread synchronization are in the followi
 * [m-buffer.h](#m-buffer): header for creating fixed-size queue (or stack) of generic type (multiple producer / multiple consumer),
 * [m-snapshot](#m-snapshot): header for creating 'atomic buffer' (through triple buffer) for sharing synchronously big data (thread safe),
 * [m-shared-ptr.h](#m-shared-ptr): header for creating shared pointer of generic type,
-* m-c-mempool.h: WIP header for creating fast concurrent memory allocation.
 
 The following containers are intrusive (You need to modify your structure to add fields needed by the container) and are defined in:
 
@@ -176,7 +175,6 @@ Other headers offering other functionality are:
 * [m-algo.h](#m-algo): header for providing various generic algorithms to the previous containers,
 * [m-funcobj.h](#m-funcobj): header for creating function object (used by algorithm generation),
 * [m-try.h](#m-try): header for handling errors by throwing exceptions,
-* [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator,
 * [m-worker.h](#m-worker): header for providing an easy pool of workers on separated threads to handle work orders (used for parallel tasks),
 * [m-serial-json.h](#m-serial-json): header for importing / exporting the containers in [JSON format](https://en.wikipedia.org/wiki/JSON),
 * [m-serial-bin.h](#m-serial-bin): header for importing / exporting the containers in an adhoc fast binary format,
@@ -189,10 +187,12 @@ Finally, headers for compatibility with non C11 compilers:
 * [m-atomic.h](#m-atomic): header for ensuring compatibility between C's `stdatomic.h` and C++'s atomic header (provide also its own implementation if nothing is available),
 * [m-thread.h](#m-thread): header for providing a very thin layer across multiple implementation of mutex/threads (C11/PTHREAD/WIN32).
 
-The following headers are obsolete:
+The following headers are obsolete and will be removed in the next major release:
 * [m-shared.h](#m-shared): header for creating shared pointer of generic type,
 * [m-concurrent.h](#m-concurrent): header for transforming a container into a concurrent container (thread safe),
 * [m-i-shared.h](#m-i-shared): header for creating intrusive shared pointer of generic type (Thread Safe).
+* [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator,
+* m-c-mempool.h: WIP header for creating fast concurrent memory allocation.
 
 Each containers define their iterators (if it is meaningful).
 
