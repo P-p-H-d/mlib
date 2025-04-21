@@ -276,14 +276,14 @@
       M_CALL_SPLICE_BACK(cont_oplist, (b ? l1 : l2), l, it);                  \
       b = !b;                                                                 \
     }                                                                         \
-    /* M_ASSERT(M_CALL_EMPTY_P (cont_oplist, l)); */                          \
+    M_ASSERT(M_CALL_EMPTY_P (cont_oplist, l));                                \
   }                                                                           \
                                                                               \
   /* Merge in empty 'l' the sorted container 'l1' and 'l2' */                 \
   M_INLINE void                                                               \
   M_C3(name,sort_name,_merge)(container_t l, container_t l1, container_t l2 cmp_param(name)) \
   {                                                                           \
-    /* M_ASSERT(M_CALL_EMPTY_P (cont_oplist, l)); */                          \
+    M_ASSERT(M_CALL_EMPTY_P (cont_oplist, l));                                \
     it_t it;                                                                  \
     it_t it1;                                                                 \
     it_t it2;                                                                 \
@@ -350,6 +350,7 @@
       return;                                                                 \
     }                                                                         \
     /* Container length is greater than 2: split, sort & merge */             \
+    M_GLOBAL_CONTEXT();                                                       \
     M_CALL_INIT(cont_oplist, l1);                                             \
     M_CALL_INIT(cont_oplist, l2);                                             \
     M_C3(name,sort_name,_split)(l1, l2, l);                                   \
@@ -357,6 +358,9 @@
     M_F(name,sort_name)(l2 cmp_arg);                                          \
     M_C3(name,sort_name,_merge)(l, l1, l2 cmp_arg);                           \
     /* l1 & l2 shall be empty now */                                          \
+    M_ASSERT( M_CALL_EMPTY_P(cont_oplist, l1));                               \
+    M_ASSERT( M_CALL_EMPTY_P(cont_oplist, l2));                               \
+    /* Normally nothing is done here */                                       \
     M_CALL_CLEAR(cont_oplist, l2);                                            \
     M_CALL_CLEAR(cont_oplist, l1);                                            \
   }                                                                           \

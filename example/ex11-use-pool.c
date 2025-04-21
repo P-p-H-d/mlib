@@ -76,7 +76,9 @@ RBTREE_DEF(rbtree_str, string_t)
 #include "m-list.h"
 
 LIST_DEF(list, int)
+ALGO_DEF(list, LIST_OPLIST(list, M_BASIC_OPLIST))
 LIST_DEF(list_str, string_t)
+ALGO_DEF(list_str, LIST_OPLIST(list_str, M_STRING_OPLIST))
 
 #include "m-bptree.h"
 
