@@ -1192,7 +1192,7 @@
   M_P(void, name, _push_front_move, list_t v, type *x)                        \
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
-    type *data = M_F(name, _push_front_raw)(v);                               \
+    type *data = M_F(name, _push_front_raw)M_R(v);                            \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
     M_CALL_INIT_MOVE (oplist, *data, *x);                                     \
@@ -1202,7 +1202,7 @@
   M_P(type *, name, _push_front_new, list_t v)                                \
   {                                                                           \
     M_IF_EXCEPTION(struct M_F(name, _s) *front = v->front, *back = v->back);  \
-    type *data = M_F(name, _push_front_raw)(v);                               \
+    type *data = M_F(name, _push_front_raw)M_R(v);                            \
     if (M_UNLIKELY (data == NULL))                                            \
       return NULL;                                                            \
     M_IF_EXCEPTION(struct M_F(name, _s) *m_volatile tofree = v->front);       \
@@ -1397,7 +1397,7 @@
     M_ASSERT (list != org);                                                   \
     M_ON_EXCEPTION( M_F(name, _clear)(list)) {                                \
       M_F(name, _init)(list);                                                 \
-      M_F(name, _set)(list, org);                                             \
+      M_F(name, _set) M_R(list, org);                                         \
     }                                                                         \
   }                                                                           \
                                                                               \

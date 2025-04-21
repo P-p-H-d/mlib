@@ -80,6 +80,9 @@ ALGO_DEF(list, LIST_OPLIST(list, M_BASIC_OPLIST))
 LIST_DEF(list_str, string_t)
 ALGO_DEF(list_str, LIST_OPLIST(list_str, M_STRING_OPLIST))
 
+LIST_DUAL_PUSH_DEF(list2, int)
+LIST_DUAL_PUSH_DEF(list2_str, string_t)
+
 #include "m-bptree.h"
 
 BPTREE_DEF2(bptree, 5, int, int)
