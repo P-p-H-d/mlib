@@ -244,7 +244,7 @@ namespace m_lib {
 /* Define the INIT method calling the INIT method for all params */
 #define M_TUPL3_DEFINE_INIT(name, ...)                                        \
   M_P(void, name, _init, M_F(name,_ct) my) {                                  \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     M_MAP(M_TUPL3_DEFINE_INIT_FUNC , __VA_ARGS__) {}                          \
   }
 
@@ -255,7 +255,7 @@ namespace m_lib {
 #define M_TUPL3_DEFINE_INIT_SET(name, ...)                                    \
   M_P(void, name, _init_set, M_F(name,_ct) my , M_F(name,_ct) const org) {    \
     M_TUPL3_CONTRACT(org);                                                    \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     M_MAP(M_TUPL3_DEFINE_INIT_SET_FUNC , __VA_ARGS__) {}                      \
   }
 #define M_TUPL3_DEFINE_INIT_SET_FUNC(a)                                       \
@@ -265,7 +265,7 @@ namespace m_lib {
 /* Define the INIT_WITH method calling the INIT_SET method for all params. */
 #define M_TUPL3_DEFINE_INIT_SET2(name, ...)                                   \
   M_P(void, name, _init_emplace, M_F(name,_ct) my M_MAP(M_TUPL3_DEFINE_SET2_PROTO, __VA_ARGS__) ) { \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     M_MAP(M_TUPL3_DEFINE_INIT_SET2_FUNC , __VA_ARGS__) {}                     \
   }
 
@@ -279,7 +279,7 @@ namespace m_lib {
   M_P(void, name, _set, M_F(name,_ct) my, M_F(name,_ct) const org) {          \
     M_TUPL3_CONTRACT(my);                                                     \
     M_TUPL3_CONTRACT(org);                                                    \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     M_MAP(M_TUPL3_DEFINE_SET_FUNC , __VA_ARGS__)                              \
   }
 
@@ -291,7 +291,7 @@ namespace m_lib {
 #define M_TUPL3_DEFINE_SET2(name, ...)                                        \
   M_P(void, name, _emplace, M_F(name,_ct) my M_MAP(M_TUPL3_DEFINE_SET2_PROTO, __VA_ARGS__) ) { \
     M_TUPL3_CONTRACT(my);                                                     \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     M_MAP(M_TUPL3_DEFINE_SET2_FUNC , __VA_ARGS__)                             \
   }
 #define M_TUPL3_DEFINE_SET2_PROTO(a)                                          \
@@ -305,7 +305,7 @@ namespace m_lib {
 #define M_TUPL3_DEFINE_CLEAR(name, ...)                                       \
   M_P(void, name, _clear, M_F(name,_ct) my) {                                 \
     M_TUPL3_CONTRACT(my);                                                     \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     M_MAP(M_TUPL3_DEFINE_CLEAR_FUNC , __VA_ARGS__)                            \
   }
 
@@ -343,7 +343,7 @@ namespace m_lib {
   M_INLINE void M_C3(name, _set_, M_TUPL3_GET_FIELD a)                        \
        (M_P_EXPAND M_F(name,_ct) my, M_TUPL3_GET_TYPE a const M_TUPL3_GET_FIELD a) { \
     M_TUPL3_CONTRACT(my);                                                     \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     M_TUPL3_CALL_SET(a, my ->M_TUPL3_GET_FIELD a, M_TUPL3_GET_FIELD a);       \
   }
 
@@ -362,7 +362,7 @@ namespace m_lib {
   function_name(M_P_EXPAND name_t v                                           \
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     M_CALL_CLEAR(oplist, v->name);                                            \
     M_EMPLACE_CALL_FUNC(a, init_func, oplist, v->name, exp_emplace_type);     \
   }
@@ -508,7 +508,7 @@ namespace m_lib {
   {                                                                           \
     bool comma = false;                                                       \
     M_TUPL3_CONTRACT(el);                                                     \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     M_ASSERT (f != NULL);                                                     \
     int c = fgetc(f);                                                         \
     if (c != '(') return false;                                               \
@@ -533,7 +533,7 @@ namespace m_lib {
   {                                                                           \
     M_TUPL3_CONTRACT(el);                                                     \
     M_ASSERT (str != NULL);                                                   \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     bool success = false;                                                     \
     bool comma = false;                                                       \
     int c = *str++;                                                           \
@@ -592,7 +592,7 @@ namespace m_lib {
   M_P(m_serial_return_code_t, name, _in_serial, M_F(name,_ct) el, m_serial_read_t f) \
   {                                                                           \
     M_TUPL3_CONTRACT(el);                                                     \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     int index = -1;                                                           \
     const int field_max = M_NARGS(__VA_ARGS__);                               \
@@ -637,7 +637,7 @@ namespace m_lib {
 #define M_TUPL3_DEFINE_MOVE(name, ...)                                        \
  M_P(void, name, _move, M_F(name,_ct) el, M_F(name,_ct) org) {                \
     M_TUPL3_CONTRACT(el);                                                     \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     M_MAP(M_TUPL3_DEFINE_MOVE_FUNC , __VA_ARGS__)                             \
  }
 
@@ -661,7 +661,7 @@ namespace m_lib {
 #define M_TUPL3_DEFINE_RESET(name, ...)                                       \
   M_P(void, name, _reset, M_F(name,_ct) el1) {                                \
     M_TUPL3_CONTRACT(el1);                                                    \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     M_MAP(M_TUPL3_DEFINE_RESET_FUNC , __VA_ARGS__)                            \
   }                                                                           \
 

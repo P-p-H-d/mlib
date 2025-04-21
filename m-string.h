@@ -2018,8 +2018,7 @@ m_string_utf8_p(const m_string_t str)
 /* Define the split & the join functions 
    in case of usage with the algorithm module */
 #define M_STR1NG_SPLIT(name, oplist, type_oplist)                             \
-  M_INLINE void M_F(name, _split)(M_GET_TYPE oplist cont,                     \
-                                   const m_string_t str, const char sep)      \
+  M_P(void, name, _split, M_GET_TYPE oplist cont, const m_string_t str, const char sep) \
   {                                                                           \
     size_t begin = 0;                                                         \
     m_string_t tmp;                                                           \
@@ -2029,7 +2028,7 @@ m_string_utf8_p(const m_string_t str)
     for(size_t i = 0 ; i < size; i++) {                                       \
       char c = m_string_get_char(str, i);                                     \
       if (c == sep) {                                                         \
-        m_string_set_cstrn(tmp, &m_string_get_cstr(str)[begin], i - begin);   \
+        m_string_set_cstrn M_R(tmp, &m_string_get_cstr(str)[begin], i - begin); \
         /* If push move method is available, use it */                        \
         M_IF_METHOD(PUSH_MOVE,oplist)(                                        \
                                       M_CALL_PUSH_MOVE(oplist, cont, &tmp);   \
@@ -2040,24 +2039,23 @@ m_string_utf8_p(const m_string_t str)
           begin = i + 1;                                                      \
       }                                                                       \
     }                                                                         \
-    m_string_set_cstrn(tmp, &m_string_get_cstr(str)[begin], size - begin);    \
+    m_string_set_cstrn M_R(tmp, &m_string_get_cstr(str)[begin], size - begin); \
     M_CALL_PUSH(oplist, cont, tmp);                                           \
     /* HACK: if method reverse is defined, it is likely that we have */       \
     /* inserted the items in the wrong order (aka for a list) */              \
     M_IF_METHOD(REVERSE, oplist) (M_CALL_REVERSE(oplist, cont);, )            \
-    m_string_clear(tmp);                                                      \
+    m_string_clear M_R(tmp);                                                  \
   }                                                                           \
                                                                               \
-  M_INLINE void M_F(name, _join)(m_string_t dst, M_GET_TYPE oplist cont,      \
-                                      const m_string_t str)                   \
+  M_P(void, name, _join, m_string_t dst, M_GET_TYPE oplist cont, const m_string_t str) \
   {                                                                           \
     bool init_done = false;                                                   \
     m_string_reset (dst);                                                     \
     for M_EACH(item, cont, oplist) {                                          \
         if (init_done) {                                                      \
-          m_string_cat(dst, str);                                             \
+          m_string_cat M_R(dst, str);                                         \
         }                                                                     \
-        m_string_cat (dst, *item);                                            \
+        m_string_cat M_R(dst, *item);                                         \
         init_done = true;                                                     \
     }                                                                         \
   }                                                                           \
@@ -2287,7 +2285,16 @@ namespace m_lib {
 #endif
 
 /* Concatenate the string (or C string) b to the string a */
+#ifdef M_USE_CONTEXT
+#define m_string_cat(p, a,b)                                                  \
+    _Generic((b)+0,                                                           \
+    char*: m_string_cat_cstr,                                                 \
+    const char *: m_string_cat_cstr,                                          \
+    default : m_string_cat                                                    \
+    )(p,a,b)
+#else
 #define m_string_cat(a,b) M_STR1NG_SELECT2(m_string_cat, m_string_cat_cstr, a, b)
+#endif
 
 /* Compare the string a to the string (or C string) b and return the sort order */
 #define m_string_cmp(a,b) M_STR1NG_SELECT2(m_string_cmp, m_string_cmp_cstr, a, b)

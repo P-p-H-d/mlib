@@ -222,7 +222,7 @@
   M_P(void, name, _reset, deque_t d)                                          \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     node_t *min_node = NULL;                                                  \
     for(node_t *n = d->front->node;                                           \
         n != NULL ;                                                           \
@@ -365,7 +365,7 @@
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT(d->count > 0);                                                   \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     node_t *n = d->back->node;                                                \
     size_t index = d->back->index;                                            \
     index --;                                                                 \
@@ -407,7 +407,7 @@
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT(d->count > 0);                                                   \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     node_t *n = d->front->node;                                               \
     size_t index = d->front->index;                                           \
     if (ptr != NULL)                                                          \
@@ -825,7 +825,7 @@
   M_P(void, name, _set_at, deque_t d, size_t key, type const x)               \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     M_ASSERT_INDEX (key, d->count);                                           \
     type *p = M_F(name, _get)(d, key);                                        \
     M_CALL_SET(oplist, *p, x);                                                \

@@ -234,7 +234,7 @@ typedef struct m_worker_sync_s {
   M_INLINE void                                                               \
   M_C3(m_work3r_, name, _clear)(struct M_C3(m_worker_, name, _s) *p)          \
   {                                                                           \
-    M_GLOBAL_CONTEXT();                                                          \
+    M_GLOBAL_CONTEXT();                                                       \
     M_MAP3(M_WORK3R_SPAWN_EXTEND_DEF_CALLBACK_CLEAR, data, __VA_ARGS__)       \
     /* TODO: Overload */                                                      \
     M_MEMORY_DEL(p);                                                          \
@@ -263,7 +263,7 @@ typedef struct m_worker_sync_s {
                              M_MAP3_C(M_WORK3R_SPAWN_EXTEND_DEF_EMPLACE_FIELD, data, __VA_ARGS__) \
                              )                                                \
   {                                                                           \
-    M_GLOBAL_CONTEXT();                                                          \
+    M_GLOBAL_CONTEXT();                                                       \
     if (!m_work3r_queue_full_p(block->worker->queue_g)) {                     \
       struct M_C3(m_worker_, name, _s) *p = M_MEMORY_ALLOC ( struct M_C3(m_worker_, name, _s)); \
       if (M_UNLIKELY_NOMEM(p == NULL)) {                                      \

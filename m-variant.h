@@ -227,7 +227,7 @@
   M_P(void, name, _init_set, M_F(name,_ct) my, M_F(name,_ct) const org)       \
   {                                                                           \
     M_VAR1ANT_CONTRACT(name, org);                                            \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     my->type = org->type;                                                     \
     switch (org->type) {                                                      \
       M_MAP2(M_VAR1ANT_DEFINE_INIT_SET_FUNC, name, __VA_ARGS__)               \
@@ -278,7 +278,7 @@
   M_P(void, name, _clear, M_F(name,_ct) my)                                   \
   {                                                                           \
     M_VAR1ANT_CONTRACT(name, my);                                             \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     switch (my->type) {                                                       \
       M_MAP2(M_VAR1ANT_DEFINE_CLEAR_FUNC, name,  __VA_ARGS__)                 \
       case M_F(name, _EMPTY): /* fallthrough */                               \
@@ -322,7 +322,7 @@
   M_INLINE void                                                               \
   M_C3(name, _init_, M_VAR1ANT_GET_FIELD a)(M_P_EXPAND M_F(name,_ct) my)      \
   {                                                                           \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     /* Reinit variable with the given value */                                \
     my->type = M_C4(name, _, M_VAR1ANT_GET_FIELD a, _value);                  \
     M_VAR1ANT_CALL_INIT(a, my -> value. M_VAR1ANT_GET_FIELD a);               \
@@ -337,7 +337,7 @@
   M_INLINE void                                                               \
   M_C3(name, _init_set_, M_VAR1ANT_GET_FIELD a)(M_P_EXPAND M_F(name,_ct) my, M_VAR1ANT_GET_TYPE a const M_VAR1ANT_GET_FIELD a) \
   {                                                                           \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     my->type = M_C4(name, _, M_VAR1ANT_GET_FIELD a, _value);                  \
     M_VAR1ANT_CALL_INIT_SET(a, my -> value. M_VAR1ANT_GET_FIELD a,            \
                            M_VAR1ANT_GET_FIELD a);                            \
@@ -345,7 +345,7 @@
   M_INLINE void                                                               \
   M_C4(m_var1ant_, name, _init_set_, num)(M_P_EXPAND M_F(name,_ct) my, M_VAR1ANT_GET_TYPE a const M_VAR1ANT_GET_FIELD a) \
   {                                                                           \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     my->type = M_C4(name, _, M_VAR1ANT_GET_FIELD a, _value);                  \
     M_VAR1ANT_CALL_INIT_SET(a, my -> value. M_VAR1ANT_GET_FIELD a,            \
                            M_VAR1ANT_GET_FIELD a);                            \

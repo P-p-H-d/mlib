@@ -201,7 +201,7 @@ M_BEGIN_PROTECTED_CODE
   M_P(void, name, _init, snapshot_t snap)                                     \
   {                                                                           \
     M_ASSERT(snap != NULL);                                                   \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     for(int i = 0; i < M_SNAPSH0T_SPSC_MAX_BUFFER; i++) {                     \
       M_CALL_INIT(oplist, snap->data[i].x);                                   \
     }                                                                         \
@@ -212,7 +212,7 @@ M_BEGIN_PROTECTED_CODE
   M_P(void, name, _clear, snapshot_t snap)                                    \
   {                                                                           \
     M_SNAPSH0T_SPSC_CONTRACT(snap);                                           \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     for(int i = 0; i < M_SNAPSH0T_SPSC_MAX_BUFFER; i++) {                     \
       M_CALL_CLEAR(oplist, snap->data[i].x);                                  \
     }                                                                         \
@@ -222,7 +222,7 @@ M_BEGIN_PROTECTED_CODE
   M_P(void, name, _init_set, snapshot_t snap, snapshot_t org)                 \
   {                                                                           \
     M_SNAPSH0T_SPSC_CONTRACT(org);                                            \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     M_ASSERT(snap != NULL && snap != org);                                    \
     for(int i = 0; i < M_SNAPSH0T_SPSC_MAX_BUFFER; i++) {                     \
       M_CALL_INIT_SET(oplist, snap->data[i].x, org->data[i].x);               \
@@ -236,7 +236,7 @@ M_BEGIN_PROTECTED_CODE
   {                                                                           \
     M_SNAPSH0T_SPSC_CONTRACT(snap);                                           \
     M_SNAPSH0T_SPSC_CONTRACT(org);                                            \
-    M_UNUSED_CONTEXT();                                                          \
+    M_UNUSED_CONTEXT();                                                       \
     for(int i = 0; i < M_SNAPSH0T_SPSC_MAX_BUFFER; i++) {                     \
       M_CALL_SET(oplist, snap->data[i].x, org->data[i].x);                    \
     }                                                                         \
@@ -264,7 +264,7 @@ M_BEGIN_PROTECTED_CODE
     {                                                                         \
       M_SNAPSH0T_SPSC_CONTRACT(snap);                                         \
       M_SNAPSH0T_SPSC_CONTRACT(org);                                          \
-      M_UNUSED_CONTEXT();                                                        \
+      M_UNUSED_CONTEXT();                                                     \
       M_ASSERT(snap != org);                                                  \
       for(int i = 0; i < M_SNAPSH0T_SPSC_MAX_BUFFER; i++) {                   \
         M_CALL_MOVE(oplist, snap->data[i].x, org->data[i].x);                 \

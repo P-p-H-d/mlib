@@ -2078,7 +2078,7 @@ enum m_d1ct_oa_element_e {
 M_P(void, name, _bulk_get, unsigned n, value_type val[M_VLA(n)], dict_t dict, key_type const key[M_VLA(n)], value_type def) \
 {                                                                             \
   M_D1CT_OA_CONTRACT (dict);                                                  \
-  M_UNUSED_CONTEXT();                                                            \
+  M_UNUSED_CONTEXT();                                                         \
   size_t h[M_USE_MAX_PREFETCH];                                               \
   M_F(name, _pair_ct) *data = dict->data;                                     \
   const size_t mask = dict->mask;                                             \

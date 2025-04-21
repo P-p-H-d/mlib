@@ -35,7 +35,7 @@ static void my_free(void *ptr, size_t old, size_t base, context_t context)
 #include "m-bitset.h"
 #include "m-bstring.h"
 #include "m-genint.h"
-
+#include "m-algo.h"
 context_t my_pool = NULL;
 extern int f(string_t,  bitset_t b, bstring_t y);
 
@@ -59,7 +59,9 @@ int f(string_t x, bitset_t b, bstring_t y)
 #include "m-array.h"
 
 ARRAY_DEF(array, int)
+ALGO_DEF(array, ARRAY_OPLIST(array, M_BASIC_OPLIST))
 ARRAY_DEF(array_str, string_t)
+ALGO_DEF(array_str, ARRAY_OPLIST(array_str, STRING_OPLIST))
 
 #include "m-prioqueue.h"
 

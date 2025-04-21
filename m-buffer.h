@@ -221,7 +221,7 @@ typedef enum {
 M_N(void, name, _init, buffer_t v, size_t size)                               \
 {                                                                             \
   M_ASSERT(size <= UINT_MAX);                                                 \
-  M_GLOBAL_CONTEXT();                                                            \
+  M_GLOBAL_CONTEXT();                                                         \
   M_BUFF3R_IF_CTE_SIZE(m_size)(M_ASSERT(size == m_size), v->capacity = size); \
   v->idx_prod = v->idx_cons = v->overwrite = 0;                               \
   atomic_init (&v->number[0], 0U);                                            \
@@ -256,7 +256,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
  M_N(void, name, _i_clear_obj, buffer_t v)                                    \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
-   M_GLOBAL_CONTEXT();                                                           \
+   M_GLOBAL_CONTEXT();                                                        \
    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {           \
      for(size_t i = 0; i < M_BUFF3R_SIZE(m_size); i++) {                      \
        M_CALL_CLEAR(oplist, v->data[i].x);                                    \
@@ -280,7 +280,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
  M_N(void, name, _clear, buffer_t v)                                          \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
-   M_GLOBAL_CONTEXT();                                                           \
+   M_GLOBAL_CONTEXT();                                                        \
    M_F(name,_i_clear_obj)(v);                                                 \
    M_BUFF3R_IF_CTE_SIZE(m_size)( ,                                            \
      M_CALL_FREE(oplist, M_F(name, _el_ct), v->data, M_BUFF3R_SIZE(m_size));  \
@@ -296,7 +296,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
  M_N(void, name, _reset, buffer_t v)                                          \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
-   M_GLOBAL_CONTEXT();                                                           \
+   M_GLOBAL_CONTEXT();                                                        \
    m_mutex_lock(v->mutexPush);                                                \
    m_mutex_lock(v->mutexPop);                                                 \
    M_BUFF3R_PROTECTED_CONTRACT(policy, v, m_size);                            \
@@ -314,7 +314,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
                                                                               \
  M_N(void, name, _init_set, buffer_t dest, const buffer_t src)                \
  {                                                                            \
-  M_GLOBAL_CONTEXT();                                                            \
+  M_GLOBAL_CONTEXT();                                                         \
   /* un-const 'src', so that we can lock it (semantically it is const) */     \
    M_F(name, _uptr_ct) vu;                                                    \
    vu.cptr = src;                                                             \
@@ -354,7 +354,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
                                                                               \
  M_N(void, name, _set, buffer_t dest, const buffer_t src)                     \
  {                                                                            \
-  M_GLOBAL_CONTEXT();                                                            \
+  M_GLOBAL_CONTEXT();                                                         \
   /* un-const 'src', so that we can lock it (semantically it is const) */     \
    M_F(name, _uptr_ct) vu;                                                    \
    vu.cptr = src;                                                             \
@@ -449,7 +449,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
  M_N(bool, name, _push_blocking, buffer_t v, type const data, bool blocking)  \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
-   M_GLOBAL_CONTEXT();                                                           \
+   M_GLOBAL_CONTEXT();                                                        \
    /* Producer Mutex lock (mutex lock performs an acquire memory barrier) */  \
    m_mutex_lock(v->mutexPush);                                                \
    while (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_OVERWRITE)               \
@@ -523,7 +523,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
    M_ASSERT (data != NULL);                                                   \
-   M_GLOBAL_CONTEXT();                                                           \
+   M_GLOBAL_CONTEXT();                                                        \
    /* consumer lock (mutex lock performs an acquire memory barrier) */        \
    m_mutex_lock(v->mutexPop);                                                 \
    while (M_F(name, _empty_p)(v)) {                                           \
@@ -714,7 +714,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
   M_N(bool, name, _push, buffer_t table, type const x)                        \
   {                                                                           \
     M_QU3UE_MPMC_CONTRACT(table);                                             \
-    M_GLOBAL_CONTEXT();                                                          \
+    M_GLOBAL_CONTEXT();                                                       \
     unsigned int idx = atomic_load_explicit(&table->ProdIdx,                  \
                                             memory_order_relaxed);            \
     const unsigned int i = idx & (table->size -1);                            \
@@ -749,7 +749,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
   {                                                                           \
     M_QU3UE_MPMC_CONTRACT(table);                                             \
     M_ASSERT (ptr != NULL);                                                   \
-    M_GLOBAL_CONTEXT();                                                          \
+    M_GLOBAL_CONTEXT();                                                       \
     unsigned int iC = atomic_load_explicit(&table->ConsoIdx,                  \
                                            memory_order_relaxed);             \
     const unsigned int i = (iC & (table->size -1));                           \
@@ -779,7 +779,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
     M_ASSERT (buffer != NULL);                                                \
     M_ASSERT( M_POWEROF2_P(size) && 0 < size && size <= UINT_MAX);            \
     M_ASSERT(((policy) & (M_BUFFER_STACK|M_BUFFER_PUSH_OVERWRITE)) == 0);     \
-    M_GLOBAL_CONTEXT();                                                          \
+    M_GLOBAL_CONTEXT();                                                       \
     atomic_init(&buffer->ProdIdx, (unsigned int) size);                       \
     atomic_init(&buffer->ConsoIdx, (unsigned int) size);                      \
     buffer->size = (unsigned int) size;                                       \
@@ -799,7 +799,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
   M_N(void, name, _clear, buffer_t buffer)                                    \
   {                                                                           \
     M_QU3UE_MPMC_CONTRACT(buffer);                                            \
-    M_GLOBAL_CONTEXT();                                                          \
+    M_GLOBAL_CONTEXT();                                                       \
     if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
       for(unsigned int j = 0; j < buffer->size; j++) {                        \
         M_CALL_CLEAR(oplist, buffer->Tab[j].x);                               \
@@ -939,7 +939,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
   M_N(bool, name, _push, buffer_t table, type const x)                        \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
-    M_GLOBAL_CONTEXT();                                                          \
+    M_GLOBAL_CONTEXT();                                                       \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
                                           memory_order_relaxed);              \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
@@ -960,7 +960,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
   M_N(bool, name, _push_move, buffer_t table, type *x)                        \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
-    M_GLOBAL_CONTEXT();                                                          \
+    M_GLOBAL_CONTEXT();                                                       \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
                                           memory_order_relaxed);              \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
@@ -982,7 +982,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
     M_ASSERT (ptr != NULL);                                                   \
-    M_GLOBAL_CONTEXT();                                                          \
+    M_GLOBAL_CONTEXT();                                                       \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
                                           memory_order_relaxed);              \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
@@ -1005,7 +1005,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
     M_ASSERT (x != NULL);                                                     \
     M_ASSERT (n <= table->size);                                              \
-    M_GLOBAL_CONTEXT();                                                          \
+    M_GLOBAL_CONTEXT();                                                       \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
                                           memory_order_relaxed);              \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
@@ -1031,7 +1031,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
     M_ASSERT (ptr != NULL);                                                   \
     M_ASSERT (n <= table->size);                                              \
-    M_GLOBAL_CONTEXT();                                                          \
+    M_GLOBAL_CONTEXT();                                                       \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
                                           memory_order_relaxed);              \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
@@ -1055,7 +1055,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
   M_N(void, name, _push_force, buffer_t table, type const x)                  \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
-    M_GLOBAL_CONTEXT();                                                          \
+    M_GLOBAL_CONTEXT();                                                       \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
                                           memory_order_relaxed);              \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
@@ -1119,7 +1119,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
     M_ASSERT (buffer != NULL);                                                \
     M_ASSERT( M_POWEROF2_P(size) && 0 < size && size <= UINT_MAX);            \
     M_ASSERT(((policy) & (M_BUFFER_STACK|M_BUFFER_PUSH_OVERWRITE)) == 0);     \
-    M_GLOBAL_CONTEXT();                                                          \
+    M_GLOBAL_CONTEXT();                                                       \
     atomic_init(&buffer->prodIdx, (unsigned int) size);                       \
     atomic_init(&buffer->consoIdx, (unsigned int) size);                      \
     buffer->size = (unsigned int) size;                                       \
@@ -1138,7 +1138,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
   M_N(void, name, _clear, buffer_t buffer)                                    \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(buffer);                                            \
-    M_GLOBAL_CONTEXT();                                                          \
+    M_GLOBAL_CONTEXT();                                                       \
     if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
       for(unsigned int j = 0; j < buffer->size; j++) {                        \
         M_CALL_CLEAR(oplist, buffer->Tab[j].x);                               \
@@ -1198,7 +1198,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
 M_N(void, name, function_name, name_t v M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) ) \
 {                                                                             \
   M_GET_TYPE oplist data;                                                     \
-  M_GLOBAL_CONTEXT();                                                            \
+  M_GLOBAL_CONTEXT();                                                         \
   M_EMPLACE_CALL_FUNC(a, init_func, oplist, data, exp_emplace_type);          \
   M_F(name, _push)(v, data);                                                  \
   M_CALL_CLEAR(oplist, data);                                                 \
