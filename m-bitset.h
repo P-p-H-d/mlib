@@ -907,11 +907,7 @@ m_bitset_popcount(const m_bitset_t set)
 #endif
 
 /* Register the OPLIST as a global one */
-#ifdef M_USE_CONTEXT
-#define M_OPL_m_bitset_t() M_BITSET_POOL_OPLIST
-#else
 #define M_OPL_m_bitset_t() M_BITSET_OPLIST
-#endif
 
 // TODO: set_at2, insert_v, remove_v
 
