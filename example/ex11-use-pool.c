@@ -67,11 +67,13 @@ ALGO_DEF(array_str, ARRAY_OPLIST(array_str, STRING_OPLIST))
 
 PRIOQUEUE_DEF(prio, int)
 PRIOQUEUE_DEF(prio_str, string_t)
+ALGO_DEF(prio_str, PRIOQUEUE_OPLIST(prio_str, STRING_OPLIST))
 
 #include "m-rbtree.h"
 
 RBTREE_DEF(rbtree, int)
 RBTREE_DEF(rbtree_str, string_t)
+ALGO_DEF(rbtree_str, RBTREE_OPLIST(rbtree_str, STRING_OPLIST))
 
 #include "m-list.h"
 
@@ -82,18 +84,23 @@ ALGO_DEF(list_str, LIST_OPLIST(list_str, M_STRING_OPLIST))
 
 LIST_DUAL_PUSH_DEF(list2, int)
 LIST_DUAL_PUSH_DEF(list2_str, string_t)
+ALGO_DEF(list2_str, LIST_OPLIST(list2_str, M_STRING_OPLIST))
 
 #include "m-bptree.h"
 
 BPTREE_DEF2(bptree, 5, int, int)
+BPTREE_DEF2(bptree_str, 8, string_t, string_t)
+ALGO_DEF(bptree_str, M_BPTREE_OPLIST2(bptree_str, M_STRING_OPLIST, M_STRING_OPLIST))
 
 #include "m-dict.h"
 
 DICT_DEF2(dict, int, int)
 DICT_DEF2(dict_str, string_t, string_t)
+ALGO_DEF(dict_str, DICT_OPLIST(dict_str, M_STRING_OPLIST, M_STRING_OPLIST))
 
 DICT_SET_DEF(set, int)
 DICT_SET_DEF(set_str, string_t)
+ALGO_DEF(set_str, DICT_SET_OPLIST(set_str, M_STRING_OPLIST))
 
 static inline bool oor_equal_p(int k, char n)
 {
@@ -109,10 +116,12 @@ DICT_OA_DEF2(dict_oa,
     int, M_OPEXTEND(M_BASIC_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(API_4(oor_set))),
     int, M_BASIC_OPLIST)
 DICT_OA_DEF2(dict2_str, string_t, string_t)
+ALGO_DEF(dict2_str, DICT_OPLIST(dict2_str, M_STRING_OPLIST, M_STRING_OPLIST))
 
 DICT_OASET_DEF(set_oa,
     int, M_OPEXTEND(M_BASIC_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(API_4(oor_set))) )
 DICT_OASET_DEF(set2_str, string_t)
+ALGO_DEF(set2_str, DICT_SET_OPLIST(set2_str, M_STRING_OPLIST))
 
 #include "m-buffer.h"
 
@@ -132,12 +141,13 @@ M_QUEUE_SPSC_DEF(queue22, string_t, M_BUFFER_STACK)
 
 M_DEQUE_DEF(deque, int)
 M_DEQUE_DEF(deque_str, string_t)
+M_ALGO_DEF(deque_str, M_DEQUE_OPLIST(deque_str, M_STRING_OPLIST))
 
 #include "m-snapshot.h"
 
 M_SNAPSHOT_SPSC_DEF(snap1, int)
 M_SNAPSHOT_SPMC_DEF(snap2, int)
-M_SNAPSHOT_MPMC_DEF(snap3, int)
+M_SNAPSHOT_MPMC_DEF(snap3, string_t)
 
 #include "m-tree.h"
 
