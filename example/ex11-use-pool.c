@@ -1,7 +1,9 @@
 #include <stdlib.h>
 
+// Define the memory context. 
 typedef int *context_t;
 
+// Define the realloc / free that accepts the memory context.
 static void *my_realloc(void *ptr, size_t old, size_t new, size_t base, context_t context)
 {
     (void) context;
@@ -17,13 +19,18 @@ static void my_free(void *ptr, size_t old, size_t base, context_t context)
     free(ptr);
 }
 
-# define M_USE_POOL context_t
-# define M_MEMORY_REALLOC(type, ptr, o, n) my_realloc(ptr, o, n, sizeof (type), m_pool)
-# define M_MEMORY_FREE(type, ptr, o) my_free(ptr, o, sizeof (*ptr), m_pool)
+// Request M*LIB to generate functions accepting a memory context parameter that will be passed to the memory functions
+# define M_USE_CONTEXT context_t
 
-# define M_MEMORY_ALLOC(type) my_realloc(NULL, 0, 1, sizeof (type), m_pool)
-# define M_MEMORY_DEL(ptr) my_free(ptr, 1, sizeof (*ptr), m_pool)
+// Overloaded memory functions to use the custom ones.
+// m_context is the name of the memory context parameter
+# define M_MEMORY_REALLOC(type, ptr, o, n) my_realloc(ptr, o, n, sizeof (type), m_context)
+# define M_MEMORY_FREE(type, ptr, o) my_free(ptr, o, sizeof (*ptr), m_context)
 
+# define M_MEMORY_ALLOC(type) my_realloc(NULL, 0, 1, sizeof (type), m_context)
+# define M_MEMORY_DEL(ptr) my_free(ptr, 1, sizeof (*ptr), m_context)
+
+// Now we can include M*LIB functions.
 #include "m-string.h"
 #include "m-bitset.h"
 #include "m-bstring.h"

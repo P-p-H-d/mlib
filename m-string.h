@@ -2106,7 +2106,7 @@ namespace m_lib {
   m_lib::m_aligned_string<sizeof (s)>(s).string
 #endif
 
-#ifdef M_USE_POOL
+#ifdef M_USE_CONTEXT
 /* Initialize and set a string to the given formatted value. */
 #define m_string_init_printf(pool, v, ...)                                    \
   (m_string_printf ( pool, m_str1ng_init_ref(v), __VA_ARGS__) )
@@ -2138,7 +2138,7 @@ namespace m_lib {
 #endif
 
 /* Define the OPLIST of a STRING */
-#ifndef M_USE_POOL
+#ifndef M_USE_CONTEXT
 #define M_STRING_OPLIST                                                       \
   (INIT(m_string_init),INIT_SET(m_string_init_set), SET(m_string_set),        \
    INIT_WITH(M_STR1NG_INIT_WITH),                                             \
@@ -2263,7 +2263,7 @@ namespace m_lib {
            )(a,b,c)
 
 /* Init & Set the string a to the string (or C string) b (constructor) */
-#ifdef M_USE_POOL
+#ifdef M_USE_CONTEXT
 #define m_string_init_set(p, a,b)                                             \
     _Generic((b)+0,                                                           \
     char*: m_string_init_set_cstr,                                            \
@@ -2275,7 +2275,7 @@ namespace m_lib {
 #endif
 
 /* Set the string a to the string (or C string) b */
-#ifdef M_USE_POOL
+#ifdef M_USE_CONTEXT
 #define m_string_set(p, a,b)                                                  \
     _Generic((b)+0,                                                           \
     char*: m_string_set_cstr,                                                 \

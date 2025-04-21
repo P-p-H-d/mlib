@@ -156,7 +156,7 @@
   ((M_LIB_ERROR(ARGUMENT_OF_BPTREE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* OPLIST definition of a b+tree (global tree) */
-#ifndef M_USE_POOL
+#ifndef M_USE_CONTEXT
 #define M_BPTR33_KEY_OPLIST_P3(name, oplist)                                  \
   (INIT(M_F(name, _init)),                                                    \
    INIT_SET(M_F(name, _init_set)),                                            \
@@ -239,7 +239,7 @@
   ((M_LIB_ERROR(ARGUMENT_OF_BPTREE_OPLIST_IS_NOT_AN_OPLIST, name, key_oplist, value_oplist)))
 
 /* Final definition of the oplist (associative array) */
-#ifndef M_USE_POOL
+#ifndef M_USE_CONTEXT
 #define M_BPTR33_OPLIST2_P4(name, key_oplist, value_oplist)                   \
   (INIT(M_F(name, _init)),                                                    \
    INIT_SET(M_F(name, _init_set)),                                            \
@@ -706,7 +706,7 @@
                                         M_IF(isMap)( M_DEFERRED_COMMA value_t const value,) ) \
   {                                                                           \
     M_ASSERT (M_F(name, _is_leaf)(n));                                        \
-    M_ASSERT_POOL();                                                          \
+    M_UNUSED_CONTEXT();                                                          \
     int i, num = M_F(name, _get_num)(n);                                      \
     M_ASSERT (num <= N);                                                      \
     /* Search for the key in the node n (a leaf) for insertion */             \
@@ -737,7 +737,7 @@
   M_P(int, name, _i_search_and_insert_in_node, node_t n, node_t l, key_t key) \
   {                                                                           \
     M_ASSERT (!M_F(name, _is_leaf)(n));                                       \
-    M_ASSERT_POOL();                                                          \
+    M_UNUSED_CONTEXT();                                                          \
     int i, num = M_F(name, _get_num)(n);                                      \
     M_ASSERT (num <= N);                                                      \
     /* Search for the key in the node n (not a leaf) for insertion */         \
@@ -869,7 +869,7 @@
   M_P(int, name, _i_search_and_remove_in_leaf, node_t n, key_t const key)     \
   {                                                                           \
     M_ASSERT(M_F(name, _is_leaf)(n));                                         \
-    M_ASSERT_POOL();                                                          \
+    M_UNUSED_CONTEXT();                                                          \
     const int num = M_F(name, _get_num)(n);                                   \
     for(int i = 0; i < num; i++) {                                            \
       const int cmp = M_CALL_CMP(key_oplist, key, n->key[i]);                 \
@@ -890,7 +890,7 @@
   {                                                                           \
     M_ASSERT (parent != NULL && !M_F(name, _is_leaf)(parent));                \
     M_ASSERT (0 <= k && k < M_F(name, _get_num)(parent));                     \
-    M_ASSERT_POOL();                                                          \
+    M_UNUSED_CONTEXT();                                                          \
     node_t left = parent->kind.node[k];                                       \
     node_t right = parent->kind.node[k+1];                                    \
     M_ASSERT (left != NULL && right != NULL);                                 \
@@ -926,7 +926,7 @@
   {                                                                           \
     M_ASSERT (parent != NULL && !M_F(name, _is_leaf)(parent));                \
     M_ASSERT (0 <= k && k < M_F(name, _get_num)(parent));                     \
-    M_ASSERT_POOL();                                                          \
+    M_UNUSED_CONTEXT();                                                          \
     node_t left = parent->kind.node[k];                                       \
     node_t right = parent->kind.node[k+1];                                    \
     M_ASSERT (left != NULL && right != NULL);                                 \

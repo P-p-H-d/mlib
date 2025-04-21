@@ -534,7 +534,7 @@ M_P(m_serial_return_code_t, m_bstring, _in_serial, m_bstring_t v, m_serial_read_
 }
 
 /* Define the OPLIST of a BYTE STRING */
-#ifndef M_USE_POOL
+#ifndef M_USE_CONTEXT
 #define M_BSTRING_OPLIST                                                      \
   (INIT(m_bstring_init),INIT_SET(m_bstring_init_set), SET(m_bstring_set),     \
    INIT_MOVE(m_bstring_init_move), MOVE(m_bstring_move),                      \

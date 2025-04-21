@@ -103,7 +103,7 @@
   M_EMPLACE_QUEUE_DEF(name, deque_t, _emplace_front, oplist, M_D3QUE_EMPLACE_FRONT_DEF)
 
 // OPLIST for the node deletion
-#ifdef M_USE_POOL
+#ifdef M_USE_CONTEXT
 #define M_D3QU3_NODE_DEL_OPLIST(name) (DEL(API_0P(M_F(name, _node_list_i_del))))
 #else
 #define M_D3QU3_NODE_DEL_OPLIST(name) (DEL(M_F(name, _node_list_i_del)))
@@ -222,7 +222,7 @@
   M_P(void, name, _reset, deque_t d)                                          \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
-    M_ASSERT_POOL();                                                          \
+    M_UNUSED_CONTEXT();                                                          \
     node_t *min_node = NULL;                                                  \
     for(node_t *n = d->front->node;                                           \
         n != NULL ;                                                           \
@@ -365,7 +365,7 @@
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT(d->count > 0);                                                   \
-    M_ASSERT_POOL();                                                          \
+    M_UNUSED_CONTEXT();                                                          \
     node_t *n = d->back->node;                                                \
     size_t index = d->back->index;                                            \
     index --;                                                                 \
@@ -407,7 +407,7 @@
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT(d->count > 0);                                                   \
-    M_ASSERT_POOL();                                                          \
+    M_UNUSED_CONTEXT();                                                          \
     node_t *n = d->front->node;                                               \
     size_t index = d->front->index;                                           \
     if (ptr != NULL)                                                          \
@@ -825,7 +825,7 @@
   M_P(void, name, _set_at, deque_t d, size_t key, type const x)               \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
-    M_ASSERT_POOL();                                                          \
+    M_UNUSED_CONTEXT();                                                          \
     M_ASSERT_INDEX (key, d->count);                                           \
     type *p = M_F(name, _get)(d, key);                                        \
     M_CALL_SET(oplist, *p, x);                                                \
@@ -1057,7 +1057,7 @@
   ((M_LIB_ERROR(ARGUMENT_OF_DEQUE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* OPLIST definition of a deque */
-#ifndef M_USE_POOL
+#ifndef M_USE_CONTEXT
 #define M_D3QU3_OPLIST_P3(name, oplist)                                       \
   (INIT(M_F(name, _init))                                                     \
    ,INIT_SET(M_F(name, _init_set))                                            \

@@ -168,7 +168,7 @@
 M_P(void, name, _init, queue_t v, size_t size)                                \
 {                                                                             \
   M_ASSERT(size <= UINT_MAX);                                                 \
-  M_ASSERT_POOL();                                                            \
+  M_UNUSED_CONTEXT();                                                            \
   M_QUEU3_IF_CTE_SIZE(m_size)(M_ASSERT(size == m_size), v->capacity = (unsigned) size); \
   v->idx_prod = v->idx_cons = v->number = 0;                                  \
                                                                               \
@@ -194,7 +194,7 @@ M_QUEU3_IF_CTE_SIZE(m_size)(                                                  \
  M_P(void, name, _i_clear_obj, queue_t v)                                     \
  {                                                                            \
    M_QUEU3_CONTRACT(v,m_size);                                                \
-   M_ASSERT_POOL();                                                           \
+   M_UNUSED_CONTEXT();                                                           \
    for(size_t i = 0; i < M_QUEU3_SIZE(v, m_size); i++) {                      \
      M_CALL_CLEAR(oplist, v->data[i]);                                        \
    }                                                                          \
@@ -205,7 +205,7 @@ M_QUEU3_IF_CTE_SIZE(m_size)(                                                  \
  M_P(void, name, _clear, queue_t v)                                           \
  {                                                                            \
    M_QUEU3_CONTRACT(v,m_size);                                                \
-   M_ASSERT_POOL();                                                           \
+   M_UNUSED_CONTEXT();                                                           \
    M_F(name,_i_clear_obj)M_R(v);                                              \
    M_QUEU3_IF_CTE_SIZE(m_size)( ,                                             \
      M_CALL_FREE(oplist, type, v->data, M_QUEU3_SIZE(v, m_size));             \
@@ -264,7 +264,7 @@ M_QUEU3_IF_CTE_SIZE(m_size)(                                                  \
  M_P(bool, name, _push, queue_t v, type const data)                           \
  {                                                                            \
   M_QUEU3_CONTRACT(v,m_size);                                                 \
-  M_ASSERT_POOL();                                                            \
+  M_UNUSED_CONTEXT();                                                            \
   if (M_F(name, _full_p)(v))                                                  \
     return false;                                                             \
                                                                               \
@@ -284,7 +284,7 @@ M_QUEU3_IF_CTE_SIZE(m_size)(                                                  \
  {                                                                            \
    M_QUEU3_CONTRACT(v,m_size);                                                \
    M_ASSERT (data != NULL);                                                   \
-   M_ASSERT_POOL();                                                           \
+   M_UNUSED_CONTEXT();                                                           \
    if (M_F(name, _empty_p)(v))                                                \
      return false;                                                            \
                                                                               \

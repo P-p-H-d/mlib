@@ -385,7 +385,7 @@ M_BEGIN_PROTECTED_CODE
  *    It returns NULL in case of memory allocation failure.
  * void M_MEMORY_FREE(type, ptr, o): Free the object associated to the array of type 'type' at base 'ptr' of size 'o'.
  * By default, old size do nothing.
- * Can use local optional named parameter "m_pool" which is defined by the called of the macro if M_USE_POOL is defined.
+ * Can use local optional named parameter "m_context" which is defined by the called of the macro if M_USE_CONTEXT is defined.
  */
 #ifndef M_MEMORY_REALLOC
 #ifdef __cplusplus
@@ -412,59 +412,60 @@ M_BEGIN_PROTECTED_CODE
 #endif
 
 
+// Default global memory context is to consider the global context as '0' if it is not defined.
+#ifndef M_USE_GLOBAL_CONTEXT
+#define M_USE_GLOBAL_CONTEXT(varname) M_USE_CONTEXT varname = { 0 }
+#endif
+
 /* In order to support local context for memory functions, the prototypes and usages of some functions are modified
- * so that they can accept a first argument 'm_pool' which is the memory context parameter.
+ * so that they can accept a first argument 'm_context' which is the memory context parameter.
  *
  * For some functions, there is no meaning of a local memory context parameter:
  * for all data shared between threads, only a global memory context has any meaning.
  * For such cases, the memory context parameter is globally requested to the user through M_USE_GLOBAL_POOL or set to 0.
  *
- * This is controlled through M_USE_POOL parameter that define the type of the memory context parameter
+ * This is controlled through M_USE_CONTEXT parameter that define the type of the memory context parameter
  * to be used globally for all M*LIB. There is no possibility to support only some containers and not others.
  *
  * Several macros are defined **globally** to support such features and being internally used by M*LIB containers.
  * They expand to nothing if the memory context parameter is not requested:
- * * M_P_EXPAND: expand to the first parameter 'm_pool' of type M_USE_POOL for a function that may use memory context.
+ * * M_P_EXPAND: expand to the first parameter 'm_context' of type M_USE_CONTEXT for a function that may use memory context.
  * * M_P_EXPAND_void: same but assume that there is no argument in the initial function.
- * * M_R_EXPAND: expand to the first parameter 'm_pool' (followed by a comma)
+ * * M_R_EXPAND: expand to the first parameter 'm_context' (followed by a comma)
  * * M_R_EXPAND_void: same but assume that there is no argument
- * * M_R: add the parameter m_pool to the function call if needed,
- * * M_P: define the prototype of a function that may have the parameter m_pool.
- * * M_N: define the prototype of a function that don't need the parameter m_pool.
- * * M_ASSERT_POOL: avoid warning of unused m_pool argument
- * * M_GLOBAL_POOL: define m_pool to zero, meaning it is a global memory context.
+ * * M_R: add the parameter m_context to the function call if needed,
+ * * M_P: define the prototype of a function that may have the parameter m_context.
+ * * M_N: define the prototype of a function that don't need the parameter m_context.
+ * * M_UNUSED_CONTEXT: avoid warning of unused m_context argument
+ * * M_GLOBAL_CONTEXT: define m_context to zero, meaning it is a global memory context.
  */
-#ifndef M_USE_POOL
-// Memory pool parameter not used for memory function. Stub it with 0 as it won't be used (global definition).
+#ifndef M_USE_CONTEXT
+// Memory context parameter not used for memory function.
 # define M_P_EXPAND
 # define M_P_EXPAND_void void
 # define M_R_EXPAND
 # define M_R_EXPAND_void
 # define M_R
-# define M_ASSERT_POOL()
-# define M_GLOBAL_POOL()
+# define M_UNUSED_CONTEXT()
+# define M_GLOBAL_CONTEXT()
 #else
-// Default global value is to set to 0 the global pool.
-#ifndef M_USE_GLOBAL_POOL
-#define M_USE_GLOBAL_POOL(x) M_USE_POOL x = { 0 }
-#endif
-// Memory pool parameter is used for function using memory. (local definition to the function).
+// Memory context parameter is used for function using memory. (local definition to the function).
 // Expand to a prototype to a function that may not trigger exception
-# define M_P_EXPAND M_USE_POOL m_pool, 
-# define M_P_EXPAND_void M_USE_POOL m_pool
-# define M_R_EXPAND m_pool ,
-# define M_R_EXPAND_void m_pool
-# define M_R(...) (m_pool, __VA_ARGS__)
-# define M_ASSERT_POOL() (void) m_pool
-# define M_GLOBAL_POOL() M_USE_GLOBAL_POOL(m_pool); (void) m_pool
+# define M_P_EXPAND M_USE_CONTEXT m_context, 
+# define M_P_EXPAND_void M_USE_CONTEXT m_context
+# define M_R_EXPAND m_context ,
+# define M_R_EXPAND_void m_context
+# define M_R(...) (m_context, __VA_ARGS__)
+# define M_UNUSED_CONTEXT() (void) m_context
+# define M_GLOBAL_CONTEXT() M_USE_GLOBAL_CONTEXT(m_context); (void) m_context
 #endif
 
 // M_P: Expand to a prototype of a function that may trigger exception / accept memory context
 // M_N: Expand to a prototype of a function that may not trigger exception or accept memory context
-// If not user M_F, no overloaded M_INLINE and no M_P_EXPAND,
-// simplify definition of M_P/M_N to provide faster compile time.
+// If not user defined M_F or memory context, no overloaded M_INLINE,
+// simplify the definition of M_P/M_N to provide faster compile time.
 // (faster build: 0.54s instead of 0.80s in extreme expanding)
-#if !defined(M_USE_POOL) && !defined(M_F) && !defined(M_USE_FINE_GRAINED_LINKAGE) && !defined(M_USE_DEF) && !defined(M_USE_DECL)
+#if !defined(M_USE_CONTEXT) && !defined(M_F) && !defined(M_USE_FINE_GRAINED_LINKAGE) && !defined(M_USE_DEF) && !defined(M_USE_DECL)
 # define M_P(rettype, name, suffix, ...) static inline rettype name ## suffix(__VA_ARGS__)
 # define M_N(rettype, name, suffix, ...) static inline rettype name ## suffix(__VA_ARGS__)
 #else
@@ -472,8 +473,6 @@ M_BEGIN_PROTECTED_CODE
 # define M_N(rettype, name, suffix, ...) M_INLINE rettype M_F(name, suffix)(__VA_ARGS__)
 #endif
 
-// TODO: 'pool' seems not the right term. Rename 'pool' into 'localmem' ? 'arena'? memcontext? context?
-// Rename to M_USE_MEMORY_CONTEXT? M_USE_MEMCONTEXT
 
 /************************************************************/
 /*********************  ERROR handling **********************/
@@ -3730,14 +3729,14 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_OPLAPI_5(method, oplist, x, ...)   , x = M_DELAY3(method)(oplist, __VA_ARGS__)
 #define M_OPLAPI_6(method, oplist, x, ...)   , M_DELAY3(method)(&x, &__VA_ARGS__)
 #define M_OPLAPI_7(method, oplist, x, ...)   , M_DELAY3(method)(oplist, &x, &__VA_ARGS__)
-#define M_OPLAPI_0P(method, oplist, ...)      , M_DELAY3(method)(m_pool, __VA_ARGS__)
-#define M_OPLAPI_1P(method, oplist, ...)      , M_DELAY3(method)(oplist, m_pool, __VA_ARGS__)
-#define M_OPLAPI_2P(method, oplist, ...)      , M_DELAY3(method)(m_pool, & __VA_ARGS__)
-#define M_OPLAPI_3P(method, oplist, ...)      , M_DELAY3(method)(oplist, m_pool, &__VA_ARGS__)
-#define M_OPLAPI_4P(method, oplist, x, ...)   , x = M_DELAY3(method)(m_pool, __VA_ARGS__)
-#define M_OPLAPI_5P(method, oplist, x, ...)   , x = M_DELAY3(method)(oplist, m_pool, __VA_ARGS__)
-#define M_OPLAPI_6P(method, oplist, x, ...)   , M_DELAY3(method)(m_pool, &x, &__VA_ARGS__)
-#define M_OPLAPI_7P(method, oplist, x, ...)   , M_DELAY3(method)(oplist, m_pool, &x, &__VA_ARGS__)
+#define M_OPLAPI_0P(method, oplist, ...)      , M_DELAY3(method)(m_context, __VA_ARGS__)
+#define M_OPLAPI_1P(method, oplist, ...)      , M_DELAY3(method)(oplist, m_context, __VA_ARGS__)
+#define M_OPLAPI_2P(method, oplist, ...)      , M_DELAY3(method)(m_context, & __VA_ARGS__)
+#define M_OPLAPI_3P(method, oplist, ...)      , M_DELAY3(method)(oplist, m_context, &__VA_ARGS__)
+#define M_OPLAPI_4P(method, oplist, x, ...)   , x = M_DELAY3(method)(m_context, __VA_ARGS__)
+#define M_OPLAPI_5P(method, oplist, x, ...)   , x = M_DELAY3(method)(oplist, m_context, __VA_ARGS__)
+#define M_OPLAPI_6P(method, oplist, x, ...)   , M_DELAY3(method)(m_context, &x, &__VA_ARGS__)
+#define M_OPLAPI_7P(method, oplist, x, ...)   , M_DELAY3(method)(oplist, m_context, &x, &__VA_ARGS__)
 /* API transformation support for indirection */
 #define M_OPLAPI_INDIRECT_0          M_OPLAPI_ERROR
 #define M_OPLAPI_INDIRECT_API_0(...) M_OPLAPI_0

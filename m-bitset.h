@@ -834,7 +834,7 @@ m_bitset_popcount(const m_bitset_t set)
 }
 
 /* Oplist for a bitset */
-#ifndef M_USE_POOL
+#ifndef M_USE_CONTEXT
 #define M_BITSET_OPLIST                                                       \
   (INIT(m_bitset_init)                                                        \
    ,INIT_SET(m_bitset_init_set)                                               \
@@ -907,7 +907,7 @@ m_bitset_popcount(const m_bitset_t set)
 #endif
 
 /* Register the OPLIST as a global one */
-#ifdef M_USE_POOL
+#ifdef M_USE_CONTEXT
 #define M_OPL_m_bitset_t() M_BITSET_POOL_OPLIST
 #else
 #define M_OPL_m_bitset_t() M_BITSET_OPLIST

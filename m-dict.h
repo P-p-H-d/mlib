@@ -1253,7 +1253,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
 /* Define the oplist of a dictionary
    NOTE: IT_REF is not exported so that the contained appears as not modifiable
    by algorithm.*/
-#ifndef M_USE_POOL
+#ifndef M_USE_CONTEXT
 #define M_D1CT_OPLIST_P4(name, key_oplist, value_oplist)                      \
   (INIT(M_F(name, _init)),                                                    \
    INIT_SET(M_F(name, _init_set)),                                            \
@@ -1349,7 +1349,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
 /* Define the oplist of a set
    Note: IT_REF is not exported so that the contained appears as not modifiable
 */
-#ifndef M_USE_POOL
+#ifndef M_USE_CONTEXT
 #define M_D1CT_SET_OPLIST_P3(name, oplist)                                    \
   (INIT(M_F(name, _init)),                                                    \
    INIT_SET(M_F(name, _init_set)),                                            \
@@ -2078,7 +2078,7 @@ enum m_d1ct_oa_element_e {
 M_P(void, name, _bulk_get, unsigned n, value_type val[M_VLA(n)], dict_t dict, key_type const key[M_VLA(n)], value_type def) \
 {                                                                             \
   M_D1CT_OA_CONTRACT (dict);                                                  \
-  M_ASSERT_POOL();                                                            \
+  M_UNUSED_CONTEXT();                                                            \
   size_t h[M_USE_MAX_PREFETCH];                                               \
   M_F(name, _pair_ct) *data = dict->data;                                     \
   const size_t mask = dict->mask;                                             \

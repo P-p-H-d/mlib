@@ -71,7 +71,7 @@
   ((M_LIB_ERROR(ARGUMENT_OF_PRIOQUEUE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* Define oplist of a priority queue */
-#ifndef M_USE_POOL
+#ifndef M_USE_CONTEXT
 #define M_PR1OQUEUE_OPLIST_P3(name, oplist)                                   \
   (INIT(M_F(name, _init))                                                     \
    ,INIT_SET(M_F(name, _init_set))                                            \

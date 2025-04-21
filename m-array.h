@@ -80,7 +80,7 @@
 /* OPLIST definition of a dynamic array */
 /* FIXME: Do we want to export some methods as they are slow and 
    are not fit to be used for building other methods (like _it_remove)? */
-#ifndef M_USE_POOL
+#ifndef M_USE_CONTEXT
 #define M_ARRA4_OPLIST_P3(name, oplist)                                       \
   (INIT(M_F(name, _init))                                                     \
    ,M_IF_METHOD2(INIT_SET,SET, oplist)(INIT_SET(M_F(name, _init_set)),)       \
@@ -270,7 +270,7 @@
   M_P(void, name, _reset, array_t v)                                          \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
-    M_ASSERT_POOL();                                                          \
+    M_UNUSED_CONTEXT();                                                          \
     for(size_t i = 0; i < v->size; i++)                                       \
       M_CALL_CLEAR(oplist, v->ptr[i]);                                        \
     v->size = 0;                                                              \
@@ -351,7 +351,7 @@
   M_P(void, name, _set_at, array_t v, size_t i, type const x)                 \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
-    M_ASSERT_POOL();                                                          \
+    M_UNUSED_CONTEXT();                                                          \
     M_ASSERT(v->size > 0 && v->ptr != NULL);                                  \
     M_ASSERT_INDEX(i, v->size);                                               \
     M_CALL_SET(oplist, v->ptr[i], x);                                         \
@@ -543,7 +543,7 @@
   M_P(void, name, _pop_back, type *dest, array_t v)                           \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
-    M_ASSERT_POOL();                                                          \
+    M_UNUSED_CONTEXT();                                                          \
     M_ASSERT (v->ptr != NULL);                                                \
     M_ASSERT_INDEX(0, v->size);                                               \
     v->size--;                                                                \
@@ -602,7 +602,7 @@
   M_P(void, name, _pop_at, type *dest, array_t v, size_t i)                   \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
-    M_ASSERT_POOL();                                                          \
+    M_UNUSED_CONTEXT();                                                          \
     M_ASSERT (v->size > 0 && v->ptr != NULL);                                 \
     M_ASSERT_INDEX(i, v->size);                                               \
     if (dest)                                                                 \
@@ -661,7 +661,7 @@
   M_P(void, name, _remove_v, array_t v, size_t i, size_t j)                   \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
-    M_ASSERT_POOL();                                                          \
+    M_UNUSED_CONTEXT();                                                          \
     M_ASSERT(i < j && v->ptr != NULL);                                        \
     M_ASSERT_INDEX(i, v->size);                                               \
     M_ASSERT_INDEX(j, v->size+1);                                             \

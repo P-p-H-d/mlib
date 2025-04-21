@@ -9178,7 +9178,7 @@ _________________
 ### M-MEMPOOL
 
 > [!NOTE]
-> This header is obsolete: `M_USE_POOL` should be used instead to pass custom memory context to containers.
+> This header is obsolete: `M_USE_CONTEXT` should be used instead to pass custom memory context to containers.
 
 This header is for generating specialized and optimized memory pools:
 it will generate specialized functions to allocate and free only one kind of an object.

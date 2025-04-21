@@ -217,7 +217,7 @@ typedef int32_t m_tr33_index_t;
                                                                               \
     M_P(void, name, _reset, tree_t tree) {                                    \
         M_TR33_CONTRACT(tree);                                                \
-        M_ASSERT_POOL();                                                      \
+        M_UNUSED_CONTEXT();                                                      \
         if (tree->size > 0) {                                                 \
             /* We don't scan recursively the node tree, but sequentially */   \
             m_tr33_index_t free_index = tree->free_index;                     \
@@ -863,7 +863,7 @@ typedef int32_t m_tr33_index_t;
                                                                               \
     M_P(bool, name, _remove, it_t it) {                                       \
         M_TR33_IT_CONTRACT(it, false);                                        \
-        M_ASSERT_POOL();                                                      \
+        M_UNUSED_CONTEXT();                                                      \
         if (M_UNLIKELY(it.index < 0)) { return false; }                       \
         type *ptr = M_F(name, _unlink)(it);                                   \
         M_CALL_CLEAR(oplist, *ptr);                                           \

@@ -101,7 +101,7 @@
   ((M_LIB_ERROR(ARGUMENT_OF_LIST_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* OPLIST definition of a list and list_dual_push */
-#ifndef M_USE_POOL
+#ifndef M_USE_CONTEXT
 #define M_L1ST_OPLIST_P3(name, oplist)                                        \
   (INIT(M_F(name, _init)),                                                    \
    INIT_SET(M_F(name, _init_set)),                                            \

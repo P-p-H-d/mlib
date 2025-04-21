@@ -613,7 +613,7 @@ extern shared_t *function_name(M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_emplace_type
 M_IF_METHOD(INIT, oplist)(                                                    \
     fattr shared_t *M_F(name, _new)(void)                                     \
     {                                                                         \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         shared_t *out = M_CALL_NEW(oplist, shared_t);                         \
         if (M_UNLIKELY_NOMEM( out == NULL)) {                                 \
             M_MEMORY_FULL(shared_t, 1);                                       \
@@ -629,7 +629,7 @@ M_IF_METHOD(INIT_SET, oplist)(                                                \
     fattr shared_t *M_F(name, _clone)(const shared_t *src)                    \
     {                                                                         \
         M_ASSERT(src != NULL);                                                \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         shared_t *out = M_CALL_NEW(oplist, shared_t);                         \
         if (M_UNLIKELY_NOMEM( out == NULL)) {                                 \
             M_MEMORY_FULL(shared_t, 1);                                       \
@@ -646,7 +646,7 @@ M_IF_METHOD(INIT_SET, oplist)(                                                \
     fattr shared_t *M_F(name, _new_from)(type const src); )                   \
     fattr shared_t *M_F(name, _new_from)(type const src)                      \
     {                                                                         \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         shared_t *out = M_CALL_NEW(oplist, shared_t);                         \
         if (M_UNLIKELY_NOMEM( out == NULL)) {                                 \
             M_MEMORY_FULL(shared_t, 1);                                       \
@@ -663,7 +663,7 @@ M_IF_METHOD(SET, oplist)(                                                     \
     {                                                                         \
         M_ASSERT(out != NULL);                                                \
         M_ASSERT(src != NULL);                                                \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         if (M_UNLIKELY (out == src)) return;                                  \
         M_F(name, _write_read_lock)(out, src);                                \
         M_ON_EXCEPTION( M_F(name, _write_read_unlock)(out, src) )             \
@@ -682,7 +682,7 @@ fattr shared_t *M_F(name, _acquire)(shared_t *out)                            \
                                                                               \
 fattr void M_F(name, _release)(shared_t *out)                                 \
 {                                                                             \
-    M_GLOBAL_POOL();                                                          \
+    M_GLOBAL_CONTEXT();                                                          \
     if (out != NULL && M_C3(m_shar3d_, name, _dec_owner)(out)) {              \
         M_CALL_CLEAR(oplist, out->data);                                      \
         M_F(name, _clear_lock)(out);                                          \
@@ -706,7 +706,7 @@ M_EMPLACE_QUEUE_DEF( (name, fattr), shared_t, M_F(name, _make), oplist, M_SHAR3D
 #define M_SHAR3D_PTR_DEF_BASIC_MAKE(name_attr, shared_t, function_name, oplist, init_func, exp_emplace_type) \
 M_PAIR_2 name_attr shared_t *function_name(M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_emplace_type)) \
 {                                                                             \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         shared_t *out = M_CALL_NEW(oplist, shared_t);                         \
         if (M_UNLIKELY_NOMEM( out == NULL)) {                                 \
             M_MEMORY_FULL(shared_t, 1);                                       \
@@ -753,7 +753,7 @@ M_IF_METHOD(RESET, oplist)(                                                   \
     fattr void M_F(name, _reset)(shared_t *out)                               \
     {                                                                         \
         M_ASSERT(out != NULL);                                                \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         M_F(name, _write_lock)(out);                                          \
         /* RESET cannot throw exception */                                    \
         M_CALL_RESET(oplist, out->data);                                      \
@@ -866,7 +866,7 @@ M_IF_METHOD(ADD, oplist)(                                                     \
     fattr void M_F(name, _add)(shared_t *out, const shared_t *src1, const shared_t *src2) \
     {                                                                         \
         M_ASSERT(out != NULL && src1 != NULL && src2 != NULL);                \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         M_F(name, _write_read2_lock)(out, src1, src2);                        \
         M_ON_EXCEPTION( M_F(name, _write_read2_unlock)(out, src1, src2) )     \
             M_CALL_ADD(oplist, out->data, src1->data, src2->data);            \
@@ -878,7 +878,7 @@ M_IF_METHOD(SUB, oplist)(                                                     \
     fattr void M_F(name, _sub)(shared_t *out, const shared_t *src1, const shared_t *src2) \
     {                                                                         \
         M_ASSERT(out != NULL && src1 != NULL && src2 != NULL);                \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         M_F(name, _write_read2_lock)(out, src1, src2);                        \
         M_ON_EXCEPTION( M_F(name, _write_read2_unlock)(out, src1, src2) )     \
             M_CALL_SUB(oplist, out->data, src1->data, src2->data);            \
@@ -890,7 +890,7 @@ M_IF_METHOD(MUL, oplist)(                                                     \
     fattr void M_F(name, _mul)(shared_t *out, const shared_t *src1, const shared_t *src2) \
     {                                                                         \
         M_ASSERT(out != NULL && src1 != NULL && src2 != NULL);                \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         M_F(name, _write_read2_lock)(out, src1, src2);                        \
         M_ON_EXCEPTION( M_F(name, _write_read2_unlock)(out, src1, src2) )     \
             M_CALL_MUL(oplist, out->data, src1->data, src2->data);            \
@@ -902,7 +902,7 @@ M_IF_METHOD(DIV, oplist)(                                                     \
     fattr void M_F(name, _div)(shared_t *out, const shared_t *src1, const shared_t *src2) \
     {                                                                         \
         M_ASSERT(out != NULL && src1 != NULL && src2 != NULL);                \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         M_F(name, _write_read2_lock)(out, src1, src2);                        \
         M_ON_EXCEPTION( M_F(name, _write_read2_unlock)(out, src1, src2) )     \
             M_CALL_DIV(oplist, out->data, src1->data, src2->data);            \
@@ -914,7 +914,7 @@ M_IF_METHOD(SPLICE, oplist)(                                                  \
     fattr void M_F(name, _splice)(shared_t *out, shared_t *src)               \
     {                                                                         \
         M_ASSERT(out != NULL && src != NULL);                                 \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         if (out < src) {                                                      \
             M_F(name, _write_lock)(out);                                      \
             M_F(name, _write_lock)(src);                                      \
@@ -944,7 +944,7 @@ M_IF_METHOD(GET_KEY, oplist)(                                                 \
     {                                                                         \
         M_ASSERT (out != NULL);                                               \
         M_ASSERT (value != NULL);                                             \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         M_F(name, _read_lock)(out);                                           \
         /* No exception */                                                    \
         value_type *p = M_CALL_GET_KEY(oplist, out->data, key);               \
@@ -961,7 +961,7 @@ M_IF_METHOD(SAFE_GET_KEY, oplist)(                                            \
     {                                                                         \
         M_ASSERT (out != NULL);                                               \
         M_ASSERT (value != NULL);                                             \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         M_F(name, _write_lock)(out);                                          \
         M_ON_EXCEPTION( M_F(name, _write_unlock)(out) ) {                     \
             value_type *p = M_CALL_SAFE_GET_KEY(oplist, out->data, key);      \
@@ -977,7 +977,7 @@ M_IF_METHOD(SET_KEY, oplist)(                                                 \
     fattr void M_F(name, _set_at)(shared_t *out, key_type const key, value_type const value) \
     {                                                                         \
         M_ASSERT (out != NULL);                                               \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         M_F(name, _write_lock)(out);                                          \
         M_ON_EXCEPTION( M_F(name, _write_unlock)(out) )                       \
             M_CALL_SET_KEY(oplist, out->data, key, value);                    \
@@ -990,7 +990,7 @@ M_IF_METHOD(ERASE_KEY, oplist)(                                               \
     fattr bool M_F(name, _erase)(shared_t *out, key_type const key)           \
     {                                                                         \
         M_ASSERT (out != NULL);                                               \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         M_F(name, _write_lock)(out);                                          \
         /* No exception */                                                    \
         bool r = M_CALL_ERASE_KEY(oplist, out->data, key);                    \
@@ -1021,7 +1021,7 @@ M_IF_METHOD(PUSH, oplist)(                                                    \
     fattr void M_F(name, _push)(shared_t *out, sub_type const value)          \
     {                                                                         \
         M_ASSERT(out != NULL);                                                \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         M_F(name, _write_lock)(out);                                          \
         while (true) {                                                        \
             if (M_CALL_FULL_P(oplist, out->data) == false) {                  \
@@ -1038,7 +1038,7 @@ M_IF_METHOD(PUSH, oplist)(                                                    \
     fattr bool M_F(name, _try_push)(shared_t *out, sub_type const value)      \
     {                                                                         \
         M_ASSERT(out != NULL);                                                \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         bool ret = false;                                                     \
         M_F(name, _write_lock)(out);                                          \
         if (M_CALL_FULL_P(oplist, out->data) == false) {                      \
@@ -1055,7 +1055,7 @@ M_IF_METHOD(PUSH_MOVE, oplist)(                                               \
     fattr void M_F(name, _push_move)(shared_t *out, sub_type *value)          \
     {                                                                         \
         M_ASSERT(out != NULL);                                                \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         M_F(name, _write_lock)(out);                                          \
         while (true) {                                                        \
             if (M_CALL_FULL_P(oplist, out->data) == false) {                  \
@@ -1072,7 +1072,7 @@ M_IF_METHOD(PUSH_MOVE, oplist)(                                               \
     fattr bool M_F(name, _try_push_move)(shared_t *out, sub_type *value)      \
     {                                                                         \
         M_ASSERT(out != NULL);                                                \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         bool ret = false;                                                     \
         M_F(name, _write_lock)(out);                                          \
         if (M_CALL_FULL_P(oplist, out->data) == false) {                      \
@@ -1094,7 +1094,7 @@ M_IF_METHOD(PUSH_MOVE, oplist)(                                               \
 fattr void function_name(shared_t *out M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type)) \
 {                                                                             \
         M_ASSERT(out != NULL);                                                \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         M_F(name, _write_lock)(out);                                          \
         while (true) {                                                        \
             if (M_CALL_FULL_P(oplist, out->data) == false) {                  \
@@ -1117,7 +1117,7 @@ fattr void function_name(shared_t *out M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_ty
 fattr bool function_name(shared_t *out M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type)) \
 {                                                                             \
         M_ASSERT(out != NULL);                                                \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         bool ret = false;                                                     \
         M_F(name, _write_lock)(out);                                          \
         if (M_CALL_FULL_P(oplist, out->data) == false) {                      \
@@ -1146,7 +1146,7 @@ M_IF_METHOD(POP, oplist)(                                                     \
     fattr void M_F(name, _pop)(sub_type *value, shared_t *out)                \
     {                                                                         \
         M_ASSERT(out != NULL);                                                \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         M_F(name, _write_lock)(out);                                          \
         while (true) {                                                        \
             if (M_CALL_EMPTY_P(oplist, out->data) == false) {                 \
@@ -1163,7 +1163,7 @@ M_IF_METHOD(POP, oplist)(                                                     \
     fattr bool M_F(name, _try_pop)(sub_type *value, shared_t *out)            \
     {                                                                         \
         M_ASSERT(out != NULL);                                                \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         bool ret = false;                                                     \
         M_F(name, _write_lock)(out);                                          \
         if (M_CALL_EMPTY_P(oplist, out->data) == false) {                     \
@@ -1180,7 +1180,7 @@ M_IF_METHOD(POP_MOVE, oplist)(                                                \
     fattr void M_F(name, _pop_move)(sub_type *value, shared_t *out)           \
     {                                                                         \
         M_ASSERT(out != NULL);                                                \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         M_F(name, _write_lock)(out);                                          \
         while (true) {                                                        \
             if (M_CALL_EMPTY_P(oplist, out->data) == false) {                 \
@@ -1197,7 +1197,7 @@ M_IF_METHOD(POP_MOVE, oplist)(                                                \
     fattr bool M_F(name, _try_pop_move)(sub_type *value, shared_t *out)       \
     {                                                                         \
         M_ASSERT(out != NULL);                                                \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         bool ret = false;                                                     \
         M_F(name, _write_lock)(out);                                          \
         if (M_CALL_EMPTY_P(oplist, out->data) == false) {                     \
@@ -1326,7 +1326,7 @@ M_IF_METHOD(IN_STR, oplist)(                                                  \
     fattr bool M_F(name, _in_str)(shared_t *out, FILE *file)                  \
     {                                                                         \
         M_ASSERT (out != NULL && file != NULL);                               \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         M_F(name, _write_lock)(out);                                          \
         m_volatile bool r = false;                                            \
         M_ON_EXCEPTION( M_F(name, _write_unlock)(out) )                       \
@@ -1341,7 +1341,7 @@ M_IF_METHOD(GET_STR, oplist)(                                                 \
     fattr void M_F(name, _get_str)(m_string_t str, const shared_t *out, bool append) \
     {                                                                         \
         M_ASSERT (out != NULL);                                               \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         M_F(name, _read_lock)(out);                                           \
         M_ON_EXCEPTION( M_F(name, _read_unlock)(out) )                        \
             M_CALL_GET_STR(oplist, str, out->data, append);                   \
@@ -1352,7 +1352,7 @@ M_IF_METHOD(PARSE_STR, oplist)(                                               \
     fattr bool M_F(name, _parse_str)(shared_t *out, const char str[], const char **endp) \
     {                                                                         \
         M_ASSERT (out != NULL);                                               \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         M_F(name, _write_lock)(out);                                          \
         m_volatile bool r = false;                                            \
         M_ON_EXCEPTION( M_F(name, _write_unlock)(out) )                       \
@@ -1379,7 +1379,7 @@ M_IF_METHOD(IN_SERIAL, oplist)(                                               \
     fattr m_serial_return_code_t M_F(name, _in_serial)(shared_t *out, m_serial_read_t serial) \
     {                                                                         \
         M_ASSERT (out != NULL);                                               \
-        M_GLOBAL_POOL();                                                      \
+        M_GLOBAL_CONTEXT();                                                      \
         M_F(name, _write_lock)(out);                                          \
         m_volatile m_serial_return_code_t r = M_SERIAL_FAIL;                  \
         M_ON_EXCEPTION( M_F(name, _write_unlock)(out) )                       \

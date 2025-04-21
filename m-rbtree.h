@@ -71,7 +71,7 @@
 /* OPLIST definition of a rbtree
    NOTE: IT_REF is not exported so that the container appears as not modifiable
    by algorithm.*/
-#ifndef M_USE_POOL
+#ifndef M_USE_CONTEXT
 #define M_RBTR33_OPLIST_P3(name, oplist)                                      \
   (INIT(M_F(name, _init)),                                                    \
    INIT_SET(M_F(name, _init_set)),                                            \
