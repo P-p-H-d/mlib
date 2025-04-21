@@ -33,14 +33,14 @@ M\*LIB: Generic type-safe Container Library for C language
         2. [Atomic Shared Register](#m-snapshot)
         3. [Shared pointers](#m-shared-ptr)
         4. [Worker threads](#m-worker)
-    6.Dataset
+    6. Dataset
         1. [String](#m-string)
         2. [Byte String](#m-bstring)
         3. [Bitset](#m-bitset)
-    7.Algorithms
+    7. Algorithms
         1. [Generic algorithms](#m-algo)
         2. [Function objects](#m-funcobj)
-    8.Serialization
+    8. Serialization
         1. [JSON Serialization](#m-serial-json)
         2. [Binary Serialization](#m-serial-bin)
     9. [Uniform interface](#m-generic)
