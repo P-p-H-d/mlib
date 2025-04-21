@@ -171,7 +171,7 @@
   typedef bool (*M_F(name, _eq_cb_ct))(type_t const, type_t const);           \
   typedef int  (*M_F(name, _cmp_cb_ct))(type_t const, type_t const);          \
   typedef void (*M_F(name, _transform_cb_ct))(type_t *, type_t const);        \
-  typedef void (*M_F(name, _apply_cb_ct))(type_t);                            \
+  typedef void (*M_F(name, _apply_cb_ct))(type_t M_IF_METHOD(IT_REF, cont_oplist)( , const)  );
 
 
 /* Define the function objects associated to the algorithms.
