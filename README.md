@@ -9683,12 +9683,6 @@ Define the size of the private data (reserved to the serial implementation) in a
 
 Default value: `4`
 
-#### `M_USE_MEMPOOL_MAX_PER_SEGMENT(type)`
-
-Define the number of elements to allocate in a segment per object of type `type`.
-
-Default value: number of elements that fits in a `16KB` page.
-
 #### `M_USE_DEQUE_DEFAULT_SIZE`
 
 Define the default size of a segment for a deque structure.
@@ -9707,16 +9701,17 @@ Use fast integer conversion algorithms instead of using the LIBC.
 
 Default value: `1` (because it also generates smaller code).
 
-#### `M_USE_DECL`
+#### `M_USE_DECL` and `M_USE_DEF`
 
 If `M_USE_FINE_GRAINED_LINKAGE` is not defined,
-it will request M\*LIB to change the linkage of its symbols globally:
-instead of inlining the functions, it will emit weak symbols
-for the functions that are not inlined.
+`M_USE_DECL` will request M\*LIB to globally change the linkage of the functions:
+instead of being inline, the functions will be emitted as `weak` symbols,
+ensuring that only one definition of the function remains at the end
+of the link.
 
-And in exactly one translation unit, the macro `M_USE_DEF`
+In exactly one translation unit, the macro `M_USE_DEF`
 should also be defined so that it emits the normal definition
-of the functions. In which case, it should contain all symbols
+of the functions (non `weak`). In which case, it should contain all symbols
 used by all other translation units.
 
 You should compile your program with:
@@ -9727,10 +9722,12 @@ and link with
 ```shell
 -Wl,--gc-sections
 ```
-in order to remove unused code and to merge identical code
-otherwise it is likely to generate even bigger code than using the inlining linkage.
+in order to remove unused code
+otherwise it is possible to generate even bigger code than using the inlining linkage.
 
 This works for GCC / CLANG in C mode.
+
+Default value: undefined (inline definition)
 
 #### `M_USE_FINE_GRAINED_LINKAGE`
 
@@ -9749,9 +9746,13 @@ This enables to inline some functions and not others.
 
 See `M_USE_DECL` for more details.
 
+Default value: undefined (inline definition)
+
 #### `M_USE_PRINT_OPLIST`
 
 If defined, it displays the oplist associated to the static assert.
+
+Default value: undefined (oplist not printed)
 
 #### `M_MEMORY_ALLOC`
 
