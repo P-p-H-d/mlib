@@ -12,11 +12,11 @@ M\*LIB: Generic type-safe Container Library for C language
 9. [Errors & compilers](#errors--compilers)
 10. [External Reference](#external-reference)
 11. [API Documentation](#api-documentation)
-    1. [Generic method interface](#generic-methods)
+    1. [Common Interface](#Common-Interface)
     2. Sequence containers
-        1. [List](#m-list)
-        2. [Intrusive list](#m-i-list)
-        3. [Array](#m-array)
+        1. [Array](#m-array)
+        2. [List](#m-list)
+        3. [Intrusive list](#m-i-list)
         4. [Double end queue](#m-deque)
         6. [Fixed size queue / stack](#m-queue)
     3. Associative containers
@@ -1284,11 +1284,11 @@ _________________
 
 The M\*LIB reference card is available [here](http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Container.html).
 
-### Generic methods
+### Common Interface
 
 The generated containers tries to generate and provide a consistent interface:
 their methods would behave the same for all generated containers.
-This chapter will explain the generic interface.
+This chapter will explain the common generated interface.
 In case of difference, it will be explained in the specific container.
 
 In the following description:
@@ -1323,7 +1323,7 @@ The output parameters are listed fist, then the input/output parameters and fina
 
 The oplist shall also provide the `INIT_MOVE` operator if the default instance (aka '=' operator) is not working for this type (for example for array of size 1, in which case the method `M_COPY_A1_DEFAULT` is likely to work), or disable the operator.
 
-This generic interface is specified as follow:
+This common interface is specified as follow:
 
 ##### `void name_init(name_t container)`
 
@@ -1873,9 +1873,9 @@ Type of the list of `type` objects.
 
 Type of an iterator over this list.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t list)
@@ -2035,9 +2035,9 @@ Type of the list of `type`.
 
 Type of an iterator over this list.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t list)
@@ -2197,9 +2197,9 @@ Type of the array of `type`.
 
 Type of an iterator over this array.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t array)
@@ -2392,9 +2392,9 @@ Type of the deque of `type`.
 
 Type of an iterator over this deque.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t deque)
@@ -2671,9 +2671,9 @@ Type of one item referenced in the dictionary for associative array.
 It is a structure composed of the key (field `key`) and the value (field `value`).
 This type is created only for associative arrays (`_DEF2` suffix) and not for sets.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t dict)
@@ -2740,7 +2740,7 @@ Each element is defined by three parameters within parenthesis:
 
 * the element name (the field name of the structure) 
 * the element type (the associated type)
-* and the optional element oplist associated to this type (see [generic interface](#Generic-API-Interface-Adaptation) for the behavior if it is absent)
+* and the optional element oplist associated to this type.
 
 `name` and `element` shall be C identifiers that will be used to identify the container and the fields.
 
@@ -2809,9 +2809,9 @@ The following type is automatically defined by the previous definition macro if 
 
 Type of the defined tuple.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t tuple)
@@ -2953,9 +2953,9 @@ The following type is automatically defined by the previous definition macro if 
 
 Type of the defined variant.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t variant)
@@ -3083,9 +3083,9 @@ Type of the Red Black Tree.
 
 Type of an iterator over this Red Black Tree.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t rbtree)
@@ -3307,9 +3307,9 @@ Type of one item referenced in the B+Tree. It is either:
 * a structure composed of a pointer to the key (field `key_ptr`) and a pointer to the value (field `value_ptr`) if the B+Tree is an associative array,
 * or the basic type of the container if the B+Tree is a set.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t tree)
@@ -3452,9 +3452,9 @@ Type of the generic tree of `type`.
 
 Type of an iterator over this generic tree.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t tree)
@@ -3755,9 +3755,9 @@ Type of the priority queue of `type`.
 
 Type of an iterator over this priority queue.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t queue)
@@ -3889,9 +3889,9 @@ The following types are automatically defined by the previous definition macro i
 
 Type of the circular queue (or stack).
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_clear(queue_t queue)
@@ -3992,9 +3992,9 @@ The following types are automatically defined by the previous definition macro i
 
 Type of the buffer.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_clear(buffer_t buffer)                  /* Not thread safe */
@@ -4111,9 +4111,9 @@ The following types are automatically defined by the previous definition macro i
 
 Type of the circular queue.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_clear(buffer_t buffer)
@@ -4196,9 +4196,9 @@ The following types are automatically defined by the previous definition macro i
 
 Type of the circular queue.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_clear(buffer_t buffer)
@@ -4353,9 +4353,9 @@ The following types are automatically defined by the previous definition macro i
 
 Type of the circular queue.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details)
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 but none is thread safe:
 
 ```C
@@ -4435,9 +4435,9 @@ The following types are automatically defined by the previous definition macro i
 
 Type of the circular queue.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_clear(snapshot_t snapshot)
@@ -4518,9 +4518,9 @@ The following types are automatically defined by the previous definition macro i
 
 Type of the circular queue.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_clear(snapshot_t snapshot)
@@ -5509,9 +5509,9 @@ Type of the list of `type`.
 
 Type of an iterator over this list.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t list)
@@ -5672,9 +5672,9 @@ The following types are automatically defined by the previous definition macro i
 
 Type of the concurrent container of `type`.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t concurrent)
@@ -6538,9 +6538,9 @@ The following types are automatically defined by the previous definition macro i
 
 Type of the concurrent container of `type`.
 
-###### Generic methods
+###### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t bounded_string)
@@ -9090,7 +9090,8 @@ _________________
 
 ### M-TRY
 
-This header is for [exception handling](https://en.wikipedia.org/wiki/Exception_handling).
+This header is for enabling [exception handling](https://en.wikipedia.org/wiki/Exception_handling) for M\*LIB.
+It shall be included first, before any other headers, to enable globally the use of exceptions.
 It provides basic functionality for throwing exception and catching then.
 The `setjmp` and `longjmp` standard library functions (or some variants) are used to implement the try / catch / throw macro keywords.
 It doesn't support the `finally` keyword.
@@ -9413,7 +9414,7 @@ _________________
 
 ### M-GENERIC
 
-This header is for registering and using a generic interface, regardless of the real type.
+This header is for registering type to use them within a generic interface, regardless of the real type.
 More precisely it provides way of registering the oplist of a type. Then a variable of this type can be used in macro-like functions (`init`, `clear`, `push`, ...) and the associated method of this oplist will be used to handle the variable.
 If no type is associated to this variable, an error is reported by the compiler.
 
