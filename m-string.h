@@ -1984,6 +1984,7 @@ m_string_pop_u(m_string_unicode_t *u, m_string_t str)
       // Support of NULL pointer
       m_string_unicode_t u_tmp;
       m_string_unicode_t *u_ptr = u == NULL ? &u_tmp : u;
+      *u_ptr = 0;
       do {
         m_str1ng_utf8_decode(*tmp++, &state, u_ptr);
       } while (state != M_STR1NG_UTF8_STARTING && state != M_STR1NG_UTF8_ERROR);
