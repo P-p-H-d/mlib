@@ -46,8 +46,9 @@ static inline void *overloaded_realloc(size_t st, void *ptr, size_t o, size_t n)
     assert(p[1] == o);
     amount_allocated -= st * o;
   }
-  p = (size_t *) realloc(p, 2*sizeof(size_t) + st * n);
-  assert(p != NULL);
+  ptr = realloc((void*)p, 2*sizeof(size_t) + st * n);
+  assert(ptr != NULL);
+  p = (size_t*) ptr;
   p[0] = st;
   p[1] = n;
   amount_allocated += st * n;
