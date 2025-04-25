@@ -564,9 +564,11 @@ static void test_double2(void)
   BufferDouble2_push(buffer, 0.0);
   BufferDouble2_push(buffer, 1.0);
   double d;
-  BufferDouble2_pop(&d, buffer);
+  bool b = BufferDouble2_pop(&d, buffer);
+  assert(b);
   assert(d == 0.0);
-  BufferDouble2_pop(&d, buffer);
+  b = BufferDouble2_pop(&d, buffer);
+  assert(b);
   assert(d == 1.0);
   BufferDouble2_clear(buffer);
 }
@@ -578,9 +580,11 @@ static void test_double3(void)
   BufferDouble3_push(buffer, 0.0);
   BufferDouble3_push(buffer, 1.0);
   double d;
-  BufferDouble3_pop(&d, buffer);
+  bool b = BufferDouble3_pop(&d, buffer);
+  assert(b);
   assert(d == 0.0);
-  BufferDouble3_pop(&d, buffer);
+  b = BufferDouble3_pop(&d, buffer);
+  assert(b);
   assert(d == 1.0);
   BufferDouble3_clear(buffer);
 }
