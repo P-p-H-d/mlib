@@ -9583,6 +9583,144 @@ The following macro is defined and enabled to iterate over a container (See exam
 
 _________________
 
+## Memory context Customization
+
+It is possible to give a custom memory context parameter to the memory methods `REALLOC`, `FREE`, `NEW`and `DEL`. 
+
+For this, you need to define `M_USE_CONTEXT` to the type of the custom memory context parameter. 
+The definition of this global parameter modifies the generation of **all** functions
+so that the functions that may allocate or free something will add a new argument,
+the memory context parameter `m_context` of type `M_USE_CONTEXT`,
+as their first arguement.
+It will also modifies the `OPLIST` definition so that they request the parameter named `m_context`
+for such methods.
+
+The memory context can be an [arena allocator](https://www.rfleury.com/p/untangling-lifetimes-the-arena-allocator)
+
+> [!Note] 
+> The memory context parameter is not stored in the container
+> because it is not efficient in memory usage and is redundant when you
+> create container of other containers (example `array` of `string_t)`
+> The user shall ensure of the coherence of the memory context for a given container
+> so that it is the same memory context since its construction to its destruction.
+
+If you master your own memory, you may want to control when performing the Garbage Collecting.
+This Garbage Collecting may be quite efficient in reclaiming allocated memory in a single and efficient pass:
+in such a case, you may not want calling the destructors of the containers as their operation of freeing the memory
+back to the memory allocator will be redundant and inefficient.
+As a consequence, the following guarantee is ensured:
+The destructors of all containers except the thread safe ones only free back memory.
+As such, it is safe not to call the destructors of these containers if you have another way to reclaim your memory.
+If the destructor of a mutex is also a no-op on your system, this guarantee is extended to the thread safe containers too.
+
+In order to use such feature, you need to:
+
+* define globally `M_USE_CONTEXT` with your type.
+* define globally an override of the memory functions `M_MEMORY_ALLOC`, `M_MEMORY_DEL`, `M_MEMORY_REALLOC` and `M_MEMORY_FREE`.
+
+You will realize that the expected definitions of these macros don't expect the memory context parameter.
+Instead, the macros themselves shall directly use the named argument `m_context` for this purpose.
+This argument is ensure to be defined by the function when using this macro.
+
+FIXME: Seems bad design when written...
+
+Example
+
+```C
+// Define a memory context type 
+typedef int *context_t;
+
+// Define the realloc / free that accepts the memory context.
+static void *my_realloc(void *ptr, size_t old, size_t new, size_t base, context_t context)
+{
+    (void) context; // TODO
+    (void) old; // TODO
+    return realloc(ptr, new*base);
+}
+
+static void my_free(void *ptr, size_t old, size_t base, context_t context)
+{
+    (void) context; // TODO
+    (void) old; // TODO
+    (void) base; // TODO
+    free(ptr);
+}
+
+// Request M*LIB to generate functions accepting a memory context parameter that will be passed to the memory functions
+# define M_USE_CONTEXT context_t
+
+// Overloaded memory functions to use the custom ones.
+// m_context is the name of the memory context parameter
+# define M_MEMORY_REALLOC(type, ptr, o, n) my_realloc(ptr, o, n, sizeof (type), m_context)
+# define M_MEMORY_FREE(type, ptr, o) my_free(ptr, o, sizeof (type), m_context)
+
+# define M_MEMORY_ALLOC(type) my_realloc(NULL, 0, 1, sizeof (type), m_context)
+# define M_MEMORY_DEL(ptr) my_free(ptr, 1, sizeof (*ptr), m_context)
+
+// Now you may include M*LIB headers.
+```
+
+This works great for local allocators for a thread. However some containers are designed to handle
+objects accross several threads: shared pointer, communication queue, ...
+
+For such containers, a local allocator has no meaning: it will be very hard to ensure the same allocator
+is used for both the producor thread and the user threads.
+
+As a concequence, shared pointer, communication queue container and all thread containers
+will use a global memory context:
+M\*LIB won't add a new argument `m_context` to the functions of such containers. Instead it will generate
+a local parameter initialize to the global memory context.
+The global memory context is defined by the macro `M_USE_GLOBAL_CONTEXT` which shall define and initialize
+the named argument to the global memory context. In the absence of definition of such macro, the default is
+to initialize the context to '0'. The memory functions shall recognize such context as the global one.
+
+FIXME: if it is expensive, it is useless to initialize a local variable rather than using the global variable directly...
+
+The following methods are modified to support the memory context parameter:
+
+* m-string:
+** _clear
+** _clear_get_cstr
+** _reserve
+** _set_cstr
+** _set_cstrn
+** _set
+** _set_n
+** _init_set
+** _init_set_cstr
+** _move
+** _push_back
+** _cat_cstr
+** _cat
+** _replace_cstr
+** _replace
+** _replace_at
+** _replace_all_cstr
+** _replace_all
+** _set_ui
+** _set_si
+** _vprintf
+** _printf
+** _cat_vprintf
+** _cat_printf
+** _set_ui
+** _set_si
+** _fgets
+** _fget_word
+** _get_str
+** _in_str
+** _parse_str
+** _out_serial
+** _in_serial
+** _it_set_ref
+** _push_u
+** _split
+** _join
+** _out_serial
+** _in_serial
+
+_________________
+
 ## Global User Customization
 
 The behavior of M\*LIB can be customized globally by defining the following macros
