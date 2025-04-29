@@ -516,15 +516,16 @@ of the library.
 The final goal of the library is to be able to write code like this in pure C while keeping type safety and compile time name resolution:
 
 ```C
-M_LET(list, list_uint_t) {
+let(list, list_uint_t) {
   push(list, 42);
   push(list, 17);
   for each (item, list) {
-    M_PRINT(*item, "\n");
+    print(*item, "\n");
   }
 }
 ```
 
+And it works!
 See the [example](https://github.com/P-p-H-d/mlib/blob/master/example/ex11-generic01.c)
 and [M-GENERIC](#M-GENERIC) header for details.
 
@@ -9675,6 +9676,7 @@ the named argument to the global memory context. In the absence of definition of
 to initialize the context to '0'. The memory functions shall recognize such context as the global one.
 
 FIXME: if it is expensive, it is useless to initialize a local variable rather than using the global variable directly...
+Seems difficult to fix without.
 
 The following methods are modified to support the memory context parameter:
 
