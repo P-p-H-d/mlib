@@ -23,12 +23,11 @@ static void my_free(void *ptr, size_t old, size_t base, context_t context)
 # define M_USE_CONTEXT context_t
 
 // Overloaded memory functions to use the custom ones.
-// m_context is the name of the memory context parameter
-# define M_MEMORY_REALLOC(type, ptr, o, n) my_realloc(ptr, o, n, sizeof (type), m_context)
-# define M_MEMORY_FREE(type, ptr, o) my_free(ptr, o, sizeof (*ptr), m_context)
+# define M_MEMORY_REALLOC(ctx, type, ptr, o, n) my_realloc(ptr, o, n, sizeof (type), ctx)
+# define M_MEMORY_FREE(ctx, type, ptr, o) my_free(ptr, o, sizeof (*ptr), ctx)
 
-# define M_MEMORY_ALLOC(type) my_realloc(NULL, 0, 1, sizeof (type), m_context)
-# define M_MEMORY_DEL(ptr) my_free(ptr, 1, sizeof (*ptr), m_context)
+# define M_MEMORY_ALLOC(ctx, type) my_realloc(NULL, 0, 1, sizeof (type), ctx)
+# define M_MEMORY_DEL(ctx, ptr) my_free(ptr, 1, sizeof (*ptr), ctx)
 
 // Now we can include M*LIB functions.
 #include "m-string.h"

@@ -363,39 +363,47 @@ M_BEGIN_PROTECTED_CODE
    explicit cast) */
 
 /* Define allocators for object:
- * void *M_MEMORY_ALLOC(type): Return a pointer to a new object of type 'type'
+ * void *M_MEMORY_ALLOC(ctx, type): 
+ *    Return a pointer to a new object of type 'type'
  *    It returns NULL in case of memory allocation failure.
- * void M_MEMORY_DEL(ptr): Free the object associated to the pointer.
+ * void M_MEMORY_DEL(ctx, ptr): 
+ *    Free the object associated to the pointer.
+ * By default, 'context' does nothing.
+ * 'context' is the context parameter given to the memory functions to identify where to create the object.
+ * It exists only if M_USE_CONTEXT has been globally defined.
  */
 #ifndef M_MEMORY_ALLOC
 #ifdef __cplusplus
 # include <cstdlib>
-# define M_MEMORY_ALLOC(type) ((type*)std::malloc (sizeof (type)))
-# define M_MEMORY_DEL(ptr)  std::free(ptr)
+# define M_MEMORY_ALLOC(ctx, type) ((type*)std::malloc (sizeof (type)))
+# define M_MEMORY_DEL(ctx, ptr)  std::free(ptr)
 #else
-# define M_MEMORY_ALLOC(type) malloc (sizeof (type))
-# define M_MEMORY_DEL(ptr)  free(ptr)
+# define M_MEMORY_ALLOC(ctx, type) malloc (sizeof (type))
+# define M_MEMORY_DEL(ctx, ptr)  free(ptr)
 #endif
 #endif
 
 /* Define allocators for array 
- * void *M_MEMORY_REALLOC(type, ptr, o, n, perm): Return a pointer to a new array of 'n' object of type 'type'.
+ * void *M_MEMORY_REALLOC(context, type, ptr, o, n, perm):
+ *    Return a pointer to a new array of 'n' object of type 'type'.
  *    If ptr is NULL, it creates a new array of type 'type' and size 'n'
  *    If ptr is not null, it reallocates the given array of type 'type' and size 'o' to the new size.
  *    It returns NULL in case of memory allocation failure.
- * void M_MEMORY_FREE(type, ptr, o): Free the object associated to the array of type 'type' at base 'ptr' of size 'o'.
- * By default, old size do nothing.
- * Can use local optional named parameter "m_context" which is defined by the called of the macro if M_USE_CONTEXT is defined.
+ * void M_MEMORY_FREE(type, ptr, o):
+ *    Free the object associated to the array of type 'type' at base 'ptr' of size 'o'.
+ * By default, 'o' size and 'context' do nothing.
+ * 'context' is the context parameter given to the memory functions to identify where to create the object.
+ * It exists only if M_USE_CONTEXT has been globally defined.
  */
 #ifndef M_MEMORY_REALLOC
 #ifdef __cplusplus
 # include <cstdlib>
-# define M_MEMORY_REALLOC(type, ptr, o, n)                                    \
+# define M_MEMORY_REALLOC(ctx, type, ptr, o, n)                               \
   ((type*) (M_UNLIKELY ((n) > SIZE_MAX / sizeof(type)) ? NULL : std::realloc ((ptr), (n)*sizeof (type))))
-# define M_MEMORY_FREE(type, ptr, o) std::free(ptr)
+# define M_MEMORY_FREE(ctx, type, ptr, o) std::free(ptr)
 #else
-# define M_MEMORY_REALLOC(type, ptr, o, n) (M_UNLIKELY ((n) > SIZE_MAX / sizeof(type)) ? NULL : realloc ((ptr), (n)*sizeof (type)))
-# define M_MEMORY_FREE(type, ptr, o) free(ptr)
+# define M_MEMORY_REALLOC(ctx, type, ptr, o, n) (M_UNLIKELY ((n) > SIZE_MAX / sizeof(type)) ? NULL : realloc ((ptr), (n)*sizeof (type)))
+# define M_MEMORY_FREE(ctx, type, ptr, o) free(ptr)
 #endif
 #endif
 
@@ -3632,7 +3640,6 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_CALL_MOVE(oplist, ...) M_APPLY_API(M_GET_MOVE oplist, oplist, __VA_ARGS__)
 #define M_CALL_SWAP(oplist, ...) M_APPLY_API(M_GET_SWAP oplist, oplist, __VA_ARGS__)
 #define M_CALL_CLEAR(oplist, ...) M_APPLY_API(M_GET_CLEAR oplist, oplist, __VA_ARGS__)
-#define M_CALL_NEW(oplist, ...) M_APPLY_API(M_GET_NEW oplist, oplist, __VA_ARGS__)
 #define M_CALL_HASH(oplist, ...) M_APPLY_API(M_GET_HASH oplist, oplist, __VA_ARGS__)
 #define M_CALL_EQUAL(oplist, ...) M_APPLY_API(M_GET_EQUAL oplist, oplist, __VA_ARGS__)
 #define M_CALL_CMP(oplist, ...) M_APPLY_API(M_GET_CMP oplist, oplist, __VA_ARGS__)
@@ -3691,9 +3698,10 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 //#define M_CALL_PROPERTIES(oplist, ...) M_APPLY_API(M_GET_PROPERTIES oplist, oplist, __VA_ARGS__)
 //#define M_CALL_EMPLACE_TYPE(oplist, ...) M_APPLY_API(M_GET_EMPLACE_TYPE oplist, oplist, __VA_ARGS__)
 // As attribute customization
-#define M_CALL_DEL(oplist, ...) M_APPLY_API(M_GET_DEL oplist, oplist, __VA_ARGS__)
-#define M_CALL_REALLOC(oplist, ...) M_APPLY_API(M_GET_REALLOC oplist, oplist, __VA_ARGS__)
-#define M_CALL_FREE(oplist, ...) M_APPLY_API(M_GET_FREE oplist, oplist, __VA_ARGS__)
+#define M_CALL_NEW(oplist, ...) M_APPLY_API(M_GET_NEW oplist, oplist, m_context, __VA_ARGS__)
+#define M_CALL_DEL(oplist, ...) M_APPLY_API(M_GET_DEL oplist, oplist, m_context, __VA_ARGS__)
+#define M_CALL_REALLOC(oplist, ...) M_APPLY_API(M_GET_REALLOC oplist, oplist, m_context, __VA_ARGS__)
+#define M_CALL_FREE(oplist, ...) M_APPLY_API(M_GET_FREE oplist, oplist, m_context, __VA_ARGS__)
 #define M_CALL_MEMPOOL(oplist, ...) M_APPLY_API(M_GET_MEMPOOL oplist, oplist, __VA_ARGS__)
 #define M_CALL_MEMPOOL_LINKAGE(oplist, ...) M_APPLY_API(M_GET_MEMPOOL_LINKAGE oplist, oplist, __VA_ARGS__)
 //#define M_CALL_SIZE(oplist, ...) M_APPLY_API(M_GET_SIZE oplist, oplist, __VA_ARGS__)

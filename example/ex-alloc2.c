@@ -23,8 +23,8 @@ static void my_free(void *ptr, size_t s)
 }
 
 // Allocate for single object
-# define MY_MEMORY_ALLOC(type) my_alloc (sizeof (type))
-# define MY_MEMORY_DEL(ptr)    my_free(ptr, sizeof *ptr)
+# define MY_MEMORY_ALLOC(ctx, type) my_alloc (sizeof (type))
+# define MY_MEMORY_DEL(ctx, ptr)    my_free(ptr, sizeof *ptr)
 
 ////////////////////////////////////////////////////////////
 
@@ -76,8 +76,8 @@ static void my_array_free(void *ptr)
 }
 
 // Allocate for array of objects
-# define MY_MEMORY_REALLOC(type, ptr, o, n) my_array_alloc (sizeof (type), ptr, n)
-# define MY_MEMORY_FREE(type, ptr, n)       my_array_free(ptr)
+# define MY_MEMORY_REALLOC(ctx, type, ptr, o, n) my_array_alloc (sizeof (type), ptr, n)
+# define MY_MEMORY_FREE(ctx, type, ptr, n)       my_array_free(ptr)
 
 ////////////////////////////////////////////////////////////
 

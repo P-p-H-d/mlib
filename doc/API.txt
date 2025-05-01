@@ -90,6 +90,7 @@ V0.8.0 : * The prototypes of REALLOC / FREE operators are incompatible:
            Add the old number of elements of the array as argument of REALLOC
            Add the number of elements of the array and its base type as arguments of FREE.
            (You can ignore the new arguments which are only hints provided to memory functions).
+           Add the memory context argument.
            Also impact M_MEMORY_REALLOC & M_MEMORY_FREE
            This allows more and efficient integration into custom allocators.
          * M_MEMORY_FULL: replace the failed size allocation size argument

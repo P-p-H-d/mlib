@@ -237,7 +237,7 @@ typedef struct m_worker_sync_s {
     M_GLOBAL_CONTEXT();                                                       \
     M_MAP3(M_WORK3R_SPAWN_EXTEND_DEF_CALLBACK_CLEAR, data, __VA_ARGS__)       \
     /* TODO: Overload */                                                      \
-    M_MEMORY_DEL(p);                                                          \
+    M_MEMORY_DEL(m_context, p);                                               \
   }                                                                           \
                                                                               \
   M_INLINE void                                                               \
@@ -265,7 +265,7 @@ typedef struct m_worker_sync_s {
   {                                                                           \
     M_GLOBAL_CONTEXT();                                                       \
     if (!m_work3r_queue_full_p(block->worker->queue_g)) {                     \
-      struct M_C3(m_worker_, name, _s) *p = M_MEMORY_ALLOC ( struct M_C3(m_worker_, name, _s)); \
+      struct M_C3(m_worker_, name, _s) *p = M_MEMORY_ALLOC (m_context, struct M_C3(m_worker_, name, _s)); \
       if (M_UNLIKELY_NOMEM(p == NULL)) {                                      \
         M_MEMORY_FULL(struct M_C3(m_worker_, name, _s), 1);                   \
       }                                                                       \
@@ -412,7 +412,7 @@ m_worker_init(m_worker_t g, int numWorker, unsigned int extraQueue, void (*reset
   M_ASSERT(numWorker >= 0);
   size_t numWorker_st = (size_t) numWorker;
   M_GLOBAL_CONTEXT();
-  g->worker = M_MEMORY_REALLOC(m_work3r_thread_ct, NULL, 0, numWorker_st);
+  g->worker = M_MEMORY_REALLOC(m_context, m_work3r_thread_ct, NULL, 0, numWorker_st);
   if (M_UNLIKELY_NOMEM (g->worker == NULL)) {
     M_MEMORY_FULL(m_work3r_thread_ct, numWorker_st);
   }
@@ -457,7 +457,7 @@ m_worker_clear(m_worker_t g)
     m_thread_join(g->worker[i].id);
   }
   // Clear memory
-  M_MEMORY_FREE(m_work3r_thread_ct, g->worker, g->numWorker_g);
+  M_MEMORY_FREE(m_context, m_work3r_thread_ct, g->worker, g->numWorker_g);
   m_mutex_clear(g->lock);
   m_cond_clear(g->a_thread_ends);
   m_work3r_queue_clear (g->queue_g);

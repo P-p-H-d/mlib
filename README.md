@@ -1041,17 +1041,36 @@ In which case, this enables you to close the file even if an exception is thrown
 
 Memory Allocation functions can be globally set by overriding the following macros before using the definition `_DEF` macros:
 
-* `M_MEMORY_ALLOC (type)` --> `ptr`: return a pointer to a new object of type `type`.
-* `M_MEMORY_DEL (ptr)`: free the single object pointed by `ptr`.
-* `M_MEMORY_REALLOC (type, ptr, old_number, new_number)` --> `ptr`: return a pointer to an array of `new_number` objects of type `type`, reusing the old array pointed by `ptr` of `old_number` objects. `ptr` can be NULL, in which case the array will be created.
-* `M_MEMORY_FREE (type, ptr, number)`: free the array of `number` objects of type `type` pointed by `ptr`.
+* `M_MEMORY_ALLOC (context, type)` --> `ptr`: return a pointer to a new object of type `type`.
+* `M_MEMORY_DEL (context, ptr)`: free the single object pointed by `ptr`.
+* `M_MEMORY_REALLOC (context, type, ptr, old_number, new_number)` --> `ptr`: return a pointer to an array of `new_number` objects of type `type`, reusing the old array pointed by `ptr` of `old_number` objects. `ptr` can be NULL, in which case the array will be created.
+* `M_MEMORY_FREE (context, type, ptr, number)`: free the array of `number` objects of type `type` pointed by `ptr`.
 
-`ALLOC` and `DEL` operators are supposed to allocate fixed size single element object (no array).
+> [!NOTE] 
+> You can use `sizeof (type)` and `alignof (type)` to get the size and the alignement of the object.
+
+> [!NOTE] 
+> For `M_MEMORY_DEL`, `sizeof *ptr` always identifies the size of the object.
+
+`ALLOC` and `DEL` operators are supposed to allocate **fixed** size single element object (no array).
 These objects are not expected to grow.
 `REALLOC` and `FREE` operators deal with allocated memory for growing objects.
 Do not mix pointers between both: a pointer allocated by `ALLOC` (resp. `REALLOC`) is supposed
 to be only freed by `DEL` (resp. `FREE`). There are separated 'free' operators to enable
 specialization in the allocator (a good allocator can take this hint into account).
+
+`context` is a local user context used to identify the memory context to use for the allocation.
+This parameter **only** exists if the library is compiled with the `M_USE_CONTEXT` customization parameter enabled globally.
+Otherwise this parameter identifies a non existing symbol `m_context`.
+
+This parameter shall be discarded if `M_USE_CONTEXT` is not defined (it shall not exist anymore after preprocessing step).
+For that, you can define the macros to ignore the first parameter
+or you can use GAIA to adapt the call to what your function expects.
+
+> [!NOTE] 
+> If you get error on `m_context` being undefined
+> it is likely because one of your memory is trying to evaluate the memory context
+> without defining `M_USE_CONTEXT`.
 
 `M_MEMORY_ALLOC` and `M_MEMORY_REALLOC` are supposed to return NULL in case of memory allocation failure.
 The defaults are `malloc`, `free`, `realloc` and `free`.
@@ -4724,7 +4743,7 @@ void f(void) {
   shared_data_push(p, 23);
   shared_data_push(p, 32);
   // And send it through 2 channels of communication
-  comm_buffer_push(comm1, p); // shared_data_acquire is done by the buffer to acquite ownership of the data
+  comm_buffer_push(comm1, p); // shared_data_acquire is done by the buffer to acquit ownership of the data
   comm_buffer_push(comm2, p);
   // Release our ownership of the data
   shared_data_clear(p);
@@ -4909,7 +4928,7 @@ This method is created only if the `PUSH` operator is defined.
 ##### `bool name_try_push_move(name_t *a, sub_type *el)`
 
 Try to push in `*a` the element `*el`,if the container is not full and clear `*el` (return true in this case).
-Return false otherwise (cannot push element) and `*el` is still initializated.
+Return false otherwise (cannot push element) and `*el` is still initialized.
 This method is created only if the `PUSH_MOVE` operator is defined.
 
 ##### `bool name_try_emplace<emplace_suffix>(name_t *a[, <emplace_args> args])`
@@ -7967,22 +7986,28 @@ void struct_init_set(struct_t d, struct_t s)
 
 All these macro can be overridden before including the header [m-core.h](#m-core) so that they can be adapted to a particular memory pool.
 
-##### `type *M_MEMORY_ALLOC (type)`
+##### `type *M_MEMORY_ALLOC (context, type)`
 
 Return a pointer to a new allocated non-initialized object of type `type`.
 In case of allocation error, it returns NULL.
 
+`context` parameter is the memory context parameter as provided by the user.
+It only exists if the library is built with `M_USE_CONTEXT`
+
 The default used function is the `malloc` function of the LIBC.
 
-##### `void M_MEMORY_DEL (type *ptr)`
+##### `void M_MEMORY_DEL (context, type *ptr)`
 
 Delete the cleared object pointed by the pointer `ptr`
 that was previously allocated by the macro `M_MEMORY_ALLOC`.
 `ptr` can not be NULL.
 
+`context` parameter is the memory context parameter as provided by the user.
+It only exists if the library is built with `M_USE_CONTEXT`
+
 The default used function is the `free` function of the LIBC.
 
-##### `type *M_MEMORY_REALLOC (type, ptr, old_number, new_number)`
+##### `type *M_MEMORY_REALLOC (context, type, ptr, old_number, new_number)`
 
 Return a pointer to an array of `new_number` objects of type `type`
 `ptr` is either NULL (in which the array is allocated), 
@@ -7994,13 +8019,19 @@ The address of the previous objects may have moved and the `MOVE` operator
 is not used in this case.
 In case of allocation error, it returns NULL.
 
+`context` parameter is the memory context parameter as provided by the user.
+It only exists if the library is built with `M_USE_CONTEXT`
+
 The default used function is the `realloc` function of the LIBC.
 
-##### `void M_MEMORY_FREE (type, ptr, number)`
+##### `void M_MEMORY_FREE (context, type, ptr, number)`
 
 Delete the cleared array of `number` objects of type `type pointed by the pointer `ptr`.
 The pointer was previously allocated by the macro `M_MEMORY_REALLOC`.
 If `ptr` is NULL, the function shall do nothing.
+
+`context` parameter is the memory context parameter as provided by the user.
+It only exists if the library is built with `M_USE_CONTEXT`
 
 The default used function is the `free` function of the LIBC.
 
@@ -9591,8 +9622,8 @@ It is possible to give a custom memory context parameter to the memory methods `
 For this, you need to define `M_USE_CONTEXT` to the type of the custom memory context parameter. 
 The definition of this global parameter modifies the generation of **all** functions
 so that the functions that may allocate or free something will add a new argument,
-the memory context parameter `m_context` of type `M_USE_CONTEXT`,
-as their first arguement.
+the memory context parameter `m_context` of the user provided type `M_USE_CONTEXT`,
+as their first argument.
 It will also modifies the `OPLIST` definition so that they request the parameter named `m_context`
 for such methods.
 
@@ -9601,29 +9632,26 @@ The memory context can be an [arena allocator](https://www.rfleury.com/p/untangl
 > [!Note] 
 > The memory context parameter is not stored in the container
 > because it is not efficient in memory usage and is redundant when you
-> create container of other containers (example `array` of `string_t)`
-> The user shall ensure of the coherence of the memory context for a given container
-> so that it is the same memory context since its construction to its destruction.
+> create container of other containers (example `array` of `string_t`).
+
+The user shall ensure of the coherence of the memory context for a given container
+so that the same memory context is used from its construction to its destruction.
 
 If you master your own memory, you may want to control when performing the Garbage Collecting.
 This Garbage Collecting may be quite efficient in reclaiming allocated memory in a single and efficient pass:
 in such a case, you may not want calling the destructors of the containers as their operation of freeing the memory
 back to the memory allocator will be redundant and inefficient.
 As a consequence, the following guarantee is ensured:
+
 The destructors of all containers except the thread safe ones only free back memory.
 As such, it is safe not to call the destructors of these containers if you have another way to reclaim your memory.
-If the destructor of a mutex is also a no-op on your system, this guarantee is extended to the thread safe containers too.
+If the destructor of a mutex is also a no-op on your system, this guarantee is extended to all containers
+(including the thread safe containers too).
 
 In order to use such feature, you need to:
 
 * define globally `M_USE_CONTEXT` with your type.
-* define globally an override of the memory functions `M_MEMORY_ALLOC`, `M_MEMORY_DEL`, `M_MEMORY_REALLOC` and `M_MEMORY_FREE`.
-
-You will realize that the expected definitions of these macros don't expect the memory context parameter.
-Instead, the macros themselves shall directly use the named argument `m_context` for this purpose.
-This argument is ensure to be defined by the function when using this macro.
-
-FIXME: Seems bad design when written...
+* define globally an override of the memory functions `M_MEMORY_ALLOC`, `M_MEMORY_DEL`, `M_MEMORY_REALLOC` and `M_MEMORY_FREE` to use your context.
 
 Example
 
@@ -9634,16 +9662,16 @@ typedef int *context_t;
 // Define the realloc / free that accepts the memory context.
 static void *my_realloc(void *ptr, size_t old, size_t new, size_t base, context_t context)
 {
-    (void) context; // TODO
-    (void) old; // TODO
+    (void) context; // TODO what you want with it.
+    (void) old; // TODO what you want with it.
     return realloc(ptr, new*base);
 }
 
 static void my_free(void *ptr, size_t old, size_t base, context_t context)
 {
-    (void) context; // TODO
-    (void) old; // TODO
-    (void) base; // TODO
+    (void) context; // TODO what you want with it.
+    (void) old; // TODO what you want with it.
+    (void) base; // TODO what you want with it.
     free(ptr);
 }
 
@@ -9652,13 +9680,14 @@ static void my_free(void *ptr, size_t old, size_t base, context_t context)
 
 // Overloaded memory functions to use the custom ones.
 // m_context is the name of the memory context parameter
-# define M_MEMORY_REALLOC(type, ptr, o, n) my_realloc(ptr, o, n, sizeof (type), m_context)
-# define M_MEMORY_FREE(type, ptr, o) my_free(ptr, o, sizeof (type), m_context)
+# define M_MEMORY_REALLOC(ctx, type, ptr, o, n) my_realloc(ptr, o, n, sizeof (type), ctx)
+# define M_MEMORY_FREE(ctx, type, ptr, o) my_free(ptr, o, sizeof (type), ctx)
 
-# define M_MEMORY_ALLOC(type) my_realloc(NULL, 0, 1, sizeof (type), m_context)
-# define M_MEMORY_DEL(ptr) my_free(ptr, 1, sizeof (*ptr), m_context)
+# define M_MEMORY_ALLOC(ctx, type) my_realloc(NULL, 0, 1, sizeof (type), ctx)
+# define M_MEMORY_DEL(ctx, ptr) my_free(ptr, 1, sizeof (*ptr), ctx)
 
 // Now you may include M*LIB headers.
+#include "m-array.h"
 ```
 
 This works great for local allocators for a thread. However some containers are designed to handle
@@ -9667,9 +9696,9 @@ objects accross several threads: shared pointer, communication queue, ...
 For such containers, a local allocator has no meaning: it will be very hard to ensure the same allocator
 is used for both the producor thread and the user threads.
 
-As a concequence, shared pointer, communication queue container and all thread containers
+As a consequence, shared pointer, communication queue container and all thread containers
 will use a global memory context:
-M\*LIB won't add a new argument `m_context` to the functions of such containers. Instead it will generate
+M\*LIB won't add a context argument to the functions of such containers. Instead it will generate
 a local parameter initialize to the global memory context.
 The global memory context is defined by the macro `M_USE_GLOBAL_CONTEXT` which shall define and initialize
 the named argument to the global memory context. In the absence of definition of such macro, the default is

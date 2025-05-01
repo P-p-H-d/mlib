@@ -68,8 +68,8 @@ static inline void overloaded_free(size_t st, void *ptr, size_t n)
   free(p);
 }
 
-#define M_MEMORY_REALLOC(type, ptr, o, n)  (type *) overloaded_realloc(sizeof(type), ptr, o, n)
-#define M_MEMORY_FREE(type, ptr, o)                 overloaded_free(sizeof(type), ptr, o)
+#define M_MEMORY_REALLOC(ctx, type, ptr, o, n)  (type *) overloaded_realloc(sizeof(type), ptr, o, n)
+#define M_MEMORY_FREE(ctx, type, ptr, o)                 overloaded_free(sizeof(type), ptr, o)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

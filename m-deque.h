@@ -104,9 +104,9 @@
 
 // OPLIST for the node deletion
 #ifdef M_USE_CONTEXT
-#define M_D3QU3_NODE_DEL_OPLIST(name) (DEL(API_0P(M_F(name, _node_list_i_del))))
-#else
 #define M_D3QU3_NODE_DEL_OPLIST(name) (DEL(M_F(name, _node_list_i_del)))
+#else
+#define M_D3QU3_NODE_DEL_OPLIST(name) (DEL(API(M_F(name, _node_list_i_del), NONE, ARG2)))
 #endif
 
 /* Define the types.

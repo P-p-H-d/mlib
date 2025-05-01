@@ -77,7 +77,7 @@ m_bstring_init(m_bstring_t s)
 M_P(void, m_bstring, _clear, m_bstring_t s)
 {
     M_BSTRING_CONTRACT(s);
-    M_MEMORY_FREE(uint8_t, s->ptr, s->alloc);
+    M_MEMORY_FREE(m_context, uint8_t, s->ptr, s->alloc);
     s->offset = (size_t) -1;
 }
 
@@ -164,7 +164,7 @@ M_P(uint8_t *, m_bstr1ng, _fit2size, m_bstring_t v, size_t size_alloc, bool exac
     if (M_UNLIKELY_NOMEM (alloc < size_alloc)) {
         goto allocation_error;
     }
-    uint8_t *ptr = M_MEMORY_REALLOC (uint8_t, v->ptr, v->alloc, alloc);
+    uint8_t *ptr = M_MEMORY_REALLOC (m_context, uint8_t, v->ptr, v->alloc, alloc);
     if (M_UNLIKELY_NOMEM (ptr == NULL)) {
         goto allocation_error;
     }
@@ -396,13 +396,13 @@ M_P(void, m_bstring, _reserve, m_bstring_t v, size_t n)
         n = v->offset + size;
     }
     if (n == 0) {
-        M_MEMORY_FREE(uint8_t, v->ptr, v->alloc);
+        M_MEMORY_FREE(m_context, uint8_t, v->ptr, v->alloc);
         v->offset = 0;
         v->size = 0;
         v->alloc = 0;
         v->ptr = NULL;
     } else {
-        uint8_t *ptr = M_MEMORY_REALLOC (uint8_t, v->ptr, v->alloc, n);
+        uint8_t *ptr = M_MEMORY_REALLOC (m_context, uint8_t, v->ptr, v->alloc, n);
         if (M_UNLIKELY_NOMEM (ptr == NULL)) {
             M_MEMORY_FULL(uint8_t, n);
         }

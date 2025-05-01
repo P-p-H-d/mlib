@@ -116,7 +116,7 @@
   M_F(name,_init)(name_t mem)                                                 \
   {                                                                           \
     mem->free_list = NULL;                                                    \
-    mem->current_segment = M_MEMORY_ALLOC(M_F(name,_segment_ct));             \
+    mem->current_segment = M_MEMORY_ALLOC(m_context, M_F(name,_segment_ct));  \
     if (M_UNLIKELY_NOMEM(mem->current_segment == NULL)) {                     \
       M_MEMORY_FULL(M_F(name,_segment_ct), 1);                                \
     }                                                                         \
@@ -132,7 +132,7 @@
     M_F(name,_segment_ct) *segment = mem->current_segment;                    \
     while (segment != NULL) {                                                 \
       M_F(name,_segment_ct) *next = segment->next;                            \
-      M_MEMORY_DEL (segment);                                                 \
+      M_MEMORY_DEL (m_context, segment);                                      \
       segment = next;                                                         \
     }                                                                         \
     /* Clean pointers to be safer */                                          \
@@ -157,7 +157,7 @@
     unsigned int count = segment->count;                                      \
     /* If segment is full, allocate a new one from the system */              \
     if (M_UNLIKELY (count >= M_USE_MEMPOOL_MAX_PER_SEGMENT(type))) {          \
-      M_F(name,_segment_ct) *new_segment = M_MEMORY_ALLOC (M_F(name,_segment_ct)); \
+      M_F(name,_segment_ct) *new_segment = M_MEMORY_ALLOC (m_context, M_F(name,_segment_ct)); \
       if (M_UNLIKELY_NOMEM (new_segment == NULL)) {                           \
         M_MEMORY_FULL(M_F(name,_segment_ct), 1);                              \
       }                                                                       \

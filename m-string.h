@@ -285,7 +285,7 @@ M_P(void, m_string, _clear, m_string_t v)
 {
   M_STR1NG_CONTRACT(v);
   if (!m_str1ng_embedded_p(v)) {    
-    M_MEMORY_FREE(char, v->u.heap.ptr, m_string_capacity(v));
+    M_MEMORY_FREE(m_context, char, v->u.heap.ptr, m_string_capacity(v));
     v->u.heap.ptr   = NULL;
   }
   /* This is not needed but is safer to make
@@ -309,7 +309,7 @@ M_P(char *, m_string, _clear_get_cstr, m_string_t v)
     p = &v->u.buffer[0];
     // Need to allocate a heap string to return the copy.
     size_t alloc = m_string_size(v)+1;
-    char *ptr = M_MEMORY_REALLOC (char, NULL, 0, alloc);
+    char *ptr = M_MEMORY_REALLOC (m_context, char, NULL, 0, alloc);
     if (M_UNLIKELY_NOMEM (ptr == NULL)) {
       M_MEMORY_FULL(char, alloc);
     }
@@ -386,7 +386,7 @@ M_P(char *, m_str1ng, _fit2size, m_string_t v, size_t size_alloc)
     }
     char *ptr = m_str1ng_embedded_p(v) ? NULL : v->u.heap.ptr;
     //FIXME: old_alloc may not be NULL if ptr is NULL.
-    ptr = M_MEMORY_REALLOC (char, ptr, old_alloc, alloc);
+    ptr = M_MEMORY_REALLOC (m_context, char, ptr, old_alloc, alloc);
     if (M_UNLIKELY_NOMEM (ptr == NULL)) {
       M_MEMORY_FULL(char, alloc);
     }
@@ -429,7 +429,7 @@ M_P(void, m_string, _reserve, m_string_t v, size_t alloc)
       char *oldptr = v->u.heap.ptr;
       memcpy(ptr, oldptr, size+1);
       // Free the allocated memory on the heap
-      M_MEMORY_FREE(char, oldptr, m_string_capacity(v));
+      M_MEMORY_FREE(m_context, char, oldptr, m_string_capacity(v));
       v->u.buffer[sizeof(m_string_t)-2] = 0;
       v->u.buffer[sizeof(m_string_t)-1] = (char) size;
     } else {
@@ -444,7 +444,7 @@ M_P(void, m_string, _reserve, m_string_t v, size_t alloc)
       M_MEMORY_FULL(char, alloc);
     } 
     char *ptr = m_str1ng_embedded_p(v) ? NULL : v->u.heap.ptr;
-    ptr = M_MEMORY_REALLOC (char, ptr, m_string_capacity(v), r_alloc);
+    ptr = M_MEMORY_REALLOC (m_context, char, ptr, m_string_capacity(v), r_alloc);
     if (M_UNLIKELY_NOMEM (ptr == NULL) ) {
       M_MEMORY_FULL(char, alloc);
     }

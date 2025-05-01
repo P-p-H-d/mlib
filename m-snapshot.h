@@ -390,7 +390,7 @@ M_P(void, m_snapsh0t, _mrsw_init, m_snapsh0t_mrsw_ct s, size_t n)
   n += M_SNAPSH0T_SPMC_EXTRA_BUFFER;
 
   // Initialize the counters to zero (no reader use it)
-  atomic_uint *ptr = M_MEMORY_REALLOC (atomic_uint, NULL, 0, n);
+  atomic_uint *ptr = M_MEMORY_REALLOC (m_context, atomic_uint, NULL, 0, n);
   if (M_UNLIKELY_NOMEM (ptr == NULL)) {
     M_MEMORY_FULL(atomic_uint, n);
   }
@@ -416,7 +416,7 @@ M_P(void, m_snapsh0t, _mrsw_init, m_snapsh0t_mrsw_ct s, size_t n)
 M_P(void, m_snapsh0t, _mrsw_clear, m_snapsh0t_mrsw_ct s)
 {
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
-  M_MEMORY_FREE (atomic_uint, s->cptTab, s->n_reader+M_SNAPSH0T_SPMC_EXTRA_BUFFER);
+  M_MEMORY_FREE (m_context, atomic_uint, s->cptTab, s->n_reader+M_SNAPSH0T_SPMC_EXTRA_BUFFER);
   m_genint_clear M_R(s->freeList);
   s->cptTab = NULL;
   s->n_reader = 0;

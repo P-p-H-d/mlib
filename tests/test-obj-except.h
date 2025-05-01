@@ -37,16 +37,16 @@ static inline void test_obj_except_trigger(void);
 extern int test_obj_except__malloc_counter;
 #ifdef __cplusplus
 # include <cstdlib>
-# define M_MEMORY_ALLOC(type) (test_obj_except_trigger(), test_obj_except__malloc_counter++, (type*)std::malloc (sizeof (type)))
-# define M_MEMORY_DEL(ptr)  (test_obj_except__malloc_counter-=(ptr != NULL), std::free(ptr))
-# define M_MEMORY_REALLOC(type, ptr, o, n)                                       \
+# define M_MEMORY_ALLOC(ctx, type) (test_obj_except_trigger(), test_obj_except__malloc_counter++, (type*)std::malloc (sizeof (type)))
+# define M_MEMORY_DEL(ctx, ptr)  (test_obj_except__malloc_counter-=(ptr != NULL), std::free(ptr))
+# define M_MEMORY_REALLOC(ctx, type, ptr, o, n)                                       \
   ((type*) (test_obj_except_trigger(), test_obj_except__malloc_counter+= (ptr == NULL), std::realloc ((ptr), (n)*sizeof (type))))
-# define M_MEMORY_FREE(type, ptr, o) (test_obj_except__malloc_counter-=(ptr != NULL), std::free(ptr))
+# define M_MEMORY_FREE(ctx, type, ptr, o) (test_obj_except__malloc_counter-=(ptr != NULL), std::free(ptr))
 #else
-# define M_MEMORY_ALLOC(type) (test_obj_except_trigger(), test_obj_except__malloc_counter++, malloc (sizeof (type)))
-# define M_MEMORY_DEL(ptr)  (test_obj_except__malloc_counter-=(ptr != NULL), free(ptr))
-# define M_MEMORY_REALLOC(type, ptr, o, n) (test_obj_except_trigger(), test_obj_except__malloc_counter+=(ptr == NULL), realloc ((ptr), (n)*sizeof (type)))
-# define M_MEMORY_FREE(type, ptr, o) (test_obj_except__malloc_counter-=(ptr != NULL), free(ptr))
+# define M_MEMORY_ALLOC(ctx, type) (test_obj_except_trigger(), test_obj_except__malloc_counter++, malloc (sizeof (type)))
+# define M_MEMORY_DEL(ctx, ptr)  (test_obj_except__malloc_counter-=(ptr != NULL), free(ptr))
+# define M_MEMORY_REALLOC(ctx, type, ptr, o, n) (test_obj_except_trigger(), test_obj_except__malloc_counter+=(ptr == NULL), realloc ((ptr), (n)*sizeof (type)))
+# define M_MEMORY_FREE(ctx, type, ptr, o) (test_obj_except__malloc_counter-=(ptr != NULL), free(ptr))
 #endif
 
 // Include M*LIB headers

@@ -271,7 +271,7 @@ typedef struct test_s {
 static void test_init(test_t *p)  { memset(p->buffer, 0x00, 52); }
 static void test_clear(test_t *p) { memset(p->buffer, 0xFF, 52); }
 ISHARED_PTR_DEF(ishared_itest, test_t,
-                (INIT(test_init M_IPTR), CLEAR(test_clear M_IPTR), DEL(free)))
+                (INIT(test_init M_IPTR), CLEAR(test_clear M_IPTR), DEL(API(free, NONE, ARG2))))
 
 typedef struct test2_s {
   ISHARED_PTR_INTERFACE(ishared_itest2, struct test_s);

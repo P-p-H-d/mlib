@@ -41,7 +41,7 @@ START_COVERAGE
 ILIST_DEF(ilist_tname, test_t, M_OPEXTEND(M_POD_OPLIST, EQUAL(API_6(test_equal_p))))
 END_COVERAGE
 
-ILIST_DEF(ilist_free, test_t, (DEL(free)))
+ILIST_DEF(ilist_free, test_t, (DEL(API(free, NONE, ARG2))))
 
 typedef struct testd_s {
   double n;

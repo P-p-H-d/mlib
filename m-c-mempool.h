@@ -97,7 +97,7 @@ M_BEGIN_PROTECTED_CODE
     M_F(name, _slist_node_ct) *it = *list, *next;                             \
     while (it) {                                                              \
       next = it->next;                                                        \
-      M_MEMORY_DEL(it);                                                       \
+      M_MEMORY_DEL(m_context, it);                                            \
       it = next;                                                              \
     }                                                                         \
     *list = NULL;                                                             \
@@ -292,14 +292,14 @@ M_BEGIN_PROTECTED_CODE
       M_F(name, _lf_node_t) *next = atomic_load_explicit(&node->next,         \
                                                          memory_order_relaxed); \
       M_F(name, _slist_clear)(node->list);                                    \
-      M_MEMORY_DEL(node);                                                     \
+      M_MEMORY_DEL(m_context, node);                                          \
       node = next;                                                            \
     }                                                                         \
     /* Dummy node to free too */                                              \
     M_F(name, _lf_node_t) *dummy;                                             \
     dummy = atomic_load_explicit(&list->head, memory_order_relaxed);          \
     M_F(name, _slist_clear)(dummy->list);                                     \
-    M_MEMORY_DEL(dummy);                                                      \
+    M_MEMORY_DEL(m_context, dummy);                                           \
   }                                                                           \
 
 /* System node allocator: request memory to the system.
@@ -310,7 +310,7 @@ M_BEGIN_PROTECTED_CODE
        M_F(name, _alloc_node)(unsigned int initial)                           \
   {                                                                           \
     M_F(name, _lf_node_t) * node;                                             \
-    node = M_MEMORY_ALLOC(M_F(name, _lf_node_t));                             \
+    node = M_MEMORY_ALLOC(m_context, M_F(name, _lf_node_t));                  \
     if (M_UNLIKELY_NOMEM (node == NULL)) {                                    \
       M_MEMORY_FULL(M_F(name, _lf_node_t), 1);                                \
     }                                                                         \
@@ -319,7 +319,7 @@ M_BEGIN_PROTECTED_CODE
     M_F(name, _slist_init)(node->list);                                       \
     for(unsigned i = 0; i < initial; i++) {                                   \
       M_F(name, _slist_node_ct) *n;                                           \
-      n = M_MEMORY_ALLOC(M_F(name, _slist_node_ct));                          \
+      n = M_MEMORY_ALLOC(m_context, M_F(name, _slist_node_ct));               \
       if (M_UNLIKELY_NOMEM (n == NULL)) {                                     \
         M_MEMORY_FULL(M_F(name, _lf_node_t), 1);                              \
       }                                                                       \
@@ -462,7 +462,7 @@ M_BEGIN_PROTECTED_CODE
   {                                                                           \
     const size_t max_thread =  gc_mem->max_thread;                            \
     /* Initialize the thread data of the mempool */                           \
-    mem->thread_data = M_MEMORY_REALLOC(M_F(name, _lfmp_thread_ct), NULL, 0, max_thread); \
+    mem->thread_data = M_MEMORY_REALLOC(m_context, M_F(name, _lfmp_thread_ct), NULL, 0, max_thread); \
     if (M_UNLIKELY_NOMEM (mem->thread_data == NULL)) {                        \
       M_MEMORY_FULL(M_F(name, _lfmp_thread_ct), max_thread);                  \
     }                                                                         \
@@ -494,7 +494,7 @@ M_BEGIN_PROTECTED_CODE
     for(unsigned i = 0; i < max_thread;i++) {                                 \
       M_F(name, _lfmp_thread_clear)(&mem->thread_data[i]);                    \
     }                                                                         \
-    M_MEMORY_FREE(M_F(name, _lfmp_thread_ct), mem->thread_data, max_thread);  \
+    M_MEMORY_FREE(m_context, M_F(name, _lfmp_thread_ct), mem->thread_data, max_thread); \
     mem->thread_data = NULL;                                                  \
     M_F(name, _lflist_clear)(mem->empty);                                     \
     M_F(name, _lflist_clear)(mem->free);                                      \
@@ -584,7 +584,7 @@ m_gc_init(m_gc_t gc_mem, size_t max_thread)
 
   atomic_init(&gc_mem->ticket, 0UL);
   m_genint_init(gc_mem->thread_alloc, (unsigned int) max_thread);
-  gc_mem->thread_data = M_MEMORY_REALLOC(m_gc_lfmp_thread_ct, NULL, 0, max_thread);
+  gc_mem->thread_data = M_MEMORY_REALLOC(m_context, m_gc_lfmp_thread_ct, NULL, 0, max_thread);
   if (M_UNLIKELY_NOMEM (gc_mem->thread_data == NULL)) {
     M_MEMORY_FULL(m_gc_lfmp_thread_ct, max_thread);
   }
@@ -604,7 +604,7 @@ m_gc_clear(m_gc_t gc_mem)
   for(m_gc_tid_t i = 0; i < gc_mem->max_thread;i++) {
     m_core_backoff_clear(gc_mem->thread_data[i].bkoff);
   }
-  M_MEMORY_FREE(m_gc_lfmp_thread_ct, gc_mem->thread_data, gc_mem->max_thread);
+  M_MEMORY_FREE(m_context, m_gc_lfmp_thread_ct, gc_mem->thread_data, gc_mem->max_thread);
   gc_mem->thread_data = NULL;
   m_genint_clear(gc_mem->thread_alloc);
 }
@@ -753,7 +753,7 @@ m_vlapool_init(m_vlapool_t mem, m_gc_t gc_mem)
   const size_t max_thread =  gc_mem->max_thread;
 
   /* Initialize the thread data of the vlapool */
-  mem->thread_data = M_MEMORY_REALLOC(m_vlapool_lfmp_thread_ct, NULL, 0, max_thread);
+  mem->thread_data = M_MEMORY_REALLOC(m_context, m_vlapool_lfmp_thread_ct, NULL, 0, max_thread);
   if (M_UNLIKELY_NOMEM (mem->thread_data == NULL)) {
     M_MEMORY_FULL(m_vlapool_lfmp_thread_ct, max_thread);
   }
@@ -779,7 +779,7 @@ m_vlapool_clear(m_vlapool_t mem)
   for(unsigned i = 0; i < max_thread;i++) {
     m_vlapool_lfmp_thread_clear(&mem->thread_data[i]);
   }
-  M_MEMORY_FREE(m_vlapool_lfmp_thread_ct, mem->thread_data, max_thread);
+  M_MEMORY_FREE(m_context, m_vlapool_lfmp_thread_ct, mem->thread_data, max_thread);
   mem->thread_data = NULL;
   m_vlapool_lflist_clear(mem->empty);
   M_ASSERT(m_vlapool_lflist_empty_p(mem->to_be_reclaimed));
@@ -802,7 +802,7 @@ m_vlapool_new(m_vlapool_t mem, m_gc_tid_t id, size_t size)
   size += offsetof(struct m_vlapool_slist_node_s, data);
 
   // Simply wrap around a system call to get the memory
-  char *ptr = M_MEMORY_REALLOC(char, NULL, 0, size);
+  char *ptr = M_MEMORY_REALLOC(m_context, char, NULL, 0, size);
   // TODO: save the allocated size somewhere (create a new field in vla)
   // FIXME: Bug, we call DEL operator to free the node, but we have allocated it with the REALLOC one!
   // And they are not necessarily compatible as per the spec (even if they are if they both use 'free')
