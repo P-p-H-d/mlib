@@ -50,6 +50,7 @@ M\*LIB: Generic type-safe Container Library for C language
         2. [Atomic](#m-atomic)
 12. [Global User Customization](#global-user-customization)
     1. [Exception handling](#m-try)
+    2. [Memory context Customization](#memory-context-customization)
 13. [License](#license)
 
 ## Overview
@@ -7992,7 +7993,7 @@ Return a pointer to a new allocated non-initialized object of type `type`.
 In case of allocation error, it returns NULL.
 
 `context` parameter is the memory context parameter as provided by the user.
-It only exists if the library is built with `M_USE_CONTEXT`
+It only exists as a C symbol if the library is built with `M_USE_CONTEXT`
 
 The default used function is the `malloc` function of the LIBC.
 
@@ -8003,7 +8004,7 @@ that was previously allocated by the macro `M_MEMORY_ALLOC`.
 `ptr` can not be NULL.
 
 `context` parameter is the memory context parameter as provided by the user.
-It only exists if the library is built with `M_USE_CONTEXT`
+It only exists as a C symbol if the library is built with `M_USE_CONTEXT`
 
 The default used function is the `free` function of the LIBC.
 
@@ -8020,7 +8021,7 @@ is not used in this case.
 In case of allocation error, it returns NULL.
 
 `context` parameter is the memory context parameter as provided by the user.
-It only exists if the library is built with `M_USE_CONTEXT`
+It only exists as a C symbol if the library is built with `M_USE_CONTEXT`
 
 The default used function is the `realloc` function of the LIBC.
 
@@ -8031,7 +8032,7 @@ The pointer was previously allocated by the macro `M_MEMORY_REALLOC`.
 If `ptr` is NULL, the function shall do nothing.
 
 `context` parameter is the memory context parameter as provided by the user.
-It only exists if the library is built with `M_USE_CONTEXT`
+It only exists as a C symbol if the library is built with `M_USE_CONTEXT`
 
 The default used function is the `free` function of the LIBC.
 
@@ -9633,6 +9634,7 @@ The memory context can be an [arena allocator](https://www.rfleury.com/p/untangl
 > The memory context parameter is not stored in the container
 > because it is not efficient in memory usage and is redundant when you
 > create container of other containers (example `array` of `string_t`).
+> It is always passed as argument of the functions.
 
 The user shall ensure of the coherence of the memory context for a given container
 so that the same memory context is used from its construction to its destruction.
@@ -9710,45 +9712,45 @@ Seems difficult to fix without.
 The following methods are modified to support the memory context parameter:
 
 * m-string:
-** _clear
-** _clear_get_cstr
-** _reserve
-** _set_cstr
-** _set_cstrn
-** _set
-** _set_n
-** _init_set
-** _init_set_cstr
-** _move
-** _push_back
-** _cat_cstr
-** _cat
-** _replace_cstr
-** _replace
-** _replace_at
-** _replace_all_cstr
-** _replace_all
-** _set_ui
-** _set_si
-** _vprintf
-** _printf
-** _cat_vprintf
-** _cat_printf
-** _set_ui
-** _set_si
-** _fgets
-** _fget_word
-** _get_str
-** _in_str
-** _parse_str
-** _out_serial
-** _in_serial
-** _it_set_ref
-** _push_u
-** _split
-** _join
-** _out_serial
-** _in_serial
+  * _clear
+  * _clear_get_cstr
+  * _reserve
+  * _set_cstr
+  * _set_cstrn
+  * _set
+  * _set_n
+  * _init_set
+  * _init_set_cstr
+  * _move
+  * _push_back
+  * _cat_cstr
+  * _cat
+  * _replace_cstr
+  * _replace
+  * _replace_at
+  * _replace_all_cstr
+  * _replace_all
+  * _set_ui
+  * _set_si
+  * _vprintf
+  * _printf
+  * _cat_vprintf
+  * _cat_printf
+  * _set_ui
+  * _set_si
+  * _fgets
+  * _fget_word
+  * _get_str
+  * _in_str
+  * _parse_str
+  * _out_serial
+  * _in_serial
+  * _it_set_ref
+  * _push_u
+  * _split
+  * _join
+  * _out_serial
+  * _in_serial
 
 _________________
 
