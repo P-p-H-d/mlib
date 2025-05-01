@@ -4682,7 +4682,7 @@ except the type of the shared pointer `name_type` is given as parameter instead 
 
 Define the shared pointer `name_t *` as a C pointer to an opaque structure that encapsulate the access to the C type
 `type` which oplist is `oplist` and the associated public and private methods as external linkage.
-`oplist` parameter is optional. If not present, it will look for a globaly registered oplist.
+`oplist` parameter is optional. If not present, it will look for a globally registered oplist.
 It shall match with the `oplist`argument given to the corresponding `_DECL`macro with the same `name`,
 meaning it shall provide at least all operators of the oplist provided to the corresponding `_DECL`macro
 and all operator types shall be the same.
@@ -4701,7 +4701,7 @@ See `SHARED_PTR_DECL` for additional information.
 Define the shared pointer `name_t *` as a C pointer to an opaque structure that encapsulate the access to the C
 object (aka the shared object) of type
 `type` which oplist is `oplist` and the associated public and private methods as static inline.
-`oplist` parameter is optional. If not present, it will look for a globaly registered oplist.
+`oplist` parameter is optional. If not present, it will look for a globally registered oplist.
 
 This definition shall be done once per name and per compilation unit.
 
@@ -5025,8 +5025,8 @@ This method is created only if the `IN_SERIAL` operator is defined.
 
 #### Private interface
 
-The private interface is only availale for the implementation.
-It is used by the implementator of the shared object to provide additional, more specialized, functions to its user for the shared object.
+The private interface is only available for the implementation.
+It is used by the implementor of the shared object to provide additional, more specialized, functions to its user for the shared object.
 
 ##### `void name_init_lock(name_t *out)`
 
@@ -5976,12 +5976,12 @@ representation (if `append` is false) or append `str` with this representation
 This method is only defined if the header [m-string.h](#m-string) was included before
 including [m-bitset.h](#m-bitset)
 
-##### `bool bitset_parse_str(bitset_t array, const char str[], const char **endp)`
+##### `bool bitset_parse_str(bitset_t array, const char str[], const char **endptr)`
 
 Parse the formatted string `str` that is assumed to be a string representation of a bitset
 and set `array` to this representation.
 It returns true if success, false otherwise.
-If `endp` is not NULL, it sets `*endp` to the pointer of the first character not
+If `endptr` is not NULL, it sets `*endptr` to the pointer of the first character not
 decoded by the function.
 
 ##### `void bitset_out_str(FILE *file, const bitset_t array)`
@@ -6913,7 +6913,7 @@ Return a symbol corresponding to the concatenation of the input arguments.
 ##### `M_F(base, suffix)`
 
 Return a function name corresponding to the concatenation of the input arguments.
-In developer mode, it can be overrided before inclusion of any header to support user customization of suffix. 
+In developer mode, it can be overridden before inclusion of any header to support user customization of suffix. 
 To do this you need to define `M_F` as `M_OVERRIDE_F`, then define as many suffix macros as needed. As suffix macro shall be named `M_OVERRIDE_ ## suffix ()` and each generated suffix shall start with a comma (preliminary interface).
 
 Example:
@@ -7655,8 +7655,8 @@ Extend an `oplist` with the given list of operators.
 Theses new operators will have higher priority than the ones
 in the given oplist.
 
-#####` M_TEST_METHOD_P(method, oplist)`
-#####` M_TEST_METHOD_ALTER_P(method, oplist)`
+##### `M_TEST_METHOD_P(method, oplist)`
+##### `M_TEST_METHOD_ALTER_P(method, oplist)`
 
 Test if a method is present in an `oplist`. Return 0 or 1.
 `M_TEST_METHOD_P` does not work if the returned method is something within parenthesis (like `OPLIST*`)
@@ -9751,6 +9751,9 @@ The following methods are modified to support the memory context parameter:
   * _join
   * _out_serial
   * _in_serial
+
+> [!Note] 
+> The API defined by `M_USE_CONTEXT` is experimental and may change incompatibily in the future.
 
 _________________
 
