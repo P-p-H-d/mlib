@@ -164,7 +164,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: uraimo/run-on-arch-action@v3
-        name: Run commands on armv5
+        name: Run commands on armv6
         id: make
         timeout-minutes: 60
         with:
@@ -175,7 +175,7 @@ jobs:
           shell: /bin/sh
           run: |
             apk update
-            apk install build-base gcc make
+            apk add build-base gcc make
             lscpu
             cd tests && make check -j 2 && make clean
 
