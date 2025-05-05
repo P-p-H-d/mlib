@@ -9781,16 +9781,16 @@ The following methods are modified to support the memory context parameter (the 
   * bstring_out_serial
   * bstring_in_serial
 * m-algo:
-  * <algo>_fill
-  * <algo>_fill_n
-  * <algo>_fill_a
-  * <algo>_fill_an
-  * <algo>_transform
-  * <algo>_reduce
-  * <algo>_map_reduce
-  * <algo>_uniq
-  * <algo>_remove_val
-  * <algo>_remove_if
+  * \<algo\>_fill
+  * \<algo\>_fill_n
+  * \<algo\>_fill_a
+  * \<algo\>_fill_an
+  * \<algo\>_transform
+  * \<algo\>_reduce
+  * \<algo\>_map_reduce
+  * \<algo\>_uniq
+  * \<algo\>_remove_val
+  * \<algo\>_remove_if
 * m-array:
   * <array>_reset
   * <array>_clear
