@@ -148,6 +148,74 @@ jobs:
         with:
           arch: aarch64
           distro: bullseye
+          # Not required, but speeds up builds
+          githubToken: ${{ github.token }}
+          shell: /bin/sh
+          run: |
+            apt-get update -q -y
+            apt-get install -q -y  build-essential git gcc
+            lscpu
+            cd tests && make check -j 2 && make clean
+
+    # The host should always be linux
+  build_armv6:
+    runs-on: ubuntu-latest
+    name: Build on armv6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: uraimo/run-on-arch-action@v3
+        name: Run commands on armv5
+        id: make
+        timeout-minutes: 60
+        with:
+          arch: armv6
+          distro: alpine_latest
+          # Not required, but speeds up builds
+          githubToken: ${{ github.token }}
+          shell: /bin/sh
+          run: |
+            apk update
+            apk install build-base gcc make
+            lscpu
+            cd tests && make check -j 2 && make clean
+
+  # The host should always be linux
+  build_riscv64:
+    runs-on: ubuntu-latest
+    name: Build on riscv64
+    steps:
+      - uses: actions/checkout@v4
+      - uses: uraimo/run-on-arch-action@v3
+        name: Run commands on riscv64
+        id: make
+        timeout-minutes: 60
+        with:
+          arch: riscv64
+          distro: ubuntu22.04
+          # Not required, but speeds up builds
+          githubToken: ${{ github.token }}
+          shell: /bin/sh
+          run: |
+            apt-get update -q -y
+            apt-get install -q -y  build-essential git gcc
+            lscpu
+            cd tests && make check -j 2 && make clean
+
+    # The host should always be linux
+  build_ppc64le: 
+    runs-on: ubuntu-latest
+    name: Build on ppc64le
+    steps:
+      - uses: actions/checkout@v4
+      - uses: uraimo/run-on-arch-action@v3
+        name: Run commands on ppc64le
+        id: make
+        timeout-minutes: 60
+        with:
+          arch: ppc64le
+          distro: ubuntu22.04
+          # Not required, but speeds up builds
+          githubToken: ${{ github.token }}
           shell: /bin/sh
           run: |
             apt-get update -q -y
