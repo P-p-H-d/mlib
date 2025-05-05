@@ -176,7 +176,6 @@ jobs:
           run: |
             apk update
             apk add build-base gcc make
-            lscpu
             cd tests && make check -j 2 && make clean
 
   # The host should always be linux
