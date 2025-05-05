@@ -422,7 +422,7 @@ M_BEGIN_PROTECTED_CODE
 
 // Default global memory context is to consider the global context as '0' if it is not defined.
 #ifndef M_USE_GLOBAL_CONTEXT
-#define M_USE_GLOBAL_CONTEXT(varname) M_USE_CONTEXT varname = { 0 }
+#define M_USE_GLOBAL_CONTEXT 0
 #endif
 
 /* In order to support local context for memory functions, the prototypes and usages of some functions are modified
@@ -465,7 +465,7 @@ M_BEGIN_PROTECTED_CODE
 # define M_R_EXPAND_void m_context
 # define M_R(...) (m_context, __VA_ARGS__)
 # define M_UNUSED_CONTEXT() (void) m_context
-# define M_GLOBAL_CONTEXT() M_USE_GLOBAL_CONTEXT(m_context); (void) m_context
+# define M_GLOBAL_CONTEXT() M_USE_CONTEXT m_context = { M_USE_GLOBAL_CONTEXT }; (void) m_context
 #endif
 
 // M_P: Expand to a prototype of a function that may trigger exception / accept memory context

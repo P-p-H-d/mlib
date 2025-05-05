@@ -9632,9 +9632,10 @@ The memory context can be an [arena allocator](https://www.rfleury.com/p/untangl
 
 > [!Note] 
 > The memory context parameter is not stored in the container
-> because it is not efficient in memory usage and is redundant when you
-> create container of other containers (example `array` of `string_t`).
-> It is always passed as argument of the functions.
+> because it is not efficient in memory usage as it is redundant when you
+> create container of other containers (example `array` of `string_t`):
+> all `string_t` in the array would need to store the context which is duplicate information.
+> Therefore it is always passed as argument of the functions.
 
 The user shall ensure of the coherence of the memory context for a given container
 so that the same memory context is used from its construction to its destruction.
@@ -9650,12 +9651,12 @@ As such, it is safe not to call the destructors of these containers if you have 
 If the destructor of a mutex is also a no-op on your system, this guarantee is extended to all containers
 (including the thread safe containers too).
 
-In order to use such feature, you need to:
+In order to use the local context feature, you need to:
 
 * define globally `M_USE_CONTEXT` with your type.
 * define globally an override of the memory functions `M_MEMORY_ALLOC`, `M_MEMORY_DEL`, `M_MEMORY_REALLOC` and `M_MEMORY_FREE` to use your context.
 
-Example
+Example:
 
 ```C
 // Define a memory context type 
@@ -9692,68 +9693,344 @@ static void my_free(void *ptr, size_t old, size_t base, context_t context)
 #include "m-array.h"
 ```
 
-This works great for local allocators for a thread. However some containers are designed to handle
-objects accross several threads: shared pointer, communication queue, ...
+This works great for local allocators for a thread. 
 
+However some containers are designed to handle
+objects across several threads: shared pointer, communication queue, ... 
 For such containers, a local allocator has no meaning: it will be very hard to ensure the same allocator
-is used for both the producor thread and the user threads.
+is used for both the producer thread and the user threads.
 
 As a consequence, shared pointer, communication queue container and all thread containers
-will use a global memory context:
-M\*LIB won't add a context argument to the functions of such containers. Instead it will generate
-a local parameter initialize to the global memory context.
-The global memory context is defined by the macro `M_USE_GLOBAL_CONTEXT` which shall define and initialize
-the named argument to the global memory context. In the absence of definition of such macro, the default is
-to initialize the context to '0'. The memory functions shall recognize such context as the global one.
+use a global memory context instead:
+M\*LIB doesn't add a context argument to the functions of such containers. Instead it uses
+the global memory context and gives this one to the memory functions.
 
-FIXME: if it is expensive, it is useless to initialize a local variable rather than using the global variable directly...
-Seems difficult to fix without.
+The exact value of the global memory context is defined by the macro `M_USE_GLOBAL_CONTEXT` which shall define its value. 
+In the absence of definition of such macro, the default is the value '0' 
+(The memory functions shall recognize such context as the global one).
 
-The following methods are modified to support the memory context parameter:
+context arguments shall be settable and trivially movable using the '=' C operator.
+
+The following methods are modified to support the memory context parameter (the first argument of theses functions is the memory context parameter):
 
 * m-string:
-  * _clear
-  * _clear_get_cstr
-  * _reserve
-  * _set_cstr
-  * _set_cstrn
-  * _set
-  * _set_n
-  * _init_set
-  * _init_set_cstr
-  * _move
-  * _push_back
-  * _cat_cstr
-  * _cat
-  * _replace_cstr
-  * _replace
-  * _replace_at
-  * _replace_all_cstr
-  * _replace_all
-  * _set_ui
-  * _set_si
-  * _vprintf
-  * _printf
-  * _cat_vprintf
-  * _cat_printf
-  * _set_ui
-  * _set_si
-  * _fgets
-  * _fget_word
-  * _get_str
-  * _in_str
-  * _parse_str
-  * _out_serial
-  * _in_serial
-  * _it_set_ref
-  * _push_u
-  * _split
-  * _join
-  * _out_serial
-  * _in_serial
+  * string_clear
+  * string_clear_get_str
+  * string_reserve
+  * string_set_str
+  * string_set_strn
+  * string_set
+  * string_set_n
+  * string_init_set
+  * string_init_set_str
+  * string_move
+  * string_push_back
+  * string_cat_str
+  * string_cat
+  * string_replace_str
+  * string_replace
+  * string_replace_at
+  * string_replace_all_str
+  * string_replace_all
+  * string_set_ui
+  * string_set_si
+  * string_vprintf
+  * string_printf
+  * string_cat_vprintf
+  * string_cat_printf
+  * string_set_ui
+  * string_set_si
+  * string_fgets
+  * string_fget_word
+  * string_get_str
+  * string_in_str
+  * string_parse_str
+  * string_out_serial
+  * string_in_serial
+  * string_it_set_ref
+  * string_push_u
+  * string_split
+  * string_join
+  * string_out_serial
+  * string_in_serial
+* m-biset:
+  * bitset_clear
+  * bitset_set
+  * bitset_init_set
+  * bitset_move
+  * bitset_push_back
+  * bitset_resize
+  * bitset_reserve
+  * bitset_push_at
+  * bitset_in_str
+  * bitset_parse_str
+  * bitset_set_str
+  * bitset_get_str
+* m-bstring:
+  * bstring_clear
+  * bstring_push_back
+  * bstring_push_back_bytes
+  * bstring_splice
+  * bstring_init_set
+  * bstring_set
+  * bstring_move
+  * bstring_push_bytes_at
+  * bstring_resize
+  * bstring_reserve
+  * bstring_fread
+  * bstring_out_serial
+  * bstring_in_serial
+* m-algo:
+  * <algo>_fill
+  * <algo>_fill_n
+  * <algo>_fill_a
+  * <algo>_fill_an
+  * <algo>_transform
+  * <algo>_reduce
+  * <algo>_map_reduce
+  * <algo>_uniq
+  * <algo>_remove_val
+  * <algo>_remove_if
+* m-array:
+  * <array>_reset
+  * <array>_clear
+  * <array>_set
+  * <array>_init_set
+  * <array>_move
+  * <array>_set_at
+  * <array>_push_raw
+  * <array>_push_back
+  * <array>_push_new
+  * <array>_push_move
+  * <array>_push_at
+  * <array>_resize
+  * <array>_reserve
+  * <array>_safe_get
+  * <array>_pop_back
+  * <array>_pop_until
+  * <array>_pop_at
+  * <array>_erase
+  * <array>_insert_v
+  * <array>_remove_v
+  * <array>_insert
+  * <array>_remove
+  * <array>_special_stable_sort
+  * <array>_splice
+  * <array>_get_str
+  * <array>_parse_str
+  * <array>_in_str
+  * <array>_out_serial
+  * <array>_in_serial
+  * <array>_<emplace>
+* m-bptree:
+  * <bptree>_init
+  * <bptree>_reset
+  * <bptree>_clear
+  * <bptree>_copy_node
+  * <bptree>_init_set
+  * <bptree>_set
+  * <bptree>_set_at
+  * <bptree>_push
+  * <bptree>_safe_get
+  * <bptree>_erase
+  * <bptree>_pop_at
+  * <bptree>_move
+  * <bptree>_get_str
+  * <bptree>_parse_str
+  * <bptree>_in_str
+  * <bptree>_out_serial
+  * <bptree>_in_serial
+* m-deque:
+  * <deque>_init
+  * <deque>_reset
+  * <deque>_clear
+  * <deque>_push_back_raw
+  * <deque>_push_back
+  * <deque>_push_back_new
+  * <deque>_push_back_move
+  * <deque>_push_front_raw
+  * <deque>_push_front
+  * <deque>_push_front_new
+  * <deque>_push_front_move
+  * <deque>_pop_back
+  * <deque>_pop_back_move
+  * <deque>_pop_front
+  * <deque>_pop_front_move
+  * <deque>_remove
+  * <deque>_init_set
+  * <deque>_set
+  * <deque>_move
+  * <deque>_set_at
+  * <deque>_get_str
+  * <deque>_parse_str
+  * <deque>_in_str
+  * <deque>_out_serial
+  * <deque>_in_serial
+  * <deque>_<emplace_back>
+  * <deque>_<emplace_front>
+* m-dict:
+  * <dict>_init
+  * <dict>_clear
+  * <dict>_push
+  * <dict>_set_at
+  * <dict>_safe_get
+  * <dict>_erase
+  * <dict>_init_set
+  * <dict>_set
+  * <dict>_move
+  * <dict>_reset
+  * <dict>_reserve
+  * <dict>_get_str
+  * <dict>_parse_str
+  * <dict>_in_str
+  * <dict>_out_serial
+  * <dict>_in_serial
+  * <dict>_splice
+  * <dict>_bulk_get
+  * <dict>_bulk_set
+  * <dict>_bulk_update
+* m-i-list
+  * <ilist>_reset
+  * <ilist>_clear
+  * <ilist>_move
+  * <ilist>_remove
+* m-list
+  * <list>_reset
+  * <list>_clear
+  * <list>_push_raw
+  * <list>_push_back
+  * <list>_push_new
+  * <list>_pop_back
+  * <list>_push_move
+  * <list>_pop_move
+  * <list>_insert
+  * <list>_remove
+  * <list>_init_set
+  * <list>_set
+  * <list>_move
+  * <list>_get_str
+  * <list>_parse_str
+  * <list>_in_str
+  * <list>_out_serial
+  * <list>_in_serial
+  * <list>_<emplace>
+  * <list>_<emplace_back>
+  * <list>_<emplace_front>
+  * <list>_push_back_raw
+  * <list>_push_raw
+  * <list>_push_back
+  * <list>_push_back_new
+  * <list>_push_back_move
+  * <list>_push_move
+  * <list>_push_front_raw
+  * <list>_push_front
+  * <list>_push_front_move
+  * <list>_push_front_new
+* m-prioqueue
+  * <prioqueue>_init_set
+  * <prioqueue>_set
+  * <prioqueue>_clear
+  * <prioqueue>_move
+  * <prioqueue>_reset
+  * <prioqueue>_push
+  * <prioqueue>_pop
+  * <prioqueue>_erase
+  * <prioqueue>_update
+  * <prioqueue>_in_str
+  * <prioqueue>_get_str
+  * <prioqueue>_parse_str
+  * <prioqueue>_out_serial
+  * <prioqueue>_in_serial
+* m-queue:
+  * <queue>_init
+  * <queue>_clear
+  * <queue>_init_set
+  * <queue>_set
+  * <queue>_push
+  * <queue>_pop
+* m-rbtree:
+  * <rbtree>_reset
+  * <rbtree>_clear
+  * <rbtree>_push
+  * <rbtree>_init_set
+  * <rbtree>_set
+  * <rbtree>_move
+  * <rbtree>_pop_at
+  * <rbtree>_remove
+  * <rbtree>_get_str
+  * <rbtree>_parse_str
+  * <rbtree>_in_str
+  * <rbtree>_out_serial
+  * <rbtree>_in_serial
+* m-snapshot:
+  * <snapshot>_init
+  * <snapshot>_clear
+  * <snapshot>_init_set
+  * <snapshot>_set
+  * <snapshot>_move
+* m-tree:
+  * <tree>_reset
+  * <tree>_clear
+  * <tree>_reserve
+  * <tree>_set_root
+  * <tree>_insert_up_raw
+  * <tree>_insert_up
+  * <tree>_move_up
+  * <tree>_insert_down_raw
+  * <tree>_insert_down
+  * <tree>_move_down
+  * <tree>_insert_child_raw
+  * <tree>_insert_child
+  * <tree>_move_child
+  * <tree>_insert_left_raw
+  * <tree>_insert_left
+  * <tree>_move_left
+  * <tree>_insert_right_raw
+  * <tree>_insert_right
+  * <tree>_move_right
+  * <tree>_remove
+  * <tree>_prune
+  * <tree>_init_set
+  * <tree>_set
+  * <tree>_move
+  * <tree>_get_str
+  * <tree>_parse_str
+  * <tree>_in_str
+  * <tree>name
+  * <tree>_<emplace_up>
+  * <tree>_<emplace_down>
+  * <tree>_<emplace_child>
+  * <tree>_<emplace_left>
+  * <tree>_<emplace_right>
+* m-tuple:
+  * <tuple>_init
+  * <tuple>_init_set
+  * <tuple>_init_emplace
+  * <tuple>_set
+  * <tuple>_emplace
+  * <tuple>_clear
+  * <tuple>_get_str
+  * <tuple>_in_str
+  * <tuple>_parse_str
+  * <tuple>_out_serial
+  * <tuple>_in_serial
+  * <tuple>_move
+  * <tuple>_reset
+* m-variant:
+  * <variant>_init_set
+  * <variant>_set
+  * <variant>_clear
+  * <variant>_move
+  * <variant>_get_str
+  * <variant>_parse_str
+  * <variant>_in_str
+  * <variant>_out_serial
+  * <variant>_in_serial
+  * <variant>_reset
+
 
 > [!Note] 
-> The API defined by `M_USE_CONTEXT` is experimental and may change incompatibily in the future.
+> The API defined by `M_USE_CONTEXT` is experimental and may change incompatibly in the future.
 
 _________________
 
