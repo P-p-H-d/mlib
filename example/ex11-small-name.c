@@ -8,7 +8,6 @@
 #include "m-bptree.h"
 #include "m-bstring.h"
 #include "m-buffer.h"
-#include "m-c-mempool.h"
 #include "m-concurrent.h"
 #include "m-deque.h"
 #include "m-dict.h"

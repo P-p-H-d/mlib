@@ -200,7 +200,6 @@ The following headers are obsolete and will be removed in the next major release
 * [m-concurrent.h](#m-concurrent): header for transforming a container into a concurrent container (thread safe),
 * [m-i-shared.h](#m-i-shared): header for creating intrusive shared pointer of generic type (Thread Safe).
 * [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator,
-* m-c-mempool.h: WIP header for creating fast concurrent memory allocation.
 
 Each containers define their iterators (if it is meaningful).
 
