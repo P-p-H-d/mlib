@@ -259,77 +259,44 @@ static void test_emplace(void)
 }
 /********************************************************************************************/
 
-/* Test intrusive shared pointer + buffer */
-#include "m-i-shared.h"
+/* Test integration shared pointer + buffer */
+#include "m-shared-ptr.h"
 
 // Tiny test structure
 typedef struct test_s {
-  ISHARED_PTR_INTERFACE(ishared_itest, struct test_s);
   char buffer[52];
   char bigbuffer[1000000];
 } test_t;
 static void test_init(test_t *p)  { memset(p->buffer, 0x00, 52); }
 static void test_clear(test_t *p) { memset(p->buffer, 0xFF, 52); }
-ISHARED_PTR_DEF(ishared_itest, test_t,
-                (INIT(test_init M_IPTR), CLEAR(test_clear M_IPTR), DEL(API(free, NONE, ARG2))))
+SHARED_PTR_DEF(shared_test, test_t, (INIT(test_init M_IPTR), CLEAR(test_clear M_IPTR)))
 
-typedef struct test2_s {
-  ISHARED_PTR_INTERFACE(ishared_itest2, struct test_s);
-  char buffer[52];
-} test2_t;
-static inline void ishared_itest2_init_data(test2_t *d)
-{
-  memset(d->buffer, 0, sizeof (d->buffer));
-}
-ISHARED_PTR_DEF(ishared_itest2, test2_t, (INIT(API_2(ishared_itest2_init_data)), CLEAR(M_NOTHING_DEFAULT)))
-
-typedef struct test3_s {
-  ISHARED_PTR_INTERFACE(ishared_itest3, struct test_s);
-  char buffer[52];
-} test3_t;
-ISHARED_PTR_DEF(ishared_itest3, test3_t, (CLEAR(M_NOTHING_DEFAULT)))
-
-typedef struct test4_s {
-  ISHARED_PTR_INTERFACE(ishared_itest4, struct test_s);
-  char buffer[52];
-} test4_t;
-ISHARED_PTR_DEF(ishared_itest4, test4_t, (INIT(0), DEL(0), INIT(M_MEMSET_DEFAULT), CLEAR(M_NOTHING_DEFAULT)))
-
-static test_t *test_new(void)
-{
-  test_t *p = M_ASSIGN_CAST(test_t*, malloc (sizeof (test_t)));
-  assert (p != NULL);
-  test_init (p);
-  return ishared_itest_init(p);
-}
-
-BUFFER_DEF(buffer_itest, test_t *, 16, BUFFER_PUSH_INIT_POP_MOVE,
-           ISHARED_PTR_OPLIST(ishared_itest))
+BUFFER_DEF(buffer_itest, shared_test_t *, 16, BUFFER_PUSH_INIT_POP_MOVE, SHARED_PTR_OPLIST(shared_test, (INIT(1), CLEAR(1))))
 
 static buffer_itest_t comm1;
 static buffer_itest_t comm2;
 
 static void test_conso1(void *arg)
 {
-  test_t *p;
+  shared_test_t *p;
   assert (arg == NULL);
   for(int i = 0; i < 10;i++) {
     buffer_itest_pop(&p, comm1);
     for(int j = 0; j < 52; j++)
-      assert (p->buffer[j] == (char) ((j * j * 17) + j * 42 + 1));
-    ishared_itest_clear(p);
+      assert (shared_test_ref(p)->buffer[j] == (char) ((j * j * 17) + j * 42 + 1));
+    shared_test_release(p);
   }
 }
 
 static void test_conso2(void *arg)
 {
-  test_t *p;
+  shared_test_t *p;
   assert (arg == NULL);
   for(int i = 0; i < 10;i++) {
     buffer_itest_pop(&p, comm2);
     for(int j = 0; j < 52; j++)
-      assert (p->buffer[j] == (char) ((j * j * 17) + j * 42 + 1));
-    ishared_itest_clear(p);
+      assert (shared_test_ref(p)->buffer[j] == (char) ((j * j * 17) + j * 42 + 1));
+    shared_test_release(p);
   }
 }
 
@@ -337,13 +304,13 @@ static void test_prod(void *arg)
 {
   assert (arg == NULL);
   for(unsigned int i = 0; i < 10;i++) {
-    test_t *p = test_new();
+    shared_test_t *p = shared_test_new();
     for(int j = 0; j < 52; j++) {
-      p->buffer[j] = (char) ((j * j * 17) + j * 42 + 1);
+      shared_test_ref(p)->buffer[j] = (char) ((j * j * 17) + j * 42 + 1);
     }
     buffer_itest_push(comm1, p);
     buffer_itest_push(comm2, p);
-    ishared_itest_clear(p);
+    shared_test_clear(p);
   }
 }
 
