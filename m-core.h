@@ -3531,8 +3531,6 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_X_DEL_DEL(a)             ,a,
 #define M_X_REALLOC_REALLOC(a)     ,a,
 #define M_X_FREE_FREE(a)           ,a,
-#define M_X_MEMPOOL_MEMPOOL(a)     ,a,
-#define M_X_MEMPOOL_LINKAGE_MEMPOOL_LINKAGE(a)     ,a,
 #define M_X_SIZE_SIZE(a)           ,a,
 #define M_X_CONTEXT_CONTEXT(a)     ,a,
 #define M_X_POLICY_POLICY(a)       ,a,
@@ -3624,8 +3622,6 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_GET_DEL(...)       M_GET_METHOD(DEL,         M_MEMORY_DEL,       __VA_ARGS__)
 #define M_GET_REALLOC(...)   M_GET_METHOD(REALLOC,     M_MEMORY_REALLOC,   __VA_ARGS__)
 #define M_GET_FREE(...)      M_GET_METHOD(FREE,        M_MEMORY_FREE,      __VA_ARGS__)
-#define M_GET_MEMPOOL(...)   M_GET_METHOD(MEMPOOL,     M_NO_DEF_MEMPOOL,   __VA_ARGS__)
-#define M_GET_MEMPOOL_LINKAGE(...)   M_GET_METHOD(MEMPOOL_LINKAGE, ,       __VA_ARGS__)
 #define M_GET_SIZE(...)      M_GET_METHOD(SIZE,        0,                  __VA_ARGS__)
 #define M_GET_CONTEXT(...)   M_GET_METHOD(CONTEXT,     0,                  __VA_ARGS__)
 #define M_GET_POLICY(...)    M_GET_METHOD(POLICY,      0,                  __VA_ARGS__)
@@ -3702,8 +3698,6 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_CALL_DEL(oplist, ...) M_APPLY_API(M_GET_DEL oplist, oplist, m_context, __VA_ARGS__)
 #define M_CALL_REALLOC(oplist, ...) M_APPLY_API(M_GET_REALLOC oplist, oplist, m_context, __VA_ARGS__)
 #define M_CALL_FREE(oplist, ...) M_APPLY_API(M_GET_FREE oplist, oplist, m_context, __VA_ARGS__)
-#define M_CALL_MEMPOOL(oplist, ...) M_APPLY_API(M_GET_MEMPOOL oplist, oplist, __VA_ARGS__)
-#define M_CALL_MEMPOOL_LINKAGE(oplist, ...) M_APPLY_API(M_GET_MEMPOOL_LINKAGE oplist, oplist, __VA_ARGS__)
 //#define M_CALL_SIZE(oplist, ...) M_APPLY_API(M_GET_SIZE oplist, oplist, __VA_ARGS__)
 //#define M_CALL_CONTEXT(oplist, ...) M_APPLY_API(M_GET_CONTEXT oplist, oplist, __VA_ARGS__)
 //#define M_CALL_POLICY(oplist, ...)  M_APPLY_API(M_GET_POLICY oplist, oplist, __VA_ARGS__)
@@ -3916,7 +3910,6 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_NO_DEF_IN_SERIAL(...)   M_NO_DEFAULT(IN_SERIAL, m_serial_return_code_t)
 #define M_NO_DEF_OOR_SET(...)     M_NO_DEFAULT(OOR_SET, void)
 #define M_NO_DEF_OOR_EQUAL(...)   M_NO_DEFAULT(OOR_EQUAL, bool)
-#define M_NO_DEF_MEMPOOL(...)     M_NO_DEFAULT(MEMPOOL, void)
 
 /* Create a type with an invalid static assertion.
    Creating a type allowed the macro into something not too bad

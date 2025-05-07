@@ -15,7 +15,6 @@
 #include "m-genint.h"
 #include "m-i-list.h"
 #include "m-list.h"
-#include "m-mempool.h"
 #include "m-prioqueue.h"
 #include "m-rbtree.h"
 #include "m-serial-bin.h"

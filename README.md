@@ -195,9 +195,6 @@ Finally, headers for compatibility with non C11 compilers:
 * [m-atomic.h](#m-atomic): header for ensuring compatibility between C's `stdatomic.h` and C++'s atomic header (provide also its own implementation if nothing is available),
 * [m-thread.h](#m-thread): header for providing a very thin layer across multiple implementation of mutex/threads (C11/PTHREAD/WIN32).
 
-The following headers are obsolete and will be removed in the next major release:
-* [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator,
-
 Each containers define their iterators (if it is meaningful).
 
 All containers try to expose the same common interface:
@@ -1820,39 +1817,6 @@ int main(void) {
   mpz_out_str(stdout, 0, *list_mpz_back(a));
   printf ("\n");
   list_mpz_clear(a);
-}
-```
-
-If the given oplist contain the method `MEMPOOL`, then `LIST_DEF` macro will create
-a dedicated mempool that is named with the given value of the method `MEMPOOL`.
-This mempool (see [mempool chapter](#m-mempool)) is optimized for this kind of list:
-
-* it creates a mempool named by the concatenation of `name` and `_mempool`,
-* it creates a variable named by the value of the method `MEMPOOL` with the linkage
-defined by the value of the method `MEMPOOL_LINKAGE` (can be extern, static or none).
-This variable is shared by all lists of the same type.
-* it links the memory allocation of the list to use this mempool with this variable.
-
-`mempool` create heavily efficient list. However, it is only worth the
-effort in some heavy performance context.
-Using mempool should be therefore avoided except in performance critical code.
-The created mempool has to be explicitly initialized before using any
-methods of the created list by calling `mempool_list_name_init(variable)`
-and cleared by calling `mempool_list_name_clear(variable)`.
-
-Example:
-
-```C
-LIST_DEF(list_uint, unsigned int, (MEMPOOL(list_mpool), MEMPOOL_LINKAGE(static)))
-
-static void test_list (size_t n)
-{
-  list_uint_mempool_init(list_mpool);
-  M_LET(a1, LIST_OPLIST(uint)) {
-      for(size_t i = 0; i < n; i++)
-          list_uint_push_back(a1, rand_get() );
-  }
-  list_uint_mempool_clear(list_mpool);
 }
 ```
 
@@ -7050,8 +7014,6 @@ M_GET_NEW oplist
 M_GET_DEL oplist
 M_GET_REALLOC oplist
 M_GET_FREE oplist
-M_GET_MEMPOOL oplist
-M_GET_MEMPOOL_LINKAGE oplist
 M_GET_HASH oplist
 M_GET_EQUAL oplist
 M_GET_CMP oplist
@@ -8701,69 +8663,6 @@ Throw the exception associated to the error_code.
 Additional arguments are used to fill in the error field of `m_exception_s`
 that is used to identify the cause of the exception.
 The line and filename fields of the exception are filled automatically by the macro.
-
-_________________
-
-### M-MEMPOOL
-
-> [!NOTE]
-> This header is obsolete: `M_USE_CONTEXT` should be used instead to pass custom memory context to containers.
-
-This header is for generating specialized and optimized memory pools:
-it will generate specialized functions to allocate and free only one kind of an object.
-The mempool functions are not specially thread safe for a given mempool,
-but the mempool variable can have the attribute `M_THREAD_ATTR`
-so that each thread has its own instance of the mempool.
-
-The memory pool has to be initialized and cleared like any other variable.
-Clearing the memory pool will free all the memory that has been allocated 
-within this memory pool.
-
-#### `MEMPOOL_DEF(name, type)`
-
-Generate specialized functions & types prefixed by `name` to `alloc` and `free` an object of type `type`.
-
-Example:
-
-```C
-MEMPOOL_DEF(mempool_uint, unsigned int)
-
-mempool_uint_t m;
-
-void f(void) {
-  mempool_uint_init(m);
-  unsigned int *p = mempool_uint_alloc(m);
-  *p = 17;
-  mempool_uint_free(m, p);
-  mempool_uint_clear(m);
-}
-```
-
-#### Created methods
-
-The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro that is used to identify the type.
-
-##### `name_t`
-
-The type of a mempool.
-
-##### `void name_init(name_t m)`
-
-Initialize the mempool `m`.
-
-##### `void name_clear(name_t m)`
-
-Clear the mempool `m`.
-All allocated objects associated to the this mempool that weren't explicitly freed will be deleted too (without calling their clear method).
-
-##### `type *name_alloc(name_t m)`
-
-Create a new object of type `type` and return a new pointer to the uninitialized object.
-
-##### `void name_free(name_t m, type *p)`
-
-Free the object `p` created by the call to `name_alloc`.
-The clear method of the type is not called.
 
 _________________
 
