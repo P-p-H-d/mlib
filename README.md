@@ -649,10 +649,10 @@ Other documented operators are:
 * `VALUE_TYPE()` --> `value_t`: Return the value type for associative containers.
 * `KEY_OPLIST()` --> `oplist`: Return the oplist of the key type for associative containers.
 * `VALUE_OPLIST()` --> `oplist`: Return the oplist of the value type for associative containers.
-* `NEW(type)` --> `type pointer`: allocate a new object (with suitable alignment and size) and return a pointer to it. The returned object is **not initialized** (a constructor operator shall be called afterward). The default method is `M_MEMORY_ALLOC` (that allocates from the heap). It returns NULL in case of failure.
-* `DEL(&obj)`: free the allocated uninitialized object `obj`. The destructor of the pointed object shall be called before freeing the memory by calling this method. The object shall have been allocated by the associated NEW method. `sizeof obj` is the size of the allocated object. The default method is `M_MEMORY_DEL` (that frees to the heap). `obj` shall not be NULL and shall be of the proper type.
-* `REALLOC(type, pointer, previous_number, new_number)` --> `pointer`: reallocate the given array of `previous_number` elements of type `type` referenced by `pointer` (either a NULL pointer or a pointer returned by a previous call to `REALLOC`) to an array of `new_number` objects of type `type` and return a pointer to this new array. Previously objects pointed by the pointer are kept up to the minimum of the new size and old one but may have moved from their original positions (if the array is reallocated otherwhere). New objects are not initialized (a constructor operator shall be called afterward). Freed objects are not cleared (A destructor operator shall be called before). The default is `M_MEMORY_REALLOC` (that allocates from the heap). It returns NULL in case of failure in which case the original array is not modified. If `pointer` is NULL, then `previous_number` should be 0.
-* `FREE(type, pointer, number)`: free the allocated uninitialized array of `number` elements of type `type` referenced by `pointer`. The destructor of the pointed objects shall be called before freeing the memory. The memory of the objects shall have been allocated by the associated REALLOC method. The default is `M_MEMORY_FREE` (that frees to the heap). If pointer is NULL, then the function shall do nothing.
+* `NEW(context, type)` --> `type pointer`: allocate a new object (with suitable alignment and size) and return a pointer to it. The returned object is **not initialized** (a constructor operator shall be called afterward). The default method is `M_MEMORY_ALLOC` (that allocates from the heap). It returns NULL in case of failure.
+* `DEL(context, &obj)`: free the allocated uninitialized object `obj`. The destructor of the pointed object shall be called before freeing the memory by calling this method. The object shall have been allocated by the associated NEW method. `sizeof obj` is the size of the allocated object. The default method is `M_MEMORY_DEL` (that frees to the heap). `obj` shall not be NULL and shall be of the proper type.
+* `REALLOC(context, type, pointer, previous_number, new_number)` --> `pointer`: reallocate the given array of `previous_number` elements of type `type` referenced by `pointer` (either a NULL pointer or a pointer returned by a previous call to `REALLOC`) to an array of `new_number` objects of type `type` and return a pointer to this new array. Previously objects pointed by the pointer are kept up to the minimum of the new size and old one but may have moved from their original positions (if the array is reallocated otherwhere). New objects are not initialized (a constructor operator shall be called afterward). Freed objects are not cleared (A destructor operator shall be called before). The default is `M_MEMORY_REALLOC` (that allocates from the heap). It returns NULL in case of failure in which case the original array is not modified. If `pointer` is NULL, then `previous_number` should be 0.
+* `FREE(context, type, pointer, number)`: free the allocated uninitialized array of `number` elements of type `type` referenced by `pointer`. The destructor of the pointed objects shall be called before freeing the memory. The memory of the objects shall have been allocated by the associated REALLOC method. The default is `M_MEMORY_FREE` (that frees to the heap). If pointer is NULL, then the function shall do nothing.
 * `INC_ALLOC(size_t s)` --> `size_t`: Define the growing policy of an array (or equivalent structure). It returns a new allocation size based on the old allocation size (`s`). Default policy is to get the maximum between `2*s` and 16. In case of overflow, it shall return a number less or equal than the original size.
 
 > [!NOTE]
@@ -669,7 +669,7 @@ Other documented operators are:
 * `INIT_WITH(obj, ...)`: Initialize the object `obj` with the given variable set of arguments (constructor). The arguments are variable and can be of different types. It is up to the method of the object to decide how to initialize the object based on this initialization array. This operator is used by the `M_LET` macro to initialize objects with their given values and this operator defines what the `M_LET` macro supports. It may raise asynchronous error.
 
 > [!NOTE]
->In C11, you can use `API_1(M_INIT_WITH_THROUGH_EMPLACE_TYPE)` as method to automatically use the different emplace functions defined in `EMPLACE_TYPE` through a _Generic switch case. The `EMPLACE_TYPE` shall use the LIST format. See [emplace chapter](#Emplace-construction).
+>In C11, you can use `API_1(M_INIT_WITH_THROUGH_EMPLACE_TYPE)` as a method for `INIT_WITH` to automatically use the different emplace functions defined in `EMPLACE_TYPE` through a _Generic switch case. The provided `EMPLACE_TYPE` shall use the LIST format. See [emplace chapter](#Emplace-construction).
 >
 * `SWAP(objd, objc)`: Swap the states of the object `objc` and the object `objd`.
 
@@ -746,7 +746,7 @@ The I/O operators are:
 * `OUT_STR(FILE* f, obj)`: Output `obj` as a custom formatted string into the `FILE*` stream `f`. Format is container dependent, but is human readable.
 * `IN_STR(obj, FILE* f)` --> `bool`: Set `obj` to the value associated to the formatted string representation of the object in the `FILE*` stream `f`. Return true in case of success (in that case the stream `f` has been advanced to the end of the parsing of the object), false otherwise (in that case, the stream `f` is in an undetermined position but is likely where the parsing fails). It ensures that an object which is output in a FILE through `OUT_STR`, and an object which is read from this FILE through `IN_STR` are considered as equal. It may raise asynchronous error.
 * `GET_STR(string_t str, obj, bool append)`: Set `str` to a formatted string representation of the object `obj`. Append to the string if `append` is true, set it otherwise. This operator requires the module [m-string](#m-string). It may raise asynchronous error.
-* `PARSE_STR(obj, const char *str, const char **endp)` --> `bool`: Set `obj` to the value associated to the formatted string representation of the object in the char stream `str`. Return true in case of success (in that case if endp is not NULL, it points to the end of the parsing of the object), false otherwise (in that case, if endp is not NULL, it points to an undetermined position but likely to be where the parsing fails). It ensures that an object which is written in a string through GET_STR, and an object which is read from this string through `PARSE_STR` are considered as equal. It may raise asynchronous error.
+* `PARSE_STR(obj, const char *str, const char **endp)` --> `bool`: Set `obj` to the value associated to the formatted string representation of the object in the char stream `str`. Return true in case of success (in that case if `endp` is not NULL, it points to the end of the parsing of the object), false otherwise (in that case, if `endp` is not NULL, it points to an undetermined position but likely to be where the parsing fails). It ensures that an object which is written in a string through GET_STR, and an object which is read from this string through `PARSE_STR` are considered as equal. It may raise asynchronous error.
 * `OUT_SERIAL(m_serial_write_t *serial, obj)` --> `m_serial_return_code_t`: Output `obj` into the configurable serialization stream `serial` (See [m-serial-json.h](#m-serial-json) for details and example) as per the serial object semantics. Return `M_SERIAL_OK_DONE` in case of success, or `M_SERIAL_FAIL` otherwise. It may raise asynchronous error.
 * `IN_SERIAL(obj, m_serial_read_t *serial)` --> `m_serial_return_code_t`: Set `obj` to its representation from the configurable serialization stream `serial` (See [m-serial-json.h](#m-serial-json) for details and example) as per the serial object semantics. `M_SERIAL_OK_DONE` in case of success (in that case the stream `serial` has been advanced up to the complete parsing of the object), or `M_SERIAL_FAIL` otherwise (in that case, the stream `serial` is in an undetermined position but usually around the next characters after the first failure). It may raise asynchronous error.
 
@@ -1340,7 +1340,7 @@ in fact, the only constraint is that the preprocessing concatenation between `ty
 Therefore the `type` cannot be a C array or a function pointer
 and you shall use a typedef as an intermediary named type for such types.
 
-The output parameters are listed fist, then the input/output parameters and finally the input parameters.
+The output parameters are listed first, then the input/output parameters and finally the input parameters.
 
 The oplist shall also provide the `INIT_MOVE` operator if the default instance (aka '=' operator) is not working for this type (for example for array of size 1, in which case the method `M_COPY_A1_DEFAULT` is likely to work), or disable the operator.
 
@@ -7543,8 +7543,7 @@ Count the number of leading zero and return it.
 ##### `size_t m_core_hash (const void *str, size_t length)`
 
 Compute the hash of the binary representation of the data pointer by `str`
-of length `length`. `str` shall have the maximum alignment restriction
-of all types that size is less or equal than `length`.
+of length `length`. `str` shall be aligned to `min(length, 8)`.
 
 #### OPERATORS Functions
 
@@ -9458,7 +9457,7 @@ This provides the same level of flexibility of the C++. However, there is some d
 * Error messages can be more complex,
 * Compilation time increase a lot (on pair with C++)
 
-This header is still a WIP and is currently more a demo (Not ready for production).
+This header is still a WIP.
 
 #### Example
 
@@ -9469,25 +9468,27 @@ It reuses the basic example of the introduction of the library.
 #include "m-list.h"
 #include "m-generic.h"
 
+// Define a list of unsigned int
 LIST_DEF(list_uint, unsigned int)
 
-// Register oplist for M_LET & M_EACH :
+// Register the oplist of this new list for usage in M_LET & M_EACH :
 #define M_OPL_list_uint_t() LIST_OPLIST(list_uint, M_BASIC_OPLIST)
 
-// Register for Generic (Organization, Component & Oplist)
+// Register the oplist of this new list for the Generic framework
+// Organization=USER, Component=CORE & Oplist Number=1
 #define M_GENERIC_ORG_1() (USER)
 #define M_GENERIC_ORG_USER_COMP_1() (CORE)
 #define M_GENERIC_ORG_USER_COMP_CORE_OPLIST_1() M_OPL_list_uint_t()
 
 int main(void)
 {
-    M_LET(list, list_uint_t) {
+    let(list, list_uint_t) {
         push(list, 42);
         push(list, 17);
         for each(item, list) {
-            M_PRINT("ITEM=", *item, "\n");
+            print("ITEM=", *item, "\n");
         }
-        M_PRINT("List = ", list, "\n");
+        print("List = ", list, "\n");
     }
 }
 ```
@@ -10236,6 +10237,18 @@ See [m-core.h](#m-core)
 #### `M_ASSERT_INDEX`
 
 See [m-core.h](#m-core)
+
+#### `M_USE_CONTEXT`
+
+See [Memory context Customization](#memory-context-customization)
+
+Default value: undefined (No memory context)
+
+#### `M_USE_GLOBAL_CONTEXT`
+
+See [Memory context Customization](#memory-context-customization)
+
+Default value: 0
 
 _________________
 

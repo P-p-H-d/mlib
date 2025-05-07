@@ -3697,7 +3697,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_CALL_OOR_EQUAL(oplist, ...) M_APPLY_API(M_GET_OOR_EQUAL oplist, oplist, __VA_ARGS__)
 //#define M_CALL_PROPERTIES(oplist, ...) M_APPLY_API(M_GET_PROPERTIES oplist, oplist, __VA_ARGS__)
 //#define M_CALL_EMPLACE_TYPE(oplist, ...) M_APPLY_API(M_GET_EMPLACE_TYPE oplist, oplist, __VA_ARGS__)
-// As attribute customization
+// m_context is always added here!
 #define M_CALL_NEW(oplist, ...) M_APPLY_API(M_GET_NEW oplist, oplist, m_context, __VA_ARGS__)
 #define M_CALL_DEL(oplist, ...) M_APPLY_API(M_GET_DEL oplist, oplist, m_context, __VA_ARGS__)
 #define M_CALL_REALLOC(oplist, ...) M_APPLY_API(M_GET_REALLOC oplist, oplist, m_context, __VA_ARGS__)
