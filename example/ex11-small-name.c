@@ -15,7 +15,6 @@
 #include "m-generic.h"
 #include "m-genint.h"
 #include "m-i-list.h"
-#include "m-i-shared.h"
 #include "m-list.h"
 #include "m-mempool.h"
 #include "m-prioqueue.h"
