@@ -22,7 +22,6 @@
 #include "m-rbtree.h"
 #include "m-serial-bin.h"
 #include "m-serial-json.h"
-//#include "m-shared.h" // API incompatible with m-shared-ptr.h (exclusive)
 #include "m-shared-ptr.h"
 #include "m-snapshot.h"
 #include "m-string.h"

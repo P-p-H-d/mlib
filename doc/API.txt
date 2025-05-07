@@ -106,3 +106,5 @@ V0.8.0 : * Memory interface massive compatibility break to allow more efficient 
            either default INIT_MOVE operator (operator '=') is working, or a method is provided for INIT_MOVE or it is disabled.
            If it is an array of size 1, you can use M_COPY_A1_DEFAULT as a default method.
            (It's because supporting emulation layer with new memory context parameter was complicated)
+	 * Remove obsole headers: m-c-mempool, m-mempool, m-shared, m-i-shared, -mconcurrent
+	 
