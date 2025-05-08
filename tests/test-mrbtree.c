@@ -20,10 +20,10 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include <stdio.h>
 #include "test-obj.h"
 #include "m-string.h"
 #include "m-rbtree.h"
+#include "coverage.h"
 
 static bool uint_in_str(unsigned int *u, FILE *f)
 {
@@ -49,7 +49,6 @@ static void uint_get_str(string_t str, unsigned int u, bool append)
   (append ? string_cat_printf : string_printf) (str, "%u", u);
 }
 
-#include "coverage.h"
 START_COVERAGE
 RBTREE_DEF(rbtree_uint, unsigned int, M_OPEXTEND(M_BASIC_OPLIST, IN_STR(uint_in_str M_IPTR), OUT_STR(uint_out_str), GET_STR(uint_get_str), PARSE_STR(uint_parse_str M_IPTR)) )
 END_COVERAGE

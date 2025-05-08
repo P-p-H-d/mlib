@@ -12,38 +12,45 @@ M\*LIB: Generic type-safe Container Library for C language
 9. [Errors & compilers](#errors--compilers)
 10. [External Reference](#external-reference)
 11. [API Documentation](#api-documentation)
-    1. [Generic methods](#generic-methods)
-    2. [List](#m-list)
-    3. [Array](#m-array)
-    4. [Deque](#m-deque)
-    5. [Dictionary](#m-dict)
-    6. [Tuple](#m-tuple)
-    7. [Variant](#m-variant)
-    8. [Red/Black Tree](#m-rbtree)
-    9. [B+ Tree](#m-bptree)
-    10. [Generic Tree](#m-tree)
-    11. [Priority queue](#m-prioqueue)
-    12. [Fixed buffer queue](#m-buffer)
-    13. [Atomic Shared Register](#m-snapshot)
-    14. [Shared pointers](#m-shared-ptr)
-    15. [Intrusive Shared Pointers](#m-i-shared)
-    16. [Intrusive list](#m-i-list)
-    17. [Concurrent adapter](#m-concurrent)
-    18. [Bitset](#m-bitset)
-    19. [String](#m-string)
-    20. [Core preprocessing](#m-core)
-    21. [Thread](#m-thread)
-    22. [Worker threads](#m-worker)
-    23. [Atomic](#m-atomic)
-    24. [Generic algorithms](#m-algo)
-    25. [Function objects](#m-funcobj)
-    26. [Exception handling](#m-try)
-    27. [Memory pool](#m-mempool)
-    28. [JSON Serialization](#m-serial-json)
-    29. [Binary Serialization](#m-serial-bin)
-    30. [Generic interface](#m-generic)
-    31. [Byte String](#m-bstring)
+    1. [Common Interface](#Common-Interface)
+    2. Sequence containers
+        1. [Array](#m-array)
+        2. [List](#m-list)
+        3. [Intrusive list](#m-i-list)
+        4. [Double end queue](#m-deque)
+        6. [Fixed size queue / stack](#m-queue)
+    3. Associative containers
+        1. [Dictionary](#m-dict)
+        2. [Red/Black Tree](#m-rbtree)
+        3. [B+ Tree](#m-bptree)
+    4. Misc containers
+        1. [Priority queue](#m-prioqueue)
+        2. [Generic Tree](#m-tree)
+        3. [Tuple](#m-tuple)
+        4. [Variant](#m-variant)
+    5. Thread containers
+        1. [Shared Fixed size queue](#m-buffer)
+        2. [Atomic Shared Register](#m-snapshot)
+        3. [Shared pointers](#m-shared-ptr)
+        4. [Worker threads](#m-worker)
+    6. Dataset
+        1. [String](#m-string)
+        2. [Byte String](#m-bstring)
+        3. [Bitset](#m-bitset)
+    7. Algorithms
+        1. [Generic algorithms](#m-algo)
+        2. [Function objects](#m-funcobj)
+    8. Serialization
+        1. [JSON Serialization](#m-serial-json)
+        2. [Binary Serialization](#m-serial-bin)
+    9. [Uniform interface](#m-generic)
+    10. [Core preprocessing](#m-core)
+    11. C11 compatibility headers
+        1. [Thread](#m-thread)
+        2. [Atomic](#m-atomic)
 12. [Global User Customization](#global-user-customization)
+    1. [Exception handling](#m-try)
+    2. [Memory context Customization](#memory-context-customization)
 13. [License](#license)
 
 ## Overview
@@ -149,17 +156,18 @@ The following headers define containers that don't require the user structure to
 * [m-array.h](#m-array): header for creating dynamic array of generic type,
 * [m-list.h](#m-list): header for creating singly-linked list of generic type,
 * [m-deque.h](#m-deque): header for creating dynamic double-ended queue of generic type,
+* [m-queue.h](#m-queue): header for creating static queue or stack of generic type,
+* [m-prioqueue.h](#m-prioqueue): header for creating dynamic priority queue of generic type.
 * [m-dict.h](#m-dict): header for creating unordered associative array (through hashmap) or unordered set of generic type,
 * [m-rbtree.h](#m-rbtree): header for creating ordered set (through Red/Black binary sorted tree) of generic type,
 * [m-bptree.h](#m-bptree): header for creating ordered map/set/multimap/multiset (through sorted B+TREE) of generic type,
 * [m-tree.h](#m-tree): header for creating arbitrary tree of generic type,
 * [m-tuple.h](#m-tuple): header for creating arbitrary tuple of generic types,
 * [m-variant.h](#m-variant): header for creating arbitrary variant of generic type,
-* [m-prioqueue.h](#m-prioqueue): header for creating dynamic priority queue of generic type.
 
 The available containers of M\*LIB for thread synchronization are in the following headers:
 
-* [m-buffer.h](#m-buffer): header for creating fixed-size queue (or stack) of generic type (multiple producer / multiple consumer),
+* [m-buffer.h](#m-buffer): header for creating fixed-size queue (or stack) of generic type (multiple producer / multiple consumer) used for transferring data from a thread to another,
 * [m-snapshot](#m-snapshot): header for creating 'atomic buffer' (through triple buffer) for sharing synchronously big data (thread safe),
 * [m-shared-ptr.h](#m-shared-ptr): header for creating shared pointer of generic type,
 
@@ -186,13 +194,6 @@ Finally, headers for compatibility with non C11 compilers:
 
 * [m-atomic.h](#m-atomic): header for ensuring compatibility between C's `stdatomic.h` and C++'s atomic header (provide also its own implementation if nothing is available),
 * [m-thread.h](#m-thread): header for providing a very thin layer across multiple implementation of mutex/threads (C11/PTHREAD/WIN32).
-
-The following headers are obsolete and will be removed in the next major release:
-* [m-shared.h](#m-shared): header for creating shared pointer of generic type,
-* [m-concurrent.h](#m-concurrent): header for transforming a container into a concurrent container (thread safe),
-* [m-i-shared.h](#m-i-shared): header for creating intrusive shared pointer of generic type (Thread Safe).
-* [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator,
-* m-c-mempool.h: WIP header for creating fast concurrent memory allocation.
 
 Each containers define their iterators (if it is meaningful).
 
@@ -295,7 +296,7 @@ This is equivalent to this C++ program using the STL:
 
 ```C
 #include <iostream>
-#include <list>
+#include \<list\>
 
 typedef std::list<unsigned int> list_uint_t;
 typedef std::list<unsigned int>::iterator list_uint_it_t;
@@ -354,7 +355,7 @@ Here is another example with a complete type (with proper initialization & clear
 #include <stdio.h>
 #include <gmp.h>
 #include "m-array.h"
-ARRAY_DEF(array_mpz, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)) )
+ARRAY_DEF(array_mpz, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1_DEFAULT)) )
 int main(void) {
    array_mpz_t array ;             /* array_mpz_t has been define above */
    array_mpz_init(array);          /* All type needs to be initialized */
@@ -399,7 +400,7 @@ We can also write the same example shorter:
 
 // Register the oplist of a mpz_t.
 #define M_OPL_mpz_t() (INIT(mpz_init), INIT_SET(mpz_init_set), \
-        SET(mpz_set), CLEAR(mpz_clear))
+        SET(mpz_set), CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1_DEFAULT))
 // Define an instance of an array of mpz_t (both type and function)
 ARRAY_DEF(array_mpz, mpz_t)
 // Register the oplist of the created instance of array of mpz_t
@@ -509,15 +510,16 @@ of the library.
 The final goal of the library is to be able to write code like this in pure C while keeping type safety and compile time name resolution:
 
 ```C
-M_LET(list, list_uint_t) {
+let(list, list_uint_t) {
   push(list, 42);
   push(list, 17);
   for each (item, list) {
-    M_PRINT(*item, "\n");
+    print(*item, "\n");
   }
 }
 ```
 
+And it works!
 See the [example](https://github.com/P-p-H-d/mlib/blob/master/example/ex11-generic01.c)
 and [M-GENERIC](#M-GENERIC) header for details.
 
@@ -640,11 +642,11 @@ Other documented operators are:
 * `VALUE_TYPE()` --> `value_t`: Return the value type for associative containers.
 * `KEY_OPLIST()` --> `oplist`: Return the oplist of the key type for associative containers.
 * `VALUE_OPLIST()` --> `oplist`: Return the oplist of the value type for associative containers.
-* `NEW(type)` --> `type pointer`: allocate a new object (with suitable alignment and size) and return a pointer to it. The returned object is **not initialized** (a constructor operator shall be called afterward). The default method is `M_MEMORY_ALLOC` (that allocates from the heap). It returns NULL in case of failure.
-* `DEL(&obj)`: free the allocated uninitialized object `obj`. The destructor of the pointed object shall be called before freeing the memory by calling this method. The object shall have been allocated by the associated NEW method. The default method is `M_MEMORY_DEL` (that frees to the heap). `obj` shall not be NULL and shall be of the proper type.
-* `REALLOC(type, type pointer, number)` --> `type pointer`: reallocate the given array referenced by type pointer (either a NULL pointer or a pointer returned by the associated `REALLOC` method itself) to an array of the number of objects of this type and return a pointer to this new array. Previously objects pointed by the pointer are kept up to the minimum of the new size and old one but may have moved from their original positions (if the array is reallocated otherwhere). New objects are not initialized (a constructor operator shall be called afterward). Freed objects are not cleared (A destructor operator shall be called before). The default is `M_MEMORY_REALLOC` (that allocates from the heap). It returns NULL in case of failure in which case the original array is not modified.
-* `FREE(&obj)`: free the allocated uninitialized array object `obj`. The destructor of the pointed objects shall be called before freeing the memory by calling this method.  The objects shall have been allocated by the associated REALLOC method. The default is `M_MEMORY_FREE` (that frees to the heap).
-* `INC_ALLOC(size_t s)` --> `size_t`: Define the growing policy of an array (or equivalent structure). It returns a new allocation size based on the old allocation size (`s`). Default policy is to get the maximum between `2*s` and 16. 
+* `NEW(context, type)` --> `type pointer`: allocate a new object (with suitable alignment and size) and return a pointer to it. The returned object is **not initialized** (a constructor operator shall be called afterward). The default method is `M_MEMORY_ALLOC` (that allocates from the heap). It returns NULL in case of failure.
+* `DEL(context, &obj)`: free the allocated uninitialized object `obj`. The destructor of the pointed object shall be called before freeing the memory by calling this method. The object shall have been allocated by the associated NEW method. `sizeof obj` is the size of the allocated object. The default method is `M_MEMORY_DEL` (that frees to the heap). `obj` shall not be NULL and shall be of the proper type.
+* `REALLOC(context, type, pointer, previous_number, new_number)` --> `pointer`: reallocate the given array of `previous_number` elements of type `type` referenced by `pointer` (either a NULL pointer or a pointer returned by a previous call to `REALLOC`) to an array of `new_number` objects of type `type` and return a pointer to this new array. Previously objects pointed by the pointer are kept up to the minimum of the new size and old one but may have moved from their original positions (if the array is reallocated otherwhere). New objects are not initialized (a constructor operator shall be called afterward). Freed objects are not cleared (A destructor operator shall be called before). The default is `M_MEMORY_REALLOC` (that allocates from the heap). It returns NULL in case of failure in which case the original array is not modified. If `pointer` is NULL, then `previous_number` should be 0.
+* `FREE(context, type, pointer, number)`: free the allocated uninitialized array of `number` elements of type `type` referenced by `pointer`. The destructor of the pointed objects shall be called before freeing the memory. The memory of the objects shall have been allocated by the associated REALLOC method. The default is `M_MEMORY_FREE` (that frees to the heap). If pointer is NULL, then the function shall do nothing.
+* `INC_ALLOC(size_t s)` --> `size_t`: Define the growing policy of an array (or equivalent structure). It returns a new allocation size based on the old allocation size (`s`). Default policy is to get the maximum between `2*s` and 16. In case of overflow, it shall return a number less or equal than the original size.
 
 > [!NOTE]
 > It doesn't check for overflow: if the returned value is lower 
@@ -660,7 +662,7 @@ Other documented operators are:
 * `INIT_WITH(obj, ...)`: Initialize the object `obj` with the given variable set of arguments (constructor). The arguments are variable and can be of different types. It is up to the method of the object to decide how to initialize the object based on this initialization array. This operator is used by the `M_LET` macro to initialize objects with their given values and this operator defines what the `M_LET` macro supports. It may raise asynchronous error.
 
 > [!NOTE]
->In C11, you can use `API_1(M_INIT_WITH_THROUGH_EMPLACE_TYPE)` as method to automatically use the different emplace functions defined in `EMPLACE_TYPE` through a _Generic switch case. The `EMPLACE_TYPE` shall use the LIST format. See [emplace chapter](#Emplace-construction).
+>In C11, you can use `API_1(M_INIT_WITH_THROUGH_EMPLACE_TYPE)` as a method for `INIT_WITH` to automatically use the different emplace functions defined in `EMPLACE_TYPE` through a _Generic switch case. The provided `EMPLACE_TYPE` shall use the LIST format. See [emplace chapter](#Emplace-construction).
 >
 * `SWAP(objd, objc)`: Swap the states of the object `objc` and the object `objd`.
 
@@ -737,7 +739,7 @@ The I/O operators are:
 * `OUT_STR(FILE* f, obj)`: Output `obj` as a custom formatted string into the `FILE*` stream `f`. Format is container dependent, but is human readable.
 * `IN_STR(obj, FILE* f)` --> `bool`: Set `obj` to the value associated to the formatted string representation of the object in the `FILE*` stream `f`. Return true in case of success (in that case the stream `f` has been advanced to the end of the parsing of the object), false otherwise (in that case, the stream `f` is in an undetermined position but is likely where the parsing fails). It ensures that an object which is output in a FILE through `OUT_STR`, and an object which is read from this FILE through `IN_STR` are considered as equal. It may raise asynchronous error.
 * `GET_STR(string_t str, obj, bool append)`: Set `str` to a formatted string representation of the object `obj`. Append to the string if `append` is true, set it otherwise. This operator requires the module [m-string](#m-string). It may raise asynchronous error.
-* `PARSE_STR(obj, const char *str, const char **endp)` --> `bool`: Set `obj` to the value associated to the formatted string representation of the object in the char stream `str`. Return true in case of success (in that case if endp is not NULL, it points to the end of the parsing of the object), false otherwise (in that case, if endp is not NULL, it points to an undetermined position but likely to be where the parsing fails). It ensures that an object which is written in a string through GET_STR, and an object which is read from this string through `PARSE_STR` are considered as equal. It may raise asynchronous error.
+* `PARSE_STR(obj, const char *str, const char **endp)` --> `bool`: Set `obj` to the value associated to the formatted string representation of the object in the char stream `str`. Return true in case of success (in that case if `endp` is not NULL, it points to the end of the parsing of the object), false otherwise (in that case, if `endp` is not NULL, it points to an undetermined position but likely to be where the parsing fails). It ensures that an object which is written in a string through GET_STR, and an object which is read from this string through `PARSE_STR` are considered as equal. It may raise asynchronous error.
 * `OUT_SERIAL(m_serial_write_t *serial, obj)` --> `m_serial_return_code_t`: Output `obj` into the configurable serialization stream `serial` (See [m-serial-json.h](#m-serial-json) for details and example) as per the serial object semantics. Return `M_SERIAL_OK_DONE` in case of success, or `M_SERIAL_FAIL` otherwise. It may raise asynchronous error.
 * `IN_SERIAL(obj, m_serial_read_t *serial)` --> `m_serial_return_code_t`: Set `obj` to its representation from the configurable serialization stream `serial` (See [m-serial-json.h](#m-serial-json) for details and example) as per the serial object semantics. `M_SERIAL_OK_DONE` in case of success (in that case the stream `serial` has been advanced up to the complete parsing of the object), or `M_SERIAL_FAIL` otherwise (in that case, the stream `serial` is in an undetermined position but usually around the next characters after the first failure). It may raise asynchronous error.
 
@@ -784,7 +786,7 @@ void mpz_clear(mpz_t z);                   // Destructor of the object z
 A basic oplist will be:
 
 ```C
-(INIT(mpz_init),SET(mpz_set),INIT_SET(mpz_init_set),CLEAR(mpz_clear),TYPE(mpz_t))
+(INIT(mpz_init),SET(mpz_set),INIT_SET(mpz_init_set),CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1_DEFAULT),TYPE(mpz_t))
 ```
 
 Much more complete oplist can be built for this type however, enabling much more powerful generation:
@@ -801,7 +803,7 @@ Example:
 
 ```C
 #define M_OPL_mpz_t() (INIT(mpz_init),SET(mpz_set),          \
-        INIT_SET(mpz_init_set),CLEAR(mpz_clear),TYPE(mpz_t))
+        INIT_SET(mpz_init_set),CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1_DEFAULT),TYPE(mpz_t))
 ```
 
 This can simplify a lot `OPLIST` usage and it is recommended.
@@ -839,7 +841,7 @@ The API Adaptation to use shall be embedded in the `OPLIST` definition.
 For example:
 
 ```C
-(INIT(API_0(mpz_init)), SET(API_0(mpz_set)), INIT_SET(API_0(mpz_init_set)), CLEAR(API_0(mpz_clear)))
+(INIT(API_0(mpz_init)), SET(API_0(mpz_set)), INIT_SET(API_0(mpz_init_set)), CLEAR(API_0(mpz_clear)), INIT_MOVE(M_COPY_A1_DEFAULT))
 ```
 
 The default adaptation is API_0 (i.e. no adaptation between operator interface and method interface).
@@ -1033,17 +1035,36 @@ In which case, this enables you to close the file even if an exception is thrown
 
 Memory Allocation functions can be globally set by overriding the following macros before using the definition `_DEF` macros:
 
-* `M_MEMORY_ALLOC (type)` --> `ptr`: return a pointer to a new object of type `type`.
-* `M_MEMORY_DEL (ptr)`: free the single object pointed by `ptr`.
-* `M_MEMORY_REALLOC (type, ptr, number)` --> `ptr`: return a pointer to an array of 'number' objects of type `type`, reusing the old array pointed by `ptr`. `ptr` can be NULL, in which case the array will be created.
-* `M_MEMORY_FREE (ptr)`: free the array of objects pointed by `ptr`.
+* `M_MEMORY_ALLOC (context, type)` --> `ptr`: return a pointer to a new object of type `type`.
+* `M_MEMORY_DEL (context, ptr)`: free the single object pointed by `ptr`.
+* `M_MEMORY_REALLOC (context, type, ptr, old_number, new_number)` --> `ptr`: return a pointer to an array of `new_number` objects of type `type`, reusing the old array pointed by `ptr` of `old_number` objects. `ptr` can be NULL, in which case the array will be created.
+* `M_MEMORY_FREE (context, type, ptr, number)`: free the array of `number` objects of type `type` pointed by `ptr`.
 
-`ALLOC` and `DEL` operators are supposed to allocate fixed size single element object (no array).
+> [!NOTE] 
+> You can use `sizeof (type)` and `alignof (type)` to get the size and the alignement of the object.
+
+> [!NOTE] 
+> For `M_MEMORY_DEL`, `sizeof *ptr` always identifies the size of the object.
+
+`ALLOC` and `DEL` operators are supposed to allocate **fixed** size single element object (no array).
 These objects are not expected to grow.
 `REALLOC` and `FREE` operators deal with allocated memory for growing objects.
 Do not mix pointers between both: a pointer allocated by `ALLOC` (resp. `REALLOC`) is supposed
 to be only freed by `DEL` (resp. `FREE`). There are separated 'free' operators to enable
 specialization in the allocator (a good allocator can take this hint into account).
+
+`context` is a local user context used to identify the memory context to use for the allocation.
+This parameter **only** exists if the library is compiled with the `M_USE_CONTEXT` customization parameter enabled globally.
+Otherwise this parameter identifies a non existing symbol `m_context`.
+
+This parameter shall be discarded if `M_USE_CONTEXT` is not defined (it shall not exist anymore after preprocessing step).
+For that, you can define the macros to ignore the first parameter
+or you can use GAIA to adapt the call to what your function expects.
+
+> [!NOTE] 
+> If you get error on `m_context` being undefined
+> it is likely because one of your memory is trying to evaluate the memory context
+> without defining `M_USE_CONTEXT`.
 
 `M_MEMORY_ALLOC` and `M_MEMORY_REALLOC` are supposed to return NULL in case of memory allocation failure.
 The defaults are `malloc`, `free`, `realloc` and `free`.
@@ -1142,23 +1163,25 @@ The list of errors it can generate:
 * `M_LIB_MISSING_METHOD`: a required operator doesn't define any method in the given oplist. You need to complete the oplist with the missing method.
 * `M_LIB_TYPE_MISMATCH`: the given oplist and the type do not match each other. You need to give the right oplist for this type.
 * `M_LIB_NOT_A_BASIC_TYPE`: The oplist `M_BASIC_OPLIST` (directly or indirectly) has been used with the given type, but the given type is not a basic C type (int/float). You need to give the right oplist for this type.
+* `M_LIB_DIMENSION_ERROR`: a macro expects a number of arguments and doesn't get it.
 
+Compilers can be very verbose on the error message:
 You should focus mainly on the first reported error/warning
 even if the link between what the compiler report and what the error is
-is not immediate. The error is always in one of the **oplist definition**.
+is not immediate. The error is likely in one of the **oplist definition**.
 
 Examples of typical errors:
 
 * lack of inclusion of an header,
 * overriding locally operator names by macros (like `NEW`, `DEL`, `INIT`, `OPLIST`, `...`),
 * lack of `( )` or double level of `( )` around the oplist,
-* an unknown variable (example using `BASIC_OPLIST` instead of `M_BASIC_OPLIST`),
-* the name given to the oplist is not the same as the one used to define the methods,
-* use of a type instead of an oplist in the `OPLIST` definition,
+* an unknown or incorrectly spelled variable (example using `BASIC_OPLIST` instead of `M_BASIC_OPLIST`),
+* the `name` parameter given to the oplist is not the same as the one used to expand the methods,
+* use of a non registered type instead of an oplist in the `OPLIST` definition (there is no registered type using `M_OPL_` or the registered type doesn't match the name of the type),
 * a missing sub oplist in the `OPLIST` definition.
 
-A good way to avoid these errors is to register the oplist globally as soon
-as you define the container.
+A good way to avoid these errors is to register the oplist of the type globally as soon
+as you define the container (to associated its oplist to the type).
 
 In case of difficulties, debugging can be done by generating the preprocessed file
 (by usually calling the compiler with the `-E` option instead of `-c`)
@@ -1169,6 +1192,11 @@ cc -std=c99 -E test-file.c |grep -v '^#' > test-file.i
 perl -i -e 's/;/;\n/g' test-file.i
 cc -std=c99 -c -Wall test-file.i
 ```
+
+If you get the error "assignment to expression with array type", it means that the library
+tries using the default '=' operator to set an object which is not compatible:
+give the right method to the needed operator (usually `INIT_MOVE` or `INIT_SET`) in its oplist
+or use the proper oplist of the type.
 
 If there is a warning reported by the compiler in the generated code,
 then there is definitely an **error** you should fix (except if it reports
@@ -1182,7 +1210,7 @@ your compiler. There are often completely useless and misleading:
 
 Due to the unfortunate [weak](https://en.wikipedia.org/wiki/Strong_and_weak_typing#Pointers) nature of the C language for pointers,
 you should turn incompatible pointer type warning into an error in your compiler.
-For GCC / CLANG, uses `-Werror=incompatible-pointer-types`
+For GCC / CLANG, uses `-Werror=incompatible-pointer-types` or compile in C23 mode.
 
 For MS Visual C++ compiler , you need the following options:
 
@@ -1270,11 +1298,11 @@ _________________
 
 The M\*LIB reference card is available [here](http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Container.html).
 
-### Generic methods
+### Common Interface
 
 The generated containers tries to generate and provide a consistent interface:
 their methods would behave the same for all generated containers.
-This chapter will explain the generic interface.
+This chapter will explain the common generated interface.
 In case of difference, it will be explained in the specific container.
 
 In the following description:
@@ -1305,9 +1333,11 @@ in fact, the only constraint is that the preprocessing concatenation between `ty
 Therefore the `type` cannot be a C array or a function pointer
 and you shall use a typedef as an intermediary named type for such types.
 
-The output parameters are listed fist, then the input/output parameters and finally the input parameters.
+The output parameters are listed first, then the input/output parameters and finally the input parameters.
 
-This generic interface is specified as follow:
+The oplist shall also provide the `INIT_MOVE` operator if the default instance (aka '=' operator) is not working for this type (for example for array of size 1, in which case the method `M_COPY_A1_DEFAULT` is likely to work), or disable the operator.
+
+This common interface is specified as follow:
 
 ##### `void name_init(name_t container)`
 
@@ -1769,7 +1799,7 @@ Example:
 #define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)
 LIST_DEF(list_mpz, mpz_t,                                  \
     (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), \
-        CLEAR(mpz_clear), OUT_STR(MPZ_OUT_STR)))
+        CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1_DEFAULT), OUT_STR(MPZ_OUT_STR)))
 
 int main(void) {
   list_mpz_t a;
@@ -1787,39 +1817,6 @@ int main(void) {
   mpz_out_str(stdout, 0, *list_mpz_back(a));
   printf ("\n");
   list_mpz_clear(a);
-}
-```
-
-If the given oplist contain the method `MEMPOOL`, then `LIST_DEF` macro will create
-a dedicated mempool that is named with the given value of the method `MEMPOOL`.
-This mempool (see [mempool chapter](#m-mempool)) is optimized for this kind of list:
-
-* it creates a mempool named by the concatenation of `name` and `_mempool`,
-* it creates a variable named by the value of the method `MEMPOOL` with the linkage
-defined by the value of the method `MEMPOOL_LINKAGE` (can be extern, static or none).
-This variable is shared by all lists of the same type.
-* it links the memory allocation of the list to use this mempool with this variable.
-
-`mempool` create heavily efficient list. However, it is only worth the
-effort in some heavy performance context.
-Using mempool should be therefore avoided except in performance critical code.
-The created mempool has to be explicitly initialized before using any
-methods of the created list by calling `mempool_list_name_init(variable)`
-and cleared by calling `mempool_list_name_clear(variable)`.
-
-Example:
-
-```C
-LIST_DEF(list_uint, unsigned int, (MEMPOOL(list_mpool), MEMPOOL_LINKAGE(static)))
-
-static void test_list (size_t n)
-{
-  list_uint_mempool_init(list_mpool);
-  M_LET(a1, LIST_OPLIST(uint)) {
-      for(size_t i = 0; i < n; i++)
-          list_uint_push_back(a1, rand_get() );
-  }
-  list_uint_mempool_clear(list_mpool);
 }
 ```
 
@@ -1857,9 +1854,9 @@ Type of the list of `type` objects.
 
 Type of an iterator over this list.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t list)
@@ -1969,7 +1966,7 @@ Example:
 #define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)
 LIST_DUAL_PUSH_DEF(list_mpz, mpz_t,                        \
     (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), \
-        CLEAR(mpz_clear), OUT_STR(MPZ_OUT_STR)))
+        CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1_DEFAULT), OUT_STR(MPZ_OUT_STR)))
 
 int main(void) {
   list_mpz_t a;
@@ -2019,9 +2016,9 @@ Type of the list of `type`.
 
 Type of an iterator over this list.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t list)
@@ -2128,7 +2125,7 @@ Example:
 #define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)
 ARRAY_DEF(array_mpz, mpz_t,                                \
     (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), \
-        CLEAR(mpz_clear), OUT_STR(MPZ_OUT_STR)))
+        CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1_DEFAULT), OUT_STR(MPZ_OUT_STR)))
 	
 int main(void) {
   array_mpz_t a;
@@ -2181,9 +2178,9 @@ Type of the array of `type`.
 
 Type of an iterator over this array.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t array)
@@ -2335,7 +2332,7 @@ Example:
 #include "m-deque.h"
 
 DEQUE_DEF(deque_mpz, mpz_t,                                           \
-          (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
+          (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1_DEFAULT)))
 
 int main(void) {
   deque_mpz_t a;
@@ -2376,9 +2373,9 @@ Type of the deque of `type`.
 
 Type of an iterator over this deque.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t deque)
@@ -2655,9 +2652,9 @@ Type of one item referenced in the dictionary for associative array.
 It is a structure composed of the key (field `key`) and the value (field `value`).
 This type is created only for associative arrays (`_DEF2` suffix) and not for sets.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t dict)
@@ -2724,7 +2721,7 @@ Each element is defined by three parameters within parenthesis:
 
 * the element name (the field name of the structure) 
 * the element type (the associated type)
-* and the optional element oplist associated to this type (see [generic interface](#Generic-API-Interface-Adaptation) for the behavior if it is absent)
+* and the optional element oplist associated to this type.
 
 `name` and `element` shall be C identifiers that will be used to identify the container and the fields.
 
@@ -2793,9 +2790,9 @@ The following type is automatically defined by the previous definition macro if 
 
 Type of the defined tuple.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t tuple)
@@ -2937,9 +2934,9 @@ The following type is automatically defined by the previous definition macro if 
 
 Type of the defined variant.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t variant)
@@ -3067,9 +3064,9 @@ Type of the Red Black Tree.
 
 Type of an iterator over this Red Black Tree.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t rbtree)
@@ -3291,9 +3288,9 @@ Type of one item referenced in the B+Tree. It is either:
 * a structure composed of a pointer to the key (field `key_ptr`) and a pointer to the value (field `value_ptr`) if the B+Tree is an associative array,
 * or the basic type of the container if the B+Tree is a set.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t tree)
@@ -3436,9 +3433,9 @@ Type of the generic tree of `type`.
 
 Type of an iterator over this generic tree.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t tree)
@@ -3739,9 +3736,9 @@ Type of the priority queue of `type`.
 
 Type of an iterator over this priority queue.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t queue)
@@ -3791,9 +3788,122 @@ This method is defined only if the `EQUAL` method is defined.
 
 _________________
 
+### M-QUEUE
+
+This header implements a fixed circular queue or stack.
+
+A [circular buffer](https://en.wikipedia.org/wiki/Circular_buffer) 
+(or ring buffer or circular queue) is a data structure using a single, bounded buffer
+as if its head was connected to its tail.
+
+#### QUEUE_DEF(name, type, size, [, oplist])
+#### QUEUE_DEF_AS(name,  name_t, type, size, [, oplist])
+
+Define the circular queue `name_t` and its associated methods as `static inline` functions.
+This queue is not thread-safe (See m-buffer header for a thread safe variant).
+The order of the elements in the container is FIFO (First In, First Out).
+
+`name` shall be a C identifier that will be used to identify the queue.
+It will be used to create all the types (including the iterator)
+and functions to handle the container.
+This definition shall be done once per name and per compilation unit.
+
+The `size` parameter defined the fixed size of the queue.
+It can be 0. In this case, the fixed size is defined at initialization time only
+and the needed objects to handle the queue are allocated at initialization time too.
+Otherwise the needed objects are embedded within the structure, preventing
+any other allocations.
+
+The size of the queue shall be lower or equal than the maximum of the type `unsigned int`.
+
+The oplist shall have at least the following operators (`INIT_SET`, `SET` and `CLEAR`),
+otherwise it won't generate compilable code.
+
+`QUEUE_DEF_AS` is the same as `QUEUE_DEF` except the name of the type `name_t` is provided.
+
+Example:
+
+```C
+QUEUE_DEF(queue_uint, unsigned int, 10)
+
+queue_uint_t g_buff;
+
+void f(unsigned int i) {
+        queue_uint_init(g_buff, 10);
+        queue_uint_push(g_buff, i);
+        queue_uint_pop(&i, g_buff);
+        queue_uint_clear(g_buff);
+}
+```
+
+#### STACK_DEF(name, type, size, [, oplist])
+#### STACK_DEF_AS(name,  name_t, type, size, [, oplist])
+
+Define the fixed size stack `name_t` and its associated methods as `static inline` functions.
+This stack is not thread-safe (See m-buffer header for a thread safe variant).
+The order of the elements in the container is FILO (First In, Last Out).
+
+`name` shall be a C identifier that will be used to identify the stack.
+It will be used to create all the types (including the iterator)
+and functions to handle the container.
+This definition shall be done once per name and per compilation unit.
+
+The `size` parameter defined the fixed size of the stack.
+It can be 0. In this case, the fixed size is defined at initialization time only
+and the needed objects to handle the stack are allocated at initialization time too.
+Otherwise the needed objects are embedded within the structure, preventing
+any other allocations.
+
+The size of the stack shall be lower or equal than the maximum of the type `unsigned int`.
+
+The oplist shall have at least the following operators (`INIT_SET`, `SET` and `CLEAR`),
+otherwise it won't generate compilable code.
+
+`STACK_DEF_AS` is the same as `STACK_DEF` except the name of the type `name_t` is provided.
+
+
+#### Created types
+
+The following types are automatically defined by the previous definition macro if not provided by the user:
+
+##### `name_t`
+
+Type of the circular queue (or stack).
+
+#### Common methods
+
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
+
+```C
+void name_clear(queue_t queue)
+void name_reset(queue_t queue)
+bool name_empty_p(const queue_t queue)
+size_t name_size(const queue_t queue)
+size_t name_capacity(const queue_t queue)
+void name_push(queue_t queue, const type data)
+void name_pop(type *data, queue_t queue)
+```
+
+#### Specialized methods
+
+The following specialized methods are automatically created by the previous definition macro:
+
+##### `void name_init(queue_t queue, size_t size)`
+
+Initialize the queue (or stack) `queue` for `size` elements.
+The `size` argument shall be the same as the one used to create the container, or the size used to create it was `0` (ie. runtime fixed size).
+The size of the queue shall be lower or equal than `UINT_MAX`.
+
+##### `bool name_full_p(const queue_t queue)`
+
+Return true if the queue (or stack) is full, false otherwise.
+
+
+_________________
+
 ### M-BUFFER
 
-This header implements different kind of fixed circular buffer.
+This header implements different kind of fixed circular buffer used for threading purpose.
 
 A [circular buffer](https://en.wikipedia.org/wiki/Circular_buffer) 
 (or ring buffer or circular queue) is a data structure using a single, bounded buffer
@@ -3806,7 +3916,7 @@ Define the buffer `name_t` and its associated methods as `static inline` functio
 A buffer is a fixed circular queue implementing a queue (or stack) interface.
 It can be used to transfer message from multiple producer threads to multiple consumer threads.
 This is done internally using a mutex and conditional waits
-(if it is built with the `BUFFER_THREAD_SAFE` option — default)
+See m-queue for a non thread safe variant.
 
 `name` shall be a C identifier that will be used to identify the buffer.
 It will be used to create all the types (including the iterator)
@@ -3819,21 +3929,18 @@ and the needed objects to handle the buffer are allocated at initialization time
 Otherwise the needed objects are embedded within the structure, preventing
 any other allocations.
 
-The size of the buffer shall be lower or equal than the maximum of the type `int`.
+The size of the buffer shall be lower or equal than the maximum of the type `unsigned int`.
 
 Multiple additional policy can be applied to the buffer by performing a logical or of the following properties:
 
 * `BUFFER_QUEUE` — define a FIFO queue (default),
 * `BUFFER_STACK` — define a stack (exclusive with `BUFFER_QUEUE`),
-* `BUFFER_THREAD_SAFE` — define thread safe functions (default),
-* `BUFFER_THREAD_UNSAFE` — define thread unsafe functions (exclusive with `BUFFER_THREAD_SAFE`),
 * `BUFFER_PUSH_INIT_POP_MOVE` — change the behavior of `PUSH` to push a new initialized object, and `POP` as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared_ptr semantic). In practice, it works as if `POP` performs the initialization of the object. 
 * `BUFFER_PUSH_OVERWRITE` — `PUSH` overwrites the last entry if the queue is full instead of blocking,
 * `BUFFER_DEFERRED_POP` — do not consider the object to be fully popped from the buffer by calling the pop method until the call to `pop_deferred` ; this enables to handle object that are in-progress of being consumed by the thread.
 
 This container is designed to be used for synchronization inter-threads of data
-(and the buffer variable should be a global shared one). A function tagged "thread safe"
-is thread safe only if the container has been generated with the `THREAD_SAFE` option.
+(and the buffer variable should be a global shared one).
 
 The oplist shall have at least the following operators (`INIT_SET`, `SET` and `CLEAR`),
 otherwise it won't generate compilable code.
@@ -3866,9 +3973,9 @@ The following types are automatically defined by the previous definition macro i
 
 Type of the buffer.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_clear(buffer_t buffer)                  /* Not thread safe */
@@ -3876,8 +3983,8 @@ void name_reset(buffer_t buffer)                  /* Thread safe */
 bool name_empty_p(const buffer_t buffer)          /* Thread safe */
 size_t name_size(const buffer_t buffer)           /* Thread safe */
 size_t name_capacity(const buffer_t buffer)       /* Thread safe */
-bool name_push(buffer_t buffer, const type data)
-bool name_pop(type *data, buffer_t buffer)
+void name_push(buffer_t buffer, const type data)
+void name_pop(type *data, buffer_t buffer)
 ```
 
 #### Specialized methods
@@ -3940,6 +4047,7 @@ the object being popped is considered fully release (freeing a
 space in the queue).
 Otherwise it does nothing.
 
+
 #### `QUEUE_MPMC_DEF(name, type, policy[, oplist])`
 #### `QUEUE_MPMC_DEF_AS(name, name_t, type, policy[, oplist])`
 
@@ -3984,9 +4092,9 @@ The following types are automatically defined by the previous definition macro i
 
 Type of the circular queue.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_clear(buffer_t buffer)
@@ -4069,9 +4177,9 @@ The following types are automatically defined by the previous definition macro i
 
 Type of the circular queue.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_clear(buffer_t buffer)
@@ -4226,9 +4334,9 @@ The following types are automatically defined by the previous definition macro i
 
 Type of the circular queue.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details)
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 but none is thread safe:
 
 ```C
@@ -4308,9 +4416,9 @@ The following types are automatically defined by the previous definition macro i
 
 Type of the circular queue.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_clear(snapshot_t snapshot)
@@ -4391,9 +4499,9 @@ The following types are automatically defined by the previous definition macro i
 
 Type of the circular queue.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_clear(snapshot_t snapshot)
@@ -4534,7 +4642,7 @@ except the type of the shared pointer `name_type` is given as parameter instead 
 
 Define the shared pointer `name_t *` as a C pointer to an opaque structure that encapsulate the access to the C type
 `type` which oplist is `oplist` and the associated public and private methods as external linkage.
-`oplist` parameter is optional. If not present, it will look for a globaly registered oplist.
+`oplist` parameter is optional. If not present, it will look for a globally registered oplist.
 It shall match with the `oplist`argument given to the corresponding `_DECL`macro with the same `name`,
 meaning it shall provide at least all operators of the oplist provided to the corresponding `_DECL`macro
 and all operator types shall be the same.
@@ -4553,7 +4661,7 @@ See `SHARED_PTR_DECL` for additional information.
 Define the shared pointer `name_t *` as a C pointer to an opaque structure that encapsulate the access to the C
 object (aka the shared object) of type
 `type` which oplist is `oplist` and the associated public and private methods as static inline.
-`oplist` parameter is optional. If not present, it will look for a globaly registered oplist.
+`oplist` parameter is optional. If not present, it will look for a globally registered oplist.
 
 This definition shall be done once per name and per compilation unit.
 
@@ -4596,7 +4704,7 @@ void f(void) {
   shared_data_push(p, 23);
   shared_data_push(p, 32);
   // And send it through 2 channels of communication
-  comm_buffer_push(comm1, p); // shared_data_acquire is done by the buffer to acquite ownership of the data
+  comm_buffer_push(comm1, p); // shared_data_acquire is done by the buffer to acquit ownership of the data
   comm_buffer_push(comm2, p);
   // Release our ownership of the data
   shared_data_clear(p);
@@ -4781,7 +4889,7 @@ This method is created only if the `PUSH` operator is defined.
 ##### `bool name_try_push_move(name_t *a, sub_type *el)`
 
 Try to push in `*a` the element `*el`,if the container is not full and clear `*el` (return true in this case).
-Return false otherwise (cannot push element) and `*el` is still initializated.
+Return false otherwise (cannot push element) and `*el` is still initialized.
 This method is created only if the `PUSH_MOVE` operator is defined.
 
 ##### `bool name_try_emplace<emplace_suffix>(name_t *a[, <emplace_args> args])`
@@ -4877,8 +4985,8 @@ This method is created only if the `IN_SERIAL` operator is defined.
 
 #### Private interface
 
-The private interface is only availale for the implementation.
-It is used by the implementator of the shared object to provide additional, more specialized, functions to its user for the shared object.
+The private interface is only available for the implementation.
+It is used by the implementor of the shared object to provide additional, more specialized, functions to its user for the shared object.
 
 ##### `void name_init_lock(name_t *out)`
 
@@ -4938,354 +5046,6 @@ Return a constant pointer to the encapsulated object.
 Create a new shared object initialized with its `INIT_SET` operator on the given `src` and return a shared pointer to it.
 This method is created only if the `INIT_SET` operator is defined.
 
-
-_________________
-
-### M-SHARED
-
-> [!NOTE]
-> This header is obsolete: M-SHARED-PTR should be used instead.
-
-This header is for creating shared pointer.
-A [shared pointer](https://en.wikipedia.org/wiki/Smart_pointer)
- is a smart pointer that retains shared ownership of an object.
-Several shared pointers may own the same object, sharing ownership of an object. 
-
-#### `SHARED_PTR_DEF(name, type[, oplist])`
-#### `SHARED_PTR_DEF_AS(name, name_t, type[, oplist])`
-
-Define the shared pointer `name_t` and its associated methods as `static inline` functions.
-A shared pointer is a mechanism to keep tracks of all registered users of an object
-and performs an automatic destruction of the object only when all users release
-their need on this object.
-
-`name` shall be a C identifier that will be used to identify the shared pointer.
-It will be used to create all the types (including the iterator)
-and functions to handle the container.
-This definition shall be done once per name and per compilation unit.
-
-The tracking of ownership is atomic and the destruction of the object is thread safe.
-
-The object oplist is expected to have at least the following operators (`CLEAR` to clear the object and `DEL` to free the allocated memory).
-
-There are designed to work with buffers with policy `BUFFER_PUSH_INIT_POP_MOVE`
-to send a shared pointer across multiple threads.
-
-If the type is an incomplete type, you need to disable the `INIT` operator and not defined the `EMPLACE_TYPE` operator in the given oplist like this:
-
-```C
-  (INIT(0), CLEAR(API_2(incomplete_clear))) )
-```
-
-`SHARED_PTR_DEF_AS` is the same as `SHARED_PTR_DEF` except the name of the type `name_t`
-is provided.
-
-Example:
-
-```C
-SHARED_PTR_DEF(shared_mpz, mpz_t, (CLEAR(mpz_clear)))
-void f(void) {
-        shared_mpz_t p;
-        mpz_t z;
-        mpz_init(z);
-        shared_mpz_init2 (p, z);
-        buffer_uint_push(g_buff1, p);
-        buffer_uint_push(g_buff2, p);
-        shared_mpz_clear(p);
-}
-```
-
-#### `SHARED_PTR_RELAXES_DEF(name, type[, oplist])`
-#### `SHARED_PTR_RELAXES_DEF_AS(name, name_t, type[, oplist])`
-
-Theses are the same as `SHARED_PTR_DEF` / `SHARED_PTR_DEF_AS`
-except that they are not thread safe.
-See `SHARED_PTR_DEF` for other details.
-
-#### Created types
-
-The following types are automatically defined by the previous definition macro if not provided by the user:
-
-##### `name_t`
-
-Type of the shared pointer.
-
-#### Specialized methods
-
-The following specialized methods are automatically created by the previous definition macro:
-
-##### `void name_init(shared_t shared)`
-
-Initialize the shared pointer `shared` to represent the NULL pointer
-(no object is therefore referenced).
-
-##### `void name_init2(shared_t shared, type *data)`
-
-Initialize the shared pointer `shared` to reference the object `*data`
-and takes ownership of this object.
-User code shall not use `*data` (or any pointer to it) anymore
-as the shared pointer gets the exclusive ownership of the object.
-
-##### `void name_init_new(shared_t shared)`
-
-Initialize the shared pointer `shared` to a new object of type `type`.
-The default constructor of type is used to initialize the object.
-This method is only created if the `INIT` method is provided.
-
-##### `void name_init_set(shared_t shared, const shared_t src)`
-
-Initialize the shared pointer `shared` to the same object than the one
-pointed by `src` (sharing ownership).
-This function is thread safe from `src` point of view.
-
-##### `void name_init_with[suffix](shared_t shared, args...)`
-
-Initialize the shared pointer `shared` to the new object initialized with args.
-The provided arguments shall therefore match one of the constructor provided
-by the `EMPLACE_TYPE` operator.
-There is one generated method per suffix defined in the `EMPLACE_TYPE` operator,
-and the `suffix` in the generated method name corresponds to the suffix defined 
-in the `EMPLACE_TYPE` operator (it can be empty).
-This method is created only if the `EMPLACE_TYPE` operator is provided.
-See [emplace chapter](#Emplace-construction) for more details.
-It is equivalent to the C++ make_shared.
-
-##### `bool name_NULL_p(const shared_t shared)`
-
-Return true if shared doesn't reference any object (i.e. is the NULL pointer).
-
-##### `void name_clear(shared_t shared)`
-
-Clear the shared pointer (destructor):
-the shared pointer loses its ownership of the object and
-it destroys the shared object if no longer any other shared pointers own it.
-This function is thread safe.
-
-##### `void name_reset(shared_t shared)`
-
-`shared` loses ownership of its shared object and destroys it
-if no longer any other shared pointers own it.
-Then it makes the shared pointer `shared` references no object (NULL)
-(it doesn't reference its object any-longer and loses its ownership of it).
-This function is thread safe.
-
-##### `void name_set(shared_t shared, const shared_t src)`
-
-`shared` loses ownership of its object and destroy it
-if no longer any other shared pointers own it.
-Then it sets the shared pointer `shared` to the same object 
-than the one pointed by `src` (sharing ownership).
-This function is thread safe.
-
-##### `void name_init_move(shared_t shared, shared_t src)`
-
-Move the shared pointer from the initialized `src` to `shared`.
-
-##### `void name_move(shared_t shared, shared_t src)`
-
-`shared` loses ownership of its object and destroy it
-if no longer any other shared pointers own it.
-Then it moves the shared pointer from the initialized `src` to `shared`.
-
-##### `void name_swap(shared_t shared1, shared_t shared2)`
-
-Swap the references of the objects owned by the shared pointers `shared1` and `shared2`.
-
-##### `bool name_equal_p(const shared_t shared1, const shared_t shared2)`
-
-Return true if both shared pointers own the same object.
-
-##### `const type *name_cref(const shared_t shared)`
-
-Return a constant pointer to the shared object owned by the shared pointer.
-The pointer shall be kept only until another use of shared pointer method.
-Keeping the pointer otherwise is undefined behavior.
-
-##### `type *name_ref(const shared_t shared)`
-
-Return a pointer to the shared object pointed by the shared pointer.
-The pointer shall be kept only until another use of shared pointer method.
-Keeping the pointer otherwise is undefined behavior.
-
-TODO: Document shared resource
-
-_________________
-
-### M-I-SHARED
-
-> [!NOTE]
-> This header is obsolete: M-SHARED-PTR should be used instead.
-
-This header is for creating intrusive shared pointer.
-
-#### `ISHARED_PTR_INTERFACE(name, type)`
-
-Extend the definition of the structure of an object of type `type` by adding the
-necessary interface to handle it as a shared pointer named `name`.
-It shall be put within the structure definition of the object (See example).
-
-#### `ISHARED_PTR_STATIC_INIT(name, type)`
-
-Provide the static initialization value of an object defined with a 
-`ISHARED_PTR_INTERFACE` extra fields. It shall be used only for global
-variables with the _init_once function.
-
-Usage (provided that the interface is used as the first element of the structure):
-
-```C
-struct mystruct variable = { ISHARED_PTR_STATIC_INIT(ishared_double, struct mystruct) };
-```
-
-#### `ISHARED_PTR_STATIC_DESIGNATED_INIT(name, type)`
-
-Provide the static initialization value of an object defined with a 
-`ISHARED_PTR_INTERFACE` extra fields. It shall be used only for global
-variables with the _init_once function.
-
-It uses designated initializers to set the right fields.
-
-Usage:
-
-```C
-struct mystruct variable = {ISHARED_PTR_STATIC_DESIGNATED_INIT(ishared_double, struct mystruct) };
-```
-
-#### `ISHARED_PTR_DEF(name, type[, oplist])`
-#### `ISHARED_PTR_DEF_AS(name, name_t, type[, oplist])`
-
-Define the associated methods to handle the shared pointer named `name`
-as `static inline` functions.
-A shared pointer is a mechanism to keep tracks of all `users` of an object
-and performs an automatic destruction of the object whenever all users release
-their need on this object.
-
-The destruction of the object is thread safe and occurs when the last user
-of the object releases it. The destruction of the object implies:
-
-* calling the `CLEAR` operator to clear the object,
-* calling the `DEL` operator to release the memory used by the object 
-(if the method has not been disabled).
-
-The object oplist is expected to have the following operators (`CLEAR` and `DEL`),
-otherwise default methods are used. If there is no given oplist, the default
-operators are also used. The created methods will use the operators to init, set
-and clear the contained object.
-
-There are designed to work with buffers with policy `BUFFER_PUSH_INIT_POP_MOVE`
-to send a shared pointer across multiple threads.
-
-It is recommended to use the intrusive shared pointer over the standard one if
-possible. They are faster and cleaner.
-
-The default is to use heap allocated entities, which are allocated by `NEW` and
-freed by `DEL`.
-
-It can be used for statically allocated entities. However, in this case,
-you shall disable the operator `NEW` and `DEL` when expanding the oplist
-so that the destruction doesn't try to free the objects, like this:
-
-```C
-(NEW(0), DEL(0))
-```
-
-`NEW` and `DEL` operators shall be either both defined, or both disabled.
-
-`ISHARED_PTR_DEF_AS` is the same as `ISHARED_PTR_DEF` except the name of the type `name_t`
-is provided.
-
-Example (dynamic):
-
-```C
-typedef struct mystruct_s {
-        ISHARED_PTR_INTERFACE(ishared_mystruct, struct mystruct_s);
-        char *message;
-} mystruct_t;
-
-static inline void mystruct_init(mystruct_t *p) { p->message = NULL; }
-static inline void mystruct_clear(mystruct_t *p) { free(p->message); }
-
-ISHARED_PTR_DEF(ishared_mystruct, mystruct_t, (INIT(mystruct_init), CLEAR(mystruct_clear M_IPTR)))
-
-void f(void) {
-        mystruct_t *p = ishared_mystruct_init_new();
-        p->message = strdup ("Hello");
-        buffer_mystruct_push(g_buff1, p);
-        buffer_mystruct_push(g_buff2, p);
-        ishared_mystruct_clear(p);
-}
-```
-
-#### Created types
-
-The following types are automatically defined by the previous definition macro if not provided by the user:
-
-##### `name_t`
-
-It will define name_t as a pointer to shared counted object.
-This is a synonymous to a pointer to the object.
-
-#### Specialized methods
-
-The following specialized methods are automatically created by the previous definition macro:
-
-##### `name_t name_init(type *object)`
-
-Return a shared pointer to `object` which owns `object`.
-It initializes the private fields of `object` handling the shared pointer,
-returning the same pointer to the object from a value point of view,
-but with the shared pointer field initialized.
-
-As a consequence, the shared pointer part of `object` shall not have been initialized yet.
-The other part of `object` may or may not be initialized before calling this method.
-
-##### `name_t name_init_set(name_t shared)`
-
-Return a new shared pointer to the same object than the one pointed by `shared`,
-incrementing the ownership of the object.
-This function is thread safe.
-
-##### `name_t name_init_new(void)`
-
-Allocate a new object, initialize it and return an initialized shared pointer to it.
-The used allocation function is the `NEW` operator.
-
-This method is only created if the `INIT` and `NEW` methods are provided and not disabled.
-
-##### `name_t name_init_once(type *object)`
-
-Initialize the new object `object` and return an initialized shared pointer to it.
-The `INIT` operator of `object` is ensured to be called only once, 
-even if multiple threads try to initialize it at the same time.
-Once the object is fully cleared, the initialization function may occur once again.
-
-`object` shall be a global variable initialized with the
-`ISHARED_PTR_STATIC_INIT` macro.
-
-This method is only created if the `INIT` and `NEW` methods are provided and not disabled.
-
-##### `void name_clear(name_t shared)`
-
-Clear the `shared` pointer, releasing ownership of the object
-and destroying the shared object if no longer
-any other `shared` pointers own it.
-This function is thread safe.
-
-##### `void name_clear_ptr(name_t *shared)`
-
-Clear the shared pointer `*shared`, releasing ownership of the object
-and destroying the shared object if no longer
-any other `shared` pointers own it.
-This function is thread safe.
-Afterwards, `*shared` is set to NULL.
-
-##### `void name_set(name_t *shared1, name_t shared2)`
-
-Update the shared pointer `*shared1` to point to the same object than
-the shared pointer `shared2`.
-Destroy the shared object pointed by `*shared1` if no longer any other shared
-pointers own it, set the shared pointer `shared` to the same object 
-than the one pointed by `src`.
-This function is thread safe.
 
 _________________
 
@@ -5382,9 +5142,9 @@ Type of the list of `type`.
 
 Type of an iterator over this list.
 
-#### Generic methods
+#### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t list)
@@ -5476,163 +5236,6 @@ Move all the element of `list2` into `list1`, moving the last element
 of `list2` after the first element of `list1`.
 Afterwards, `list2` is emptied.
 `list1` and `list2` shall reference different objects.
-
-_________________
-
-### M-CONCURRENT
-
-> [!NOTE]
-> This header is obsolete: M-SHARED-PTR should be used instead.
-
-This header is for transforming a standard container (`LIST`, `ARRAY`, `DICT`, `DEQUE`, ...)
-into an equivalent container but compatible with concurrent access by different threads. 
-In practice, it puts a mutex lock to access the container.
-
-As such it is quite generic. However, it is less efficient than containers
-specially tuned for multiple threads.
-There is also no iterators.
-
-#### `CONCURRENT_DEF(name, type[, oplist])`
-#### `CONCURRENT_DEF_AS(name, name_t, type[, oplist])`
-
-Define the concurrent container `name` based on container `type` of oplist `oplist`,
-and define the associated methods to handle it as `static inline` functions.
-
-`name` shall be a C identifier that will be used to identify the concurrent container.
-It will be used to create all the types (including the iterator)
-and functions to handle the container.
-This definition shall be done once per name and per compilation unit.
-
-It scans the `oplist` of the type to create equivalent function,
-so the exact generated methods depend on explicitly the exported methods in the oplist.
-The init method is only defined if the base container exports the `INIT` operator,
-same for the clear method and the `CLEAR` operator,
-and so on for all created methods.
-
-In the description below,
-`subtype_t` is the type of the element within the given container `type` (if it exists),
-`key_t` is the key type of the element within the given container `type` (if it exists),
-`value_t` is the value type of the element within the given container `type` (if it exists).
-
-`CONCURRENT_DEF_AS` is the same as `CONCURRENT_DEF` except the name of the type `name_t`
-is provided.
-
-Example:
-
-```C
-/* Define a stack container (STACK)*/
-ARRAY_DEF(array1, int)
-CONCURRENT_DEF(parray1, array1_t, ARRAY_OPLIST(array1))
-
-/* Define a queue container (FIFO) */
-DEQUE_DEF(deque_uint, unsigned int)
-CONCURRENT_DEF(cdeque_uint, deque_uint_t, M_OPEXTEND(DEQUE_OPLIST(deque_uint, M_BASIC_OPLIST), PUSH(deque_uint_push_front)))
-
-extern parray1_t x1;
-extern cdeque_uint_t x2;
-
-void f(void) {
-     parray1_push (x1, 17);
-     cdeque_uint_push (x2, 17);
-}
-```
-
-#### Created types
-
-The following types are automatically defined by the previous definition macro if not provided by the user:
-
-##### `name_t`
-
-Type of the concurrent container of `type`.
-
-#### Generic methods
-
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
-
-```C
-void name_init(name_t concurrent)
-void name_init_set(name_t concurrent, const name_t src)
-void name_init_move(name_t concurrent, name_t src)
-void name_set(name_t concurrent, const name_t src)
-void name_move(name_t concurrent, name_t src)
-void name_reset(name_t concurrent)
-void name_clear(name_t concurrent)
-void name_swap(name_t concurrent1, name_t concurrent2)
-bool name_empty_p(const name_t concurrent)
-void name_set_at(name_t concurrent, key_t key, value_t value)
-bool name_erase(name_t concurrent, const key_t key)
-void name_push(name_t concurrent, const subtype_t data)
-void name_push_move(name_t concurrent, subtype_t *data)
-void name_pop_move(subtype_t *data, name_t concurrent)
-void name_get_str(string_t str, name_t concurrent, bool append)
-void name_out_str(FILE *file, name_t concurrent)
-bool name_parse_str(name_t concurrent, const char str[], const char **end)
-bool name_in_str(name_t concurrent, FILE *file)
-m_serial_return_code_t name_out_serial(m_serial_write_t serial, const name_t container)
-m_serial_return_code_t name_in_str(name_t container, m_serial_read_t serial)
-bool name_equal_p(name_t concurrent1, name_t concurrent2)
-size_t name_hash(name_t concurrent)
-```
-
-Returns true in case of success, false otherwise.
-
-#### Specialized methods
-
-The following specialized methods are automatically created by the previous definition macro:
-
-##### `bool name_get_copy(value_t *value, name_t concurrent, key_t key)`
-
-Read the value associated to the key `key`. 
-If it exists, it sets `*value` to it and returns true.
-Otherwise it returns false (`*value` is unchanged).
-This method is only defined if the base container exports the `GET_KEY` operator.
-
-##### `void name_safe_get_copy(value_t *value, name_t concurrent, key_t key)`
-
-Read the value associated to the key `key`. 
-If it exists, it sets `*value` to it.
-Otherwise, it creates a new value (default constructor) and sets `*value` to it.
-This method is only defined if the base container exports the `SAFE_GET_KEY` operator.
-
-##### `void name_pop(subtype_t *data, name_t concurrent)`
-
-Pop data from the container and set it in `*data`.
-There shall be at least one data to pop.
-Testing with the operator `EMPTY_P` before calling this function is not enough 
-as there can be some concurrent scenario where another thread pop the last value.
-`name_pop_blocking` should be used instead.
-This method is only defined if the base container exports the `POP` operator.
-
-##### `bool name_get_blocking(value_t *value, name_t concurrent, key_t key, bool blocking)`
-
-Read the value associated to the key `key`. 
-If it exists, it sets `*value` to it and returns true.
-Otherwise, if blocking is true, it waits for the data to be filled. 
-After the wait, it sets `*value` to it and returns true.
-Otherwise, if blocking is false, it returns false.
-This method is only defined if the base container exports the `GET_KEY` operator.
-
-##### `bool name_pop_blocking(type_t *data, name_t concurrent, bool blocking)`
-
-Pop a value from the container and set `*data` with it.
-If the container is not empty, it sets `*data` and return true.
-Otherwise, if blocking is true, it waits for the data to be pushed. 
-After the wait, it sets `*data` to it and returns true.
-Otherwise, if blocking is false, it returns false.
-This method is only defined if the base container exports the `POP` and `EMPTY_P` operators.
-
-##### `bool name_pop_move_blocking(type_t *data, name_t concurrent, bool blocking)`
-
-Pop a value from the container and initialize and set `*data` with it.
-If the container is not empty, it initializes and sets `*data` and return true.
-Otherwise if blocking is true, it waits for the data to be pushed. 
-After the wait, it initializes and sets `*data` to it and returns true.
-Otherwise, if blocking is false, it returns false.
-
-> [!WARNING]
-> `*data` remains uninitialized!
-
-This method is only defined if the base container exports the `POP_MOVE` and `EMPTY_P` operators.
 
 _________________
 
@@ -5828,12 +5431,12 @@ representation (if `append` is false) or append `str` with this representation
 This method is only defined if the header [m-string.h](#m-string) was included before
 including [m-bitset.h](#m-bitset)
 
-##### `bool bitset_parse_str(bitset_t array, const char str[], const char **endp)`
+##### `bool bitset_parse_str(bitset_t array, const char str[], const char **endptr)`
 
 Parse the formatted string `str` that is assumed to be a string representation of a bitset
 and set `array` to this representation.
 It returns true if success, false otherwise.
-If `endp` is not NULL, it sets `*endp` to the pointer of the first character not
+If `endptr` is not NULL, it sets `*endptr` to the pointer of the first character not
 decoded by the function.
 
 ##### `void bitset_out_str(FILE *file, const bitset_t array)`
@@ -6411,9 +6014,9 @@ The following types are automatically defined by the previous definition macro i
 
 Type of the concurrent container of `type`.
 
-###### Generic methods
+###### Common methods
 
-The following methods of the generic interface are defined (See [generic interface](#Generic-API-Interface-Adaptation) for details):
+The following methods of the common interface are defined (See [Common interface](#Common-Interface) for details):
 
 ```C
 void name_init(name_t bounded_string)
@@ -6765,7 +6368,7 @@ Return a symbol corresponding to the concatenation of the input arguments.
 ##### `M_F(base, suffix)`
 
 Return a function name corresponding to the concatenation of the input arguments.
-In developer mode, it can be overrided before inclusion of any header to support user customization of suffix. 
+In developer mode, it can be overridden before inclusion of any header to support user customization of suffix. 
 To do this you need to define `M_F` as `M_OVERRIDE_F`, then define as many suffix macros as needed. As suffix macro shall be named `M_OVERRIDE_ ## suffix ()` and each generated suffix shall start with a comma (preliminary interface).
 
 Example:
@@ -7395,8 +6998,7 @@ Count the number of leading zero and return it.
 ##### `size_t m_core_hash (const void *str, size_t length)`
 
 Compute the hash of the binary representation of the data pointer by `str`
-of length `length`. `str` shall have the maximum alignment restriction
-of all types that size is less or equal than `length`.
+of length `length`. `str` shall be aligned to `min(length, 8)`.
 
 #### OPERATORS Functions
 
@@ -7412,8 +7014,6 @@ M_GET_NEW oplist
 M_GET_DEL oplist
 M_GET_REALLOC oplist
 M_GET_FREE oplist
-M_GET_MEMPOOL oplist
-M_GET_MEMPOOL_LINKAGE oplist
 M_GET_HASH oplist
 M_GET_EQUAL oplist
 M_GET_CMP oplist
@@ -7507,8 +7107,8 @@ Extend an `oplist` with the given list of operators.
 Theses new operators will have higher priority than the ones
 in the given oplist.
 
-#####` M_TEST_METHOD_P(method, oplist)`
-#####` M_TEST_METHOD_ALTER_P(method, oplist)`
+##### `M_TEST_METHOD_P(method, oplist)`
+##### `M_TEST_METHOD_ALTER_P(method, oplist)`
 
 Test if a method is present in an `oplist`. Return 0 or 1.
 `M_TEST_METHOD_P` does not work if the returned method is something within parenthesis (like `OPLIST*`)
@@ -7839,46 +7439,58 @@ void struct_init_set(struct_t d, struct_t s)
 
 All these macro can be overridden before including the header [m-core.h](#m-core) so that they can be adapted to a particular memory pool.
 
-##### `type *M_MEMORY_ALLOC (type)`
+##### `type *M_MEMORY_ALLOC (context, type)`
 
 Return a pointer to a new allocated non-initialized object of type `type`.
 In case of allocation error, it returns NULL.
 
+`context` parameter is the memory context parameter as provided by the user.
+It only exists as a C symbol if the library is built with `M_USE_CONTEXT`
+
 The default used function is the `malloc` function of the LIBC.
 
-##### `void M_MEMORY_DEL (type *ptr)`
+##### `void M_MEMORY_DEL (context, type *ptr)`
 
 Delete the cleared object pointed by the pointer `ptr`
 that was previously allocated by the macro `M_MEMORY_ALLOC`.
 `ptr` can not be NULL.
 
+`context` parameter is the memory context parameter as provided by the user.
+It only exists as a C symbol if the library is built with `M_USE_CONTEXT`
+
 The default used function is the `free` function of the LIBC.
 
-##### `type *M_MEMORY_REALLOC (type, ptr, number)`
+##### `type *M_MEMORY_REALLOC (context, type, ptr, old_number, new_number)`
 
-Return a pointer to an array of `number` objects of type `type`
+Return a pointer to an array of `new_number` objects of type `type`
 `ptr` is either NULL (in which the array is allocated), 
 or a pointer returned from a previous call of `M_MEMORY_REALLOC` 
-(in which case the array is reallocated).
+(in which case the array is reallocated) with `old_number` objects.
 The objects are not initialized, nor the state of previous objects changed
 (in case of reallocation).
 The address of the previous objects may have moved and the `MOVE` operator
 is not used in this case.
 In case of allocation error, it returns NULL.
 
+`context` parameter is the memory context parameter as provided by the user.
+It only exists as a C symbol if the library is built with `M_USE_CONTEXT`
+
 The default used function is the `realloc` function of the LIBC.
 
-##### `void M_MEMORY_FREE (type *ptr)`
+##### `void M_MEMORY_FREE (context, type, ptr, number)`
 
-Delete the cleared object pointed by the pointer `ptr`.
+Delete the cleared array of `number` objects of type `type pointed by the pointer `ptr`.
 The pointer was previously allocated by the macro `M_MEMORY_REALLOC`.
-`ptr` can not be NULL.
+If `ptr` is NULL, the function shall do nothing.
+
+`context` parameter is the memory context parameter as provided by the user.
+It only exists as a C symbol if the library is built with `M_USE_CONTEXT`
 
 The default used function is the `free` function of the LIBC.
 
-##### `void M_MEMORY_FULL (size_t size)`
+##### `void M_MEMORY_FULL (type, number)`
 
-This macro is called by M\*LIB when a memory error has been detected.
+This macro is called by M\*LIB when a memory error has been detected when trying to allocate an array of `number` type `type`.
 The parameter `size` is what was tried to be allocated (as a hint).
 The macro can:
 
@@ -8963,7 +8575,8 @@ _________________
 
 ### M-TRY
 
-This header is for [exception handling](https://en.wikipedia.org/wiki/Exception_handling).
+This header is for enabling [exception handling](https://en.wikipedia.org/wiki/Exception_handling) for M\*LIB.
+It shall be included first, before any other headers, to enable globally the use of exceptions.
 It provides basic functionality for throwing exception and catching then.
 The `setjmp` and `longjmp` standard library functions (or some variants) are used to implement the try / catch / throw macro keywords.
 It doesn't support the `finally` keyword.
@@ -9050,66 +8663,6 @@ Throw the exception associated to the error_code.
 Additional arguments are used to fill in the error field of `m_exception_s`
 that is used to identify the cause of the exception.
 The line and filename fields of the exception are filled automatically by the macro.
-
-_________________
-
-### M-MEMPOOL
-
-This header is for generating specialized and optimized memory pools:
-it will generate specialized functions to allocate and free only one kind of an object.
-The mempool functions are not specially thread safe for a given mempool,
-but the mempool variable can have the attribute `M_THREAD_ATTR`
-so that each thread has its own instance of the mempool.
-
-The memory pool has to be initialized and cleared like any other variable.
-Clearing the memory pool will free all the memory that has been allocated 
-within this memory pool.
-
-#### `MEMPOOL_DEF(name, type)`
-
-Generate specialized functions & types prefixed by `name` to `alloc` and `free` an object of type `type`.
-
-Example:
-
-```C
-MEMPOOL_DEF(mempool_uint, unsigned int)
-
-mempool_uint_t m;
-
-void f(void) {
-  mempool_uint_init(m);
-  unsigned int *p = mempool_uint_alloc(m);
-  *p = 17;
-  mempool_uint_free(m, p);
-  mempool_uint_clear(m);
-}
-```
-
-#### Created methods
-
-The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro that is used to identify the type.
-
-##### `name_t`
-
-The type of a mempool.
-
-##### `void name_init(name_t m)`
-
-Initialize the mempool `m`.
-
-##### `void name_clear(name_t m)`
-
-Clear the mempool `m`.
-All allocated objects associated to the this mempool that weren't explicitly freed will be deleted too (without calling their clear method).
-
-##### `type *name_alloc(name_t m)`
-
-Create a new object of type `type` and return a new pointer to the uninitialized object.
-
-##### `void name_free(name_t m, type *p)`
-
-Free the object `p` created by the call to `name_alloc`.
-The clear method of the type is not called.
 
 _________________
 
@@ -9283,21 +8836,18 @@ _________________
 
 ### M-GENERIC
 
-This header is for registering and using a generic interface, regardless of the real type.
+This header is for registering type to use them within a generic interface, regardless of the real type.
 More precisely it provides way of registering the oplist of a type. Then a variable of this type can be used in macro-like functions (`init`, `clear`, `push`, ...) and the associated method of this oplist will be used to handle the variable.
 If no type is associated to this variable, an error is reported by the compiler.
 
 This header needs a C23 compliant compiler or a C11 compiler providing the typeof extension (like GCC, CLANG, MSVC).
-
-> [!NOTE] 
-> TCC is not supported yet due to some bugs in the compiler.
 
 This provides the same level of flexibility of the C++. However, there is some drawbacks of using this generic interface:
 
 * Error messages can be more complex,
 * Compilation time increase a lot (on pair with C++)
 
-This header is still a WIP and is currently more a demo (Not ready for production).
+This header is still a WIP.
 
 #### Example
 
@@ -9308,25 +8858,27 @@ It reuses the basic example of the introduction of the library.
 #include "m-list.h"
 #include "m-generic.h"
 
+// Define a list of unsigned int
 LIST_DEF(list_uint, unsigned int)
 
-// Register oplist for M_LET & M_EACH :
+// Register the oplist of this new list for usage in M_LET & M_EACH :
 #define M_OPL_list_uint_t() LIST_OPLIST(list_uint, M_BASIC_OPLIST)
 
-// Register for Generic (Organization, Component & Oplist)
+// Register the oplist of this new list for the Generic framework
+// Organization=USER, Component=CORE & Oplist Number=1
 #define M_GENERIC_ORG_1() (USER)
 #define M_GENERIC_ORG_USER_COMP_1() (CORE)
 #define M_GENERIC_ORG_USER_COMP_CORE_OPLIST_1() M_OPL_list_uint_t()
 
 int main(void)
 {
-    M_LET(list, list_uint_t) {
+    let(list, list_uint_t) {
         push(list, 42);
         push(list, 17);
         for each(item, list) {
-            M_PRINT("ITEM=", *item, "\n");
+            print("ITEM=", *item, "\n");
         }
-        M_PRINT("List = ", list, "\n");
+        print("List = ", list, "\n");
     }
 }
 ```
@@ -9455,6 +9007,424 @@ The following macro is defined and enabled to iterate over a container (See exam
 
 _________________
 
+## Memory context Customization
+
+It is possible to give a custom memory context parameter to the memory methods `REALLOC`, `FREE`, `NEW`and `DEL`. 
+
+For this, you need to define `M_USE_CONTEXT` to the type of the custom memory context parameter. 
+The definition of this global parameter modifies the generation of **all** functions
+so that the functions that may allocate or free something will add a new argument,
+the memory context parameter `m_context` of the user provided type `M_USE_CONTEXT`,
+as their first argument.
+It will also modifies the `OPLIST` definition so that they request the parameter named `m_context`
+for such methods.
+
+The memory context can be an [arena allocator](https://www.rfleury.com/p/untangling-lifetimes-the-arena-allocator)
+
+> [!Note] 
+> The memory context parameter is not stored in the container
+> because it is not efficient in memory usage as it is redundant when you
+> create container of other containers (example `array` of `string_t`):
+> all `string_t` in the array would need to store the context which is duplicate information.
+> Therefore it is always passed as argument of the functions.
+
+The user shall ensure of the coherence of the memory context for a given container
+so that the same memory context is used from its construction to its destruction.
+
+If you master your own memory, you may want to control when performing the Garbage Collecting.
+This Garbage Collecting may be quite efficient in reclaiming allocated memory in a single and efficient pass:
+in such a case, you may not want calling the destructors of the containers as their operation of freeing the memory
+back to the memory allocator will be redundant and inefficient.
+As a consequence, the following guarantee is ensured:
+
+The destructors of all containers except the thread safe ones only free back memory.
+As such, it is safe not to call the destructors of these containers if you have another way to reclaim your memory.
+If the destructor of a mutex is also a no-op on your system, this guarantee is extended to all containers
+(including the thread safe containers too).
+
+In order to use the local context feature, you need to:
+
+* define globally `M_USE_CONTEXT` with your type.
+* define globally an override of the memory functions `M_MEMORY_ALLOC`, `M_MEMORY_DEL`, `M_MEMORY_REALLOC` and `M_MEMORY_FREE` to use your context.
+
+Example:
+
+```C
+// Define a memory context type 
+typedef int *context_t;
+
+// Define the realloc / free that accepts the memory context.
+static void *my_realloc(void *ptr, size_t old, size_t new, size_t base, context_t context)
+{
+    (void) context; // TODO what you want with it.
+    (void) old; // TODO what you want with it.
+    return realloc(ptr, new*base);
+}
+
+static void my_free(void *ptr, size_t old, size_t base, context_t context)
+{
+    (void) context; // TODO what you want with it.
+    (void) old; // TODO what you want with it.
+    (void) base; // TODO what you want with it.
+    free(ptr);
+}
+
+// Request M*LIB to generate functions accepting a memory context parameter that will be passed to the memory functions
+# define M_USE_CONTEXT context_t
+
+// Overloaded memory functions to use the custom ones.
+// m_context is the name of the memory context parameter
+# define M_MEMORY_REALLOC(ctx, type, ptr, o, n) my_realloc(ptr, o, n, sizeof (type), ctx)
+# define M_MEMORY_FREE(ctx, type, ptr, o) my_free(ptr, o, sizeof (type), ctx)
+
+# define M_MEMORY_ALLOC(ctx, type) my_realloc(NULL, 0, 1, sizeof (type), ctx)
+# define M_MEMORY_DEL(ctx, ptr) my_free(ptr, 1, sizeof (*ptr), ctx)
+
+// Now you may include M*LIB headers.
+#include "m-array.h"
+```
+
+This works great for local allocators for a thread. 
+
+However some containers are designed to handle
+objects across several threads: shared pointer, communication queue, ... 
+For such containers, a local allocator has no meaning: it will be very hard to ensure the same allocator
+is used for both the producer thread and the user threads.
+
+As a consequence, shared pointer, communication queue container and all thread containers
+use a global memory context instead:
+M\*LIB doesn't add a context argument to the functions of such containers. Instead it uses
+the global memory context and gives this one to the memory functions.
+
+The exact value of the global memory context is defined by the macro `M_USE_GLOBAL_CONTEXT` which shall define its value. 
+In the absence of definition of such macro, the default is the value '0' 
+(The memory functions shall recognize such context as the global one).
+
+context arguments shall be settable and trivially movable using the '=' C operator.
+
+The following methods are modified to support the memory context parameter (the first argument of theses functions is the memory context parameter):
+
+* m-string:
+  * string_clear
+  * string_clear_get_str
+  * string_reserve
+  * string_set_str
+  * string_set_strn
+  * string_set
+  * string_set_n
+  * string_init_set
+  * string_init_set_str
+  * string_move
+  * string_push_back
+  * string_cat_str
+  * string_cat
+  * string_replace_str
+  * string_replace
+  * string_replace_at
+  * string_replace_all_str
+  * string_replace_all
+  * string_set_ui
+  * string_set_si
+  * string_vprintf
+  * string_printf
+  * string_cat_vprintf
+  * string_cat_printf
+  * string_set_ui
+  * string_set_si
+  * string_fgets
+  * string_fget_word
+  * string_get_str
+  * string_in_str
+  * string_parse_str
+  * string_out_serial
+  * string_in_serial
+  * string_it_set_ref
+  * string_push_u
+  * string_split
+  * string_join
+  * string_out_serial
+  * string_in_serial
+* m-biset:
+  * bitset_clear
+  * bitset_set
+  * bitset_init_set
+  * bitset_move
+  * bitset_push_back
+  * bitset_resize
+  * bitset_reserve
+  * bitset_push_at
+  * bitset_in_str
+  * bitset_parse_str
+  * bitset_set_str
+  * bitset_get_str
+* m-bstring:
+  * bstring_clear
+  * bstring_push_back
+  * bstring_push_back_bytes
+  * bstring_splice
+  * bstring_init_set
+  * bstring_set
+  * bstring_move
+  * bstring_push_bytes_at
+  * bstring_resize
+  * bstring_reserve
+  * bstring_fread
+  * bstring_out_serial
+  * bstring_in_serial
+* m-algo:
+  * \<algo\>_fill
+  * \<algo\>_fill_n
+  * \<algo\>_fill_a
+  * \<algo\>_fill_an
+  * \<algo\>_transform
+  * \<algo\>_reduce
+  * \<algo\>_map_reduce
+  * \<algo\>_uniq
+  * \<algo\>_remove_val
+  * \<algo\>_remove_if
+* m-array:
+  * \<array\>_reset
+  * \<array\>_clear
+  * \<array\>_set
+  * \<array\>_init_set
+  * \<array\>_move
+  * \<array\>_set_at
+  * \<array\>_push_raw
+  * \<array\>_push_back
+  * \<array\>_push_new
+  * \<array\>_push_move
+  * \<array\>_push_at
+  * \<array\>_resize
+  * \<array\>_reserve
+  * \<array\>_safe_get
+  * \<array\>_pop_back
+  * \<array\>_pop_until
+  * \<array\>_pop_at
+  * \<array\>_erase
+  * \<array\>_insert_v
+  * \<array\>_remove_v
+  * \<array\>_insert
+  * \<array\>_remove
+  * \<array\>_special_stable_sort
+  * \<array\>_splice
+  * \<array\>_get_str
+  * \<array\>_parse_str
+  * \<array\>_in_str
+  * \<array\>_out_serial
+  * \<array\>_in_serial
+  * \<array\>_\<emplace\>
+* m-bptree:
+  * \<bptree\>_init
+  * \<bptree\>_reset
+  * \<bptree\>_clear
+  * \<bptree\>_copy_node
+  * \<bptree\>_init_set
+  * \<bptree\>_set
+  * \<bptree\>_set_at
+  * \<bptree\>_push
+  * \<bptree\>_safe_get
+  * \<bptree\>_erase
+  * \<bptree\>_pop_at
+  * \<bptree\>_move
+  * \<bptree\>_get_str
+  * \<bptree\>_parse_str
+  * \<bptree\>_in_str
+  * \<bptree\>_out_serial
+  * \<bptree\>_in_serial
+* m-deque:
+  * \<deque\>_init
+  * \<deque\>_reset
+  * \<deque\>_clear
+  * \<deque\>_push_back_raw
+  * \<deque\>_push_back
+  * \<deque\>_push_back_new
+  * \<deque\>_push_back_move
+  * \<deque\>_push_front_raw
+  * \<deque\>_push_front
+  * \<deque\>_push_front_new
+  * \<deque\>_push_front_move
+  * \<deque\>_pop_back
+  * \<deque\>_pop_back_move
+  * \<deque\>_pop_front
+  * \<deque\>_pop_front_move
+  * \<deque\>_remove
+  * \<deque\>_init_set
+  * \<deque\>_set
+  * \<deque\>_move
+  * \<deque\>_set_at
+  * \<deque\>_get_str
+  * \<deque\>_parse_str
+  * \<deque\>_in_str
+  * \<deque\>_out_serial
+  * \<deque\>_in_serial
+  * \<deque\>_\<emplace_back\>
+  * \<deque\>_\<emplace_front\>
+* m-dict:
+  * \<dict\>_init
+  * \<dict\>_clear
+  * \<dict\>_push
+  * \<dict\>_set_at
+  * \<dict\>_safe_get
+  * \<dict\>_erase
+  * \<dict\>_init_set
+  * \<dict\>_set
+  * \<dict\>_move
+  * \<dict\>_reset
+  * \<dict\>_reserve
+  * \<dict\>_get_str
+  * \<dict\>_parse_str
+  * \<dict\>_in_str
+  * \<dict\>_out_serial
+  * \<dict\>_in_serial
+  * \<dict\>_splice
+  * \<dict\>_bulk_get
+  * \<dict\>_bulk_set
+  * \<dict\>_bulk_update
+* m-i-list
+  * \<ilist\>_reset
+  * \<ilist\>_clear
+  * \<ilist\>_move
+  * \<ilist\>_remove
+* m-list
+  * \<list\>_reset
+  * \<list\>_clear
+  * \<list\>_push_raw
+  * \<list\>_push_back
+  * \<list\>_push_new
+  * \<list\>_pop_back
+  * \<list\>_push_move
+  * \<list\>_pop_move
+  * \<list\>_insert
+  * \<list\>_remove
+  * \<list\>_init_set
+  * \<list\>_set
+  * \<list\>_move
+  * \<list\>_get_str
+  * \<list\>_parse_str
+  * \<list\>_in_str
+  * \<list\>_out_serial
+  * \<list\>_in_serial
+  * \<list\>_\<emplace\>
+  * \<list\>_\<emplace_back\>
+  * \<list\>_\<emplace_front\>
+  * \<list\>_push_back_raw
+  * \<list\>_push_raw
+  * \<list\>_push_back
+  * \<list\>_push_back_new
+  * \<list\>_push_back_move
+  * \<list\>_push_move
+  * \<list\>_push_front_raw
+  * \<list\>_push_front
+  * \<list\>_push_front_move
+  * \<list\>_push_front_new
+* m-prioqueue
+  * \<prioqueue\>_init_set
+  * \<prioqueue\>_set
+  * \<prioqueue\>_clear
+  * \<prioqueue\>_move
+  * \<prioqueue\>_reset
+  * \<prioqueue\>_push
+  * \<prioqueue\>_pop
+  * \<prioqueue\>_erase
+  * \<prioqueue\>_update
+  * \<prioqueue\>_in_str
+  * \<prioqueue\>_get_str
+  * \<prioqueue\>_parse_str
+  * \<prioqueue\>_out_serial
+  * \<prioqueue\>_in_serial
+* m-queue:
+  * \<queue\>_init
+  * \<queue\>_clear
+  * \<queue\>_init_set
+  * \<queue\>_set
+  * \<queue\>_push
+  * \<queue\>_pop
+* m-rbtree:
+  * \<rbtree\>_reset
+  * \<rbtree\>_clear
+  * \<rbtree\>_push
+  * \<rbtree\>_init_set
+  * \<rbtree\>_set
+  * \<rbtree\>_move
+  * \<rbtree\>_pop_at
+  * \<rbtree\>_remove
+  * \<rbtree\>_get_str
+  * \<rbtree\>_parse_str
+  * \<rbtree\>_in_str
+  * \<rbtree\>_out_serial
+  * \<rbtree\>_in_serial
+* m-snapshot:
+  * \<snapshot\>_init
+  * \<snapshot\>_clear
+  * \<snapshot\>_init_set
+  * \<snapshot\>_set
+  * \<snapshot\>_move
+* m-tree:
+  * \<tree\>_reset
+  * \<tree\>_clear
+  * \<tree\>_reserve
+  * \<tree\>_set_root
+  * \<tree\>_insert_up_raw
+  * \<tree\>_insert_up
+  * \<tree\>_move_up
+  * \<tree\>_insert_down_raw
+  * \<tree\>_insert_down
+  * \<tree\>_move_down
+  * \<tree\>_insert_child_raw
+  * \<tree\>_insert_child
+  * \<tree\>_move_child
+  * \<tree\>_insert_left_raw
+  * \<tree\>_insert_left
+  * \<tree\>_move_left
+  * \<tree\>_insert_right_raw
+  * \<tree\>_insert_right
+  * \<tree\>_move_right
+  * \<tree\>_remove
+  * \<tree\>_prune
+  * \<tree\>_init_set
+  * \<tree\>_set
+  * \<tree\>_move
+  * \<tree\>_get_str
+  * \<tree\>_parse_str
+  * \<tree\>_in_str
+  * \<tree\>name
+  * \<tree\>_\<emplace_up\>
+  * \<tree\>_\<emplace_down\>
+  * \<tree\>_\<emplace_child\>
+  * \<tree\>_\<emplace_left\>
+  * \<tree\>_\<emplace_right\>
+* m-tuple:
+  * \<tuple\>_init
+  * \<tuple\>_init_set
+  * \<tuple\>_init_emplace
+  * \<tuple\>_set
+  * \<tuple\>_emplace
+  * \<tuple\>_clear
+  * \<tuple\>_get_str
+  * \<tuple\>_in_str
+  * \<tuple\>_parse_str
+  * \<tuple\>_out_serial
+  * \<tuple\>_in_serial
+  * \<tuple\>_move
+  * \<tuple\>_reset
+* m-variant:
+  * \<variant\>_init_set
+  * \<variant\>_set
+  * \<variant\>_clear
+  * \<variant\>_move
+  * \<variant\>_get_str
+  * \<variant\>_parse_str
+  * \<variant\>_in_str
+  * \<variant\>_out_serial
+  * \<variant\>_in_serial
+  * \<variant\>_reset
+
+
+> [!Note] 
+> The API defined by `M_USE_CONTEXT` is experimental and may change incompatibly in the future.
+
+_________________
+
 ## Global User Customization
 
 The behavior of M\*LIB can be customized globally by defining the following macros
@@ -9555,12 +9525,6 @@ Define the size of the private data (reserved to the serial implementation) in a
 
 Default value: `4`
 
-#### `M_USE_MEMPOOL_MAX_PER_SEGMENT(type)`
-
-Define the number of elements to allocate in a segment per object of type `type`.
-
-Default value: number of elements that fits in a `16KB` page.
-
 #### `M_USE_DEQUE_DEFAULT_SIZE`
 
 Define the default size of a segment for a deque structure.
@@ -9579,16 +9543,17 @@ Use fast integer conversion algorithms instead of using the LIBC.
 
 Default value: `1` (because it also generates smaller code).
 
-#### `M_USE_DECL`
+#### `M_USE_DECL` and `M_USE_DEF`
 
 If `M_USE_FINE_GRAINED_LINKAGE` is not defined,
-it will request M\*LIB to change the linkage of its symbols globally:
-instead of inlining the functions, it will emit weak symbols
-for the functions that are not inlined.
+`M_USE_DECL` will request M\*LIB to globally change the linkage of the functions:
+instead of being inline, the functions will be emitted as `weak` symbols,
+ensuring that only one definition of the function remains at the end
+of the link.
 
-And in exactly one translation unit, the macro `M_USE_DEF`
+In exactly one translation unit, the macro `M_USE_DEF`
 should also be defined so that it emits the normal definition
-of the functions. In which case, it should contain all symbols
+of the functions (non `weak`). In which case, it should contain all symbols
 used by all other translation units.
 
 You should compile your program with:
@@ -9599,10 +9564,12 @@ and link with
 ```shell
 -Wl,--gc-sections
 ```
-in order to remove unused code and to merge identical code
-otherwise it is likely to generate even bigger code than using the inlining linkage.
+in order to remove unused code
+otherwise it is possible to generate even bigger code than using the inlining linkage.
 
 This works for GCC / CLANG in C mode.
+
+Default value: undefined (inline definition)
 
 #### `M_USE_FINE_GRAINED_LINKAGE`
 
@@ -9621,9 +9588,13 @@ This enables to inline some functions and not others.
 
 See `M_USE_DECL` for more details.
 
+Default value: undefined (inline definition)
+
 #### `M_USE_PRINT_OPLIST`
 
 If defined, it displays the oplist associated to the static assert.
+
+Default value: undefined (oplist not printed)
 
 #### `M_MEMORY_ALLOC`
 
@@ -9656,6 +9627,18 @@ See [m-core.h](#m-core)
 #### `M_ASSERT_INDEX`
 
 See [m-core.h](#m-core)
+
+#### `M_USE_CONTEXT`
+
+See [Memory context Customization](#memory-context-customization)
+
+Default value: undefined (No memory context)
+
+#### `M_USE_GLOBAL_CONTEXT`
+
+See [Memory context Customization](#memory-context-customization)
+
+Default value: 0
 
 _________________
 

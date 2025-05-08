@@ -36,9 +36,9 @@ M_BEGIN_PROTECTED_CODE
 
 /* Write the boolean 'data' into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE m_serial_return_code_t
-m_ser1al_json_write_boolean(m_serial_write_t serial, const bool data)
+M_P(m_serial_return_code_t, m_ser1al_json, _write_boolean, m_serial_write_t serial, const bool data)
 {
+  M_UNUSED_CONTEXT();
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, "%s", data ? "true" : "false");
   return n > 0 ? M_SERIAL_OK_DONE : m_core_serial_fail();
@@ -46,9 +46,9 @@ m_ser1al_json_write_boolean(m_serial_write_t serial, const bool data)
 
 /* Write the integer 'data' of 'size_of_type' bytes into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE m_serial_return_code_t
-m_ser1al_json_write_integer(m_serial_write_t serial,const long long data, const size_t size_of_type)
+M_P(m_serial_return_code_t, m_ser1al_json, _write_integer, m_serial_write_t serial,const long long data, const size_t size_of_type)
 {
+  M_UNUSED_CONTEXT();
   (void) size_of_type; // Ignored
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, "%lld", data);
@@ -57,9 +57,9 @@ m_ser1al_json_write_integer(m_serial_write_t serial,const long long data, const 
 
 /* Write the float 'data' of 'size_of_type' bytes into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE m_serial_return_code_t
-m_ser1al_json_write_float(m_serial_write_t serial, const long double data, const size_t size_of_type)
+M_P(m_serial_return_code_t, m_ser1al_json, _write_float, m_serial_write_t serial, const long double data, const size_t size_of_type)
 {
+  M_UNUSED_CONTEXT();
   (void) size_of_type; // Ignored
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, "%Lf", data);
@@ -68,9 +68,9 @@ m_ser1al_json_write_float(m_serial_write_t serial, const long double data, const
 
 /* Write the null-terminated string 'data'into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE m_serial_return_code_t
-m_ser1al_json_write_string(m_serial_write_t serial, const char data[], size_t length)
+M_P(m_serial_return_code_t, m_ser1al_json, _write_string, m_serial_write_t serial, const char data[], size_t length)
 {
+  M_UNUSED_CONTEXT();
   M_ASSERT(length == (m_str1ng_size_t) length);
   M_ASSERT_SLOW(length == strlen(data) );
   FILE *f = (FILE *)serial->data[0].p;
@@ -92,9 +92,9 @@ m_ser1al_json_write_string(m_serial_write_t serial, const char data[], size_t le
    Initialize 'local' so that it can be used to serialize the array 
    (local is an unique serialization object of the array).
    Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE m_serial_return_code_t
-m_ser1al_json_write_array_start(m_serial_local_t local, m_serial_write_t serial, const size_t number_of_elements)
+M_P(m_serial_return_code_t, m_ser1al_json, _write_array_start, m_serial_local_t local, m_serial_write_t serial, const size_t number_of_elements)
 {
+  M_UNUSED_CONTEXT();
   (void) local; // argument not used
   (void) number_of_elements; // Ignored
   FILE *f = (FILE *)serial->data[0].p;
@@ -104,9 +104,9 @@ m_ser1al_json_write_array_start(m_serial_local_t local, m_serial_write_t serial,
 
 /* Write an array separator between elements of an array into the serial stream 'serial' if needed.
    Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE  m_serial_return_code_t
-m_ser1al_json_write_array_next(m_serial_local_t local, m_serial_write_t serial)
+M_P(m_serial_return_code_t, m_ser1al_json, _write_array_next, m_serial_local_t local, m_serial_write_t serial)
 {
+  M_UNUSED_CONTEXT();
   (void) local; // argument not used
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, ",");
@@ -115,9 +115,9 @@ m_ser1al_json_write_array_next(m_serial_local_t local, m_serial_write_t serial)
 
 /* End the writing of an array into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE   m_serial_return_code_t
-m_ser1al_json_write_array_end(m_serial_local_t local, m_serial_write_t serial)
+M_P(m_serial_return_code_t, m_ser1al_json, _write_array_end, m_serial_local_t local, m_serial_write_t serial)
 {
+  M_UNUSED_CONTEXT();
   (void) local; // argument not used
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, "]");
@@ -130,9 +130,9 @@ m_ser1al_json_write_array_end(m_serial_local_t local, m_serial_write_t serial)
    Initialize 'local' so that it can be used to serialize the map 
    (local is an unique serialization object of the map).
    Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE   m_serial_return_code_t
-m_ser1al_json_write_map_start(m_serial_local_t local, m_serial_write_t serial, const size_t number_of_elements)
+M_P(m_serial_return_code_t, m_ser1al_json, _write_map_start, m_serial_local_t local, m_serial_write_t serial, const size_t number_of_elements)
 {
+  M_UNUSED_CONTEXT();
   (void) local; // argument not used
   (void) number_of_elements; // Ignored
   FILE *f = (FILE *)serial->data[0].p;
@@ -142,9 +142,9 @@ m_ser1al_json_write_map_start(m_serial_local_t local, m_serial_write_t serial, c
 
 /* Write a value separator between element of the same pair of a map into the serial stream 'serial' if needed.
    Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE   m_serial_return_code_t
-m_ser1al_json_write_map_value(m_serial_local_t local, m_serial_write_t serial)
+M_P(m_serial_return_code_t, m_ser1al_json, _write_map_value, m_serial_local_t local, m_serial_write_t serial)
 {
+  M_UNUSED_CONTEXT();
   (void) local; // argument not used
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, ":");
@@ -153,9 +153,9 @@ m_ser1al_json_write_map_value(m_serial_local_t local, m_serial_write_t serial)
 
 /* Write a map separator between elements of a map into the serial stream 'serial' if needed.
    Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE   m_serial_return_code_t
-m_ser1al_json_write_map_next(m_serial_local_t local, m_serial_write_t serial)
+M_P(m_serial_return_code_t, m_ser1al_json, _write_map_next, m_serial_local_t local, m_serial_write_t serial)
 {
+  M_UNUSED_CONTEXT();
   (void) local; // argument not used
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, ",");
@@ -164,9 +164,9 @@ m_ser1al_json_write_map_next(m_serial_local_t local, m_serial_write_t serial)
 
 /* End the writing of a map into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE   m_serial_return_code_t
-m_ser1al_json_write_map_end(m_serial_local_t local, m_serial_write_t serial)
+M_P(m_serial_return_code_t, m_ser1al_json, _write_map_end, m_serial_local_t local, m_serial_write_t serial)
 {
+  M_UNUSED_CONTEXT();
   (void) local; // argument not used
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, "}");
@@ -177,9 +177,9 @@ m_ser1al_json_write_map_end(m_serial_local_t local, m_serial_write_t serial)
    Initialize 'local' so that it can serial the tuple 
    (local is an unique serialization object of the tuple).
    Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE   m_serial_return_code_t
-m_ser1al_json_write_tuple_start(m_serial_local_t local, m_serial_write_t serial)
+M_P(m_serial_return_code_t, m_ser1al_json, _write_tuple_start, m_serial_local_t local, m_serial_write_t serial)
 {
+  M_UNUSED_CONTEXT();
   (void) local; // argument not used
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, "{");
@@ -188,9 +188,9 @@ m_ser1al_json_write_tuple_start(m_serial_local_t local, m_serial_write_t serial)
 
 /* Start writing the field named field_name[index] of a tuple into the serial stream 'serial'.
    Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE   m_serial_return_code_t
-m_ser1al_json_write_tuple_id(m_serial_local_t local, m_serial_write_t serial, const char *const field_name[], const int max, const int index)
+M_P(m_serial_return_code_t, m_ser1al_json, _write_tuple_id, m_serial_local_t local, m_serial_write_t serial, const char *const field_name[], const int max, const int index)
 {
+  M_UNUSED_CONTEXT();
   (void) local; // argument not used
   (void) max; // Ignored
   FILE *f = (FILE *)serial->data[0].p;
@@ -200,9 +200,9 @@ m_ser1al_json_write_tuple_id(m_serial_local_t local, m_serial_write_t serial, co
 
 /* End the write of a tuple into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE   m_serial_return_code_t
-m_ser1al_json_write_tuple_end(m_serial_local_t local, m_serial_write_t serial)
+M_P(m_serial_return_code_t, m_ser1al_json, _write_tuple_end, m_serial_local_t local, m_serial_write_t serial)
 {
+  M_UNUSED_CONTEXT();
   (void) local; // argument not used
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, "}");
@@ -214,9 +214,9 @@ m_ser1al_json_write_tuple_end(m_serial_local_t local, m_serial_write_t serial)
      Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise 
    Otherwise, the field 'field_name[index]' will be filled.
      Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE   m_serial_return_code_t
-m_ser1al_json_write_variant_start(m_serial_local_t local, m_serial_write_t serial, const char *const field_name[], const int max, const int index)
+M_P(m_serial_return_code_t, m_ser1al_json, _write_variant_start, m_serial_local_t local, m_serial_write_t serial, const char *const field_name[], const int max, const int index)
 {
+  M_UNUSED_CONTEXT();
   (void) local; // argument not used
   (void) max; // argument not used
   FILE *f = (FILE *)serial->data[0].p;
@@ -233,9 +233,9 @@ m_ser1al_json_write_variant_start(m_serial_local_t local, m_serial_write_t seria
 
 /* End Writing a variant into the serial stream 'serial'. 
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE   m_serial_return_code_t
-m_ser1al_json_write_variant_end(m_serial_local_t local, m_serial_write_t serial)
+M_P(m_serial_return_code_t, m_ser1al_json, _write_variant_end, m_serial_local_t local, m_serial_write_t serial)
 {
+  M_UNUSED_CONTEXT();
   (void) local; // argument not used
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, "}");
@@ -344,12 +344,12 @@ m_ser1al_json_read_float(m_serial_read_t serial, long double *r, const size_t si
 /* Read from the stream 'serial' a string.
    Set 's' with the string if succeeds 
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE  m_serial_return_code_t
-m_ser1al_json_read_string(m_serial_read_t serial, struct m_string_s *s){
+M_P(m_serial_return_code_t, m_ser1al_json, _read_string, m_serial_read_t serial, struct m_string_s *s)
+{
   FILE *f = (FILE*) serial->data[0].p;
   int n = m_core_fscanf(f, " "); // Skip any leading spaces.
   (void) n; // Unused return value.
-  return m_string_in_str(s, f) ? M_SERIAL_OK_DONE : m_core_serial_fail();
+  return m_string_in_str M_R(s, f) ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Start reading from the stream 'serial' an array.
@@ -587,40 +587,37 @@ typedef m_serial_read_t m_serial_json_read_t;
 
 /* Write the boolean 'data' into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE m_serial_return_code_t
-m_ser1al_str_json_write_boolean(m_serial_write_t serial, const bool data)
+M_P(m_serial_return_code_t, m_ser1al_str_json, _write_boolean, m_serial_write_t serial, const bool data)
 {
   struct m_string_s *f = (struct m_string_s *)serial->data[0].p;
-  int n = m_string_cat_printf(f, "%s", data ? "true" : "false");
+//TODO: Simplify code.
+  int n = m_string_cat_printf M_R(f, "%s", data ? "true" : "false");
   return n > 0 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Write the integer 'data' of 'size_of_type' bytes into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE m_serial_return_code_t
-m_ser1al_str_json_write_integer(m_serial_write_t serial,const long long data, const size_t size_of_type)
+M_P(m_serial_return_code_t, m_ser1al_str_json, _write_integer, m_serial_write_t serial, const long long data, const size_t size_of_type)
 {
   (void) size_of_type; // Ignored
   struct m_string_s *f = (struct m_string_s *)serial->data[0].p;
-  int n = m_string_cat_printf(f, "%lld", data);
+  int n = m_string_cat_printf M_R(f, "%lld", data);
   return n > 0 ? M_SERIAL_OK_DONE : m_core_serial_fail();  
 }
 
 /* Write the float 'data' of 'size_of_type' bytes into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE m_serial_return_code_t
-m_ser1al_str_json_write_float(m_serial_write_t serial, const long double data, const size_t size_of_type)
+M_P(m_serial_return_code_t, m_ser1al_str_json, _write_float, m_serial_write_t serial, const long double data, const size_t size_of_type)
 {
   (void) size_of_type; // Ignored
   struct m_string_s *f = (struct m_string_s *)serial->data[0].p;
-  int n = m_string_cat_printf(f, "%Lf", data);
+  int n = m_string_cat_printf M_R(f, "%Lf", data);
   return n > 0 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Write the null-terminated string 'data'into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE m_serial_return_code_t
-m_ser1al_str_json_write_string(m_serial_write_t serial, const char data[], size_t length)
+M_P(m_serial_return_code_t, m_ser1al_str_json, _write_string, m_serial_write_t serial, const char data[], size_t length)
 {
   M_ASSERT(length == (m_str1ng_size_t) length);
   M_ASSERT_SLOW(length == strlen(data) );
@@ -633,7 +630,7 @@ m_ser1al_str_json_write_string(m_serial_write_t serial, const char data[], size_
   v2->u.heap.alloc[sizeof(m_str1ng_size_t)-2] = 1;
   v2->u.heap.alloc[sizeof(m_str1ng_size_t)-1] = 31;
   v2->u.heap.ptr = (char*)ptr;
-  m_string_get_str(f, v2, true);
+  m_string_get_str M_R(f, v2, true);
   return M_SERIAL_OK_DONE;
 }
 
@@ -643,35 +640,32 @@ m_ser1al_str_json_write_string(m_serial_write_t serial, const char data[], size_
    Initialize 'local' so that it can be used to serialize the array 
    (local is an unique serialization object of the array).
    Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE m_serial_return_code_t
-m_ser1al_str_json_write_array_start(m_serial_local_t local, m_serial_write_t serial, const size_t number_of_elements)
+M_P(m_serial_return_code_t, m_ser1al_str_json, _write_array_start, m_serial_local_t local, m_serial_write_t serial, const size_t number_of_elements)
 {
   (void) local; // argument not used
   (void) number_of_elements; // Ignored
   struct m_string_s *f = (struct m_string_s *)serial->data[0].p;
-  m_string_push_back(f, '[');
+  m_string_push_back M_R(f, '[');
   return M_SERIAL_OK_CONTINUE;
 }
 
 /* Write an array separator between elements of an array into the serial stream 'serial' if needed.
    Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE  m_serial_return_code_t
-m_ser1al_str_json_write_array_next(m_serial_local_t local, m_serial_write_t serial)
+M_P(m_serial_return_code_t, m_ser1al_str_json, _write_array_next, m_serial_local_t local, m_serial_write_t serial)
 {
   (void) local; // argument not used
   struct m_string_s *f = (struct m_string_s *)serial->data[0].p;
-  m_string_push_back(f, ',');
+  m_string_push_back M_R(f, ',');
   return M_SERIAL_OK_CONTINUE;
 }
 
 /* End the writing of an array into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE   m_serial_return_code_t
-m_ser1al_str_json_write_array_end(m_serial_local_t local, m_serial_write_t serial)
+M_P(m_serial_return_code_t, m_ser1al_str_json, _write_array_end, m_serial_local_t local, m_serial_write_t serial)
 {
   (void) local; // argument not used
   struct m_string_s *f = (struct m_string_s *)serial->data[0].p;
-  m_string_push_back(f, ']');
+  m_string_push_back M_R(f, ']');
   return M_SERIAL_OK_CONTINUE;
 }
 
@@ -681,46 +675,42 @@ m_ser1al_str_json_write_array_end(m_serial_local_t local, m_serial_write_t seria
    Initialize 'local' so that it can be used to serialize the map 
    (local is an unique serialization object of the map).
    Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE   m_serial_return_code_t
-m_ser1al_str_json_write_map_start(m_serial_local_t local, m_serial_write_t serial, const size_t number_of_elements)
+M_P(m_serial_return_code_t, m_ser1al_str_json, _write_map_start, m_serial_local_t local, m_serial_write_t serial, const size_t number_of_elements)
 {
   (void) local; // argument not used
   (void) number_of_elements; // Ignored
   struct m_string_s *f = (struct m_string_s *)serial->data[0].p;
-  m_string_push_back(f, '{');
+  m_string_push_back M_R(f, '{');
   return M_SERIAL_OK_CONTINUE;
 }
 
 /* Write a value separator between element of the same pair of a map into the serial stream 'serial' if needed.
    Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE   m_serial_return_code_t
-m_ser1al_str_json_write_map_value(m_serial_local_t local, m_serial_write_t serial)
+M_P(m_serial_return_code_t, m_ser1al_str_json, _write_map_value, m_serial_local_t local, m_serial_write_t serial)
 {
   (void) local; // argument not used
   struct m_string_s *f = (struct m_string_s *)serial->data[0].p;
-  m_string_push_back(f, ':');
+  m_string_push_back M_R(f, ':');
   return M_SERIAL_OK_CONTINUE;
 }
 
 /* Write a map separator between elements of a map into the serial stream 'serial' if needed.
    Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE   m_serial_return_code_t
-m_ser1al_str_json_write_map_next(m_serial_local_t local, m_serial_write_t serial)
+M_P(m_serial_return_code_t, m_ser1al_str_json, _write_map_next, m_serial_local_t local, m_serial_write_t serial)
 {
   (void) local; // argument not used
   struct m_string_s *f = (struct m_string_s *)serial->data[0].p;
-  m_string_push_back(f, ',');
+  m_string_push_back M_R(f, ',');
   return M_SERIAL_OK_CONTINUE;
 }
 
 /* End the writing of a map into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE   m_serial_return_code_t
-m_ser1al_str_json_write_map_end(m_serial_local_t local, m_serial_write_t serial)
+M_P(m_serial_return_code_t, m_ser1al_str_json, _write_map_end, m_serial_local_t local, m_serial_write_t serial)
 {
   (void) local; // argument not used
   struct m_string_s *f = (struct m_string_s *)serial->data[0].p;
-  m_string_push_back(f, '}');
+  m_string_push_back M_R(f, '}');
   return M_SERIAL_OK_CONTINUE;
 }
 
@@ -728,35 +718,32 @@ m_ser1al_str_json_write_map_end(m_serial_local_t local, m_serial_write_t serial)
    Initialize 'local' so that it can serial the tuple 
    (local is an unique serialization object of the tuple).
    Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE   m_serial_return_code_t
-m_ser1al_str_json_write_tuple_start(m_serial_local_t local, m_serial_write_t serial)
+M_P(m_serial_return_code_t, m_ser1al_str_json, _write_tuple_start, m_serial_local_t local, m_serial_write_t serial)
 {
   (void) local; // argument not used
   struct m_string_s *f = (struct m_string_s *)serial->data[0].p;
-  m_string_push_back(f, '{');
+  m_string_push_back M_R(f, '{');
   return M_SERIAL_OK_CONTINUE;
 }
 
 /* Start writing the field named field_name[index] of a tuple into the serial stream 'serial'.
    Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE   m_serial_return_code_t
-m_ser1al_str_json_write_tuple_id(m_serial_local_t local, m_serial_write_t serial, const char *const field_name[], const int max, const int index)
+M_P(m_serial_return_code_t, m_ser1al_str_json, _write_tuple_id, m_serial_local_t local, m_serial_write_t serial, const char *const field_name[], const int max, const int index)
 {
   (void) local; // argument not used
   (void) max; // Ignored
   struct m_string_s *f = (struct m_string_s *)serial->data[0].p;
-  int n = m_string_cat_printf(f, "%c\"%s\":", index == 0 ? ' ' : ',', field_name[index]);
+  int n = m_string_cat_printf M_R(f, "%c\"%s\":", index == 0 ? ' ' : ',', field_name[index]);
   return n > 0 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();
 }
 
 /* End the write of a tuple into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE   m_serial_return_code_t
-m_ser1al_str_json_write_tuple_end(m_serial_local_t local, m_serial_write_t serial)
+M_P(m_serial_return_code_t, m_ser1al_str_json, _write_tuple_end, m_serial_local_t local, m_serial_write_t serial)
 {
   (void) local; // argument not used
   struct m_string_s *f = (struct m_string_s *)serial->data[0].p;
-  m_string_push_back(f, '}');
+  m_string_push_back M_R(f, '}');
   return M_SERIAL_OK_CONTINUE;
 }
 
@@ -765,8 +752,7 @@ m_ser1al_str_json_write_tuple_end(m_serial_local_t local, m_serial_write_t seria
      Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise 
    Otherwise, the field 'field_name[index]' will be filled.
      Return M_SERIAL_OK_CONTINUE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE   m_serial_return_code_t
-m_ser1al_str_json_write_variant_start(m_serial_local_t local, m_serial_write_t serial, const char *const field_name[], const int max, const int index)
+M_P(m_serial_return_code_t, m_ser1al_str_json, _write_variant_start, m_serial_local_t local, m_serial_write_t serial, const char *const field_name[], const int max, const int index)
 {
   (void) local; // argument not used
   (void) max; // argument not used
@@ -774,22 +760,21 @@ m_ser1al_str_json_write_variant_start(m_serial_local_t local, m_serial_write_t s
   int n;
   if (index >= 0) {
     M_ASSERT (index < max);
-    n = m_string_cat_printf(f, "{\"%s\":", field_name[index]);
+    n = m_string_cat_printf M_R(f, "{\"%s\":", field_name[index]);
     return n > 0 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();
   } else {
-    n = m_string_cat_printf(f, "{}");
+    n = m_string_cat_printf M_R(f, "{}");
     return n > 0 ? M_SERIAL_OK_DONE : m_core_serial_fail();
   }
 }
 
 /* End Writing a variant into the serial stream 'serial'. 
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE   m_serial_return_code_t
-m_ser1al_str_json_write_variant_end(m_serial_local_t local, m_serial_write_t serial)
+M_P(m_serial_return_code_t, m_ser1al_str_json, _write_variant_end, m_serial_local_t local, m_serial_write_t serial)
 {
   (void) local; // argument not used
   struct m_string_s *f = (struct m_string_s *)serial->data[0].p;
-  m_string_push_back(f, '}');
+  m_string_push_back M_R(f, '}');
   return M_SERIAL_OK_CONTINUE;
 }
 
@@ -933,12 +918,12 @@ m_ser1al_str_json_read_float(m_serial_read_t serial, long double *r, const size_
 /* Read from the stream 'serial' a string.
    Set 's' with the string if succeeds 
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
-M_INLINE  m_serial_return_code_t
-m_ser1al_str_json_read_string(m_serial_read_t serial, struct m_string_s *s){
+M_P(m_serial_return_code_t, m_ser1al_str_json, _read_string, m_serial_read_t serial, struct m_string_s *s)
+{
   const char **f = &serial->data[0].cstr;
   m_ser1al_str_json_skip(f);
   const char *e;
-  bool b = m_string_parse_str(s, *f, &e);
+  bool b = m_string_parse_str M_R(s, *f, &e);
   serial->data[0].cstr = e;
   return b ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }

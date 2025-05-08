@@ -20,11 +20,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include <stdio.h>
-
-#include "m-tree.h"
-
 #include "test-obj.h"
+#include "m-tree.h"
 #include "m-string.h"
 #include "coverage.h"
 
@@ -298,31 +295,26 @@ static void test_basic(void)
     tree_move_up(it2, &data);
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{0,[{-1,[{3}]},{10,[{2,[{1,[{5}]}]}]}]}]"));
-    assert(data == 0);
 
     data = 11;
     tree_move_left(it2, &data);
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{0,[{-1,[{3}]},{10,[{11},{2,[{1,[{5}]}]}]}]}]"));
-    assert(data == 0);
 
     data = 12;
     tree_move_right(it2, &data);
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{0,[{-1,[{3}]},{10,[{11},{2,[{1,[{5}]}]},{12}]}]}]"));
-    assert(data == 0);
 
     data = 13;
     tree_move_child(it2, &data);
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{0,[{-1,[{3}]},{10,[{11},{2,[{13},{1,[{5}]}]},{12}]}]}]"));
-    assert(data == 0);
 
     data = 14;
     tree_move_down(it2, &data);
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{0,[{-1,[{3}]},{10,[{11},{2,[{14,[{13},{1,[{5}]}]}]},{12}]}]}]"));
-    assert(data == 0);
 
     tree_it_set(&it, root);
     assert(tree_it_equal_p(it, root));

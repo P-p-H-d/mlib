@@ -20,25 +20,22 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include "m-buffer.h"
-
 #include "test-obj.h"
+#include "m-buffer.h"
 #include "coverage.h"
+
 START_COVERAGE
 // Define a fixed queue of unsigned int
-BUFFER_DEF(buffer_uint, unsigned int, 10, BUFFER_QUEUE|BUFFER_BLOCKING)
+BUFFER_DEF(buffer_uint, unsigned int, 10, BUFFER_QUEUE)
 QUEUE_MPMC_DEF(queue_uint, unsigned int, BUFFER_QUEUE)
 QUEUE_SPSC_DEF(squeue_uint, unsigned int, BUFFER_QUEUE)
 END_COVERAGE
 
 // Define a variable stack of float
-BUFFER_DEF(buffer_floats, float, 0, BUFFER_STACK|BUFFER_BLOCKING)
+BUFFER_DEF(buffer_floats, float, 0, BUFFER_STACK)
 
 // Define a fixed stack of char
-BUFFER_DEF(buffer_char, char, 10, BUFFER_STACK|BUFFER_UNBLOCKING)
-
-// Define a fixed queue of long long
-BUFFER_DEF(buffer_llong, long long, 16, BUFFER_QUEUE|BUFFER_THREAD_UNSAFE|BUFFER_UNBLOCKING)
+BUFFER_DEF(buffer_char, char, 10, BUFFER_STACK)
 
 // Define a buffer of complex structure.
 BUFFER_DEF(buffer_mpz, testobj_t, 32, BUFFER_QUEUE, TESTOBJ_OPLIST)
@@ -170,8 +167,7 @@ static void test_global(void)
   assert (buffer_uint_size(g_buffB) == 5);
   for(unsigned int i = 0; i < 5;i++) {
     unsigned int j;
-    bool b= buffer_uint_pop(&j, g_buffB);
-    assert(b);
+    buffer_uint_pop(&j, g_buffB);
     assert(j == i);
   }
   assert (buffer_uint_empty_p(g_buffB));
@@ -182,8 +178,7 @@ static void test_global(void)
   assert (buffer_uint_size(g_buffB) == 5);
   for(unsigned int i = 0; i < 5;i++) {
     unsigned int j;
-    bool b= buffer_uint_pop(&j, g_buffB);
-    assert(b);
+    buffer_uint_pop(&j, g_buffB);
     assert(j == i);
   }
   assert (buffer_uint_empty_p(g_buffB));
@@ -231,54 +226,23 @@ static void test_stack2(void)
   buffer_char_init(buff, 10);
   for(int i = 0; i < 10; i++) {
     c = (char) i;
-    b = buffer_char_push(buff, c);
+    b = buffer_char_push_blocking(buff, c, false);
     assert (b == true);
     assert (buffer_char_empty_p(buff) == false);
   }
-  b = buffer_char_push(buff, c);
+  b = buffer_char_push_blocking(buff, c, false);
   assert (b == false);
   assert (buffer_char_full_p(buff) == true);
   for(int i = 0; i < 10; i++) {
-    buffer_char_pop(&c, buff);
+    b = buffer_char_pop_blocking(&c, buff, false);
+    assert(b);
     assert(c == 9-i);
     assert (buffer_char_full_p(buff) == false);
   }
-  b = buffer_char_pop(&c, buff);
+  b = buffer_char_pop_blocking(&c, buff, false);
   assert (b == false);
   assert (buffer_char_empty_p(buff) == true);
   buffer_char_clear(buff);
-}
-
-static void test_no_thread(void)
-{
-  buffer_llong_t buff;
-  bool b;
-  long long c;
-  buffer_llong_init(buff, 16);
-  for(int i = 0; i < 16; i++) {
-    c = i;
-    b = buffer_llong_push(buff, c);
-    assert (b == true);
-    assert (buffer_llong_empty_p(buff) == false);
-  }
-  b = buffer_llong_push(buff, c);
-  assert (b == false);
-  assert (buffer_llong_full_p(buff) == true);
-  for(int i = 0; i < 16; i++) {
-    buffer_llong_pop(&c, buff);
-    assert(c == i);
-    assert (buffer_llong_full_p(buff) == false);
-  }
-  b = buffer_llong_pop(&c, buff);
-  assert (b == false);
-  assert (buffer_llong_empty_p(buff) == true);
-
-  b = buffer_llong_push(buff, c);
-  assert (b == true);
-  buffer_llong_reset(buff);
-  assert (buffer_llong_empty_p(buff) == true);
-  
-  buffer_llong_clear(buff);
 }
 
 static void test_emplace(void)
@@ -295,77 +259,44 @@ static void test_emplace(void)
 }
 /********************************************************************************************/
 
-/* Test intrusive shared pointer + buffer */
-#include "m-i-shared.h"
+/* Test integration shared pointer + buffer */
+#include "m-shared-ptr.h"
 
 // Tiny test structure
 typedef struct test_s {
-  ISHARED_PTR_INTERFACE(ishared_itest, struct test_s);
   char buffer[52];
   char bigbuffer[1000000];
 } test_t;
 static void test_init(test_t *p)  { memset(p->buffer, 0x00, 52); }
 static void test_clear(test_t *p) { memset(p->buffer, 0xFF, 52); }
-ISHARED_PTR_DEF(ishared_itest, test_t,
-                (INIT(test_init M_IPTR), CLEAR(test_clear M_IPTR), DEL(free)))
+SHARED_PTR_DEF(shared_test, test_t, (INIT(test_init M_IPTR), CLEAR(test_clear M_IPTR)))
 
-typedef struct test2_s {
-  ISHARED_PTR_INTERFACE(ishared_itest2, struct test_s);
-  char buffer[52];
-} test2_t;
-static inline void ishared_itest2_init_data(test2_t *d)
-{
-  memset(d->buffer, 0, sizeof (d->buffer));
-}
-ISHARED_PTR_DEF(ishared_itest2, test2_t, (INIT(API_2(ishared_itest2_init_data)), CLEAR(M_NOTHING_DEFAULT)))
-
-typedef struct test3_s {
-  ISHARED_PTR_INTERFACE(ishared_itest3, struct test_s);
-  char buffer[52];
-} test3_t;
-ISHARED_PTR_DEF(ishared_itest3, test3_t, (CLEAR(M_NOTHING_DEFAULT)))
-
-typedef struct test4_s {
-  ISHARED_PTR_INTERFACE(ishared_itest4, struct test_s);
-  char buffer[52];
-} test4_t;
-ISHARED_PTR_DEF(ishared_itest4, test4_t, (INIT(0), DEL(0), INIT(M_MEMSET_DEFAULT), CLEAR(M_NOTHING_DEFAULT)))
-
-static test_t *test_new(void)
-{
-  test_t *p = M_ASSIGN_CAST(test_t*, malloc (sizeof (test_t)));
-  assert (p != NULL);
-  test_init (p);
-  return ishared_itest_init(p);
-}
-
-BUFFER_DEF(buffer_itest, test_t *, 16, BUFFER_PUSH_INIT_POP_MOVE,
-           ISHARED_PTR_OPLIST(ishared_itest))
+BUFFER_DEF(buffer_itest, shared_test_t *, 16, BUFFER_PUSH_INIT_POP_MOVE, SHARED_PTR_OPLIST(shared_test, (INIT(1), CLEAR(1))))
 
 static buffer_itest_t comm1;
 static buffer_itest_t comm2;
 
 static void test_conso1(void *arg)
 {
-  test_t *p;
+  shared_test_t *p;
   assert (arg == NULL);
   for(int i = 0; i < 10;i++) {
     buffer_itest_pop(&p, comm1);
     for(int j = 0; j < 52; j++)
-      assert (p->buffer[j] == (char) ((j * j * 17) + j * 42 + 1));
-    ishared_itest_clear(p);
+      assert (shared_test_ref(p)->buffer[j] == (char) ((j * j * 17) + j * 42 + 1));
+    shared_test_release(p);
   }
 }
 
 static void test_conso2(void *arg)
 {
-  test_t *p;
+  shared_test_t *p;
   assert (arg == NULL);
   for(int i = 0; i < 10;i++) {
     buffer_itest_pop(&p, comm2);
     for(int j = 0; j < 52; j++)
-      assert (p->buffer[j] == (char) ((j * j * 17) + j * 42 + 1));
-    ishared_itest_clear(p);
+      assert (shared_test_ref(p)->buffer[j] == (char) ((j * j * 17) + j * 42 + 1));
+    shared_test_release(p);
   }
 }
 
@@ -373,13 +304,13 @@ static void test_prod(void *arg)
 {
   assert (arg == NULL);
   for(unsigned int i = 0; i < 10;i++) {
-    test_t *p = test_new();
+    shared_test_t *p = shared_test_new();
     for(int j = 0; j < 52; j++) {
-      p->buffer[j] = (char) ((j * j * 17) + j * 42 + 1);
+      shared_test_ref(p)->buffer[j] = (char) ((j * j * 17) + j * 42 + 1);
     }
     buffer_itest_push(comm1, p);
     buffer_itest_push(comm2, p);
-    ishared_itest_clear(p);
+    shared_test_clear(p);
   }
 }
 
@@ -582,33 +513,25 @@ static void test_spsc(void)
 
 static void test_double1(void)
 {
-  bool b;
   M_LET(buffer, BufferDouble1) {
-    b = BufferDouble1_push(buffer, 0.0);
-    assert(b);
-    b= BufferDouble1_push(buffer, 1.0);
-    assert(b);
+    BufferDouble1_push(buffer, 0.0);
+    BufferDouble1_push(buffer, 1.0);
     double d;
-    b = BufferDouble1_pop(&d, buffer);
-    assert(b);
+    BufferDouble1_pop(&d, buffer);
     assert(d == 0.0);
-    b = BufferDouble1_pop(&d, buffer);
-    assert(b);
+    BufferDouble1_pop(&d, buffer);
     assert(d == 1.0);
   }
 }
 
 static void test_double2(void)
 {
-  bool b;
   BufferDouble2 buffer;
   BufferDouble2_init(buffer, 2);
-  b = BufferDouble2_push(buffer, 0.0);
-  assert(b);
-  b= BufferDouble2_push(buffer, 1.0);
-  assert(b);
+  BufferDouble2_push(buffer, 0.0);
+  BufferDouble2_push(buffer, 1.0);
   double d;
-  b = BufferDouble2_pop(&d, buffer);
+  bool b = BufferDouble2_pop(&d, buffer);
   assert(b);
   assert(d == 0.0);
   b = BufferDouble2_pop(&d, buffer);
@@ -619,15 +542,12 @@ static void test_double2(void)
 
 static void test_double3(void)
 {
-  bool b;
   BufferDouble3 buffer;
   BufferDouble3_init(buffer, 2);
-  b = BufferDouble3_push(buffer, 0.0);
-  assert(b);
-  b= BufferDouble3_push(buffer, 1.0);
-  assert(b);
+  BufferDouble3_push(buffer, 0.0);
+  BufferDouble3_push(buffer, 1.0);
   double d;
-  b = BufferDouble3_pop(&d, buffer);
+  bool b = BufferDouble3_pop(&d, buffer);
   assert(b);
   assert(d == 0.0);
   b = BufferDouble3_pop(&d, buffer);
@@ -668,7 +588,6 @@ int main(void)
   test_global();
   test_stack();
   test_stack2();
-  test_no_thread();
   test_emplace();
   test_global_ishared();
   test_queue(1000000, 2, 2148371710223136ULL);

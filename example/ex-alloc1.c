@@ -43,12 +43,12 @@ static void my_array_free(void *ptr)
 ////////////////////////////////////////////////////////////
 
 // Allocate for single object
-# define M_MEMORY_ALLOC(type) my_alloc (sizeof (type))
-# define M_MEMORY_DEL(ptr)    my_free(ptr, sizeof *ptr)
+# define M_MEMORY_ALLOC(ctx, type) my_alloc (sizeof (type))
+# define M_MEMORY_DEL(ctx, ptr)    my_free(ptr, sizeof *ptr)
 
 // Allocate for array of objects
-# define M_MEMORY_REALLOC(type, ptr, n) my_array_alloc (sizeof (type), ptr, n)
-# define M_MEMORY_FREE(ptr)             my_array_free(ptr)
+# define M_MEMORY_REALLOC(ctx, type, ptr, o, n) my_array_alloc (sizeof (type), ptr, n)
+# define M_MEMORY_FREE(ctx, type, ptr, n)       my_array_free(ptr)
 
 #include "m-list.h"
 #include "m-array.h"

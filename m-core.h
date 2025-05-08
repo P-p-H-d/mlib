@@ -70,8 +70,8 @@
 
 /* Define M*LIB version */
 #define M_CORE_VERSION_MAJOR 0
-#define M_CORE_VERSION_MINOR 7
-#define M_CORE_VERSION_PATCHLEVEL 4
+#define M_CORE_VERSION_MINOR 8
+#define M_CORE_VERSION_PATCHLEVEL 0
 
 /* M_ASSUME is equivalent to M_ASSERT, but gives hints to compiler
    about how to optimize the code if NDEBUG is defined.
@@ -363,48 +363,122 @@ M_BEGIN_PROTECTED_CODE
    explicit cast) */
 
 /* Define allocators for object:
- * void *M_MEMORY_ALLOC(type): Return a pointer to a new object of type 'type'
+ * void *M_MEMORY_ALLOC(ctx, type): 
+ *    Return a pointer to a new object of type 'type'
  *    It returns NULL in case of memory allocation failure.
- * void M_MEMORY_DEL(ptr): Free the object associated to the pointer.
+ * void M_MEMORY_DEL(ctx, ptr): 
+ *    Free the object associated to the pointer.
+ * By default, 'context' does nothing.
+ * 'context' is the context parameter given to the memory functions to identify where to create the object.
+ * It exists only if M_USE_CONTEXT has been globally defined.
  */
 #ifndef M_MEMORY_ALLOC
 #ifdef __cplusplus
 # include <cstdlib>
-# define M_MEMORY_ALLOC(type) ((type*)std::malloc (sizeof (type)))
-# define M_MEMORY_DEL(ptr)  std::free(ptr)
+# define M_MEMORY_ALLOC(ctx, type) ((type*)std::malloc (sizeof (type)))
+# define M_MEMORY_DEL(ctx, ptr)  std::free(ptr)
 #else
-# define M_MEMORY_ALLOC(type) malloc (sizeof (type))
-# define M_MEMORY_DEL(ptr)  free(ptr)
+# define M_MEMORY_ALLOC(ctx, type) malloc (sizeof (type))
+# define M_MEMORY_DEL(ctx, ptr)  free(ptr)
 #endif
 #endif
 
 /* Define allocators for array 
- * void *M_MEMORY_REALLOC(type, ptr, n): Return a pointer to a new array of 'n' object of type 'type'
- *    If ptr is NULL, it creates a new array.
- *    If ptr is not null, it reallocates the given array to the new size.
+ * void *M_MEMORY_REALLOC(context, type, ptr, o, n, perm):
+ *    Return a pointer to a new array of 'n' object of type 'type'.
+ *    If ptr is NULL, it creates a new array of type 'type' and size 'n'
+ *    If ptr is not null, it reallocates the given array of type 'type' and size 'o' to the new size.
  *    It returns NULL in case of memory allocation failure.
- * void M_MEMORY_FREE(ptr): Free the object associated to the array.
+ * void M_MEMORY_FREE(type, ptr, o):
+ *    Free the object associated to the array of type 'type' at base 'ptr' of size 'o'.
+ * By default, 'o' size and 'context' do nothing.
+ * 'context' is the context parameter given to the memory functions to identify where to create the object.
+ * It exists only if M_USE_CONTEXT has been globally defined.
  */
 #ifndef M_MEMORY_REALLOC
 #ifdef __cplusplus
 # include <cstdlib>
-# define M_MEMORY_REALLOC(type, ptr, n)                                       \
+# define M_MEMORY_REALLOC(ctx, type, ptr, o, n)                               \
   ((type*) (M_UNLIKELY ((n) > SIZE_MAX / sizeof(type)) ? NULL : std::realloc ((ptr), (n)*sizeof (type))))
-# define M_MEMORY_FREE(ptr) std::free(ptr)
+# define M_MEMORY_FREE(ctx, type, ptr, o) std::free(ptr)
 #else
-# define M_MEMORY_REALLOC(type, ptr, n) (M_UNLIKELY ((n) > SIZE_MAX / sizeof(type)) ? NULL : realloc ((ptr), (n)*sizeof (type)))
-# define M_MEMORY_FREE(ptr) free(ptr)
+# define M_MEMORY_REALLOC(ctx, type, ptr, o, n) (M_UNLIKELY ((n) > SIZE_MAX / sizeof(type)) ? NULL : realloc ((ptr), (n)*sizeof (type)))
+# define M_MEMORY_FREE(ctx, type, ptr, o) free(ptr)
 #endif
 #endif
 
 /* This macro is called on memory allocation failure.
- * By default, it raises a fatal error.
+ * By default, it raises a fatal error and abort execution.
+ * It shall never continue execution.
  * NOTE: Can be overloaded by user code.
 */
 #ifndef M_MEMORY_FULL
-#define M_MEMORY_FULL(size)                                                   \
-  M_RAISE_FATAL("Cannot allocate %zu bytes of memory at (%s:%s:%d).\n",       \
-                (size_t) (size), __FILE__, __func__, __LINE__)
+#define M_MEMORY_FULL(type, number)                                           \
+  M_RAISE_FATAL("Cannot allocate %zu objects of type '%s' (size '%zu') at (%s:%s:%d).\n", \
+                (size_t) (number), M_AS_STR(type), sizeof (type),             \
+                __FILE__, __func__, __LINE__)
+#endif
+
+
+// Default global memory context is to consider the global context as '0' if it is not defined.
+#ifndef M_USE_GLOBAL_CONTEXT
+#define M_USE_GLOBAL_CONTEXT 0
+#endif
+
+/* In order to support local context for memory functions, the prototypes and usages of some functions are modified
+ * so that they can accept a first argument 'm_context' which is the memory context parameter.
+ *
+ * For some functions, there is no meaning of a local memory context parameter:
+ * for all data shared between threads, only a global memory context has any meaning.
+ * For such cases, the memory context parameter is globally requested to the user through M_USE_GLOBAL_POOL or set to 0.
+ *
+ * This is controlled through M_USE_CONTEXT parameter that define the type of the memory context parameter
+ * to be used globally for all M*LIB. There is no possibility to support only some containers and not others.
+ *
+ * Several macros are defined **globally** to support such features and being internally used by M*LIB containers.
+ * They expand to nothing if the memory context parameter is not requested:
+ * * M_P_EXPAND: expand to the first parameter 'm_context' of type M_USE_CONTEXT for a function that may use memory context.
+ * * M_P_EXPAND_void: same but assume that there is no argument in the initial function.
+ * * M_R_EXPAND: expand to the first parameter 'm_context' (followed by a comma)
+ * * M_R_EXPAND_void: same but assume that there is no argument
+ * * M_R: add the parameter m_context to the function call if needed,
+ * * M_P: define the prototype of a function that may have the parameter m_context.
+ * * M_N: define the prototype of a function that don't need the parameter m_context.
+ * * M_UNUSED_CONTEXT: avoid warning of unused m_context argument
+ * * M_GLOBAL_CONTEXT: define m_context to zero, meaning it is a global memory context.
+ */
+#ifndef M_USE_CONTEXT
+// Memory context parameter not used for memory function.
+# define M_P_EXPAND
+# define M_P_EXPAND_void void
+# define M_R_EXPAND
+# define M_R_EXPAND_void
+# define M_R
+# define M_UNUSED_CONTEXT()
+# define M_GLOBAL_CONTEXT()
+#else
+// Memory context parameter is used for function using memory. (local definition to the function).
+// Expand to a prototype to a function that may not trigger exception
+# define M_P_EXPAND M_USE_CONTEXT m_context, 
+# define M_P_EXPAND_void M_USE_CONTEXT m_context
+# define M_R_EXPAND m_context ,
+# define M_R_EXPAND_void m_context
+# define M_R(...) (m_context, __VA_ARGS__)
+# define M_UNUSED_CONTEXT() (void) m_context
+# define M_GLOBAL_CONTEXT() M_USE_CONTEXT m_context = { M_USE_GLOBAL_CONTEXT }; (void) m_context
+#endif
+
+// M_P: Expand to a prototype of a function that may trigger exception / accept memory context
+// M_N: Expand to a prototype of a function that may not trigger exception or accept memory context
+// If not user defined M_F or memory context, no overloaded M_INLINE,
+// simplify the definition of M_P/M_N to provide faster compile time.
+// (faster build: 0.54s instead of 0.80s in extreme expanding)
+#if !defined(M_USE_CONTEXT) && !defined(M_F) && !defined(M_USE_FINE_GRAINED_LINKAGE) && !defined(M_USE_DEF) && !defined(M_USE_DECL)
+# define M_P(rettype, name, suffix, ...) static inline rettype name ## suffix(__VA_ARGS__)
+# define M_N(rettype, name, suffix, ...) static inline rettype name ## suffix(__VA_ARGS__)
+#else
+# define M_P(rettype, name, suffix, ...) M_INLINE rettype M_F(name, suffix)(M_P_EXPAND __VA_ARGS__)
+# define M_N(rettype, name, suffix, ...) M_INLINE rettype M_F(name, suffix)(__VA_ARGS__)
 #endif
 
 
@@ -439,6 +513,7 @@ M_BEGIN_PROTECTED_CODE
  * NOTE: Can be overriden by user if it needs to keep finer access 
  * on the assertions.
  */
+//TODO: If NDEBUG, simply do nothing "no expression", to speed up compilation speed.
 #ifndef M_ASSERT
 #define M_ASSERT(expr) assert(expr)
 #endif
@@ -449,6 +524,7 @@ M_BEGIN_PROTECTED_CODE
  * NOTE: Can be overriden by user if it needs to keep finer access 
  * on the assertions.
  */
+//TODO: If NDEBUG, simply do nothing "no expression", to speed up compilation speed.
 #ifndef M_ASSERT_SLOW
 # if defined(M_USE_ADDITIONAL_CHECKS) && M_USE_ADDITIONAL_CHECKS
 #  define M_ASSERT_SLOW(n) assert(n)
@@ -2771,7 +2847,7 @@ M_INLINE char m_core_str_nospace(const char **str)
 
 /* Transform a C variable into a m_string_t (needs m-string.h) */
 #define M_GET_STRING_ARG(str, x, append)                                      \
-  (append ? m_string_cat_printf : m_string_printf) (str, M_PRINTF_FORMAT(x), M_CORE_PRINTF_ARG(x))
+  (append ? m_string_cat_printf : m_string_printf) M_R(str, M_PRINTF_FORMAT(x), M_CORE_PRINTF_ARG(x))
 
 /* No use of GET_STR if no inclusion of m-string */
 #define M_GET_STR_METHOD_FOR_DEFAULT_TYPE /* */
@@ -3455,8 +3531,6 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_X_DEL_DEL(a)             ,a,
 #define M_X_REALLOC_REALLOC(a)     ,a,
 #define M_X_FREE_FREE(a)           ,a,
-#define M_X_MEMPOOL_MEMPOOL(a)     ,a,
-#define M_X_MEMPOOL_LINKAGE_MEMPOOL_LINKAGE(a)     ,a,
 #define M_X_SIZE_SIZE(a)           ,a,
 #define M_X_CONTEXT_CONTEXT(a)     ,a,
 #define M_X_POLICY_POLICY(a)       ,a,
@@ -3476,7 +3550,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 /* Get the given method */
 #define M_GET_INIT(...)      M_GET_METHOD(INIT,        M_INIT_DEFAULT,     __VA_ARGS__)
 #define M_GET_INIT_SET(...)  M_GET_METHOD(INIT_SET,    M_SET_DEFAULT,      __VA_ARGS__)
-#define M_GET_INIT_MOVE(...) M_GET_METHOD(INIT_MOVE,   M_NO_DEF_INIT_MOVE, __VA_ARGS__)
+#define M_GET_INIT_MOVE(...) M_GET_METHOD(INIT_MOVE,   M_SET_DEFAULT,     __VA_ARGS__)
 #define M_GET_INIT_WITH(...) M_GET_METHOD(INIT_WITH,   M_NO_DEF_INIT_WITH, __VA_ARGS__)
 #define M_GET_SET(...)       M_GET_METHOD(SET,         M_SET_DEFAULT,      __VA_ARGS__)
 #define M_GET_MOVE(...)      M_GET_METHOD(MOVE,        M_NO_DEF_MOVE,      __VA_ARGS__)
@@ -3544,12 +3618,10 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_GET_PROPERTIES(...) M_GET_METHOD(PROPERTIES, (),                 __VA_ARGS__)
 #define M_GET_EMPLACE_TYPE(...) M_GET_METHOD(EMPLACE_TYPE,             ,   __VA_ARGS__)
 // As attribute customization
-#define M_GET_NEW(...)       M_GET_METHOD(NEW,         M_NEW_DEFAULT,      __VA_ARGS__)
-#define M_GET_DEL(...)       M_GET_METHOD(DEL,         M_DEL_DEFAULT,      __VA_ARGS__)
-#define M_GET_REALLOC(...)   M_GET_METHOD(REALLOC,     M_REALLOC_DEFAULT,  __VA_ARGS__)
-#define M_GET_FREE(...)      M_GET_METHOD(FREE,        M_FREE_DEFAULT,     __VA_ARGS__)
-#define M_GET_MEMPOOL(...)   M_GET_METHOD(MEMPOOL,     M_NO_DEF_MEMPOOL,   __VA_ARGS__)
-#define M_GET_MEMPOOL_LINKAGE(...)   M_GET_METHOD(MEMPOOL_LINKAGE, ,       __VA_ARGS__)
+#define M_GET_NEW(...)       M_GET_METHOD(NEW,         M_MEMORY_ALLOC,     __VA_ARGS__)
+#define M_GET_DEL(...)       M_GET_METHOD(DEL,         M_MEMORY_DEL,       __VA_ARGS__)
+#define M_GET_REALLOC(...)   M_GET_METHOD(REALLOC,     M_MEMORY_REALLOC,   __VA_ARGS__)
+#define M_GET_FREE(...)      M_GET_METHOD(FREE,        M_MEMORY_FREE,      __VA_ARGS__)
 #define M_GET_SIZE(...)      M_GET_METHOD(SIZE,        0,                  __VA_ARGS__)
 #define M_GET_CONTEXT(...)   M_GET_METHOD(CONTEXT,     0,                  __VA_ARGS__)
 #define M_GET_POLICY(...)    M_GET_METHOD(POLICY,      0,                  __VA_ARGS__)
@@ -3564,7 +3636,6 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_CALL_MOVE(oplist, ...) M_APPLY_API(M_GET_MOVE oplist, oplist, __VA_ARGS__)
 #define M_CALL_SWAP(oplist, ...) M_APPLY_API(M_GET_SWAP oplist, oplist, __VA_ARGS__)
 #define M_CALL_CLEAR(oplist, ...) M_APPLY_API(M_GET_CLEAR oplist, oplist, __VA_ARGS__)
-#define M_CALL_NEW(oplist, ...) M_APPLY_API(M_GET_NEW oplist, oplist, __VA_ARGS__)
 #define M_CALL_HASH(oplist, ...) M_APPLY_API(M_GET_HASH oplist, oplist, __VA_ARGS__)
 #define M_CALL_EQUAL(oplist, ...) M_APPLY_API(M_GET_EQUAL oplist, oplist, __VA_ARGS__)
 #define M_CALL_CMP(oplist, ...) M_APPLY_API(M_GET_CMP oplist, oplist, __VA_ARGS__)
@@ -3622,12 +3693,11 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_CALL_OOR_EQUAL(oplist, ...) M_APPLY_API(M_GET_OOR_EQUAL oplist, oplist, __VA_ARGS__)
 //#define M_CALL_PROPERTIES(oplist, ...) M_APPLY_API(M_GET_PROPERTIES oplist, oplist, __VA_ARGS__)
 //#define M_CALL_EMPLACE_TYPE(oplist, ...) M_APPLY_API(M_GET_EMPLACE_TYPE oplist, oplist, __VA_ARGS__)
-// As attribute customization
-#define M_CALL_DEL(oplist, ...) M_APPLY_API(M_GET_DEL oplist, oplist, __VA_ARGS__)
-#define M_CALL_REALLOC(oplist, ...) M_APPLY_API(M_GET_REALLOC oplist, oplist, __VA_ARGS__)
-#define M_CALL_FREE(oplist, ...) M_APPLY_API(M_GET_FREE oplist, oplist, __VA_ARGS__)
-#define M_CALL_MEMPOOL(oplist, ...) M_APPLY_API(M_GET_MEMPOOL oplist, oplist, __VA_ARGS__)
-#define M_CALL_MEMPOOL_LINKAGE(oplist, ...) M_APPLY_API(M_GET_MEMPOOL_LINKAGE oplist, oplist, __VA_ARGS__)
+// m_context is always added here!
+#define M_CALL_NEW(oplist, ...) M_APPLY_API(M_GET_NEW oplist, oplist, m_context, __VA_ARGS__)
+#define M_CALL_DEL(oplist, ...) M_APPLY_API(M_GET_DEL oplist, oplist, m_context, __VA_ARGS__)
+#define M_CALL_REALLOC(oplist, ...) M_APPLY_API(M_GET_REALLOC oplist, oplist, m_context, __VA_ARGS__)
+#define M_CALL_FREE(oplist, ...) M_APPLY_API(M_GET_FREE oplist, oplist, m_context, __VA_ARGS__)
 //#define M_CALL_SIZE(oplist, ...) M_APPLY_API(M_GET_SIZE oplist, oplist, __VA_ARGS__)
 //#define M_CALL_CONTEXT(oplist, ...) M_APPLY_API(M_GET_CONTEXT oplist, oplist, __VA_ARGS__)
 //#define M_CALL_POLICY(oplist, ...)  M_APPLY_API(M_GET_POLICY oplist, oplist, __VA_ARGS__)
@@ -3661,6 +3731,14 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_OPLAPI_5(method, oplist, x, ...)   , x = M_DELAY3(method)(oplist, __VA_ARGS__)
 #define M_OPLAPI_6(method, oplist, x, ...)   , M_DELAY3(method)(&x, &__VA_ARGS__)
 #define M_OPLAPI_7(method, oplist, x, ...)   , M_DELAY3(method)(oplist, &x, &__VA_ARGS__)
+#define M_OPLAPI_0P(method, oplist, ...)      , M_DELAY3(method)(m_context, __VA_ARGS__)
+#define M_OPLAPI_1P(method, oplist, ...)      , M_DELAY3(method)(oplist, m_context, __VA_ARGS__)
+#define M_OPLAPI_2P(method, oplist, ...)      , M_DELAY3(method)(m_context, & __VA_ARGS__)
+#define M_OPLAPI_3P(method, oplist, ...)      , M_DELAY3(method)(oplist, m_context, &__VA_ARGS__)
+#define M_OPLAPI_4P(method, oplist, x, ...)   , x = M_DELAY3(method)(m_context, __VA_ARGS__)
+#define M_OPLAPI_5P(method, oplist, x, ...)   , x = M_DELAY3(method)(oplist, m_context, __VA_ARGS__)
+#define M_OPLAPI_6P(method, oplist, x, ...)   , M_DELAY3(method)(m_context, &x, &__VA_ARGS__)
+#define M_OPLAPI_7P(method, oplist, x, ...)   , M_DELAY3(method)(oplist, m_context, &x, &__VA_ARGS__)
 /* API transformation support for indirection */
 #define M_OPLAPI_INDIRECT_0          M_OPLAPI_ERROR
 #define M_OPLAPI_INDIRECT_API_0(...) M_OPLAPI_0
@@ -3679,6 +3757,22 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_OPLAPI_EXTRACT_API_6(...)  __VA_ARGS__
 #define M_OPLAPI_INDIRECT_API_7(...) M_OPLAPI_7
 #define M_OPLAPI_EXTRACT_API_7(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_0P(...) M_OPLAPI_0P
+#define M_OPLAPI_EXTRACT_API_0P(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_1P(...) M_OPLAPI_1P
+#define M_OPLAPI_EXTRACT_API_1P(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_2P(...) M_OPLAPI_2P
+#define M_OPLAPI_EXTRACT_API_2P(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_3P(...) M_OPLAPI_3P
+#define M_OPLAPI_EXTRACT_API_3P(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_4P(...) M_OPLAPI_4P
+#define M_OPLAPI_EXTRACT_API_4P(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_5P(...) M_OPLAPI_5P
+#define M_OPLAPI_EXTRACT_API_5P(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_6P(...) M_OPLAPI_6P
+#define M_OPLAPI_EXTRACT_API_6P(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_7P(...) M_OPLAPI_7P
+#define M_OPLAPI_EXTRACT_API_7P(...)  __VA_ARGS__
 
 
 /* Generic API transformation.
@@ -3776,7 +3870,6 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
   "The " #operator " operator has no method associated in the given OPLIST."),\
   (return_type) 0)
 
-#define M_NO_DEF_INIT_MOVE(...)   M_NO_DEFAULT(INIT_MOVE, void)
 #define M_NO_DEF_INIT_WITH(...)   M_NO_DEFAULT(INIT_WITH, void)
 #define M_NO_DEF_MOVE(...)        M_NO_DEFAULT(MOVE, void)
 #define M_NO_DEF_SWAP(...)        M_NO_DEFAULT(SWAP, void)
@@ -3817,7 +3910,6 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_NO_DEF_IN_SERIAL(...)   M_NO_DEFAULT(IN_SERIAL, m_serial_return_code_t)
 #define M_NO_DEF_OOR_SET(...)     M_NO_DEFAULT(OOR_SET, void)
 #define M_NO_DEF_OOR_EQUAL(...)   M_NO_DEFAULT(OOR_EQUAL, bool)
-#define M_NO_DEF_MEMPOOL(...)     M_NO_DEFAULT(MEMPOOL, void)
 
 /* Create a type with an invalid static assertion.
    Creating a type allowed the macro into something not too bad
@@ -3940,10 +4032,6 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_EMPTY_DEFAULT(...)    ((void)1)
 #define M_TRUE_DEFAULT(...)     true
 #define M_FALSE_DEFAULT(...)    false
-#define M_NEW_DEFAULT(a)        M_MEMORY_ALLOC(a)
-#define M_DEL_DEFAULT(a)        M_MEMORY_DEL(a)
-#define M_REALLOC_DEFAULT(t,p,s) M_MEMORY_REALLOC(t,p,s)
-#define M_FREE_DEFAULT(a)       M_MEMORY_FREE(a)
 #define M_EQUAL_DEFAULT(a,b)    ((a) == (b))
 #define M_CMP_DEFAULT(a,b)      ((a) < (b) ? -1 : (a) > (b))
 #define M_ADD_DEFAULT(a,b,c)    ((a) = (b) + (c))
@@ -3965,9 +4053,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 /* NOTE: Theses operators are NOT compatible with the '[1]' tricks
    if the variable is defined as a parameter of a function
    (sizeof (a) is not portable). */
-#define M_MOVE_DEFAULT(a,b)     (M_CHECK_SAME(a, b), M_MEMCPY_DEFAULT(a, b), memset(&(b), 0, sizeof (a)))
-#define M_MEMCPY_DEFAULT(a,b)   (M_CHECK_SAME(a, b), memcpy(&(a), &(b), sizeof (a)))
-#define M_MEMSET_DEFAULT(a)     (memset(&(a), 0, sizeof (a)))
+#define M_RESET_DEFAULT(a)      (memset(&(a), 0, sizeof (a)))
 #define M_MEMCMP1_DEFAULT(a,b)  (M_CHECK_SAME(a, b), memcmp(&(a), &(b), sizeof (a)) == 0)
 #define M_MEMCMP2_DEFAULT(a,b)  (M_CHECK_SAME(a, b), memcmp(&(a), &(b), sizeof (a)))
 #define M_SWAP_DEFAULT(el1, el2) do {                                         \
@@ -3978,28 +4064,35 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
     memcpy(&(el2), &_tmp, sizeof (el1));                                      \
   } while (0)
 
+/* Default oplist for plain structure */
+#define M_POD_OPLIST                                                          \
+  (INIT(M_RESET_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT), \
+   EQUAL(M_MEMCMP1_DEFAULT), CMP(M_MEMCMP2_DEFAULT), HASH(M_HASH_POD_DEFAULT), SWAP(M_SWAP_DEFAULT), \
+   INIT_MOVE(M_SET_DEFAULT) )
+
+
 /* NOTE: Theses operators are to be used with the '[1]' tricks
    if the variable is defined as a parameter of a function
    (sizeof (a) is not portable). */
-#define M_MOVE_A1_DEFAULT(a,b)     (M_CHECK_SAME(a[0], b[0]), M_MEMCPY_A1_DEFAULT(a, b), M_MEMSET_A1_DEFAULT(b))
-#define M_MEMCPY_A1_DEFAULT(a,b)   (M_CHECK_SAME(a[0], b[0]), memcpy(&(a[0]), &(b[0]), sizeof (a[0])))
-#define M_MEMSET_A1_DEFAULT(a)     (memset(&(a[0]), 0, sizeof (a[0])))
+#define M_COPY_A1_DEFAULT(a,b)   (M_CHECK_SAME(a[0], b[0]), memcpy(&(a[0]), &(b[0]), sizeof (a[0])))
+#define M_RESET_A1_DEFAULT(a)      (memset(&(a[0]), 0, sizeof (a[0])))
 #define M_MEMCMP1_A1_DEFAULT(a,b)  (M_CHECK_SAME(a[0],b[0]), memcmp(&(a[0]), &(b[0]), sizeof (a[0])) == 0)
 #define M_MEMCMP2_A1_DEFAULT(a,b)  (M_CHECK_SAME(a[0], b[0]), memcmp(&(a[0]), &(b[0]), sizeof (a[0])))
 #define M_HASH_A1_DEFAULT(a)       (m_core_hash((const void*) &(a[0]), sizeof (a[0])) )
+#define M_SWAP_A1_DEFAULT(a, b) do {                                          \
+  char _tmp[sizeof (a[0])];                                                   \
+  M_CHECK_SAME(a[0], b[0]);                                                   \
+  memcpy(&_tmp, &(a[0]), sizeof (a[0]));                                      \
+  memcpy(&(a[0]), &(b[0]), sizeof (a[0]));                                    \
+  memcpy(&(b[0]), &_tmp, sizeof (a[0]));                                      \
+} while (0)
 
-/* Default oplist for plain structure */
-#define M_POD_OPLIST                                                          \
-  (INIT(M_MEMSET_DEFAULT), INIT_SET(M_MEMCPY_DEFAULT), SET(M_MEMCPY_DEFAULT), \
-   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_MEMCMP1_DEFAULT), CMP(M_MEMCMP2_DEFAULT), \
-   HASH(M_HASH_POD_DEFAULT), SWAP(M_SWAP_DEFAULT))
-
-
-/* Default oplist for a structure defined with an array of size 1 */
+/* Default oplist for a structure defined with an array of size 1.
+   MOVE operator is not defined since the object may need to release some data */
 #define M_A1_OPLIST                                                           \
-  (INIT(M_MEMSET_A1_DEFAULT), INIT_SET(M_MEMCPY_A1_DEFAULT), SET(M_MEMCPY_A1_DEFAULT), \
-   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_MEMCMP1_A1_DEFAULT), CMP(M_MEMCMP2_A1_DEFAULT), \
-   HASH(M_HASH_A1_DEFAULT))
+  (INIT(M_RESET_A1_DEFAULT), INIT_SET(M_COPY_A1_DEFAULT), SET(M_COPY_A1_DEFAULT), CLEAR(M_NOTHING_DEFAULT), \
+   EQUAL(M_MEMCMP1_A1_DEFAULT), CMP(M_MEMCMP2_A1_DEFAULT), HASH(M_HASH_A1_DEFAULT), SWAP(M_SWAP_A1_DEFAULT), \
+   INIT_MOVE(M_COPY_A1_DEFAULT) )
 
 
 /* Oplist for a type that does nothing and shall not be instanciated */
@@ -4024,7 +4117,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #  define M_BASIC_OPLIST                                                      \
   (INIT(M_INIT_BASIC), INIT_SET(M_SET_BASIC), SET(M_SET_BASIC),               \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_BASIC), CMP(M_CMP_BASIC),          \
-   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
+   INIT_MOVE(M_SET_DEFAULT), MOVE(M_SET_DEFAULT) ,                            \
    RESET(M_INIT_BASIC), PROPERTIES( (NOCLEAR(1)) ),                           \
    ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
    MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
@@ -4037,7 +4130,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #   define M_BASIC_OPLIST                                                     \
   (INIT(M_INIT_BASIC), INIT_SET(M_SET_BASIC), SET(M_SET_BASIC),               \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_BASIC), CMP(M_CMP_BASIC),          \
-   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
+   INIT_MOVE(M_SET_DEFAULT), MOVE(M_SET_DEFAULT) ,                            \
    RESET(M_INIT_BASIC), PROPERTIES( (NOCLEAR(1)) ),                           \
    ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
    MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
@@ -4050,7 +4143,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 # define M_BASIC_OPLIST                                                       \
   (INIT(M_INIT_BASIC), INIT_SET(M_SET_BASIC), SET(M_SET_BASIC),               \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_BASIC), CMP(M_CMP_BASIC),          \
-   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
+   INIT_MOVE(M_SET_DEFAULT), MOVE(M_SET_DEFAULT) ,                            \
    RESET(M_INIT_BASIC), PROPERTIES( (NOCLEAR(1)) ),                           \
    ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
    MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
@@ -4081,7 +4174,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
   (INIT(API_1(M_ENUM_INIT)), INIT_SET(M_SET_DEFAULT),                         \
    SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT),                              \
    EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),                                \
-   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
+   INIT_MOVE(M_SET_DEFAULT), MOVE(M_SET_DEFAULT) ,                            \
    HASH(M_HASH_POD_DEFAULT), SWAP(M_SWAP_DEFAULT),                            \
    TYPE(type), OPLIST(init),                                                  \
    IN_STR(API_1(M_ENUM_FSCAN)), OUT_STR(M_ENUM_FPRINT),                       \
@@ -4094,7 +4187,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
   (INIT(API_1(M_ENUM_INIT)), INIT_SET(M_SET_DEFAULT),                         \
    SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT),                              \
    EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),                                \
-   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
+   INIT_MOVE(M_SET_DEFAULT), MOVE(M_SET_DEFAULT) ,                            \
    HASH(M_HASH_POD_DEFAULT), SWAP(M_SWAP_DEFAULT),                            \
    TYPE(type), OPLIST(init),                                                  \
    IN_SERIAL(API_1(M_ENUM_IN_SERIAL)), OUT_SERIAL(M_ENUM_OUT_SERIAL),         \
@@ -4149,7 +4242,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_ENUM_IN_SERIAL(oplist, var, serial)                                 \
   ( var = (M_GET_TYPE oplist)(true ? m_core_in_serial_enum(serial) : 0), (serial)->tmp.r)
 #define M_ENUM_GET_STR(str, var, append)                                      \
-  ((append ? m_string_cat_printf : m_string_printf) (str, "%lld", (long long) (var) ))
+  ((append ? m_string_cat_printf : m_string_printf) M_R(str, "%lld", (long long) (var) ))
 #define M_ENUM_PARSE(oplist, var, str, endptr)                                \
   ( var = (M_GET_TYPE oplist) (true ? m_core_parse1_enum(str) : 0), m_core_parse2_enum(str, endptr))
 
@@ -4157,32 +4250,29 @@ m_core_parse2_enum (const char str[], const char **endptr)
 /* Default oplist for standard types of pointers.
  */
 #define M_PTR_OPLIST                                                          \
-  (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),         \
-   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT),                          \
-   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
-   SWAP(M_SWAP_DEFAULT)                         )
+  (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT), \
+   EQUAL(M_EQUAL_DEFAULT), SWAP(M_SWAP_DEFAULT)                               \
+   INIT_MOVE(M_SET_DEFAULT), MOVE(M_SET_DEFAULT) )
 
 
-/* Default oplist for complex objects with "classic" names for methods.
+/* Default oplist for complex objects (using [1] trick) with "classic" names for methods.
  */
 #define M_CLASSIC_OPLIST(name) (                                              \
-  INIT(M_F(name, _init)),                                                     \
-  INIT_SET(M_F(name, _init_set)),                                             \
-  SET(M_F(name, _set)),                                                       \
-  CLEAR(M_F(name, _clear)),                                                   \
-  TYPE(M_F(name, _t)) )
+  INIT(M_F(name, _init)), INIT_SET(M_F(name, _init_set)), SET(M_F(name, _set)), CLEAR(M_F(name, _clear)), \
+  INIT_MOVE(M_COPY_A1_DEFAULT), TYPE(M_F(name, _t)) )
 
 
-/* OPLIST for 'const char *' string (with NO memory allocation).
+/* Default oplist for 'const char *' string (with NO memory allocation).
  */
 #define M_CSTR_EQUAL(a,b) (strcmp((a),(b)) == 0)
 #define M_CSTR_OUT_STR(file, str) fprintf(file, "%s", str)
-#define M_CSTR_OPLIST (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT),         \
-                       SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT),          \
-                       HASH(m_core_cstr_hash), EQUAL(M_CSTR_EQUAL),           \
-                       CMP(strcmp), TYPE(const char *),                       \
-                       OUT_STR(M_CSTR_OUT_STR) )
+#define M_CSTR_OPLIST                                                         \
+  (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT), \
+   HASH(m_core_cstr_hash), EQUAL(M_CSTR_EQUAL), CMP(strcmp), SWAP(M_SWAP_DEFAULT), \
+   INIT_MOVE(M_SET_DEFAULT), MOVE(M_SET_DEFAULT), TYPE(const char *),         \
+   OUT_STR(M_CSTR_OUT_STR) )
 
+/****************************************************************************/
 
 /* From an oplist (...) return ... (Like M_ID but for OPLIST) */
 #define M_OPFLAT(...)     __VA_ARGS__
@@ -4266,13 +4356,6 @@ m_core_parse2_enum (const char str[], const char **endptr)
 /* By putting this after a method in an oplist, we transform the argument list
    so that the first argument becomes a pointer to the destination (OBSOLETE MACRO) */
 #define M_IPTR(...) ( & __VA_ARGS__ )
-
-/* Perform an INIT_MOVE if present, or emulate it using INIT_SET/CLEAR */
-#define M_DO_INIT_MOVE(oplist, dest, src) do {                                \
-    M_IF_METHOD(INIT_MOVE, oplist)(M_CALL_INIT_MOVE(oplist, (dest), (src)),   \
-                                   M_CALL_INIT_SET(oplist, (dest), (src)) ;   \
-                                   M_CALL_CLEAR(oplist, (src) ));             \
-  } while (0)
 
 /* Perform a MOVE if present, or emulate it using CLEAR/INIT_MOVE
    if possible, or with SET/CLEAR otherwise                            */
@@ -4422,7 +4505,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
   M_IF_OPLIST(oplist)(M_LETI3, M_LETI2_FAILURE)(cont, oplist, __VA_ARGS__)
 // Stop with a failure (invalid oplist)
 #define M_LETI2_FAILURE(cont, oplist, ...)                                    \
-  M_STATIC_ASSERT(false, M_LIB_NOT_AN_OPLIST, "(M_LET): the given argument is not a valid oplist: " M_AS_STR(oplist))
+  M_STATIC_ASSERT(false, M_LIB_NOT_AN_OPLIST, "the last argument of M_LET is not a valid oplist or a registered type: " M_AS_STR(oplist))
 // 4. Map all variables to their own LET
 #define M_LETI3(cont, oplist, ...)                                            \
   for(bool cont = true; cont ; /* unused */)                                  \
@@ -4526,7 +4609,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
       for( init; cont ; cont = false)                                         \
         M_DEFER_TRY_INJECT_POST(cont, clear)                                  \
           for( (void) 0; cont; cont = false)
-
+  
 
 /* If exceptions are activated, M_CHAIN_OBJ enables support for chaining
   initialization at the begining of a constructor for the fields of the constructed
@@ -4656,12 +4739,12 @@ m_core_parse2_enum (const char str[], const char **endptr)
    so it reverses the final order.
 */
 #define M_INIT_VAI(oplist, dest, ...)                                         \
-  (void)(M_GET_INIT oplist (dest) ,                                           \
-         M_MAP2_C(M_INIT_VAI_FUNC, (dest, M_GET_PUSH oplist) , __VA_ARGS__)   \
-         M_IF_METHOD(REVERSE, oplist)(M_DEFERRED_COMMA M_GET_REVERSE oplist (dest), ) \
+  (void)(M_CALL_INIT(oplist, dest) ,                                          \
+         M_MAP2_C(M_INIT_VAI_FUNC, (dest, oplist) , __VA_ARGS__)              \
+         M_IF_METHOD(REVERSE, oplist)(M_DEFERRED_COMMA M_CALL_REVERSE(oplist, dest), ) \
          )
 #define M_INIT_VAI_FUNC(d, a)                                                 \
-  M_PAIR_2 d (M_PAIR_1 d, a)
+  M_CALL_PUSH(M_PAIR_2 d, M_PAIR_1 d, a)
 
 
 /* Initialize the container 'dest' as per 'oplist' INIT operator
@@ -5010,11 +5093,11 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF(isSet, name, name_t, key_oplist, val_oplist) \
   M_ID( M_C(M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF, isSet)(name, name_t, key_oplist, val_oplist) )
 #define M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF0(name, name_t, key_oplist, val_oplist) \
-  M_EMPLACE_ASS_ARRAY_DEF(name, name_t, M_F(name, _emplace), key_oplist, val_oplist, M_EMPLACE_ASS_ARRA1_BOTH_GENE, M_EMPLACE_ASS_ARRA1_KEY_GENE, M_EMPLACE_ASS_ARRA1_VAL_GENE) \
-  M_EMPLACE_QUEUE_DEF(name, name_t, M_F(name, _get_emplace), key_oplist, M_EMPLACE_GET_GENE)
+  M_EMPLACE_ASS_ARRAY_DEF(name, name_t, _emplace, key_oplist, val_oplist, M_EMPLACE_ASS_ARRA1_BOTH_GENE, M_EMPLACE_ASS_ARRA1_KEY_GENE, M_EMPLACE_ASS_ARRA1_VAL_GENE) \
+  M_EMPLACE_QUEUE_DEF(name, name_t, _get_emplace, key_oplist, M_EMPLACE_GET_GENE)
 #define M_EMPLACE_ASS_ARRAY_OR_QUEUE_DEF1(name, name_t, key_oplist, val_oplist) \
-  M_EMPLACE_QUEUE_DEF(name, name_t, M_F(name, _emplace), key_oplist, M_EMPLACE_QUEUE_GENE) \
-  M_EMPLACE_QUEUE_DEF(name, name_t, M_F(name, _get_emplace), key_oplist, M_EMPLACE_GET_GENE)
+  M_EMPLACE_QUEUE_DEF(name, name_t, _emplace, key_oplist, M_EMPLACE_QUEUE_GENE) \
+  M_EMPLACE_QUEUE_DEF(name, name_t, _get_emplace, key_oplist, M_EMPLACE_GET_GENE)
 
 
 /* Definition of the emplace_back function for associative arrays.
@@ -5025,39 +5108,36 @@ m_core_parse2_enum (const char str[], const char **endptr)
    one for value only.
 */
 #define M_EMPLACE_ASS_ARRA1_BOTH_GENE(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
-  M_INLINE void                                                               \
-  function_name(name_t v                                                      \
+  M_P(void, name, function_name, name_t v                                     \
                 M_EMPLACE_LIST_TYPE_VAR(akey, key_emplace_type)               \
                 M_EMPLACE_LIST_TYPE_VAR(aval, val_emplace_type)               \
   ){                                                                          \
     M_F(name, _key_ct) key;                                                   \
     M_EMPLACE_CALL_FUNC(akey, key_init_func, key_oplist, key, key_emplace_type); \
     M_F(name, _value_ct) *val;                                                \
-    val = M_F(name, _safe_get)(v, key);                                       \
+    val = M_F(name, _safe_get)M_R(v, key);                                    \
     M_CALL_CLEAR(val_oplist, *val);                                           \
     M_EMPLACE_CALL_FUNC(aval, val_init_func, val_oplist, *val, val_emplace_type); \
     M_CALL_CLEAR(key_oplist, key);                                            \
   }                                                                           \
 
 #define M_EMPLACE_ASS_ARRA1_KEY_GENE(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
-  M_INLINE void                                                               \
-  function_name(name_t v                                                      \
+  M_P(void, name, function_name, name_t v                                     \
                 M_EMPLACE_LIST_TYPE_VAR(akey, key_emplace_type)               \
                 , M_F(name, _value_ct) const val                              \
   ){                                                                          \
     M_F(name, _key_ct) key;                                                   \
     M_EMPLACE_CALL_FUNC(akey, key_init_func, key_oplist, key, key_emplace_type); \
-    M_F(name, _set_at)(v, key, val);                                          \
+    M_F(name, _set_at)M_R(v, key, val);                                       \
     M_CALL_CLEAR(key_oplist, key);                                            \
   }                                                                           \
 
 #define M_EMPLACE_ASS_ARRA1_VAL_GENE(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
-  M_INLINE void                                                               \
-  function_name(name_t v, M_F(name, _key_ct) const key                        \
+  M_P(void, name, function_name, name_t v, M_F(name, _key_ct) const key       \
                 M_EMPLACE_LIST_TYPE_VAR(aval, val_emplace_type)               \
   ){                                                                          \
     M_F(name, _value_ct) *val;                                                \
-    val = M_F(name, _safe_get)(v, key);                                       \
+    val = M_F(name, _safe_get)M_R(v, key);                                    \
     M_CALL_CLEAR(val_oplist, *val);                                           \
     M_EMPLACE_CALL_FUNC(aval, val_init_func, val_oplist, *val, val_emplace_type); \
   }                                                                           \
@@ -5068,13 +5148,12 @@ m_core_parse2_enum (const char str[], const char **endptr)
    This definition is far from being efficient but works for the current interface.
 */
 #define M_EMPLACE_QUEUE_GENE(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  M_INLINE void                                                               \
-  function_name(name_t v                                                      \
+  M_P(void, name, function_name, name_t v                                     \
                 M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
   {                                                                           \
     M_GET_TYPE oplist data;                                                   \
     M_EMPLACE_CALL_FUNC(a, init_func, oplist, data, exp_emplace_type);        \
-    M_F(name, _push)(v, data);                                                \
+    M_F(name, _push) M_R(v, data);                                            \
     M_CALL_CLEAR(oplist, data);                                               \
   }
 
@@ -5084,9 +5163,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
    This definition is far from being efficient but works for the current interface.
 */
 #define M_EMPLACE_GET_GENE(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
-  M_INLINE M_F(name, _value_ct) *                                             \
-  function_name(name_t const v                                                \
-                M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) )                \
+  M_P(M_F(name, _value_ct) *, name, function_name, name_t const v M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) ) \
   {                                                                           \
     M_GET_TYPE oplist data;                                                   \
     M_EMPLACE_CALL_FUNC(a, init_func, oplist, data, exp_emplace_type);        \
@@ -5111,6 +5188,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
  * each time it is called with a pseudo random wait.
  * It is used to avoid too many threads trying to grab some atomic
  * variables at the same times (it makes the threads waits randomly).
+ * Initialization is cheap.
  */
 typedef struct m_core_backoff_s {
   unsigned int count;               // Number of times it has been run
@@ -5184,7 +5262,7 @@ struct m_string_s;
  * - OK & done (object is fully parsed),
  * - OK & continue parsing (object is partially parsed)
  * - Fail parsing
- * - Fail parsing with given arguments (give explicit size)
+ * - Fail parsing with given arguments (give explicit size) but a retry will succeed.
  */
 typedef enum m_serial_return_code_e {
   M_SERIAL_OK_DONE = 0, M_SERIAL_OK_CONTINUE = 1, M_SERIAL_FAIL = 2, M_SERIAL_FAIL_RETRY = 4
@@ -5264,7 +5342,7 @@ typedef struct m_serial_read_interface_s {
   m_serial_return_code_t (*read_boolean)(m_serial_read_t,bool *);
   m_serial_return_code_t (*read_integer)(m_serial_read_t, long long *, const size_t size_of_type);
   m_serial_return_code_t (*read_float)(m_serial_read_t, long double *, const size_t size_of_type);
-  m_serial_return_code_t (*read_string)(m_serial_read_t, struct m_string_s *);
+  m_serial_return_code_t (*read_string)(M_P_EXPAND m_serial_read_t, struct m_string_s *);
   m_serial_return_code_t (*read_array_start)(m_serial_local_t, m_serial_read_t, size_t *);
   m_serial_return_code_t (*read_array_next)(m_serial_local_t, m_serial_read_t);
   m_serial_return_code_t (*read_map_start)(m_serial_local_t, m_serial_read_t, size_t *);
@@ -5294,22 +5372,22 @@ typedef struct m_serial_write_s {
  * All function pointers shall be not null.
  */
 typedef struct m_serial_write_interface_s {
-  m_serial_return_code_t (*write_boolean)(m_serial_write_t,const bool data);
-  m_serial_return_code_t (*write_integer)(m_serial_write_t,const long long data, const size_t size_of_type);
-  m_serial_return_code_t (*write_float)(m_serial_write_t, const long double data, const size_t size_of_type);
-  m_serial_return_code_t (*write_string)(m_serial_write_t,const char data[], size_t len);
-  m_serial_return_code_t (*write_array_start)(m_serial_local_t, m_serial_write_t, const size_t number_of_elements);
-  m_serial_return_code_t (*write_array_next)(m_serial_local_t, m_serial_write_t);
-  m_serial_return_code_t (*write_array_end)(m_serial_local_t, m_serial_write_t);
-  m_serial_return_code_t (*write_map_start)(m_serial_local_t, m_serial_write_t, const size_t number_of_elements);
-  m_serial_return_code_t (*write_map_value)(m_serial_local_t, m_serial_write_t);
-  m_serial_return_code_t (*write_map_next)(m_serial_local_t, m_serial_write_t);
-  m_serial_return_code_t (*write_map_end)(m_serial_local_t, m_serial_write_t);
-  m_serial_return_code_t (*write_tuple_start)(m_serial_local_t, m_serial_write_t);
-  m_serial_return_code_t (*write_tuple_id)(m_serial_local_t, m_serial_write_t, const char * const field_name[], const int max, const int index);
-  m_serial_return_code_t (*write_tuple_end)(m_serial_local_t, m_serial_write_t);
-  m_serial_return_code_t (*write_variant_start)(m_serial_local_t, m_serial_write_t, const char * const field_name[], const int max, const int index);
-  m_serial_return_code_t (*write_variant_end)(m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_boolean)(M_P_EXPAND m_serial_write_t,const bool data);
+  m_serial_return_code_t (*write_integer)(M_P_EXPAND m_serial_write_t,const long long data, const size_t size_of_type);
+  m_serial_return_code_t (*write_float)(M_P_EXPAND m_serial_write_t, const long double data, const size_t size_of_type);
+  m_serial_return_code_t (*write_string)(M_P_EXPAND m_serial_write_t,const char data[], size_t len);
+  m_serial_return_code_t (*write_array_start)(M_P_EXPAND m_serial_local_t, m_serial_write_t, const size_t number_of_elements);
+  m_serial_return_code_t (*write_array_next)(M_P_EXPAND m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_array_end)(M_P_EXPAND m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_map_start)(M_P_EXPAND m_serial_local_t, m_serial_write_t, const size_t number_of_elements);
+  m_serial_return_code_t (*write_map_value)(M_P_EXPAND m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_map_next)(M_P_EXPAND m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_map_end)(M_P_EXPAND m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_tuple_start)(M_P_EXPAND m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_tuple_id)(M_P_EXPAND m_serial_local_t, m_serial_write_t, const char * const field_name[], const int max, const int index);
+  m_serial_return_code_t (*write_tuple_end)(M_P_EXPAND m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_variant_start)(M_P_EXPAND m_serial_local_t, m_serial_write_t, const char * const field_name[], const int max, const int index);
+  m_serial_return_code_t (*write_variant_end)(M_P_EXPAND m_serial_local_t, m_serial_write_t);
 } m_serial_write_interface_t;
 
 
@@ -5319,23 +5397,23 @@ typedef struct m_serial_write_interface_s {
 */
 #define M_OUT_SERIAL_DEFAULT_ARG(serial, x)                                   \
   _Generic(((void)0,(x)),                                                     \
-           bool: (serial)->m_interface->write_boolean(serial, M_AS_TYPE(bool, (x))), \
-           char: (serial)->m_interface->write_integer(serial, M_AS_TYPE(char,(x)), sizeof (x)), \
-           signed char: (serial)->m_interface->write_integer(serial, M_AS_TYPE(signed char,(x)), sizeof (x)), \
-           unsigned char: (serial)->m_interface->write_integer(serial, (long long) M_AS_TYPE(unsigned char,(x)), sizeof (x)), \
-           signed short: (serial)->m_interface->write_integer(serial, M_AS_TYPE(signed short,(x)), sizeof (x)), \
-           unsigned short: (serial)->m_interface->write_integer(serial, (long long) M_AS_TYPE(unsigned short,(x)), sizeof (x)), \
-           signed int: (serial)->m_interface->write_integer(serial, M_AS_TYPE(signed int,(x)), sizeof (x)), \
-           unsigned int: (serial)->m_interface->write_integer(serial, (long long) M_AS_TYPE(unsigned int,(x)), sizeof (x)), \
-           long int: (serial)->m_interface->write_integer(serial, M_AS_TYPE(long,(x)), sizeof (x)), \
-           unsigned long int: (serial)->m_interface->write_integer(serial, (long long) M_AS_TYPE(unsigned long,(x)), sizeof (x)), \
-           long long int: (serial)->m_interface->write_integer(serial, M_AS_TYPE(long long,(x)), sizeof (x)), \
-           unsigned long long int: (serial)->m_interface->write_integer(serial, (long long) M_AS_TYPE(unsigned long long,(x)), sizeof (x)), \
-           float: (serial)->m_interface->write_float(serial, M_AS_TYPE(float,(x)), sizeof (x)), \
-           double: (serial)->m_interface->write_float(serial, M_AS_TYPE(double,(x)), sizeof (x)), \
-           long double: (serial)->m_interface->write_float(serial, M_AS_TYPE(long double,(x)), sizeof (x)), \
-           const char *: (serial)->m_interface->write_string(serial, M_AS_TYPE(const char *,(x)), m_core_out_serial_strlen(M_AS_TYPE(const char *,(x))) ), \
-           char *: (serial)->m_interface->write_string(serial, M_AS_TYPE(char *,(x)), m_core_out_serial_strlen(M_AS_TYPE(const char *,(x))) ), \
+           bool: (serial)->m_interface->write_boolean M_R(serial, M_AS_TYPE(bool, (x))), \
+           char: (serial)->m_interface->write_integer M_R(serial, M_AS_TYPE(char,(x)), sizeof (x)), \
+           signed char: (serial)->m_interface->write_integer M_R(serial, M_AS_TYPE(signed char,(x)), sizeof (x)), \
+           unsigned char: (serial)->m_interface->write_integer M_R(serial, (long long) M_AS_TYPE(unsigned char,(x)), sizeof (x)), \
+           signed short: (serial)->m_interface->write_integer M_R(serial, M_AS_TYPE(signed short,(x)), sizeof (x)), \
+           unsigned short: (serial)->m_interface->write_integer M_R(serial, (long long) M_AS_TYPE(unsigned short,(x)), sizeof (x)), \
+           signed int: (serial)->m_interface->write_integer M_R(serial, M_AS_TYPE(signed int,(x)), sizeof (x)), \
+           unsigned int: (serial)->m_interface->write_integer M_R(serial, (long long) M_AS_TYPE(unsigned int,(x)), sizeof (x)), \
+           long int: (serial)->m_interface->write_integer M_R(serial, M_AS_TYPE(long,(x)), sizeof (x)), \
+           unsigned long int: (serial)->m_interface->write_integer M_R(serial, (long long) M_AS_TYPE(unsigned long,(x)), sizeof (x)), \
+           long long int: (serial)->m_interface->write_integer M_R(serial, M_AS_TYPE(long long,(x)), sizeof (x)), \
+           unsigned long long int: (serial)->m_interface->write_integer M_R(serial, (long long) M_AS_TYPE(unsigned long long,(x)), sizeof (x)), \
+           float: (serial)->m_interface->write_float M_R(serial, M_AS_TYPE(float,(x)), sizeof (x)), \
+           double: (serial)->m_interface->write_float M_R(serial, M_AS_TYPE(double,(x)), sizeof (x)), \
+           long double: (serial)->m_interface->write_float M_R(serial, M_AS_TYPE(long double,(x)), sizeof (x)), \
+           const char *: (serial)->m_interface->write_string M_R(serial, M_AS_TYPE(const char *,(x)), m_core_out_serial_strlen(M_AS_TYPE(const char *,(x))) ), \
+           char *: (serial)->m_interface->write_string M_R(serial, M_AS_TYPE(char *,(x)), m_core_out_serial_strlen(M_AS_TYPE(const char *,(x))) ), \
            const void *: M_SERIAL_FAIL /* unsupported */,                     \
            void *: M_SERIAL_FAIL /* unsupported */)
 

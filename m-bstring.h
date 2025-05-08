@@ -74,11 +74,10 @@ m_bstring_init(m_bstring_t s)
     M_BSTRING_CONTRACT(s);
 }
 
-M_INLINE void
-m_bstring_clear(m_bstring_t s)
+M_P(void, m_bstring, _clear, m_bstring_t s)
 {
     M_BSTRING_CONTRACT(s);
-    M_MEMORY_FREE(s->ptr);
+    M_MEMORY_FREE(m_context, uint8_t, s->ptr, s->alloc);
     s->offset = (size_t) -1;
 }
 
@@ -138,8 +137,7 @@ m_bstring_empty_p(const m_bstring_t v)
    allocations.
    Return a pointer to the writable string.
 */
-M_INLINE uint8_t *
-m_bstr1ng_fit2size (m_bstring_t v, size_t size_alloc, bool exact_alloc)
+M_P(uint8_t *, m_bstr1ng, _fit2size, m_bstring_t v, size_t size_alloc, bool exact_alloc)
 {
   // Very unlikely overflow case
   if (M_UNLIKELY_NOMEM (v->offset > v->offset + size_alloc)) {
@@ -166,7 +164,7 @@ m_bstr1ng_fit2size (m_bstring_t v, size_t size_alloc, bool exact_alloc)
     if (M_UNLIKELY_NOMEM (alloc < size_alloc)) {
         goto allocation_error;
     }
-    uint8_t *ptr = M_MEMORY_REALLOC (uint8_t, v->ptr, alloc);
+    uint8_t *ptr = M_MEMORY_REALLOC (m_context, uint8_t, v->ptr, v->alloc, alloc);
     if (M_UNLIKELY_NOMEM (ptr == NULL)) {
         goto allocation_error;
     }
@@ -180,59 +178,56 @@ m_bstr1ng_fit2size (m_bstring_t v, size_t size_alloc, bool exact_alloc)
   }
   return &v->ptr[v->offset];
   allocation_error:
-    M_MEMORY_FULL(size_alloc);
-    // NOTE: Return is currently broken.
-    abort();
-    return NULL;
+    M_MEMORY_FULL(uint8_t, size_alloc);
 }
 
 /* Push the byte 'c' in the bstring 'v' */
-M_INLINE void
-m_bstring_push_back (m_bstring_t v, uint8_t c)
+M_P(void, m_bstring, _push_back, m_bstring_t v, uint8_t c)
 {
     M_BSTRING_CONTRACT (v);
     const size_t size = v->size;
-    uint8_t *ptr = m_bstr1ng_fit2size(v, size+1, false);
+    // To overflow size+1, we need to have exhausted all memory
+    // which is not possible.
+    uint8_t *ptr = m_bstr1ng_fit2size M_R(v, size+1, false);
     ptr[size] = c;
     v->size = size + 1;
     M_BSTRING_CONTRACT (v);
 }
 
 /* Push the array of bytes from 'buffer' in the bstring 'v' */
-M_INLINE void
-m_bstring_push_back_bytes (m_bstring_t v, size_t n, const void *buffer)
+M_P(void, m_bstring, _push_back_bytes, m_bstring_t v, size_t n, const void *buffer)
 {
     M_BSTRING_CONTRACT (v);
     const size_t size = v->size;
     M_ASSERT_INDEX (size, size + n);
-    uint8_t *ptr = m_bstr1ng_fit2size(v, size+n, false);
+    // If size+n overflows, it means we are giving two objects which sizes
+    // sum to be greater than the available memory. The memory should have exhausted before that.
+    // The case is not possible, or the given size of the buffer is "faked".
+    uint8_t *ptr = m_bstr1ng_fit2size M_R(v, size+n, false);
     memcpy(&ptr[size], buffer, n);
     v->size = size + n;
     M_BSTRING_CONTRACT (v);
 }
 
-M_INLINE void
-m_bstring_splice(m_bstring_t dst, m_bstring_t src)
+M_P(void, m_bstring, _splice, m_bstring_t dst, m_bstring_t src)
 {
     M_BSTRING_CONTRACT (dst);
     M_BSTRING_CONTRACT (src);
     M_ASSERT(src != dst);
-    m_bstring_push_back_bytes(dst, m_bstring_size(src), m_bstr1ng_cstr(src));
+    m_bstring_push_back_bytes M_R(dst, m_bstring_size(src), m_bstr1ng_cstr(src));
     m_bstring_reset(src);
 }
 
-M_INLINE void
-m_bstring_init_set(m_bstring_t v, const m_bstring_t org)
+M_P(void, m_bstring, _init_set, m_bstring_t v, const m_bstring_t org)
 {
   m_bstring_init(v);
-  m_bstring_push_back_bytes(v, m_bstring_size(org), m_bstr1ng_cstr(org));
+  m_bstring_push_back_bytes M_R(v, m_bstring_size(org), m_bstr1ng_cstr(org));
 }
 
-M_INLINE void
-m_bstring_set(m_bstring_t v, const m_bstring_t org)
+M_P(void, m_bstring, _set, m_bstring_t v, const m_bstring_t org)
 {
   m_bstring_reset(v);
-  m_bstring_push_back_bytes(v, m_bstring_size(org), m_bstr1ng_cstr(org));
+  m_bstring_push_back_bytes M_R(v, m_bstring_size(org), m_bstr1ng_cstr(org));
 }
 
 M_INLINE void
@@ -240,13 +235,13 @@ m_bstring_init_move(m_bstring_t v, m_bstring_t org)
 {
     M_BSTRING_CONTRACT (org);
     memcpy(v, org, sizeof (m_bstring_t));
+    // Make org an invalid representation
     org->offset = (size_t) -1;
 }
 
-M_INLINE void
-m_bstring_move(m_bstring_t v, m_bstring_t org)
+M_P(void, m_bstring, _move, m_bstring_t v, m_bstring_t org)
 {
-    m_bstring_clear(v);
+    m_bstring_clear M_R(v);
     m_bstring_init_move(v, org);
 }
 
@@ -351,14 +346,16 @@ m_bstring_pop_front_bytes(size_t n, void *buffer, m_bstring_t v)
     M_BSTRING_CONTRACT (v);
 }
 
-M_INLINE void
-m_bstring_push_bytes_at (m_bstring_t v, size_t pos, size_t n, const void *buffer)
+M_P(void, m_bstring, _push_bytes_at, m_bstring_t v, size_t pos, size_t n, const void *buffer)
 {
     M_BSTRING_CONTRACT (v);
     const size_t size = v->size;
     M_ASSERT_INDEX (pos, size+1); //pos == size ==> equivalent to _push_back_bytes
     M_ASSERT_INDEX (size, size + n);
-    uint8_t *ptr = m_bstr1ng_fit2size(v, size+n, false);
+    // If size+n overflows, it means we are giving two objects which sizes
+    // sum to be greater than the available memory. The memory should have exhausted before that.
+    // The case is not possible.
+    uint8_t *ptr = m_bstr1ng_fit2size M_R(v, size+n, false);
     memmove(&ptr[pos+n], &ptr[pos], size-pos);
     memcpy(&ptr[pos], buffer, n);
     v->size = size + n;
@@ -379,21 +376,19 @@ m_bstring_pop_bytes_at(size_t n, void *buffer, m_bstring_t v, size_t pos)
     M_BSTRING_CONTRACT (v);
 }
 
-M_INLINE void
-m_bstring_resize (m_bstring_t v, size_t n)
+M_P(void, m_bstring, _resize, m_bstring_t v, size_t n)
 {
     M_BSTRING_CONTRACT (v);
     const size_t size = v->size;
     if (n > size) {
-        uint8_t *ptr = m_bstr1ng_fit2size(v, n, true);
+        uint8_t *ptr = m_bstr1ng_fit2size M_R(v, n, true);
         memset(&ptr[size], 0, n-size);
     }
     v->size = n;
     M_BSTRING_CONTRACT (v);
 }
 
-M_INLINE void
-m_bstring_reserve (m_bstring_t v, size_t n)
+M_P(void, m_bstring, _reserve, m_bstring_t v, size_t n)
 {
     M_BSTRING_CONTRACT (v);
     const size_t size = v->size;
@@ -401,17 +396,16 @@ m_bstring_reserve (m_bstring_t v, size_t n)
         n = v->offset + size;
     }
     if (n == 0) {
-        M_MEMORY_FREE(v->ptr);
+        M_MEMORY_FREE(m_context, uint8_t, v->ptr, v->alloc);
         v->offset = 0;
         v->size = 0;
         v->alloc = 0;
         v->ptr = NULL;
     } else {
-        uint8_t *ptr = M_MEMORY_REALLOC (uint8_t, v->ptr, n);
+        uint8_t *ptr = M_MEMORY_REALLOC (m_context, uint8_t, v->ptr, v->alloc, n);
         if (M_UNLIKELY_NOMEM (ptr == NULL)) {
-            M_MEMORY_FULL(n);
+            M_MEMORY_FULL(uint8_t, n);
         }
-        // The string cannot be fully embedded anymore.
         v->ptr = ptr;
         v->alloc = n;
     }
@@ -423,6 +417,7 @@ m_bstring_view(const m_bstring_t v, size_t offset, size_t size_requested)
 {
     M_BSTRING_CONTRACT (v);
     M_ASSERT_INDEX (offset+size_requested, v->size+1);
+    (void) size_requested;
     return &m_bstr1ng_cstr(v)[offset];
 }
 
@@ -434,6 +429,7 @@ m_bstring_acquire_access(m_bstring_t v, size_t offset, size_t size_requested)
 {
     M_BSTRING_CONTRACT (v);
     M_ASSERT_INDEX (offset+size_requested, v->size+1);
+    (void) size_requested;
     // Break canonical representation (this will generate assertion if a normal API is called now)
     M_SWAP(size_t, v->size, v->alloc);
     return &m_bstr1ng_cstr(v)[offset];
@@ -457,11 +453,14 @@ m_bstring_fwrite(FILE *f, const m_bstring_t v)
 {
   M_BSTRING_CONTRACT (v);
   M_ASSERT (f != NULL);
+  if (M_UNLIKELY(m_bstring_size(v) == 0)) {
+    return 0;
+  }
+  M_ASSERT(m_bstr1ng_cstr(v) != NULL);
   return fwrite(m_bstr1ng_cstr(v), 1, m_bstring_size(v), f);
 }
 
-M_INLINE bool
-m_bstring_fread(m_bstring_t v, FILE *f, size_t num)
+M_P(bool, m_bstring, _fread, m_bstring_t v, FILE *f, size_t num)
 {
   M_BSTRING_CONTRACT (v);
   M_ASSERT (f != NULL);
@@ -470,7 +469,7 @@ m_bstring_fread(m_bstring_t v, FILE *f, size_t num)
   if (M_UNLIKELY(num == 0)) {
     return true;
   }
-  uint8_t *ptr = m_bstr1ng_fit2size(v, num, true);
+  uint8_t *ptr = m_bstr1ng_fit2size M_R(v, num, true);
   size_t n = fread(ptr, 1, num, f);
   M_ASSERT (n <= num);
   v->size = n;
@@ -485,8 +484,7 @@ m_bstring_fread(m_bstring_t v, FILE *f, size_t num)
    and output it in the given serializer
    See serialization for return code.
 */
-M_INLINE m_serial_return_code_t
-m_bstring_out_serial(m_serial_write_t serial, const m_bstring_t v)
+M_P(m_serial_return_code_t, m_bstring, _out_serial, m_serial_write_t serial, const m_bstring_t v)
 {
   M_ASSERT (serial != NULL && serial->m_interface != NULL);
   M_BSTRING_CONTRACT (v);
@@ -494,15 +492,15 @@ m_bstring_out_serial(m_serial_write_t serial, const m_bstring_t v)
   m_serial_return_code_t ret;
   size_t size = m_bstring_size(v);
   uint8_t *ptr = m_bstr1ng_cstr(v);
-  ret = serial->m_interface->write_array_start(local, serial, size);
+  ret = serial->m_interface->write_array_start M_R(local, serial, size);
   if (size > 0) {
-    ret |= serial->m_interface->write_integer(serial, ptr[0], 1);
+    ret |= serial->m_interface->write_integer M_R(serial, ptr[0], 1);
     for(size_t i = 1; i < size; i++) {
-        ret |= serial->m_interface->write_array_next(local, serial);
-        ret |= serial->m_interface->write_integer(serial, ptr[i], 1);
+        ret |= serial->m_interface->write_array_next M_R(local, serial);
+        ret |= serial->m_interface->write_integer M_R(serial, ptr[i], 1);
     }
   }
-  ret |= serial->m_interface->write_array_end(local, serial);
+  ret |= serial->m_interface->write_array_end M_R(local, serial);
   return ret;
 }
 
@@ -510,8 +508,7 @@ m_bstring_out_serial(m_serial_write_t serial, const m_bstring_t v)
    and set the converted value in the byte string 'v'.
    See serialization for return code.
 */
-M_INLINE m_serial_return_code_t
-m_bstring_in_serial(m_bstring_t v, m_serial_read_t f)
+M_P(m_serial_return_code_t, m_bstring, _in_serial, m_bstring_t v, m_serial_read_t f)
 {
   M_ASSERT (f != NULL && f->m_interface != NULL);
   M_BSTRING_CONTRACT (v);
@@ -523,7 +520,7 @@ m_bstring_in_serial(m_bstring_t v, m_serial_read_t f)
   if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) {
     return ret;
   }
-  uint8_t *ptr = m_bstr1ng_fit2size(v, estimated_size, true);
+  uint8_t *ptr = m_bstr1ng_fit2size M_R(v, estimated_size, true);
   do {
     long long val;
     ret = f->m_interface->read_integer(f, &val, 1);
@@ -537,15 +534,27 @@ m_bstring_in_serial(m_bstring_t v, m_serial_read_t f)
 }
 
 /* Define the OPLIST of a BYTE STRING */
+#ifndef M_USE_CONTEXT
 #define M_BSTRING_OPLIST                                                      \
   (INIT(m_bstring_init),INIT_SET(m_bstring_init_set), SET(m_bstring_set),     \
    INIT_MOVE(m_bstring_init_move), MOVE(m_bstring_move),                      \
-   SWAP(m_bstring_swap), RESET(m_bstring_reset),                              \
-   EMPTY_P(m_bstring_empty_p),                                                \
+   SWAP(m_bstring_swap), RESET(m_bstring_reset), EMPTY_P(m_bstring_empty_p),  \
+   SUBTYPE(uint8_t), PUSH(m_bstring_push),                                    \
    CLEAR(m_bstring_clear), HASH(m_bstring_hash), EQUAL(m_bstring_equal_p),    \
    CMP(m_bstring_cmp), TYPE(m_bstring_t), GENTYPE(struct m_bstring_s*),       \
    OUT_SERIAL(m_bstring_out_serial), IN_SERIAL(m_bstring_in_serial),          \
    )
+#else
+#define M_BSTRING_OPLIST                                                      \
+  (INIT(m_bstring_init),INIT_SET(API_0P(m_bstring_init_set)), SET(API_0P(m_bstring_set)), \
+   INIT_MOVE(m_bstring_init_move), MOVE(API_0P(m_bstring_move)),              \
+   SWAP(m_bstring_swap), RESET(m_bstring_reset), EMPTY_P(m_bstring_empty_p),  \
+   SUBTYPE(uint8_t), PUSH(API_0P(m_bstring_push)),                            \
+   CLEAR(API_0P(m_bstring_clear)), HASH(m_bstring_hash), EQUAL(m_bstring_equal_p), \
+   CMP(m_bstring_cmp), TYPE(m_bstring_t), GENTYPE(struct m_bstring_s*),       \
+   OUT_SERIAL(API_0P(m_bstring_out_serial)), IN_SERIAL(API_0P(m_bstring_in_serial=) \
+   )
+#endif
 
 /********************************************************************************/
 /*                                                                              */

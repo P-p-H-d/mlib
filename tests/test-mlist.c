@@ -20,12 +20,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include <stdio.h>
 #include "test-obj.h"
 #include "m-string.h"
 #include "m-list.h"
-
 #include "coverage.h"
+
 START_COVERAGE
 LIST_DEF(list_uint, unsigned int)
 LIST_DEF(list_mpz, testobj_t, TESTOBJ_OPLIST)
@@ -36,8 +35,8 @@ LIST_DUAL_PUSH_DEF(list2_mpz, testobj_t, TESTOBJ_OPLIST)
 #define LIST2_DOUBLE_OPLIST LIST_OPLIST(list2_double)
 
 // Array with the minimum number of methods.
-LIST_DEF(list_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear)))
-LIST_DUAL_PUSH_DEF(list2_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear)))
+LIST_DEF(list_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear), INIT_MOVE(M_COPY_A1_DEFAULT) ))
+LIST_DUAL_PUSH_DEF(list2_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear), INIT_MOVE(M_COPY_A1_DEFAULT)))
 
 LIST_DEF(list_string, string_t)
 #define M_OPL_list_string_t() LIST_OPLIST(list_string, STRING_OPLIST)

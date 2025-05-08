@@ -20,13 +20,11 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include <stdio.h>
 #include "test-obj.h"
 #include "m-string.h"
-
 #include "m-variant.h"
-
 #include "coverage.h"
+
 START_COVERAGE
 VARIANT_DEF2(pair,
              (key, int, M_BASIC_OPLIST),

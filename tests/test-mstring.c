@@ -22,9 +22,8 @@
 */
 
 #define M_USE_ADDITIONAL_CHECKS 1
-#include "m-core.h"
+#include "test-obj.h"
 #include "coverage.h"
-
 #include "m-string.h"
 
 BOUNDED_STRING_DEF(string16, 16)
@@ -609,16 +608,18 @@ static void test0(void)
   assert (string_equal_str_p(s1, "QWERTYQWERTY"));
 
   string_clear (s2);
+  size_t cap = string_capacity(s1);
   char *s = string_clear_get_str (s1);
   assert(strcmp(s, "QWERTYQWERTY") == 0);
-  free(s);
+  overloaded_free(1, s, cap <= sizeof (m_str1ng_heap_ct) - 1 ? strlen(s)+1 : cap );
 
   string_t s3;
   string_init(s3);
   string_cat_str(s3, "ABC");
+  cap = string_capacity(s3);
   s = string_clear_get_str(s3);
   assert(strcmp(s, "ABC") == 0);
-  free(s);
+  overloaded_free(1, s, cap <= sizeof (m_str1ng_heap_ct) - 1 ? strlen(s)+1 : cap );
   
   string_init_set_str(s1, "RESTART");
   assert (string_equal_str_p(s1, "RESTART"));

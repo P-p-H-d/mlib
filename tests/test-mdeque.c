@@ -35,7 +35,7 @@ END_COVERAGE
 DEQUE_DEF(deque_mpz, testobj_t, TESTOBJ_OPLIST)
 
 // Deque with the minimum number of methods.
-DEQUE_DEF(deque_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear)))
+DEQUE_DEF(deque_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear), INIT_MOVE(M_COPY_A1_DEFAULT) ))
 
 // Dequeue of an enumerate
 typedef enum {

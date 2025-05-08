@@ -86,3 +86,25 @@ V0.7.2: * Rename m-mutex.h header in m-thread.h
 V0.7.3 : * DICT_STOREHASH_DEF2 / DICT_STOREHASH_DEF2_AS are deprecated.
           Use DICT_DEF2 / DICT_DEF2_AS
           
+V0.8.0 : * Memory interface massive compatibility break to allow more efficient integration of custom allocators.
+           The prototypes of NEW / DEL REALLOC / FREE operators are incompatible:
+           * Add the old number of elements of the array as argument of REALLOC
+           * Add the number of elements of the array and its base type as arguments of FREE.
+           * Add the context argument (which shall be ignored in not specific build)
+           (You can ignore the new arguments which are only hints provided to memory functions).
+           Also impact M_MEMORY_NEW / M_MEMORY_DEL / M_MEMORY_REALLOC & M_MEMORY_FREE
+           M_MEMORY_FULL: replace the failed size allocation size argument into the base type and the number of elements that failed to be allocated.
+         * m-buffer:
+           * non-thread safe queue & stack are moved into their dedicated header (m-queue) 
+           * BUFFER_THREAD_UNSAFE policy is no longer supported.
+           * Disabling BUFFER_BLOCKING policy is no longer supported (default policy is now forced).
+           * _push / _pop now returns now void like other containers instead of a bool (it was undocumented)
+         * Remove MEMPOOL support from list & R/B tree
+         * m-mempool: Header is obsolete (and no longer useful at all as lists & RB Tree no longer can use it. To remove). Use new M_USE_CONTEXT interface to pass local pool context.
+         * M*LIB becomes stricter for the INIT_MOVE operator:
+           The Emulation layer using CLEAR+INIT_SET methods, when there is no INIT_MOVE operator, has been removed:
+           either default INIT_MOVE operator (operator '=') is working, or a method is provided for INIT_MOVE or it is disabled.
+           If it is an array of size 1, you can use M_COPY_A1_DEFAULT as a default method.
+           (It's because supporting emulation layer with new memory context parameter was complicated)
+	 * Remove obsole headers: m-c-mempool, m-mempool, m-shared, m-i-shared, -mconcurrent
+	 

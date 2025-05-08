@@ -22,9 +22,9 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include <stdio.h>
-
+#include "test-obj.h"
 #include "m-i-list.h"
+#include "coverage.h"
 
 typedef struct test_s {
   int n;
@@ -37,12 +37,11 @@ static inline bool test_equal_p(const test_t *i1, const test_t *i2)
   return i1->n == i2->n;
 }
 
-#include "coverage.h"
 START_COVERAGE
 ILIST_DEF(ilist_tname, test_t, M_OPEXTEND(M_POD_OPLIST, EQUAL(API_6(test_equal_p))))
 END_COVERAGE
 
-ILIST_DEF(ilist_free, test_t, (DEL(free)))
+ILIST_DEF(ilist_free, test_t, (DEL(API(free, NONE, ARG2))))
 
 typedef struct testd_s {
   double n;

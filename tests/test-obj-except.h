@@ -37,16 +37,16 @@ static inline void test_obj_except_trigger(void);
 extern int test_obj_except__malloc_counter;
 #ifdef __cplusplus
 # include <cstdlib>
-# define M_MEMORY_ALLOC(type) (test_obj_except_trigger(), test_obj_except__malloc_counter++, (type*)std::malloc (sizeof (type)))
-# define M_MEMORY_DEL(ptr)  (test_obj_except__malloc_counter-=(ptr != NULL), std::free(ptr))
-# define M_MEMORY_REALLOC(type, ptr, n)                                       \
+# define M_MEMORY_ALLOC(ctx, type) (test_obj_except_trigger(), test_obj_except__malloc_counter++, (type*)std::malloc (sizeof (type)))
+# define M_MEMORY_DEL(ctx, ptr)  (test_obj_except__malloc_counter-=(ptr != NULL), std::free(ptr))
+# define M_MEMORY_REALLOC(ctx, type, ptr, o, n)                                       \
   ((type*) (test_obj_except_trigger(), test_obj_except__malloc_counter+= (ptr == NULL), std::realloc ((ptr), (n)*sizeof (type))))
-# define M_MEMORY_FREE(ptr) (test_obj_except__malloc_counter-=(ptr != NULL), std::free(ptr))
+# define M_MEMORY_FREE(ctx, type, ptr, o) (test_obj_except__malloc_counter-=(ptr != NULL), std::free(ptr))
 #else
-# define M_MEMORY_ALLOC(type) (test_obj_except_trigger(), test_obj_except__malloc_counter++, malloc (sizeof (type)))
-# define M_MEMORY_DEL(ptr)  (test_obj_except__malloc_counter-=(ptr != NULL), free(ptr))
-# define M_MEMORY_REALLOC(type, ptr, n) (test_obj_except_trigger(), test_obj_except__malloc_counter+=(ptr == NULL), realloc ((ptr), (n)*sizeof (type)))
-# define M_MEMORY_FREE(ptr) (test_obj_except__malloc_counter-=(ptr != NULL), free(ptr))
+# define M_MEMORY_ALLOC(ctx, type) (test_obj_except_trigger(), test_obj_except__malloc_counter++, malloc (sizeof (type)))
+# define M_MEMORY_DEL(ctx, ptr)  (test_obj_except__malloc_counter-=(ptr != NULL), free(ptr))
+# define M_MEMORY_REALLOC(ctx, type, ptr, o, n) (test_obj_except_trigger(), test_obj_except__malloc_counter+=(ptr == NULL), realloc ((ptr), (n)*sizeof (type)))
+# define M_MEMORY_FREE(ctx, type, ptr, o) (test_obj_except__malloc_counter-=(ptr != NULL), free(ptr))
 #endif
 
 // Include M*LIB headers
@@ -236,6 +236,7 @@ static inline size_t test_obj_except__hash(const test_obj_except__t z)
    INIT_SET(test_obj_except__init_set),                                          \
    SET(test_obj_except__set),                                                    \
    CLEAR(test_obj_except__clear),                                                \
+   INIT_MOVE(M_COPY_A1_DEFAULT),                                      \
    TYPE(test_obj_except__t),                                                     \
    ADD(test_obj_except__add),                                                    \
    OUT_STR(test_obj_except__out_str),                                            \
