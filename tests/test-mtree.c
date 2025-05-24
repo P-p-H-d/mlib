@@ -113,6 +113,17 @@ static void test_basic(void)
     tree_get_str(s, t, false);
     assert(string_equal_str_p(s, "[{-1,[{0,[{1,[{3},{5,[{2}]},{4,[{9},{7,[{8}]},{10},{6}]}]}]}]}]"));
 
+    assert( *tree_cref(it7) == 7 );
+    assert( *tree_cref(tree_down(it7)) == 8 );
+    assert( *tree_cref(tree_up(it7)) == 4);
+    assert( *tree_cref(tree_left(it7)) == 9);
+    assert( *tree_cref(tree_right(it7)) == 10);
+    assert( *tree_cref(tree_down(root)) == 0);
+
+    assert( tree_end_p(tree_up(root)));
+    assert( tree_end_p(tree_left(root)));
+    assert( tree_end_p(tree_right(root)));
+
     assert( *tree_down_ref(it7) == 8);
     assert( *tree_up_ref(it7) == 4);
     assert( *tree_left_ref(it7) == 9);

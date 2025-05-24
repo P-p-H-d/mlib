@@ -3561,6 +3561,14 @@ Return a pointer to the type of the node which is
 respectively.
 It returns NULL if there is no such node.
 
+##### `it_t name_up(it_t it)`
+##### `it_t name_down(it_t it)`
+##### `it_t name_left(it_t it)`
+##### `it_t name_right(it_t it)`
+
+Return an iterator to point to the node which is up (resp. down, left and right) the given iterator.
+Return a valid iterator in case of success, an invalid one otherwse (see `name_end_p`)
+
 ##### `bool name_it_up(it_t *it)`
 ##### `bool name_it_down(it_t *it)`
 ##### `bool name_it_left(it_t *it)`

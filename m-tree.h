@@ -669,6 +669,34 @@ typedef int32_t m_tr33_index_t;
         return ret;                                                           \
     }                                                                         \
                                                                               \
+    M_INLINE it_t                                                             \
+    M_F(name, _up)(it_t it) {                                                 \
+        M_TR33_IT_CONTRACT(it, true);                                         \
+        it_t i = { it.tree, it.tree->tab[it.index].parent };                  \
+        return i;                                                             \
+    }                                                                         \
+                                                                              \
+    M_INLINE it_t                                                             \
+    M_F(name, _down)(it_t it) {                                               \
+        M_TR33_IT_CONTRACT(it, true);                                         \
+        it_t i = { it.tree, it.tree->tab[it.index].child };                   \
+        return i;                                                             \
+    }                                                                         \
+                                                                              \
+    M_INLINE it_t                                                             \
+    M_F(name, _left)(it_t it) {                                               \
+        M_TR33_IT_CONTRACT(it, true);                                         \
+        it_t i = { it.tree, it.tree->tab[it.index].left };                    \
+        return i;                                                             \
+    }                                                                         \
+                                                                              \
+    M_INLINE it_t                                                             \
+    M_F(name, _right)(it_t it) {                                              \
+        M_TR33_IT_CONTRACT(it, true);                                         \
+        it_t i = { it.tree, it.tree->tab[it.index].right };                   \
+        return i;                                                             \
+    }                                                                         \
+                                                                              \
     M_INLINE bool                                                             \
     M_F(name, _root_p)(const it_t it) {                                       \
         M_TR33_IT_CONTRACT(it, true);                                         \
