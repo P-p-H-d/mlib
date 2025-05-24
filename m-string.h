@@ -382,7 +382,7 @@ M_P(char *, m_str1ng, _fit2size, m_string_t v, size_t size_alloc)
     alloc = m_str1ng_round_capacity(&m, &e, (m_str1ng_size_t) alloc);
     if (M_UNLIKELY_NOMEM (alloc <= size_alloc)) {
       /* Overflow in alloc computation */
-      M_MEMORY_FULL(char, alloc);
+      M_MEMORY_FULL(char, size_alloc);
     }
     char *ptr = m_str1ng_embedded_p(v) ? NULL : v->u.heap.ptr;
     //FIXME: old_alloc may not be NULL if ptr is NULL.
