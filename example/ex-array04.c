@@ -13,8 +13,10 @@ ALGO_DEF(array_mpz, ARRAY_OPLIST(array_mpz, M_CLASSIC_OPLIST(mpz)))
 static inline void my_mpz_inc(mpz_t *d, const mpz_t a){
   mpz_add(*d, *d, a);
 }
-static inline void my_mpz_sqr(mpz_t *d, const mpz_t a){
+static inline bool my_mpz_sqr(mpz_t *d, const mpz_t a, void *data){
+  (void) data;
   mpz_mul(*d, a, a);
+  return true;
 }
 
 int main(void)
@@ -31,7 +33,7 @@ int main(void)
   }
 
   /* Compute z = sum (a[i]^2) */
-  array_mpz_map_reduce (&z, a, my_mpz_inc, my_mpz_sqr);
+  array_mpz_transform_reduce (&z, a, my_mpz_inc, my_mpz_sqr, NULL);
   gmp_printf ("Z=%Zd\n", z);
 
   array_mpz_clear(a);
