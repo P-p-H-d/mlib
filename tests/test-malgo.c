@@ -82,11 +82,21 @@ static void g_f(int n)
   g_count++;
 }
 
-static void func_map(int *d, int n)
+static bool func_map(int *d, int n, void *data)
 {
   assert (g_min <= n && n <= g_max);
   g_count++;
   *d = n * n;
+  return (data == NULL) || (n != 0);
+}
+
+static bool func_map_none(int *d, int n, void *data)
+{
+  (void) d;
+  (void) n;
+  (void) data;
+  g_count++;
+  return false;
 }
 
 static void func_reduce(int *d, int n)
@@ -156,13 +166,17 @@ static void test_list(void)
     g_min = 0;
     g_max = 99;
     g_count = 0;
-    algo_list_transform(tmp, l, func_map);
+    algo_list_transform(tmp, l, func_map, NULL);
     assert(g_count == 101);
     assert(list_int_size(tmp) == 101);
     for(int i = 0; i < 100; i++) {
       assert(*list_int_get(tmp, (size_t) i) == i * i);
     }
     assert(*list_int_get(tmp, 100) == 17 * 17);
+    g_count = 0;
+    algo_list_transform(tmp, l, func_map, (void*)&g_count);
+    assert(g_count == 101);
+    assert(list_int_size(tmp) == 100);
   }
 
   int *p = algo_list_min(l);
@@ -305,19 +319,35 @@ static void test_array(void)
   assert(g_count == 101);
 
   int n;
-  algo_array_reduce(&n, l, func_reduce);
+  bool b;
+  b = algo_array_reduce(&n, l, func_reduce);
+  assert(b);
   assert(n == 100*99/2+17);
 
   g_min = 0;
   g_max = 99;
   g_count = 0;
-  algo_array_map_reduce(&n, l, func_reduce, func_map);
+  b = algo_array_transform_reduce(&n, l, func_reduce, func_map, NULL);
+  assert(b);
   assert(g_count == 101);
   assert(n == (328350 + 17*17));
 
+  g_count = 0;
+  b = algo_array_transform_reduce(&n, l, func_reduce, func_map, (void*) &g_count);
+  assert(b);
+  assert(g_count == 101);
+  assert(n == (328350 + 17*17));
+
+  g_count = 0;
+  n = -1;
+  b = algo_array_transform_reduce(&n, l, func_reduce, func_map_none, NULL);
+  assert(!b);
+  assert(g_count == 101);
+  assert(n == -1);
+
   M_LET(tmp, array_int_t) {
     g_count = 0;
-    algo_array_transform(tmp, l, func_map);
+    algo_array_transform(tmp, l, func_map, NULL);
     assert(g_count == 101);
     assert(array_int_size(tmp) == 101);
     for(int i = 0; i < 100; i++) {
@@ -326,6 +356,10 @@ static void test_array(void)
     }
     assert(*array_int_get(l, 100) == 17);
     assert(*array_int_get(tmp, 100) == 17 * 17);
+    g_count = 0;
+    algo_array_transform(tmp, l, func_map, (void*) &g_count);
+    assert(g_count == 101);
+    assert(array_int_size(tmp) == 100);
 
     array_int_reset(tmp);
 #define FT(d,x) ((d) = (x) + 1)

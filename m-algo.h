@@ -170,7 +170,8 @@
   typedef bool (*M_F(name, _test_cb_ct))(type_t const);                       \
   typedef bool (*M_F(name, _eq_cb_ct))(type_t const, type_t const);           \
   typedef int  (*M_F(name, _cmp_cb_ct))(type_t const, type_t const);          \
-  typedef void (*M_F(name, _transform_cb_ct))(type_t *, type_t const);        \
+  typedef bool (*M_F(name, _transform_cb_ct))(type_t *, type_t const, void*); \
+  typedef void (*M_F(name, _reduce_cb_ct))(type_t *, type_t const);           \
   typedef void (*M_F(name, _apply_cb_ct))(type_t M_IF_METHOD(IT_REF, cont_oplist)( , const)  );
 
 
@@ -181,7 +182,7 @@
   M_FUNC_OBJ_ITF_DEF(M_F(name, _test_obj), bool, type_t const)                \
   M_FUNC_OBJ_ITF_DEF(M_F(name, _eq_obj), bool, type_t const, type_t const )   \
   M_FUNC_OBJ_ITF_DEF(M_F(name, _cmp_obj), int, type_t const, type_t const )   \
-  M_FUNC_OBJ_ITF_DEF(M_F(name, _transform_obj), void, type_t *, type_t const )\
+  M_FUNC_OBJ_ITF_DEF(M_F(name, _transform_obj), bool, type_t *, type_t const )\
   M_FUNC_OBJ_ITF_DEF(M_F(name, _apply_obj), void, type_t * )                  \
   
 
@@ -756,27 +757,28 @@
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, type_oplist)(                                             \
-  M_IF_METHOD(PUSH_MOVE, cont_oplist)(                                        \
+  M_IF_METHOD(PUSH, cont_oplist)(                                             \
                                                                               \
   /* Apply func for all elements of the container src and push the result in dst */ \
-  M_P(void, name, _transform, container_t dst, container_t src, M_F(name, _transform_cb_ct) func) \
+  M_P(void, name, _transform, container_t dst, container_t src, M_F(name, _transform_cb_ct) func, void *data) \
   {                                                                           \
     M_ASSERT(dst != src);                                                     \
     M_CALL_RESET(cont_oplist, dst);                                           \
+    type_t tmp;                                                               \
+    M_CALL_INIT(type_oplist, tmp);                                            \
     for M_EACH(item, src, cont_oplist) {                                      \
-        type_t tmp;                                                           \
-        M_CALL_INIT(type_oplist, tmp);                                        \
-        func(&tmp, *item);                                                    \
-        M_CALL_PUSH_MOVE(cont_oplist, dst, &tmp);                             \
+        if (func(&tmp, *item, data)) {                                        \
+          M_CALL_PUSH(cont_oplist, dst, tmp);                                 \
+        }                                                                     \
     }                                                                         \
+    M_CALL_CLEAR(type_oplist, tmp);                                           \
     M_IF_METHOD(REVERSE, cont_oplist)(M_CALL_REVERSE(cont_oplist, dst),);     \
   }                                                                           \
   , /* END PUSH_MOVE */), /* END INIT */ )                                    \
                                                                               \
   /* Reduce all elements of the container in dst in function of func */       \
   M_IF_METHOD(SET, type_oplist)(                                              \
-  M_P(void, name, _reduce, type_t *dest, container_t const l,                 \
-                      M_F(name, _transform_cb_ct) func)                       \
+  M_P(bool, name, _reduce, type_t *dest, container_t const l, M_F(name, _reduce_cb_ct) func) \
   {                                                                           \
     M_UNUSED_CONTEXT();                                                       \
     bool initDone = false;                                                    \
@@ -788,15 +790,15 @@
           initDone = true;                                                    \
         }                                                                     \
       }                                                                       \
+    return initDone; \
   }                                                                           \
   , /* END SET */)                                                            \
                                                                               \
   /* Reduce all transformed elements of the container in dst in function of func */ \
   M_IF_METHOD(INIT, type_oplist)(                                             \
-  M_P(void, name, _map_reduce, type_t *dest,                                  \
-                               const container_t l,                           \
-                               M_F(name, _transform_cb_ct) redFunc,           \
-                               M_F(name, _transform_cb_ct) mapFunc)           \
+  M_P(bool, name, _transform_reduce, type_t *dest, const container_t l,                           \
+                               M_F(name, _reduce_cb_ct) redFunc,           \
+                               M_F(name, _transform_cb_ct) mapFunc, void *data)           \
   {                                                                           \
     M_UNUSED_CONTEXT();                                                       \
     bool initDone = false;                                                    \
@@ -804,14 +806,15 @@
     M_CALL_INIT(type_oplist, tmp);                                            \
     for M_EACH(item, l, cont_oplist) {                                        \
         if (initDone) {                                                       \
-          mapFunc(&tmp, *item);                                               \
-          redFunc(dest, tmp);                                                 \
+          if (mapFunc(&tmp, *item, data) ) {                                        \
+            redFunc(dest, tmp);                                      \
+          }                                                                   \
         } else {                                                              \
-          mapFunc(dest, *item);                                               \
-          initDone = true;                                                    \
+          initDone = mapFunc(dest, *item, data);                                    \
         }                                                                     \
       }                                                                       \
     M_CALL_CLEAR(type_oplist, tmp);                                           \
+    return initDone; \
   }                                                                           \
   , )                                                                         \
 

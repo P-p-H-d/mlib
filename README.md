@@ -8200,31 +8200,40 @@ Apply the function `func` to each element of the container `c`.
 The function may transform the element provided it doesn't reallocate the
 object and if the container supports iterating over modifiable elements.
 
-##### `void name_transform(container_t d, container_t c, void (*func)(type_t *out, const type_t in))`
+##### `void name_transform(container_t d, container_t c, bool (*func)(type_t *out, const type_t in, void *data), void *data)`
 
-Apply the function `func` to each element of the container `c`
-and push the result into the container `d` so that `d = func(c)`
+Reset the container `d`, then
+apply the function `func` to each element of the container `c`
+and push its output `*out` into the container `d` if its return value is true.
 
-`func` shall output in the initialized object `out`
-the transformed value of the constant object `in`.
-Afterwards `out` is pushed moved into `d`.
+`func` shall output in the initialized object `*out`
+the transformed value of the constant object `in` if it decides this value is kept (its return value is true in this case).
+Otherwise its return value is false.
+`data` is a user context data pointer free to be used and passed to `func`
 
-This method is defined only if the base type exports an `INIT` method.
-This method is defined only if the container exports a `PUSH_MOVE` method.
-`c` and `d` cannot be the same containers.
+This method is defined only if the base type exports an `INIT` method and if the container exports a `PUSH` method.
+`c` and `d` shall not be the same containers.
 
-##### `void name_reduce(type_t *dest, const container_t c, void (*func)(type_t *, type_t const))`
+##### `bool name_reduce(type_t *dest, const container_t c, void (*func)(type_t *, type_t const))`
 
 Perform a reduction using the function `func` to the elements of the container `c`.
 The final result is stored in `*dest`.
-If there is no element, `*dest` is let unmodified.
+If there is no element, `*dest` is let unmodified and it returns `false`.
+Otherwise it returns `true` and `*dest` is modified.
 
-##### `void name_map_reduce(type_t *dest, const container_t c, void (*redFunc)(type_t *, type_t const), void *(mapFunc)(type_t *, type_t const))`
+##### `bool name_transform_reduce(type_t *dest, const container_t c, void (*redFunc)(type_t *, type_t const), bool *(mapFunc)(type_t *, type_t const, void *data), void *data)`
 
 Perform a reduction using the function `redFunc` 
-to the transformed elements of the container `c` using `mapFunc`.
+to the transformed and kept elements of the container `c` using `mapFunc`.
 The final result is stored in `*dest`.
-If there is no element, `*dest` is let unmodified.
+
+`func` shall output in the initialized object `*out`
+the transformed value of the constant object `in` if it decides this value is kept (its return value is true in this case).
+Otherwise its return value is false.
+`data` is a user context data pointer free to be used and passed to `func`
+
+If there is no element, `*dest` is let unmodified and it returns `false`.
+Otherwise it returns `true` and `*dest` is modified.
 
 ##### `bool name_any_of_p(const container_t c, void *(func)(const type_t))`
 

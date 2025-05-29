@@ -108,3 +108,6 @@ V0.8.0 : * Memory interface massive compatibility break to allow more efficient 
            (It's because supporting emulation layer with new memory context parameter was complicated)
 	 * Remove obsole headers: m-c-mempool, m-mempool, m-shared, m-i-shared, -mconcurrent
 	 
+V0.8.1 : * m-algo: Update interface of _transform to be more flexible: adding user context pointer, and filtering of the input elements.
+         * m-algo: Update interface of _reduce to be more user friendly: return value indicates if the reduction is empty or not.
+         * m-algo: Rename _map_reduce into _transform_reduce and update its interface to be more flexible: adding user context pointer, and filtering of the input elements and return value indicates if the reduction is empty or not.
