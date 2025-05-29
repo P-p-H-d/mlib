@@ -176,6 +176,8 @@
     M_F(name, _MAX_TYPE) = M_NARGS(__VA_ARGS__)                               \
   };                                                                          \
   /* Define the variant */                                                    \
+  typedef struct M_F(name, _s) *M_F(name, _ptr);                              \
+  typedef const struct M_F(name, _s) *M_F(name, _srcptr);                     \
   typedef struct M_F(name, _s) {                                              \
     enum M_F(name, _enum) type;                                               \
     union {                                                                   \
@@ -183,8 +185,6 @@
     } value;                                                                  \
   } name_t[1];                                                                \
                                                                               \
-  typedef struct M_F(name, _s) *M_F(name, _ptr);                              \
-  typedef const struct M_F(name, _s) *M_F(name, _srcptr);                     \
   /* Define internal type for oplist */                                       \
   typedef name_t M_F(name, _ct);                                              \
   /* Save alias for the types of arguments */                                 \
