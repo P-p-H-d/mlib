@@ -790,15 +790,15 @@
           initDone = true;                                                    \
         }                                                                     \
       }                                                                       \
-    return initDone; \
+    return initDone;                                                          \
   }                                                                           \
   , /* END SET */)                                                            \
                                                                               \
   /* Reduce all transformed elements of the container in dst in function of func */ \
   M_IF_METHOD(INIT, type_oplist)(                                             \
-  M_P(bool, name, _transform_reduce, type_t *dest, const container_t l,                           \
-                               M_F(name, _reduce_cb_ct) redFunc,           \
-                               M_F(name, _transform_cb_ct) mapFunc, void *data)           \
+  M_P(bool, name, _transform_reduce, type_t *dest, const container_t l,       \
+                               M_F(name, _reduce_cb_ct) redFunc,              \
+                               M_F(name, _transform_cb_ct) mapFunc, void *data) \
   {                                                                           \
     M_UNUSED_CONTEXT();                                                       \
     bool initDone = false;                                                    \
@@ -806,15 +806,15 @@
     M_CALL_INIT(type_oplist, tmp);                                            \
     for M_EACH(item, l, cont_oplist) {                                        \
         if (initDone) {                                                       \
-          if (mapFunc(&tmp, *item, data) ) {                                        \
-            redFunc(dest, tmp);                                      \
+          if (mapFunc(&tmp, *item, data) ) {                                  \
+            redFunc(dest, tmp);                                               \
           }                                                                   \
         } else {                                                              \
-          initDone = mapFunc(dest, *item, data);                                    \
+          initDone = mapFunc(dest, *item, data);                              \
         }                                                                     \
       }                                                                       \
     M_CALL_CLEAR(type_oplist, tmp);                                           \
-    return initDone; \
+    return initDone;                                                          \
   }                                                                           \
   , )                                                                         \
 
