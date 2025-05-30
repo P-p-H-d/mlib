@@ -806,14 +806,15 @@ Example:
         INIT_SET(mpz_init_set),CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1_DEFAULT),TYPE(mpz_t))
 ```
 
-This can simplify a lot `OPLIST` usage and it is recommended.
+> [!NOTE] 
+> Registering globaly the oplist when defining its type simplify a lot the `OPLIST` usage and it is **highly** recommended.
 
 Then each times a macro expects an oplist, you can give instead its type.
 This make the code much easier to read and understand.
 
 There is one exception however: the macros that are used to build oplist
 (like `ARRAY_OPLIST`) don't perform this simplification and the oplist of
-the basic type shall be given instead
+the type shall be explictely given instead
 (This is due to limitation in the C preprocessing).
 
 ### API Interface Adaptation
@@ -2453,6 +2454,13 @@ Both oplist shall have at least the following operators (`INIT_SET`, `SET` and `
 otherwise it won't generate compilable code.
 The `key_oplist` shall also define the additional operators (`HASH` and `EQUAL`).
 
+> [!NOTE] 
+> You can either call this macro with only `key_type` and `value_type`
+> or with their type+oplists `key_type`, `key_oplist`, `value_type` and `value_oplist`.
+> You cannot call it with an oplist for a type and not for the other
+> (Otheriwse it won't be able to identify reliabely what is the third argument - a `value_type` or a `key_oplist` ?)
+> Failure to respect this rule so will result in a too few argument error for `M_D1CT_DEF2_P2` internal macro.
+
 Elements in the dictionary are **unordered**.
 On insertion of a new element, contained objects may moved.
 Maximum number of elements of this dictionary is 3'006'477'107 elements.
@@ -2519,6 +2527,13 @@ The elements may move when inserting / deleting other elements (and not just the
 
 This implementation is in general faster for small types of keys
 (like integer or float) but are slower for larger types.
+
+> [!NOTE] 
+> You can either call this macro with only `key_type` and `value_type`
+> or with their type+oplists `key_type`, `key_oplist`, `value_type` and `value_oplist`.
+> You cannot call it with an oplist for a type and not for the other
+> (Otheriwse it won't be able to identify reliabely what is the third argument - a `value_type` or a `key_oplist` ?)
+> Failure to respect this rule so will result in a too few argument error for `M_D1CT_DEF2_P2` internal macro.
 
 `DICT_OA_DEF2_AS` is the same as `DICT_OA_DEF2`
 except the name of the types `name_t`, `name_it_t`, `name_itref_t` are provided.
