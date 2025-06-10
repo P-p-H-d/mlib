@@ -154,7 +154,7 @@ All pointers expected by the functions of the library shall expect non-null argu
 * Genericity Mechanism through code generation by macro-base approaches while keeping code size reasonable,
 * Minimum supported C Standard is C99,
 * Header only library (easier to integrate),
-* Performance: M\*LIB is highly optimized wut =h Minimal Runtime Overheader in Release mode,
+* Performance: M\*LIB is highly optimized with Minimal Runtime Overhead in Release mode,
 * Type Safety: Compiler catches type mismatches.
 * Runtime errors: Assertion are enabled in Debug mode and check for contract violiation and runtime errors are enabled for robustness in debug mode,
 * High focus on homogeneous API design and ease of use,
@@ -162,7 +162,7 @@ All pointers expected by the functions of the library shall expect non-null argu
 * Actively maintained library,
 * Can be used fully without any macro usage outside of its code generation section,
 * Provide all the standard containers (vectors, lists, hash maps, sets, queues, etc.) and algorithms (sort, search) and even more,
-* Fully custimisable memory allocator,
+* Fully customisable memory allocator,
 * Can use _Generic keyword for uniform usage of the operators on any registered type.
 
 ## Components
