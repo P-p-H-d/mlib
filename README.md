@@ -1796,9 +1796,10 @@ and the front is the last element: the list grows from the back.
 Therefore, the iteration of this container using iterator objects will
 go from the back element to the front element (contrary to an array).
 
-Even if it provides random access functions, theses access are slow
-and should be avoided: it iterates linearly over all the elements of the container
-until it reaches the requested element. The size method has the same drawback.
+It does not provide random access functions, as theses access are slow
+and should be avoided: it would need to iterate linearly over all the elements
+of the container until it reaches the requested element.
+The size method is provided but suffers from this drawback.
 
 The push/pop methods of the container always operate on the back of the container.
 
@@ -1919,7 +1920,7 @@ size_t name_hash(const name_t list)
 
 #### Specialized methods
 
-The following specialized methods are  automatically created by the previous definition macro:
+The following specialized methods are automatically created by the previous definition macro:
 
 ##### `void name_splice_back(name_t list1, name_t list2, name_it_t it)`
 
@@ -1942,7 +1943,7 @@ and `it1` references the inserted element in `list1`.
 
 ##### `void name_splice(name_t list1, name_t list2)`
 
-Move all the element of the list `list2` into the list `list1`,
+Move all the elements of the list `list2` into the list `list1`,
 moving the last element of `list2` after the first element of `list1`.
 Afterwards, `list2` remains initialized but is emptied.
 `list1` and `list2` shall reference different objects.
@@ -1957,16 +1958,24 @@ Reverse the order of the list.
 `LIST_DUAL_PUSH_DEF` defines the singly linked list named `name_t`
 that contains the objects of type `type` and their associated methods as `static inline` functions.
 
-The only difference with the list defined by `LIST_DEF` is
-the support of the method for `PUSH_FRONT` in addition to the one for `PUSH_BACK`
+It mostly differs with the list defined by `LIST_DEF` by inverting the semantics of "front" and "back".
+For this container, the front is always the first element, and the back is the last element.
+Iteration of this container goes from the front element to the back element (like an array).
+Therefore, this container tends to be more intuitive to use than `LIST_DEF`, and it can be used
+for more common list needs such as iterating front to back and adding new elements from the back.
+
+This container works by storing a reference to both the front and the back elements,
+thus it supports the method for `PUSH_FRONT` in addition to the one for `PUSH_BACK`
 (so the `DUAL_PUSH` name).
-However, there is still only `POP` method (associated to `POP_BACK`).
 The list is a bit bigger to be able to handle such method to work, but not the nodes.
+However, there is only the `POP_FRONT` method, as the element before the last one cannot be
+retrieved from the last element itself, since this container is designed to iterate front to back,
+making it unable to pop elements from the back.
 
 This list is therefore able to represent:
 
-* either a stack (`PUSH_BACK` + `POP_BACK`)
-* or a queue (`PUSH_FRONT` + `POP_BACK`).
+* either a stack (`PUSH_FRONT` + `POP_FRONT`)
+* or a queue (`PUSH_BACK` + `POP_FRONT`).
 
 `LIST_DUAL_PUSH_DEF_AS` is the same as `LIST_DUAL_PUSH_DEF`
 except the name of the types `name_t`, `name_it_t` are provided by the user.
@@ -1990,21 +1999,23 @@ int main(void) {
   list_mpz_init(a);
   mpz_t x;
   mpz_init_set_ui(x, 16);
-  list_mpz_push_back (a, x);
+  list_mpz_push_front (a, x);
   mpz_set_ui(x, 45);             
-  list_mpz_push_back (a, x);
+  list_mpz_push_front (a, x);
   mpz_clear(x);
   printf ("LIST is: ");
   list_mpz_out_str(stdout, a);
   printf ("\n");
   printf ("First element is: ");
-  mpz_out_str(stdout, 0, *list_mpz_back(a));
+  mpz_out_str(stdout, 0, *list_mpz_front(a));
   printf ("\n");
   list_mpz_clear(a);
 }
 ```
 
-The methods follow closely the methods defined by `LIST_DEF`.
+The methods follow closely the methods defined by `LIST_DEF`, though they
+have inverted semantics regarding "front" and "back", where they behave
+more like one would expect them to based on the name.
 
 #### `LIST_DUAL_PUSH_INIT_VALUE()`
 
@@ -2057,8 +2068,8 @@ type *name_push_front_raw(name_t list)
 type *name_push_front_new(name_t list)
 void name_push_front_move(name_t list, type *value)
 void name_emplace_front[suffix](name_t list, args...)
-void name_pop_back(type *data, name_t list)
-void name_pop_move(type *data, name_t list)
+void name_pop_front(type *data, name_t list)
+void name_pop_front_move(type *data, name_t list)
 bool name_empty_p(const name_t list)
 void name_swap(name_t list1, name_t list2)
 void name_it(name_it_t it, name_t list)
@@ -2089,16 +2100,33 @@ The following specialized methods are automatically created by the previous defi
 
 ##### `void name_splice_back(name_t list1, name_t list2, name_it_t it)`
 
-Move the element pointed by `it`
+Move the element referenced by the iterator `it`
 from the list `list2` to the back position of the list `list1`.
+Due to the inverted semantics of "back" and "front" in dual push lists,
+this conceptually differs from the behavior of the same method in the base
+list container, where "back" refers to the "first" element of the list,
+while here the element will be moved to be the "last" element of the dual push list.
 `it` shall be an iterator of `list2`.
-Afterwards, `it` points to the next element of `list2`.
+Afterwards, `it` references the next element of the list if it exists,
+or not a valid element otherwise.
+
+##### `void name_splice_at(name_t list1, name_it_t it1, name_t list2, name_it_t it2)`
+
+Move the element referenced by the iterator `it2` from the list `list2`
+to the position just after `it1` in the list `list1`.
+(If `it1` is not a valid position, it inserts it at the back just like `name_insert`).
+`it1` shall be an iterator of `list1`.
+`it2` shall be an iterator of `list2`.
+Afterwards, `it2` references the next element of the list if it exists,
+or not a valid element otherwise,
+and `it1` references the inserted element in `list1`.
 
 ##### `void name_splice(name_t list1, name_t list2)`
 
-Move all the element of the list `list2` into the list `list1`,
-moving the last element of `list2` after the first element of `list1`.
-Afterwards, `list2` is emptied.
+Move all the elements of the list `list2` into the list `list1`,
+moving the first element of `list2` after the last element of `list1`,
+effectively concatenating the lists into `list1`.
+Afterwards, `list2` remains initialized but is emptied.
 `list1` and `list2` shall reference different objects.
 
 ##### `void name_reverse(name_t list)`
