@@ -909,8 +909,8 @@
     M_F(name, _subtype_ct) *data = M_F(name, _push_back_raw)M_R(v);           \
     if (M_UNLIKELY (data == NULL) )                                           \
       return;                                                                 \
-    M_IF_EXCEPTION(struct M_F(name, _s) *next = v->back);                     \
-    M_ON_EXCEPTION( v->back = next->next, v->front = (v->front == next) ? NULL : v->front, M_CALL_DEL(oplist, next)) { \
+    M_IF_EXCEPTION(struct M_F(name, _s) *next = v->first);                    \
+    M_ON_EXCEPTION( v->first = next->next, v->last = (v->last == next) ? NULL : v->last, M_CALL_DEL(oplist, next)) { \
       M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);     \
     }                                                                         \
   }
@@ -920,13 +920,13 @@
 #define M_L1ST_EMPLACE_FRONT_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
   M_P(void, name, function_name, name_t v M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) ) \
   {                                                                           \
-    M_IF_EXCEPTION(struct M_F(name, _s) *front = v->front, *back = v->back);  \
+    M_IF_EXCEPTION(struct M_F(name, _s) *front = v->last, *back = v->first);  \
     M_F(name, _subtype_ct) *data = M_F(name, _push_front_raw)M_R(v);          \
     if (M_UNLIKELY (data == NULL) )                                           \
       return;                                                                 \
-    M_IF_EXCEPTION(struct M_F(name, _s) *m_volatile tofree = v->front);       \
+    M_IF_EXCEPTION(struct M_F(name, _s) *m_volatile tofree = v->last);        \
     M_IF_EXCEPTION(M_ASSERT(tofree != NULL));                                 \
-    M_ON_EXCEPTION( v->back = back, v->front = front, (front != NULL ? front : tofree)->next = NULL, M_CALL_DEL(oplist, tofree)) { \
+    M_ON_EXCEPTION( v->first = back, v->last = front, (front != NULL ? front : tofree)->next = NULL, M_CALL_DEL(oplist, tofree)) { \
       M_EMPLACE_CALL_FUNC(a, init_func, oplist, *data, exp_emplace_type);     \
     }                                                                         \
   }
@@ -948,8 +948,8 @@
 /* Define the internal contract of an dual-push list */
 #define M_L1ST_DUAL_PUSH_CONTRACT(l) do {                                     \
     M_ASSERT (l != NULL);                                                     \
-    M_ASSERT ( (l->back == NULL && l->front == NULL)                          \
-             || (l->back != NULL && l->front != NULL));                       \
+    M_ASSERT ( (l->first == NULL && l->last == NULL)                          \
+             || (l->first != NULL && l->last != NULL));                       \
   } while (0)
 
 
@@ -983,8 +983,8 @@
      This is done by keeping a pointer to both back & front                   \
   */                                                                          \
   typedef struct M_F(name, _head_s)  {                                        \
-    struct M_F(name,_s) *front; /* Pointer to the front node or NULL */       \
-    struct M_F(name,_s) *back;  /* Pointer to the back node or NULL */        \
+    struct M_F(name,_s) *last; /* Pointer to the weak entry node or NULL */   \
+    struct M_F(name,_s) *first; /* Pointer to the strong entry node or NULL */ \
   } list_t[1];                                                                \
                                                                               \
   /* Define the iterator over a dual push singly linked list */               \
@@ -1014,23 +1014,23 @@
   M_F(name, _init)(list_t v)                                                  \
   {                                                                           \
     M_ASSERT( v != NULL);                                                     \
-    v->front = NULL;                                                          \
-    v->back = NULL;                                                           \
+    v->last = NULL;                                                           \
+    v->first = NULL;                                                          \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
   }                                                                           \
                                                                               \
   M_P(void, name, _reset, list_t v)                                           \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
-    struct M_F(name, _s) *it = v->back;                                       \
+    struct M_F(name, _s) *it = v->first;                                      \
     while (it != NULL) {                                                      \
       struct M_F(name, _s) *next = it->next;                                  \
       M_CALL_CLEAR(oplist, it->data);                                         \
       M_CALL_DEL(oplist, it);                                                 \
       it = next;                                                              \
     }                                                                         \
-    v->front = NULL;                                                          \
-    v->back = NULL;                                                           \
+    v->last = NULL;                                                           \
+    v->first = NULL;                                                          \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
   }                                                                           \
                                                                               \
@@ -1043,8 +1043,8 @@
   M_F(name, _back)(const list_t v)                                            \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
-    M_ASSERT (v->back != NULL);                                               \
-    return &(v->back->data);                                                  \
+    M_ASSERT (v->first != NULL);                                              \
+    return &(v->first->data);                                                 \
   }                                                                           \
                                                                               \
   M_P(type *, name, _push_back_raw, list_t v)                                 \
@@ -1055,13 +1055,13 @@
       M_MEMORY_FULL(struct M_F(name, _s), 1);                                 \
     }                                                                         \
     type *ret = &next->data;                                                  \
-    next->next = v->back;                                                     \
-    v->back = next;                                                           \
-    /* Update front too if the list was empty */                              \
+    next->next = v->first;                                                    \
+    v->first = next;                                                          \
+    /* Update weak entry too if the list was empty */                         \
     /* This C code should generate branchless code */                         \
-    struct M_F(name, _s) *front = v->front;                                   \
-    front = (front == NULL) ? next : front;                                   \
-    v->front = front;                                                         \
+    struct M_F(name, _s) *node = v->last;                                     \
+    node = (node == NULL) ? next : node;                                      \
+    v->last = node;                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     return ret;                                                               \
   }                                                                           \
@@ -1071,8 +1071,8 @@
     type *data = M_F(name, _push_back_raw)M_R(v);                             \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
-    M_IF_EXCEPTION(struct M_F(name, _s) *next = v->back);                     \
-    M_ON_EXCEPTION( v->back = next->next, v->front = (v->front == next) ? NULL : v->front, M_CALL_DEL(oplist, next)) { \
+    M_IF_EXCEPTION(struct M_F(name, _s) *next = v->first);                    \
+    M_ON_EXCEPTION( v->first = next->next, v->last = (v->last == next) ? NULL : v->last, M_CALL_DEL(oplist, next)) { \
       M_CALL_INIT_SET(oplist, *data, x);                                      \
     }                                                                         \
   }                                                                           \
@@ -1083,8 +1083,8 @@
     type *data = M_F(name, _push_back_raw)M_R(v);                             \
     if (M_UNLIKELY (data == NULL))                                            \
       return NULL;                                                            \
-    M_IF_EXCEPTION(struct M_F(name, _s) *next = v->back);                     \
-    M_ON_EXCEPTION( v->back = next->next, v->front = (v->front == next) ? NULL : v->front, M_CALL_DEL(oplist, next)) { \
+    M_IF_EXCEPTION(struct M_F(name, _s) *next = v->first);                    \
+    M_ON_EXCEPTION( v->first = next->next, v->last = (v->last == next) ? NULL : v->last, M_CALL_DEL(oplist, next)) { \
       M_CALL_INIT(oplist, *data);                                             \
     }                                                                         \
     return data;                                                              \
@@ -1108,37 +1108,37 @@
   M_P(void, name, _pop_back, type *data, list_t v)                            \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
-    M_ASSERT (v->back != NULL);                                               \
-    struct M_F(name, _s) *tofree = v->back;                                   \
+    M_ASSERT (v->first != NULL);                                              \
+    struct M_F(name, _s) *tofree = v->first;                                  \
     if (data != NULL) {                                                       \
       M_DO_MOVE(oplist, *data, tofree->data);                                 \
     } else {                                                                  \
       M_CALL_CLEAR(oplist, tofree->data);                                     \
     }                                                                         \
-    v->back = tofree->next;                                                   \
+    v->first = tofree->next;                                                  \
     M_CALL_DEL(oplist, tofree);                                               \
-    /* Update front too if the list became empty */                           \
+    /* Update weak entry too if the list became empty */                      \
     /* This C code shall generate branchless code */                          \
-    struct M_F(name, _s) *front = v->front;                                   \
-    front = (front == tofree) ? NULL : front;                                 \
-    v->front = front;                                                         \
+    struct M_F(name, _s) *node = v->last;                                     \
+    node = (node == tofree) ? NULL : node;                                    \
+    v->last = node;                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
   }                                                                           \
                                                                               \
   M_P(void, name, _pop_move, type *data, list_t v)                            \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
-    M_ASSERT (v->back != NULL);                                               \
+    M_ASSERT (v->first != NULL);                                              \
     M_ASSERT (data != NULL);                                                  \
-    struct M_F(name, _s) *tofree = v->back;                                   \
+    struct M_F(name, _s) *tofree = v->first;                                  \
     M_CALL_INIT_MOVE (oplist, *data, tofree->data);                           \
-    v->back = tofree->next;                                                   \
+    v->first = tofree->next;                                                  \
     M_CALL_DEL(oplist, tofree);                                               \
-    /* Update front too if the list became empty */                           \
+    /* Update weak entry too if the list became empty */                      \
     /* This C code shall generate branchless code */                          \
-    struct M_F(name, _s) *front = v->front;                                   \
-    front = (front == tofree) ? NULL : front;                                 \
-    v->front = front;                                                         \
+    struct M_F(name, _s) *node = v->last;                                     \
+    node = (node == tofree) ? NULL : node;                                    \
+    v->last = node;                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
   }                                                                           \
                                                                               \
@@ -1146,8 +1146,8 @@
   M_F(name, _front)(list_t v)                                                 \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
-    M_ASSERT (v->front != NULL);                                              \
-    return &(v->front->data);                                                 \
+    M_ASSERT (v->last != NULL);                                               \
+    return &(v->last->data);                                                  \
   }                                                                           \
                                                                               \
   M_P(type *, name, _push_front_raw, list_t v)                                \
@@ -1159,26 +1159,26 @@
     }                                                                         \
     type *ret = &next->data;                                                  \
     next->next = NULL;                                                        \
-    if (M_LIKELY(v->front != NULL)) {                                         \
-      v->front->next = next;                                                  \
+    if (M_LIKELY(v->last != NULL)) {                                          \
+      v->last->next = next;                                                   \
     } else {                                                                  \
-      /* Update back too as the list was empty */                             \
-      v->back = next;                                                         \
+      /* Update strong entry too as the list was empty */                     \
+      v->first = next;                                                        \
     }                                                                         \
-    v->front = next;                                                          \
+    v->last = next;                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     return ret;                                                               \
   }                                                                           \
                                                                               \
   M_P(void, name, _push_front, list_t v, type const x)                        \
   {                                                                           \
-    M_IF_EXCEPTION(struct M_F(name, _s) *front = v->front, *back = v->back);  \
+    M_IF_EXCEPTION(struct M_F(name, _s) *last = v->last, *first = v->first);  \
     type *data = M_F(name, _push_front_raw)M_R(v);                            \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
-    M_IF_EXCEPTION(struct M_F(name, _s) *m_volatile tofree = v->front);       \
+    M_IF_EXCEPTION(struct M_F(name, _s) *m_volatile tofree = v->last);        \
     M_IF_EXCEPTION(M_ASSERT(tofree != NULL));                                 \
-    M_ON_EXCEPTION( v->back = back, v->front = front, (front != NULL ? front : tofree)->next = NULL, M_CALL_DEL(oplist, tofree)) { \
+    M_ON_EXCEPTION( v->first = first, v->last = last, (last != NULL ? last : tofree)->next = NULL, M_CALL_DEL(oplist, tofree)) { \
       M_CALL_INIT_SET(oplist, *data, x);                                      \
     }                                                                         \
   }                                                                           \
@@ -1195,13 +1195,13 @@
   M_IF_METHOD(INIT, oplist)(                                                  \
   M_P(type *, name, _push_front_new, list_t v)                                \
   {                                                                           \
-    M_IF_EXCEPTION(struct M_F(name, _s) *front = v->front, *back = v->back);  \
+    M_IF_EXCEPTION(struct M_F(name, _s) *last = v->last, *first = v->first);  \
     type *data = M_F(name, _push_front_raw)M_R(v);                            \
     if (M_UNLIKELY (data == NULL))                                            \
       return NULL;                                                            \
-    M_IF_EXCEPTION(struct M_F(name, _s) *m_volatile tofree = v->front);       \
+    M_IF_EXCEPTION(struct M_F(name, _s) *m_volatile tofree = v->last);        \
     M_IF_EXCEPTION(M_ASSERT(tofree != NULL));                                 \
-    M_ON_EXCEPTION( v->back = back, v->front = front, (front != NULL ? front : tofree)->next = NULL, M_CALL_DEL(oplist, tofree)) { \
+    M_ON_EXCEPTION( v->first = first, v->last = last, (last != NULL ? last : tofree)->next = NULL, M_CALL_DEL(oplist, tofree)) { \
       M_CALL_INIT(oplist, *data);                                             \
     }                                                                         \
     return data;                                                              \
@@ -1212,7 +1212,7 @@
   M_F(name, _empty_p)(const list_t v)                                         \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
-    return v->back == NULL;                                                   \
+    return v->first == NULL;                                                  \
   }                                                                           \
                                                                               \
   M_INLINE void                                                               \
@@ -1220,8 +1220,8 @@
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(l);                                             \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
-    M_SWAP(struct M_F(name, _s) *, l->front, v->front);                       \
-    M_SWAP(struct M_F(name, _s) *, l->back, v->back);                         \
+    M_SWAP(struct M_F(name, _s) *, l->last, v->last);                         \
+    M_SWAP(struct M_F(name, _s) *, l->first, v->first);                       \
   }                                                                           \
                                                                               \
   M_INLINE void                                                               \
@@ -1229,7 +1229,7 @@
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     M_ASSERT (it != NULL);                                                    \
-    it->current  = v->back;                                                   \
+    it->current  = v->first;                                                  \
     it->previous = NULL;                                                      \
   }                                                                           \
                                                                               \
@@ -1299,7 +1299,7 @@
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     size_t size = 0;                                                          \
-    struct M_F(name, _s) *it = v->back;                                       \
+    struct M_F(name, _s) *it = v->first;                                      \
     while (it != NULL) {                                                      \
       size ++;                                                                \
       it = it->next;                                                          \
@@ -1318,19 +1318,19 @@
     M_ON_EXCEPTION( M_CALL_DEL(oplist, next))                                 \
       M_CALL_INIT_SET(oplist, next->data, x);                                 \
     if (M_UNLIKELY (insertion_point->current == NULL)) {                      \
-      next->next = list->back;                                                \
-      list->back = next;                                                      \
-      /* update front if list is empty */                                     \
-      struct M_F(name, _s) *front = list->front;                              \
-      front = (front == NULL) ? next : front;                                 \
-      list->front = front;                                                    \
+      next->next = list->first;                                               \
+      list->first = next;                                                     \
+      /* update weak entry if list is empty */                                \
+      struct M_F(name, _s) *node = list->last;                                \
+      node = (node == NULL) ? next : node;                                    \
+      list->last = node;                                                      \
     } else {                                                                  \
       next->next = insertion_point->current->next;                            \
       insertion_point->current->next = next;                                  \
-      /* update front if current == front */                                  \
-      struct M_F(name, _s) *front = list->front;                              \
-      front = (front == insertion_point->current) ? next : front;             \
-      list->front = front;                                                    \
+      /* update weak entry if current == front */                             \
+      struct M_F(name, _s) *node = list->last;                                \
+      node = (node == insertion_point->current) ? next : node;                \
+      list->last = node;                                                      \
     }                                                                         \
   }                                                                           \
                                                                               \
@@ -1342,14 +1342,14 @@
     struct M_F(name, _s) *next = removing_point->current->next;               \
     struct M_F(name, _s) *previous = removing_point->previous;                \
     if (M_UNLIKELY (previous == NULL)) {                                      \
-      list->back = next;                                                      \
+      list->first = next;                                                     \
     } else {                                                                  \
       previous->next = next;                                                  \
     }                                                                         \
-    /* Update front  */                                                       \
-    struct M_F(name, _s) *front = list->front;                                \
-    front = (next == NULL) ? previous : front;                                \
-    list->front = front;                                                      \
+    /* Update weak entry  */                                                  \
+    struct M_F(name, _s) *node = list->last;                                  \
+    node = (next == NULL) ? previous : node;                                  \
+    list->last = node;                                                        \
     /* Remove node */                                                         \
     M_CALL_CLEAR(oplist, removing_point->current->data);                      \
     M_CALL_DEL(oplist, removing_point->current);                              \
@@ -1365,8 +1365,8 @@
     struct M_F(name, _s) **update_list;                                       \
     if (M_UNLIKELY (list == org)) return;                                     \
     M_F(name, _reset)M_R(list);                                               \
-    update_list = &list->back;                                                \
-    it_org = org->back;                                                       \
+    update_list = &list->first;                                               \
+    it_org = org->first;                                                      \
     M_ASSERT(*update_list == NULL);                                           \
     M_ON_EXCEPTION(M_CALL_DEL(oplist, next) )                                 \
     while (it_org != NULL) {                                                  \
@@ -1380,7 +1380,7 @@
       update_list = &next->next;                                              \
       it_org = it_org->next;                                                  \
       /* so that even on exception, the object is still coherent */           \
-      list->front = next;                                                     \
+      list->last = next;                                                      \
       *update_list = NULL;                                                    \
       M_IF_EXCEPTION(next = NULL);                                            \
     }                                                                         \
@@ -1399,10 +1399,10 @@
   M_F(name, _init_move)(list_t list, list_t org)                              \
   {                                                                           \
     M_ASSERT (list != org);                                                   \
-    list->back  = org->back;                                                  \
-    list->front = org->front;                                                 \
-    org->back = NULL;                                                         \
-    org->front = NULL;                                                        \
+    list->first  = org->first;                                                \
+    list->last = org->last;                                                   \
+    org->first = NULL;                                                        \
+    org->last = NULL;                                                         \
   }                                                                           \
                                                                               \
   M_P(void, name, _move, list_t list, list_t org)                             \
@@ -1421,24 +1421,24 @@
     struct M_F(name, _s) *current = it->current;                              \
     struct M_F(name, _s) *next = current->next;                               \
     if (it->previous == NULL) {                                               \
-      list2->back = next;                                                     \
+      list2->first = next;                                                    \
     } else {                                                                  \
       it->previous->next = next;                                              \
     }                                                                         \
     /* Update the front of 'list2' if it was the last element */              \
-    struct M_F(name, _s) *front = list2->front;                               \
+    struct M_F(name, _s) *front = list2->last;                                \
     front = (next == NULL) ? it->previous : front;                            \
-    list2->front = front;                                                     \
+    list2->last = front;                                                      \
     /* Update 'it' to point to the next element */                            \
     it->current = next;                                                       \
     /* Move the extracted 'current' into the list 'nv' */                     \
-    current->next = list1->back;                                              \
-    list1->back = current;                                                    \
+    current->next = list1->first;                                             \
+    list1->first = current;                                                   \
     /* Update the front field if the list 'nv' was empty */                   \
     /* This C code shall generate branchless code */                          \
-    front = list1->front;                                                     \
+    front = list1->last;                                                      \
     front = (front == NULL) ? current : front;                                \
-    list1->front = front;                                                     \
+    list1->last = front;                                                      \
     M_L1ST_DUAL_PUSH_CONTRACT(list1);                                         \
     M_L1ST_DUAL_PUSH_CONTRACT(list2);                                         \
   }                                                                           \
@@ -1456,33 +1456,33 @@
     M_ASSERT(current != NULL);                                                \
     struct M_F(name, _s) *next    = current->next;                            \
     if (opos->previous == NULL) {                                             \
-      olist->back = next;                                                     \
+      olist->first = next;                                                    \
     } else {                                                                  \
       opos->previous->next = next;                                            \
     }                                                                         \
     /* Update the front of 'olist' if it was the last element */              \
-    struct M_F(name, _s) *front = olist->front;                               \
+    struct M_F(name, _s) *front = olist->last;                                \
     front = (next == NULL) ? opos->previous : front;                          \
-    olist->front = front;                                                     \
+    olist->last = front;                                                      \
     /* Update 'opos' to point to the next element */                          \
     opos->current  = next;                                                    \
     /* opos->previous is still valid & doesn't need to be updated */          \
     /* Insert into 'nlist' */                                                 \
     struct M_F(name, _s) *npos_current = npos->current;                       \
     if (M_UNLIKELY (npos_current == NULL)) {                                  \
-      current->next = nlist->back;                                            \
-      nlist->back = current;                                                  \
+      current->next = nlist->first;                                           \
+      nlist->first = current;                                                 \
       /* update 'front' if the list was empty (branchless) */                 \
-      front = nlist->front;                                                   \
+      front = nlist->last;                                                    \
       front = (front == NULL) ? current : front;                              \
-      nlist->front = front;                                                   \
+      nlist->last = front;                                                    \
     } else {                                                                  \
       current->next = npos_current->next;                                     \
       npos_current->next = current;                                           \
       /* update front if current == front (branchless) */                     \
-      front = nlist->front;                                                   \
+      front = nlist->last;                                                    \
       front = (front == npos_current) ? current : front;                      \
-      nlist->front = front;                                                   \
+      nlist->last = front;                                                    \
     }                                                                         \
     /* Update 'npos' to point to 'current'. */                                \
     npos->previous = npos_current;                                            \
@@ -1497,16 +1497,16 @@
     M_L1ST_DUAL_PUSH_CONTRACT(list1);                                         \
     M_L1ST_DUAL_PUSH_CONTRACT(list2);                                         \
     M_ASSERT (list1 != list2);                                                \
-    if (M_LIKELY (list1->front != NULL)) {                                    \
-      list1->front->next = list2->back;                                       \
-      list1->front = list2->front;                                            \
+    if (M_LIKELY (list1->last != NULL)) {                                     \
+      list1->last->next = list2->first;                                       \
+      list1->last = list2->last;                                              \
     } else {                                                                  \
       /* list1 is empty */                                                    \
-      list1->back  = list2->back;                                             \
-      list1->front = list2->front;                                            \
+      list1->first  = list2->first;                                           \
+      list1->last = list2->last;                                              \
     }                                                                         \
-    list2->back = NULL;                                                       \
-    list2->front = NULL;                                                      \
+    list2->first = NULL;                                                      \
+    list2->last = NULL;                                                       \
     M_L1ST_DUAL_PUSH_CONTRACT(list1);                                         \
     M_L1ST_DUAL_PUSH_CONTRACT(list2);                                         \
   }                                                                           \
@@ -1515,15 +1515,15 @@
   M_F(name, _reverse)(list_t list)                                            \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(list);                                          \
-    list->front = list->back;                                                 \
-    struct M_F(name, _s) *previous = NULL, *it = list->back, *next;           \
+    list->last = list->first;                                                 \
+    struct M_F(name, _s) *previous = NULL, *it = list->first, *next;          \
     while (it != NULL) {                                                      \
       next = it->next;                                                        \
       it->next = previous;                                                    \
       previous = it;                                                          \
       it = next;                                                              \
     }                                                                         \
-    list->back = previous;                                                    \
+    list->first = previous;                                                   \
     M_L1ST_DUAL_PUSH_CONTRACT(list);                                          \
   }                                                                           \
 
