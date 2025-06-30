@@ -903,7 +903,7 @@
 
 
 /* Definition of the emplace_back function for dual push list */
-#define M_L1ST_EMPLACE_BACK_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
+#define M_L1ST_EMPLACE_STRONG_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
   M_P(void, name, function_name, name_t v M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) ) \
   {                                                                           \
     M_F(name, _subtype_ct) *data = M_F(name, _push_back_raw)M_R(v);           \
@@ -917,7 +917,7 @@
 
 
 /* Definition of the emplace_front function for dual push list */
-#define M_L1ST_EMPLACE_FRONT_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
+#define M_L1ST_EMPLACE_WEAK_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
   M_P(void, name, function_name, name_t v M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) ) \
   {                                                                           \
     M_IF_EXCEPTION(struct M_F(name, _s) *front = v->last, *back = v->first);  \
@@ -963,9 +963,9 @@
 #define M_L1ST_DUAL_PUSH_DEF_P3(name, type, oplist, list_t, it_t)             \
   M_L1ST_DUAL_PUSH_DEF_TYPE(name, type, oplist, list_t, it_t)                 \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
-  M_L1ST_DUAL_PUSH_DEF_P4(name, type, oplist, list_t, it_t)                   \
-  M_EMPLACE_QUEUE_DEF(name, list_t, _emplace_back, oplist, M_L1ST_EMPLACE_BACK_DEF) \
-  M_EMPLACE_QUEUE_DEF(name, list_t, _emplace_front, oplist, M_L1ST_EMPLACE_FRONT_DEF) \
+  M_L1ST_DUAL_PUSH_DEF_P4(name, type, oplist, list_t, it_t, _back, _push_back_raw, _push_back, _push_back_move, _push_back_new, _pop_back, _front, _push_front_raw, _push_front, _push_front_move, _push_front_new) \
+  M_EMPLACE_QUEUE_DEF(name, list_t, _emplace_back, oplist, M_L1ST_EMPLACE_STRONG_DEF) \
+  M_EMPLACE_QUEUE_DEF(name, list_t, _emplace_front, oplist, M_L1ST_EMPLACE_WEAK_DEF) \
   M_L1ST_ITBASE_DEF(name, type, oplist, list_t, it_t)
 
 
@@ -978,8 +978,7 @@
   };                                                                          \
                                                                               \
   /* Dual Push singly linked list.                                            \
-     Support Push Back / Push Front / Pop back in O(1).                       \
-     Doesn't support Pop front.                                               \
+     Support Push Back / Push Front / Pop back or front in O(1).              \
      This is done by keeping a pointer to both back & front                   \
   */                                                                          \
   typedef struct M_F(name, _head_s)  {                                        \
@@ -1007,8 +1006,10 @@
    - oplist: oplist of the type of the elements of the container
    - list_t: alias for type of the container
    - it_t: alias for iterator of the container
+   - strong: name of the strong entry point (back or front)
+   - weak: name of the weak entry point (front or back)
  */
-#define M_L1ST_DUAL_PUSH_DEF_P4(name, type, oplist, list_t, it_t)             \
+#define M_L1ST_DUAL_PUSH_DEF_P4(name, type, oplist, list_t, it_t, strong, push_strong_raw, push_strong, push_strong_move, push_strong_new, pop_strong, weak, push_weak_raw, push_weak, push_weak_move, push_weak_new) \
                                                                               \
   M_INLINE void                                                               \
   M_F(name, _init)(list_t v)                                                  \
@@ -1040,14 +1041,14 @@
   }                                                                           \
                                                                               \
   M_INLINE type *                                                             \
-  M_F(name, _back)(const list_t v)                                            \
+  M_F(name, strong)(const list_t v)                                           \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     M_ASSERT (v->first != NULL);                                              \
     return &(v->first->data);                                                 \
   }                                                                           \
                                                                               \
-  M_P(type *, name, _push_back_raw, list_t v)                                 \
+  M_P(type *, name, push_strong_raw, list_t v)                                \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     struct M_F(name, _s) *next = M_CALL_NEW(oplist, struct M_F(name, _s));    \
@@ -1066,9 +1067,9 @@
     return ret;                                                               \
   }                                                                           \
                                                                               \
-  M_P(void, name, _push_back, list_t v, type const x)                         \
+  M_P(void, name, push_strong, list_t v, type const x)                        \
   {                                                                           \
-    type *data = M_F(name, _push_back_raw)M_R(v);                             \
+    type *data = M_F(name, push_strong_raw)M_R(v);                            \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
     M_IF_EXCEPTION(struct M_F(name, _s) *next = v->first);                    \
@@ -1078,9 +1079,9 @@
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
-  M_P(type *, name, _push_back_new, list_t v)                                 \
+  M_P(type *, name, push_strong_new, list_t v)                                \
   {                                                                           \
-    type *data = M_F(name, _push_back_raw)M_R(v);                             \
+    type *data = M_F(name, push_strong_raw)M_R(v);                            \
     if (M_UNLIKELY (data == NULL))                                            \
       return NULL;                                                            \
     M_IF_EXCEPTION(struct M_F(name, _s) *next = v->first);                    \
@@ -1091,10 +1092,10 @@
   }                                                                           \
   , /* No INIT */ )                                                           \
                                                                               \
-  M_P(void, name, _push_back_move, list_t v, type *x)                         \
+  M_P(void, name, push_strong_move, list_t v, type *x)                        \
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
-    type *data = M_F(name, _push_back_raw)M_R(v);                             \
+    type *data = M_F(name, push_strong_raw)M_R(v);                            \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
     M_CALL_INIT_MOVE (oplist, *data, *x);                                     \
@@ -1102,10 +1103,10 @@
                                                                               \
   M_P(void, name, _push_move, list_t v, type *x)                              \
   {                                                                           \
-    M_F(name, _push_back_move)M_R(v, x);                                      \
+    M_F(name, push_strong_move)M_R(v, x);                                     \
   }                                                                           \
                                                                               \
-  M_P(void, name, _pop_back, type *data, list_t v)                            \
+  M_P(void, name, pop_strong, type *data, list_t v)                           \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     M_ASSERT (v->first != NULL);                                              \
@@ -1143,14 +1144,14 @@
   }                                                                           \
                                                                               \
   M_INLINE type *                                                             \
-  M_F(name, _front)(list_t v)                                                 \
+  M_F(name, weak)(list_t v)                                                   \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     M_ASSERT (v->last != NULL);                                               \
     return &(v->last->data);                                                  \
   }                                                                           \
                                                                               \
-  M_P(type *, name, _push_front_raw, list_t v)                                \
+  M_P(type *, name, push_weak_raw, list_t v)                                  \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     struct M_F(name, _s) *next = M_CALL_NEW(oplist, struct M_F(name, _s));    \
@@ -1170,10 +1171,10 @@
     return ret;                                                               \
   }                                                                           \
                                                                               \
-  M_P(void, name, _push_front, list_t v, type const x)                        \
+  M_P(void, name, push_weak, list_t v, type const x)                          \
   {                                                                           \
     M_IF_EXCEPTION(struct M_F(name, _s) *last = v->last, *first = v->first);  \
-    type *data = M_F(name, _push_front_raw)M_R(v);                            \
+    type *data = M_F(name, push_weak_raw)M_R(v);                              \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
     M_IF_EXCEPTION(struct M_F(name, _s) *m_volatile tofree = v->last);        \
@@ -1183,20 +1184,20 @@
     }                                                                         \
   }                                                                           \
                                                                               \
-  M_P(void, name, _push_front_move, list_t v, type *x)                        \
+  M_P(void, name, push_weak_move, list_t v, type *x)                          \
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
-    type *data = M_F(name, _push_front_raw)M_R(v);                            \
+    type *data = M_F(name, push_weak_raw)M_R(v);                              \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
     M_CALL_INIT_MOVE (oplist, *data, *x);                                     \
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
-  M_P(type *, name, _push_front_new, list_t v)                                \
+  M_P(type *, name, push_weak_new, list_t v)                                  \
   {                                                                           \
     M_IF_EXCEPTION(struct M_F(name, _s) *last = v->last, *first = v->first);  \
-    type *data = M_F(name, _push_front_raw)M_R(v);                            \
+    type *data = M_F(name, push_weak_raw)M_R(v);                              \
     if (M_UNLIKELY (data == NULL))                                            \
       return NULL;                                                            \
     M_IF_EXCEPTION(struct M_F(name, _s) *m_volatile tofree = v->last);        \
