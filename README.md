@@ -119,7 +119,7 @@ there is no overhead in using this library rather than using
 direct C low-level access as the compiler is able to **fully** optimize
 the library usage
 and the library is carefully designed.
-In [fact](https://github.com/P-p-H-d/mlib/wiki/performance), M\*LIB
+In [fact](https://github.com/P-p-H-d/c-stl-comparison/wiki/Benchmark-result), M\*LIB
 is one of the fastest generic C/C++ library you can find.
 
 M\*LIB uses internally the `malloc`, `realloc` and `free` functions to handle
@@ -546,7 +546,7 @@ Each graph is presented first in linear scale and then in logarithmic scale to b
 M\*LIB is on par with the STL or even faster.
 
 All used bench codes are available in this [repository](https://github.com/P-p-H-d/c-stl-comparison)
-The results for several different libraries are also available [in a separate page](https://github.com/P-p-H-d/mlib/wiki/performance).
+The results for several different libraries are also available [in a separate page](https://github.com/P-p-H-d/c-stl-comparison/wiki/Benchmark-result).
 
 #### Singly List
 
