@@ -47,7 +47,7 @@ LIST_DEF_AS(list_double, ListDouble, ListDoubleIt, double)
 LIST_DUAL_PUSH_DEF_AS(list_doubleDP, ListDoubleDP, ListDoubleDPIt, double)
 #define M_OPL_ListDoubleDP() LIST_OPLIST(list_doubleDP, M_BASIC_OPLIST)
 
-LIST_BI_PUSH_DEF(list2f_double, double)
+LIST_BIF_DEF(list2f_double, double)
 
 ListDouble   g_array1 = LIST_INIT_VALUE();
 ListDoubleDP g_array2 = LIST_DUAL_PUSH_INIT_VALUE();
@@ -576,6 +576,46 @@ static void test_dual_push1(void)
   list2_double_clear(list);
 }
 
+static void test_bif(void)
+{
+  list2f_double_t x;
+
+  list2f_double_init(x);
+  assert(list2f_double_empty_p(x));
+  list2f_double_push_front(x, 2.0);
+  list2f_double_push_front(x, 1.0);
+  list2f_double_push_back(x, 3.0);
+  assert(list2f_double_size(x) == 3);
+  assert(*list2f_double_front(x) == 1.0);
+  assert(*list2f_double_back(x) == 3.0);
+  list2f_double_it_t it;
+  double d = 1.0;
+  for(list2f_double_it(it, x); !list2f_double_end_p(it); list2f_double_next(it)){
+    assert(d == *list2f_double_cref(it));
+    d += 1.0;
+  }
+  list2f_double_pop_front(&d, x);
+  assert(d == 1.0);
+  list2f_double_reverse(x);
+  list2f_double_pop_front(&d, x);
+  assert(d == 3.0);
+  list2f_double_pop_front(&d, x);
+  assert(d == 2.0);
+  assert(list2f_double_empty_p(x));
+  list2f_double_clear(x);
+  // BUG: M_INIT_WITH_VAI23_FUNC uses _back instead of _strong...
+  // How to fix? Create common functions also for array...
+  M_LET( (y, (1.0, 2.0, 3.0, 4.0)), LIST_OPLIST(list2f_double, M_BASIC_OPLIST)) {
+    assert(list2f_double_size(y) == 4);
+    for(list2f_double_it(it, y); !list2f_double_end_p(it); list2f_double_next(it)){
+      printf("%f ", *list2f_double_cref(it) );
+    } printf("\n");
+    printf("Front=%f\n", *list2f_double_front(y) );
+    assert(*list2f_double_front(y) == 1.0);
+    assert(*list2f_double_back(y) == 4.0);
+  }
+}
+
 static void test_dual_it1(void)
 {
   list2_double_t list;
@@ -901,6 +941,7 @@ int main(void)
   test_mpz();
   test_dual_push1();
   test_dual_it1();
+  test_bif();
   test_out_default_oplist();
   test_double();
   test_let_string();
