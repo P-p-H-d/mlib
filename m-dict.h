@@ -325,6 +325,9 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
   {                                                                           \
     map->upper_limit = (m_index_t) ((double) size * M_D1CT_OA_UPPER_BOUND) - 1; \
     map->lower_limit = (size <= M_D1CT_INITIAL_SIZE) ? 0 : (m_index_t) ((double) size * M_D1CT_OA_LOWER_BOUND) ; \
+    if (M_UNLIKELY(map->count <= map->lower_limit)) {                         \
+      map->lower_limit = 0;                                                   \
+    }                                                                         \
   }                                                                           \
                                                                               \
   M_P(void, name, _init, dict_t map)                                          \
@@ -1534,6 +1537,9 @@ enum m_d1ct_oa_element_e {
     /* FIXME: Overflow not handled. What to do in case of it? */              \
     dict->upper_limit = (size_t) ((double) size * coeff_up) - 1;              \
     dict->lower_limit = (size <= M_D1CT_INITIAL_SIZE) ? 0 : (size_t) ((double) size * coeff_down) ; \
+    if (M_UNLIKELY(dict->count <= dict->lower_limit)) {                       \
+      dict->lower_limit = 0;                                                  \
+    }                                                                         \
   }                                                                           \
                                                                               \
   M_P(void, name, _init, dict_t dict)                                         \

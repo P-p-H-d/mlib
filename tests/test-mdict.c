@@ -893,6 +893,28 @@ static void test_coverage(void)
 
 }
 
+/* Reported by florommel */
+static void test_reserve_bug(void)
+{
+    dict_int_t dict;
+    dict_int_init(dict);
+
+    /* NOTE: Remove the following line to make it not fail: */
+    dict_int_reserve(dict, 32);
+
+    int k = 0;
+    for (int n = 0; n < 100; n++) {
+        for (int i = 0; i < 3; i++) {
+            dict_int_set_at(dict, ++k, 42);
+        }
+        for (int i = 0; i < 3; i++) {
+            dict_int_erase(dict, k--);
+        }
+        k += 100; /* ensure fresh keys in the next iteration */
+    }
+    dict_int_clear(dict);
+}
+
 int main(void)
 {
   test1();
@@ -905,6 +927,7 @@ int main(void)
   test_it_oa();
   test_oa_str1();
   test_oa_str2();
+  test_reserve_bug();
   testobj_final_check();
   test_coverage();
   exit(0);
