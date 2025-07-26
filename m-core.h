@@ -4748,7 +4748,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 
 /* Initialize the container 'dest' as per 'oplist' INIT operator
-   and fill it with the given VA_ARGS arguments with the _push_raw method
+   and fill it with the given VA_ARGS arguments with the _push_back_raw method
    allowing INIT_WITH operator for the pushed argument if the given
    argument is between parenthesis, otherwise an INIT_SET is performed.
    NOTE: Parenthesis detection is the best we can do to detect a special
@@ -4766,11 +4766,11 @@ m_core_parse2_enum (const char str[], const char **endptr)
   M_INIT_WITH_VAI23_FUNC(M_PAIR_1 pair, M_PAIR_2 pair, a)
 
 /* We first push a raw new item, and then we get back its pointer using _back.
-  _back (contrary to _push_raw) has no side effect, and so is safe to be used
+  _back (contrary to _push_back_raw) has no side effect, and so is safe to be used
   in a macro */
 #define M_INIT_WITH_VAI23_FUNC(d, op, a)                                      \
   (                                                                           \
-    (void) M_C(M_GET_NAME op, _push_raw)(d),                                  \
+    (void) M_C(M_GET_NAME op, _push_back_raw)(d),                             \
     M_IF(M_PARENTHESIS_P(a))                                                  \
     (M_CALL_INIT_WITH, M_CALL_INIT_SET)                                       \
     (M_GET_OPLIST op, *M_C(M_GET_NAME op, _back)(d), M_REMOVE_PARENTHESIS(a)) \

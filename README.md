@@ -1415,7 +1415,6 @@ This method is created only if the `INIT_SET` operator is provided.
 The `_back` suffixed method will push it in the back of the container.
 The `_front` suffixed method will push it in the front of the container.
 
-##### `type_t *name_push_raw(name_t container)`
 ##### `type_t *name_push_back_raw(name_t container)`
 ##### `type_t *name_push_front_raw(name_t container)`
 
@@ -1885,7 +1884,7 @@ void name_clear(name_t list)
 void name_reset(name_t list)
 type *name_back(const name_t list)
 void name_push_back(name_t list, const type value)
-type *name_push_raw(name_t list)
+type *name_push_back_raw(name_t list)
 type *name_push_new(name_t list)
 void name_push_move(name_t list, type *value)
 void name_emplace_back[suffix](name_t list, args...)
@@ -2207,7 +2206,7 @@ void name_init_move(name_t array, name_t ref)
 void name_move(name_t array, name_t ref)
 void name_clear(name_t array)
 void name_reset(name_t array)
-type *name_push_raw(name_t array)
+type *name_push_back_raw(name_t array)
 void name_push_back(name_t array, const type value)
 type *name_push_new(name_t array)
 void name_push_move(name_t array, type *val)
@@ -9237,7 +9236,7 @@ The following methods are modified to support the memory context parameter (the 
   * \<array\>_init_set
   * \<array\>_move
   * \<array\>_set_at
-  * \<array\>_push_raw
+  * \<array\>_push_back_raw
   * \<array\>_push_back
   * \<array\>_push_new
   * \<array\>_push_move
@@ -9336,7 +9335,7 @@ The following methods are modified to support the memory context parameter (the 
 * m-list
   * \<list\>_reset
   * \<list\>_clear
-  * \<list\>_push_raw
+  * \<list\>_push_back_raw
   * \<list\>_push_back
   * \<list\>_push_new
   * \<list\>_pop_back
@@ -9356,7 +9355,6 @@ The following methods are modified to support the memory context parameter (the 
   * \<list\>_\<emplace_back\>
   * \<list\>_\<emplace_front\>
   * \<list\>_push_back_raw
-  * \<list\>_push_raw
   * \<list\>_push_back
   * \<list\>_push_back_new
   * \<list\>_push_back_move

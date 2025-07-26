@@ -1668,7 +1668,7 @@ enum m_d1ct_oa_element_e {
             M_CALL_INIT_MOVE(key_oplist, data[p].key, data[i].key);           \
             M_CALL_INIT_MOVE(value_oplist, data[p].value, data[i].value);     \
           } else {                                                            \
-            M_F(name, _pair_ct) *ptr = M_F(name, _array_pair_push_raw)M_R(tmp); \
+            M_F(name, _pair_ct) *ptr = M_F(name, _array_pair_push_back_raw)M_R(tmp); \
             M_CALL_INIT_MOVE(key_oplist, ptr->key, data[i].key);              \
             M_CALL_INIT_MOVE(value_oplist, ptr->value, data[i].value);        \
           }                                                                   \
@@ -1842,7 +1842,7 @@ enum m_d1ct_oa_element_e {
           M_CALL_INIT_MOVE(key_oplist, data[p].key, data[i].key);             \
           M_CALL_INIT_MOVE(value_oplist, data[p].value, data[i].value);       \
         } else {                                                              \
-          M_F(name, _pair_ct) *ptr = M_F(name, _array_pair_push_raw)M_R(tmp); \
+          M_F(name, _pair_ct) *ptr = M_F(name, _array_pair_push_back_raw)M_R(tmp); \
           M_CALL_INIT_MOVE(key_oplist, ptr->key, data[i].key);                \
           M_CALL_INIT_MOVE(value_oplist, ptr->value, data[i].value);          \
         }                                                                     \

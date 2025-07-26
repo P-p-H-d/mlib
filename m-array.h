@@ -367,7 +367,7 @@
     return &v->ptr[v->size-1];                                                \
   }                                                                           \
                                                                               \
-  M_P(type *, name, _push_raw, array_t v)                                     \
+  M_P(type *, name, _push_back_raw, array_t v)                                \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
     if (M_UNLIKELY (v->size >= v->alloc)) {                                   \
@@ -395,7 +395,7 @@
   M_IF_METHOD(INIT_SET, oplist)(                                              \
   M_P(void, name, _push_back, array_t v, type const x)                        \
   {                                                                           \
-    type *data = M_F(name, _push_raw) M_R(v);                                 \
+    type *data = M_F(name, _push_back_raw) M_R(v);                            \
     if (M_UNLIKELY (data == NULL) )                                           \
       return;                                                                 \
     M_IF_EXCEPTION( v->size --);                                              \
@@ -407,7 +407,7 @@
   M_IF_METHOD(INIT, oplist)(                                                  \
   M_P(type *, name, _push_new, array_t v)                                     \
   {                                                                           \
-    type *data = M_F(name, _push_raw) M_R(v);                                 \
+    type *data = M_F(name, _push_back_raw) M_R(v);                            \
     if (M_UNLIKELY (data == NULL) )                                           \
       return NULL;                                                            \
     M_IF_EXCEPTION( v->size --);                                              \
@@ -420,7 +420,7 @@
   M_P(void, name, _push_move, array_t v, type *x)                             \
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
-    type *data = M_F(name, _push_raw) M_R(v);                                 \
+    type *data = M_F(name, _push_back_raw) M_R(v);                            \
     if (M_UNLIKELY (data == NULL) )                                           \
       return;                                                                 \
     M_CALL_INIT_MOVE (oplist, *data, *x);                                     \
@@ -1136,7 +1136,7 @@
 #define M_ARRA4_EMPLACE_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
   M_P(void, name, function_name, name_t v M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) ) \
   {                                                                           \
-    M_F(name, _subtype_ct) *data = M_F(name, _push_raw) M_R(v);               \
+    M_F(name, _subtype_ct) *data = M_F(name, _push_back_raw) M_R(v);          \
     if (M_UNLIKELY (data == NULL) )                                           \
       return;                                                                 \
     M_IF_EXCEPTION( v->size --);                                              \

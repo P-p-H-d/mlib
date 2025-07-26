@@ -293,7 +293,7 @@
     return &((*v)->data);                                                     \
   }                                                                           \
                                                                               \
-  M_P(type *, name, _push_raw, list_t v)                                      \
+  M_P(type *, name, _push_back_raw, list_t v)                                 \
   {                                                                           \
     M_L1ST_CONTRACT(v);                                                       \
     struct M_F(name, _s) *next = M_CALL_NEW(oplist, struct M_F(name, _s));    \
@@ -309,7 +309,7 @@
                                                                               \
   M_P(void, name, _push_back, list_t v, type const x)                         \
   {                                                                           \
-    type *data = M_F(name, _push_raw)M_R(v);                                  \
+    type *data = M_F(name, _push_back_raw)M_R(v);                             \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
     M_IF_EXCEPTION(struct M_F(name, _s) *next = *v );                         \
@@ -321,7 +321,7 @@
   M_IF_METHOD(INIT, oplist)(                                                  \
   M_P(type *, name, _push_new, list_t v)                                      \
   {                                                                           \
-    type *data = M_F(name, _push_raw)M_R(v);                                  \
+    type *data = M_F(name, _push_back_raw)M_R(v);                             \
     if (M_UNLIKELY (data == NULL))                                            \
       return NULL;                                                            \
     M_IF_EXCEPTION(struct M_F(name, _s) *next = *v );                         \
@@ -350,7 +350,7 @@
   M_P(void, name, _push_move, list_t v, type *x)                              \
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
-    type *data = M_F(name, _push_raw)M_R(v);                                  \
+    type *data = M_F(name, _push_back_raw)M_R(v);                             \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
     M_CALL_INIT_MOVE (oplist, *data, *x);                                     \
@@ -892,7 +892,7 @@
 #define M_L1ST_EMPLACE_DEF(name, name_t, function_name, oplist, init_func, exp_emplace_type) \
   M_P(void, name, function_name, name_t v M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type) ) \
   {                                                                           \
-    M_F(name, _subtype_ct) *data = M_F(name, _push_raw)M_R(v);                \
+    M_F(name, _subtype_ct) *data = M_F(name, _push_back_raw)M_R(v);           \
     if (M_UNLIKELY (data == NULL) )                                           \
       return;                                                                 \
     M_IF_EXCEPTION(struct M_F(name, _s) *next = *v );                         \
@@ -1064,12 +1064,6 @@
     v->front = front;                                                         \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     return ret;                                                               \
-  }                                                                           \
-                                                                              \
-  /* Internal, for INIT_WITH */                                               \
-  M_P(type *, name, _push_raw, list_t d)                                      \
-  {                                                                           \
-    return M_F(name, _push_back_raw)M_R(d);                                   \
   }                                                                           \
                                                                               \
   M_P(void, name, _push_back, list_t v, type const x)                         \

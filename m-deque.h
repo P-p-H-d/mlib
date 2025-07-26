@@ -280,12 +280,6 @@
     return ret;                                                               \
   }                                                                           \
                                                                               \
-  /* Internal, for generic INIT_WITH */                                       \
-  M_P(type *, name, _push_raw, deque_t d)                                     \
-  {                                                                           \
-    return M_F(name, _push_back_raw)M_R(d);                                   \
-  }                                                                           \
-                                                                              \
   M_P(void, name, _push_back, deque_t d, type const x)                        \
   {                                                                           \
     type *p = M_F(name, _push_back_raw)M_R(d);                                \
