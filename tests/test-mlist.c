@@ -603,16 +603,15 @@ static void test_bif(void)
   assert(d == 2.0);
   assert(list2f_double_empty_p(x));
   list2f_double_clear(x);
-  // BUG: M_INIT_WITH_VAI23_FUNC uses _back instead of _strong...
-  // How to fix? Create common functions also for array...
-  M_LET( (y, (1.0, 2.0, 3.0, 4.0)), LIST_OPLIST(list2f_double, M_BASIC_OPLIST)) {
+  M_LET( (y, (1.0, 2.0, 3.0, 4.0)), LIST_BIF_OPLIST(list2f_double, M_BASIC_OPLIST)) {
     assert(list2f_double_size(y) == 4);
-    for(list2f_double_it(it, y); !list2f_double_end_p(it); list2f_double_next(it)){
-      printf("%f ", *list2f_double_cref(it) );
-    } printf("\n");
-    printf("Front=%f\n", *list2f_double_front(y) );
     assert(*list2f_double_front(y) == 1.0);
     assert(*list2f_double_back(y) == 4.0);
+    d = 1.0;
+    for(list2f_double_it(it, y); !list2f_double_end_p(it); list2f_double_next(it)){
+      assert( *list2f_double_cref(it) == d);
+      d += 1.0;
+    }
   }
 }
 
