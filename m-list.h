@@ -84,6 +84,10 @@
                   ((__VA_ARGS__, M_BASIC_OPLIST ),                            \
                    (__VA_ARGS__ )))
 
+/* Define the oplist of a list of the given type.
+   USAGE: LIST_BIF_OPLIST(name [, oplist_of_the_type]) */
+#define M_LIST_BIF_OPLIST(...) M_OPEXTEND(M_LIST_OPLIST(__VA_ARGS__), REVERSE(0))
+
 /* Define an init value to init global variables of type list.
   USAGE:
     list_t global_variable = LIST_INIT_VALUE();
@@ -144,8 +148,8 @@
    IT_INSERT(M_F(name, _insert)),                                             \
    IT_REMOVE(M_F(name,_remove)),                                              \
    RESET(M_F(name,_reset)),                                                   \
-   PUSH(M_F(name,_push)),                                                \
-   POP(M_F(name,_pop)),                                                  \
+   PUSH(M_F(name,_push)),                                                     \
+   POP(M_F(name,_pop)),                                                       \
    PUSH_MOVE(M_F(name,_push_move)),                                           \
    POP_MOVE(M_F(name,_pop_move))                                              \
    ,SPLICE_BACK(M_F(name,_splice_back))                                       \
@@ -188,8 +192,8 @@
    IT_INSERT(API_0P(M_F(name, _insert))),                                     \
    IT_REMOVE(API_0P(M_F(name,_remove))),                                      \
    RESET(API_0P(M_F(name,_reset))),                                           \
-   PUSH(API_0P(M_F(name,_push))),                                        \
-   POP(API_0P(M_F(name,_pop))),                                          \
+   PUSH(API_0P(M_F(name,_push))),                                             \
+   POP(API_0P(M_F(name,_pop))),                                               \
    PUSH_MOVE(API_0P(M_F(name,_push_move))),                                   \
    POP_MOVE(API_0P(M_F(name,_pop_move)))                                      \
    ,SPLICE_BACK(M_F(name,_splice_back))                                       \
@@ -1451,7 +1455,7 @@
   M_INLINE void                                                               \
   M_F(name, _splice_back)(list_t list1, list_t list2, it_t it)                \
   {                                                                           \
-    /* FIXME back ==> strong */ \
+    /* FIXME back ==> strong */                                               \
     M_L1ST_DUAL_PUSH_CONTRACT(list1);                                         \
     M_L1ST_DUAL_PUSH_CONTRACT(list2);                                         \
     M_ASSERT (it->current != NULL);                                           \
@@ -1601,6 +1605,7 @@
 #define LIST_BIF_DEF M_LIST_BIF_DEF
 #define LIST_BIF_DEF_AS M_LIST_BIF_DEF_AS
 #define LIST_OPLIST M_LIST_OPLIST
+#define LIST_BIF_OPLIST M_LIST_BIF_OPLIST
 #define LIST_INIT_VALUE M_LIST_INIT_VALUE
 #define LIST_DUAL_PUSH_INIT_VALUE M_LIST_DUAL_PUSH_INIT_VALUE
 #endif
