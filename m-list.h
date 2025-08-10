@@ -86,7 +86,7 @@
 
 /* Define the oplist of a list of the given type.
    USAGE: LIST_BIF_OPLIST(name [, oplist_of_the_type]) */
-#define M_LIST_BIF_OPLIST(...) M_OPEXTEND(M_LIST_OPLIST(__VA_ARGS__), REVERSE(0))
+#define M_LIST_BIF_OPLIST(...) M_OPEXTEND(M_LIST_OPLIST(__VA_ARGS__), REVERSE(0), SPLICE_BACK(0))
 
 /* Define an init value to init global variables of type list.
   USAGE:
@@ -993,7 +993,7 @@
 #define M_L1ST_DUAL_PUSH_DEF_P3(name, type, oplist, list_t, it_t)             \
   M_L1ST_DUAL_PUSH_DEF_TYPE(name, type, oplist, list_t, it_t)                 \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
-  M_L1ST_DUAL_PUSH_DEF_P4(name, type, oplist, list_t, it_t, _back, _push_back_raw, _push_back, _push_back_move, _push_back_new, _pop_back, _front, _push_front_raw, _push_front, _push_front_move, _push_front_new) \
+  M_L1ST_DUAL_PUSH_DEF_P4(name, type, oplist, list_t, it_t, _back, _push_back_raw, _push_back, _push_back_move, _push_back_new, _pop_back, _front, _push_front_raw, _push_front, _push_front_move, _push_front_new, _splice_back) \
   M_EMPLACE_QUEUE_DEF(name, list_t, _emplace_back, oplist, M_L1ST_EMPLACE_STRONG_DEF) \
   M_EMPLACE_QUEUE_DEF(name, list_t, _emplace_front, oplist, M_L1ST_EMPLACE_WEAK_DEF) \
   M_L1ST_ITBASE_DEF(name, type, oplist, list_t, it_t)
@@ -1039,7 +1039,7 @@
    - strong: name of the strong entry point (back or front)
    - weak: name of the weak entry point (front or back)
  */
-#define M_L1ST_DUAL_PUSH_DEF_P4(name, type, oplist, list_t, it_t, strong, push_strong_raw, push_strong, push_strong_move, push_strong_new, pop_strong, weak, push_weak_raw, push_weak, push_weak_move, push_weak_new) \
+#define M_L1ST_DUAL_PUSH_DEF_P4(name, type, oplist, list_t, it_t, strong, push_strong_raw, push_strong, push_strong_move, push_strong_new, pop_strong, weak, push_weak_raw, push_weak, push_weak_move, push_weak_new, splice_strong) \
                                                                               \
   M_INLINE void                                                               \
   M_F(name, _init)(list_t v)                                                  \
@@ -1452,17 +1452,16 @@
     M_F(name, _init_move)(list, org);                                         \
   }                                                                           \
                                                                               \
-  M_INLINE void                                                               \
-  M_F(name, _splice_back)(list_t list1, list_t list2, it_t it)                \
+  M_N(void, name, splice_strong, list_t list1, list_t list2, it_t it)         \
   {                                                                           \
-    /* FIXME back ==> strong */                                               \
     M_L1ST_DUAL_PUSH_CONTRACT(list1);                                         \
     M_L1ST_DUAL_PUSH_CONTRACT(list2);                                         \
     M_ASSERT (it->current != NULL);                                           \
     /* First remove the item 'it' from the list 'list2' */                    \
     struct M_F(name, _s) *current = it->current;                              \
     struct M_F(name, _s) *next = current->next;                               \
-    if (it->previous == NULL) {                                               \
+    if (M_UNLIKELY(it->previous == NULL)) {                                   \
+      /* Work even if next = NULL (i.e. list becomes empty) */                \
       list2->first = next;                                                    \
     } else {                                                                  \
       it->previous->next = next;                                              \
@@ -1592,7 +1591,7 @@
 #define M_L1ST_BIF_DEF_P3(name, type, oplist, list_t, it_t)                   \
   M_L1ST_DUAL_PUSH_DEF_TYPE(name, type, oplist, list_t, it_t)                 \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
-  M_L1ST_DUAL_PUSH_DEF_P4(name, type, oplist, list_t, it_t, _front, _push_front_raw, _push_front, _push_front_move, _push_front_new, _pop_front, _back, _push_back_raw, _push_back, _push_back_move, _push_back_new) \
+  M_L1ST_DUAL_PUSH_DEF_P4(name, type, oplist, list_t, it_t, _front, _push_front_raw, _push_front, _push_front_move, _push_front_new, _pop_front, _back, _push_back_raw, _push_back, _push_back_move, _push_back_new, _splice_front) \
   M_EMPLACE_QUEUE_DEF(name, list_t, _emplace_front, oplist, M_L1ST_EMPLACE_STRONG_DEF) \
   M_EMPLACE_QUEUE_DEF(name, list_t, _emplace_back, oplist, M_L1ST_EMPLACE_WEAK_DEF) \
   M_L1ST_ITBASE_DEF(name, type, oplist, list_t, it_t)
