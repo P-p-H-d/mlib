@@ -8665,6 +8665,8 @@ You shall include this header before any other headers of M\*LIB, so that
 it can configure the memory management of M\*LIB to throw exception on memory errors.
 It does it by redefining the default macro `M_MEMORY_FULL` accordingly.
 
+Don't forget to use the macro `M_TRY_DEF_ONCE()` once in the global definition of your code base to define the global variables needed to handle the exception.
+
 When using CLANG, you should add the following options to your compiler flags,
 otherwise it will compile in degraded mode:
 
@@ -8674,6 +8676,9 @@ otherwise it will compile in degraded mode:
 
 When writing your own constructor, you should consider `M_CHAIN_INIT`
 to support partially constructed object if there are more than two source of throwing in your object (any memory allocation is a source of throwing).
+
+If you get warning `requires executable stack` with GCC, just enable optimisation level in your build, and it will disappear.
+
 
 #### `struct m_exception_s`
 
@@ -8710,6 +8715,18 @@ Throw the exception associated to the error_code.
 Additional arguments are used to fill in the error field of `m_exception_s`
 that is used to identify the cause of the exception.
 The line and filename fields of the exception are filled automatically by the macro.
+
+#### `M_TRY_DEF_ONCE()`
+
+Define all global variables needed to handle the exception.
+Macro shall be used once and only in your code base.
+Otherwise you'get undefined reference to m_global_error_list, m_global_exception.
+
+#### `M_RETHROW()`
+
+Rethrow the error to the upper level.
+Macro shall be used only in a catch block.
+
 
 _________________
 
