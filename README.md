@@ -2293,11 +2293,10 @@ Swap the elements `i` and `j` of the array `array`.
 `i` and `j` shall reference valid elements of the array.
 This method is created if the `INIT_SET` or `INIT_MOVE` operator is provided.
 
-##### `void name_special_sort(name_t array)`
+##### `void name_special_sort(name_t array, int (*func_type) (type const *a, type const *b))`
 
 Sort the array `array`.
-This method is defined if the type of the element defines `CMP` method.
-This method uses the qsort function of the C library.
+This method uses the qsort function of the C library using `func_type`.
 
 ##### `void name_special_stable_sort(name_t array)`
 

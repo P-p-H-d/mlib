@@ -834,8 +834,6 @@
   }                                                                           \
   , /* End of SET | INIT_SET */ )                                             \
                                                                               \
-  M_IF_METHOD(CMP, oplist)                                                    \
-  (                                                                           \
    M_INLINE void M_F(name, _special_sort)(array_t l,                          \
               int (*func_type) (type const *a, type const *b))                \
   {                                                                           \
@@ -847,6 +845,8 @@
     qsort (l->ptr, l->size, sizeof(type), func_void);                         \
   }                                                                           \
                                                                               \
+  M_IF_METHOD(CMP, oplist)                                                    \
+  (                                                                           \
   M_IF_METHOD2(SWAP, SET, oplist)(                                            \
   M_INLINE void                                                               \
   M_C3(m_arra4_,name,_stable_sort_noalloc)(type tab[], size_t size, type tmp[]) \
