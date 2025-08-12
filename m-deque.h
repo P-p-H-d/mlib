@@ -299,7 +299,7 @@
     }                                                                         \
     return p;                                                                 \
   }                                                                           \
-  , )                                                                         \
+  , /* No INIT */)                                                            \
                                                                               \
   M_P(void, name, _push_back_move, deque_t d, type *x)                        \
   {                                                                           \
@@ -924,7 +924,7 @@
   }                                                                           \
   , /* no OUT_STR */ )                                                        \
                                                                               \
-  M_IF_METHOD2(PARSE_STR, INIT, oplist)(                                      \
+  M_IF_METHOD3(PARSE_STR, INIT, INIT_SET, oplist)(                            \
   M_P(bool, name, _parse_str, deque_t deque, const char str[], const char **endp) \
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
@@ -950,7 +950,7 @@
   }                                                                           \
   , /* no PARSE_STR */ )                                                      \
                                                                               \
-  M_IF_METHOD2(IN_STR, INIT, oplist)(                                         \
+  M_IF_METHOD3(IN_STR, INIT, INIT_SET, oplist)(                               \
   M_P(bool, name, _in_str, deque_t deque, FILE *file)                         \
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
@@ -999,7 +999,7 @@
   }                                                                           \
   , /* no OUT_SERIAL */ )                                                     \
                                                                               \
-  M_IF_METHOD2(IN_SERIAL, INIT, oplist)(                                      \
+  M_IF_METHOD3(IN_SERIAL, INIT, INIT_SET, oplist)(                            \
   M_P(m_serial_return_code_t, name, _in_serial, deque_t deque, m_serial_read_t f) \
   {                                                                           \
     M_D3QU3_CONTRACT(deque);                                                  \
