@@ -845,9 +845,7 @@
     qsort (l->ptr, l->size, sizeof(type), func_void);                         \
   }                                                                           \
                                                                               \
-  M_IF_METHOD(CMP, oplist)                                                    \
-  (                                                                           \
-  M_IF_METHOD2(SWAP, SET, oplist)(                                            \
+  M_IF_METHOD3(SWAP, SET, CMP, oplist)(                                       \
   M_INLINE void                                                               \
   M_C3(m_arra4_,name,_stable_sort_noalloc)(type tab[], size_t size, type tmp[]) \
   {                                                                           \
@@ -929,9 +927,7 @@
     M_C3(m_arra4_,name,_stable_sort_noalloc)(l->ptr, l->size, temp);          \
     M_CALL_FREE(oplist, type, temp, l->size);                                 \
   }                                                                           \
-  ,) /* IF SWAP & SET methods */                                              \
-                                                                              \
-  ,) /* IF CMP oplist */                                                      \
+  ,) /* IF SWAP & SET & CMP operators */                                      \
                                                                               \
   M_IF_METHOD(EQUAL, oplist)(                                                 \
   M_INLINE bool                                                               \
