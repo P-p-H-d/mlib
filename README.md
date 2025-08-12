@@ -301,6 +301,10 @@ It can be any C type.
 The third argument of the macro is optional and is the oplist to use.
 See below for more information.
 
+Notice you call the function ending with `_clear` to clear the object.
+Clearing for the library means drop (or free or destruct) the container's allocated memory.
+It is its destructor.
+
 You could replace `LIST_DEF` by `ARRAY_DEF` to change
 the kind of container (an array instead of a linked list)
 without changing the code below: the generated interface
@@ -2429,11 +2433,11 @@ const type *name_cget(const name_t deque, size_t i)
 void name_set_at(name_t deque, size_t i, type const value) /* If SET operator is defined */
 size_t name_size(const name_t deque)
 void name_get_str(string_t str, const name_t deque, bool append)
-bool name_parse_str(name_t deque, const char str[], const char **endp)
+bool name_parse_str(name_t deque, const char str[], const char **endp) /* If INIT, INIT_SET, PARSE_STR operator are defined */
 void name_out_str(FILE *file, const name_t deque)
-bool name_in_str(name_t deque, FILE *file)
+bool name_in_str(name_t deque, FILE *file) /* If INIT, INIT_SET, PARSE_STR operator are defined */
 m_serial_return_code_t name_out_serial(m_serial_write_t serial, const name_t container)
-m_serial_return_code_t name_in_str(name_t container, m_serial_read_t serial)
+m_serial_return_code_t name_in_str(name_t container, m_serial_read_t serial) /* If INIT, INIT_SET, PARSE_STR operator are defined */
 bool name_equal_p(const name_t deque1, const name_t deque2)
 size_t name_hash(const name_t deque)
 void name_swap_at(name_t deque, size_t i, size_t j)
