@@ -2394,20 +2394,20 @@ The following methods of the common interface are defined (See [Common interface
 
 ```C
 void name_init(name_t deque)
-void name_init_set(name_t deque, const name_t ref)
-void name_set(name_t deque, const name_t ref)
+void name_init_set(name_t deque, const name_t ref) /* If INIT_SET operator is defined */
+void name_set(name_t deque, const name_t ref) /* If INIT_SET operator is defined */
 void name_init_move(name_t deque, name_t ref)
 void name_move(name_t deque, name_t ref)
 void name_clear(name_t deque)
 void name_reset(name_t deque)
 type *name_back(const name_t deque)
-void name_push_back(name_t deque, type value)
+void name_push_back(name_t deque, type value) /* If INIT_SET operator is defined */
 type *name_push_back_raw(name_t deque)
 type *name_push_back_new(name_t deque)
 void name_emplace_back[suffix](name_t list, args...)
 void name_pop_back(type *data, name_t deque)
 type *name_front(const name_t deque)
-void name_push_front(name_t deque, type value)
+void name_push_front(name_t deque, type value) /* If INIT_SET operator is defined */
 type *name_push_front_raw(name_t deque)
 type *name_push_front_new(name_t deque)
 void name_emplace_front[suffix](name_t list, args...)
@@ -2426,6 +2426,7 @@ const type *name_cref(const name_it_t it)
 void name_remove(name_t deque, name_it_t it)
 type *name_get(const name_t deque, size_t i)
 const type *name_cget(const name_t deque, size_t i)
+void name_set_at(name_t deque, size_t i, type const value) /* If SET operator is defined */
 size_t name_size(const name_t deque)
 void name_get_str(string_t str, const name_t deque, bool append)
 bool name_parse_str(name_t deque, const char str[], const char **endp)

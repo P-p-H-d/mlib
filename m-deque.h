@@ -280,6 +280,7 @@
     return ret;                                                               \
   }                                                                           \
                                                                               \
+  M_IF_METHOD(INIT_SET, oplist)(                                              \
   M_P(void, name, _push_back, deque_t d, type const x)                        \
   {                                                                           \
     type *p = M_F(name, _push_back_raw)M_R(d);                                \
@@ -287,6 +288,7 @@
       M_CALL_INIT_SET(oplist, *p, x);                                         \
     }                                                                         \
   }                                                                           \
+  , /* No INIT_SET */ )                                                       \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
   M_P(type *, name, _push_back_new, deque_t d)                                \
@@ -329,6 +331,7 @@
     return ret;                                                               \
   }                                                                           \
                                                                               \
+  M_IF_METHOD(INIT_SET, oplist)(                                              \
   M_P(void, name, _push_front, deque_t d, type const x)                       \
   {                                                                           \
     type *p = M_F(name, _push_front_raw)M_R(d);                               \
@@ -336,6 +339,7 @@
       M_CALL_INIT_SET(oplist, *p, x);                                         \
     }                                                                         \
   }                                                                           \
+  , /* No INIT_SET */ )                                                       \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
   M_P(type *, name, _push_front_new, deque_t d)                               \
@@ -713,6 +717,7 @@
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
+  M_IF_METHOD(INIT_SET, oplist)(                                              \
   M_P(void, name, _init_set, deque_t d, const deque_t src)                    \
   {                                                                           \
     M_D3QU3_CONTRACT(src);                                                    \
@@ -749,6 +754,7 @@
       M_F(name, _init_set)M_R(d, src);                                        \
     }                                                                         \
   }                                                                           \
+  , /* No INIT_SET */ )                                                       \
                                                                               \
   M_INLINE void                                                               \
   M_F(name, _init_move)(deque_t d, deque_t src)                               \
@@ -816,6 +822,7 @@
     return M_CONST_CAST(type, M_F(name, _get)(d, key));                       \
   }                                                                           \
                                                                               \
+  M_IF_METHOD(SET, oplist)(                                                   \
   M_P(void, name, _set_at, deque_t d, size_t key, type const x)               \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
@@ -825,6 +832,7 @@
     M_CALL_SET(oplist, *p, x);                                                \
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
+  , /* No SET */ )                                                            \
                                                                               \
   M_IF_METHOD(EQUAL, oplist)(                                                 \
   M_INLINE bool                                                               \

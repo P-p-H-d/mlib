@@ -48,6 +48,8 @@ DEQUE_DEF(deque_retcode, ReturnCode_t, M_ENUM_OPLIST(ReturnCode_t, SUCCESS))
 DEQUE_DEF_AS(DequeDouble, DequeDouble, DequeDoubleIt, double)
 #define M_OPL_DequeDouble() DEQUE_OPLIST(DequeDouble, M_BASIC_OPLIST)
 
+DEQUE_DEF(DequeInt2, int, M_OPEXTEND(M_BASIC_OPLIST, INIT_SET(0), SET(0)))
+
 ARRAY_DEF(array, int)
 
 static void test_ti1(int n)
