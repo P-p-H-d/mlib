@@ -613,6 +613,17 @@ static void test_bif(void)
       d += 1.0;
     }
   }
+#define BIF_OP LIST_BIF_OPLIST(list2f_double, M_BASIC_OPLIST)
+  // Check for FIFO policy
+  list2f_double_init(x);
+  M_CALL_PUSH(BIF_OP, x, 1.0);
+  M_CALL_PUSH(BIF_OP, x, 2.0);
+  double y;
+  M_CALL_POP(BIF_OP, &y, x);
+  assert (y == 1.0);
+  M_CALL_POP(BIF_OP, &y, x);
+  assert (y == 2.0);
+  list2f_double_clear(x);
 }
 
 static void test_dual_it1(void)
