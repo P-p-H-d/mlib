@@ -61,13 +61,13 @@
   M_END_PROTECTED_CODE
 
 
-/* Define a singly linked list of a given type allowing both push and one pop (front)
+/* Define a singly linked list of a given type allowing both push (BI) and one pop (Front)
    USAGE: LIST_BIF_DEF(name, type [, oplist_of_the_type]) */
 #define M_LIST_BIF_DEF(name, ...)                                             \
   M_LIST_BIF_DEF_AS(name, M_F(name,_t), M_F(name, _it_t), __VA_ARGS__)
 
 
-/* Define a singly linked list of a given type allowing both push and one pop (front)
+/* Define a singly linked list of a given type allowing both push (BI) and one pop (Front)
    as the provided type name_t with the iterator named it_t
    USAGE: LIST_BIF_DEF_AS(name, name_t, type [, oplist_of_the_type]) */
 #define M_LIST_BIF_DEF_AS(name, name_t, it_t, ...)                            \
@@ -1108,11 +1108,6 @@
     }                                                                         \
   }                                                                           \
                                                                               \
-  M_P(void, name, _push, list_t v, type const x)                              \
-  {                                                                           \
-    M_F(name, push_strong)M_R(v, x);                                          \
-  }                                                                           \
-                                                                              \
   M_IF_METHOD(INIT, oplist)(                                                  \
   M_P(type *, name, push_strong_new, list_t v)                                \
   {                                                                           \
@@ -1248,6 +1243,11 @@
     return data;                                                              \
   }                                                                           \
   , /* No INIT */)                                                            \
+                                                                              \
+  M_P(void, name, _push, list_t v, type const x)                              \
+  {                                                                           \
+    M_F(name, _push_back)M_R(v, x);                                           \
+  }                                                                           \
                                                                               \
   M_INLINE bool                                                               \
   M_F(name, _empty_p)(const list_t v)                                         \
