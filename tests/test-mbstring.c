@@ -246,6 +246,8 @@ static void test3(void)
     assert(tmp[0] == 4 && tmp[1] == 5 && tmp[2] == 6);
     assert( bstring_size(b) == 0);
 
+    bstring_push_back_bytes(b, 0, NULL);
+
     bstring_clear(b);
 }
 

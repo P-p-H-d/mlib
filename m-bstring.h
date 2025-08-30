@@ -199,6 +199,7 @@ M_P(void, m_bstring, _push_back_bytes, m_bstring_t v, size_t n, const void *buff
 {
     M_BSTRING_CONTRACT (v);
     const size_t size = v->size;
+    if (M_UNLIKELY (n == 0)) return;
     M_ASSERT_INDEX (size, size + n);
     // If size+n overflows, it means we are giving two objects which sizes
     // sum to be greater than the available memory. The memory should have exhausted before that.
