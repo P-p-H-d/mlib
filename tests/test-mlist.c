@@ -47,6 +47,7 @@ LIST_DEF_AS(list_double, ListDouble, ListDoubleIt, double)
 LIST_DUAL_PUSH_DEF_AS(list_doubleDP, ListDoubleDP, ListDoubleDPIt, double)
 #define M_OPL_ListDoubleDP() LIST_OPLIST(list_doubleDP, M_BASIC_OPLIST)
 
+//LIST_BIB_DEF(list2b_double, double)
 LIST_BIF_DEF(list2f_double, double)
 
 ListDouble   g_array1 = LIST_INIT_VALUE();

@@ -44,16 +44,16 @@
   M_END_PROTECTED_CODE
 
 
-/* Define a singly linked list of a given type allowing both push and one pop (back)
-   USAGE: LIST_DUAL_PUSH_DEF(name, type [, oplist_of_the_type]) */
-#define M_LIST_DUAL_PUSH_DEF(name, ...)                                       \
-  M_LIST_DUAL_PUSH_DEF_AS(name, M_F(name,_t), M_F(name, _it_t), __VA_ARGS__)
+/* Define a singly linked list of a given type allowing both push (BI) and one pop (Back)
+   USAGE: LIST_BIB_DEF(name, type [, oplist_of_the_type]) */
+#define M_LIST_BIB_DEF(name, ...)                                             \
+  M_LIST_BIB_DEF_AS(name, M_F(name,_t), M_F(name, _it_t), __VA_ARGS__)
 
 
-/* Define a singly linked list of a given type allowing both push and one pop (back)
+/* Define a singly linked list of a given type allowing both push (BI) and one pop (Back)
    as the provided type name_t with the iterator named it_t
-   USAGE: LIST_DUAL_PUSH_DEF_AS(name, name_t, type [, oplist_of_the_type]) */
-#define M_LIST_DUAL_PUSH_DEF_AS(name, name_t, it_t, ...)                      \
+   USAGE: LIST_BIB_DEF_AS(name, name_t, type [, oplist_of_the_type]) */
+#define M_LIST_BIB_DEF_AS(name, name_t, it_t, ...)                            \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_L1ST_DUAL_PUSH_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
                          ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t ), \
@@ -96,7 +96,7 @@
   { NULL }
 
 
-/* Define an init value to init global variables of type dual push list.
+/* Define an init value to init global variables of type dual push list (Both BIB and BIF)
   USAGE:
     list_t global_variable = LIST_DUAL_PUSH_INIT_VALUE();
  */
@@ -972,7 +972,7 @@
 
 /* Stop processing with a compilation failure */
 #define M_L1ST_DUAL_PUSH_DEF_FAILURE(name, type, oplist, list_t, it_t)        \
-  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(LIST_DUAL_PUSH_DEF): the given argument is not a valid oplist: " #oplist)
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(LIST_BIx_DEF): the given argument is not a valid oplist: " #oplist)
 
 
 /* Define the internal contract of an dual-push list */
@@ -1596,11 +1596,17 @@
   M_EMPLACE_QUEUE_DEF(name, list_t, _emplace_back, oplist, M_L1ST_EMPLACE_WEAK_DEF) \
   M_L1ST_ITBASE_DEF(name, type, oplist, list_t, it_t)
 
+// Outdated name
+#define M_LIST_DUAL_PUSH_DEF M_LIST_BIB_DEF
+#define M_LIST_DUAL_PUSH_DEF_AS M_LIST_BIB_DEF_AS
+
 #if M_USE_SMALL_NAME
 #define LIST_DEF M_LIST_DEF
 #define LIST_DEF_AS M_LIST_DEF_AS
-#define LIST_DUAL_PUSH_DEF M_LIST_DUAL_PUSH_DEF
-#define LIST_DUAL_PUSH_DEF_AS M_LIST_DUAL_PUSH_DEF_AS
+#define LIST_BIB_DEF M_LIST_BIB_DEF
+#define LIST_BIB_DEF_AS M_LIST_BIB_AS
+#define LIST_DUAL_PUSH_DEF M_LIST_BIB_DEF
+#define LIST_DUAL_PUSH_DEF_AS M_LIST_BIB_DEF_AS
 #define LIST_BIF_DEF M_LIST_BIF_DEF
 #define LIST_BIF_DEF_AS M_LIST_BIF_DEF_AS
 #define LIST_OPLIST M_LIST_OPLIST
