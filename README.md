@@ -1842,14 +1842,14 @@ int main(void) {
 
 #### `LIST_OPLIST(name [, oplist])`
 
-Return the oplist of the list defined by calling `LIST_DEF` and `LIST_BIB_DEF` with name & oplist.
+Return the oplist of the list defined by calling `LIST_DEF` and `LIST_DUALB_DEF` with name & oplist.
 The list behaves list a stack (First In, Last Out).
 If there is no given oplist, the basic oplist for basic C types is used.
 There is no globally registered oplist support.
 
-#### `LIST_BIF_OPLIST(name [, oplist])`
+#### `LIST_DUALF_OPLIST(name [, oplist])`
 
-Return the oplist of the list defined by calling `LIST_BIF_DEF` with name & oplist.
+Return the oplist of the list defined by calling `LIST_DUALF_DEF` with name & oplist.
 The list behaves list a fifo (First In, First Out).
 If there is no given oplist, the basic oplist for basic C types is used.
 There is no globally registered oplist support.
@@ -1961,10 +1961,10 @@ Afterwards, `list2` remains initialized but is emptied.
 
 Reverse the order of the list.
 
-#### `LIST_BIB_DEF(name, type[, oplist])`
-#### `LIST_BIB_DEF_AS(name, name_t, name_it_t, type [, oplist])`
+#### `LIST_DUALB_DEF(name, type[, oplist])`
+#### `LIST_DUALB_DEF_AS(name, name_t, name_it_t, type [, oplist])`
 
-`LIST_BIB_DEF` defines the singly linked list named `name_t`
+`LIST_DUALB_DEF` defines the singly linked list named `name_t`
 that contains the objects of type `type` and their associated methods as `static inline` functions.
 
 The only difference with the list defined by `LIST_DEF` is
@@ -1978,7 +1978,7 @@ This list is therefore able to represent:
 * either a stack (`PUSH_BACK` + `POP_BACK`) - which is the default -
 * or a queue (`PUSH_FRONT` + `POP_BACK`).
 
-`LIST_BIB_DEF_AS` is the same as `LIST_BIB_DEF` except the name of the types `name_t`, `name_it_t` are provided by the user.
+`LIST_DUALB_DEF_AS` is the same as `LIST_DUALB_DEF` except the name of the types `name_t`, `name_it_t` are provided by the user.
 
 See `LIST_DEF` for more details and constraints.
 
@@ -1990,7 +1990,7 @@ Example:
 #include "m-list.h"
 
 #define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)
-LIST_BIB_DEF(list_mpz, mpz_t,                              \
+LIST_DUALB_DEF(list_mpz, mpz_t,                              \
     (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), \
         CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1_DEFAULT), OUT_STR(MPZ_OUT_STR)))
 
@@ -2015,13 +2015,13 @@ int main(void) {
 
 The methods follow closely the methods defined by `LIST_DEF`.
 
-#### `LIST_BIF_DEF(name, type[, oplist])`
-#### `LIST_BIF_DEF_AS(name, name_t, name_it_t, type [, oplist])`
+#### `LIST_DUALF_DEF(name, type[, oplist])`
+#### `LIST_DUALF_DEF_AS(name, name_t, name_it_t, type [, oplist])`
 
-`LIST_BIF_DEF` defines the singly linked list named `name_t`
+`LIST_DUALF_DEF` defines the singly linked list named `name_t`
 that contains the objects of type `type` and their associated methods as `static inline` functions.
 
-The only difference with the list defined by `LIST_BIB_DEF` is `POP_BACK` is replaced by `POP_FRONT`.
+The only difference with the list defined by `LIST_DUALB_DEF` is `POP_BACK` is replaced by `POP_FRONT`.
 (therefore both BI Pushes and the pop Forward methods are provided - so the `BIF` name)
 and the list first element is the front, and the last element is the back.
 The list is a bit bigger to be able to handle such method to work, but not the nodes.
@@ -2031,7 +2031,7 @@ This list is therefore able to represent:
 * either a stack (`PUSH_FRONT` + `POP_FRONT`)
 * or a queue (`PUSH_BACK` + `POP_FRONT`) - which is the default -.
 
-`LIST_BIF_DEF_AS` is the same as `LIST_BIF_DEF` except the name of the types `name_t`, `name_it_t` are provided by the user.
+`LIST_DUALF_DEF_AS` is the same as `LIST_DUALF_DEF` except the name of the types `name_t`, `name_it_t` are provided by the user.
 
 See `LIST_DEF` for more details and constraints.
 
@@ -2040,7 +2040,7 @@ The methods follow closely the methods defined by `LIST_DEF`.
 #### `LIST_DUAL_PUSH_INIT_VALUE()`
 
 Define an initial value that is suitable to initialize global variable(s)
-of type `list` as created by `LIST_BIB_DEF` or `LIST_BIB_DEF_AS` or `LIST_BIF_DEF` or `LIST_BIF_DEF_AS`.
+of type `list` as created by `LIST_DUALB_DEF` or `LIST_DUALB_DEF_AS` or `LIST_DUALF_DEF` or `LIST_DUALF_DEF_AS`.
 It enables to create a list as a global variable and to initialize it.
 
 The list should still be cleared manually to avoid leaking memory.
@@ -2048,7 +2048,7 @@ The list should still be cleared manually to avoid leaking memory.
 Example:
 
 ```C
-LIST_BIB_DEF(list_int, int)
+LIST_DUALB_DEF(list_int, int)
 list_int_t my_list = LIST_DUAL_PUSH_INIT_VALUE();
 ```
 

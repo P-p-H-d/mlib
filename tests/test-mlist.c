@@ -47,8 +47,8 @@ LIST_DEF_AS(list_double, ListDouble, ListDoubleIt, double)
 LIST_DUAL_PUSH_DEF_AS(list_doubleDP, ListDoubleDP, ListDoubleDPIt, double)
 #define M_OPL_ListDoubleDP() LIST_OPLIST(list_doubleDP, M_BASIC_OPLIST)
 
-//LIST_BIB_DEF(list2b_double, double)
-LIST_BIF_DEF(list2f_double, double)
+LIST_DUALB_DEF(list2b_double, double)
+LIST_DUALF_DEF(list2f_double, double)
 
 ListDouble   g_array1 = LIST_INIT_VALUE();
 ListDoubleDP g_array2 = LIST_DUAL_PUSH_INIT_VALUE();
@@ -604,7 +604,7 @@ static void test_bif(void)
   assert(d == 2.0);
   assert(list2f_double_empty_p(x));
   list2f_double_clear(x);
-  M_LET( (y, (1.0, 2.0, 3.0, 4.0)), LIST_BIF_OPLIST(list2f_double, M_BASIC_OPLIST)) {
+  M_LET( (y, (1.0, 2.0, 3.0, 4.0)), LIST_DUALF_OPLIST(list2f_double, M_BASIC_OPLIST)) {
     assert(list2f_double_size(y) == 4);
     assert(*list2f_double_front(y) == 1.0);
     assert(*list2f_double_back(y) == 4.0);
@@ -614,7 +614,7 @@ static void test_bif(void)
       d += 1.0;
     }
   }
-#define BIF_OP LIST_BIF_OPLIST(list2f_double, M_BASIC_OPLIST)
+#define BIF_OP LIST_DUALF_OPLIST(list2f_double, M_BASIC_OPLIST)
   // Check for FIFO policy
   list2f_double_init(x);
   M_CALL_PUSH(BIF_OP, x, 1.0);

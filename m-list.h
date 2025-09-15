@@ -45,15 +45,15 @@
 
 
 /* Define a singly linked list of a given type allowing both push (BI) and one pop (Back)
-   USAGE: LIST_BIB_DEF(name, type [, oplist_of_the_type]) */
-#define M_LIST_BIB_DEF(name, ...)                                             \
-  M_LIST_BIB_DEF_AS(name, M_F(name,_t), M_F(name, _it_t), __VA_ARGS__)
+   USAGE: LIST_DUALB_DEF(name, type [, oplist_of_the_type]) */
+#define M_LIST_DUALB_DEF(name, ...)                                           \
+  M_LIST_DUALB_DEF_AS(name, M_F(name,_t), M_F(name, _it_t), __VA_ARGS__)
 
 
 /* Define a singly linked list of a given type allowing both push (BI) and one pop (Back)
    as the provided type name_t with the iterator named it_t
-   USAGE: LIST_BIB_DEF_AS(name, name_t, type [, oplist_of_the_type]) */
-#define M_LIST_BIB_DEF_AS(name, name_t, it_t, ...)                            \
+   USAGE: LIST_DUALB_DEF_AS(name, name_t, type [, oplist_of_the_type]) */
+#define M_LIST_DUALB_DEF_AS(name, name_t, it_t, ...)                          \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_L1ST_DUAL_PUSH_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
                          ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t ), \
@@ -62,17 +62,17 @@
 
 
 /* Define a singly linked list of a given type allowing both push (BI) and one pop (Front)
-   USAGE: LIST_BIF_DEF(name, type [, oplist_of_the_type]) */
-#define M_LIST_BIF_DEF(name, ...)                                             \
-  M_LIST_BIF_DEF_AS(name, M_F(name,_t), M_F(name, _it_t), __VA_ARGS__)
+   USAGE: LIST_DUALF_DEF(name, type [, oplist_of_the_type]) */
+#define M_LIST_DUALF_DEF(name, ...)                                           \
+  M_LIST_DUALF_DEF_AS(name, M_F(name,_t), M_F(name, _it_t), __VA_ARGS__)
 
 
 /* Define a singly linked list of a given type allowing both push (BI) and one pop (Front)
    as the provided type name_t with the iterator named it_t
-   USAGE: LIST_BIF_DEF_AS(name, name_t, type [, oplist_of_the_type]) */
-#define M_LIST_BIF_DEF_AS(name, name_t, it_t, ...)                            \
+   USAGE: LIST_DUALF_DEF_AS(name, name_t, type [, oplist_of_the_type]) */
+#define M_LIST_DUALF_DEF_AS(name, name_t, it_t, ...)                          \
   M_BEGIN_PROTECTED_CODE                                                      \
-  M_L1ST_BIF_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                               \
+  M_L1ST_DUALF_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
                          ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t ), \
                           (name, __VA_ARGS__,                                        name_t, it_t ))) \
   M_END_PROTECTED_CODE
@@ -85,8 +85,8 @@
                    (__VA_ARGS__ )))
 
 /* Define the oplist of a list of the given type.
-   USAGE: LIST_BIF_OPLIST(name [, oplist_of_the_type]) */
-#define M_LIST_BIF_OPLIST(...) M_OPEXTEND(M_LIST_OPLIST(__VA_ARGS__), REVERSE(0), SPLICE_BACK(0))
+   USAGE: LIST_DUALF_OPLIST(name [, oplist_of_the_type]) */
+#define M_LIST_DUALF_OPLIST(...) M_OPEXTEND(M_LIST_OPLIST(__VA_ARGS__), REVERSE(0), SPLICE_BACK(0))
 
 /* Define an init value to init global variables of type list.
   USAGE:
@@ -1571,15 +1571,15 @@
 
 /* Deferred evaluation for the bi-push list definition,
    so that all arguments are evaluated before further expansion */
-#define M_L1ST_BIF_DEF_P1(arg) M_ID( M_L1ST_BIF_DEF_P2 arg )
+#define M_L1ST_DUALF_DEF_P1(arg) M_ID( M_L1ST_DUALF_DEF_P2 arg )
 
 /* Validate the oplist before going further */
-#define M_L1ST_BIF_DEF_P2(name, type, oplist, list_t, it_t)                   \
-  M_IF_OPLIST(oplist)(M_L1ST_BIF_DEF_P3, M_L1ST_BIF_DEF_FAILURE)(name, type, oplist, list_t, it_t)
+#define M_L1ST_DUALF_DEF_P2(name, type, oplist, list_t, it_t)                 \
+  M_IF_OPLIST(oplist)(M_L1ST_DUALF_DEF_P3, M_L1ST_DUALF_DEF_FAILURE)(name, type, oplist, list_t, it_t)
 
 /* Stop processing with a compilation failure */
-#define M_L1ST_BIF_DEF_FAILURE(name, type, oplist, list_t, it_t)              \
-  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(LIST_BIF_DEF): the given argument is not a valid oplist: " #oplist)
+#define M_L1ST_DUALF_DEF_FAILURE(name, type, oplist, list_t, it_t)            \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(LIST_DUALF_DEF): the given argument is not a valid oplist: " #oplist)
 
 /* Internal bi-push list definition (like dual-push but inverts front & back)
    - name: prefix to be used
@@ -1588,7 +1588,7 @@
    - list_t: alias for M_F(name, _t) [ type of the container ]
    - it_t: alias for M_F(name, _it_t) [ iterator of the container ]
  */
-#define M_L1ST_BIF_DEF_P3(name, type, oplist, list_t, it_t)                   \
+#define M_L1ST_DUALF_DEF_P3(name, type, oplist, list_t, it_t)                 \
   M_L1ST_DUAL_PUSH_DEF_TYPE(name, type, oplist, list_t, it_t)                 \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
   M_L1ST_DUAL_PUSH_DEF_P4(name, type, oplist, list_t, it_t, _front, _push_front_raw, _push_front, _push_front_move, _push_front_new, _pop_front, _back, _push_back_raw, _push_back, _push_back_move, _push_back_new, _splice_front) \
@@ -1597,20 +1597,20 @@
   M_L1ST_ITBASE_DEF(name, type, oplist, list_t, it_t)
 
 // Outdated name
-#define M_LIST_DUAL_PUSH_DEF M_LIST_BIB_DEF
-#define M_LIST_DUAL_PUSH_DEF_AS M_LIST_BIB_DEF_AS
+#define M_LIST_DUAL_PUSH_DEF M_LIST_DUALB_DEF
+#define M_LIST_DUAL_PUSH_DEF_AS M_LIST_DUALB_DEF_AS
 
 #if M_USE_SMALL_NAME
 #define LIST_DEF M_LIST_DEF
 #define LIST_DEF_AS M_LIST_DEF_AS
-#define LIST_BIB_DEF M_LIST_BIB_DEF
-#define LIST_BIB_DEF_AS M_LIST_BIB_AS
-#define LIST_DUAL_PUSH_DEF M_LIST_BIB_DEF
-#define LIST_DUAL_PUSH_DEF_AS M_LIST_BIB_DEF_AS
-#define LIST_BIF_DEF M_LIST_BIF_DEF
-#define LIST_BIF_DEF_AS M_LIST_BIF_DEF_AS
+#define LIST_DUALB_DEF M_LIST_DUALB_DEF
+#define LIST_DUALB_DEF_AS M_LIST_DUALB_AS
+#define LIST_DUAL_PUSH_DEF M_LIST_DUALB_DEF
+#define LIST_DUAL_PUSH_DEF_AS M_LIST_DUALB_DEF_AS
+#define LIST_DUALF_DEF M_LIST_DUALF_DEF
+#define LIST_DUALF_DEF_AS M_LIST_DUALF_DEF_AS
 #define LIST_OPLIST M_LIST_OPLIST
-#define LIST_BIF_OPLIST M_LIST_BIF_OPLIST
+#define LIST_DUALF_OPLIST M_LIST_DUALF_OPLIST
 #define LIST_INIT_VALUE M_LIST_INIT_VALUE
 #define LIST_DUAL_PUSH_INIT_VALUE M_LIST_DUAL_PUSH_INIT_VALUE
 #endif
