@@ -6065,10 +6065,12 @@ Return the number of UTF8 encoded code point in the string.
 Return true if the string is a valid UTF8, false otherwise.
 It doesn't check for unique canonical form for UTF8 string.
 
-##### `STRING_CTE(string)`
+##### `STRING_CTE(cstring)`
 
-Macro to convert a constant C string into a temporary `string_t` variable
+Macro to convert a constant C string `cstring` into a temporary `string_t` variable
 suitable only for being called within a function.
+The address of this variable shall not be stored since it creates a temporary
+compound literal.
 
 ##### `STRING_OPLIST`
 

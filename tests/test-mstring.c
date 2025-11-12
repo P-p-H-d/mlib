@@ -662,6 +662,9 @@ static void test0(void)
   size_t h1 = string_hash(s1);
   assert (h1 != 0);
 
+  h1 = string_hash(STRING_CTE("temp"));
+  assert (h1 != 0);
+
   string_printf (s1, "Hello %d worlds. How do you do? I'm fine. Thank you! The weather is bad today. I should had brought my umbrella. Oh! You can lend me one! Thank you very much! No really thank you. I wouldn't be able to get in time for my job.", 2);
   assert (string_equal_str_p(s1, "Hello 2 worlds. How do you do? I'm fine. Thank you! The weather is bad today. I should had brought my umbrella. Oh! You can lend me one! Thank you very much! No really thank you. I wouldn't be able to get in time for my job."));
   
