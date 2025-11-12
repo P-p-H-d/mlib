@@ -1842,8 +1842,15 @@ int main(void) {
 
 #### `LIST_OPLIST(name [, oplist])`
 
-Return the oplist of the list defined by calling `LIST_DEF`
-and `LIST_DUAL_PUSH_DEF` with name & oplist.
+Return the oplist of the list defined by calling `LIST_DEF` and `LIST_DUALB_DEF` with name & oplist.
+The list behaves list a stack (First In, Last Out).
+If there is no given oplist, the basic oplist for basic C types is used.
+There is no globally registered oplist support.
+
+#### `LIST_DUALF_OPLIST(name [, oplist])`
+
+Return the oplist of the list defined by calling `LIST_DUALF_DEF` with name & oplist.
+The list behaves list a fifo (First In, First Out).
 If there is no given oplist, the basic oplist for basic C types is used.
 There is no globally registered oplist support.
 
@@ -1954,25 +1961,24 @@ Afterwards, `list2` remains initialized but is emptied.
 
 Reverse the order of the list.
 
-#### `LIST_DUAL_PUSH_DEF(name, type[, oplist])`
-#### `LIST_DUAL_PUSH_DEF_AS(name, name_t, name_it_t, type [, oplist])`
+#### `LIST_DUALB_DEF(name, type[, oplist])`
+#### `LIST_DUALB_DEF_AS(name, name_t, name_it_t, type [, oplist])`
 
-`LIST_DUAL_PUSH_DEF` defines the singly linked list named `name_t`
+`LIST_DUALB_DEF` defines the singly linked list named `name_t`
 that contains the objects of type `type` and their associated methods as `static inline` functions.
 
 The only difference with the list defined by `LIST_DEF` is
 the support of the method for `PUSH_FRONT` in addition to the one for `PUSH_BACK`
-(so the `DUAL_PUSH` name).
+(therefore both BI Pushes and the pop Back methods are provided - so the `BIB` name).
 However, there is still only `POP` method (associated to `POP_BACK`).
 The list is a bit bigger to be able to handle such method to work, but not the nodes.
 
 This list is therefore able to represent:
 
-* either a stack (`PUSH_BACK` + `POP_BACK`)
+* either a stack (`PUSH_BACK` + `POP_BACK`) - which is the default -
 * or a queue (`PUSH_FRONT` + `POP_BACK`).
 
-`LIST_DUAL_PUSH_DEF_AS` is the same as `LIST_DUAL_PUSH_DEF`
-except the name of the types `name_t`, `name_it_t` are provided by the user.
+`LIST_DUALB_DEF_AS` is the same as `LIST_DUALB_DEF` except the name of the types `name_t`, `name_it_t` are provided by the user.
 
 See `LIST_DEF` for more details and constraints.
 
@@ -1984,7 +1990,7 @@ Example:
 #include "m-list.h"
 
 #define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)
-LIST_DUAL_PUSH_DEF(list_mpz, mpz_t,                        \
+LIST_DUALB_DEF(list_mpz, mpz_t,                              \
     (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), \
         CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1_DEFAULT), OUT_STR(MPZ_OUT_STR)))
 
@@ -2009,10 +2015,32 @@ int main(void) {
 
 The methods follow closely the methods defined by `LIST_DEF`.
 
+#### `LIST_DUALF_DEF(name, type[, oplist])`
+#### `LIST_DUALF_DEF_AS(name, name_t, name_it_t, type [, oplist])`
+
+`LIST_DUALF_DEF` defines the singly linked list named `name_t`
+that contains the objects of type `type` and their associated methods as `static inline` functions.
+
+The only difference with the list defined by `LIST_DUALB_DEF` is `POP_BACK` is replaced by `POP_FRONT`.
+(therefore both BI Pushes and the pop Forward methods are provided - so the `BIF` name)
+and the list first element is the front, and the last element is the back.
+The list is a bit bigger to be able to handle such method to work, but not the nodes.
+
+This list is therefore able to represent:
+
+* either a stack (`PUSH_FRONT` + `POP_FRONT`)
+* or a queue (`PUSH_BACK` + `POP_FRONT`) - which is the default -.
+
+`LIST_DUALF_DEF_AS` is the same as `LIST_DUALF_DEF` except the name of the types `name_t`, `name_it_t` are provided by the user.
+
+See `LIST_DEF` for more details and constraints.
+
+The methods follow closely the methods defined by `LIST_DEF`.
+
 #### `LIST_DUAL_PUSH_INIT_VALUE()`
 
 Define an initial value that is suitable to initialize global variable(s)
-of type `list` as created by `LIST_DUAL_PUSH_DEF` or `LIST_DUAL_PUSH_DEF_AS`.
+of type `list` as created by `LIST_DUALB_DEF` or `LIST_DUALB_DEF_AS` or `LIST_DUALF_DEF` or `LIST_DUALF_DEF_AS`.
 It enables to create a list as a global variable and to initialize it.
 
 The list should still be cleared manually to avoid leaking memory.
@@ -2020,13 +2048,13 @@ The list should still be cleared manually to avoid leaking memory.
 Example:
 
 ```C
-LIST_DUAL_PUSH_DEF(list_int, int)
+LIST_DUALB_DEF(list_int, int)
 list_int_t my_list = LIST_DUAL_PUSH_INIT_VALUE();
 ```
 
 #### Created types
 
-The following types are automatically defined by the previous definition macro if not provided by the user:
+The following types are automatically defined by the previous definition macros if not provided by the user:
 
 #### `name_t`
 
@@ -2060,7 +2088,8 @@ type *name_push_front_raw(name_t list)
 type *name_push_front_new(name_t list)
 void name_push_front_move(name_t list, type *value)
 void name_emplace_front[suffix](name_t list, args...)
-void name_pop_back(type *data, name_t list)
+void name_pop_back(type *data, name_t list) /* For BIB list */
+void name_pop_front(type *data, name_t list) /* For BIF list */
 void name_pop_move(type *data, name_t list)
 bool name_empty_p(const name_t list)
 void name_swap(name_t list1, name_t list2)
@@ -2090,7 +2119,8 @@ size_t name_hash(const name_t list)
 
 The following specialized methods are automatically created by the previous definition macro:
 
-##### `void name_splice_back(name_t list1, name_t list2, name_it_t it)`
+##### `void name_splice_back(name_t list1, name_t list2, name_it_t it)` /* for BIB list */
+##### `void name_splice_front(name_t list1, name_t list2, name_it_t it)` /* for BIF list */
 
 Move the element pointed by `it`
 from the list `list2` to the back position of the list `list1`.

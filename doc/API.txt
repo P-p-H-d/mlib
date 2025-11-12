@@ -112,3 +112,4 @@ V0.8.1 : * m-algo: Update interface of _transform to be more flexible: adding us
          * m-algo: Update interface of _reduce to be more user friendly: return value indicates if the reduction is empty or not.
          * m-algo: Rename _map_reduce into _transform_reduce and update its interface to be more flexible: adding user context pointer, and filtering of the input elements and return value indicates if the reduction is empty or not.
          * Rename _push_raw method by _push_back_raw for all containers (clearer on the semantic)
+         * LIST_DUAL_PUSH_DEF is renamed as LIST_BIPB_DEF to be homogenous with LIST_BIPF_DEF (old name still available)
