@@ -1049,7 +1049,8 @@
       if (pit->num == 0) {                                                    \
         /* We reach the root */                                               \
         if (M_F(name, _get_num)(parent) == 0) {                               \
-          /* Update root (deleted) */                                         \
+          /* B+ Tree reduce its heigh by deleting the root: */                \
+          /* Update root to its unique child and delete it */                 \
           b->root = parent->kind.node[0];                                     \
           M_CALL_DEL(key_oplist, parent);                                     \
         }                                                                     \
