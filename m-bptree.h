@@ -652,7 +652,6 @@
   {                                                                           \
     node_t n = b->root;                                                       \
     int np = 0;                                                               \
-    M_BPTR33_NODE_CONTRACT(N, isMulti, key_oplist, n, b->root);               \
     /* Go down the tree while searching for key */                            \
     while (!M_F(name, _is_leaf)(n)) {                                         \
       M_ASSERT (np <= M_BPTR33_MAX_STACK);                                    \
@@ -996,13 +995,12 @@
   M_F(name, _i_search_for_node)(node_t parent, node_t child)                  \
   {                                                                           \
     M_ASSERT (!M_F(name, _is_leaf)(parent));                                  \
-    int i = 0;                                                                \
-    while (true) {                                                            \
-      M_ASSERT(i <= M_F(name, _get_num)(parent));                             \
+    int num = M_F(name, _get_num)(parent);                                    \
+    for (int i = 0; i <= num; i++) {                                          \
       if (parent->kind.node[i] == child)                                      \
         return i;                                                             \
-      i++;                                                                    \
     }                                                                         \
+    return -1;                                                                \
   }                                                                           \
                                                                               \
   M_P(bool, name, _erase, tree_t b, key_t const key)                          \
@@ -1027,6 +1025,7 @@
       node_t parent = pit->parent[--pit->num];                                \
       M_ASSERT (parent != NULL);                                              \
       k = M_F(name, _i_search_for_node)(parent, leaf);                        \
+      M_ASSUME(k >= 0);                                                       \
       /* Look for the neighbour of the removed key. */                        \
       /* if we can steal one key from them to keep our node balanced */       \
       if (k > 0 && M_F(name, _get_num)(parent->kind.node[k-1]) > N/2) {       \
@@ -1272,6 +1271,124 @@
     if (it->idx >= -n->num) return false;                                     \
     int cmp = M_CALL_CMP(key_oplist, n->key[it->idx], key);                   \
     return (cmp <= 0);                                                        \
+  }                                                                           \
+                                                                              \
+  M_P(void, name, _remove, tree_t b, it_t it)                                 \
+  {                                                                           \
+    M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
+    node_t n = it->node; /* It is a leaf*/                                    \
+    M_ASSERT( n->num < 0);                                                    \
+    int i = it->idx;                                                          \
+    int num = M_F(name, _get_num)(n);                                         \
+    M_ASSERT (i >= 0 && i < num);                                             \
+    /* Get an index of an existing remaining key of the node. */              \
+    /* Unfortunately, if N=2 or N=3, we can no longer have any remaining keys in this node*/ \
+    /* so we need to fill in the pit table before removing even if it can be useless */ \
+    pit_t pit;                                                                \
+    node_t leaf = M_F(name, _i_search_for_leaf)(pit, b, n->key[i]);           \
+    /* Remove the exact referenced object from the object */                  \
+    M_CALL_CLEAR(key_oplist, n->key[i]);                                      \
+    M_IF(isMap)(M_CALL_CLEAR(value_oplist, n->kind.value[i]);,)               \
+    memmove(&n->key[i], &n->key[i+1], sizeof(key_t)*(unsigned int)(num-1-i)); \
+    M_IF(isMap)(memmove(&n->kind.value[i], &n->kind.value[i+1], sizeof(value_t)*(unsigned int)(num-1-i));,) \
+    n->num -= -1; /* decrease number as num is < 0 */                         \
+    /* Remove one item from the B+TREE */                                     \
+    b->size --;                                                               \
+    /* Update it to point to the next item */                                 \
+    if (M_UNLIKELY(i >= num-1 && n->next != NULL)) {                          \
+      /* Reset to next node */                                                \
+      it->node = n->next;                                                     \
+      it->idx = 0;                                                            \
+    }                                                                         \
+    /* If number of keys greater than N>2 or the node is root ==> Nothing more to do */ \
+    if (M_LIKELY (M_F(name, _get_num)(n) >= N/2) || (b->root == n))           \
+      return;                                                                 \
+    /* Update it! */                                                          \
+    while (M_UNLIKELY(n != leaf)) {                                           \
+      /* multimap case where the leaf associated to the key is not ok */      \
+      /* we need to go to the next one and fix pit */                         \
+      M_ASSERT(leaf->next != NULL);                                           \
+      leaf = leaf->next;                                                      \
+      int p_num = pit->num;                                                   \
+      node_t p_n = leaf;                                                      \
+      do {                                                                    \
+        M_ASSERT(p_num >= 1);                                                 \
+        node_t parent = pit->parent[--p_num];                                 \
+        int k = M_F(name, _i_search_for_node)(parent, p_n);                   \
+        if (k >= 0) break;                                                    \
+        /* p_n not found in parent, go to next parent */                      \
+        pit->parent[p_num] = pit->parent[p_num]->next;                        \
+        p_n = pit->parent[p_num];                                             \
+        /* perform another loop as the great parent may need update too */    \
+      } while (1);                                                            \
+    }                                                                         \
+      /* Leaf is too small. Needs rebalancing */                              \
+    M_ASSERT (M_F(name, _get_num)(leaf) == N/2-1);                            \
+    bool pass1 = true;                                                        \
+    while (true) {                                                            \
+      M_ASSERT (pit->num > 0);                                                \
+      /* Search for node 'leaf' in parent */                                  \
+      node_t parent = pit->parent[--pit->num];                                \
+      M_ASSERT (parent != NULL);                                              \
+      int k = M_F(name, _i_search_for_node)(parent, leaf);                    \
+      M_ASSUME(k >= 0);                                                       \
+      /* Look for the neighbour of the removed key. */                        \
+      /* if we can steal one key from them to keep our node balanced */       \
+      if (k > 0 && M_F(name, _get_num)(parent->kind.node[k-1]) > N/2) {       \
+        M_F(name, _i_left_shift)M_R(parent, k-1);                             \
+        /* Fix iterator 'it' so that it still references the same element */  \
+        if (it->node == parent->kind.node[k]) {                               \
+          it->idx ++;                                                         \
+        } else if (it->node == parent->kind.node[k-1]) {                      \
+          if (it->idx >= M_F(name, _get_num)(it->node)) {                     \
+            it->idx = 0;                                                      \
+            it->node = parent->kind.node[k-1];                                \
+          }                                                                   \
+        }                                                                     \
+        return ;                                                              \
+      } else if (k < M_F(name, _get_num)(parent)                              \
+                 && M_F(name, _get_num)(parent->kind.node[k+1]) > N/2) {      \
+        M_F(name, _i_right_shift)M_R(parent, k);                              \
+        /* Fix iterator 'it' so that it still references the same element */  \
+        if (it->node == parent->kind.node[k+1]) {                             \
+          if (it->idx == 0) {                                                 \
+            it->node = parent->kind.node[k];                                  \
+            it->idx = M_F(name, _get_num)(parent->kind.node[k])-1;            \
+          } else {                                                            \
+            it->idx --;                                                       \
+          }                                                                   \
+        }                                                                     \
+        return ;                                                              \
+      }                                                                       \
+      /* Merge both nodes, removing 'k' from parent */                        \
+      if (k == M_F(name, _get_num)(parent))                                   \
+        k--;                                                                  \
+      M_ASSERT(k >= 0 && k < M_F(name, _get_num)(parent));                    \
+      /* Merge 'k' & 'k+1' & remove 'k' from parent */                        \
+      num = M_F(name, _get_num)(parent->kind.node[k]);                        \
+      bool it_to_fix = it->node == parent->kind.node[k+1];                    \
+      M_F(name, _i_merge_node)M_R(parent, k, pass1);                          \
+      /* Fix iterator 'it' so that it still references the same element */    \
+      if (it_to_fix) {                                                        \
+        it->node = parent->kind.node[k];                                      \
+        it->idx += num;                                                       \
+      }                                                                       \
+      /* Check if we need to continue */                                      \
+      if (M_F(name, _get_num)(parent) >= N/2)                                 \
+        return ;                                                              \
+      if (pit->num == 0) {                                                    \
+        /* We reach the root */                                               \
+        if (M_F(name, _get_num)(parent) == 0) {                               \
+          /* Update root (deleted) */                                         \
+          b->root = parent->kind.node[0];                                     \
+          M_CALL_DEL(key_oplist, parent);                                     \
+        }                                                                     \
+        return ;                                                              \
+      }                                                                       \
+      /* Next iteration */                                                    \
+      leaf = parent;                                                          \
+      pass1 = false;                                                          \
+    }                                                                         \
   }                                                                           \
 
 /* Define additional functions.
