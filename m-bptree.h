@@ -1303,7 +1303,8 @@
     /* If number of keys greater than N>2 or the node is root ==> Nothing more to do */ \
     if (M_LIKELY (M_F(name, _get_num)(n) >= N/2) || (b->root == n))           \
       return;                                                                 \
-    /* Update it! */                                                          \
+    /* Update the B+ Tree to keep it balanced */                              \
+    /* We need to update the 'pit' table to reference the item of the node (multimap case) */ \
     while (M_UNLIKELY(n != leaf)) {                                           \
       /* multimap case where the leaf associated to the key is not ok */      \
       /* we need to go to the next one and fix pit */                         \

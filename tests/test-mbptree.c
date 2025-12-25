@@ -592,7 +592,7 @@ test_multimap(void)
       multimap_set_at(b, i/4, i);
     }
     assert(multimap_size(b) == (unsigned) size);
-
+    /* Remove all items of a multimap */
     for (int k = 0 ; k < size/4; k++) {
       int j = (4*k+3);
       int n= 0;
@@ -610,6 +610,56 @@ test_multimap(void)
       assert(n == 4);
     }
     assert(multimap_size(b) == 0);
+  }
+
+  for (int size = 20; size < 1000; size += 12) {
+    assert(multimap_size(b) == 0);
+    for(int i = 0; i < size; i++) {
+      multimap_set_at(b, i/4, i);
+    }
+    assert(multimap_size(b) == (unsigned) size);
+
+    /* Remove half items of a multimap */
+    for (int k = 0 ; k < size/4; k++) {
+      int j = (4*k+3);
+      int n= 0;
+      multimap_it_t it;
+      for(multimap_it_from(it, b, k);
+          multimap_it_while_p(it, k); ) {
+        const multimap_itref_t *ref = multimap_cref(it);
+        assert(*ref->key_ptr == k);
+        assert(*ref->value_ptr == j);
+        j--;
+        n++;
+        if ( (*ref->value_ptr & 1) == 0) {
+          multimap_remove(b, it);
+        } else {
+          multimap_next(it);
+        }
+      }
+      assert(j == 4*(k-1)+3);
+      assert(n == 4);
+    }
+    assert(multimap_size(b) == (size_t)size/2);
+
+    /* Check that the other half items remains */
+    for (int k = 0 ; k < size/4; k++) {
+      int j = (4*k+3);
+      int n= 0;
+      multimap_it_t it;
+      for(multimap_it_from(it, b, k);
+          multimap_it_while_p(it, k);
+          multimap_next(it) ) {
+        const multimap_itref_t *ref = multimap_cref(it);
+        assert(*ref->key_ptr == k);
+        assert(*ref->value_ptr == j);
+        j-=2;
+        n++;
+      }
+      assert(j == 4*(k-1)+3);
+      assert(n == 2);
+    }
+    multimap_reset(b);
   }
 
   multimap_clear(b);
