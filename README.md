@@ -227,16 +227,27 @@ Each header can be used separately from others: dependency between headers have 
 M\*LIB is **only** composed of a set of headers, as such there is no build for the library.
 The library doesn't depend on any other library than the LIBC.
 
-To run the test suite, run:
+To run the test suite on the host, run:
 
 ```bash
 make check
 ```
 
-You can also override the compiler CC or its flags CFLAGS if needed:
+You can also override the compiler CC, its flags CFLAGS and LDFLAGS if needed, to select which compiler you want to use:
 
 ```bash
 make check CC="gcc" CFLAGS="-O3"
+```
+
+The dependencies of the test suite are computed automatically by the C compiler using the `depend` target, 
+which assumes a GCC compiler (or compatible). If you use another compiler, you can just
+build the `depend` target using GCC or generate an empty file `touch tests/depend` before running the
+`check` target.
+
+You can also cross-compile if you want using LOG_COMPILER to pass the interpreter. For example:
+
+```bash
+make check CC=arm-linux-gnueabihf-gcc LOG_COMPILER="qemu-arm -L /usr/arm-linux-gnueabihf/
 ```
 
 To generate the documentation, run:
@@ -245,13 +256,16 @@ To generate the documentation, run:
 make doc
 ```
 
-To install the headers, run:
+Finally, to install the headers, run:
 
 ```bash
 make install PREFIX=/my/directory/where/to/install [DESTDIR=...]
 ```
+it assumes PREFIX is the target directory (default /usr/local/)
+and DESTDIR is the rootfs (default /).
 
-Other targets exist. Mainly for development purpose.
+Other targets exist for development purpose.
+
 
 ## How to use
 
