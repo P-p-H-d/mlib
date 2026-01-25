@@ -160,23 +160,18 @@ jobs:
     # The host should always be linux
   build_armv6:
     runs-on: ubuntu-latest
-    name: Build on armv6
+    name: Build on arm with cross compiler
     steps:
-      - uses: actions/checkout@v4
-      - uses: uraimo/run-on-arch-action@v3
-        name: Run commands on armv6
-        id: make
-        timeout-minutes: 60
-        with:
-          arch: armv6
-          distro: alpine_latest
-          # Not required, but speeds up builds
-          githubToken: ${{ github.token }}
-          shell: /bin/sh
-          run: |
-            apk update
-            apk add build-base gcc make
-            cd tests && make check -j 2 && make clean
+    - uses: actions/checkout@v4
+    - name: Install cross compiler 
+      shell: bash
+      run:  sudo apt install gcc-arm-linux-gnueabihf qemu-user
+    - name: make depend
+      shell: bash
+      run: make depend
+    - name: make check
+      shell: bash
+      run: make check CC=arm-linux-gnueabihf-gcc LOG_COMPILER="qemu-arm -L /usr/arm-linux-gnueabihf/" -j 2
 
   # The host should always be linux
   build_riscv64:
