@@ -3453,6 +3453,318 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 /******************** METHODS handling **********************/
 /************************************************************/
 
+#ifndef M_USE_UNDEF_OPLIST_TERMS
+#define M_USE_UNDEF_OPLIST_TERMS 0
+#endif
+
+#if M_USE_UNDEF_OPLIST_TERMS
+#undef INIT
+#undef INIT_SET
+#undef INIT_MOVE
+#undef INIT_WITH
+#undef SET
+#undef MOVE
+#undef SWAP
+#undef CLEAR
+#undef HASH
+#undef EQUAL
+#undef CMP
+#undef TYPE
+#undef SUBTYPE
+#undef SUBTYPE_PTR
+#undef GENTYPE
+#undef NAME
+#undef FIELD
+#undef OPLIST
+#undef SORT
+#undef SPLICE_BACK
+#undef SPLICE_AT
+#undef IT_TYPE
+#undef IT_FIRST
+#undef IT_LAST
+#undef IT_END
+#undef IT_SET
+#undef IT_END_P
+#undef IT_LAST_P
+#undef IT_EQUAL_P
+#undef IT_NEXT
+#undef IT_PREVIOUS
+#undef IT_REF
+#undef IT_CREF
+#undef IT_REMOVE
+#undef IT_INSERT
+#undef EMPTY_P
+#undef FULL_P
+#undef ADD
+#undef SUB
+#undef MUL
+#undef DIV
+#undef RESET
+#undef KEY_TYPE
+#undef VALUE_TYPE
+#undef KEY_OPLIST
+#undef VALUE_OPLIST
+#undef GET_KEY
+#undef SET_KEY
+#undef SAFE_GET_KEY
+#undef ERASE_KEY
+#undef GET_SIZE
+#undef PUSH
+#undef POP
+#undef PUSH_MOVE
+#undef POP_MOVE
+#undef REVERSE
+#undef GET_STR
+#undef PARSE_STR
+#undef OUT_STR
+#undef IN_STR
+#undef OUT_SERIAL
+#undef IN_SERIAL
+#undef SEPARATOR
+#undef EXT_ALGO
+#undef INC_ALLOC
+#undef OOR_SET
+#undef OOR_EQUAL
+#undef PROPERTIES
+#undef EMPLACE_TYPE
+#undef NEW
+#undef DEL
+#undef REALLOC
+#undef FREE
+#undef SIZE
+#undef CONTEXT
+#undef POLICY
+#else
+#ifdef INIT
+#error "INIT is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef INIT_SET
+#error "INIT_SET is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef INIT_MOVE
+#error "INIT_MOVE is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef INIT_WITH
+#error "INIT_WITH is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef SET
+#error "SET is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef MOVE
+#error "MOVE is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef SWAP
+#error "SWAP is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef CLEAR
+#error "CLEAR is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef HASH
+#error "HASH is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef EQUAL
+#error "EQUAL is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef CMP
+#error "CMP is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef TYPE
+#error "TYPE is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef SUBTYPE
+#error "SUBTYPE is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef SUBTYPE_PTR
+#error "SUBTYPE_PTR is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef GENTYPE
+#error "GENTYPE is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef NAME
+#error "NAME is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef FIELD
+#error "FIELD is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef OPLIST
+#error "OPLIST is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef SORT
+#error "SORT is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef SPLICE_BACK
+#error "SPLICE_BACK is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef SPLICE_AT
+#error "SPLICE_AT is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef IT_TYPE
+#error "IT_TYPE is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef IT_FIRST
+#error "IT_FIRST is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef IT_LAST
+#error "IT_LAST is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef IT_END
+#error "IT_END is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef IT_SET
+#error "IT_SET is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef IT_END_P
+#error "IT_END_P is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef IT_LAST_P
+#error "IT_LAST_P is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef IT_EQUAL_P
+#error "IT_EQUAL_P is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef IT_NEXT
+#error "IT_NEXT is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef IT_PREVIOUS
+#error "IT_PREVIOUS is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef IT_REF
+#error "IT_REF is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef IT_CREF
+#error "IT_CREF is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef IT_REMOVE
+#error "IT_REMOVE is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef IT_INSERT
+#error "IT_INSERT is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef EMPTY_P
+#error "EMPTY_P is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef FULL_P
+#error "FULL_P is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef ADD
+#error "ADD is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef SUB
+#error "SUB is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef MUL
+#error "MUL is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef DIV
+#error "DIV is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef RESET
+#error "RESET is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef KEY_TYPE
+#error "KEY_TYPE is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef VALUE_TYPE
+#error "VALUE_TYPE is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef KEY_OPLIST
+#error "KEY_OPLIST is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef VALUE_OPLIST
+#error "VALUE_OPLIST is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef GET_KEY
+#error "GET_KEY is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef SET_KEY
+#error "SET_KEY is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef SAFE_GET_KEY
+#error "SAFE_GET_KEY is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef ERASE_KEY
+#error "ERASE_KEY is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef GET_SIZE
+#error "GET_SIZE is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef PUSH
+#error "PUSH is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef POP
+#error "POP is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef PUSH_MOVE
+#error "PUSH_MOVE is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef POP_MOVE
+#error "POP_MOVE is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef REVERSE
+#error "REVERSE is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef GET_STR
+#error "GET_STR is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef PARSE_STR
+#error "PARSE_STR is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef OUT_STR
+#error "OUT_STR is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef IN_STR
+#error "IN_STR is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef OUT_SERIAL
+#error "OUT_SERIAL is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef IN_SERIAL
+#error "IN_SERIAL is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef SEPARATOR
+#error "SEPARATOR is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef EXT_ALGO
+#error "EXT_ALGO is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef INC_ALLOC
+#error "INC_ALLOC is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef OOR_SET
+#error "OOR_SET is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef OOR_EQUAL
+#error "OOR_EQUAL is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef PROPERTIES
+#error "PROPERTIES is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef EMPLACE_TYPE
+#error "EMPLACE_TYPE is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef NEW
+#error "NEW is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef DEL
+#error "DEL is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef REALLOC
+#error "REALLOC is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef FREE
+#error "FREE is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef SIZE
+#error "SIZE is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef CONTEXT
+#error "CONTEXT is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#ifdef POLICY
+#error "POLICY is defined, it conflicts with the M*LIB OPLIST system, undefine it before including M*LIB headers"
+#endif
+#endif /* M_USE_UNDEF_OPLIST_TERMS */
+
 
 /* Helper internal macros to make M_GET_METHOD works.
    List of supported methods for an oplist */
