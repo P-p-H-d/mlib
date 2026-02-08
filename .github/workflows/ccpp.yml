@@ -165,7 +165,7 @@ jobs:
     - uses: actions/checkout@v4
     - name: Install cross compiler 
       shell: bash
-      run:  sudo apt install gcc-arm-linux-gnueabihf qemu-user
+      run:  sudo apt update && sudo apt install gcc-arm-linux-gnueabihf qemu-user
     - name: make depend
       shell: bash
       run: make depend
