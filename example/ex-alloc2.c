@@ -10,14 +10,14 @@ static size_t allocated_size = 0;
 
 static void* my_alloc(size_t s)
 {
-    printf("Alloc called s=%lu!\n", s);
+    printf("Alloc called s=%zu!\n", s);
     allocated_size += s;
     return malloc(s);
 }
 
 static void my_free(void *ptr, size_t s)
 {
-    printf("Free called s=%lu!\n", s);
+    printf("Free called s=%zu!\n", s);
     allocated_size -= s;
     free(ptr);
 }
@@ -48,7 +48,7 @@ static void test_list(void)
     list_int_clear(list);
 
     if (allocated_size != 0) {
-        printf("Nothing was freed (%lu)... Very strange...\n", allocated_size);
+        printf("Nothing was freed (%zu)... Very strange...\n", allocated_size);
         exit(2);
     }
     printf("Global custom allocator for list works!\n");
@@ -60,7 +60,7 @@ static void *last_alloc;
 
 static void* my_array_alloc(size_t s, void *org, size_t n)
 {
-    printf("Array Alloc called org=%p of n=%zu elements of size s=%lu!\n", org, n, s);
+    printf("Array Alloc called org=%p of n=%zu elements of size s=%zu!\n", org, n, s);
     last_alloc = realloc(org, s*n);
     return last_alloc;
 }
