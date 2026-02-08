@@ -9753,6 +9753,20 @@ See [Memory context Customization](#memory-context-customization)
 
 Default value: 0
 
+#### `M_USE_UNDEF_OPLIST_TERMS`
+
+M\*LIB uses terms for its OPLIST system which will cause compilation errors if defined as macros.
+Including M\*LIB headers will check if these terms are defined and throw a diagnostic error if so.
+
+It is recommended to compile with `-Wfatal-errors` as the compilation errors caused by such 
+conflicts can be cryptic and thousands of lines long, thus obscuring the informative error
+thrown by M\*LIB.
+
+Alternatively, `M_USE_UNDEF_OPLIST_TERMS` can be defined to `1` to disable this check and instead
+automatically undefine the conflicting macros.
+
+Default value: 0 (diagnostic error on conflict, no undefining)
+
 _________________
 
 ## License
