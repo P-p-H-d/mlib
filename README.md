@@ -1076,7 +1076,7 @@ Memory Allocation functions can be globally set by overriding the following macr
 * `M_MEMORY_FREE (context, type, ptr, number)`: free the array of `number` objects of type `type` pointed by `ptr`.
 
 > [!NOTE] 
-> You can use `sizeof (type)` and `alignof (type)` to get the size and the alignement of the object.
+> You can use `sizeof (type)` and `alignof (type)` to get the size and the alignment of the object.
 
 > [!NOTE] 
 > For `M_MEMORY_DEL`, `sizeof *ptr` always identifies the size of the object.
@@ -1134,7 +1134,8 @@ If needed, this macro shall be defined ***prior*** to instantiate the structure.
 > See [here](http://joeduffyblog.com/2016/02/07/the-error-model/) for more
 > information about why abandonment is good software practice.
 
-In M\*LIB, we classify the kind of errors according to this classification:
+In M\*LIB, the kind of errors are classified according to this model:
+
 * *logical error*: the expectations of the function are not met (null pointer passed as argument, negative argument, invalid object state, ...). In which case, the sanction is abnormal halt of the program, if it is detected, regardless of the configuration of M\*LIB. Normally, debug build will detect such errors.
 * *abnormal error*:  errors that are unlikely to be expected during the execution of the program (like no more memory). In which case, the sanction is either abnormal halt of the program or throwing an exception.
 * *normal error*: errors that can be expected in the execution of the program (all I/O errors like file not found or invalid file format, parsing of invalid user input, no solution found, etc). In which case, the error is reported by the return code of the function or by polling for error (See `ferror`) in the data structure.
@@ -1204,6 +1205,7 @@ Compilers can be very verbose on the error message:
 You should focus mainly on the first reported error/warning
 even if the link between what the compiler report and what the error is
 is not immediate. The error is likely in one of the **oplist definition**.
+Use of the flag `-Wfatal-errors` to stop on the first reported error.
 
 Examples of typical errors:
 
