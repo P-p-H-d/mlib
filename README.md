@@ -628,6 +628,13 @@ An oplist has no real form from the C language point of view. It is just an abst
 that disappears after the macro expansion step of the preprocessing.
 If an oplist remains unprocessed after the C preprocessing, a compiler error will be generated.
 
+For basic C type, you can even omit the oplist definition, and the library will know how to handle it.
+For more complex type, you don't often have to define stub code to specify how elements are compared, copied, or destroyed 
+by matching what is expected by the library: you can request conversion on the fly from what is provided to what is expected
+by using an adaptor.
+It allows very powerful binding while keeping it very simple to use and as error prone as possible.
+
+
 ### Usage
 
 When you define an instance of a new container for a given type, you give the type `OPLIST`
