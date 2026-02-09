@@ -4274,11 +4274,17 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #endif
 
 /* Check if both variables are of the same type.
-   The test compare their size.
+   The test compare their type if C23 or GCC compatible, compiler else its size.
    NOTE: Not perfect but catch some errors */
-#if defined(__GNUC__) && !defined(__cplusplus) 
+#if defined(__GNUC__) && !defined(__cplusplus)
 #define M_CHECK_SAME(a, b)                                                    \
-  M_STATIC_ASSERT(__builtin_types_compatible_p(__typeof__(a), __typeof__(b)), \
+  M_STATIC_ASSERT(__builtin_types_compatible_p(m_typeof(a), m_typeof(b)),     \
+                  M_LIB_NOT_SAME_TYPE,                                        \
+                  "The variable " M_AS_STR(a) " and " M_AS_STR(b)             \
+                  " are not of same type.")
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 202000L
+#define M_CHECK_SAME(a, b)                                                    \
+  M_STATIC_ASSERT(_Generic(&a, m_typeof(b)*: 1, default: 0),                  \
                   M_LIB_NOT_SAME_TYPE,                                        \
                   "The variable " M_AS_STR(a) " and " M_AS_STR(b)             \
                   " are not of same type.")
