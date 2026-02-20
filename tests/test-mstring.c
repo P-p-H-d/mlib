@@ -392,6 +392,24 @@ static void test0(void)
   i = string_spn(s1, "Hel");
   assert (i == 4);
 
+  // Test with a heap buffer non ending with 0 to check for reading overflow
+  char *p = (char*) malloc(4096);
+  if (!p) abort();
+  memset(p, 'A', 4096); // Buffer doesn't end with 0
+  p[0] = 'H'; p[1] = 'i'; p[2] = 'm';
+  string_set_strn(s1, p, 3);
+  assert (string_size(s1) == 3);
+  assert (string_equal_str_p(s1, "Him"));
+  free(p);
+
+  p = (char*) malloc(3);
+  if (!p) abort();
+  p[0] = 'H'; p[1] = 'e'; p[2] = 'r';
+  string_set_strn(s1, p, 3);
+  assert (string_size(s1) == 3);
+  assert (string_equal_str_p(s1, "Her"));
+  free(p);
+
   string_clear (s1);
   string_init (s1);
   string_strim(s1);
@@ -869,7 +887,7 @@ static void test_bounded1(void)
   assert (string16_size(s) == 16);
   assert (string16_equal_cstr_p(s, "HeH:16 GeG:17/42"));
   assert (string16_hash(s) != 0);
-  
+
   string16_set_cstrn(s, "Hello, world! How do you do?", 15);
   string16_init_set(d, s);
   string16_reset(s);

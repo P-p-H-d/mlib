@@ -478,11 +478,11 @@ M_P(void, m_string, _set_cstrn, m_string_t v, const char str[], size_t n)
 {
   M_STR1NG_CONTRACT (v);
   M_ASSERT(str != NULL);
-  size_t len  = strlen(str);
-  size_t size = M_MIN (len, n);
-  char *ptr = m_str1ng_fit2size M_R(v, size+1);
-  // The memcpy will not copy the final null char of the string
-  memcpy(ptr, str, size);
+  size_t size;
+  char *ptr = m_str1ng_fit2size M_R(v, n+1);
+  for(size = 0; size < n && str[size] != 0; size++) {
+    ptr[size] = str[size];
+  }
   // Cannot copy the final null char using memcpy
   ptr[size] = 0;
   m_str1ng_set_size(v, size);
