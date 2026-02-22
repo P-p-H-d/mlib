@@ -277,7 +277,10 @@ Other targets exist for development purpose.
 
 ## How to use
 
-To use these data structures, you first include the desired header,
+M\*LIB enables you to generate quickly custom type data structures and their methods.
+For this, it uses macro to generate content depending on the provided context.
+
+So to use these data structures, you first include the desired header,
 instantiate the definition of the structure and its associated methods
 by using a macro `_DEF` for the needed container.
 Then you use the defined types and functions. Let's see a first simple example
@@ -311,11 +314,27 @@ int main(void) {
 This looks like a typical C program except the line with `LIST_DEF`
 that doesn't have any semi-colon at the end. And in fact, except
 this line, everything is typical C program and even macro free!
-The only macro is in fact `LIST_DEF`: this macro expands to the
-good type for the list of the defined type and to all the necessary
-functions needed to handle such type. It is heavily context dependent
+
+The only macro is in fact `LIST_DEF` which takes as argument
+the prefix of the container and its basic type. Then it expands and generates
+the type of the container (by concatenating the prefix and the suffix `_t`) which is a list of `unsigned int`
+and also other types (like the iterator of the list which uses the suffis `_it_t`)
+and all the necessary methods needed to handle such container by concatenating the prefix and the suffix of the methods.
+For example,
+
+* `_init` : the constructor of an empty list,
+* `_clear`: the destructor of the list,
+* `_push_back`: the method to push an object in the list (here an `unsigned int`)
+* `_it`: the method to initialize the iterator to the first element of the list,
+* `_end_p`: the method to test if the iterator as reaches the end of the list,
+* `_next`: the method to move the iterator to the next element,
+* `_cref`: the method to get a pointer to the data referenced by the iterator.
+
+The generation is heavily context dependent
 and can generate different code depending on it.
-You can use it as many times as needed to defined as many lists as you want.
+You can use it as many times as needed to defined as many lists (of the same or different types) as you want
+provided that you use a different prefix.
+
 The first argument of the macro is the name to use, e.g. the prefix that
 is added to all generated functions and types.
 The second argument of the macro is the type to embed within the container.
@@ -338,7 +357,7 @@ This is equivalent to this C++ program using the STL:
 
 ```C
 #include <iostream>
-#include \<list\>
+#include <list>
 
 typedef std::list<unsigned int> list_uint_t;
 typedef std::list<unsigned int>::iterator list_uint_it_t;
@@ -426,14 +445,17 @@ An oplist is an associative array where an operator is associated to its associa
 This associative array only exists in the preprocessing step of the compilation,
 resulting in no runtime cost and strict aliasing check.
 
-In the example, we tell to the container to use
-the `mpz_init` function for the `INIT` operator of the type (aka constructor),
-the `mpz_clear` function for the `CLEAR` operator of the type (aka destructor),
-the `mpz_set` function for the `SET` operator of the type (aka copy),
-the `mpz_init_set` function for the `INIT_SET` operator of the type (aka copy constructor).
+In the example, we tell to the container to use:
+
+* the `mpz_init` function for the `INIT` operator of the type (aka constructor),
+* the `mpz_clear` function for the `CLEAR` operator of the type (aka destructor),
+* the `mpz_set` function for the `SET` operator of the type (aka copy),
+* the `mpz_init_set` function for the `INIT_SET` operator of the type (aka copy constructor).
+* The default macro `M_COPY_A1_DEFAULT` is used for the `INIT_MOVE` operator (good for all objects using the `[1]` trick).
+
 See [OPLIST](#oplist) chapter for more detailed information.
 
-We can also write the same example shorter:
+We can also write the same example shorter by using the ability of M\*LIB to register oplists:
 
 ```C
 #include <stdio.h>
@@ -466,7 +488,7 @@ int main(void) {
 }
 ```
 
-Or even shorter when you're comfortable enough with the library:
+Or even shorter when you're comfortable enough with the library by using its advanced constructor features:
 
 ```C
 #include <stdio.h>
