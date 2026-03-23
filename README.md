@@ -3290,7 +3290,7 @@ array of the `key_type` to the `value_type`.
 
 The `CMP` operator is used to perform the total ordering of the key elements.
 
-`N` is the number of items per node and shall be greater or equal than 2.
+`N` is the number of items per node and shall be greater or equal than 3.
 
 It shall be done once per type and per compilation unit.
 It also define the iterator `name##_it_t` and its associated methods as `static inline` functions.
