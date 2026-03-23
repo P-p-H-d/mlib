@@ -547,6 +547,9 @@ static void test1(void)
   assert(dict_str_size(dict) == 19);
   dict_str_set_at(dict, STRING_CTE("LICENCE"), STRING_CTE("BSD3"));
   assert(dict_str_size(dict) == 19);
+  string_t *ptr = dict_str_prehashed_get(dict, STRING_CTE("LICENCE"), string_hash(STRING_CTE("LICENCE")));
+  assert(ptr != NULL);
+  assert(string_equal_p (*ptr, STRING_CTE("BSD3")));
 
   size_t s = 0;
   bool check1 = false, check2= false;
@@ -582,6 +585,9 @@ static void test_oa(void)
   for(int i = 0 ; i < 150; i++) {
     int *p = dict_oa_int_get(d, i);
     if ((i % 3) == 0) {
+      assert (p != NULL);
+      assert (*p == i*i);
+      p = dict_oa_int_prehashed_get(d, i, M_HASH_DEFAULT(i));
       assert (p != NULL);
       assert (*p == i*i);
     } else {

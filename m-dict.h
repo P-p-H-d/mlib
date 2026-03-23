@@ -450,6 +450,29 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     }                                                                         \
   }                                                                           \
                                                                               \
+  M_INLINE value_type *                                                       \
+  M_F(name, _prehashed_get)(const dict_t map, key_type const key, size_t hash) \
+  {                                                                           \
+    M_D1CT_CONTRACT(map);                                                     \
+    M_ASSERT( M_CALL_HASH(key_oplist, key) == hash);                          \
+    const m_index_t mask = map->mask;                                         \
+    m_index_t p = (m_index_t) hash & mask;                                    \
+    m_index_t s = 1;                                                          \
+    /* We are likely to find the correct bucket first */                      \
+    while (true) {                                                            \
+      if (M_LIKELY ((m_index_t) hash == map->index[p].hash)) {                \
+        m_index_t d = map->index[p].index;                                    \
+        if (M_LIKELY(d >=2 && M_CALL_EQUAL(key_oplist, map->data[d].pair.key, key))) { \
+          return &map->data[d].pair.M_IF(isSet)(key, value);                  \
+        }                                                                     \
+      }                                                                       \
+      if (M_LIKELY (map->index[p].index == 0)) {                              \
+        return NULL;                                                          \
+      }                                                                       \
+      p = (p + M_D1CT_OA_PROBING(s)) & mask;                                  \
+    }                                                                         \
+  }                                                                           \
+                                                                              \
   M_P(void, name, _i_resize_up, dict_t h, m_index_t newSize, bool updateLimit) \
   {                                                                           \
     /* NOTE: Contract may not be fulfilled here */                            \
@@ -1588,6 +1611,30 @@ enum m_d1ct_oa_element_e {
     M_F(name, _pair_ct) *const data = dict->data;                             \
     const size_t mask = dict->mask;                                           \
     size_t p = M_CALL_HASH(key_oplist, key) & mask;                           \
+    size_t s = 1;                                                             \
+    while (true) {                                                            \
+      /* Random access, and probably cache miss */                            \
+      if (M_LIKELY (M_CALL_EQUAL(key_oplist, data[p].key, key)) )             \
+        return &data[p].M_IF(isSet)(key, value);                              \
+      if (M_LIKELY (M_CALL_OOR_EQUAL(key_oplist, data[p].key, M_D1CT_OA_EMPTY)) ) \
+        return NULL;                                                          \
+      p = (p + M_D1CT_OA_PROBING(s)) & mask;                                  \
+      M_ASSERT (s <= dict->mask);                                             \
+    }                                                                         \
+  }                                                                           \
+                                                                              \
+  M_INLINE value_type * M_ATTR_HOT_FUNCTION                                   \
+  M_F(name, _prehashed_get)(const dict_t dict, key_type const key, size_t hash) \
+  {                                                                           \
+    M_D1CT_OA_CONTRACT(dict);                                                 \
+    M_ASSERT( hash == M_CALL_HASH(key_oplist, key));                          \
+    /* NOTE: Key can not be the representation of empty or deleted */         \
+    M_ASSERT (!M_CALL_OOR_EQUAL(key_oplist, key, M_D1CT_OA_EMPTY));           \
+    M_ASSERT (!M_CALL_OOR_EQUAL(key_oplist, key, M_D1CT_OA_DELETED));         \
+                                                                              \
+    M_F(name, _pair_ct) *const data = dict->data;                             \
+    const size_t mask = dict->mask;                                           \
+    size_t p = hash & mask;                                                   \
     size_t s = 1;                                                             \
     while (true) {                                                            \
       /* Random access, and probably cache miss */                            \
