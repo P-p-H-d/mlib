@@ -324,9 +324,9 @@
 
 /******************************** INTERNAL ***********************************/
 
-/* Internal contract of a B+TREE of size 'N' for a node 'node' or root 'root' */
+/* Internal contract of a B+TREE of size 'N' for a node 'node' of root 'root' */
 #ifdef NDEBUG
-# define M_BPTR33_NODE_CONTRACT(N, isMulti, key_oplist, node, root) do { } while (0)
+# define M_BPTR33_NODE_CONTRACT(N, isMulti, key_oplist, node, root)
 #else
 # define M_BPTR33_NODE_CONTRACT(N, isMulti, key_oplist, node, root) do {      \
     M_ASSERT ((node) != NULL);                                                \
@@ -357,16 +357,20 @@
 #endif
 
 /* Contract for a B+TREE of size N named 'b' */
+#ifdef NDEBUG
+#define M_BPTR33_CONTRACT(N, isMulti, key_oplist, b)
+#else
 #define M_BPTR33_CONTRACT(N, isMulti, key_oplist, b) do {                     \
-    M_ASSERT (N >= 3);  /* TBC: 2 instead ? */                                \
+    M_STATIC_ASSERT (N >= 3, M_LIB_DIMENSION, "B+TREE supports only N >= 3"); \
     M_BPTR33_NODE_CONTRACT(N, isMulti, key_oplist, (b)->root, (b)->root);     \
     M_ASSERT ((b)->root->next == NULL);                                       \
     if ((b)->root->num <= 0) M_ASSERT (-(b)->root->num == (int) (b)->size);   \
   } while (0)
+#endif
 
 /* Max depth of any B+tree
     Worst case is when all nodes are only half full.
-    Worst case is with the mininum size of a node (2)
+    Worst case is with the minimum size of a node (2)
     Maximum number of elements: SIZE_MAX = 2 ^ (CHAR_BIT*sizeof (size_t)) - 1
     Height of such a tree if inferior to:
     Ceil(Log2(2 ^ (CHAR_BIT*sizeof (size_t)))) + 1
@@ -484,8 +488,6 @@
   /* TODO: Can be specialized to alloc for leaf or for non leaf */            \
   M_INLINE node_t M_F(name, _new_node)(M_P_EXPAND_void)                       \
   {                                                                           \
-    M_STATIC_ASSERT(N >= 2, M_LIB_ILLEGAL_PARAM,                              \
-          "Number of items per node shall be >= 2.");                         \
     node_t n = M_CALL_NEW(key_oplist, struct M_F(name, _node_s));             \
     if (M_UNLIKELY_NOMEM (n == NULL)) {                                       \
       M_MEMORY_FULL(node_t, 1);                                               \
