@@ -44,7 +44,7 @@ int main(void)
     m_thread_create(thread2, thread_func, "Hello from thread 2!\n");
 
     /* Give both threads time to reach the wait point for this demo. */
-    sleep(1);
+    m_thread_sleep(1000000);
 
     /* Wake all waiting threads while holding the same mutex associated to cond. */
     m_mutex_lock(mutex);
