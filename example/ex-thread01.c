@@ -5,7 +5,7 @@
 /* m_mutex_t, m_cond_t and m_thread_t are alias for the real system types, 
    so you can encapsulate them and maximize portability. 
    They don't provide any performance it compare to the real system types.
-   As a consequence, their semantics is a litle bit more strict than the real ones,
+   As a consequence, their semantics is a little bit more strict than the real ones,
    so that semantic can apply to all the operating systems.
 */
 
