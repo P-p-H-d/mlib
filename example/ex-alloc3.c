@@ -8,6 +8,9 @@ extern void my_free(struct context_s *context, void *ptr, size_t s);
 
 // Make M*LIB use this context for memory allocation functions (single object):
 // It shall be done once before including M*LIB header.
+// Defining it will change the expected API of all containers and function objects,
+// so that they expect the context as the first argument.
+// (only for methods that can allocate or clear memory).
 #define M_USE_CONTEXT struct context_s *
 #define M_MEMORY_ALLOC(ctx, type) my_alloc (ctx, sizeof (type))
 #define M_MEMORY_DEL(ctx, ptr)    my_free(ctx, ptr, sizeof *ptr)
