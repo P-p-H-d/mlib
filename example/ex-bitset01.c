@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "m-bitset.h"
 
-static void print_bitset(const char *label, m_bitset_t bitset)
+static void print_bitset(const char *label, const m_bitset_t bitset)
 {
     printf("%s", label);
     for (size_t i = 0; i < m_bitset_size(bitset); i++) {
