@@ -111,7 +111,7 @@
 /* Return the size (run time or build time).
    NOTE: It assumed that the queue variable name is 'v' */
 #define M_QUEU3_SIZE(v, m_size)                                               \
-  M_QUEU3_IF_CTE_SIZE(m_size) (m_size, v->capacity)
+  ((size_t)M_QUEU3_IF_CTE_SIZE(m_size) (m_size, v->capacity))
 
 /* Contract of a queue. */
 #define M_QUEU3_CONTRACT(queue, size)        do {                             \
