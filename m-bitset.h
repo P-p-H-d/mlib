@@ -345,7 +345,7 @@ m_bitset_pop_back(bool *dest, m_bitset_t v)
 
 /* Return the front bit value in the bitset */
 M_INLINE bool
-m_bitset_front(m_bitset_t v)
+m_bitset_front(const m_bitset_t v)
 {
   M_B1TSET_CONTRACT (v);
   M_ASSERT_INDEX (0, v->size);
@@ -354,7 +354,7 @@ m_bitset_front(m_bitset_t v)
 
 /* Return the back bit value in the bitset */
 M_INLINE bool
-m_bitset_back(m_bitset_t v)
+m_bitset_back(const m_bitset_t v)
 {
   M_B1TSET_CONTRACT (v);
   M_ASSERT_INDEX (0, v->size);
@@ -363,7 +363,7 @@ m_bitset_back(m_bitset_t v)
 
 /* Test if the bitset is empty (no bits stored)*/
 M_INLINE bool
-m_bitset_empty_p(m_bitset_t v)
+m_bitset_empty_p(const m_bitset_t v)
 {
   M_B1TSET_CONTRACT (v);
   return v->size == 0;
@@ -371,7 +371,7 @@ m_bitset_empty_p(m_bitset_t v)
 
 /* Return the number of bits of the bitset */
 M_INLINE size_t
-m_bitset_size(m_bitset_t v)
+m_bitset_size(const m_bitset_t v)
 {
   M_B1TSET_CONTRACT (v);
   return v->size;
@@ -379,7 +379,7 @@ m_bitset_size(m_bitset_t v)
 
 /* Return the capacity in bits of the bitset */
 M_INLINE size_t
-m_bitset_capacity(m_bitset_t v)
+m_bitset_capacity(const m_bitset_t v)
 {
   M_B1TSET_CONTRACT (v);
   return M_B1TSET_FROM_ALLOC (v->alloc);
