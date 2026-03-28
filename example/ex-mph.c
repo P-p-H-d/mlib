@@ -24,7 +24,7 @@
 
 /* Define the needed data structure : */
 
-// Define a dictionnary of constant string --> integer and register it.
+// Define a dictionary of constant string --> integer and register it.
 DICT_DEF2(dict_mph, const char *, M_CSTR_OPLIST, uint32_t, M_BASIC_OPLIST)
 #define M_OPL_dict_mph_t() DICT_OPLIST(dict_mph, M_CSTR_OPLIST, M_BASIC_OPLIST)
 
