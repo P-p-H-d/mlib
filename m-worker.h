@@ -589,18 +589,24 @@ m_worker_count(m_worker_t g)
 */
 #if M_USE_WORKER_CLANG_BLOCK
 #define M_WORKER_SPAWN(_block, _input, _core, _output)                        \
+  _Pragma("clang diagnostic push")                                            \
+  _Pragma("clang diagnostic ignored \"-Wshadow\"")                            \
   M_WORK3R_DEF_DATA(_input, _output)                                          \
   M_WORK3R_DEF_SUBBLOCK(_input, _output, _core)                               \
-  m_work3r_spawn_block ((_block), M_WORK3R_SPAWN_SUBFUNC_NAME,  &M_WORK3R_SPAWN_DATA_NAME)
+  m_work3r_spawn_block ((_block), M_WORK3R_SPAWN_SUBFUNC_NAME,  &M_WORK3R_SPAWN_DATA_NAME); \
+  _Pragma("clang diagnostic pop")
 #elif M_USE_WORKER_CPP_FUNCTION
 // TODO: Explicit pass all arguments by reference.
 #define M_WORKER_SPAWN(_block, _input, _core, _output)                        \
   m_work3r_spawn_function ((_block), [&](void *param) {(void)param ; _core } ,  NULL)
 #else
 #define M_WORKER_SPAWN(_block, _input, _core, _output)                        \
+  _Pragma("GCC diagnostic push")                                              \
+  _Pragma("GCC diagnostic ignored \"-Wshadow\"")                              \
   M_WORK3R_DEF_DATA(_input, _output)                                          \
   M_WORK3R_DEF_SUBFUNC(_input, _output, _core)                                \
-  m_worker_spawn ((_block), M_WORK3R_SPAWN_SUBFUNC_NAME,  &M_WORK3R_SPAWN_DATA_NAME)
+  m_worker_spawn ((_block), M_WORK3R_SPAWN_SUBFUNC_NAME,  &M_WORK3R_SPAWN_DATA_NAME); \
+  _Pragma("GCC diagnostic pop")
 #endif
 
 #define M_WORK3R_SPAWN_STRUCT_NAME   M_C(m_work3r_data_s_, __LINE__)
