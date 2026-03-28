@@ -1001,6 +1001,9 @@ M_IF_METHOD(ERASE_KEY, oplist)(                                               \
 , )                                                                           \
 
 
+// TODO: Define default for FULL_P & EMPTY_P if not defined in the oplist of the type
+// always return false for FULL_P and EMPTY_P only for PUSH and POP
+
 /* Define the push based operators */
 #define M_SHAR3D_PTR_DECL_PUSH(name, shared_t, oplist, sub_type)              \
 M_IF_METHOD(PUSH, oplist)( extern void M_F(name, _push)(shared_t *, sub_type const); , ) \
