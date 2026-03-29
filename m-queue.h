@@ -85,7 +85,25 @@
 #define M_QUEU3_OPLIST_FAILURE(name, oplist)                                  \
   ((M_LIB_ERROR(ARGUMENT_OF_BUFFER_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
-/* OPLIST definition of a buffer */
+/* OPLIST definition of a queue / stack */
+#ifndef M_USE_CONTEXT
+#define M_QUEU3_OPLIST_P3(name, oplist)                                       \
+  (INIT(API_0(M_F(name, _i_init)))                                            \
+  ,INIT_SET(API_0(M_F(name, _init_set)))                                      \
+  ,SET(API_0(M_F(name, _set)))                                                \
+  ,CLEAR(API_0(M_F(name, _clear)))                                            \
+  ,NAME(name)                                                                 \
+  ,TYPE(M_F(name,_ct)), GENTYPE(struct M_F(name,_s)*)                         \
+  ,SUBTYPE(M_F(name, _subtype_ct))                                            \
+  ,RESET(API_0(M_F(name,_reset)))                                             \
+  ,PUSH(API_0(M_F(name,_push)))                                               \
+  ,POP(API_0(M_F(name,_pop)))                                                 \
+  ,OPLIST(oplist)                                                             \
+  ,EMPTY_P(M_F(name, _empty_p)),                                              \
+  ,FULL_P(M_F(name, _full_p)),                                                \
+  ,GET_SIZE(M_F(name, _size))                                                 \
+  )
+#else
 #define M_QUEU3_OPLIST_P3(name, oplist)                                       \
   (INIT(API_0P(M_F(name, _i_init)))                                           \
   ,INIT_SET(API_0P(M_F(name, _init_set)))                                     \
@@ -102,8 +120,7 @@
   ,FULL_P(M_F(name, _full_p)),                                                \
   ,GET_SIZE(M_F(name, _size))                                                 \
   )
-   
-   
+#endif
    
 /* Test if the size is only run-time or build time */
 #define M_QUEU3_IF_CTE_SIZE(m_size)  M_IF(M_BOOL(m_size))
