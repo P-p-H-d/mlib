@@ -32,6 +32,14 @@ mpz_fast_hash(const mpz_t z)
 }
 
 /* Define the OPLIST of a mpz_t and register it globally */
+/* It looks complicated because it handles all operations properly.
+   See API keyword in the OPLIST which allows translation from what
+   the M*LIB operators expect to the actual mpz_t methods
+   on the flight without needing a separate wrapper. */
+/* There is also the registration of all emplace types
+   which allows easy construction from any of such types to a mpz_t
+   directly within a container.
+*/
 #define M_OPL_mpz_t()                                                   \
   (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), \
    INIT_WITH(API_1(M_INIT_WITH_THROUGH_EMPLACE_TYPE)),                  \
