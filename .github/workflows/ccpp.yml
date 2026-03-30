@@ -135,27 +135,20 @@ jobs:
              cd tests
              make check -j 2 CC="cc -std=c99 -Wno-unknown-warning-option -Werror" && make clean && make check -j 2 CC="cc -std=c11 -Wno-unknown-warning-option -Werror" LDFLAGS="-lstdthreads" && make clean
 
-    # The host should always be linux
   build_aarch64:
     runs-on: ubuntu-latest
-    name: Build on aarch64
+    name: Build on aarch64 with cross compiler
     steps:
-      - uses: actions/checkout@v4
-      - uses: uraimo/run-on-arch-action@v3
-        name: Run commands on aarch64
-        id: make
-        timeout-minutes: 60
-        with:
-          arch: aarch64
-          distro: bullseye
-          # Not required, but speeds up builds
-          githubToken: ${{ github.token }}
-          shell: /bin/sh
-          run: |
-            apt-get update -q -y
-            apt-get install -q -y  build-essential git gcc
-            lscpu
-            cd tests && make check -j 2 && make clean
+    - uses: actions/checkout@v4
+    - name: Install cross compiler 
+      shell: bash
+      run:  sudo apt update && sudo apt install gcc-aarch64-linux-gnu qemu-user
+    - name: make depend
+      shell: bash
+      run: make depend
+    - name: make check
+      shell: bash
+      run: make check CC=aarch64-linux-gnu-gcc LOG_COMPILER="qemu-aarch64 -L /usr/aarch64-linux-gnu/" -j 2
 
   build_armv6:
     runs-on: ubuntu-latest
