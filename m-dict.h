@@ -52,11 +52,6 @@
   M_END_PROTECTED_CODE
 
 
-/*  [Obsolete macros] */
-#define M_DICT_STOREHASH_DEF2 M_DICT_DEF2
-#define M_DICT_STOREHASH_DEF2_AS M_DICT_DEF2_AS
-
-
 /* Define a dictionary associating the key key_type to the value value_type
    with an Open Addressing implementation and its associated functions.
    KEY_OPLIST needs the operators OOR_EQUAL & OOR_SET.
@@ -130,7 +125,7 @@
   M_END_PROTECTED_CODE
 
 
-/* Define the oplist of a dictionary (DICT_DEF2, DICT_STOREHASH_DEF2 or DICT_OA_DEF2).
+/* Define the oplist of a dictionary (DICT_DEF2 or DICT_OA_DEF2).
    USAGE:
      DICT_OPLIST(name, oplist of the key type, oplist of the value type)
    OR
@@ -2287,8 +2282,6 @@ M_P(void, name, _bulk_update, dict_t dict, unsigned n, value_type val[M_VLA(n)],
 #if M_USE_SMALL_NAME
 #define DICT_DEF2 M_DICT_DEF2
 #define DICT_DEF2_AS M_DICT_DEF2_AS
-#define DICT_STOREHASH_DEF2 M_DICT_STOREHASH_DEF2
-#define DICT_STOREHASH_DEF2_AS M_DICT_STOREHASH_DEF2_AS
 #define DICT_OA_DEF2 M_DICT_OA_DEF2
 #define DICT_OA_DEF2_AS M_DICT_OA_DEF2_AS
 #define DICT_SET_DEF M_DICT_SET_DEF
