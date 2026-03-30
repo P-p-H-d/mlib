@@ -199,13 +199,13 @@ DICT_DEF2(array, int, DEFAULT_OPLIST, int, M_BASIC_OPLIST)
 
 #include "m-dict.h"
 
-DICT_STOREHASH_DEF2(array, int, DEFAULT_OPLIST, int, M_BASIC_OPLIST)
+DICT_DEF2(array, int, int, M_BASIC_OPLIST)
 
 #elif TEST == 26
 
 #include "m-dict.h"
 
-DICT_STOREHASH_DEF2(array, int, M_BASIC_OPLIST, int, DEFAULT_OPLIST)
+DICT_OA_DEF2(array, int, M_BASIC_OPLIST, int)
 
 #elif TEST == 27
 

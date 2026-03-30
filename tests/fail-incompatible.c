@@ -111,9 +111,21 @@ DICT_DEF2(dict3, int, M_BASIC_OPLIST, dict_t, DICT_OPLIST(dict2, M_BASIC_OPLIST,
 
 #include "m-dict.h"
 
-DICT_STOREHASH_DEF2(dict, int, int)
-DICT_STOREHASH_DEF2(dict2, int, int)
-DICT_STOREHASH_DEF2(dict3, int, M_BASIC_OPLIST, dict_t, DICT_OPLIST(dict2, M_BASIC_OPLIST, M_BASIC_OPLIST) )
+static inline bool oor_equal_p(int k, unsigned char n)
+{
+  return k == ~(int)n;
+}
+
+static inline void oor_set(int *k, unsigned char n)
+{
+  *k = ~(int)n;
+}
+
+#define O M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR))
+
+DICT_OA_DEF2(dict, int, O, int, M_BASIC_OPLIST)
+DICT_OA_DEF2(dict2, int, O, int, M_BASIC_OPLIST)
+DICT_OA_DEF2(dict3, int, O, dict_t, DICT_OPLIST(dict2, M_BASIC_OPLIST, M_BASIC_OPLIST) )
 
 #elif TEST == 11
 
