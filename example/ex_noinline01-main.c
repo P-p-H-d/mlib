@@ -1,7 +1,8 @@
-#include "exm-header.h"
+#include "ex_noinline01.h"
 
 int main(void)
 {
+  // Calls below use APIs declared in the header and defined in ex-noinline01-lib.c.
   array_str_t a;
   array_str_init(a);
   array_str_emplace_back(a, "Hello");

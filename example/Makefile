@@ -40,12 +40,12 @@ RM=rm -f
 all: config
 	$(MAKE) `ls ex-*.c|sed -e 's/\.c/\.exe/g'`
 	if test "$(CC)" = "cc -std=c99" ; then $(MAKE) `ls ex11-*.c|sed -e 's/\.c/\.exe/g'` CC="cc -std=c11" ; fi
-	$(MAKE) exm.exe exn.exe
+	$(MAKE) ex_noinline01.exe ex_noinline02.exe
 
-exm.exe: exm-lib.o exm-main.o
+ex_noinline01.exe: ex_noinline01-lib.o ex_noinline01-main.o
 	$(CC) `cat config.link` -g $^ -o $@
 
-exn.exe: exn-lib.o exn-main.o
+ex_noinline02.exe: ex_noinline02-lib.o ex_noinline02-main.o
 	$(CC) `cat config.link` -g $^ -o $@
 
 config:
