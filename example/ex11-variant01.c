@@ -66,6 +66,7 @@ static void f(void)
 
   M_LET( (o, (true)), obj_t) {
     // In C11, a 'true' value is an 'int' type, not a bool!
+    // In C23, it is a boolean!
     print_obj(o, "3rd init");
     obj_set_boolean(o, true);
     print_obj(o, "3rd+set");
