@@ -41,12 +41,7 @@ int main(void)
 
             // Print the count:
             for M_EACH(p, map, dict_str_t) {
-                // In C11 version we can use the M_PRINT macro that simplifies formatting.
-#if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)            
-                M_PRINT(p->value, " occurrences of ", p->key, "\n");
-#else
                 printf ("%zu occurrences of %s\n", p->value, string16_get_cstr(p->key));
-#endif
             }
         }
     }
