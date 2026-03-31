@@ -569,16 +569,16 @@ M_INLINE void                                                                 \
     void (*func)(M_P_EXPAND m_string_t, const char *);                        \
     func = append ? m_string_cat_cstr : m_string_set_cstr;                    \
     switch (el->type) {                                                       \
-    case M_F(name, _EMPTY): func M_R(str, "@EMPTY@"); break;                  \
+    case M_F(name, _EMPTY): func M_R(str, "@EMPTY{"); break;                  \
       M_MAP2(M_VAR1ANT_DEFINE_GET_STR_FUNC , name, __VA_ARGS__)               \
     default: M_ASSUME(false); break;                                          \
     }                                                                         \
-    m_string_push_back M_R(str, '@');                                         \
+    m_string_push_back M_R(str, '}');                                         \
   }
 
 #define M_VAR1ANT_DEFINE_GET_STR_FUNC(name, a)                                \
   case M_C4(name, _, M_VAR1ANT_GET_FIELD a, _value):                          \
-  func M_R(str, "@" M_AS_STR(M_VAR1ANT_GET_FIELD a) "@");                     \
+  func M_R(str, "@" M_AS_STR(M_VAR1ANT_GET_FIELD a) "{");                     \
   M_VAR1ANT_CALL_GET_STR(a, str, el -> value . M_VAR1ANT_GET_FIELD a, true);  \
   break;
 
@@ -597,11 +597,11 @@ M_INLINE void                                                                 \
     if (c != '@') goto exit;                                                  \
     /* First read the name of the type */                                     \
     c = *str++;                                                               \
-    while (c != '@' && c != 0 && i < sizeof(variantTypeBuf) - 1) {            \
+    while (c != '{' && c != 0 && i < sizeof(variantTypeBuf) - 1) {            \
       variantTypeBuf[i++] = (char) c;                                         \
       c = *str++;                                                             \
     }                                                                         \
-    if (c != '@') goto exit;                                                  \
+    if (c != '{') goto exit;                                                  \
     variantTypeBuf[i++] = 0;                                                  \
     M_ASSERT(i < sizeof(variantTypeBuf));                                     \
     /* In function of the type */                                             \
@@ -610,7 +610,7 @@ M_INLINE void                                                                 \
     }                                                                         \
     M_MAP2(M_VAR1ANT_DEFINE_PARSE_STR_FUNC , name, __VA_ARGS__)               \
     else goto exit;                                                           \
-    success = (*str++ == '@');                                                \
+    success = (*str++ == '}');                                                \
   exit:                                                                       \
     if (endp) *endp = str;                                                    \
     return success;                                                           \
@@ -632,16 +632,16 @@ M_INLINE void                                                                 \
     M_VAR1ANT_CONTRACT(name, el);                                             \
     M_ASSERT (f != NULL);                                                     \
     switch (el->type) {                                                       \
-    case M_F(name, _EMPTY): fprintf(f, "@EMPTY@"); break;                     \
+    case M_F(name, _EMPTY): fprintf(f, "@EMPTY{"); break;                     \
       M_MAP2(M_VAR1ANT_DEFINE_OUT_STR_FUNC , name, __VA_ARGS__)               \
     default: M_ASSUME(false); break;                                          \
     }                                                                         \
-    fputc ('@', f);                                                           \
+    fputc ('}', f);                                                           \
   }
 
 #define M_VAR1ANT_DEFINE_OUT_STR_FUNC(name, a)                                \
   case M_C4(name, _, M_VAR1ANT_GET_FIELD a, _value):                          \
-  fprintf(f, "@" M_AS_STR(M_VAR1ANT_GET_FIELD a) "@");                        \
+  fprintf(f, "@" M_AS_STR(M_VAR1ANT_GET_FIELD a) "{");                        \
   M_VAR1ANT_CALL_OUT_STR(a, f, el -> value . M_VAR1ANT_GET_FIELD a);          \
   break;
 
@@ -659,11 +659,11 @@ M_INLINE void                                                                 \
     bool b = true;                                                            \
     int c = fgetc(f);                                                         \
     unsigned int i = 0;                                                       \
-    while (c != '@' && c != EOF && i < sizeof(variantTypeBuf) - 1) {          \
+    while (c != '{' && c != EOF && i < sizeof(variantTypeBuf) - 1) {          \
       variantTypeBuf[i++] = (char) c;                                         \
       c = fgetc(f);                                                           \
     }                                                                         \
-    if (c != '@') return false;                                               \
+    if (c != '{') return false;                                               \
     variantTypeBuf[i++] = 0;                                                  \
     M_ASSERT(i < sizeof(variantTypeBuf));                                     \
     /* In function of the type */                                             \
@@ -672,7 +672,7 @@ M_INLINE void                                                                 \
     }                                                                         \
     M_MAP2(M_VAR1ANT_DEFINE_IN_STR_FUNC , name, __VA_ARGS__)                  \
     else { b = false; }                                                       \
-    return b && (fgetc(f) == '@');                                            \
+    return b && (fgetc(f) == '}');                                            \
   }
 
 #define M_VAR1ANT_DEFINE_IN_STR_FUNC(name, a)                                 \
