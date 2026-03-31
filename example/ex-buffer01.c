@@ -110,6 +110,9 @@ BUFFER_DEF(buffer_bigdata, shared_bigdata_t *, MY_QUEUE_SIZE,
  *
  * Thread1 ---> Thread 2 +
  *          +-> Thread 3 --> Thread 4
+ * 
+ * The data is shared between the threads using shared pointer 
+ * and the communication between the threads is done using the buffer defined above.
  */
 buffer_bigdata_t buf_t1tot2;
 buffer_bigdata_t buf_t1tot3;
