@@ -1,7 +1,7 @@
 #include "m-array.h"
 #include "m-string.h"
 
-// Define an array of string_t. Since the oplist of string_t is registered globaly
+// Define an array of string_t. Since the oplist of string_t is registered globally
 // there is no need to give it to this definition.
 ARRAY_DEF(str_array, string_t)
 
@@ -20,7 +20,7 @@ static void main_macrofree(void)
     // Overwrite element 1 of the array.
     str_array_set_at(tab_name, 1, STRING_CTE("DVD"));
 
-    // Finaly rewrite 1 element of the array
+    // Finally rewrite 1 element of the array
     string_set_str(*str_array_get(tab_name, 1), "BLU-RAY");
     
     // Format some strings and push them back in the array
@@ -70,9 +70,9 @@ static void main_macro(void)
             string_printf(format, "The third element is '%s'", string_get_cstr(*str_array_get(tab_name, 2)));
             str_array_push_back(tab_name, format);
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-            // Set format to a formated string
+            // Set format to a formatted string
             // In C11, we can mix string_t and char *.
-            // We can also use M_CSTR to create a printf formated string.
+            // We can also use M_CSTR to create a printf formatted string.
             string_sets(format, "FILE=", getenv("PWD"), "/", *str_array_get(tab_name, 2), M_CSTR("-%zu.txt", str_array_size(tab_name) ));
             str_array_push_back(tab_name, format);
 #endif
@@ -89,7 +89,7 @@ static void main_macro(void)
 
 int main(void)
 {
-    printf("Version macrofree:\n");
+    printf("Version macro free:\n");
     main_macrofree();
     printf("Version macro:\n");
     main_macro();
