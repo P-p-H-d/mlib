@@ -362,7 +362,7 @@
 #else
 #define M_BPTR33_CONTRACT(N, isMulti, key_oplist, b) do {                     \
     M_STATIC_ASSERT (N >= 3, M_LIB_DIMENSION, "B+TREE supports only N >= 3"); \
-    M_BPTR33_NODE_CONTRACT(N, isMulti, key_oplist, (b)->root, (b)->root);     \
+    M_BPTR33_NODE_CONTRACT(N, isMulti, key_oplist, (b)->root+0, (b)->root);   \
     M_ASSERT ((b)->root->next == NULL);                                       \
     if ((b)->root->num <= 0) M_ASSERT (-(b)->root->num == (int) (b)->size);   \
   } while (0)
