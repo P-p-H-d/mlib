@@ -192,7 +192,7 @@ typedef struct m_worker_sync_s {
 #define M_WORK3R_SPAWN_EXTEND_P0__3(field, type, oplist)    M_IF_OPLIST(oplist)(M_WORK3R_SPAWN_EXTEND_P0__3_OK, M_WORK3R_SPAWN_EXTEND_P0__3_KO)(field, type, oplist)
 #define M_WORK3R_SPAWN_EXTEND_P0__3_OK(field, type, oplist) M_OPEXTEND(oplist, TYPE(type))
 #define M_WORK3R_SPAWN_EXTEND_P0__3_KO(field, type, oplist)                   \
-  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(M_WORKER_SPAWN_EXTEND): the argument is not a valid oplist: " M_MAP(M_AS_STR, oplist))
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(M_WORKER_SPAWN_DEF2): the argument is not a valid oplist: " M_MAP(M_AS_STR, oplist))
 
 /* Deferred evaluation for the definition,
    so that all arguments are evaluated before further expansion */
@@ -206,7 +206,7 @@ typedef struct m_worker_sync_s {
 /* Stop processing with a compilation failure */
 #define M_WORK3R_SPAWN_EXTEND_FAILURE(name, ...)                              \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST,                                       \
-                   "(M_WORKER_SPAWN_EXTEND): at least one of the given argument is not a valid oplist: " \
+                   "(M_WORKER_SPAWN_DEF2): at least one of the given argument is not a valid oplist: " \
                    M_MAP(M_AS_STR, __VA_ARGS__))
 
 /* Define the extension of spawn */
@@ -672,6 +672,7 @@ M_END_PROTECTED_CODE
 #else /* M_USE_WORKER */
 
 /*   Define empty types and empty functions to not use any worker */
+#include "m-core.h"
 
 typedef struct m_worker_block_s {
   int x;
@@ -690,6 +691,8 @@ typedef struct m_worker_s {
 #define m_worker_count(w) 1
 #define m_worker_flush(w) do { (void) w; } while (0)
 #define M_WORKER_SPAWN(b, i, c, o) do { c } while (0)
+
+// TODO: M_WORKER_SPAWN_DEF2
 
 #endif /* M_USE_WORKER */
 
