@@ -77,13 +77,51 @@ mpz_fast_hash(const mpz_t z)
 ARRAY_DEF(array_mpz, mpz_t)
 #define M_OPL_array_mpz_t() ARRAY_OPLIST(array_mpz, M_OPL_mpz_t())
 
+// There are unfortunately no standard mpq_init_set_* functions, so we define them ourselves as wrappers around mpq_init + mpq_set_*.
+#ifndef mpq_init_set
+#define mpq_init_set(mpq, other) do { mpq_init(mpq); mpq_set(mpq, other); } while(0)
+#endif
+#ifndef mpq_init_set_si
+#define mpq_init_set_si(mpq, num, den) do { mpq_init(mpq); mpq_set_si(mpq, num, den); } while(0)
+#endif
+#ifndef mpq_init_set_ui
+#define mpq_init_set_ui(mpq, num, den) do { mpq_init(mpq); mpq_set_ui(mpq, num, den); } while(0)
+#endif
+#ifndef mpq_init_set_str
+#define mpq_init_set_str(mpq, str) do { mpq_init(mpq); mpq_set_str(mpq, str, 10); } while(0)
+#endif
+
+/* Define an oplist for mpq_t (rationals) and register multi-argument
+  emplace constructors.
+  Unlike mpz_t, a rational may naturally need two values at construction
+  time (numerator + denominator), so _si and _ui emplace variants each
+  accept two arguments and forward both to mpq_init_set_* wrappers. */
+#define M_OPL_mpq_t()                                                   \
+  (INIT(mpq_init), INIT_SET(mpq_init_set), SET(mpq_set), CLEAR(mpq_clear), \
+   INIT_WITH(API_1(M_INIT_WITH_THROUGH_EMPLACE_TYPE)),                  \
+   INIT_MOVE(M_COPY_A1_DEFAULT)                                       \
+   EQUAL( API( mpq_cmp, EQ(0), ARG1, ARG2)),                            \
+   CMP(mpq_cmp),                                                        \
+   OUT_STR( API( mpq_out_str, VOID, ARG1, 10, ARG2)),                   \
+   IN_STR( API( mpq_inp_str, GT(0), ARG1, ARG2, 10)),                   \
+   ADD(mpq_add), SUB(mpq_sub), MUL(mpq_mul), DIV(mpq_div),              \
+   EMPLACE_TYPE( LIST( (_si,   mpq_init_set_si,  long, unsigned long),                  \
+                       (_ui,   mpq_init_set_ui,  unsigned long, unsigned long),             \
+                       (_cstr, mpq_init_set_str, const char *), \
+                       (_str,  mpq_init_set_str, char *) )), \
+   TYPE(mpq_t) )
+
+ARRAY_DEF(array_mpq, mpq_t)
+#define M_OPL_array_mpq_t() ARRAY_OPLIST(array_mpq, M_OPL_mpq_t())
+
+
 int main(void)
 {
   /* M_LET declares a variable, calls its INIT operator on entry, and
      automatically calls its CLEAR operator on exit — no manual cleanup. */
   M_LET(z, mpz_t) {
     mpz_set_str(z, "25446846874687468746874687468746874686874", 10);
-    printf("z = %s\n", mpz_get_str(NULL, 10, z));
+    gmp_printf("z = %Zd\n", z);
   }
 
   /* M_LET also accepts an optional initializer for each variable.
@@ -95,9 +133,9 @@ int main(void)
        24.5                   → double       → _d    emplace variant
      All variables are still cleared automatically at the end of the block. */
   M_LET( (z1, ("2544684687468746874")), (z2, (23)), (z4, (24.5)), mpz_t) {
-    printf("z1 = %s\n", mpz_get_str(NULL, 10, z1));
-    printf("z2 = %s\n", mpz_get_str(NULL, 10, z2));
-    printf("z4 = %s\n", mpz_get_str(NULL, 10, z4));
+    gmp_printf("z1 = %Zd\n", z1);
+    gmp_printf("z2 = %Zd\n", z2);
+    gmp_printf("z4 = %Zd\n", z4);
   }
 
   /* Demonstrate all emplace variants: each call constructs a new mpz_t
@@ -124,7 +162,7 @@ int main(void)
 
     /* Print every element using GMP's base-10 string conversion */
     for(size_t i = 0; i < array_mpz_size(array); i++) {
-      printf("array[%zu] = %s\n", i, mpz_get_str(NULL, 10, *array_mpz_get(array, i)));
+      gmp_printf("array[%zu] = %Zd\n", i, *array_mpz_get(array, i));
     }
   }
 
@@ -140,6 +178,27 @@ int main(void)
     printf("Array is: ");
     array_mpz_out_str(stdout, array);
     printf("\n");
+  }
+
+  /* Basic mpq_t example: M_LET handles init/clear automatically,
+     and gmp_printf with %Qd prints the rational as num/den. */
+  M_LET(q, mpq_t) {
+    mpq_set_str(q, "25446846874687468746874687468746874686874", 10);
+    gmp_printf("q = %Qd\n", q);
+  }
+
+  /* mpq_t emplace supports both one-argument and two-argument constructors.
+     The two-argument forms (_si, _ui) map directly to (numerator, denominator). */
+  M_LET(array, array_mpq_t) {
+    /* _si/_ui take two parameters: numerator then denominator. */
+    array_mpq_emplace_back_si(array, 1, 2); // 1/2
+    array_mpq_emplace_back_ui(array, 3, 4); // 3/4
+    array_mpq_emplace_back_cstr(array, "5/6"); // 5/6
+
+    /* Print every element using GMP's base-10 string conversion */
+    for(size_t i = 0; i < array_mpq_size(array); i++) {
+      gmp_printf("array[%zu] = %Qd\n", i, *array_mpq_get(array, i));
+    }
   }
 
   return 0;
