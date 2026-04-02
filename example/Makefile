@@ -20,7 +20,9 @@
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-CC=cc -std=c99
+CC=cc
+CC99=$(CC) -std=c99
+CC11=$(CC) -std=c11
 CFLAGS=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-overflow=5 -Wstrict-prototypes -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wunreachable-code -Wlogical-op -Wstrict-aliasing=2 -Wredundant-decls -Wold-style-definition -Wno-unused-function -g
 GMP_DIR=
 MPFR_DIR=$(GMP_DIR)
@@ -31,15 +33,19 @@ RM=rm -f
 .SUFFIXES: .c .exe
 
 .c.exe:
-	$(CC) $(CFLAGS) $(CPPFLAGS) $< -o $@ `cat config` `cat config.curl` $(LDFLAGS)
+	@echo "Compiling $< to $@"
+	@if echo "$<" | grep -q "ex11-" ; then \
+	$(CC11) $(CFLAGS) $(CPPFLAGS) $< -o $@ `cat config` `cat config.curl` $(LDFLAGS) \
+	; else \
+	$(CC99) $(CFLAGS) $(CPPFLAGS) $< -o $@ `cat config` `cat config.curl` $(LDFLAGS) \
+	; fi
 
 .c.o:
 	@$(MAKE) config
 	$(CC) $(CFLAGS) $(CPPFLAGS) -O2 `cat config.link` -DNDEBUG -g $< -c -o $@
 
 all: config
-	$(MAKE) `ls ex-*.c|sed -e 's/\.c/\.exe/g'`
-	if test "$(CC)" = "cc -std=c99" ; then $(MAKE) `ls ex11-*.c|sed -e 's/\.c/\.exe/g'` CC="cc -std=c11" ; fi
+	$(MAKE) `ls ex-*.c|sed -e 's/\.c/\.exe/g'` `ls ex11-*.c|sed -e 's/\.c/\.exe/g'`
 	$(MAKE) ex_noinline01.exe ex_noinline02.exe
 
 ex_noinline01.exe: ex_noinline01-lib.o ex_noinline01-main.o
