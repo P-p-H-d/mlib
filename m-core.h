@@ -4226,7 +4226,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 /* Create a type with an invalid static assertion.
    Creating a type allowed the macro into something not too bad
    from a syntaxic point of view, reducing the amount of errors reported
-   so that the user can concentrate to the real error.
+   so that the user can concentrate on the real error.
 */
 #define M_NO_DEFAULT_TYPE(op)                                                 \
   struct { int m_x[                                                           \
@@ -4243,7 +4243,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_NO_DEF_VALUE_TYPE       M_NO_DEFAULT_TYPE(VALUE_TYPE)
 #define M_NO_DEF_NAME             M_NO_DEFAULT_TYPE(NAME) m_no_name
 
-/* Test if the given variable is a basic C variable:
+/* Test if the given variable is indeed a basic C variable:
    int, float, enum, bool or compatible.
    NOTE: Not perfect, but catch some errors */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
@@ -4261,7 +4261,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
                   M_LIB_NOT_A_BASIC_TYPE,                                     \
                   "The variable " M_AS_STR(a) " is not a basic C type (int/float), " \
                   "but the given methods use it like this. "                  \
-                  "It is likely the given oplist is not right.")
+                  "It is likely the given oplist is not the right one.")
 #else
 #define M_CHECK_BASIC_TYPE(a)                                                 \
   M_STATIC_ASSERT(sizeof (a) <= M_MAX(sizeof(long long),                      \
@@ -4270,12 +4270,12 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
                   M_LIB_NOT_A_BASIC_TYPE,                                     \
                   "The variable " M_AS_STR(a) " is too big to be a basic C type (int/float), " \
                   "but the given methods use it like this. "                  \
-                  "It is likely the given oplist is not right.")
+                  "It is likely the given oplist is not the right one.")
 #endif
 
 /* Check if both variables are of the same type.
-   The test compare their type if C23 or GCC compatible, compiler else its size.
-   NOTE: Not perfect but catch some errors */
+   The test compares their types if C23 or GCC compatible compilers
+   else it compares their sizes (Not perfect but catch some errors) */
 #if defined(__GNUC__) && !defined(__cplusplus)
 #define M_CHECK_SAME(a, b)                                                    \
   M_STATIC_ASSERT(__builtin_types_compatible_p(m_typeof(a), m_typeof(b)),     \
@@ -4389,7 +4389,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
    INIT_MOVE(M_SET_DEFAULT) )
 
 
-/* NOTE: Theses operators are to be used with the '[1]' tricks
+/* NOTE: Theses operators are to be used with array of size 1, the '[1]' tricks
    if the variable is defined as a parameter of a function
    (sizeof (a) is not portable). */
 #define M_COPY_A1_DEFAULT(a,b)   (M_CHECK_SAME(a[0], b[0]), memcpy(&(a[0]), &(b[0]), sizeof (a[0])))
@@ -4601,7 +4601,11 @@ m_core_parse2_enum (const char str[], const char **endptr)
 /* Apply an oplist */
 #define M_OPAPPLY(a, oplist)  a oplist
 
-/* Extend an oplist by adding some methods */
+/* Extend an oplist by adding some methods.
+   These methods will have higher priority than the ones in the oplist.
+   Example:
+    M_OPEXTEND(M_BASIC_OPLIST, ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT))
+*/
 #define M_OPEXTEND(op, ...) (__VA_ARGS__, M_OPFLAT op)
 
 /* Return the content of a property named 'propname' 
