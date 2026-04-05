@@ -107,13 +107,12 @@ int main(void)
     for (size_t i = 0; i < BIG; i++)
         big[i] = rand();
 
-    struct timespec t0, t1;
-    timespec_get(&t0, TIME_UTC);
+    clock_t t0, t1;
+    t0 = clock();
     sort_int(BIG, big);
-    timespec_get(&t1, TIME_UTC);
+    t1 = clock();
 
-    double elapsed_s = (double) (t1.tv_sec - t0.tv_sec)
-                     + 1e-9 * (double) (t1.tv_nsec - t0.tv_nsec);
+    double elapsed_s = (double) (t1 - t0) / (double) CLOCKS_PER_SEC;
 
     /* Verify non-decreasing order after the sort. */
     bool ok = true;
