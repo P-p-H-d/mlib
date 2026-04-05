@@ -254,17 +254,13 @@ M_INLINE long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
 #define atomic_init(ptr, val)                                                 \
   (m_mutex_init((ptr)->_lock), (ptr)->_val = val, (ptr)->_zero = 0)
 
-/* Atomic load of a variable (EMULATION)
-   If the atomic type size is not greater than the CPU atomic size,
-   we can perform a direct read of the variable (much faster) */
+/* Atomic load of a variable (EMULATION) */
 #define atomic_load(ptr)                                                      \
   (m_mutex_lock((ptr)->_lock),                                                \
    (ptr)->_previous = (ptr)->_val,                                            \
    atomic_fetch_unlock(&(ptr)->_lock, (long long) ((ptr)->_previous-(ptr)->_zero))+(ptr)->_zero)
   
-/* Atomic store of a variable (EMULATION)
-   If the atomic type size is not greater than the CPU atomic size,
-   we can perform a direct write of the variable (much faster) */
+/* Atomic store of a variable (EMULATION) */
 #define atomic_store(ptr, val)                                                \
   (m_mutex_lock((ptr)->_lock),                                                \
    (ptr)->_val = (val),                                                       \
