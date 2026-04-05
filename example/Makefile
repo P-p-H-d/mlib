@@ -35,9 +35,13 @@ RM=rm -f
 .c.exe:
 	@echo "Compiling $< to $@"
 	@if echo "$<" | grep -q "ex11-" ; then \
-	$(CC11) $(CFLAGS) $(CPPFLAGS) $< -o $@ `cat config` `cat config.curl` $(LDFLAGS) \
+		if $(CC) --help|grep -q "Tiny C Compiler" ; then \
+			echo "C11 builds not supported with TCC" \
+		; else \
+			$(CC11) $(CFLAGS) $(CPPFLAGS) $< -o $@ `cat config` `cat config.curl` $(LDFLAGS) \
+		; fi \
 	; else \
-	$(CC99) $(CFLAGS) $(CPPFLAGS) $< -o $@ `cat config` `cat config.curl` $(LDFLAGS) \
+		$(CC99) $(CFLAGS) $(CPPFLAGS) $< -o $@ `cat config` `cat config.curl` $(LDFLAGS) \
 	; fi
 
 .c.o:
