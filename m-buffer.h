@@ -31,19 +31,17 @@
 
 /* Define the different kind of policy a lock-based buffer can have:
  * - the buffer can be either a queue (policy is FIFO) or a stack (policy is FILO),
- * - if the buffer has to be init with empty elements, or if it shall init an element when it is pushed (and moved when popped),
  * - if the buffer has to overwrite the last element if the buffer is full,
  * - if the pop of an element is not complete until the call to pop_release (preventing push until this call).
  */
 typedef enum {
   M_BUFFER_QUEUE = 0,    M_BUFFER_STACK = 1,
-  M_BUFFER_PUSH_INIT_POP_MOVE = 16,
   M_BUFFER_PUSH_OVERWRITE = 32,
   M_BUFFER_DEFERRED_POP = 64
 } m_buffer_policy_e;
 
 
-/* Define a lock based buffer.
+/* Define a lock based queue/stack buffer.
    If size is 0, then the size will only be defined at run-time when initializing the buffer,
    otherwise the size will be a compile time constant.
    USAGE: BUFFER_DEF(name, type, size_of_buffer_or_0, policy[, oplist]) */
@@ -215,6 +213,12 @@ typedef enum {
   typedef type M_F(name, _subtype_ct);                                        \
   typedef buffer_t M_F(name, _ct);                                            \
 
+/* Loop for all active and initialized objects in the queue */
+#define M_BUFF3R_FOR_ALL_OBJ(i, v, m_size, policy)                            \
+  for(size_t i = M_BUFF3R_POLICY_P((policy), M_BUFFER_STACK) ? 0 : v->idx_cons; \
+  i != v->idx_prod;                                                           \
+  i = (!M_BUFF3R_POLICY_P((policy), M_BUFFER_STACK) && i + 1 >= M_BUFF3R_SIZE(m_size)) ? 0 : i + 1)
+
 /* Define the core functionalities of a buffer */
 #define M_BUFF3R_DEF_CORE(name, type, m_size, policy, oplist, buffer_t)       \
                                                                               \
@@ -238,11 +242,6 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
       M_MEMORY_FULL (M_F(name, _el_ct), M_BUFF3R_SIZE(m_size));               \
     }                                                                         \
   )                                                                           \
-  if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {            \
-    for(size_t i = 0; i < size; i++) {                                        \
-      M_CALL_INIT(oplist, v->data[i].x);                                      \
-    }                                                                         \
-  }                                                                           \
   M_BUFF3R_CONTRACT(v,m_size);                                                \
 }                                                                             \
                                                                               \
@@ -257,18 +256,8 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
    M_GLOBAL_CONTEXT();                                                        \
-   if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {           \
-     for(size_t i = 0; i < M_BUFF3R_SIZE(m_size); i++) {                      \
-       M_CALL_CLEAR(oplist, v->data[i].x);                                    \
-     }                                                                        \
-   } else {                                                                   \
-     size_t i = M_BUFF3R_POLICY_P((policy), M_BUFFER_STACK) ? 0 : v->idx_cons; \
-     while (i != v->idx_prod) {                                               \
-       M_CALL_CLEAR(oplist, v->data[i].x);                                    \
-       i++;                                                                   \
-       if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_STACK) && i >= M_BUFF3R_SIZE(m_size)) \
-         i = 0;                                                               \
-     }                                                                        \
+   M_BUFF3R_FOR_ALL_OBJ(i, v, m_size, policy) {                               \
+    M_CALL_CLEAR(oplist, v->data[i].x);                                       \
    }                                                                          \
    v->idx_prod = v->idx_cons = 0;                                             \
    atomic_store_explicit (&v->number[0], 0U, memory_order_relaxed);           \
@@ -300,8 +289,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
    m_mutex_lock(v->mutexPush);                                                \
    m_mutex_lock(v->mutexPop);                                                 \
    M_BUFF3R_PROTECTED_CONTRACT(policy, v, m_size);                            \
-   if (M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE))              \
-     M_F(name,_i_clear_obj)(v);                                               \
+   M_F(name,_i_clear_obj)(v);                                                 \
    v->idx_prod = v->idx_cons = 0;                                             \
    atomic_store_explicit (&v->number[0], 0U, memory_order_relaxed);           \
    if (M_BUFF3R_POLICY_P(policy, M_BUFFER_DEFERRED_POP))                      \
@@ -326,18 +314,8 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
    m_mutex_lock(v->mutexPop);                                                 \
                                                                               \
    M_BUFF3R_PROTECTED_CONTRACT(policy, v, m_size);                            \
-   if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {           \
-     for(size_t i = 0; i < M_BUFF3R_SIZE(m_size); i++) {                      \
-       M_CALL_INIT_SET(oplist, dest->data[i].x, v->data[i].x);                \
-     }                                                                        \
-   } else {                                                                   \
-     size_t i = M_BUFF3R_POLICY_P((policy), M_BUFFER_STACK) ? 0 : v->idx_cons; \
-     while (i != v->idx_prod) {                                               \
-       M_CALL_INIT_SET(oplist, dest->data[i].x, v->data[i].x);                \
-       i++;                                                                   \
-       if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_STACK) && i >= M_BUFF3R_SIZE(m_size)) \
-         i = 0;                                                               \
-     }                                                                        \
+   M_BUFF3R_FOR_ALL_OBJ(i, v, m_size, policy) {                               \
+    M_CALL_INIT_SET(oplist, dest->data[i].x, v->data[i].x);                   \
    }                                                                          \
                                                                               \
    dest->idx_prod = v->idx_prod;                                              \
@@ -379,19 +357,8 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
                                                                               \
    M_BUFF3R_PROTECTED_CONTRACT(policy, v, m_size);                            \
    M_F(name,_i_clear_obj)(dest);                                              \
-                                                                              \
-   if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {           \
-     for(size_t i = 0; i < M_BUFF3R_SIZE(m_size); i++) {                      \
-       M_CALL_INIT_SET(oplist, dest->data[i].x, v->data[i].x);                \
-     }                                                                        \
-   } else {                                                                   \
-     size_t i = M_BUFF3R_POLICY_P((policy), M_BUFFER_STACK) ? 0 : v->idx_cons; \
-     while (i != v->idx_prod) {                                               \
-       M_CALL_INIT_SET(oplist, dest->data[i].x, v->data[i].x);                \
-       i++;                                                                   \
-       if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_STACK) && i >= M_BUFF3R_SIZE(m_size)) \
-         i = 0;                                                               \
-     }                                                                        \
+   M_BUFF3R_FOR_ALL_OBJ(i, v, m_size, policy) {                               \
+    M_CALL_INIT_SET(oplist, dest->data[i].x, v->data[i].x);                   \
    }                                                                          \
                                                                               \
    dest->idx_prod = v->idx_prod;                                              \
@@ -473,17 +440,12 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
      if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_STACK)) {                      \
        idx = idx >= M_BUFF3R_SIZE(m_size) ? M_BUFF3R_SIZE(m_size)-1 : idx;    \
      }                                                                        \
-     /* Update data in the buffer */                                          \
+     /* Overwrite data in the buffer */                                       \
      M_CALL_SET(oplist, v->data[idx].x, data);                                \
      previousSize = M_BUFF3R_SIZE(m_size);                                    \
    } else {                                                                   \
-     /* Add a new item in the buffer */                                       \
-     /* PUSH data in the buffer */                                            \
-     if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {         \
-       M_CALL_SET(oplist, v->data[idx].x, data);                              \
-     } else {                                                                 \
-       M_CALL_INIT_SET(oplist, v->data[idx].x, data);                         \
-     }                                                                        \
+     /* Add a new item by pushing data in the buffer */                       \
+     M_CALL_INIT_SET(oplist, v->data[idx].x, data);                           \
                                                                               \
      /* Increment production INDEX of the buffer */                           \
      idx++;                                                                   \
@@ -519,71 +481,6 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
    return true;                                                               \
  }                                                                            \
                                                                               \
- M_N(bool, name, _pop_blocking, type *data, buffer_t v, bool blocking)        \
- {                                                                            \
-   M_BUFF3R_CONTRACT(v,m_size);                                               \
-   M_ASSERT (data != NULL);                                                   \
-   M_GLOBAL_CONTEXT();                                                        \
-   /* consumer lock (mutex lock performs an acquire memory barrier) */        \
-   m_mutex_lock(v->mutexPop);                                                 \
-   while (M_F(name, _empty_p)(v)) {                                           \
-      if (!blocking) {                                                        \
-        m_mutex_unlock(v->mutexPop);                                          \
-        return false;                                                         \
-      }                                                                       \
-      m_cond_wait(v->there_is_data, v->mutexPop);                             \
-   }                                                                          \
-   M_BUFF3R_PROTECTED_CONTRACT(policy, v, m_size);                            \
-                                                                              \
-   /* POP data from the buffer and update INDEX */                            \
-   if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_STACK)) {                        \
-     /* FIFO queue */                                                         \
-     if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {         \
-       M_CALL_SET(oplist, *data, v->data[v->idx_cons].x);                     \
-     } else {                                                                 \
-       M_CALL_INIT_MOVE (oplist, *data, v->data[v->idx_cons].x);              \
-     }                                                                        \
-     v->idx_cons = (v->idx_cons == M_BUFF3R_SIZE(m_size)-1) ? 0 : (v->idx_cons + 1); \
-   } else {                                                                   \
-     /* STACK queue */                                                        \
-     v->idx_prod --;                                                          \
-     if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {         \
-       M_CALL_SET(oplist, *data, v->data[v->idx_prod].x);                     \
-     } else {                                                                 \
-       M_CALL_INIT_MOVE (oplist, *data, v->data[v->idx_prod].x);              \
-     }                                                                        \
-   }                                                                          \
-                                                                              \
-   /* number[] is the only variable which can be modified by both             \
-      the consumer thread which has the pop lock and the producer             \
-      thread which has the push lock. As such, it is an atomic variable       \
-      that performs a release memory barrier. */                              \
-   /* Decrement number of elements in the buffer */                           \
-   size_t previousSize;                                                       \
-   if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_DEFERRED_POP)) {                 \
-     previousSize = atomic_fetch_sub (&v->number[0], 1U);                     \
-   } else {                                                                   \
-     atomic_fetch_sub (&v->number[1], 1U);                                    \
-   }                                                                          \
-   /* Space may be reused by a producer thread from this point */             \
-                                                                              \
-   /* consumer unlock (mutex unlock performs a release memory barrier) */     \
-   m_mutex_unlock(v->mutexPop);                                               \
-   /* If the number of items in the buffer was the max, some producer         \
-      may be waiting. Signal to them the availability of the free room        \
-      We cannot only signal one thread. */                                    \
-   if ((!M_BUFF3R_POLICY_P((policy), M_BUFFER_DEFERRED_POP))                  \
-        && previousSize == M_BUFF3R_SIZE(m_size)) {                           \
-      m_mutex_lock(v->mutexPush);                                             \
-      m_cond_broadcast(v->there_is_room_for_data);                            \
-      m_mutex_unlock(v->mutexPush);                                           \
-   }                                                                          \
-                                                                              \
-   M_BUFF3R_CONTRACT(v,m_size);                                               \
-   return true;                                                               \
- }                                                                            \
-                                                                              \
-                                                                              \
  M_N(void, name, _push, buffer_t v, type const data)                          \
  {                                                                            \
    bool b = M_F(name, _push_blocking)(v, data, true);                         \
@@ -591,9 +488,110 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
    (void) b;                                                                  \
  }                                                                            \
                                                                               \
+ M_N(bool, name, _push_move_blocking, buffer_t v, type *data, bool blocking)  \
+ {                                                                            \
+   M_BUFF3R_CONTRACT(v,m_size);                                               \
+   M_GLOBAL_CONTEXT();                                                        \
+   /* Producer Mutex lock (mutex lock performs an acquire memory barrier) */  \
+   m_mutex_lock(v->mutexPush);                                                \
+   while (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_OVERWRITE)               \
+          && M_F(name, _full_p)(v)) {                                         \
+      if (!blocking) {                                                        \
+        m_mutex_unlock(v->mutexPush);                                         \
+        return false;                                                         \
+      }                                                                       \
+      m_cond_wait(v->there_is_room_for_data, v->mutexPush);                   \
+   }                                                                          \
+   M_BUFF3R_PROTECTED_CONTRACT(policy, v, m_size);                            \
+                                                                              \
+   size_t previousSize, idx = v->idx_prod;                                    \
+   /* INDEX computation if we have to overwrite the last element */           \
+   if (M_UNLIKELY (M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_OVERWRITE)       \
+                   && M_F(name, _full_p)(v))) {                               \
+     v->overwrite++;                                                          \
+     /* Let's overwrite the last element */                                   \
+     /* Compute the index of the last push element */                         \
+     idx--;                                                                   \
+     if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_STACK)) {                      \
+       idx = idx >= M_BUFF3R_SIZE(m_size) ? M_BUFF3R_SIZE(m_size)-1 : idx;    \
+     }                                                                        \
+     /* Overwrite data in the buffer */                                       \
+     M_DO_MOVE(oplist, v->data[idx].x, *data);                                \
+     previousSize = M_BUFF3R_SIZE(m_size);                                    \
+   } else {                                                                   \
+     /* Add a new item in the buffer */                                       \
+     /* PUSH data in the buffer */                                            \
+     M_CALL_INIT_MOVE(oplist, v->data[idx].x, *data);                         \
+                                                                              \
+     /* Increment production INDEX of the buffer */                           \
+     idx++;                                                                   \
+     if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_STACK)) {                      \
+       idx = (idx == M_BUFF3R_SIZE(m_size)) ? 0 : idx;                        \
+     }                                                                        \
+     v->idx_prod = idx;                                                       \
+                                                                              \
+     /* number[] is the only variable which can be modified by both           \
+        the consumer thread which has the pop lock and the producer           \
+        thread which has the push lock. As such, it is an atomic variable     \
+        that performs a release memory barrier. */                            \
+     /* Increment number of elements of the buffer */                         \
+     previousSize = atomic_fetch_add (&v->number[0], 1U);                     \
+     if (M_BUFF3R_POLICY_P((policy), M_BUFFER_DEFERRED_POP)) {                \
+       previousSize = atomic_fetch_add (&v->number[1], 1U);                   \
+     }                                                                        \
+     /* From this point, consumer may read the data in the table */           \
+   }                                                                          \
+                                                                              \
+   /* Producer unlock (mutex unlock performs a release memory barrier) */     \
+   m_mutex_unlock(v->mutexPush);                                              \
+    /* If the number of items in the buffer was 0, some consumer              \
+      may be waiting. Signal to them the availability of the data             \
+      We cannot only signal one thread. */                                    \
+   if (previousSize == 0) {                                                   \
+      m_mutex_lock(v->mutexPop);                                              \
+      m_cond_broadcast(v->there_is_data);                                     \
+      m_mutex_unlock(v->mutexPop);                                            \
+   }                                                                          \
+                                                                              \
+   M_BUFF3R_CONTRACT(v,m_size);                                               \
+   return true;                                                               \
+ }                                                                            \
+                                                                              \
+ M_N(void, name, _push_move, buffer_t v, type *data)                          \
+ {                                                                            \
+   bool b = M_F(name, _push_move_blocking)(v, data, true);                    \
+   assert(b);                                                                 \
+   (void) b;                                                                  \
+ }                                                                            \
+                                                                              \
+ M_N(bool, name, _pop_blocking, type *data, buffer_t v, bool blocking)        \
+ {                                                                            \
+   M_ASSERT (data != NULL);                                                   \
+   M_GLOBAL_CONTEXT();                                                        \
+   M_BUFF3R_PRE_POP(name, v, m_size, policy, blocking, idx);                  \
+   M_DO_MOVE (oplist, *data, v->data[idx].x);                                 \
+   M_BUFF3R_POST_POP(name,v, m_size, policy);                                 \
+ }                                                                            \
+                                                                              \
  M_N(void, name, _pop, type *data, buffer_t v)                                \
  {                                                                            \
    bool b = M_F(name, _pop_blocking)(data, v, true);                          \
+   assert(b);                                                                 \
+   (void) b;                                                                  \
+ }                                                                            \
+                                                                              \
+ M_N(bool, name, _pop_move_blocking, type *data, buffer_t v, bool blocking)   \
+ {                                                                            \
+   M_ASSERT (data != NULL);                                                   \
+   M_GLOBAL_CONTEXT();                                                        \
+   M_BUFF3R_PRE_POP(name, v, m_size, policy, blocking, idx);                  \
+   M_CALL_INIT_MOVE (oplist, *data, v->data[idx].x);                          \
+   M_BUFF3R_POST_POP(name,v, m_size, policy);                                 \
+ }                                                                            \
+                                                                              \
+ M_N(void, name, _pop_move, type *data, buffer_t v)                           \
+ {                                                                            \
+   bool b = M_F(name, _pop_move_blocking)(data, v, true);                     \
    assert(b);                                                                 \
    (void) b;                                                                  \
  }                                                                            \
@@ -625,6 +623,58 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
    }                                                                          \
  }                                                                            \
 
+/* Define the stub to do before performing the copy of the data in a pop */
+#define M_BUFF3R_PRE_POP(name, v, m_size, policy, blocking, idx)              \
+  M_BUFF3R_CONTRACT(v,m_size);                                                \
+  /* consumer lock (mutex lock performs an acquire memory barrier) */         \
+  m_mutex_lock(v->mutexPop);                                                  \
+  while (M_F(name, _empty_p)(v)) {                                            \
+    if (!blocking) {                                                          \
+      m_mutex_unlock(v->mutexPop);                                            \
+      return false;                                                           \
+    }                                                                         \
+    m_cond_wait(v->there_is_data, v->mutexPop);                               \
+  }                                                                           \
+  M_BUFF3R_PROTECTED_CONTRACT(policy, v, m_size);                             \
+  /* POP data from the buffer and update INDEX */                             \
+  size_t idx;                                                                 \
+  if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_STACK)) {                         \
+    /* FIFO queue */                                                          \
+    idx = v->idx_cons;                                                        \
+    v->idx_cons = (v->idx_cons == M_BUFF3R_SIZE(m_size)-1) ? 0 : (v->idx_cons + 1); \
+  } else {                                                                    \
+    /* STACK queue */                                                         \
+    idx = -- v->idx_prod;                                                     \
+  }                                                                           \
+
+/* Define the stub to do after performing the copy of the data in a pop */
+#define M_BUFF3R_POST_POP(name, v, m_size, policy)                            \
+  /* number[] is the only variable which can be modified by both              \
+    the consumer thread which has the pop lock and the producer               \
+    thread which has the push lock. As such, it is an atomic variable         \
+    that performs a release memory barrier. */                                \
+  /* Decrement number of elements in the buffer */                            \
+  size_t previousSize;                                                        \
+  if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_DEFERRED_POP)) {                  \
+    previousSize = atomic_fetch_sub (&v->number[0], 1U);                      \
+  } else {                                                                    \
+    atomic_fetch_sub (&v->number[1], 1U);                                     \
+  }                                                                           \
+  /* Space may be reused by a producer thread from this point */              \
+  /* consumer unlock (mutex unlock performs a release memory barrier) */      \
+  m_mutex_unlock(v->mutexPop);                                                \
+  /* If the number of items in the buffer was the max, some producer          \
+    may be waiting. Signal to them the availability of the free room          \
+    We cannot only signal one thread. */                                      \
+  if ((!M_BUFF3R_POLICY_P((policy), M_BUFFER_DEFERRED_POP))                   \
+      && previousSize == M_BUFF3R_SIZE(m_size)) {                             \
+    m_mutex_lock(v->mutexPush);                                               \
+    m_cond_broadcast(v->there_is_room_for_data);                              \
+    m_mutex_unlock(v->mutexPush);                                             \
+  }                                                                           \
+                                                                              \
+  M_BUFF3R_CONTRACT(v,m_size);                                                \
+  return true;                                                                \
 
 /********************************** INTERNAL *********************************/
 
@@ -734,11 +784,37 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
        queue as all pop threads will try to enqueue this particular element   \
        but always fail. The won't try to enqueue other elements.              \
        As such, this queue is not strictly lock-free.*/                       \
-    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
-      M_CALL_SET(oplist, table->Tab[i].x, x);                                 \
-    } else {                                                                  \
-      M_CALL_INIT_SET(oplist, table->Tab[i].x, x);                            \
+    M_CALL_INIT_SET(oplist, table->Tab[i].x, x);                              \
+    /* Finish transaction */                                                  \
+    atomic_store_explicit(&table->Tab[i].seq, 2*idx, memory_order_release);   \
+    M_QU3UE_MPMC_CONTRACT(table);                                             \
+    return true;                                                              \
+  }                                                                           \
+                                                                              \
+  M_N(bool, name, _push_move, buffer_t table, type *x)                        \
+  {                                                                           \
+    M_QU3UE_MPMC_CONTRACT(table);                                             \
+    M_GLOBAL_CONTEXT();                                                       \
+    unsigned int idx = atomic_load_explicit(&table->ProdIdx,                  \
+                                            memory_order_relaxed);            \
+    const unsigned int i = idx & (table->size -1);                            \
+    const unsigned int seq = atomic_load_explicit(&table->Tab[i].seq,         \
+                                                  memory_order_acquire);      \
+    if (M_UNLIKELY (2*(idx - table->size) + 1 != seq))        {               \
+      /* Buffer full (or unlikely preemption). Can not push */                \
+      return false;                                                           \
     }                                                                         \
+    if (M_UNLIKELY (!atomic_compare_exchange_strong_explicit(&table->ProdIdx, \
+           &idx, idx+1, memory_order_relaxed, memory_order_relaxed))) {       \
+      /* Thread has been preempted by another one. */                         \
+      return false;                                                           \
+    }                                                                         \
+    /* If it is interrupted here, it may block all pop methods (not push)     \
+       even if there is other threads that have pushed data later in the      \
+       queue as all pop threads will try to enqueue this particular element   \
+       but always fail. The won't try to enqueue other elements.              \
+       As such, this queue is not strictly lock-free.*/                       \
+    M_CALL_INIT_MOVE(oplist, table->Tab[i].x, *x);                            \
     /* Finish transaction */                                                  \
     atomic_store_explicit(&table->Tab[i].seq, 2*idx, memory_order_release);   \
     M_QU3UE_MPMC_CONTRACT(table);                                             \
@@ -764,11 +840,32 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
       /* Thread has been preempted by another one */                          \
       return false;                                                           \
     }                                                                         \
-    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
-      M_CALL_SET(oplist, *ptr, table->Tab[i].x);                              \
-    } else {                                                                  \
-      M_CALL_INIT_MOVE (oplist, *ptr, table->Tab[i].x);                       \
+    M_DO_MOVE (oplist, *ptr, table->Tab[i].x);                                \
+    atomic_store_explicit(&table->Tab[i].seq, 2*iC + 1, memory_order_release); \
+    M_QU3UE_MPMC_CONTRACT(table);                                             \
+    return true;                                                              \
+  }                                                                           \
+                                                                              \
+  M_N(bool, name, _pop_move, type *ptr, buffer_t table)                       \
+  {                                                                           \
+    M_QU3UE_MPMC_CONTRACT(table);                                             \
+    M_ASSERT (ptr != NULL);                                                   \
+    M_GLOBAL_CONTEXT();                                                       \
+    unsigned int iC = atomic_load_explicit(&table->ConsoIdx,                  \
+                                           memory_order_relaxed);             \
+    const unsigned int i = (iC & (table->size -1));                           \
+    const unsigned int seq = atomic_load_explicit(&table->Tab[i].seq,         \
+                                                  memory_order_acquire);      \
+    if (seq != 2 * iC) {                                                      \
+      /* Nothing in buffer to consume (or unlikely preemption) */             \
+      return false;                                                           \
     }                                                                         \
+    if (M_UNLIKELY (!atomic_compare_exchange_strong_explicit(&table->ConsoIdx, \
+             &iC, iC+1, memory_order_relaxed, memory_order_relaxed))) {       \
+      /* Thread has been preempted by another one */                          \
+      return false;                                                           \
+    }                                                                         \
+    M_CALL_INIT_MOVE (oplist, *ptr, table->Tab[i].x);                         \
     atomic_store_explicit(&table->Tab[i].seq, 2*iC + 1, memory_order_release); \
     M_QU3UE_MPMC_CONTRACT(table);                                             \
     return true;                                                              \
@@ -789,9 +886,6 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
     }                                                                         \
     for(unsigned int j = 0; j < (unsigned int) size; j++) {                   \
       atomic_init(&buffer->Tab[j].seq, 2*j+1U);                               \
-      if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {        \
-        M_CALL_INIT(oplist, buffer->Tab[j].x);                                \
-      }                                                                       \
     }                                                                         \
     M_QU3UE_MPMC_CONTRACT(buffer);                                            \
   }                                                                           \
@@ -800,21 +894,13 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
   {                                                                           \
     M_QU3UE_MPMC_CONTRACT(buffer);                                            \
     M_GLOBAL_CONTEXT();                                                       \
-    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
-      for(unsigned int j = 0; j < buffer->size; j++) {                        \
-        M_CALL_CLEAR(oplist, buffer->Tab[j].x);                               \
-      }                                                                       \
-    } else {                                                                  \
-      unsigned int iP = atomic_load_explicit(&buffer->ProdIdx, memory_order_relaxed); \
-      unsigned int i  = iP & (buffer->size -1);                               \
-      unsigned int iC = atomic_load_explicit(&buffer->ConsoIdx, memory_order_relaxed); \
-      unsigned int j  = iC & (buffer->size -1);                               \
-      while (i != j) {                                                        \
-        M_CALL_CLEAR(oplist, buffer->Tab[j].x);                               \
-        j++;                                                                  \
-        if (j >= buffer->size)                                                \
-          j = 0;                                                              \
-      }                                                                       \
+    unsigned int iP = atomic_load_explicit(&buffer->ProdIdx, memory_order_relaxed); \
+    unsigned int i  = iP & (buffer->size -1);                                 \
+    unsigned int iC = atomic_load_explicit(&buffer->ConsoIdx, memory_order_relaxed); \
+    unsigned int j  = iC & (buffer->size -1);                                 \
+    while (i != j) {                                                          \
+      M_CALL_CLEAR(oplist, buffer->Tab[j].x);                                 \
+      j = (j+1)>= buffer->size ? 0 : (j+1);                                   \
     }                                                                         \
     M_CALL_FREE(oplist, M_F(name, _el_ct), buffer->Tab, buffer->size);        \
     buffer->Tab = NULL; /* safer */                                           \
@@ -947,11 +1033,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
     if (w-r >= table->size)                                                   \
       return false;                                                           \
     unsigned int i = w & (table->size -1);                                    \
-    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
-      M_CALL_SET(oplist, table->Tab[i].x, x);                                 \
-    } else {                                                                  \
-      M_CALL_INIT_SET(oplist, table->Tab[i].x, x);                            \
-    }                                                                         \
+    M_CALL_INIT_SET(oplist, table->Tab[i].x, x);                              \
     atomic_store_explicit(&table->prodIdx, w+1, memory_order_release);        \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
     return true;                                                              \
@@ -968,11 +1050,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
     if (w-r >= table->size)                                                   \
       return false;                                                           \
     unsigned int i = w & (table->size -1);                                    \
-    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
-      M_DO_MOVE(oplist, table->Tab[i].x, *x);                                 \
-    } else {                                                                  \
-      M_CALL_INIT_MOVE(oplist, table->Tab[i].x, *x);                          \
-    }                                                                         \
+    M_CALL_INIT_MOVE(oplist, table->Tab[i].x, *x);                            \
     atomic_store_explicit(&table->prodIdx, w+1, memory_order_release);        \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
     return true;                                                              \
@@ -990,11 +1068,25 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
     if (w-r == 0)                                                             \
       return false;                                                           \
     unsigned int i = r & (table->size -1);                                    \
-    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
-      M_CALL_SET(oplist, *ptr , table->Tab[i].x);                             \
-    } else {                                                                  \
-      M_CALL_INIT_MOVE (oplist, *ptr, table->Tab[i].x);                       \
-    }                                                                         \
+    M_DO_MOVE (oplist, *ptr, table->Tab[i].x);                                \
+    atomic_store_explicit(&table->consoIdx, r+1, memory_order_release);       \
+    M_QU3UE_SPSC_CONTRACT(table);                                             \
+    return true;                                                              \
+  }                                                                           \
+                                                                              \
+  M_N(bool, name, _pop_move, type *ptr, buffer_t table)                       \
+  {                                                                           \
+    M_QU3UE_SPSC_CONTRACT(table);                                             \
+    M_ASSERT (ptr != NULL);                                                   \
+    M_GLOBAL_CONTEXT();                                                       \
+    unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
+                                          memory_order_relaxed);              \
+    unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
+                                          memory_order_acquire);              \
+    if (w-r == 0)                                                             \
+      return false;                                                           \
+    unsigned int i = r & (table->size -1);                                    \
+    M_CALL_INIT_MOVE (oplist, *ptr, table->Tab[i].x);                         \
     atomic_store_explicit(&table->consoIdx, r+1, memory_order_release);       \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
     return true;                                                              \
@@ -1015,11 +1107,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
       return 0;                                                               \
     for(unsigned int k = 0; k < max; k++) {                                   \
       unsigned int i = (w+k) & (table->size -1);                              \
-      if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {        \
-        M_CALL_SET(oplist, table->Tab[i].x, x[k]);                            \
-      } else {                                                                \
-        M_CALL_INIT_SET(oplist, table->Tab[i].x, x[k]);                       \
-      }                                                                       \
+      M_CALL_INIT_SET(oplist, table->Tab[i].x, x[k]);                         \
     }                                                                         \
     atomic_store_explicit(&table->prodIdx, w+max, memory_order_release);      \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
@@ -1041,17 +1129,13 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
     unsigned int max = M_MIN(w-r, n);                                         \
     for(unsigned int k = 0; k < max; k++) {                                   \
       unsigned int i = (r+k) & (table->size -1);                              \
-      if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {        \
-        M_CALL_SET(oplist, ptr[k], table->Tab[i].x);                          \
-      } else {                                                                \
-        M_CALL_INIT_MOVE (oplist, ptr[k], table->Tab[i].x);                   \
-      }                                                                       \
+      M_DO_MOVE (oplist, ptr[k], table->Tab[i].x);                            \
     }                                                                         \
     atomic_store_explicit(&table->consoIdx, r+max, memory_order_release);     \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
     return max;                                                               \
   }                                                                           \
-                                                                              \
+  /* TODO: _pop_move_bulk */                                                  \
   M_N(void, name, _push_force, buffer_t table, type const x)                  \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
@@ -1066,11 +1150,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
       r += b;                                                                 \
     }                                                                         \
     unsigned int i = w & (table->size -1);                                    \
-    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
-      M_CALL_SET(oplist, table->Tab[i].x, x);                                 \
-    } else {                                                                  \
-      M_CALL_INIT_SET(oplist, table->Tab[i].x, x);                            \
-    }                                                                         \
+    M_CALL_INIT_SET(oplist, table->Tab[i].x, x);                              \
     atomic_store_explicit(&table->prodIdx, w+1, memory_order_release);        \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
   }                                                                           \
@@ -1127,11 +1207,6 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
     if (M_UNLIKELY_NOMEM (buffer->Tab == NULL)) {                             \
       M_MEMORY_FULL (M_F(name, _el_ct), size);                                \
     }                                                                         \
-    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
-      for(unsigned int j = 0; j < (unsigned int) size; j++) {                 \
-        M_CALL_INIT(oplist, buffer->Tab[j].x);                                \
-      }                                                                       \
-    }                                                                         \
     M_QU3UE_SPSC_CONTRACT(buffer);                                            \
   }                                                                           \
                                                                               \
@@ -1139,21 +1214,13 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(buffer);                                            \
     M_GLOBAL_CONTEXT();                                                       \
-    if (!M_BUFF3R_POLICY_P((policy), M_BUFFER_PUSH_INIT_POP_MOVE)) {          \
-      for(unsigned int j = 0; j < buffer->size; j++) {                        \
-        M_CALL_CLEAR(oplist, buffer->Tab[j].x);                               \
-      }                                                                       \
-    } else {                                                                  \
-      unsigned int iP = atomic_load_explicit(&buffer->prodIdx, memory_order_relaxed); \
-      unsigned int i  = iP & (buffer->size -1);                               \
-      unsigned int iC = atomic_load_explicit(&buffer->consoIdx, memory_order_relaxed); \
-      unsigned int j  = iC & (buffer->size -1);                               \
-      while (i != j) {                                                        \
-        M_CALL_CLEAR(oplist, buffer->Tab[j].x);                               \
-        j++;                                                                  \
-        if (j >= buffer->size)                                                \
-          j = 0;                                                              \
-      }                                                                       \
+    unsigned int iP = atomic_load_explicit(&buffer->prodIdx, memory_order_relaxed); \
+    unsigned int i  = iP & (buffer->size -1);                                 \
+    unsigned int iC = atomic_load_explicit(&buffer->consoIdx, memory_order_relaxed); \
+    unsigned int j  = iC & (buffer->size -1);                                 \
+    while (i != j) {                                                          \
+      M_CALL_CLEAR(oplist, buffer->Tab[j].x);                                 \
+      j = (j + 1) >= buffer->size ? 0 : (j + 1);                              \
     }                                                                         \
     M_CALL_FREE(oplist, M_F(name, _el_ct), buffer->Tab, buffer->size);        \
     buffer->Tab = NULL; /* safer */                                           \
@@ -1218,7 +1285,6 @@ M_N(void, name, function_name, name_t v M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_t
 #define buffer_policy_e m_buffer_policy_e
 #define BUFFER_QUEUE M_BUFFER_QUEUE
 #define BUFFER_STACK M_BUFFER_STACK
-#define BUFFER_PUSH_INIT_POP_MOVE M_BUFFER_PUSH_INIT_POP_MOVE
 #define BUFFER_PUSH_OVERWRITE M_BUFFER_PUSH_OVERWRITE
 #define BUFFER_DEFERRED_POP M_BUFFER_DEFERRED_POP
 

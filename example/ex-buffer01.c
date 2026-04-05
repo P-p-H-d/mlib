@@ -100,7 +100,7 @@ SHARED_PTR_DEF(shared_bigdata, bigdata_t)
  */
 #define MY_QUEUE_SIZE 10
 BUFFER_DEF(buffer_bigdata, shared_bigdata_t *, MY_QUEUE_SIZE,
-           BUFFER_QUEUE|BUFFER_PUSH_INIT_POP_MOVE, SHARED_PTR_OPLIST(shared_bigdata, M_OPL_bigdata_t()))
+           BUFFER_QUEUE, SHARED_PTR_OPLIST(shared_bigdata, M_OPL_bigdata_t()))
 
 /* Let's build a Thread synchros tree:
  *
@@ -149,7 +149,7 @@ static void thread2 (void *arg)
   (void) arg;
   while (atomic_load(&continue_threading_g)) {
     shared_bigdata_t *ptr;
-    buffer_bigdata_pop(&ptr, buf_t1tot2); // NOTE: Pop has been configured to init ptr
+    buffer_bigdata_pop_move(&ptr, buf_t1tot2); // NOTE: Pop has been configured to init ptr
     perform_computation2(*shared_bigdata_ref(ptr));
     shared_bigdata_clear(ptr);
   }
@@ -159,7 +159,7 @@ static void thread3 (void *arg)
   (void) arg;
   while (atomic_load(&continue_threading_g)) {
     shared_bigdata_t *ptr;
-    buffer_bigdata_pop(&ptr, buf_t1tot3);  // NOTE: Pop has been configured to init ptr
+    buffer_bigdata_pop_move(&ptr, buf_t1tot3);  // NOTE: Pop has been configured to init ptr
     perform_computation3(*shared_bigdata_ref(ptr));
     buffer_bigdata_push(buf_t3tot4, ptr);
     shared_bigdata_clear(ptr);
@@ -170,7 +170,7 @@ static void thread4 (void *arg)
   (void) arg;
   while (atomic_load(&continue_threading_g)) {
     shared_bigdata_t *ptr;
-    buffer_bigdata_pop(&ptr, buf_t3tot4); // NOTE: Pop has been configured to init ptr
+    buffer_bigdata_pop_move(&ptr, buf_t3tot4); // NOTE: Pop has been configured to init ptr
     perform_computation4(*shared_bigdata_ref(ptr));
     shared_bigdata_clear(ptr);
   }

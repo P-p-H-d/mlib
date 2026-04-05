@@ -106,13 +106,15 @@ V0.8.0 : * Memory interface massive compatibility break to allow more efficient 
            either default INIT_MOVE operator (operator '=') is working, or a method is provided for INIT_MOVE or it is disabled.
            If it is an array of size 1, you can use M_COPY_A1_DEFAULT as a default method.
            (It's because supporting emulation layer with new memory context parameter was complicated)
-	 * Remove obsole headers: m-c-mempool, m-mempool, m-shared, m-i-shared, -mconcurrent
+      	 * Remove obsolete headers: m-c-mempool, m-mempool, m-shared, m-i-shared, m-concurrent
 	 
 V0.8.1 : * m-algo: Update interface of _transform to be more flexible: adding user context pointer, and filtering of the input elements.
          * m-algo: Update interface of _reduce to be more user friendly: return value indicates if the reduction is empty or not.
          * m-algo: Rename _map_reduce into _transform_reduce and update its interface to be more flexible: adding user context pointer, and filtering of the input elements and return value indicates if the reduction is empty or not.
          * Rename _push_raw method by _push_back_raw for all containers (clearer on the semantic)
          * LIST_DUAL_PUSH_DEF is renamed as LIST_BIPB_DEF to be homogenous with LIST_BIPF_DEF (old name still available)
-      	 * Remove LIST_STOREHASH* macros
+      	 * Remove DICT_STOREHASH* macros
          * Update how is output a variant from @type@value@ to @type{value} which is more human friendly
-         
+         * Remove policy BUFFER_PUSH_INIT_POP_MOVE from m-buffer. Instead, API always provides _push_move & _pop_move
+         which is more friendly to the user and less error prone (To port, just use _pop_move function instead of _pop + policy BUFFER_PUSH_INIT_POP_MOVE)
+

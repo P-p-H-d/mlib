@@ -24,9 +24,13 @@
 #include "m-buffer.h"
 #include "coverage.h"
 
+// Set integer to -1 for testing purpose (to detect uncleared value)
+#define INT_CLEAR_FOR_TEST(i) (i = -1U)
+#define INT_INIT_MOVE_FOR_TEST(i, j) (i = j, j = -1U)
+
 START_COVERAGE
 // Define a fixed queue of unsigned int
-BUFFER_DEF(buffer_uint, unsigned int, 10, BUFFER_QUEUE)
+BUFFER_DEF(buffer_uint, unsigned int, 10, BUFFER_QUEUE, M_OPEXTEND(M_BASIC_OPLIST, CLEAR(INT_CLEAR_FOR_TEST), INIT_MOVE(INT_INIT_MOVE_FOR_TEST)))
 QUEUE_MPMC_DEF(queue_uint, unsigned int, BUFFER_QUEUE)
 QUEUE_SPSC_DEF(squeue_uint, unsigned int, BUFFER_QUEUE)
 END_COVERAGE
@@ -76,8 +80,16 @@ static void conso(void *arg)
     buffer_uint_pop(&j, g_buff);
     assert (j < MAX_COUNT);
     // Each thread fill in its own row of the matrix, ensuring separate access.
-    // We don't want atomic access which may perturbate the test
-    // by adding memory barries that will hide some issues in the code.
+    // We don't want atomic access which may perturb the test
+    // by adding memory barrier that will hide some issues in the code.
+    g_count[thread_id][j] ++;
+  }
+  for(int i = 0; i < MAX_COUNT;i++) {
+    buffer_uint_pop_move(&j, g_buff);
+    assert (j < MAX_COUNT);
+    // Each thread fill in its own row of the matrix, ensuring separate access.
+    // We don't want atomic access which may perturb the test
+    // by adding memory barrier that will hide some issues in the code.
     g_count[thread_id][j] ++;
   }
 }
@@ -87,6 +99,10 @@ static void prod(void *arg)
   assert (arg == NULL);
   for(unsigned int i = 0; i < MAX_COUNT;i++)
     buffer_uint_push(g_buff, i);
+  for(unsigned int i = 0; i < MAX_COUNT;i++) {
+    unsigned val = i;
+    buffer_uint_push_move(g_buff, &val);
+  }
 }
 
 static void test_global(void)
@@ -100,7 +116,7 @@ static void test_global(void)
   assert (!buffer_uint_full_p(g_buff));
   assert (buffer_uint_size(g_buff) == 0);
 
-  // Run multiple producer & consummer threads in parallel
+  // Run multiple producer & consumer threads in parallel
   for(int i = 0; i < MAX_TEST_THREAD; i++) {
     m_thread_create (idx_p[i], conso, (void*)(uintptr_t) i);
     m_thread_create (idx_c[i], prod, NULL);
@@ -111,7 +127,7 @@ static void test_global(void)
   }
 
   // Check if the data were correctly transmitted
-  // from the producer threads to the consummer threads
+  // from the producer threads to the consumer threads
   // First, consolidate the data
   for(int i = 1 ; i < MAX_TEST_THREAD; i++) {
     for(int j = 0 ; j < MAX_COUNT; j++) {
@@ -120,7 +136,7 @@ static void test_global(void)
   }
   // Then check then
   for(int j = 0 ; j < MAX_COUNT; j++) {
-    assert(g_count[0][j] == MAX_TEST_THREAD);
+    assert(g_count[0][j] == 2*MAX_TEST_THREAD);
   }
 
   assert (buffer_uint_empty_p(g_buff));
@@ -146,13 +162,18 @@ static void test_global(void)
   assert (buffer_uint_full_p(g_buff));
   assert (buffer_uint_size(g_buff) == 10);
   assert (buffer_uint_push_blocking(g_buff, 15, false) == false);
-  
+  unsigned value = -2U;
+  assert (buffer_uint_push_move_blocking(g_buff, &value, false) == false);
+  assert( value == -2U );
+
   buffer_uint_reset(g_buff);
   assert (buffer_uint_empty_p(g_buff));
   assert (!buffer_uint_full_p(g_buff));
   assert (buffer_uint_size(g_buff) == 0);
   unsigned int s;
   assert (buffer_uint_pop_blocking(&s, g_buff, false) == false);
+  assert (buffer_uint_pop_move_blocking(&value, g_buff, false) == false);
+  assert( value == -2U);
 
   assert (buffer_uint_overwrite(g_buff) == 0);
 
@@ -171,6 +192,18 @@ static void test_global(void)
     assert(j == i);
   }
   assert (buffer_uint_empty_p(g_buffB));
+
+  value = 167U;
+  assert (buffer_uint_push_move_blocking(g_buffB, &value, false) == true);
+  assert( value == -1U); // Data shall be cleared
+  assert (buffer_uint_pop_move_blocking(&value, g_buffB, false) == true);
+  assert( value == 167U);
+
+  value = 1987U;
+  buffer_uint_push_move(g_buffB, &value);
+  assert( value == -1U); // Data shall be cleared
+  buffer_uint_pop_move(&value, g_buffB);
+  assert( value == 1987U);
 
   buffer_uint_set(g_buffB, g_buff);
   assert (!buffer_uint_empty_p(g_buffB));
@@ -271,7 +304,7 @@ static void test_init(test_t *p)  { memset(p->buffer, 0x00, 52); }
 static void test_clear(test_t *p) { memset(p->buffer, 0xFF, 52); }
 SHARED_PTR_DEF(shared_test, test_t, (INIT(test_init M_IPTR), CLEAR(test_clear M_IPTR)))
 
-BUFFER_DEF(buffer_itest, shared_test_t *, 16, BUFFER_PUSH_INIT_POP_MOVE, SHARED_PTR_OPLIST(shared_test, (INIT(1), CLEAR(1))))
+BUFFER_DEF(buffer_itest, shared_test_t *, 16, M_BUFFER_QUEUE, SHARED_PTR_OPLIST(shared_test, (INIT(1), CLEAR(1))))
 
 static buffer_itest_t comm1;
 static buffer_itest_t comm2;
@@ -281,7 +314,7 @@ static void test_conso1(void *arg)
   shared_test_t *p;
   assert (arg == NULL);
   for(int i = 0; i < 10;i++) {
-    buffer_itest_pop(&p, comm1);
+    buffer_itest_pop_move(&p, comm1);
     for(int j = 0; j < 52; j++)
       assert (shared_test_ref(p)->buffer[j] == (char) ((j * j * 17) + j * 42 + 1));
     shared_test_release(p);
@@ -293,7 +326,7 @@ static void test_conso2(void *arg)
   shared_test_t *p;
   assert (arg == NULL);
   for(int i = 0; i < 10;i++) {
-    buffer_itest_pop(&p, comm2);
+    buffer_itest_pop_move(&p, comm2);
     for(int j = 0; j < 52; j++)
       assert (shared_test_ref(p)->buffer[j] == (char) ((j * j * 17) + j * 42 + 1));
     shared_test_release(p);

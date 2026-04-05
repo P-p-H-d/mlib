@@ -4060,7 +4060,6 @@ Multiple additional policy can be applied to the buffer by performing a logical 
 
 * `BUFFER_QUEUE` — define a FIFO queue (default),
 * `BUFFER_STACK` — define a stack (exclusive with `BUFFER_QUEUE`),
-* `BUFFER_PUSH_INIT_POP_MOVE` — change the behavior of `PUSH` to push a new initialized object, and `POP` as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared_ptr semantic). In practice, it works as if `POP` performs the initialization of the object. 
 * `BUFFER_PUSH_OVERWRITE` — `PUSH` overwrites the last entry if the queue is full instead of blocking,
 * `BUFFER_DEFERRED_POP` — do not consider the object to be fully popped from the buffer by calling the pop method until the call to `pop_deferred` ; this enables to handle object that are in-progress of being consumed by the thread.
 
@@ -4109,7 +4108,9 @@ bool name_empty_p(const buffer_t buffer)          /* Thread safe */
 size_t name_size(const buffer_t buffer)           /* Thread safe */
 size_t name_capacity(const buffer_t buffer)       /* Thread safe */
 void name_push(buffer_t buffer, const type data)
+void name_push_move(buffer_t buffer, type *data)
 void name_pop(type *data, buffer_t buffer)
+void name_pop_move(type *data, buffer_t buffer)
 ```
 
 #### Specialized methods
@@ -4143,19 +4144,22 @@ Push the object `data` in the buffer `buffer`,
 waiting for an empty room if `blocking` is true (performing a blocking wait)
 Returns true if the data was pushed, false otherwise.
 Always return true if the buffer is blocking.
-This function is thread safe if the buffer was built thread safe. 
+This function is thread safe.
+
+##### `bool name_push_move_blocking(buffer_t buffer, type *data, bool blocking)`
+
+Push the object `*data` in the buffer `buffer`
+by stealing as much resource from it as possible,
+clearing `*data` afterwards (destructor)
+waiting for an empty room if `blocking` is true (performing a blocking wait)
+Returns true if the data was pushed, false otherwise.
+Always return true if the buffer is blocking.
+This function is thread safe.
 
 ##### `bool name_pop_blocking(type *data, buffer_t buffer, bool blocking)`
 
 Pop from the buffer `buffer` into the object `*data`,
 waiting for a data if `blocking` is true.
-
-If the buffer is built with the `BUFFER_PUSH_INIT_POP_MOVE` option,
-the object pointed by `data` shall be ***uninitialized***
-as the pop function will perform a quick initialization of the object
-(using an `INIT_MOVE` operator)
-, otherwise it shall be an initialized object (the pop function will 
-perform a `SET` operator).
 
 If the buffer is built with the `BUFFER_DEFERRED_POP` option,
 the object is still considered being present in the queue until
@@ -4163,7 +4167,20 @@ a call to name_pop_release.
 
 Returns true if a data was popped, false otherwise.
 Always return true if the buffer is blocking.
-This function is thread safe if the buffer was built thread safe. 
+This function is thread safe. 
+
+##### `bool name_pop_move_blocking(type *data, buffer_t buffer, bool blocking)`
+
+Pop from the buffer `buffer` into the uninitialized object `*data`,
+waiting for a data if `blocking` is true (constructor).
+
+If the buffer is built with the `BUFFER_DEFERRED_POP` option,
+the object is still considered being present in the queue until
+a call to name_pop_release.
+
+Returns true if a data was popped, false otherwise.
+Always return true if the buffer is blocking.
+This function is thread safe. 
 
 ##### `bool name_pop_release(buffer_t buffer)`
 
@@ -4192,7 +4209,6 @@ This definition shall be done once per name and per compilation unit.
 An additional policy can be applied to the buffer by performing a logical or of the following properties:
 
 * `BUFFER_QUEUE` — define a FIFO queue (default),
-* `BUFFER_PUSH_INIT_POP_MOVE` — change the behavior of `PUSH` to push a new initialized object, and `POP` as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared_ptr semantic). In practice, it works as if `POP` performs the initialization of the object. 
 
 This container is designed to be used for easy synchronization inter-threads
 in a context of very fast communication (the variable should be a global shared one).
@@ -4250,16 +4266,25 @@ Returns true if the data was pushed, false otherwise
 (buffer full or unlikely data race).
 This function is thread safe. 
 
+##### `bool name_push_move(buffer_t buffer, type *data)`
+
+Push the object `*data` in the buffer `buffer` if possible,
+by stealing as much resources from it as possible,
+clearing `*data` afterwards.
+Returns true if the data was effectively pushed, false otherwise
+(buffer full or unlikely data race), in which case `*data` is still initialized.
+This function is thread safe. 
+
 ##### `bool name_pop(type *data, buffer_t buffer)`
 
 Pop from the buffer `buffer` into the object `*data` if possible.
 
-If the buffer is built with the `BUFFER_PUSH_INIT_POP_MOVE` option,
-the object pointed by `data` shall be ***uninitialized***
-as the pop function will perform a quick initialization of the object
-(using an `INIT_MOVE` operator)
-, otherwise it shall be an initialized object (the pop function will 
-perform a `SET` operator).
+Returns true if a data was popped, false otherwise (buffer empty or unlikely data race).
+This function is thread safe.
+
+##### `bool name_pop_move(type *data, buffer_t buffer)`
+
+Pop from the buffer `buffer` into the uninitialized object `*data` if possible (constructor)
 
 Returns true if a data was popped, false otherwise (buffer empty or unlikely data race).
 This function is thread safe.
@@ -4283,7 +4308,6 @@ This definition shall be done once per name and per compilation unit.
 An additional policy can be applied to the buffer by performing a logical or of the following properties:
 
 * `BUFFER_QUEUE` — define a FIFO queue (default),
-* `BUFFER_PUSH_INIT_POP_MOVE` — change the behavior of `PUSH` to push a new initialized object, and `POP` as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared_ptr semantic). In practice, it works as if `POP` performs the initialization of the object. 
 
 This container is designed to be used for easy synchronization inter-threads
 in a context of very fast communication (the variable should be a global shared one).
@@ -4358,12 +4382,12 @@ This function is thread safe.
 
 Pop from the buffer `buffer` into the object `*data` if possible.
 
-If the buffer is built with the `BUFFER_PUSH_INIT_POP_MOVE` option,
-the object pointed by `data` shall be ***uninitialized***
-as the pop function will perform a quick initialization of the object
-(using an `INIT_MOVE` operator)
-, otherwise it shall be an initialized object (the pop function will 
-perform a `SET` operator).
+Returns true if a data was popped, false otherwise (buffer empty or unlikely data race).
+This function is thread safe. 
+
+##### `bool name_pop_move(type *data, buffer_t buffer)`
+
+Pop from the buffer `buffer` into the uninitialized object `*data` if possible (constructor).
 
 Returns true if a data was popped, false otherwise (buffer empty or unlikely data race).
 This function is thread safe. 
@@ -4372,13 +4396,6 @@ This function is thread safe.
 
 Pop from the buffer `buffer` as many objects as possible to fill in `tab`
 and at most `n`.
-
-If the buffer is built with the `BUFFER_PUSH_INIT_POP_MOVE` option,
-the object pointed by `data` shall be ***uninitialized***
-as the pop function will perform a quick initialization of the object
-(using an `INIT_MOVE` operator)
-, otherwise it shall be an initialized object (the pop function will 
-perform a `SET` operator).
 
 It returns the number of objects popped.
 This function is thread safe. 
@@ -4714,10 +4731,6 @@ There are also two oplists for this object, depending on how you want to handle 
 * one to handle the shared pointer itself (ie. the copy method creates a new owner of the same shared data),
 * one to handle the data behind the shared pointer (ie. the copy method create a new shared data)
 
-There are designed to work with buffers created with policy `BUFFER_PUSH_INIT_POP_MOVE`
-so that we can send a shared pointer across multiple threads, and destroying the object
-only when all threads have terminated their job.
-
 Two level of API are created:
 
 * the public one, created by `_DECL` generation macro to be used by everyone,
@@ -4843,7 +4856,7 @@ ARRAY_DEF(array, int)
 SHARED_PTR_DEF_EXTERN(shared_data, array_t, ARRAY_OPLIST(array, M_BASIC_OPLIST))
 
 // Define the communication buffer as an encapsulation of a 10-size circular buffer over the shared_data
-BUFFER_DEF(buffer, shared_data_t *, 10, BUFFER_QUEUE|BUFFER_PUSH_INIT_POP_MOVE, SHARED_PTR_OPLIST(shared_data, OPL))
+BUFFER_DEF(buffer, shared_data_t *, 10, BUFFER_QUEUE, SHARED_PTR_OPLIST(shared_data, OPL))
 SHARED_PTR_DEF_EXTERN(comm_buffer, buffer_t, BUFFER_OPLIST(buffer, SHARED_PTR_OPLIST(shared_data, OPL)))
 
 comm_buffer_t *comm1, *comm2;
