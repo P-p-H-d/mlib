@@ -190,23 +190,19 @@ SYNTHESIS_DATA=	M-ALGO test-malgo.c.c test-malgo.synt			\
 		M-BBPTREE test-mbptree.c test-mbptree.synt				\
 		M-BSTRING ../m-bstring.h test-mbstring.synt 		    \
 		M-BUFFER test-mbuffer.c.c test-mbuffer.synt				\
-		M-CONCURRENT test-mconcurrent.c.c test-mconcurrent.synt	\
 		M-CORE ../m-core.h test-mcore.synt					    \
 		M-DEQUE test-mdeque.c.c test-mdeque.synt				\
 		M-DICT test-mdict.c.c test-mdict.synt					\
 		M-FUNCOBJ test-mfuncobj.c.c test-mfuncobj.synt			\
 		M-GENINT ../m-genint.h test-mgenint.synt				\
 		M-I-LIST test-milist.c.c test-milist.synt				\
-		M-I-SHARED test-mishared.c.c test-mishared.synt			\
-		M-QUEUE test-mqueue.c.c test-mqueue.synt			    \
 		M-LIST test-mlist.c.c test-mlist.synt					\
-		M-MEMPOOL test-mmempool.c.c test-mmempool.synt			\
 		M-PRIOQUEUE test-mprioqueue.c.c test-mprioqueue.synt	\
+		M-QUEUE test-mqueue.c.c test-mqueue.synt			    \
 		M-RBTREE test-mrbtree.c.c test-mrbtree.synt				\
 		M-SERIAL-BIN ../m-serial-bin.h test-mserial-bin.synt	\
 		M-SERIAL-JSON ../m-serial-json.h test-mserial-json.synt	\
 		M-SHARED-PTR test-mshared-ptr.c.c test-mshared-ptr.synt	\
-		M-SHARED test-mshared.c.c test-mshared.synt				\
 		M-SNAPSHOT test-msnapshot.c.c test-msnapshot.synt		\
 		M-STRING ../m-string.h test-mstring.synt 				\
 		M-TREE test-mtree.c.c test-mtree.synt 				    \
