@@ -32,7 +32,7 @@ START_COVERAGE
 // Define a fixed queue of unsigned int
 BUFFER_DEF(buffer_uint, unsigned int, 10, BUFFER_QUEUE, M_OPEXTEND(M_BASIC_OPLIST, CLEAR(INT_CLEAR_FOR_TEST), INIT_MOVE(INT_INIT_MOVE_FOR_TEST)))
 QUEUE_MPMC_DEF(queue_uint, unsigned int, BUFFER_QUEUE)
-QUEUE_SPSC_DEF(squeue_uint, unsigned int, BUFFER_QUEUE)
+QUEUE_SPSC_DEF(squeue_uint, unsigned int, BUFFER_QUEUE, M_OPEXTEND(M_BASIC_OPLIST, CLEAR(INT_CLEAR_FOR_TEST), INIT_MOVE(INT_INIT_MOVE_FOR_TEST)))
 END_COVERAGE
 
 // Define a variable stack of float
@@ -537,6 +537,23 @@ static void test_spsc(void)
       b = squeue_uint_push_move(q, &l);
   } while (b);
   assert( squeue_uint_size(q) == 256);
+
+  do {
+    b = squeue_uint_pop(&j, q);
+  } while (b);
+  assert(squeue_uint_empty_p(q));
+  for(unsigned i = 0; i < 16; i++)
+    tab[i] = i * i * i;
+  j = squeue_uint_push_move_bulk(q, 16, tab);
+  assert(j == 16);
+  for(unsigned i = 0; i < 16; i++)
+    assert( tab[i] == -1U); // Data is cleared
+  for(unsigned i = 0; i < 16; i++)
+    tab[i] = 0;
+  j = squeue_uint_pop_move_bulk(16, tab, q);
+  assert(j == 16);
+  for(unsigned i = 0; i < 16; i++)
+    assert( tab[i] == i * i * i);
 
   squeue_uint_clear(q);
 }

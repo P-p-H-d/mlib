@@ -1114,6 +1114,28 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
     return max;                                                               \
   }                                                                           \
                                                                               \
+  M_N(unsigned, name, _push_move_bulk, buffer_t table, unsigned n, type x[])  \
+  {                                                                           \
+    M_QU3UE_SPSC_CONTRACT(table);                                             \
+    M_ASSERT (x != NULL);                                                     \
+    M_ASSERT (n <= table->size);                                              \
+    M_GLOBAL_CONTEXT();                                                       \
+    unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
+                                          memory_order_relaxed);              \
+    unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
+                                          memory_order_acquire);              \
+    unsigned int max = M_MIN(n, table->size - (w-r) );                        \
+    if (max == 0)                                                             \
+      return 0;                                                               \
+    for(unsigned int k = 0; k < max; k++) {                                   \
+      unsigned int i = (w+k) & (table->size -1);                              \
+      M_CALL_INIT_MOVE(oplist, table->Tab[i].x, x[k]);                        \
+    }                                                                         \
+    atomic_store_explicit(&table->prodIdx, w+max, memory_order_release);      \
+    M_QU3UE_SPSC_CONTRACT(table);                                             \
+    return max;                                                               \
+  }                                                                           \
+                                                                              \
   M_N(unsigned, name, _pop_bulk, unsigned n, type ptr[], buffer_t table)      \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
@@ -1135,7 +1157,29 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
     return max;                                                               \
   }                                                                           \
-  /* TODO: _pop_move_bulk */                                                  \
+                                                                              \
+  M_N(unsigned, name, _pop_move_bulk, unsigned n, type ptr[], buffer_t table) \
+  {                                                                           \
+    M_QU3UE_SPSC_CONTRACT(table);                                             \
+    M_ASSERT (ptr != NULL);                                                   \
+    M_ASSERT (n <= table->size);                                              \
+    M_GLOBAL_CONTEXT();                                                       \
+    unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
+                                          memory_order_relaxed);              \
+    unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
+                                          memory_order_acquire);              \
+    if (w-r == 0)                                                             \
+      return 0;                                                               \
+    unsigned int max = M_MIN(w-r, n);                                         \
+    for(unsigned int k = 0; k < max; k++) {                                   \
+      unsigned int i = (r+k) & (table->size -1);                              \
+      M_CALL_INIT_MOVE (oplist, ptr[k], table->Tab[i].x);                     \
+    }                                                                         \
+    atomic_store_explicit(&table->consoIdx, r+max, memory_order_release);     \
+    M_QU3UE_SPSC_CONTRACT(table);                                             \
+    return max;                                                               \
+  }                                                                           \
+                                                                              \
   M_N(void, name, _push_force, buffer_t table, type const x)                  \
   {                                                                           \
     M_QU3UE_SPSC_CONTRACT(table);                                             \
