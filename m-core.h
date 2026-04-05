@@ -3011,8 +3011,9 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 /* C++ doesn't support flexible array within a structure.
    Let's define at least one element for an array.
    It doesn't also support VLA usage in function prototype.
+   TCC doesn't support VLA for types too.
  */
-#ifdef __cplusplus
+#if defined(__cplusplus) || defined (__TINYC__)
 # define M_MIN_FLEX_ARRAY_SIZE 1
 # define M_VLA(n)
 #else
