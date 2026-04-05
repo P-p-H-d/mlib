@@ -24,7 +24,7 @@
 #include <stdlib.h>
 
 /* Coverage helper header.
-   Computing coverage for a generic macro expansing library is not trivial
+   Computing coverage for a generic macro expanding library is not trivial
    as there is no tool to do it normally.
 
    That's why a special way has been designed:
@@ -175,7 +175,9 @@ static void assert(int cond)
 #undef NDEBUG
 #undef atomic_init
 #undef atomic_load
+#undef atomic_load_explicit
 #undef atomic_store
+#undef atomic_store_explicit
 #undef atomic_compare_exchange_weak
 #undef atomic_compare_exchange_strong
 #undef atomic_fetch_add
