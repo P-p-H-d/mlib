@@ -4408,6 +4408,9 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
   memcpy(&(b[0]), &_tmp, sizeof (a[0]));                                      \
 } while (0)
 
+// Obsolete name
+#define M_COPY_A1_DEFAULT M_COPY_A1OBJ
+
 /* Default oplist for a structure defined with an array of size 1.
    MOVE operator is not defined since the object may need to release some data */
 #define M_A1_OPLIST                                                           \
