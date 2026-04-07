@@ -3,7 +3,7 @@
 
 /* This example show how to use complex structure with array 
    embedding another library, showing how to handle complex objects
-   and create custom oplists using API adaptator */
+   and create custom oplists using API adapter */
 
 /* This is a typical trivial library with its interface */
 typedef struct lib_ext_struct {
