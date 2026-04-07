@@ -31,7 +31,7 @@
   fprintf (f, "%d", x)
 
 START_COVERAGE
-TREE_DEF(tree, int, M_OPEXTEND(M_DEFAULT_OPLIST, GET_STR(M_GET_STRING_INT),PARSE_STR(m_core_parse_sint M_IPTR),IN_STR(m_core_fscan_sint M_IPTR), OUT_STR(M_OUT_STR_INT)))
+TREE_DEF(tree, int, M_OPEXTEND(M_DEFAULT_OPLIST, GET_STR(M_GET_STRING_INT),PARSE_STR(API_2(m_core_parse_sint)),IN_STR(API_2(m_core_fscan_sint)), OUT_STR(M_OUT_STR_INT)))
 END_COVERAGE
 TREE_DEF(tree_mpz, testobj_t, TESTOBJ_OPLIST)
 TREE_DEF(tree_string, string_t)

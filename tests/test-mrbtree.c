@@ -50,7 +50,7 @@ static void uint_get_str(string_t str, unsigned int u, bool append)
 }
 
 START_COVERAGE
-RBTREE_DEF(rbtree_uint, unsigned int, M_OPEXTEND(M_BASIC_OPLIST, IN_STR(uint_in_str M_IPTR), OUT_STR(uint_out_str), GET_STR(uint_get_str), PARSE_STR(uint_parse_str M_IPTR)) )
+RBTREE_DEF(rbtree_uint, unsigned int, M_OPEXTEND(M_BASIC_OPLIST, IN_STR(API_2(uint_in_str)), OUT_STR(uint_out_str), GET_STR(uint_get_str), PARSE_STR(API_2(uint_parse_str))) )
 END_COVERAGE
 
 RBTREE_DEF(rbtree_float, float)

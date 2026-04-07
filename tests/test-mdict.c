@@ -33,7 +33,7 @@ static inline void update_value (int *p, const int p1, const int p2) { *p = p1 +
 
 START_COVERAGE
 DICT_DEF2(dict_str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
-DICT_OA_DEF2(dict_oa_int, int, M_OPEXTEND(M_BASIC_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int, M_OPEXTEND(M_BASIC_OPLIST, ADD(update_value M_IPTR)))
+DICT_OA_DEF2(dict_oa_int, int, M_OPEXTEND(M_BASIC_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(API_2(oor_set))), int, M_OPEXTEND(M_BASIC_OPLIST, ADD(API_2(update_value))))
 END_COVERAGE
 
 DICT_SET_DEF(dict_setstr, string_t, STRING_OPLIST)

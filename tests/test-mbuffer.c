@@ -302,7 +302,7 @@ typedef struct test_s {
 } test_t;
 static void test_init(test_t *p)  { memset(p->buffer, 0x00, 52); }
 static void test_clear(test_t *p) { memset(p->buffer, 0xFF, 52); }
-SHARED_PTR_DEF(shared_test, test_t, (INIT(test_init M_IPTR), CLEAR(test_clear M_IPTR)))
+SHARED_PTR_DEF(shared_test, test_t, (INIT(API_2(test_init)), CLEAR(API_2(test_clear))))
 
 BUFFER_DEF(buffer_itest, shared_test_t *, 16, M_BUFFER_QUEUE, SHARED_PTR_OPLIST(shared_test, (INIT(1), CLEAR(1))))
 

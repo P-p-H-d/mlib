@@ -43,7 +43,7 @@ static void data_set(data_t *p, data_t o) { p->n = o.n; data_crc(p); }
 static void data_init_set(data_t *p, data_t o) { data_init(p); data_set(p, o); }
 
 #define DATA_OPLIST \
-  (INIT(data_init M_IPTR), INIT_SET(data_init_set M_IPTR), SET(data_set M_IPTR), CLEAR(data_clear M_IPTR))
+  (INIT(API_2(data_init)), INIT_SET(API_2(data_init_set)), SET(API_2(data_set)), CLEAR(API_2(data_clear)))
 
 START_COVERAGE
 SNAPSHOT_SPSC_DEF(snapshot_uint, unsigned int)

@@ -41,7 +41,7 @@ PRIOQUEUE_DEF(obj_pqueue, testobj_t, M_OPEXTEND(TESTOBJ_CMP_OPLIST, EQUAL(testob
 #define GET_STR_DOUBLE(str, d, append) (append ? string_cat_printf : string_printf)(str, "%f", d)
 #define PARSE_DOUBLE(x, s, e) m_core_parse_double(x, s, e)
 #define double_OPLIST         M_OPEXTEND(M_BASIC_OPLIST,        \
-                                         OUT_STR(OUT_DOUBLE), IN_STR(IN_DOUBLE  M_IPTR), GET_STR(GET_STR_DOUBLE), PARSE_STR(PARSE_DOUBLE M_IPTR))
+                                         OUT_STR(OUT_DOUBLE), IN_STR(API_2(IN_DOUBLE)), GET_STR(GET_STR_DOUBLE), PARSE_STR(API_2(PARSE_DOUBLE)))
 PRIOQUEUE_DEF_AS(PrioDouble, PrioDouble, PrioDoubleIt, double, double_OPLIST)
 #define M_OPL_PrioDouble() PRIOQUEUE_OPLIST(PrioDouble, double_OPLIST)
 

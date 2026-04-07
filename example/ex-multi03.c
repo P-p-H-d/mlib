@@ -75,17 +75,17 @@ extern void json_out_str(FILE *, json_t);
 extern bool json_in_str(json_t *, FILE *);
 
 #define JSON_OPLIST                                                     \
-  (INIT(json_init M_IPTR), CLEAR(json_clear),                           \
-   INIT_SET(json_init_set M_IPTR), SET(json_set M_IPTR),                \
-   OUT_STR(json_out_str), IN_STR(json_in_str M_IPTR) )
+  (INIT(API_2(json_init)), CLEAR(json_clear),                           \
+   INIT_SET(API_2(json_init_set)), SET(API_2(json_set)),                \
+   OUT_STR(json_out_str), IN_STR(API_2(json_in_str)) )
 
 DICT_DEF2(dict_json, string_t, STRING_OPLIST, json_t, JSON_OPLIST)
 
 ARRAY_DEF(array_json, json_t, JSON_OPLIST)
 
 VARIANT_DEF2(variant_json,
-             (boolean, bool, M_OPEXTEND(M_BASIC_OPLIST, OUT_STR(boolean_out_str), IN_STR(boolean_in_str M_IPTR)) ),
-             (real, float, M_OPEXTEND (M_BASIC_OPLIST, OUT_STR(real_out_str), IN_STR(real_in_str M_IPTR))),
+             (boolean, bool, M_OPEXTEND(M_BASIC_OPLIST, OUT_STR(boolean_out_str), IN_STR(API_2(boolean_in_str))) ),
+             (real, float, M_OPEXTEND (M_BASIC_OPLIST, OUT_STR(real_out_str), IN_STR(API_2(real_in_str)))),
              (array, array_json_t, ARRAY_OPLIST(array_json, JSON_OPLIST)), 
              (dict, dict_json_t, DICT_OPLIST(dict_json, STRING_OPLIST, JSON_OPLIST)))
 
@@ -185,7 +185,7 @@ int main(void)
   json_t p = generate();
   json_out_str(stdout, p);
   /* Typical Output:
-    @dict@{"filter":@real@2.300000@,"tab":@array@[@real@2.000000@,@real@3.000000@]@,"channel":@boolean@true@}@
+    @dict{{"filter":@real{2.300000},"tab":@array{[@real{2.000000},@real{3.000000}]},"channel":@boolean{true}}}
     If you want a true JSON format, you'll have to overload the variant IN/OUT function so that they
     can detect the type of argument and, as such, don't need to output it in the format */
   printf("\n");

@@ -121,7 +121,7 @@ static inline void oor_set(int *k, unsigned char n)
   *k = ~(int)n;
 }
 
-#define O M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR))
+#define O M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(API_2(oor_set)))
 
 DICT_OA_DEF2(dict, int, O, int, M_BASIC_OPLIST)
 DICT_OA_DEF2(dict2, int, O, int, M_BASIC_OPLIST)
