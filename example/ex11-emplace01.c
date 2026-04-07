@@ -118,7 +118,10 @@ ARRAY_DEF(array_mpq, mpq_t)
 int main(void)
 {
   /* M_LET declares a variable, calls its INIT operator on entry, and
-     automatically calls its CLEAR operator on exit — no manual cleanup. */
+     automatically calls its CLEAR operator on exit — no manual cleanup.
+     However you cannot return from the function or break from the block, as the variable would not be cleared,
+     but you can throw exceptions (e.g. with M_THROW) as the variable will be cleared in this case.
+     Basic usage: M_LET(var1, ...,varN, type) { ... } */
   M_LET(z, mpz_t) {
     mpz_set_str(z, "25446846874687468746874687468746874686874", 10);
     gmp_printf("z = %Zd\n", z);
@@ -131,7 +134,13 @@ int main(void)
        "2544684687468746874"  → const char*  → _cstr emplace variant
        23                     → int          → _si   emplace variant
        24.5                   → double       → _d    emplace variant
-     All variables are still cleared automatically at the end of the block. */
+     All variables are still cleared automatically at the end of the block.
+     Medium usage: M_LET( (var1, value1), ..., (varN, valueN), type) { ... }
+                   with value1 the same type as var1.
+     Advanced usage: M_LET( (var1, (value1_1, ...) ), ..., (varN, (valueN_1, ...) ), type) { ... }
+                  with value1_1 to value1_N1 used to build var1 with an emplace constructor, and so on for var2 to varN.
+                  It is the INIT_WITH operator that is used to build var1 from value1_1 to value1_N1, and so on for var2 to varN.
+   */
   M_LET( (z1, ("2544684687468746874")), (z2, (23)), (z4, (24.5)), mpz_t) {
     gmp_printf("z1 = %Zd\n", z1);
     gmp_printf("z2 = %Zd\n", z2);
@@ -173,7 +182,18 @@ int main(void)
        (789999U)    → unsigned     → emplace_back_ui
        (-25.6)      → double       → emplace_back_d
      M*LIB iterates over the list and emplaces each element in turn,
-     again entirely at compile time through EMPLACE_TYPE dispatch. */
+     again entirely at compile time through EMPLACE_TYPE dispatch.
+
+     Very Advanced usage: M_LET( (var1, ( (value1_1), ...) ), ..., (varN, ( (valueN_1), ...) ), type) { ... }
+                  with value1_1 to value1_N1 used to build the intermediary variable that will be used to build var1 with two emplace constructors, and so on for var2 to varN.
+                  It is the INIT_WITH operators that are used to build var1 from value1_1 to value1_N1, and so on for var2 to varN.
+    
+    This example really shows the power of M*LIB's compile-time introspection and code generation:
+    the correct emplace constructor is chosen for each variable based on its type, without any runtime
+    overhead or manual boilerplate and then the result of theses constructions are given at another 
+    constructor to build the final array!
+    And it doesn't show that it can also build multiple variables at the same time.
+    */
   M_LET( (array, ( ("4568888"), (245), (789999U), (-25.6))), array_mpz_t) {
     printf("Array is: ");
     array_mpz_out_str(stdout, array);
