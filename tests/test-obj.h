@@ -233,7 +233,7 @@ static inline void testobj_str(string_t str, const testobj_t z, bool append)
    INIT_SET(testobj_init_set),                                          \
    SET(testobj_set),                                                    \
    CLEAR(API_1(testobj_clear_indirect)),                                \
-   INIT_MOVE(M_COPY_A1_DEFAULT),                                      \
+   INIT_MOVE(M_COPY_A1OBJ),                                             \
    TYPE(testobj_t),                                                     \
    OUT_STR(testobj_out_str),                                            \
    IN_STR(testobj_in_str),                                              \

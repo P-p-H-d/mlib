@@ -416,7 +416,7 @@ Here is another example with a complete type (with proper initialization & clear
 #include <stdio.h>
 #include <gmp.h>
 #include "m-array.h"
-ARRAY_DEF(array_mpz, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1_DEFAULT)) )
+ARRAY_DEF(array_mpz, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1OBJ)) )
 int main(void) {
    array_mpz_t array ;             /* array_mpz_t has been define above */
    array_mpz_init(array);          /* All type needs to be initialized */
@@ -451,7 +451,7 @@ In the example, we tell to the container to use:
 * the `mpz_clear` function for the `CLEAR` operator of the type (aka destructor),
 * the `mpz_set` function for the `SET` operator of the type (aka copy),
 * the `mpz_init_set` function for the `INIT_SET` operator of the type (aka copy constructor).
-* The default macro `M_COPY_A1_DEFAULT` is used for the `INIT_MOVE` operator (good for all objects using the `[1]` trick).
+* The default macro `M_COPY_A1OBJ` is used for the `INIT_MOVE` operator (good for all objects using the `[1]` trick).
 
 See [OPLIST](#oplist) chapter for more detailed information.
 
@@ -464,7 +464,7 @@ We can also write the same example shorter by using the ability of M\*LIB to reg
 
 // Register the oplist of a mpz_t.
 #define M_OPL_mpz_t() (INIT(mpz_init), INIT_SET(mpz_init_set), \
-        SET(mpz_set), CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1_DEFAULT))
+        SET(mpz_set), CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1OBJ))
 // Define an instance of an array of mpz_t (both type and function)
 ARRAY_DEF(array_mpz, mpz_t)
 // Register the oplist of the created instance of array of mpz_t
@@ -857,7 +857,7 @@ void mpz_clear(mpz_t z);                   // Destructor of the object z
 A basic oplist will be:
 
 ```C
-(INIT(mpz_init),SET(mpz_set),INIT_SET(mpz_init_set),CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1_DEFAULT),TYPE(mpz_t))
+(INIT(mpz_init),SET(mpz_set),INIT_SET(mpz_init_set),CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1OBJ),TYPE(mpz_t))
 ```
 
 Much more complete oplist can be built for this type however, enabling much more powerful generation:
@@ -874,7 +874,7 @@ Example:
 
 ```C
 #define M_OPL_mpz_t() (INIT(mpz_init),SET(mpz_set),          \
-        INIT_SET(mpz_init_set),CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1_DEFAULT),TYPE(mpz_t))
+        INIT_SET(mpz_init_set),CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1OBJ),TYPE(mpz_t))
 ```
 
 > [!NOTE] 
@@ -913,7 +913,7 @@ The API Adaptation to use shall be embedded in the `OPLIST` definition.
 For example:
 
 ```C
-(INIT(API_0(mpz_init)), SET(API_0(mpz_set)), INIT_SET(API_0(mpz_init_set)), CLEAR(API_0(mpz_clear)), INIT_MOVE(M_COPY_A1_DEFAULT))
+(INIT(API_0(mpz_init)), SET(API_0(mpz_set)), INIT_SET(API_0(mpz_init_set)), CLEAR(API_0(mpz_clear)), INIT_MOVE(M_COPY_A1OBJ))
 ```
 
 The default adaptation is API_0 (i.e. no adaptation between operator interface and method interface).
@@ -1412,7 +1412,7 @@ and you shall use a typedef as an intermediary named type for such types.
 
 The output parameters are listed first, then the input/output parameters and finally the input parameters.
 
-The oplist shall also provide the `INIT_MOVE` operator if the default instance (aka '=' operator) is not working for this type (for example for array of size 1, in which case the method `M_COPY_A1_DEFAULT` is likely to work), or disable the operator.
+The oplist shall also provide the `INIT_MOVE` operator if the default instance (aka '=' operator) is not working for this type (for example for array of size 1, in which case the method `M_COPY_A1OBJ` is likely to work), or disable the operator.
 
 This common interface is specified as follow:
 
@@ -1875,7 +1875,7 @@ Example:
 #define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)
 LIST_DEF(list_mpz, mpz_t,                                  \
     (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), \
-        CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1_DEFAULT), OUT_STR(MPZ_OUT_STR)))
+        CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1OBJ), OUT_STR(MPZ_OUT_STR)))
 
 int main(void) {
   list_mpz_t a;
@@ -2048,7 +2048,7 @@ Example:
 #define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)
 LIST_DUALB_DEF(list_mpz, mpz_t,                              \
     (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), \
-        CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1_DEFAULT), OUT_STR(MPZ_OUT_STR)))
+        CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1OBJ), OUT_STR(MPZ_OUT_STR)))
 
 int main(void) {
   list_mpz_t a;
@@ -2231,7 +2231,7 @@ Example:
 #define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)
 ARRAY_DEF(array_mpz, mpz_t,                                \
     (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), \
-        CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1_DEFAULT), OUT_STR(MPZ_OUT_STR)))
+        CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1OBJ), OUT_STR(MPZ_OUT_STR)))
 	
 int main(void) {
   array_mpz_t a;
@@ -2437,7 +2437,7 @@ Example:
 #include "m-deque.h"
 
 DEQUE_DEF(deque_mpz, mpz_t,                                           \
-          (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1_DEFAULT)))
+          (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1OBJ)))
 
 int main(void) {
   deque_mpz_t a;
