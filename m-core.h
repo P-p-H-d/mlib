@@ -4177,6 +4177,8 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 
 /* Define the no default function that generates 
  * a proper compiler error if the method is expanded.
+ * We still give a proper return type to avoid generating too much errors
+ * and to focus on the real error of missing method.
 */
 #define M_NO_DEFAULT(operator, return_type)                                   \
   (M_STATIC_ASSERT(false, M_LIB_MISSING_METHOD,                               \
@@ -4361,8 +4363,15 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_OR_DEFAULT(a,b,c)     ((a) = (b) | (c))
 #define M_NO_EXT_ALGO(n,co,to)
 #define M_INC_ALLOC_DEFAULT(n)   (M_MAX(8, (n))*2)
+#define M_SWAP_DEFAULT(el1, el2) do {                                         \
+    char _tmp[sizeof (el1)];                                                  \
+    M_CHECK_SAME(el1, el2);                                                   \
+    memcpy(&_tmp, &(el1), sizeof (el1));                                      \
+    memcpy(&(el1), &(el2), sizeof (el1));                                     \
+    memcpy(&(el2), &_tmp, sizeof (el1));                                      \
+  } while (0)
 
-/* Define the method for basic types */
+/* Define the method for basic types (int / float) */
 /* Check that the type matches a C basic type and do the job */
 #define M_INIT_BASIC(a)         (M_CHECK_BASIC_TYPE(a), (a) = 0)
 #define M_SET_BASIC(a,b)        (M_CHECK_BASIC_TYPE(a), (a) = (b))
@@ -4372,33 +4381,26 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 /* NOTE: Theses operators are NOT compatible with the '[1]' tricks
    if the variable is defined as a parameter of a function
    (sizeof (a) is not portable). */
-#define M_RESET_DEFAULT(a)      (memset(&(a), 0, sizeof (a)))
-#define M_MEMCMP1_DEFAULT(a,b)  (M_CHECK_SAME(a, b), memcmp(&(a), &(b), sizeof (a)) == 0)
-#define M_MEMCMP2_DEFAULT(a,b)  (M_CHECK_SAME(a, b), memcmp(&(a), &(b), sizeof (a)))
-#define M_SWAP_DEFAULT(el1, el2) do {                                         \
-    char _tmp[sizeof (el1)];                                                  \
-    M_CHECK_SAME(el1, el2);                                                   \
-    memcpy(&_tmp, &(el1), sizeof (el1));                                      \
-    memcpy(&(el1), &(el2), sizeof (el1));                                     \
-    memcpy(&(el2), &_tmp, sizeof (el1));                                      \
-  } while (0)
+#define M_RESET_POD(a)      (memset(&(a), 0, sizeof (a)))
+#define M_MEMEQ_POD(a,b)    (M_CHECK_SAME(a, b), memcmp(&(a), &(b), sizeof (a)) == 0)
+#define M_MEMCMP_POD(a,b)   (M_CHECK_SAME(a, b), memcmp(&(a), &(b), sizeof (a)))
 
-/* Default oplist for plain structure */
+/* Default oplist for a plain structure */
 #define M_POD_OPLIST                                                          \
-  (INIT(M_RESET_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT), \
-   EQUAL(M_MEMCMP1_DEFAULT), CMP(M_MEMCMP2_DEFAULT), HASH(M_HASH_POD_DEFAULT), SWAP(M_SWAP_DEFAULT), \
+  (INIT(M_RESET_POD), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT), \
+   EQUAL(M_MEMEQ_POD), CMP(M_MEMCMP_POD), HASH(M_HASH_POD_DEFAULT), SWAP(M_SWAP_DEFAULT), \
    INIT_MOVE(M_SET_DEFAULT) )
 
 
 /* NOTE: Theses operators are to be used with array of size 1, the '[1]' tricks
    if the variable is defined as a parameter of a function
    (sizeof (a) is not portable). */
-#define M_COPY_A1_DEFAULT(a,b)   (M_CHECK_SAME(a[0], b[0]), memcpy(&(a[0]), &(b[0]), sizeof (a[0])))
-#define M_RESET_A1_DEFAULT(a)      (memset(&(a[0]), 0, sizeof (a[0])))
-#define M_MEMCMP1_A1_DEFAULT(a,b)  (M_CHECK_SAME(a[0],b[0]), memcmp(&(a[0]), &(b[0]), sizeof (a[0])) == 0)
-#define M_MEMCMP2_A1_DEFAULT(a,b)  (M_CHECK_SAME(a[0], b[0]), memcmp(&(a[0]), &(b[0]), sizeof (a[0])))
-#define M_HASH_A1_DEFAULT(a)       (m_core_hash((const void*) &(a[0]), sizeof (a[0])) )
-#define M_SWAP_A1_DEFAULT(a, b) do {                                          \
+#define M_COPY_A1OBJ(a,b)   (M_CHECK_SAME(a[0], b[0]), memcpy(&(a[0]), &(b[0]), sizeof (a[0])))
+#define M_RESET_A1OBJ(a)    (memset(&(a[0]), 0, sizeof (a[0])))
+#define M_MEMEQ_A1OBJ(a,b)  (M_CHECK_SAME(a[0],b[0]), memcmp(&(a[0]), &(b[0]), sizeof (a[0])) == 0)
+#define M_MEMCMP_A1OBJ(a,b) (M_CHECK_SAME(a[0], b[0]), memcmp(&(a[0]), &(b[0]), sizeof (a[0])))
+#define M_HASH_A1OBJ(a)     (m_core_hash((const void*) &(a[0]), sizeof (a[0])) )
+#define M_SWAP_A1OBJ(a, b)  do {                                          \
   char _tmp[sizeof (a[0])];                                                   \
   M_CHECK_SAME(a[0], b[0]);                                                   \
   memcpy(&_tmp, &(a[0]), sizeof (a[0]));                                      \
@@ -4409,9 +4411,9 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 /* Default oplist for a structure defined with an array of size 1.
    MOVE operator is not defined since the object may need to release some data */
 #define M_A1_OPLIST                                                           \
-  (INIT(M_RESET_A1_DEFAULT), INIT_SET(M_COPY_A1_DEFAULT), SET(M_COPY_A1_DEFAULT), CLEAR(M_NOTHING_DEFAULT), \
-   EQUAL(M_MEMCMP1_A1_DEFAULT), CMP(M_MEMCMP2_A1_DEFAULT), HASH(M_HASH_A1_DEFAULT), SWAP(M_SWAP_A1_DEFAULT), \
-   INIT_MOVE(M_COPY_A1_DEFAULT) )
+  (INIT(M_RESET_A1OBJ), INIT_SET(M_COPY_A1OBJ), SET(M_COPY_A1OBJ), CLEAR(M_NOTHING_DEFAULT), \
+   EQUAL(M_MEMEQ_A1OBJ), CMP(M_MEMCMP_A1OBJ), HASH(M_HASH_A1OBJ), SWAP(M_SWAP_A1OBJ), \
+   INIT_MOVE(M_COPY_A1OBJ) )
 
 
 /* Oplist for a type that does nothing and shall not be instanciated */
@@ -4566,7 +4568,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
   ( var = (M_GET_TYPE oplist) (true ? m_core_parse1_enum(str) : 0), m_core_parse2_enum(str, endptr))
 
 
-/* Default oplist for standard types of pointers.
+/* Default oplist for standard types of pointers (not smart pointers, not handling ownership)
  */
 #define M_PTR_OPLIST                                                          \
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT), \
@@ -4578,7 +4580,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
  */
 #define M_CLASSIC_OPLIST(name) (                                              \
   INIT(M_F(name, _init)), INIT_SET(M_F(name, _init_set)), SET(M_F(name, _set)), CLEAR(M_F(name, _clear)), \
-  INIT_MOVE(M_COPY_A1_DEFAULT), TYPE(M_F(name, _t)) )
+  INIT_MOVE(M_COPY_A1OBJ), TYPE(M_F(name, _t)) )
 
 
 /* Default oplist for 'const char *' string (with NO memory allocation).
