@@ -939,6 +939,9 @@ A basic oplist will be:
 (INIT(API_4(obj_init)),SET(API_1(M_SET_THROUGH_INIT_SET)),INIT_SET(API_4(obj_clone)),CLEAR(obj_clear),TYPE(obj_t *))
 ```
 
+To work, `M_SET_THROUGH_INIT_SET` needs to have the oplist of the type to perform a call to its
+CLEAR and INIT_SET operator, thus using the `API_1` convention.
+
 ### Generic API Interface Adaptation
 
 You can also describe the exact transformation to perform for calling the method:
