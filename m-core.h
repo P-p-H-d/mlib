@@ -4400,7 +4400,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_MEMEQ_A1OBJ(a,b)  (M_CHECK_SAME(a[0],b[0]), memcmp(&(a[0]), &(b[0]), sizeof (a[0])) == 0)
 #define M_MEMCMP_A1OBJ(a,b) (M_CHECK_SAME(a[0], b[0]), memcmp(&(a[0]), &(b[0]), sizeof (a[0])))
 #define M_HASH_A1OBJ(a)     (m_core_hash((const void*) &(a[0]), sizeof (a[0])) )
-#define M_SWAP_A1OBJ(a, b)  do {                                          \
+#define M_SWAP_A1OBJ(a, b)  do {                                              \
   char _tmp[sizeof (a[0])];                                                   \
   M_CHECK_SAME(a[0], b[0]);                                                   \
   memcpy(&_tmp, &(a[0]), sizeof (a[0]));                                      \
