@@ -15,7 +15,7 @@ typedef struct lib_ext_struct {
    The new object is heap allocated */
 static lib_ext_struct *lib_ext_struct_Duplicate(const lib_ext_struct *obj)
 {
-  assert(o);
+  assert(obj);
   lib_ext_struct *p = malloc(sizeof(lib_ext_struct));
   if (!p) abort();
   p->id = obj->id;
