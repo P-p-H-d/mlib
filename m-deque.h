@@ -572,7 +572,7 @@
   }                                                                           \
                                                                               \
   M_INLINE bool                                                               \
-  M_F(name, _end_p)(it_t it)                                                  \
+  M_F(name, _end_p)(const it_t it)                                            \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
     return (it->node == it->deque->back->node                                 \
@@ -620,7 +620,7 @@
   }                                                                           \
                                                                               \
   M_INLINE bool                                                               \
-  M_F(name, _last_p)(it_t it)                                                 \
+  M_F(name, _last_p)(const it_t it)                                           \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
     it_t it2;                                                                 \
@@ -630,7 +630,7 @@
   }                                                                           \
                                                                               \
   M_INLINE bool                                                               \
-  M_F(name, _it_equal_p)(it_t it1, const it_t it2)                            \
+  M_F(name, _it_equal_p)(const it_t it1, const it_t it2)                      \
   {                                                                           \
     M_ASSERT (it1 != NULL);                                                   \
     M_ASSERT (it2 != NULL);                                                   \
@@ -640,7 +640,7 @@
   }                                                                           \
                                                                               \
   M_INLINE type *                                                             \
-  M_F(name, _ref)(it_t it)                                                    \
+  M_F(name, _ref)(const it_t it)                                              \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
     M_ASSERT (it->index < it->node->size);                                    \
@@ -648,7 +648,7 @@
   }                                                                           \
                                                                               \
   M_INLINE type const *                                                       \
-  M_F(name, _cref)(it_t it)                                                   \
+  M_F(name, _cref)(const it_t it)                                             \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
     M_ASSERT (it->index < it->node->size);                                    \
@@ -798,7 +798,7 @@
   }                                                                           \
                                                                               \
   M_INLINE type*                                                              \
-  M_F(name, _get)(deque_t d, size_t key)                                      \
+  M_F(name, _get)(const deque_t d, size_t key)                                \
   {                                                                           \
     M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT_INDEX (key, d->count);                                           \
@@ -817,7 +817,7 @@
   }                                                                           \
                                                                               \
   M_INLINE type const *                                                       \
-  M_F(name, _cget)(deque_t d, size_t key)                                     \
+  M_F(name, _cget)(const deque_t d, size_t key)                               \
   {                                                                           \
     return M_CONST_CAST(type, M_F(name, _get)(d, key));                       \
   }                                                                           \
