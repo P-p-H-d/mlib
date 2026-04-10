@@ -145,9 +145,9 @@ You can read or write your full and complex data structure into [JSON](https://e
 
 M\*LIB is distributed under BSD-2 simplified license.
 
-It is strongly advised not to read the source to know how to use the library
-as the code is quite complex and uses a lot of tricks.
-You should rather read the examples.
+You can look at the commented examples to get along with how to use the library.
+Even if writing the library itself is hard (as the code is quite complex and uses a lot of tricks),
+using it is very natural and simple.
 
 In this documentation, 
 
