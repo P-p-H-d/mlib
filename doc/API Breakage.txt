@@ -117,5 +117,6 @@ V0.8.1 : * m-algo: Update interface of _transform to be more flexible: adding us
          * Update how is output a variant from @type@value@ to @type{value} which is more human friendly
          * Remove policy BUFFER_PUSH_INIT_POP_MOVE from m-buffer. Instead, API always provides _push_move & _pop_move
          which is more friendly to the user and less error prone (To port, just use _pop_move function instead of _pop + policy BUFFER_PUSH_INIT_POP_MOVE)
-	 * Rename M_COPY_A1_DEFAULT to M_COPY_A1OBJ as it isn't a default function.
-	 
+      	 * Rename M_COPY_A1_DEFAULT to M_COPY_A1OBJ as it isn't a default function.
+         * M_OPCAT is marked as obsolete
+         

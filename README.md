@@ -7243,10 +7243,6 @@ Create the oplist with the operators using the pattern `name`, i.e.
 
 Remove the parenthesis around an oplist.
 
-##### `M_OPCAT(oplist1,oplist2)`
-
-Concat two oplists in one. `oplist1`'s operators will have higher priority to `oplist2`
-
 ##### `M_OPEXTEND(oplist, ...)`
 
 Extend an `oplist` with the given list of operators.
@@ -7292,13 +7288,9 @@ M_IF_METHOD_ALL(HASH, oplist1, oplist2, oplist3) (/*define function*/, )
 Return the content of the property named `propname` as defined in the `PROPERTIES` field of the `oplist`,
 or 0 if it is not defined.
 
-##### `M_DO_INIT_MOVE(oplist, dest, src)`
 ##### `M_DO_MOVE(oplist, dest, src)`
 
 Perform an `INIT_MOVE`/`MOVE` if present, or emulate it otherwise (Internal macros).
-
-> [!NOTE]
-> Default methods for `INIT_MOVE`/`MOVE` are not robust enough yet.
 
 ##### `M_INIT_WITH_THROUGH_EMPLACE_TYPE(oplist, dest, src)`
 

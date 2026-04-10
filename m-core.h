@@ -4602,6 +4602,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_OPFLAT(...)     __VA_ARGS__
 
 /* Concat two oplists in one. op1 will have higher priority to op2 */
+// Obsolete macro (never used)
 #define M_OPCAT(op1,op2) (M_OPFLAT op1, M_OPFLAT op2)
 
 /* Apply an oplist */
