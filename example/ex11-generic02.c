@@ -7,11 +7,13 @@
 #include "m-list.h"
 #include "m-generic.h"
 
-// Register an organization for generic: USER
-// Each index (here '1') shall be unique for the whole program
+// Register an organization for the generic framework: USER
+// Each final index (here '1') shall be unique for the whole program
+// Parenthesis are mandatory for the value of the organization
 #define M_GENERIC_ORG_1() (USER)
 // Register a component for the organization USER: CORE
-// Each index (here '1') shall be unique for the whole organization
+// Each final index (here '1') shall be unique for the whole organization
+// Parenthesis are mandatory for the value of the component
 #define M_GENERIC_ORG_USER_COMP_1() (CORE)
 
 // Register the oplist of a mpz_t. It is a classic oplist.
@@ -23,7 +25,7 @@
         OUT_STR( API( mpz_out_str, VOID, ARG1, 10, ARG2)),      \
         GENTYPE(__mpz_struct *), TYPE(mpz_t) )
 // Register the oplist as a generic type of the component CORE of the organization USER
-// Each index (here '1') shall be unique for the whole component
+// Each final index (here '1') shall be unique for the whole component
 #define M_GENERIC_ORG_USER_COMP_CORE_OPLIST_1() M_OPL_mpz_t()
 
 // Define an instance of an array of mpz_t (both type and function)
@@ -31,7 +33,7 @@ ARRAY_DEF(array_mpz, mpz_t)
 // Register the oplist of the created instance of array of mpz_t
 #define M_OPL_array_mpz_t() ARRAY_OPLIST(array_mpz, M_OPL_mpz_t())
 // Register the oplist as a generic type of the component CORE of the organization USER
-// Each index (here '10') shall be unique for the whole component
+// Each final index (here '10') shall be unique for the whole component
 #define M_GENERIC_ORG_USER_COMP_CORE_OPLIST_10() M_OPL_array_mpz_t()
 
 // Define an instance of a list of mpz_t (both type and function)
@@ -56,6 +58,8 @@ ARRAY_DEF(array_uint, unsigned)
 #define M_GENERIC_ORG_USER_COMP_CORE_OPLIST_13() M_OPL_array_uint_t()
 
 int main(void) {
+    // You can see that the code of each block is the same, only the type of list/array and the type of element is changing.
+    // Yet it works!
 
     print("LIST UINT = ");
     // Initialize list as list_uint_t and push 17 & 42 in it.
