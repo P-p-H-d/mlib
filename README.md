@@ -2563,7 +2563,7 @@ The `key_oplist` shall also define the additional operators (`HASH` and `EQUAL`)
 > You can either call this macro with only `key_type` and `value_type`
 > or with their type+oplists `key_type`, `key_oplist`, `value_type` and `value_oplist`.
 > You cannot call it with an oplist for a type and not for the other
-> (Otheriwse it won't be able to identify reliabely what is the third argument - a `value_type` or a `key_oplist` ?)
+> (Otherwise it won't be able to identify reliably what is the third argument - a `value_type` or a `key_oplist` ?)
 > Failure to respect this rule so will result in a too few argument error for `M_D1CT_DEF2_P2` internal macro.
 
 Elements in the dictionary are **unordered**.
@@ -2637,7 +2637,7 @@ This implementation is in general faster for small types of keys
 > You can either call this macro with only `key_type` and `value_type`
 > or with their type+oplists `key_type`, `key_oplist`, `value_type` and `value_oplist`.
 > You cannot call it with an oplist for a type and not for the other
-> (Otheriwse it won't be able to identify reliabely what is the third argument - a `value_type` or a `key_oplist` ?)
+> (Otherwise it won't be able to identify reliably what is the third argument - a `value_type` or a `key_oplist` ?)
 > Failure to respect this rule so will result in a too few argument error for `M_D1CT_DEF2_P2` internal macro.
 
 `DICT_OA_DEF2_AS` is the same as `DICT_OA_DEF2`
@@ -3524,7 +3524,7 @@ This pool of nodes will increase when needed by default.
 However, in case of capacity increased, all the nodes of the tree may move in memory to accommodate the new need.
 You may also request to reserve more capacity to avoid moving the items, and disable this auto-expand feature (in which a `MEMORY_FAILURE` is raised).
 
-There are several way to iterate over this container:
+There are several ways to iterate over this container:
 
 * Scan all nodes: first the parent then the children (pre-order walk).
 * Scan all nodes: first the children then the parent (post-order walk).
@@ -3620,7 +3620,7 @@ It returns an iterator to the inserted node with **non-initialized** data.
 The first thing to do after calling this function shall be to initialize the data
 using the proper constructor of the object of type `type` (the pointer can be get through `name_ref`)
 This enables using more specialized constructor than the generic copy one.
-The user should use other the non `_raw` function if possible rather than this one
+The user should use the non `_raw` function if possible rather than this one
 as it is low level and error prone.
 
 `name_insert_down_raw` will move all children of the referenced node as children of the inserted children,
@@ -3687,7 +3687,7 @@ It returns NULL if there is no such node.
 ##### `it_t name_right(it_t it)`
 
 Return an iterator to point to the node which is up (resp. down, left and right) the given iterator.
-Return a valid iterator in case of success, an invalid one otherwse (see `name_end_p`)
+Return a valid iterator in case of success, an invalid one otherwise (see `name_end_p`)
 
 ##### `bool name_it_up(it_t *it)`
 ##### `bool name_it_down(it_t *it)`
@@ -4828,6 +4828,9 @@ Example:
 
 // To put in one header
 // Define a shared data that supports pushing/popping integer
+// Notice that we don't need to define the methods:
+// we just need to say if it exists by setting it to a non null value.
+// Only the value of SUBTYPE is mandatory.
 #define OPL (INIT(1),INIT_SET(1),SET(1),CLEAR(1),SUBTYPE(int),PUSH(1),POP(1))
 SHARED_PTR_DECL(shared_data, OPL)
 
