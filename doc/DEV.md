@@ -2,12 +2,14 @@ How to make a release?
 ======================
 
 1) Check that all test pass on all primary systems.
-   Run 'make check' or 'make checkall' on all primary systems.
+   Run 'make check' on all primary systems.
    No error shall be reported.
+   This is integrated in Continuous Integration.
    
 2) Check that no undefined behavior, nor data race, ... is reported by sanitizer:
    Run 'make sanitize'  in tests folder on a system.
    This needs at least GCC 7
+   This is integrated in Continuous Integration.
 
 3) Check that coverage is reasonable.
    Run 'make coverage' and analyze result.
@@ -20,22 +22,22 @@ In case of problem, open a problem report.
 List of automatically tested systems
 ====================================
 
+Continuous Integration provides a good coverage of all supported systems:
+
 * gcc on linux/x86-64 (32 bits and 64 bits)
 * g++ on linux/x86-64 (32 bits and 64 bits)
 * clang on macos/x86-64
 * clang++ on macos/x86-64
 * tcc on linux/x86-64
-* gcc on windows/x86-64 (mingw)
+* gcc on windows/x86-64 (mingw and msys2)
 * msvc on windows/x86-64
-* clang on windows/x86-64
+* clang-cl on windows/x86-64
+* clang on FreeBSD/x86-64
+* gcc on linux/aarch64
+* gcc on linux/armv6
+* gcc on linux/risc64
+* gcc on linux/powerpc64
 
-List of manually tested systems
-===============================
-
-* clang on linux/x86-64
-* clang on linux/armv7l
-* gcc on linux/powerpc
-* gcc on linux/armv7l
 
 Atomic library
 ==============
@@ -90,7 +92,8 @@ and expands all code in one line.
 Different strategy for debugging the library itself are still possible:
 
 1) Good old printf.
-Add printf of interresting values in the debugged function.
+
+Add print interesting values in the debugged function.
 
 
 2) Preprocess the library and then compile the preprocessed file like this:
@@ -99,7 +102,7 @@ Add printf of interresting values in the debugged function.
           perl -pi -e 's/;/;\n/g' test-file.i
           cc -std=c99 -c -Wall test-file.i
 
- The resulting executable can be debugged much more easily.
+The resulting executable can be debugged much more easily.
 
 
 3) To debug the preprocessing itself, the Boot Wave library can be used
@@ -137,7 +140,7 @@ Coding rules
 
 * External / Internal macros shall be in upper case.
 
-* Internal macros / functions shall be prefixed by m_<container>
+* Internal macros / functions should be prefixed by m_<container>
   with container is the name of the container with one letter transformed:
       o --> 0
       e --> 3
