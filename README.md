@@ -145,9 +145,9 @@ You can read or write your full and complex data structure into [JSON](https://e
 
 M\*LIB is distributed under BSD-2 simplified license.
 
-You can look at the commented examples to get along with how to use the library.
-Even if writing the library itself is hard (as the code is quite complex and uses a lot of tricks),
-using it is very natural and simple.
+You can look at the commented examples to get along with how to use the library. You'll see by yourself how easy is to write code using it.
+Even if writing the library itself is hard (as the code is quite complex and uses a lot of tricks - pretty much like the STL itself),
+I can ensure you that using it is very natural and simple, and the learning curve low.
 
 In this documentation, 
 
@@ -301,7 +301,7 @@ int main(void) {
    for(list_uint_it(it, list)     /* Start iterator on first element */
        ; !list_uint_end_p(it)     /* Until the end is not reached */
        ; list_uint_next(it)) {    /* Set the iterator to the next element*/
-          printf("%d\n",          /* Get a reference to the underlying */
+          printf("%u\n",          /* Get a reference to the underlying */
             *list_uint_cref(it)); /* data and print it */
    }
    list_uint_clear(list);         /* Clear all the list (destroying the object list)*/
@@ -355,7 +355,7 @@ for both the list variant and the array variant.
 
 This is equivalent to this C++ program using the STL:
 
-```C
+```C++
 #include <iostream>
 #include <list>
 
@@ -404,11 +404,13 @@ int main(void) {
      list_uint_push_back(list, 42); /* Push 42 in the list */
      list_uint_push_back(list, 17); /* Push 17 in the list */
      for M_EACH(item, list, LIST_OPLIST(uint)) {
-       printf("%d\n", *item);       /* Print the item */
+       printf("%u\n", *item);       /* Print the item */
      }
    }                                /* Clear of list will be done now */
 }
 ```
+
+> Note: M*LIB macros are in upper cases and look like macros, normal functions are in lower cases.
 
 Here is another example with a complete type (with proper initialization & clear function) by using the [GMP](https://gmplib.org/) library:
 
@@ -426,7 +428,7 @@ int main(void) {
    array_mpz_push_back(array, z);  /* Push 42 in the array */
    mpz_set_ui (z, 17);
    array_mpz_push_back(array, z); /* Push 17 in the array */
-   array_it_mpz_t it;              /* Define an iterator to scan each one */
+   array_mpz_it_t it;              /* Define an iterator to scan each one */
    for(array_mpz_it(it, array)     /* Start iterator on first element */
        ; !array_mpz_end_p(it)      /* Until the end is not reached */
        ; array_mpz_next(it)) {     /* Set the iterator to the next element*/
@@ -454,6 +456,8 @@ In the example, we tell to the container to use:
 * The default macro `M_COPY_A1OBJ` is used for the `INIT_MOVE` operator (good for all objects using the `[1]` trick).
 
 See [OPLIST](#oplist) chapter for more detailed information.
+
+With oplists, behavior becomes modular, reusable and even inheritable: You define semantics once, reuse everywhere.
 
 We can also write the same example shorter by using the ability of M\*LIB to register oplists:
 
@@ -585,7 +589,7 @@ let(list, list_uint_t) {
 
 And it works!
 See the [example](https://github.com/P-p-H-d/mlib/blob/master/example/ex11-generic01.c)
-and [M-GENERIC](#M-GENERIC) header for details.
+and [m-generic](#m-generic) header for details.
 
 ## Performance
 
