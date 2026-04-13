@@ -1191,7 +1191,7 @@
   {                                                                           \
     M_ASSERT (it != NULL && it->node != NULL);                                \
     M_ASSERT (M_F(name, _is_leaf)(it->node));                                 \
-    return it->node->next ==NULL && it->idx >= -it->node->num;                \
+    return it->idx >= -it->node->num;                                         \
   }                                                                           \
                                                                               \
   M_INLINE bool                                                               \
