@@ -403,7 +403,12 @@ void test(int select_test, int index,
       auto it1b = c1.rbegin();
       while (it1b != c1.rend()) {
         assert( !M_CALL_IT_END_P(CONT_OPL, it0));
+#ifdef HAVE_KEY_PTR
+        // Containers are key / value (through ptr)
+        M_CALL_SET(M_GET_OPLIST CONT_OPL, b0, *M_CALL_IT_CREF(CONT_OPL, it0)->value_ptr);
+#else
         M_CALL_SET(M_GET_OPLIST CONT_OPL, b0, TYPE_IT_TO_INT(M_CALL_IT_CREF(CONT_OPL, it0)));
+#endif
         b1 = CLASS_IT_TO_INT(it1b);
         CMP_BASE(b0, b1);
         M_CALL_IT_PREVIOUS(CONT_OPL, it0);
