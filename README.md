@@ -1424,12 +1424,14 @@ This common interface is specified as follow:
 
 Initialize the container `container` (aka constructor) to an empty container.
 Also called the default constructor of the container.
+`container` shall be not initialized
 
 ##### `void name_init_set(name_t container, const name_t ref)`
 
 Initialize the container `container` (aka constructor) and set it to a copy of `ref`.
 This method is only created if the `INIT_SET` & `SET` methods are provided.
 Also called the copy constructor of the container.
+`container` shall be not initialized
 
 ##### `void name_set(name_t container, const name_t ref)`
 
@@ -1441,12 +1443,14 @@ This method is only created if the `INIT_SET` and `SET` methods are provided.
 Initialize the container `container` (aka constructor)
 by stealing as many resources from `ref` as possible.
 After-wise `ref` is cleared and can no longer be used (aka destructor).
+`container` shall be not initialized
 
 ##### `void name_move(name_t container, name_t ref)`
 
 Set the container `container` (aka constructor)
 by stealing as many resources from `ref` as possible.
 After-wise `ref` is cleared and can no longer be used (aka destructor).
+`container` shall not be the same object as `ref`
 
 ##### `void name_clear(name_t container)`
 
@@ -1463,11 +1467,13 @@ The container becomes empty but remains initialized.
 
 Return a pointer to the data stored in the back of the container.
 This pointer should not be stored in a global variable.
+`container` shall be not empty.
 
 ##### `type_t *name_front(const name_t container)`
 
 Return a pointer to the data stored in the front of the container.
 This pointer should not be stored in a global variable.
+`container` shall be not empty.
 
 ##### `void name_push(name_t container, const type_t value)`
 ##### `void name_push_back(name_t container, const type_t value)`
@@ -1710,6 +1716,11 @@ There is no destructor associated to this initialization.
 Set the iterator `it` to a non valid element of the container.
 There is no destructor associated to this initialization.
 
+##### `void name_it_last(name_it_t it, const name_t container)`
+
+Set the iterator `it` to the last element of the container.
+There is no destructor associated to this initialization.
+
 ##### `bool name_end_p(const name_it_t it)`
 
 Return true if the iterator doesn't reference a valid element anymore.
@@ -1726,10 +1737,12 @@ Return true if the iterator `it1` references the same element than the iterator 
 ##### `void name_next(name_it_t it)`
 
 Move the iterator to the next element of the container.
+Afterwards, the moved iterator may reference an invalid element.
 
 ##### `void name_previous(name_it_t it)`
 
 Move the iterator `it` to the previous element of the container.
+Afterwards, the moved iterator may reference an invalid element.
 
 ##### `type_t *name_ref(name_it_t it)`
 ##### `const type_t *name_cref(const name_it_t it)`
@@ -1741,6 +1754,7 @@ For associative-array like container, this element is the pair composed of
 the key (`key` field) and the associated value (`value` field);
 otherwise this element is simply the basic type of the container (`type_t`).
 
+The iterator shall reference a valid element.
 This pointer should not be stored in a global variable.
 This pointer remains valid until the container is modified by another method.
 
