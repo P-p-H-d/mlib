@@ -174,8 +174,10 @@
    IT_SET(M_F(name,_it_set)),                                                 \
    IT_END(M_F(name,_it_end)),                                                 \
    IT_END_P(M_F(name,_end_p)),                                                \
+   IT_LAST(M_F(name,_it_last)),                                               \
    IT_EQUAL_P(M_F(name,_it_equal_p)),                                         \
    IT_NEXT(M_F(name,_next)),                                                  \
+   IT_PREVIOUS(M_F(name,_previous)),                                          \
    IT_CREF(M_F(name,_cref)),                                                  \
    RESET(M_F(name,_reset)),                                                   \
    PUSH(M_F(name,_push)),                                                     \
@@ -207,8 +209,10 @@
    IT_SET(M_F(name,_it_set)),                                                 \
    IT_END(M_F(name,_it_end)),                                                 \
    IT_END_P(M_F(name,_end_p)),                                                \
+   IT_LAST(M_F(name,_it_last)),                                               \
    IT_EQUAL_P(M_F(name,_it_equal_p)),                                         \
    IT_NEXT(M_F(name,_next)),                                                  \
+   IT_PREVIOUS(M_F(name,_previous)),                                          \
    IT_CREF(M_F(name,_cref)),                                                  \
    RESET(API_0P(M_F(name,_reset))),                                           \
    PUSH(API_0P(M_F(name,_push))),                                             \
@@ -258,8 +262,10 @@
    IT_SET(M_F(name,_it_set)),                                                 \
    IT_END(M_F(name,_it_end)),                                                 \
    IT_END_P(M_F(name,_end_p)),                                                \
+   IT_LAST(M_F(name,_it_last)),                                               \
    IT_EQUAL_P(M_F(name,_it_equal_p)),                                         \
    IT_NEXT(M_F(name,_next)),                                                  \
+   IT_PREVIOUS(M_F(name,_previous)),                                          \
    IT_CREF(M_F(name,_cref)),                                                  \
    RESET(M_F(name,_reset)),                                                   \
    GET_MIN(M_F(name,_min)),                                                   \
@@ -298,8 +304,10 @@
    IT_SET(M_F(name,_it_set)),                                                 \
    IT_END(M_F(name,_it_end)),                                                 \
    IT_END_P(M_F(name,_end_p)),                                                \
+   IT_LAST(M_F(name,_it_last)),                                               \
    IT_EQUAL_P(M_F(name,_it_equal_p)),                                         \
    IT_NEXT(M_F(name,_next)),                                                  \
+   IT_PREVIOUS(M_F(name,_previous)),                                          \
    IT_CREF(M_F(name,_cref)),                                                  \
    RESET(API_0P(M_F(name,_reset))),                                           \
    GET_MIN(M_F(name,_min)),                                                   \
@@ -353,6 +361,13 @@
       M_ASSERT (num2 >= 1);                                                   \
       M_ASSERT (M_CALL_CMP(key_oplist, (node)->key[num2-1], (node)->next->key[0]) M_IF(isMulti)(<=, <) 0); \
     }                                                                         \
+    if ((node)->prev != NULL) {                                               \
+      M_ASSERT (num2 >= 1);                                                   \
+      int num_prev = (node)->prev->num;                                       \
+      num_prev = num_prev < 0 ? -num_prev : num_prev;                         \
+      M_ASSERT (num_prev >= 1);                                               \
+      M_ASSERT (M_CALL_CMP(key_oplist, (node)->prev->key[num_prev-1], (node)->key[0]) M_IF(isMulti)(<=, <) 0); \
+    }                                                                         \
   } while (0)
 #endif
 
@@ -364,6 +379,7 @@
     M_STATIC_ASSERT (N >= 3, M_LIB_DIMENSION, "B+TREE supports only N >= 3"); \
     M_BPTR33_NODE_CONTRACT(N, isMulti, key_oplist, (b)->root+0, (b)->root);   \
     M_ASSERT ((b)->root->next == NULL);                                       \
+    M_ASSERT ((b)->root->prev == NULL);                                       \
     if ((b)->root->num <= 0) M_ASSERT (-(b)->root->num == (int) (b)->size);   \
   } while (0)
 #endif
@@ -447,6 +463,7 @@
     int    num;           /* Abs=Number of keys. Sign <0 is leaf */           \
     key_t  key[N+1];      /* We can temporary push one more key */            \
     struct M_F(name, _node_s) *next;  /* next node reference */               \
+    struct M_F(name, _node_s) *prev;  /* previous node reference */           \
     union  M_F(name, _kind_s) {       /* either value or pointer to other nodes */ \
       M_IF(isMap)(value_t        value[N+1];,)                                \
       struct M_F(name, _node_s) *node[N+2];                                   \
@@ -493,6 +510,7 @@
       M_MEMORY_FULL(node_t, 1);                                               \
     }                                                                         \
     n->next = NULL;                                                           \
+    n->prev = NULL;                                                           \
     n->num = 0;                                                               \
     return n;                                                                 \
   }                                                                           \
@@ -579,8 +597,7 @@
     /* Set default number of keys and type to copy */                         \
     n->num = o->num;                                                          \
     /* By default it is not linked to its brother.                            \
-       Only the parent of this node can do it. It is fixed by it */           \
-    n->next = NULL;                                                           \
+       Only its parent can do it: it has to fix it */                         \
     /* Get number of keys in the node and copy them */                        \
     int num = M_F(name, _get_num)(o);                                         \
     for(int i = 0; i < num; i++) {                                            \
@@ -599,12 +616,13 @@
         M_ASSERT(o->kind.node[i] != root);                                    \
         n->kind.node[i] = M_F(name, _copy_node)M_R(o->kind.node[i], root);    \
       }                                                                       \
-      /* The copied nodes don't have their next field correct */              \
-      /* Fix the next field for the copied nodes */                           \
+      /* The copied nodes don't have their next/prev field correct */         \
+      /* Fix the next/prev field for the copied nodes */                      \
       for(int i = 0; i < num; i++) {                                          \
         node_t current = n->kind.node[i];                                     \
         node_t next = n->kind.node[i+1];                                      \
         current->next = next;                                                 \
+        next->prev = current;                                                 \
         /* Go down the tree up to the leaf                                    \
            and fix the final 'next' link with the copied node */              \
         while (!M_F(name, _is_leaf)(current)) {                               \
@@ -612,6 +630,7 @@
           current = current->kind.node[current->num];                         \
           next    = next->kind.node[0];                                       \
           current->next = next;                                               \
+          next->prev = current;                                               \
         }                                                                     \
       }                                                                       \
     }                                                                         \
@@ -797,6 +816,10 @@
     nleaf->num = -nnum;                                                       \
     nleaf->next = leaf->next;                                                 \
     leaf->next = nleaf;                                                       \
+    nleaf->prev = leaf;                                                       \
+    if (nleaf->next != NULL) {                                                \
+      nleaf->next->prev = nleaf;                                              \
+    }                                                                         \
     M_BPTR33_NODE_CONTRACT(N, isMulti, key_oplist, leaf, b->root);            \
     M_BPTR33_NODE_CONTRACT(N, isMulti, key_oplist, nleaf, b->root);           \
     /* Update parent to inject *key_ptr that splits between (leaf, nleaf) */  \
@@ -806,7 +829,6 @@
         /* We reach root ==> Need to increase the height of the tree.*/       \
         node_t parent = M_F(name, _new_node)(M_R_EXPAND_void);                \
         parent->num = 1;                                                      \
-        /* TBC: DO_INIT_MOVE instead ? If key was in a node !*/               \
         M_CALL_INIT_SET(key_oplist, parent->key[0], *key_ptr);                \
         parent->kind.node[0] = leaf;                                          \
         parent->kind.node[1] = nleaf;                                         \
@@ -839,6 +861,10 @@
       nparent->num = nnp;                                                     \
       nparent->next = parent->next;                                           \
       parent->next = nparent;                                                 \
+      nparent->prev = parent;                                                 \
+      if (nparent->next != NULL) {                                            \
+        nparent->next->prev = nparent;                                        \
+      }                                                                       \
       M_BPTR33_NODE_CONTRACT(N, isMulti, key_oplist, parent, b->root);        \
       M_BPTR33_NODE_CONTRACT(N, isMulti, key_oplist, nparent, b->root);       \
       /* Prepare for the next step */                                         \
@@ -983,6 +1009,9 @@
       left->num = num_left + 1 + num_right;                                   \
     }                                                                         \
     left->next = right->next;                                                 \
+    if (left->next != NULL) {                                                 \
+      left->next->prev = left;                                                \
+    }                                                                         \
     M_CALL_DEL(key_oplist, right);                                            \
     /* remove k'th key from the parent */                                     \
     M_CALL_CLEAR(key_oplist, parent->key[k]);                                 \
@@ -1191,7 +1220,9 @@
   {                                                                           \
     M_ASSERT (it != NULL && it->node != NULL);                                \
     M_ASSERT (M_F(name, _is_leaf)(it->node));                                 \
-    return it->idx >= -it->node->num;                                         \
+    /* Test if the unsigned value is bigger:                                  \
+    allow to test both previous iteration (<0) and next iteration (>num) */   \
+    return (unsigned) it->idx >= (unsigned) -it->node->num;                   \
   }                                                                           \
                                                                               \
   M_INLINE bool                                                               \
@@ -1210,6 +1241,25 @@
       it->node = it->node->next;                                              \
       it->idx = 0;                                                            \
     }                                                                         \
+  }                                                                           \
+                                                                              \
+  M_INLINE void                                                               \
+  M_F(name, _previous)(it_t it)                                               \
+  {                                                                           \
+    M_ASSERT (it != NULL && it->node != NULL);                                \
+    M_ASSERT (M_F(name, _is_leaf)(it->node));                                 \
+    it->idx --;                                                               \
+    if (it->idx < 0 && it->node->prev != NULL) {                              \
+      it->node = it->node->prev;                                              \
+      it->idx = -it->node->num - 1;                                           \
+    }                                                                         \
+  }                                                                           \
+                                                                              \
+  M_INLINE void                                                               \
+  M_F(name, _it_last)(it_t it, const tree_t b)                                \
+  {                                                                           \
+    M_F(name, _it_end)(it, b);                                                \
+    M_F(name, _previous)(it);                                                 \
   }                                                                           \
                                                                               \
   M_INLINE subtype_t *                                                        \

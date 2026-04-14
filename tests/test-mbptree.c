@@ -399,6 +399,13 @@ static void test5(void)
   btree_it_end(it2, b);
   assert (btree_it_equal_p(it, it2));
 
+  for(btree_it_last(it, b) ; !btree_end_p(it); btree_previous(it)) {
+    const btree_itref_t *item = btree_cref(it);
+    --i;
+    assert (*item->key_ptr == i);
+    assert (*item->value_ptr == 1000*i);
+  }
+
   i = 500;
   for(btree_it_from(it, b, 500); !btree_it_until_p(it, 600); btree_next(it)) {
     const btree_itref_t *item = btree_cref(it);
@@ -407,6 +414,15 @@ static void test5(void)
     i++;
   }
   assert (i == 600);
+
+  i = 501;
+  for(btree_it_from(it, b, 500); !btree_it_while_p(it, 400); btree_previous(it)) {
+    const btree_itref_t *item = btree_cref(it);
+    --i;
+    assert (*item->key_ptr == i);
+    assert (*item->value_ptr == 1000*i);
+  }
+  assert (i == 401);
 
   bool r = btree_erase (b, 500);
   assert(r);
@@ -418,6 +434,16 @@ static void test5(void)
     i++;
   }
   assert (i == 600);
+
+  i = 601;
+  for(btree_it_from(it, b, 600); !btree_it_while_p(it, 400); btree_previous(it)) {
+    const btree_itref_t *item = btree_cref(it);
+    --i;
+    if (i == 500) --i;
+    assert (*item->key_ptr == i);
+    assert (*item->value_ptr == 1000*i);
+  }
+  assert (i == 401);
 
   btree_it_from(it, b, 1000);
   assert (btree_end_p(it));
@@ -438,6 +464,14 @@ static void test5(void)
         assert (*item->key_ptr == expect);
         assert (*item->value_ptr == 1000*expect);
         k+=2;
+      }
+      if (i == j) continue;
+      for(btree_it_from(it, b, j); !btree_it_while_p(it, i); btree_previous(it)) {
+        const btree_itref_t *item = btree_cref(it);
+        int expect = k/2*2+1;
+        assert (*item->key_ptr == expect);
+        assert (*item->value_ptr == 1000*expect);
+        k-=2;
       }
     }
   }
