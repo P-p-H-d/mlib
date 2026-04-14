@@ -2219,6 +2219,8 @@ The provided oplist shall have at least the following operators (`CLEAR`).
 It should also provide the following operators (`INIT`, `INIT_SET`, `SET`),
 so that at least some methods are defined for the array!
 
+The object of type `type` shall be trivially movable.
+
 The push / pop methods of the container always operate on the back of the container,
 acting like a stack-like container.
 
@@ -3302,6 +3304,7 @@ The `CMP` operator is used to perform the total ordering of the key elements.
 It shall be done once per type and per compilation unit.
 It also define the iterator `name##_it_t` and its associated methods as `static inline` functions.
 
+The object of type `key_type` and `value_type` shall be trivially movable.
 The object oplist shall have at least the operators (`INIT`, `INIT_SET`, `SET`, `CLEAR` and `CMP`).
 
 `BPTREE_DEF2_AS` is the same as `BPTREE_DEF2` except the name of the 
