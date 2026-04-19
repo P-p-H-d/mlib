@@ -231,7 +231,7 @@ struct m_exception_s {
 // If the CLEAR operator is called naturally, we disable the destructor of the C++ object.
 #define M_LET_TRY_INJECT_POST_B(cont, oplist, name)                           \
   for(m_lib::m_regclear M_C(m_try_regclear_, name){[&](void) { M_CALL_CLEAR(oplist, name); } } \
-        ; cont ; M_C(m_try_regclear_, name).disable() )
+        ; cont ; cont = false, M_C(m_try_regclear_, name).disable() )
 
 // M_DEFER Injection / pre initialization
 #define M_DEFER_TRY_INJECT_PRE_B(cont, ...) /* Nothing to do */
@@ -567,13 +567,13 @@ _Pragma("GCC diagnostic pop")
 // Initialize the stack frame.
 #define M_LET_TRY_INJECT_PRE_B(cont, oplist, name)                            \
   for(m_try_t M_C(m_try_state_, name); cont &&                                \
-        m_try_jump_pre(M_C(m_try_state_, name)); )
+        m_try_jump_pre(M_C(m_try_state_, name)); cont = false)
 
 // M_LET Injection / post initialization
 // Register the stack frame and tests for the longjmp.
 // In which case call the CLEAR operator, unstack the error list and rethrow the error.
 #define M_LET_TRY_INJECT_POST_B(cont, oplist, name)                           \
-  for(m_try_jump_post(M_C(m_try_state_, name)); cont ; m_try_jump_final(M_C(m_try_state_, name))) \
+  for(m_try_jump_post(M_C(m_try_state_, name)); cont ; cont = false, m_try_jump_final(M_C(m_try_state_, name))) \
     if (m_try_setjmp(M_C(m_try_state_, name)->data.buffer) != 0) { M_CALL_CLEAR(oplist, name); m_try_jump_final(M_C(m_try_state_, name)); m_rethrow(); } else
 
 #else
