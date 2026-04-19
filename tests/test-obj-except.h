@@ -267,7 +267,8 @@ static void dirty_stack(void)
    Then this function will run the test function several times, each time throwing an exception at a different point, and checking that there is no memory leak after each run.
    The test function shall not throw an exception by itself, but let the container do it.
    It shall use M_LET to properly clear the container in case of exception, and check the consistency of the container after each operation.
-
+   The number given as argument to the function is just a parameter that may be used by the test function to perform more or less operations, and thus have more or less exception points.
+   
    How it works?
    * To detect how many exception points are in the test function, it runs it once without throwing any exception, 
    and check the global counter. 
