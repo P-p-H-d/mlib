@@ -268,6 +268,17 @@ static void test2(void)
   M_TRY(test1) {
     M_LET(obj, TESTOBJ_OPLIST) {
       testobj_set_ui(obj, 15);
+      // Test break
+      break;
+      assert(0);
+    }
+  } M_CATCH(test1, 0) {
+    assert(0);
+  }
+
+  M_TRY(test1) {
+    M_LET(obj, TESTOBJ_OPLIST) {
+      testobj_set_ui(obj, 15);
       M_THROW(1);
       assert(0);
     }
