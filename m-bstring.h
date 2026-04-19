@@ -557,6 +557,10 @@ M_P(m_serial_return_code_t, m_bstring, _in_serial, m_bstring_t v, m_serial_read_
    )
 #endif
 
+/* Register the OPLIST as a global one */
+#define M_OPL_m_bstring_t() M_BSTRING_OPLIST
+
+
 /********************************************************************************/
 /*                                                                              */
 /* Define the small name (i.e. without the prefix) of the API provided by this  */
@@ -603,6 +607,7 @@ M_P(m_serial_return_code_t, m_bstring, _in_serial, m_bstring_t v, m_serial_read_
 #define bstring_swap m_bstring_swap
 #define bstring_splice m_bstring_splice
 #define BSTRING_OPLIST M_BSTRING_OPLIST
+#define M_OPL_bstring_t() M_BSTRING_OPLIST
 
 #endif
 
