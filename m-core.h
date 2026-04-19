@@ -4482,7 +4482,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
  * that generates warnings with boolean.
  */
 #define M_BOOL_OPLIST                                                         \
-  M_OPEXTEND(M_BASIC_OPLIST, ADD(M_OR_DEFAULT), MUL(M_AND_DEFAULT),           \
+  M_OPEXTEND(M_BASIC_OPLIST, TYPE(_Bool), ADD(M_OR_DEFAULT), MUL(M_AND_DEFAULT), \
               SUB(0), DIV(0))
 
 
@@ -4757,13 +4757,13 @@ m_core_parse2_enum (const char str[], const char **endptr)
 /* Register simple classic C types (no qualifier)
  * We cannot register type with qualifier (for example long long) however.
  */
-#define M_OPL_char() M_BASIC_OPLIST
-#define M_OPL_short() M_BASIC_OPLIST
-#define M_OPL_int() M_BASIC_OPLIST
-#define M_OPL_unsigned() M_BASIC_OPLIST
-#define M_OPL_long() M_BASIC_OPLIST
-#define M_OPL_float() M_BASIC_OPLIST
-#define M_OPL_double() M_BASIC_OPLIST
+#define M_OPL_char() M_OPEXTEND(M_BASIC_OPLIST, TYPE(char))
+#define M_OPL_short() M_OPEXTEND(M_BASIC_OPLIST, TYPE(short))
+#define M_OPL_int() M_OPEXTEND(M_BASIC_OPLIST, TYPE(int))
+#define M_OPL_unsigned() M_OPEXTEND(M_BASIC_OPLIST, TYPE(unsigned))
+#define M_OPL_long() M_OPEXTEND(M_BASIC_OPLIST, TYPE(long))
+#define M_OPL_float() M_OPEXTEND(M_BASIC_OPLIST, TYPE(float))
+#define M_OPL_double() M_OPEXTEND(M_BASIC_OPLIST, TYPE(double))
 #define M_OPL_bool()   M_BOOL_OPLIST
 #define M_OPL__Bool()  M_BOOL_OPLIST
 
