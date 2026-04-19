@@ -770,8 +770,13 @@
       }                                                                       \
     }                                                                         \
     /* Insert key in node */                                                  \
-    /* TBC: DO_INIT_MOVE instead ? If key was in a node !*/                   \
-    M_CALL_INIT_SET(key_oplist, n->key[i], key);                              \
+    /* If the leaf variable is a leaf node, we need to insert a copy of the key */ \
+    /* otherwise if it is node, we need to steal the key by moving it */      \
+    if (M_F(name, _is_leaf)(l)) {                                             \
+      M_CALL_INIT_SET(key_oplist, n->key[i], key);                            \
+    } else {                                                                  \
+      M_CALL_INIT_MOVE(key_oplist, n->key[i], key);                           \
+    }                                                                         \
     /* Increase the number of key in the node */                              \
     n->num  += 1;                                                             \
     return i;                                                                 \
@@ -829,7 +834,13 @@
         /* We reach root ==> Need to increase the height of the tree.*/       \
         node_t parent = M_F(name, _new_node)(M_R_EXPAND_void);                \
         parent->num = 1;                                                      \
-        M_CALL_INIT_SET(key_oplist, parent->key[0], *key_ptr);                \
+        /* If the leaf variable is a leaf node, we need to insert a copy of the key */ \
+        /* otherwise if it is node, we need to steal the key by moving it */  \
+        if (M_F(name, _is_leaf)(leaf)) {                                      \
+          M_CALL_INIT_SET(key_oplist, parent->key[0], *key_ptr);              \
+        } else {                                                              \
+          M_CALL_INIT_MOVE(key_oplist, parent->key[0], *key_ptr);             \
+        }                                                                     \
         parent->kind.node[0] = leaf;                                          \
         parent->kind.node[1] = nleaf;                                         \
         b->root = parent;                                                     \
@@ -854,7 +865,7 @@
       M_ASSERT (nnp > 0 && np > 0 && nnp+np+1 == N+1);                        \
       node_t nparent = M_F(name, _new_node)(M_R_EXPAND_void);                 \
       /* Move half items to new node (Like a classic B-TREE)                  \
-         and the median key to the grand-parent*/                             \
+         and **move** the median key to the grand-parent*/                    \
       memmove(&nparent->key[0], &parent->key[np+1], sizeof(key_t)*(unsigned int)nnp); \
       memmove(&nparent->kind.node[0], &parent->kind.node[np+1], sizeof(node_t)*(unsigned int)(nnp+1)); \
       parent->num = np;                                                       \
@@ -869,6 +880,7 @@
       M_BPTR33_NODE_CONTRACT(N, isMulti, key_oplist, nparent, b->root);       \
       /* Prepare for the next step */                                         \
       key_ptr = &parent->key[np];                                             \
+      /* Well, leaf is now a node */                                          \
       leaf = parent;                                                          \
       nleaf = nparent;                                                        \
     }                                                                         \
