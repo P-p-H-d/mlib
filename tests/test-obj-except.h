@@ -30,9 +30,10 @@
 #include <assert.h>
 #include <stdio.h>
 
-// Overwrite malloc to throw exceptions sometimes
+// Overwrite malloc to throw exceptions when requested
 // Needs to be done before including M*LIB headers
-// TODO: Not representative enough: it shall not throw an exception itself but return NULL
+// TODO: Not representative enough: it shall not throw an exception itself but return NULL.
+// Good enough for now.
 static inline void test_obj_except_trigger(void);
 extern int test_obj_except__malloc_counter;
 #ifdef __cplusplus
@@ -231,12 +232,12 @@ static inline size_t test_obj_except__hash(const test_obj_except__t z)
   return M_HASH_FINAL(hash);
 }
 
-#define TEST_OBJ_EXCEPT_OPLIST						                             \
+#define TEST_OBJ_EXCEPT_OPLIST                                                   \
   (INIT(test_obj_except__init),                                                  \
    INIT_SET(test_obj_except__init_set),                                          \
    SET(test_obj_except__set),                                                    \
    CLEAR(test_obj_except__clear),                                                \
-   INIT_MOVE(M_COPY_A1_DEFAULT),                                      \
+   INIT_MOVE(M_COPY_A1_DEFAULT),                                                 \
    TYPE(test_obj_except__t),                                                     \
    ADD(test_obj_except__add),                                                    \
    OUT_STR(test_obj_except__out_str),                                            \
@@ -253,17 +254,29 @@ static inline size_t test_obj_except__hash(const test_obj_except__t z)
 #define M_OPL_test_obj_except__t() TEST_OBJ_EXCEPT_OPLIST
 
 // Write some values in the stack to avoid having a stack set to zero
-// A zero stack may hide some issues.
-static void reset_stack(void)
+// A clean stack may hide some issues.
+static void dirty_stack(void)
 {
-  volatile char table[16*1024];
+  volatile char table[64*1024];
   for(unsigned i = 0 ; i < sizeof table; i++)
     table[i] = (char) i;
 }
 
+/* Perform the test with exception handling 
+   The given test function shall perform all operations on the container that may throw exceptions, and check the consistency of the container after each operation.
+   Then this function will run the test function several times, each time throwing an exception at a different point, and checking that there is no memory leak after each run.
+   The test function shall not throw an exception by itself, but let the container do it.
+   It shall use M_LET to properly clear the container in case of exception, and check the consistency of the container after each operation.
+
+   How it works?
+   * To detect how many exception points are in the test function, it runs it once without throwing any exception, 
+   and check the global counter. 
+   * Then it runs it again, once for each exception point, requests to trigger an exception for each one
+   and check that there is no memory leak after each run.
+*/
 static void do_test1(void (*test)(unsigned))
 {
-    reset_stack();
+    dirty_stack();
     // Run once to get the number of exceptions point existing in the test service
     test_obj_except__trigger_exception = 0;
     test(10);
@@ -272,6 +285,7 @@ static void do_test1(void (*test)(unsigned))
     assert(count > 0);
     // Run once again the test service, and for each registered exception point, throw an exception
     for(int i = 1; i <= count; i++) {
+        // Request exception to be thrown at the i-th point
         test_obj_except__trigger_exception = i;
         test(10);
         // Check there is no memory leak
