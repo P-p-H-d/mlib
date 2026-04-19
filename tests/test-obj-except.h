@@ -274,7 +274,7 @@ static void dirty_stack(void)
    * Then it runs it again, once for each exception point, requests to trigger an exception for each one
    and check that there is no memory leak after each run.
 */
-static void do_test1(void (*test)(unsigned))
+static void do_test_exception(void (*test)(unsigned))
 {
     dirty_stack();
     // Run once to get the number of exceptions point existing in the test service

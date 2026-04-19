@@ -70,6 +70,6 @@ static void test1(unsigned n)
 
 int main(void)
 {
-    do_test1(test1);
+    do_test_exception(test1);
     exit(0);
 }

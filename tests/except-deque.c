@@ -94,7 +94,7 @@ static void test3(unsigned n)
 
 int main(void)
 {
-    do_test1(test1);
-    do_test1(test3);
+    do_test_exception(test1);
+    do_test_exception(test3);
     exit(0);
 }
