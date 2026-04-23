@@ -4395,17 +4395,17 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 /* NOTE: Theses operators are to be used with array of size 1, the '[1]' tricks
    if the variable is defined as a parameter of a function
    (sizeof (a) is not portable). */
-#define M_COPY_A1OBJ(a,b)   (M_CHECK_SAME(a[0], b[0]), memcpy(&(a[0]), &(b[0]), sizeof (a[0])))
-#define M_RESET_A1OBJ(a)    (memset(&(a[0]), 0, sizeof (a[0])))
-#define M_MEMEQ_A1OBJ(a,b)  (M_CHECK_SAME(a[0],b[0]), memcmp(&(a[0]), &(b[0]), sizeof (a[0])) == 0)
-#define M_MEMCMP_A1OBJ(a,b) (M_CHECK_SAME(a[0], b[0]), memcmp(&(a[0]), &(b[0]), sizeof (a[0])))
-#define M_HASH_A1OBJ(a)     (m_core_hash((const void*) &(a[0]), sizeof (a[0])) )
+#define M_COPY_A1OBJ(a,b)   (M_CHECK_SAME((a)[0], (b)[0]), memcpy(&((a)[0]), &((b)[0]), sizeof ((a)[0])))
+#define M_RESET_A1OBJ(a)    (memset(&((a)[0]), 0, sizeof ((a)[0])))
+#define M_MEMEQ_A1OBJ(a,b)  (M_CHECK_SAME((a)[0], (b)[0]), memcmp(&((a)[0]), &((b)[0]), sizeof ((a)[0])) == 0)
+#define M_MEMCMP_A1OBJ(a,b) (M_CHECK_SAME((a)[0], (b)[0]), memcmp(&((a)[0]), &((b)[0]), sizeof ((a)[0])))
+#define M_HASH_A1OBJ(a)     (m_core_hash((const void*) &((a)[0]), sizeof ((a)[0])) )
 #define M_SWAP_A1OBJ(a, b)  do {                                              \
-  char _tmp[sizeof (a[0])];                                                   \
-  M_CHECK_SAME(a[0], b[0]);                                                   \
-  memcpy(&_tmp, &(a[0]), sizeof (a[0]));                                      \
-  memcpy(&(a[0]), &(b[0]), sizeof (a[0]));                                    \
-  memcpy(&(b[0]), &_tmp, sizeof (a[0]));                                      \
+  char _tmp[sizeof ((a)[0])];                                                 \
+  M_CHECK_SAME((a)[0], (b)[0]);                                               \
+  memcpy(&_tmp, &((a)[0]), sizeof ((a)[0]));                                  \
+  memcpy(&((a)[0]), &((b)[0]), sizeof ((a)[0]));                              \
+  memcpy(&((b)[0]), &_tmp, sizeof ((a)[0]));                                  \
 } while (0)
 
 // Obsolete name
@@ -5017,7 +5017,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 /* If exceptions are activated, M_IF_EXCEPTION will expand the code.
   Do nothing if exceptions are not enabled. */
-#define M_IF_EXCEPTION(...) (void) 0
+#define M_IF_EXCEPTION(...) 
 
 /* Declare a variable as volatile if exceptions are enabled */
 #define m_volatile /* nothing */
