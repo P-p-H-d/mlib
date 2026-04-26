@@ -8800,7 +8800,7 @@ otherwise it will compile in degraded mode:
 When writing your own constructor, you should consider `M_CHAIN_INIT`
 to support partially constructed object if there are more than two source of throwing in your object (any memory allocation is a source of throwing).
 
-If you get warning `requires executable stack` with GCC, just enable optimisation level in your build, and it will disappear.
+If you get warning `requires executable stack` with GCC, just enable optimization level in your build, and it will disappear.
 
 
 #### `struct m_exception_s`
