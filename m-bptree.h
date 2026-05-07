@@ -1279,7 +1279,7 @@
   {                                                                           \
     M_ASSERT (it != NULL && it->node != NULL);                                \
     M_ASSERT (M_F(name, _is_leaf)(it->node));                                 \
-    M_ASSERT (it->idx <= -it->node->num);                                     \
+    M_ASSERT (it->idx >= 0 && it->idx <= -it->node->num);                     \
     M_IF(isMap)(                                                              \
                 it->pair.key_ptr = &it->node->key[it->idx];                   \
                 it->pair.value_ptr = &it->node->kind.value[it->idx];          \
@@ -1322,7 +1322,7 @@
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
     node_t n = it->node;                                                      \
-    if (it->idx >= -n->num) return true;                                      \
+    if ((unsigned) it->idx >= (unsigned) -n->num) return (it->idx >= 0);      \
     int cmp = M_CALL_CMP(key_oplist, n->key[it->idx], key);                   \
     return (cmp >= 0);                                                        \
   }                                                                           \
@@ -1332,7 +1332,7 @@
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
     node_t n = it->node;                                                      \
-    if (it->idx >= -n->num) return false;                                     \
+    if ((unsigned) it->idx >= (unsigned) -n->num) return (it->idx < 0);       \
     int cmp = M_CALL_CMP(key_oplist, n->key[it->idx], key);                   \
     return (cmp <= 0);                                                        \
   }                                                                           \

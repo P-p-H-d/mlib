@@ -3503,13 +3503,19 @@ greater or equal than `data` or the end iterator is there is none.
 
 ##### `bool name_it_until_p(const name_it_t it, const type data)`
 
-Return true if `it` references an element that is greater or equal than `data`
-or if it references no longer a valid element, false otherwise.
+Return true if `it` references an element that is greater or equal than `data`.
+Otherwise it returns false.
+If `it` references no longer a valid element,
+it returns true if the iterator has reached this state by going above the maximum of the tree,
+false otherwise.
 
 ##### `bool name_it_while_p(const name_it_t it, const type data)`
 
 Return true if `it` references an element that is lower or equal than `data`.
-Otherwise (or if it references no longer a valid element) it returns false.
+Otherwise it returns false.
+If `it` references no longer a valid element,
+it returns true if the iterator has reached this state by going below the minimum of the tree,
+false otherwise.
 
 _________________
 
