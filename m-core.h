@@ -4902,9 +4902,13 @@ m_core_parse2_enum (const char str[], const char **endptr)
      M_DEFER(free(p)) {
              // code using p
      } // Here p is free
+  M_DEFER2 can be used if you need to defer two expressions in the same line.
 */
 #define M_DEFER(...)                                                          \
   M_DEFER_INTERNAL(M_C(m_var_, __LINE__), __VA_ARGS__)
+
+#define M_DEFER2(...)                                                          \
+  M_DEFER_INTERNAL(M_C(m_var2_, __LINE__), __VA_ARGS__)
 
 #define M_DEFER_INTERNAL(cont, ...)                                           \
   for(bool cont = true; cont; cont = false)                                   \
@@ -5451,7 +5455,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
     M_EMPLACE_CALL_FUNC(akey, key_init_func, key_oplist, key, key_emplace_type); \
     M_DEFER( M_CALL_CLEAR(key_oplist, key) ) {                                \
       M_EMPLACE_CALL_FUNC(aval, val_init_func, val_oplist, val, val_emplace_type); \
-      M_DEFER( M_CALL_CLEAR(val_oplist, val)) {                               \
+      M_DEFER2( M_CALL_CLEAR(val_oplist, val)) {                               \
         M_F(name, _set_at)M_R(v, key, val);                              \
       }                                                                       \
     }                                                                         \
