@@ -5447,12 +5447,14 @@ m_core_parse2_enum (const char str[], const char **endptr)
                 M_EMPLACE_LIST_TYPE_VAR(aval, val_emplace_type)               \
   ){                                                                          \
     M_F(name, _key_ct) key;                                                   \
+    M_F(name, _value_ct) val;                                                 \
     M_EMPLACE_CALL_FUNC(akey, key_init_func, key_oplist, key, key_emplace_type); \
-    M_F(name, _value_ct) *val;                                                \
-    val = M_F(name, _safe_get)M_R(v, key);                                    \
-    M_CALL_CLEAR(val_oplist, *val);                                           \
-    M_EMPLACE_CALL_FUNC(aval, val_init_func, val_oplist, *val, val_emplace_type); \
-    M_CALL_CLEAR(key_oplist, key);                                            \
+    M_DEFER( M_CALL_CLEAR(key_oplist, key) ) {                                \
+      M_EMPLACE_CALL_FUNC(aval, val_init_func, val_oplist, val, val_emplace_type); \
+      M_DEFER( M_CALL_CLEAR(val_oplist, val)) {                               \
+        M_F(name, _set_at)M_R(v, key, val);                              \
+      }                                                                       \
+    }                                                                         \
   }                                                                           \
 
 #define M_EMPLACE_ASS_ARRA1_KEY_GENE(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
@@ -5462,18 +5464,20 @@ m_core_parse2_enum (const char str[], const char **endptr)
   ){                                                                          \
     M_F(name, _key_ct) key;                                                   \
     M_EMPLACE_CALL_FUNC(akey, key_init_func, key_oplist, key, key_emplace_type); \
-    M_F(name, _set_at)M_R(v, key, val);                                       \
-    M_CALL_CLEAR(key_oplist, key);                                            \
+    M_DEFER ( M_CALL_CLEAR(key_oplist, key) ) {                               \
+      M_F(name, _set_at)M_R(v, key, val);                                     \
+    }                                                                         \
   }                                                                           \
 
 #define M_EMPLACE_ASS_ARRA1_VAL_GENE(name, name_t, function_name, key_oplist, val_oplist, key_init_func, val_init_func, key_emplace_type, val_emplace_type) \
   M_P(void, name, function_name, name_t v, M_F(name, _key_ct) const key       \
                 M_EMPLACE_LIST_TYPE_VAR(aval, val_emplace_type)               \
   ){                                                                          \
-    M_F(name, _value_ct) *val;                                                \
-    val = M_F(name, _safe_get)M_R(v, key);                                    \
-    M_CALL_CLEAR(val_oplist, *val);                                           \
-    M_EMPLACE_CALL_FUNC(aval, val_init_func, val_oplist, *val, val_emplace_type); \
+    M_F(name, _value_ct) val;                                                 \
+    M_EMPLACE_CALL_FUNC(aval, val_init_func, val_oplist, val, val_emplace_type); \
+    M_DEFER( M_CALL_CLEAR(val_oplist, val)) {                                 \
+      M_F(name, _set_at)M_R(v, key, val);                                     \
+    }                                                                         \
   }                                                                           \
 
 /* Definition of the emplace_back function for queue.
@@ -5487,8 +5491,9 @@ m_core_parse2_enum (const char str[], const char **endptr)
   {                                                                           \
     M_GET_TYPE oplist data;                                                   \
     M_EMPLACE_CALL_FUNC(a, init_func, oplist, data, exp_emplace_type);        \
-    M_F(name, _push) M_R(v, data);                                            \
-    M_CALL_CLEAR(oplist, data);                                               \
+    M_DEFER( M_CALL_CLEAR(oplist, data) ) {                                   \
+      M_F(name, _push) M_R(v, data);                                          \
+    }                                                                         \
   }
 
 /* Definition of the get_emplace function for set / map.
