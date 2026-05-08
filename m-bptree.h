@@ -908,10 +908,9 @@ m_bptr33_add_transaction(m_bptr33_transaction_t records,
             node_t n = (node_t) record->data_dst;                             \
             M_ASSERT(M_F(name, _is_leaf)(n));                                 \
             int i = (int)(intptr_t) record->data_src;                         \
-            int num = -n->num;                                                \
+            int num = -(++n->num);                                            \
             memmove(&n->key[i], &n->key[i+1], sizeof(key_t)*(unsigned int)(num-i)); \
             M_IF(isMap)(memmove(&n->kind.value[i], &n->kind.value[i+1], sizeof(value_t)*(unsigned int)(num-i));,) \
-            n->num += 1; /* Decrease num as num<0 for leaf */                 \
           }                                                                   \
           break;                                                              \
         case M_BPTR33_SHIFT_NODE:                                             \
@@ -919,10 +918,9 @@ m_bptr33_add_transaction(m_bptr33_transaction_t records,
             node_t n = (node_t) record->data_dst;                             \
             M_ASSERT(!M_F(name, _is_leaf)(n));                                \
             int i = (int)(intptr_t) record->data_src;                         \
-            int num = n->num;                                                 \
+            int num = --n->num;                                               \
             memmove(&n->key[i], &n->key[i+1], sizeof(key_t)*(unsigned int)(num-i)); \
             memmove(&n->kind.node[i], &n->kind.node[i+1], sizeof(node_t)*(unsigned int)(num-i+1)); \
-            n->num -= 1; /* Decrease num for node */                          \
           }                                                                   \
           break;                                                              \
         case M_BPTR33_NONE:                                                   \
