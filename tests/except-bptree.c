@@ -37,26 +37,26 @@ static void test1(unsigned n)
     M_TRY(test1) {
         M_LET(key, value, test_obj_except__t)
         M_LET(tree, tmp, bptree_obj_t) {
-            printf("X1\n");
             for(unsigned i = 0; i < 10U * n; i++) {
                 test_obj_except__set_ui(key, 3U * i + 1U);
                 test_obj_except__set_ui(value, 11U * i + 7U);
-                printf("X2.1 i=%u\n", i);
                 bptree_obj_set_at(tree, key, value);
             }
-            printf("X2\n");
-            
+
+            bptree_obj_t tmp3;
+            bptree_obj_init_set(tmp3, tree);
+            bptree_obj_clear(tmp3);
+
             bptree_obj_set(tmp, tree);
 
-            printf("X3\n");
             M_LET( (tmp2, tmp), bptree_obj_t) {
                 bptree_obj_out_str(f, tmp2);
             }
 
-            printf("X4\n");
             bptree_obj_emplace_key_ui_val_ui(tmp, 3U * (5U * n) + 1U, 4000U + n);
+            bptree_obj_emplace_val_ui(tmp, key, 4000U + n);
+            bptree_obj_emplace_key_ui(tmp, 3U * (5U * n) + 1U, value);
 
-            printf("X9\n");
             test_obj_except__set_ui(key, 100U * n + 1U);
             test_obj_except__t *ref = bptree_obj_safe_get(tmp, key);
             assert(ref != NULL);
@@ -67,21 +67,12 @@ static void test1(unsigned n)
             assert(min_ref != NULL);
             assert(max_ref != NULL);
 
-            printf("X10\n");
             M_LET(str, string_t) {
                 bptree_obj_get_str(str, tmp, false);
                 bool b = bptree_obj_parse_str(tree, string_get_cstr(str), NULL);
                 assert(b);
             }
 
-            printf("X11\n");
-            bptree_obj_set(tree, tmp);
-
-            M_LET( (tmp2, tree), bptree_obj_t) {
-                bptree_obj_set(tmp, tmp2);
-            }
-
-            printf("X12\n");
             bptree_obj_it_t it;
             test_obj_except__set_ui(key, 3U * (7U * n) + 1U);
             bptree_obj_it_from(it, tmp, key);
@@ -108,9 +99,6 @@ static void test1(unsigned n)
         // Nothing to do
     }
     fclose(f);
-
-    printf("X13\n");
-    printf("CPT=%d\n", test_obj_except__init_counter);
 }
 
 int main(void)

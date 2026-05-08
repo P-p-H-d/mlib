@@ -414,7 +414,8 @@ typedef struct {
   void *data_src;              /* Data source of the transaction */
 } m_bptr33_transaction_record_t;
 
-/* 5 records for a leaf + 4 records for a node */
+/* Maximum number of transactions for adding a new element in a B+Tree
+   5 records for a leaf + 4 records for a node */
 #define M_BPTR33_TRANSACTION_MAX (5+4*M_BPTR33_MAX_STACK)
 
 typedef struct {
@@ -422,6 +423,7 @@ typedef struct {
   m_bptr33_transaction_record_t tab[M_BPTR33_TRANSACTION_MAX];
 } m_bptr33_transaction_t[1];
 
+/* Internal function to add a transaction to the transaction stack */
 M_INLINE void 
 m_bptr33_add_transaction(m_bptr33_transaction_t records, 
                          m_bptr33_transaction_kind_t type, void *data_dst, void *data_src)
@@ -433,7 +435,6 @@ m_bptr33_add_transaction(m_bptr33_transaction_t records,
   records->tab[records->size].data_dst = data_dst;                             
   records->tab[records->size].data_src = data_src;                              
   records->size ++;
-  printf("Transaction added: type=%d, dst=%p, src=%p\n", type, data_dst, data_src);                
 }
 
 // Add transaction only in exception mode (See M_IF_EXCEPTION)
@@ -835,10 +836,8 @@ m_bptr33_add_transaction(m_bptr33_transaction_t records,
   {                                                                           \
     M_ASSERT (records != NULL);                                               \
     /* Rewind all the recorded transactions in reverse order */               \
-    printf("Rewind transaction of size %d\n", records->size);                 \
     for(int j = records->size - 1; j >= 0; j--) {                             \
       m_bptr33_transaction_record_t *record = &records->tab[j];               \
-      printf("Rewind transaction %d from %p to %p\n", (int) record->type, record->data_src, record->data_dst); \
       switch (record->type) {                                                 \
         case M_BPTR33_NEW_NODE:                                               \
           M_CALL_DEL(key_oplist, record->data_dst);                           \
@@ -910,7 +909,6 @@ m_bptr33_add_transaction(m_bptr33_transaction_t records,
             M_ASSERT(M_F(name, _is_leaf)(n));                                 \
             int i = (int)(intptr_t) record->data_src;                         \
             int num = -n->num;                                                \
-            printf("i=%d num=%d\n", i, num);                                  \
             memmove(&n->key[i], &n->key[i+1], sizeof(key_t)*(unsigned int)(num-i)); \
             M_IF(isMap)(memmove(&n->kind.value[i], &n->kind.value[i+1], sizeof(value_t)*(unsigned int)(num-i));,) \
             n->num += 1; /* Decrease num as num<0 for leaf */                 \
@@ -932,7 +930,6 @@ m_bptr33_add_transaction(m_bptr33_transaction_t records,
           M_ASSERT (false); /* Invalid transaction type */                    \
       }                                                                       \
     }                                                                         \
-    printf("done rewind\n");                                                  \
     records->size = 0;                                                        \
     return;                                                                   \
   }                                                                           \
