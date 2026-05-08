@@ -4907,7 +4907,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_DEFER(...)                                                          \
   M_DEFER_INTERNAL(M_C(m_var_, __LINE__), __VA_ARGS__)
 
-#define M_DEFER2(...)                                                          \
+#define M_DEFER2(...)                                                         \
   M_DEFER_INTERNAL(M_C(m_var2_, __LINE__), __VA_ARGS__)
 
 #define M_DEFER_INTERNAL(cont, ...)                                           \
@@ -5455,8 +5455,8 @@ m_core_parse2_enum (const char str[], const char **endptr)
     M_EMPLACE_CALL_FUNC(akey, key_init_func, key_oplist, key, key_emplace_type); \
     M_DEFER( M_CALL_CLEAR(key_oplist, key) ) {                                \
       M_EMPLACE_CALL_FUNC(aval, val_init_func, val_oplist, val, val_emplace_type); \
-      M_DEFER2( M_CALL_CLEAR(val_oplist, val)) {                               \
-        M_F(name, _set_at)M_R(v, key, val);                              \
+      M_DEFER2( M_CALL_CLEAR(val_oplist, val)) {                              \
+        M_F(name, _set_at)M_R(v, key, val);                                   \
       }                                                                       \
     }                                                                         \
   }                                                                           \
