@@ -1131,8 +1131,9 @@ m_bptr33_add_transaction(m_bptr33_transaction_t records,
       M_IF(isMap)(                                                            \
         value_t v;                                                            \
         M_CALL_INIT(value_oplist, v);                                         \
-        M_F(name, _set_at)M_R(b, key, v);                                     \
-        M_CALL_CLEAR(value_oplist, v);                                        \
+        M_DEFER( M_CALL_CLEAR(value_oplist, v)) {                             \
+          M_F(name, _set_at)M_R(b, key, v);                                   \
+        }                                                                     \
       ,                                                                       \
         M_F(name, _push)(b, key);                                             \
       )                                                                       \
