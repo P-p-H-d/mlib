@@ -760,6 +760,7 @@ m_bptr33_add_transaction(m_bptr33_transaction_t records,
     /* Just copy recursively the root node */                                 \
     M_IF_EXCEPTION(key_t *volatile key_to_rewind = NULL);                     \
     M_ON_EXCEPTION( M_F(name, _reset_rewind)M_R(b, key_to_rewind) ) {         \
+      M_IF_EXCEPTION(b->root = NULL);                                         \
       M_F(name, _copy_node)M_R(&b->root, o->root, o->root M_IF_EXCEPTION( M_DEFERRED_COMMA &key_to_rewind)); \
       b->size = o->size;                                                      \
     }                                                                         \
