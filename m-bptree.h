@@ -440,12 +440,8 @@ m_bptr33_add_transaction(m_bptr33_transaction_t records,
 // Add transaction only in exception mode (See M_IF_EXCEPTION)
 // data real type is determined by the type of the transaction.
 // So everything is stored as void* and casted back when used.
-#ifndef MSTARLIB_TRY_H
-#define M_BPTR33_ADD_TRANSACTION(records, type, dst, src) 
-#else
 #define M_BPTR33_ADD_TRANSACTION(records, type, dst, src)                     \
-        m_bptr33_add_transaction(records, type, (void*) dst, (void*)(intptr_t) src)
-#endif
+  M_IF_EXCEPTION(m_bptr33_add_transaction(records, type, (void*) dst, (void*)(intptr_t) src))
 
 /* Deferred evaluation for the b+tree definition,
    so that all arguments are evaluated before further expansion */
