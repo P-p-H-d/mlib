@@ -676,7 +676,7 @@ m_bptr33_add_transaction(m_bptr33_transaction_t records,
       }                                                                       \
       for(int i = 0; i <= num; i++) {                                         \
         M_ASSERT(o->kind.node[i] != root);                                    \
-        M_F(name, _copy_node)(&n->kind.node[i], o->kind.node[i], root M_IF_EXCEPTION(M_DEFERRED_COMMA key_to_rewind)); \
+        M_F(name, _copy_node)M_R(&n->kind.node[i], o->kind.node[i], root M_IF_EXCEPTION(M_DEFERRED_COMMA key_to_rewind)); \
       }                                                                       \
       /* The copied nodes don't have their next/prev field correct */         \
       /* Fix the next/prev field for the copied nodes */                      \
@@ -837,7 +837,7 @@ m_bptr33_add_transaction(m_bptr33_transaction_t records,
       m_bptr33_transaction_record_t *record = &records->tab[j];               \
       switch (record->type) {                                                 \
         case M_BPTR33_NEW_NODE:                                               \
-          M_CALL_DEL(key_oplist, record->data_dst);                           \
+          M_CALL_DEL(key_oplist, (node_t) record->data_dst);                  \
           break;                                                              \
         case M_BPTR33_INIT_KEY:                                               \
           M_CALL_CLEAR(key_oplist, *(key_t*) record->data_dst);               \
