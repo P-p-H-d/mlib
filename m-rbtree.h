@@ -697,7 +697,7 @@ typedef enum {
   /* Create a copy of the given node (recursively) */                         \
   M_P(void, name, _i_copy_node, node_t **dst, const node_t *o)                \
   {                                                                           \
-    if (M_UNLIKELY(o == NULL)) return;                                        \
+    if (M_UNLIKELY(o == NULL)) { *dst = NULL; return; }                       \
     node_t *n = M_CALL_NEW(oplist, node_t);                                   \
     if (M_UNLIKELY_NOMEM (n == NULL) ) {                                      \
       M_MEMORY_FULL (node_t, 1);                                              \
