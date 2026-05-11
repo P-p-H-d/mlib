@@ -394,6 +394,54 @@
  */
 #define M_BPTR33_MAX_STACK ((int)(1 + CHAR_BIT*sizeof (size_t)))
 
+/* Transaction types for B+tree operations, needed for exceptions to rewind the operations */
+typedef enum {
+  M_BPTR33_NONE = 0, /* No transaction */
+  M_BPTR33_NEW_NODE,      /* Transaction for a new node */
+  M_BPTR33_INIT_KEY,      /* Transaction for init a key */
+  M_BPTR33_MOVE_KEY,      /* Transaction for moving a key */
+  M_BPTR33_INIT_VALUE,    /* Transaction for init a value */
+  M_BPTR33_SPLIT_LEAF,    /* Transaction for a split of a leaf */
+  M_BPTR33_SPLIT_NODE,    /* Transaction for a split of a node */
+  M_BPTR33_SHIFT_LEAF,    /* Transaction for a shift of a leaf */
+  M_BPTR33_SHIFT_NODE,    /* Transaction for a shift of a node */
+  M_BPTR33_INC_SIZE,      /* Transaction for an increase of the size of the tree */
+} m_bptr33_transaction_kind_t;
+
+typedef struct {
+  m_bptr33_transaction_kind_t type; /* Type of the transaction */
+  void *data_dst;              /* Data destination of the transaction */
+  void *data_src;              /* Data source of the transaction */
+} m_bptr33_transaction_record_t;
+
+/* Maximum number of transactions for adding a new element in a B+Tree
+   5 records for a leaf + 4 records for a node */
+#define M_BPTR33_TRANSACTION_MAX (5+4*M_BPTR33_MAX_STACK)
+
+typedef struct {
+  int size;                    /* Size of the record stack */
+  m_bptr33_transaction_record_t tab[M_BPTR33_TRANSACTION_MAX];
+} m_bptr33_transaction_t[1];
+
+/* Internal function to add a transaction to the transaction stack */
+M_INLINE void 
+m_bptr33_add_transaction(m_bptr33_transaction_t records, 
+                         m_bptr33_transaction_kind_t type, void *data_dst, void *data_src)
+{
+  M_ASSERT( records != NULL );
+  M_ASSERT( records->size < M_BPTR33_TRANSACTION_MAX );
+  M_ASSERT( type != M_BPTR33_NONE );
+  records->tab[records->size].type = type;
+  records->tab[records->size].data_dst = data_dst;                             
+  records->tab[records->size].data_src = data_src;                              
+  records->size ++;
+}
+
+// Add transaction only in exception mode (See M_IF_EXCEPTION)
+// data real type is determined by the type of the transaction.
+// So everything is stored as void* and casted back when used.
+#define M_BPTR33_ADD_TRANSACTION(records, type, dst, src)                     \
+  M_IF_EXCEPTION(m_bptr33_add_transaction(records, type, (void*) dst, (void*)(intptr_t) src))
 
 /* Deferred evaluation for the b+tree definition,
    so that all arguments are evaluated before further expansion */
@@ -591,30 +639,44 @@
   }                                                                           \
                                                                               \
   /* Copy recursively the node 'o' of root node 'root' */                     \
-  M_P(node_t, name, _copy_node, const node_t o, const node_t root)            \
+  M_P(void, name, _copy_node, node_t *dst, const node_t o, const node_t root M_IF_EXCEPTION(M_DEFERRED_COMMA key_t *volatile* key_to_rewind)) \
   {                                                                           \
     node_t n = M_F(name, _new_node)(M_R_EXPAND_void);                         \
-    /* Set default number of keys and type to copy */                         \
-    n->num = o->num;                                                          \
-    /* By default it is not linked to its brother.                            \
+    *dst = n;                                                                 \
+    /* In exception mode, keep track of the number of elements in the node */ \
+    M_IF_EXCEPTION(n->num = 0);                                               \
+    /* By default it is not linked to its brother(s).                         \
        Only its parent can do it: it has to fix it */                         \
     /* Get number of keys in the node and copy them */                        \
-    int num = M_F(name, _get_num)(o);                                         \
-    for(int i = 0; i < num; i++) {                                            \
-      M_CALL_INIT_SET(key_oplist, n->key[i], o->key[i]);                      \
-    }                                                                         \
+    const int num = M_F(name, _get_num)(o);                                   \
     if (M_F(name, _is_leaf)(o)) {                                             \
-      /* Copy the associated values if it is a leaf and a MAP */              \
-      M_IF(isMap)(                                                            \
-        for(int i = 0; i < num; i++) {                                        \
+      /* Copy of a leaf */                                                    \
+      for(int i = 0; i < num; i++) {                                          \
+        M_CALL_INIT_SET(key_oplist, n->key[i], o->key[i]);                    \
+        /* In exception, keep track of the key to rewind */                   \
+        /* Only **one** key can be tracked at a time */                       \
+        M_IF_EXCEPTION(*key_to_rewind = &n->key[i]);                          \
+        /* Copy the associated values if it is a leaf and a MAP */            \
+        M_IF(isMap)(                                                          \
           M_CALL_INIT_SET(value_oplist, n->kind.value[i], o->kind.value[i]);  \
-        }                                                                     \
-      , /* End of isMap */)                                                   \
-    } else {                                                                  \
+        , /* End of isMap */)                                                 \
+        M_IF_EXCEPTION(*key_to_rewind = NULL);                                \
+        M_IF_EXCEPTION(n->num += -1);                                         \
+      }                                                                       \
+   } else {                                                                   \
       /* Copy recursively the associated nodes if it is not a leaf */         \
+      M_ASSERT(num != 0);                                                     \
+      /* In exception mode, clear the child pointers to know if allocation fails */ \
+      M_IF_EXCEPTION( for(int i = 0; i <= num; i++) {                         \
+        n->kind.node[i] = NULL;                                               \
+      })                                                                      \
+      for(int i = 0; i < num; i++) {                                          \
+        M_CALL_INIT_SET(key_oplist, n->key[i], o->key[i]);                    \
+        M_IF_EXCEPTION(n->num += 1; );                                        \
+      }                                                                       \
       for(int i = 0; i <= num; i++) {                                         \
         M_ASSERT(o->kind.node[i] != root);                                    \
-        n->kind.node[i] = M_F(name, _copy_node)M_R(o->kind.node[i], root);    \
+        M_F(name, _copy_node)M_R(&n->kind.node[i], o->kind.node[i], root M_IF_EXCEPTION(M_DEFERRED_COMMA key_to_rewind)); \
       }                                                                       \
       /* The copied nodes don't have their next/prev field correct */         \
       /* Fix the next/prev field for the copied nodes */                      \
@@ -634,26 +696,71 @@
         }                                                                     \
       }                                                                       \
     }                                                                         \
+    /* Set default number of keys and type to copy */                         \
+    M_IF_EXCEPTION(M_ASSUME(n->num == o->num));                               \
+    n->num = o->num;                                                          \
     M_BPTR33_NODE_CONTRACT(N, isMulti, key_oplist, n, (o==root) ? n : root);  \
-    return n;                                                                 \
   }                                                                           \
+                                                                              \
+  M_IF_EXCEPTION(                                                             \
+  /* Rewind a node created using _copy_node */                                \
+  M_P(void, name, _reset_rewind_node, node_t n)                               \
+  {                                                                           \
+    M_ASSERT (n != NULL);                                                     \
+    /* WARNING : node is partially initialized and contracts aren't true ! */ \
+    const int num = M_F(name, _get_num)(n);                                   \
+    if (M_F(name, _is_leaf)(n)) {                                             \
+      for(int i = 0; i < num; i++) {                                          \
+        M_CALL_CLEAR(key_oplist, n->key[i]);                                  \
+        M_IF(isMap)(M_CALL_CLEAR(value_oplist, n->kind.value[i]); ,)          \
+      }                                                                       \
+    } else {                                                                  \
+      for(int i = 0; i < num; i++) {                                          \
+        M_CALL_CLEAR(key_oplist, n->key[i]);                                  \
+      }                                                                       \
+      /* Note: cannot use next pointes which may be broken. */                \
+      for(int i = 0; i <= num; i++) {                                         \
+        /* n->kind.node[i] is different of NULL, then it at least in a        \
+        semi-initialized state we can parse and undo */                       \
+        if (n->kind.node[i] != NULL) {                                        \
+          M_F(name, _reset_rewind_node)M_R(n->kind.node[i]);                  \
+        }                                                                     \
+      }                                                                       \
+    }                                                                         \
+    M_CALL_DEL(key_oplist, n);                                                \
+  }                                                                           \
+                                                                              \
+  M_P(void, name, _reset_rewind, tree_t b, key_t *volatile key_to_rewind)     \
+  {                                                                           \
+    M_ASSERT (b != NULL);                                                     \
+    /* B+Tree is not fully constructed. Clear it with care */                 \
+    /* In particular, not contract of a B+Tree holds. */                      \
+    /* Clear the unique key that belongs to a leaf for which its associated   \
+       value was not initialized */                                           \
+    if (key_to_rewind != NULL) {                                              \
+      M_CALL_CLEAR(key_oplist, *key_to_rewind);                               \
+    }                                                                         \
+    /* Clear the tree */                                                      \
+    if (b->root != NULL) {                                                    \
+      M_F(name, _reset_rewind_node)M_R(b->root);                              \
+    }                                                                         \
+    b->root = NULL;                                                           \
+    b->size = 1; /* make an invalid representation */                         \
+  }                                                                           \
+  /* End M_IF_EXCEPTION */ )                                                  \
                                                                               \
   M_P(void, name, _init_set, tree_t b, const tree_t o)                        \
   {                                                                           \
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, o);                             \
     M_ASSERT (b != NULL);                                                     \
     /* Just copy recursively the root node */                                 \
-    b->root = M_F(name, _copy_node)M_R(o->root, o->root);                     \
-    b->size = o->size;                                                        \
+    M_IF_EXCEPTION(key_t *volatile key_to_rewind = NULL);                     \
+    M_ON_EXCEPTION( M_F(name, _reset_rewind)M_R(b, key_to_rewind) ) {         \
+      M_IF_EXCEPTION(b->root = NULL);                                         \
+      M_F(name, _copy_node)M_R(&b->root, o->root, o->root M_IF_EXCEPTION( M_DEFERRED_COMMA &key_to_rewind)); \
+      b->size = o->size;                                                      \
+    }                                                                         \
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
-  }                                                                           \
-                                                                              \
-  M_P(void, name, _set, tree_t b, const tree_t o)                             \
-  {                                                                           \
-    /* NOTE: We could reuse the already allocated nodes of 'b'.               \
-       Not sure if it worth the effort */                                     \
-    M_F(name, _clear)M_R(b);                                                  \
-    M_F(name, _init_set)M_R(b, o);                                            \
   }                                                                           \
                                                                               \
   M_INLINE bool M_F(name, _empty_p)(const tree_t b)                           \
@@ -722,8 +829,109 @@
     return M_CONST_CAST(value_t, M_F(name, _get)(b, key));                    \
   }                                                                           \
                                                                               \
+  M_P(void, name, _rewind_transaction, m_bptr33_transaction_t records)        \
+  {                                                                           \
+    M_ASSERT (records != NULL);                                               \
+    /* Rewind all the recorded transactions in reverse order */               \
+    for(int j = records->size - 1; j >= 0; j--) {                             \
+      m_bptr33_transaction_record_t *record = &records->tab[j];               \
+      switch (record->type) {                                                 \
+        case M_BPTR33_NEW_NODE:                                               \
+          M_CALL_DEL(key_oplist, (node_t) record->data_dst);                  \
+          break;                                                              \
+        case M_BPTR33_INIT_KEY:                                               \
+          M_CALL_CLEAR(key_oplist, *(key_t*) record->data_dst);               \
+          break;                                                              \
+        case M_BPTR33_MOVE_KEY:                                               \
+          M_CALL_INIT_MOVE(key_oplist, *(key_t*) record->data_src, *(key_t*) record->data_dst); \
+          break;                                                              \
+        case M_BPTR33_INIT_VALUE:                                             \
+          M_CALL_CLEAR(value_oplist, *(value_t*) record->data_dst);           \
+          break;                                                              \
+        case M_BPTR33_INC_SIZE:                                               \
+          {                                                                   \
+          struct M_F(name, _s) *t = (struct M_F(name, _s)*) record->data_dst; \
+          M_ASSERT(t != NULL);                                                \
+          M_ASSERT(t->size > 0);                                              \
+          t->size --;                                                         \
+          }                                                                   \
+          break;                                                              \
+        case M_BPTR33_SPLIT_LEAF:                                             \
+          { /* We need to link back the splitted node to the original node */ \
+            node_t a = (node_t) record->data_dst;                             \
+            node_t b = (node_t) record->data_src;                             \
+            M_ASSERT(a != NULL && a->next == b);                              \
+            M_ASSERT(M_F(name, _is_leaf)(a) && M_F(name, _is_leaf)(b));       \
+            /* Unlink b */                                                    \
+            a->next = b->next;                                                \
+            if (b->next != NULL) {                                            \
+              b->next->prev = a;                                              \
+            }                                                                 \
+            /* Move items from b back to a*/                                  \
+            int na = M_F(name, _get_num)(a);                                  \
+            int nb = M_F(name, _get_num)(b);                                  \
+            M_ASSERT(na + nb == N + 1);                                       \
+            memmove(&a->key[na], &b->key[0], sizeof(key_t)*(unsigned int)nb); \
+            M_IF(isMap)(memmove(&a->kind.value[na], &b->kind.value[0], sizeof(value_t)*(unsigned int)nb);,) \
+            a->num -= nb; /* Increase num for leaf (negative representation) */ \
+            /* b will be deleted later due to M_BPTR33_NEW_NODE record */     \
+          }                                                                   \
+          break;                                                              \
+        case M_BPTR33_SPLIT_NODE:                                             \
+          { /* We need to link back the splitted node to the original node */ \
+            node_t a = (node_t) record->data_dst;                             \
+            node_t b = (node_t) record->data_src;                             \
+            M_ASSERT(a != NULL && a->next == b);                              \
+            M_ASSERT(!M_F(name, _is_leaf)(a) && !M_F(name, _is_leaf)(b));     \
+            /* Unlink b */                                                    \
+            a->next = b->next;                                                \
+            if (b->next != NULL) {                                            \
+              b->next->prev = a;                                              \
+            }                                                                 \
+            /* Move items from b back to a*/                                  \
+            int na = M_F(name, _get_num)(a);                                  \
+            int nb = M_F(name, _get_num)(b);                                  \
+            M_ASSERT(na + nb + 1 == N + 1);                                   \
+            memmove(&a->key[na+1], &b->key[0], sizeof(key_t)*(unsigned int)nb); \
+            memmove(&a->kind.node[na+1], &b->kind.node[0], sizeof(node_t)*(unsigned int)(nb+1)); \
+            /* We need to keep an empty slot in the middle at [na] */         \
+            /* it will be filled later by a M_BPTR33_MOVE_KEY record */       \
+            a->num += nb + 1; /* Increase num for node */                     \
+            /* b will be deleted later due to M_BPTR33_NEW_NODE record */     \
+          }                                                                   \
+          break;                                                              \
+        case M_BPTR33_SHIFT_LEAF:                                             \
+          { /* We need to shift back the shifted node */                      \
+            node_t n = (node_t) record->data_dst;                             \
+            M_ASSERT(M_F(name, _is_leaf)(n));                                 \
+            int i = (int)(intptr_t) record->data_src;                         \
+            int num = -(++n->num);                                            \
+            memmove(&n->key[i], &n->key[i+1], sizeof(key_t)*(unsigned int)(num-i)); \
+            M_IF(isMap)(memmove(&n->kind.value[i], &n->kind.value[i+1], sizeof(value_t)*(unsigned int)(num-i));,) \
+          }                                                                   \
+          break;                                                              \
+        case M_BPTR33_SHIFT_NODE:                                             \
+          { /* We need to shift back the shifted node */                      \
+            node_t n = (node_t) record->data_dst;                             \
+            M_ASSERT(!M_F(name, _is_leaf)(n));                                \
+            int i = (int)(intptr_t) record->data_src;                         \
+            int num = --n->num;                                               \
+            memmove(&n->key[i], &n->key[i+1], sizeof(key_t)*(unsigned int)(num-i)); \
+            memmove(&n->kind.node[i], &n->kind.node[i+1], sizeof(node_t)*(unsigned int)(num-i+1)); \
+          }                                                                   \
+          break;                                                              \
+        case M_BPTR33_NONE:                                                   \
+        default:                                                              \
+          M_ASSERT (false); /* Invalid transaction type */                    \
+      }                                                                       \
+    }                                                                         \
+    records->size = 0;                                                        \
+    return;                                                                   \
+  }                                                                           \
+                                                                              \
   M_P(int, name, _i_search_and_insert_in_leaf, node_t n, key_t const key      \
-                                        M_IF(isMap)( M_DEFERRED_COMMA value_t const value,) ) \
+                          M_IF(isMap)( M_DEFERRED_COMMA value_t const value,) \
+                          M_IF_EXCEPTION( M_DEFERRED_COMMA m_bptr33_transaction_t records) ) \
   {                                                                           \
     M_ASSERT (M_F(name, _is_leaf)(n));                                        \
     M_UNUSED_CONTEXT();                                                       \
@@ -746,15 +954,19 @@
         break;                                                                \
       }                                                                       \
     }                                                                         \
-    /* Insert key & value if MAP mode */                                      \
-    M_CALL_INIT_SET(key_oplist, n->key[i], key);                              \
-    M_IF(isMap)(M_CALL_INIT_SET(value_oplist, n->kind.value[i], value);,)     \
+    M_BPTR33_ADD_TRANSACTION(records, M_BPTR33_SHIFT_LEAF, n, i);             \
     /* Increase the number of key in the node */                              \
     n->num  += -1; /* Increase num as num<0 for leaf */                       \
+    /* Insert key & value if MAP mode */                                      \
+    M_CALL_INIT_SET(key_oplist, n->key[i], key);                              \
+    M_BPTR33_ADD_TRANSACTION(records, M_BPTR33_INIT_KEY, &n->key[i], 0);      \
+    M_IF(isMap)(M_CALL_INIT_SET(value_oplist, n->kind.value[i], value);,)     \
+    M_BPTR33_ADD_TRANSACTION(records, M_BPTR33_INIT_VALUE, &n->kind.value[i], 0); \
     return i;                                                                 \
   }                                                                           \
                                                                               \
-  M_P(int, name, _i_search_and_insert_in_node, node_t n, node_t l, key_t key) \
+  M_P(int, name, _i_search_and_insert_in_node, node_t n, node_t l, key_t *key \
+                          M_IF_EXCEPTION( M_DEFERRED_COMMA m_bptr33_transaction_t records) ) \
   {                                                                           \
     M_ASSERT (!M_F(name, _is_leaf)(n));                                       \
     M_UNUSED_CONTEXT();                                                       \
@@ -769,16 +981,19 @@
         break;                                                                \
       }                                                                       \
     }                                                                         \
+    M_BPTR33_ADD_TRANSACTION(records, M_BPTR33_SHIFT_NODE, n, i);             \
+    /* Increase the number of key in the node */                              \
+    n->num  += 1;                                                             \
     /* Insert key in node */                                                  \
     /* If the leaf variable is a leaf node, we need to insert a copy of the key */ \
     /* otherwise if it is node, we need to steal the key by moving it */      \
     if (M_F(name, _is_leaf)(l)) {                                             \
-      M_CALL_INIT_SET(key_oplist, n->key[i], key);                            \
+      M_CALL_INIT_SET(key_oplist, n->key[i], *key);                           \
+      M_BPTR33_ADD_TRANSACTION(records, M_BPTR33_INIT_KEY, &n->key[i], 0);    \
     } else {                                                                  \
-      M_CALL_INIT_MOVE(key_oplist, n->key[i], key);                           \
+      M_CALL_INIT_MOVE(key_oplist, n->key[i], *key);                          \
+      M_BPTR33_ADD_TRANSACTION(records, M_BPTR33_MOVE_KEY, &n->key[i], key);  \
     }                                                                         \
-    /* Increase the number of key in the node */                              \
-    n->num  += 1;                                                             \
     return i;                                                                 \
   }                                                                           \
                                                                               \
@@ -788,32 +1003,38 @@
   {                                                                           \
     pit_t pit;                                                                \
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
-    node_t leaf = M_F(name, _i_search_for_leaf)(pit, b, key);                 \
+    M_IF_EXCEPTION(m_bptr33_transaction_t records; records->size = 0;)        \
+    M_ON_EXCEPTION( M_F(name, _rewind_transaction)M_R(records); ) {           \
+    node_t leaf = M_F(name, _i_search_for_leaf)(pit, b, key), nleaf;          \
+    key_t *key_ptr;                                                           \
+    int num, nnum;                                                            \
     /* Insert key into the leaf.*/                                            \
     /* NOTE: Even if there is N elements, we can still add one more.*/        \
-    int i = M_F(name, _i_search_and_insert_in_leaf)M_R(leaf, key M_IF (isMap)(M_DEFERRED_COMMA value,)); \
+    int i = M_F(name, _i_search_and_insert_in_leaf)M_R(leaf, key M_IF (isMap)(M_DEFERRED_COMMA value,) M_IF_EXCEPTION(M_DEFERRED_COMMA records)); \
     if (i < 0) {                                                              \
       /* Nothing to do anymore. key already exists in the tree.               \
          value has been updated if needed */                                  \
       M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                           \
-      return;                                                                 \
+      goto exit;                                                              \
     }                                                                         \
     b->size ++;                                                               \
+    M_BPTR33_ADD_TRANSACTION(records, M_BPTR33_INC_SIZE, b, 0);               \
     /* Most likely case: leaf can accept key */                               \
-    int num = -leaf->num;                                                     \
+    num = -leaf->num;                                                         \
     M_ASSERT (num > 0);                                                       \
     if (M_LIKELY (num <= N)) {                                                \
       /* nothing more to do */                                                \
       M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                           \
-      return;                                                                 \
+      goto exit;                                                              \
     }                                                                         \
     M_ASSERT (num == N+1);                                                    \
                                                                               \
     /* Needs to rebalance the B+TREE */                                       \
     /* leaf is full: need to slip the leaf in two */                          \
-    int nnum = (N + 1) / 2;                                                   \
+    nnum = (N + 1) / 2;                                                       \
     num = N + 1 - nnum;                                                       \
-    node_t nleaf = M_F(name, _new_node)(M_R_EXPAND_void);                     \
+    nleaf = M_F(name, _new_node)(M_R_EXPAND_void);                            \
+    M_BPTR33_ADD_TRANSACTION(records, M_BPTR33_NEW_NODE, nleaf, 0);           \
     /* Move half objects to the new node */                                   \
     memmove(&nleaf->key[0], &leaf->key[num], sizeof(key_t)*(unsigned int)nnum); \
     M_IF(isMap)(memmove(&nleaf->kind.value[0], &leaf->kind.value[num], sizeof(value_t)*(unsigned int)nnum);,) \
@@ -825,38 +1046,42 @@
     if (nleaf->next != NULL) {                                                \
       nleaf->next->prev = nleaf;                                              \
     }                                                                         \
+    M_BPTR33_ADD_TRANSACTION(records, M_BPTR33_SPLIT_LEAF, leaf, nleaf);      \
     M_BPTR33_NODE_CONTRACT(N, isMulti, key_oplist, leaf, b->root);            \
     M_BPTR33_NODE_CONTRACT(N, isMulti, key_oplist, nleaf, b->root);           \
     /* Update parent to inject *key_ptr that splits between (leaf, nleaf) */  \
-    key_t *key_ptr = &leaf->key[num-1];                                       \
+    key_ptr = &leaf->key[num-1];                                              \
     while (true) {                                                            \
       if (pit->num == 0) {                                                    \
         /* We reach root ==> Need to increase the height of the tree.*/       \
         node_t parent = M_F(name, _new_node)(M_R_EXPAND_void);                \
+        M_BPTR33_ADD_TRANSACTION(records, M_BPTR33_NEW_NODE, parent, 0);      \
         parent->num = 1;                                                      \
-        /* If the leaf variable is a leaf node, we need to insert a copy of the key */ \
+        /* If the 'leaf' variable is a leaf node, we need to insert a copy of the key */ \
         /* otherwise if it is node, we need to steal the key by moving it */  \
         if (M_F(name, _is_leaf)(leaf)) {                                      \
           M_CALL_INIT_SET(key_oplist, parent->key[0], *key_ptr);              \
+          M_BPTR33_ADD_TRANSACTION(records, M_BPTR33_INIT_KEY, &parent->key[0], 0); \
         } else {                                                              \
           M_CALL_INIT_MOVE(key_oplist, parent->key[0], *key_ptr);             \
+          M_BPTR33_ADD_TRANSACTION(records, M_BPTR33_MOVE_KEY, &parent->key[0], key_ptr); \
         }                                                                     \
         parent->kind.node[0] = leaf;                                          \
         parent->kind.node[1] = nleaf;                                         \
         b->root = parent;                                                     \
         M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                         \
-        return;                                                               \
+        goto exit;                                                            \
       }                                                                       \
       /* Non root node. Get the parent node */                                \
       node_t parent = pit->parent[--pit->num];                                \
       /* Insert into parent (It is big enough to receive temporary one more) */ \
-      i = M_F(name, _i_search_and_insert_in_node)M_R(parent, leaf, *key_ptr); \
+      i = M_F(name, _i_search_and_insert_in_node)M_R(parent, leaf, key_ptr M_IF_EXCEPTION(M_DEFERRED_COMMA records)); \
       parent->kind.node[i] = leaf;                                            \
       parent->kind.node[i+1] = nleaf;                                         \
       /* Test if parent node is full? */                                      \
       if (M_LIKELY (parent->num <= N)) {                                      \
         M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                         \
-        return; /* No need to split parent.*/                                 \
+        goto exit; /* No need to split parent.*/                              \
       }                                                                       \
       M_ASSERT (parent->num == N+1);                                          \
       /* Need to split parent in {np} {med} {nnp} */                          \
@@ -864,6 +1089,7 @@
       int np = N - nnp;                                                       \
       M_ASSERT (nnp > 0 && np > 0 && nnp+np+1 == N+1);                        \
       node_t nparent = M_F(name, _new_node)(M_R_EXPAND_void);                 \
+      M_BPTR33_ADD_TRANSACTION(records, M_BPTR33_NEW_NODE, nparent, 0);       \
       /* Move half items to new node (Like a classic B-TREE)                  \
          and **move** the median key to the grand-parent*/                    \
       memmove(&nparent->key[0], &parent->key[np+1], sizeof(key_t)*(unsigned int)nnp); \
@@ -876,6 +1102,7 @@
       if (nparent->next != NULL) {                                            \
         nparent->next->prev = nparent;                                        \
       }                                                                       \
+      M_BPTR33_ADD_TRANSACTION(records, M_BPTR33_SPLIT_NODE, parent, nparent); \
       M_BPTR33_NODE_CONTRACT(N, isMulti, key_oplist, parent, b->root);        \
       M_BPTR33_NODE_CONTRACT(N, isMulti, key_oplist, nparent, b->root);       \
       /* Prepare for the next step */                                         \
@@ -884,6 +1111,10 @@
       leaf = parent;                                                          \
       nleaf = nparent;                                                        \
     }                                                                         \
+    exit:                                                                     \
+    /* Cannot use return on an exception protected block */                   \
+    (void)0; /* avoid warning about unused label */                           \
+    } /* On exception */                                                      \
   }                                                                           \
                                                                               \
   M_P(value_t *, name, _safe_get, tree_t b, key_t const key)                  \
@@ -895,8 +1126,9 @@
       M_IF(isMap)(                                                            \
         value_t v;                                                            \
         M_CALL_INIT(value_oplist, v);                                         \
-        M_F(name, _set_at)M_R(b, key, v);                                     \
-        M_CALL_CLEAR(value_oplist, v);                                        \
+        M_DEFER( M_CALL_CLEAR(value_oplist, v)) {                             \
+          M_F(name, _set_at)M_R(b, key, v);                                   \
+        }                                                                     \
       ,                                                                       \
         M_F(name, _push)(b, key);                                             \
       )                                                                       \
@@ -1175,6 +1407,17 @@
     M_F(name,_clear)M_R(b);                                                   \
     M_F(name,_init_move)(b, ref);                                             \
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
+  }                                                                           \
+                                                                              \
+  M_P(void, name, _set, tree_t b, const tree_t o)                             \
+  {                                                                           \
+    /* NOTE: We could reuse the already allocated nodes of 'b'.               \
+       Not sure if it worth the effort */                                     \
+    tree_t tmp;                                                               \
+    M_ON_EXCEPTION( /* nothing*/) {                                           \
+      M_F(name, _init_set)M_R(tmp, o);                                        \
+      M_F(name, _move)M_R(b, tmp);                                            \
+    }                                                                         \
   }                                                                           \
                                                                               \
   M_INLINE void                                                               \
