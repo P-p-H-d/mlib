@@ -174,7 +174,7 @@
 
 // Color of a node of a Red/Black tree
 typedef enum {
-  M_RBTR33_BLACK = 0, M_RBTR33_RED
+  M_RBTR33_BLACK = 0, M_RBTR33_RED, M_RBTR33_UNINITIALIZED
 } m_rbtr33_color_e;
 
 // General contact of a Read/Black tree
@@ -330,7 +330,9 @@ typedef enum {
         M_MEMORY_FULL(node_t, 1);                                             \
       }                                                                       \
       /* Copy the data in the root node */                                    \
-      M_CALL_INIT_SET(oplist, n->data, data);                                 \
+      M_ON_EXCEPTION( M_CALL_DEL(oplist, n) ) {                               \
+        M_CALL_INIT_SET(oplist, n->data, data);                               \
+      }                                                                       \
       /* Mark the root node as black */                                       \
       n->child[0] = n->child[1] = NULL;                                       \
       M_RBTR33_SET_BLACK (n);                                                 \
@@ -370,7 +372,9 @@ typedef enum {
       M_MEMORY_FULL (node_t, 1);                                              \
     }                                                                         \
     /* Copy the data and mark the node as red */                              \
-    M_CALL_INIT_SET(oplist, n->data, data);                                   \
+    M_ON_EXCEPTION( M_CALL_DEL(oplist, n) ) {                                 \
+      M_CALL_INIT_SET(oplist, n->data, data);                                 \
+    }                                                                         \
     n->child[0] = n->child[1] = NULL;                                         \
     M_RBTR33_SET_RED (n);                                                     \
     /* Add it in the iterator */                                              \
@@ -691,18 +695,32 @@ typedef enum {
   }                                                                           \
                                                                               \
   /* Create a copy of the given node (recursively) */                         \
-  M_P(node_t *, name, _i_copy_node, const node_t *o)                          \
+  M_P(void, name, _i_copy_node, node_t **dst, const node_t *o)                \
   {                                                                           \
-    if (M_UNLIKELY(o == NULL)) return NULL;                                   \
+    if (M_UNLIKELY(o == NULL)) return;                                        \
     node_t *n = M_CALL_NEW(oplist, node_t);                                   \
     if (M_UNLIKELY_NOMEM (n == NULL) ) {                                      \
       M_MEMORY_FULL (node_t, 1);                                              \
     }                                                                         \
+    *dst = n;                                                                 \
+    M_IF_EXCEPTION( M_RBTR33_SET_COLOR(n, M_RBTR33_UNINITIALIZED) );          \
+    M_IF_EXCEPTION( n->child[0] = n->child[1] = NULL );                       \
     M_CALL_INIT_SET(oplist, n->data, o->data);                                \
-    n->child[0] = M_F(name,_i_copy_node)M_R(o->child[0]);                     \
-    n->child[1] = M_F(name,_i_copy_node)M_R(o->child[1]);                     \
     M_RBTR33_COPY_COLOR (n, o);                                               \
-    return n;                                                                 \
+    M_F(name,_i_copy_node)M_R(&n->child[0], o->child[0]);                     \
+    M_F(name,_i_copy_node)M_R(&n->child[1], o->child[1]);                     \
+  }                                                                           \
+                                                                              \
+  M_P(void, name, _rewind_node, node_t *n)                                    \
+  {                                                                           \
+    if (n != NULL) {                                                          \
+      if (M_RBTR33_GET_COLOR(n) != M_RBTR33_UNINITIALIZED) {                  \
+        M_CALL_CLEAR(oplist, n->data);                                        \
+      }                                                                       \
+      M_F(name, _rewind_node)(n->child[0]);                                   \
+      M_F(name, _rewind_node)(n->child[1]);                                   \
+      M_CALL_DEL(oplist, n);                                                  \
+    }                                                                         \
   }                                                                           \
                                                                               \
   M_P(void, name, _init_set, tree_t tree, const tree_t ref)                   \
@@ -711,7 +729,9 @@ typedef enum {
     M_ASSERT (tree != NULL && tree != ref);                                   \
     tree->size = ref->size;                                                   \
     /* Copy the root node recursively */                                      \
-    tree->node = M_F(name,_i_copy_node)M_R(ref->node);                        \
+    M_ON_EXCEPTION( M_F(name, _rewind_node)(tree->node) ) {                   \
+      M_F(name, _i_copy_node)M_R(&tree->node, ref->node);                     \
+    }                                                                         \
     M_RBTR33_CONTRACT (tree);                                                 \
   }                                                                           \
                                                                               \
@@ -721,7 +741,9 @@ typedef enum {
     M_RBTR33_CONTRACT (ref);                                                  \
     if (tree == ref) return;                                                  \
     M_F(name,_clear)M_R(tree);                                                \
-    M_F(name,_init_set)M_R(tree, ref);                                        \
+    M_ON_EXCEPTION( M_F(name, _init)(tree)) {                                 \
+      M_F(name,_init_set)M_R(tree, ref);                                      \
+    }                                                                         \
   }                                                                           \
                                                                               \
   M_INLINE void                                                               \
