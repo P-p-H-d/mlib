@@ -37,42 +37,34 @@ static void test1(unsigned n)
     M_TRY(test1) {
         M_LET(val, test_obj_except__t)
         M_LET(tree, tmp, rbtree_obj_t) {
-            printf("X1\n");
             for (unsigned i = 0; i < 10U * n; i++) {
                 test_obj_except__set_ui(val, 3U * i + 1U);
                 rbtree_obj_push(tree, val);
             }
 
-            printf("X2\n");
             rbtree_obj_t tmp3;
             rbtree_obj_init_set(tmp3, tree);
             rbtree_obj_clear(tmp3);
 
-            printf("X3\n");
             rbtree_obj_set(tmp, tree);
 
-            printf("X4\n");
             M_LET( (tmp2, tmp), rbtree_obj_t) {
                 rbtree_obj_out_str(f, tmp2);
             }
 
-            printf("X5\n");
             rbtree_obj_emplace_ui(tmp, 5000U + n);
 
-            printf("X6\n");
             test_obj_except__t *min_ref = rbtree_obj_min(tmp);
             test_obj_except__t *max_ref = rbtree_obj_max(tmp);
             assert(min_ref != NULL);
             assert(max_ref != NULL);
 
-            printf("X7\n");
             M_LET(str, string_t) {
                 rbtree_obj_get_str(str, tmp, false);
                 bool b = rbtree_obj_parse_str(tree, string_get_cstr(str), NULL);
                 assert(b);
             }
 
-            printf("X8\n");
             rbtree_obj_it_t it;
             test_obj_except__set_ui(val, 3U * (7U * n) + 1U);
             rbtree_obj_it_from(it, tmp, val);
@@ -80,7 +72,6 @@ static void test1(unsigned n)
                 const test_obj_except__t *item = rbtree_obj_cref(it);
                 assert(item != NULL);
             }
-            printf("X9\n");
         }
     } M_CATCH(test1, 0) {
         // Nothing to do
@@ -91,7 +82,6 @@ static void test1(unsigned n)
     assert(f != NULL);
     M_TRY(test1) {
         M_LET(tree, rbtree_obj_t) {
-            printf("X10\n");
             bool b = rbtree_obj_in_str(tree, f);
             (void)b;
         }
@@ -99,7 +89,6 @@ static void test1(unsigned n)
         // Nothing to do
     }
     fclose(f);
-            printf("X11\n");
 }
 
 int main(void)
