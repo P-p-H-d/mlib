@@ -717,8 +717,8 @@ typedef enum {
       if (M_RBTR33_GET_COLOR(n) != M_RBTR33_UNINITIALIZED) {                  \
         M_CALL_CLEAR(oplist, n->data);                                        \
       }                                                                       \
-      M_F(name, _rewind_node)(n->child[0]);                                   \
-      M_F(name, _rewind_node)(n->child[1]);                                   \
+      M_F(name, _rewind_node)M_R(n->child[0]);                                \
+      M_F(name, _rewind_node)M_R(n->child[1]);                                \
       M_CALL_DEL(oplist, n);                                                  \
     }                                                                         \
   }                                                                           \
@@ -729,7 +729,7 @@ typedef enum {
     M_ASSERT (tree != NULL && tree != ref);                                   \
     tree->size = ref->size;                                                   \
     /* Copy the root node recursively */                                      \
-    M_ON_EXCEPTION( M_F(name, _rewind_node)(tree->node) ) {                   \
+    M_ON_EXCEPTION( M_F(name, _rewind_node)M_R(tree->node) ) {                \
       M_F(name, _i_copy_node)M_R(&tree->node, ref->node);                     \
     }                                                                         \
     M_RBTR33_CONTRACT (tree);                                                 \
