@@ -729,6 +729,7 @@ typedef enum {
     M_ASSERT (tree != NULL && tree != ref);                                   \
     tree->size = ref->size;                                                   \
     /* Copy the root node recursively */                                      \
+    M_IF_EXCEPTION(tree->node = NULL);                                        \
     M_ON_EXCEPTION( M_F(name, _rewind_node)M_R(tree->node) ) {                \
       M_F(name, _i_copy_node)M_R(&tree->node, ref->node);                     \
     }                                                                         \
