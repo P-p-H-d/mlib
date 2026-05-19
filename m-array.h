@@ -191,14 +191,16 @@
 /********************************** INTERNAL *********************************/
 
 /* Define the internal contract of an array */
-//TODO: Can be simplified in release build to speed up compilation speed.
-#define M_ARRA4_CONTRACT(a) do {                                              \
+#ifdef NDEBUG
+#define M_ARRA4_CONTRACT(a)
+#else
+#define M_ARRA4_CONTRACT(a) do {					                                         \
     M_ASSERT (a != NULL);                                                     \
     M_ASSERT (a->size <= a->alloc);                                           \
     M_ASSERT (a->size == 0 || a->ptr != NULL);                                \
     M_ASSERT (a->alloc == 0 || a->ptr != NULL);                               \
   } while (0)
-
+#endif
 
 /* Deferred evaluation for the array definition,
    so that all arguments are fully evaluated before further expansion

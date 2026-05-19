@@ -247,6 +247,9 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
   M_D1CT_FUNC_DEF2_P5(name, key_type, key_oplist, key_type, M_EMPTY_OPLIST, 1, dict_t, dict_it_t, it_deref_t)
 
 /* Define the dictionary contract */
+#ifdef NDEBUG
+#define M_D1CT_CONTRACT(dict)
+#else
 #define M_D1CT_CONTRACT(dict) do {                                            \
     M_ASSERT ( (dict) != NULL);                                               \
     M_ASSERT( (dict)->lower_limit <= (dict)->count);                          \
@@ -258,7 +261,7 @@ M_ARRAY_DEF(m_array_index, m_indexhash_t, M_POD_OPLIST)
     M_ASSERT( (dict)->upper_limit <= (dict)->mask+1);                         \
     M_ASSERT( (dict)->freelist_first_data != 0 || (dict)->count+2 == (dict)->freelist_count); \
   } while (0)
-
+#endif
 
 /* Define the structure of a dictionary for map and set
  * name: prefix of the container,
@@ -1460,6 +1463,9 @@ enum m_d1ct_oa_element_e {
   M_D1CT_OA_EMPTY = 0, M_D1CT_OA_DELETED = 1
 };
 
+#ifdef NDEBUG
+#define M_D1CT_OA_CONTRACT(dict)
+#else
 #define M_D1CT_OA_CONTRACT(dict) do {                                         \
     M_ASSERT ( (dict) != NULL);                                               \
     M_ASSERT( (dict)->lower_limit <= (dict)->count);                          \
@@ -1469,6 +1475,7 @@ enum m_d1ct_oa_element_e {
     M_ASSERT( (dict)->mask+1 >= M_D1CT_INITIAL_SIZE);                         \
     M_ASSERT( (dict)->upper_limit <= (dict)->mask+1);                         \
   } while (0)
+#endif
 
 #define M_D1CT_OA_DEF_P1(args) M_ID( M_D1CT_OA_DEF_P2 args )
 

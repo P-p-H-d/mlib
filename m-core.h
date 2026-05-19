@@ -4249,7 +4249,9 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 /* Test if the given variable is indeed a basic C variable:
    int, float, enum, bool or compatible.
    NOTE: Not perfect, but catch some errors */
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#ifdef NDEBUG
+#define M_CHECK_BASIC_TYPE(a) (void) 0
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 #define M_CHECK_BASIC_TYPE(a)                                                 \
   M_STATIC_ASSERT(_Generic(a,                                                 \
                            _Bool: 1,                                          \
@@ -4279,7 +4281,9 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 /* Check if both variables are of the same type.
    The test compares their types if C23 or GCC compatible compilers
    else it compares their sizes (Not perfect but catch some errors) */
-#if defined(__GNUC__) && !defined(__cplusplus)
+#ifdef NDEBUG
+#define M_CHECK_SAME(a, b) (void)0
+#elif defined(__GNUC__) && !defined(__cplusplus)
 #define M_CHECK_SAME(a, b)                                                    \
   M_STATIC_ASSERT(__builtin_types_compatible_p(m_typeof(a), m_typeof(b)),     \
                   M_LIB_NOT_SAME_TYPE,                                        \
@@ -4309,7 +4313,9 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
    - type is the type to test
    - oplist of the oplist to test to.
 */
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#ifdef NDEBUG
+#define M_CHECK_COMPATIBLE_OPLIST(name, inst, type, oplist)
+#elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 #define M_CHECK_COMPATIBLE_OPLIST(name, inst, type, oplist)                   \
   M_IF_METHOD(TYPE, oplist)                                                   \
   (                                                                           \
