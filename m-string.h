@@ -35,12 +35,16 @@ M_BEGIN_PROTECTED_CODE
 // This macro defines the contract of a string.
 // Note: A ==> B is represented as not(A) or B
 // Note: use of strlen can slow down a lot the program in some cases.
+#ifdef NDEBUG
+#define M_STR1NG_CONTRACT(v)
+#else
 #define M_STR1NG_CONTRACT(v) do {                                             \
     M_ASSERT (v != NULL);                                                     \
     M_ASSERT_SLOW (m_string_size(v) == strlen(m_string_get_cstr(v)));         \
     M_ASSERT (m_string_get_cstr(v)[m_string_size(v)] == 0);                   \
     M_ASSERT (m_string_size(v) < m_string_capacity(v));                       \
   } while(0)
+#endif
 
 /* Define the maximum size of a string
    By default it is a little bit less than 2^32 bytes, which should be enough for
@@ -88,6 +92,9 @@ typedef enum {
 #define M_STR1NG_MAX_BYTE_UTF8 4
 
 /* Contract for a string iterator */
+#ifdef NDEBUG
+#define M_STR1NG_IT_CONTRACT(it)
+#else
 #define M_STR1NG_IT_CONTRACT(it) do {                                         \
   M_ASSERT( (it) != NULL);                                                    \
   M_ASSERT( (it)->ptr != NULL);                                               \
@@ -95,7 +102,7 @@ typedef enum {
   M_ASSERT( m_string_get_cstr((it)->string) <= (it)->ptr);                    \
   M_ASSERT( (it)->ptr <= &m_string_get_cstr((it)->string)[m_string_size((it)->string)]); \
 } while (0)
-
+#endif
 
 /****************************** EXTERNAL *******************************/
 
