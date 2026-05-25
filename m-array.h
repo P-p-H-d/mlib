@@ -660,6 +660,42 @@
   }                                                                           \
   , /* No INIT */)                                                            \
                                                                               \
+  M_IF_METHOD(INIT_SET, oplist)(                                              \
+  M_P(void, name, _insert_n, array_t v, size_t i, size_t num, type const arr[]) \
+  {                                                                           \
+    M_ARRA4_CONTRACT(v);                                                      \
+    M_ASSERT_INDEX(i, v->size+1);                                             \
+    size_t size = v->size + num;                                              \
+    /* Test for overflow of variable size */                                  \
+    if (M_UNLIKELY_NOMEM (size <= v->size)) {                                 \
+      /* Unlikely case of nothing to do */                                    \
+      if (num == 0) return;                                                   \
+      M_MEMORY_FULL(type, v->size);                                           \
+    }                                                                         \
+    /* Test if alloc array is sufficient */                                   \
+    if (size > v->alloc) {                                                    \
+      size_t alloc = M_CALL_INC_ALLOC(oplist, size) ;                         \
+      if (M_UNLIKELY_NOMEM (alloc <= v->alloc)) {                             \
+        M_MEMORY_FULL(type, -(size_t)1);                                      \
+      }                                                                       \
+      type *ptr = M_CALL_REALLOC(oplist, type, v->ptr, v->alloc, alloc);      \
+      if (M_UNLIKELY_NOMEM (ptr == NULL) ) {                                  \
+        M_MEMORY_FULL(type, alloc);                                           \
+      }                                                                       \
+      v->ptr = ptr;                                                           \
+      v->alloc = alloc;                                                       \
+    }                                                                         \
+    memmove(&v->ptr[i+num], &v->ptr[i], sizeof(type)*(v->size - i) );         \
+    m_volatile size_t k;                                                      \
+    M_ON_EXCEPTION(memmove(&v->ptr[k], &v->ptr[i+num], sizeof(type)*(v->size - i) ), v->size += (k-i) ) { \
+      for(k = i ; k < i+num; k++)                                             \
+        M_CALL_INIT_SET(oplist, v->ptr[k], arr[k-i]);                         \
+    }                                                                         \
+    v->size = size;                                                           \
+    M_ARRA4_CONTRACT(v);                                                      \
+  }                                                                           \
+  , /* No INIT_SET */)                                                        \
+                                                                              \
   M_P(void, name, _remove_v, array_t v, size_t i, size_t j)                   \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \

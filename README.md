@@ -2390,12 +2390,16 @@ Remove the element `i` (included) to the element `j` (excluded)
 from the array.
 `i` and `j` shall be within the size of the array, and `i < j`.
 
-##### `void name_insert_v(name_t array, size_t i, size_t j)`
+##### `void name_insert_v(name_t array, size_t i, size_t num)`
 
-Insert from the element `i` (included) to the element `j` (excluded)
-new empty elements to the array.
-`i` and `j` shall be within the size of the array, and `i < j`.
+Insert from the element `i` (included) `num` new empty elements to the array.
+`i` shall be within the size of the array.
 This method is only defined if the type of the element defines an `INIT` method.
+
+##### `void name_insert_n(name_t array, size_t i, size_t num, type array_value[num])`
+
+Insert from the element `i` (included) `num` new elements to the array initialized to the values of the array `array_value`.
+`i` shall be within the size of the array.
 
 ##### `void name_swap_at(name_t array, size_t i, size_t j)`
 

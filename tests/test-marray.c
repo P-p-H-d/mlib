@@ -132,6 +132,8 @@ static void test_uint(void)
   assert(*array_uint_cget(v2, 0) == 1742);
   assert(*array_uint_cget(v2, 1000) == 0);
   
+  array_uint_insert_v (v2, 500, 0);
+  assert (array_uint_size(v2) == 1001);
   array_uint_insert_v (v2, 500, 4);
   assert (array_uint_size(v2) == 1005);
   assert(*array_uint_cget(v2, 0) == 1742);
@@ -145,8 +147,32 @@ static void test_uint(void)
   array_uint_insert_v (v2, 1004, 10000);
   assert(array_uint_size(v2) == 11005);
   assert(*array_uint_cget(v2, 11004) == 465487);
+  array_uint_resize(v2, 1001);
+
+  array_uint_reserve(v2, 1005);
+  array_uint_set_at(v2, 1000, 7876);
+
+  const unsigned tab[3] = { 17, 18, 19};
+  array_uint_insert_n (v2, 500, 0, tab);
+  assert (array_uint_size(v2) == 1001);
+  array_uint_insert_n (v2, 500, 3, tab);
+  assert (array_uint_size(v2) == 1004);
+  assert(*array_uint_cget(v2, 500) == 17);
+  assert(*array_uint_cget(v2, 501) == 18);
+  assert(*array_uint_cget(v2, 502) == 19);
+  assert(*array_uint_cget(v2, 1003) == 7876);
+  unsigned int *tab_heap = calloc(10000, sizeof(unsigned int));
+  if (!tab_heap) abort();
+  tab_heap[9998] = 4586;
+  tab_heap[9999] = 565487;
+  array_uint_insert_n (v2, 1004, 10000, tab_heap);
+  free(tab_heap);
+  assert(array_uint_size(v2) == 11004);
+  assert(*array_uint_cget(v2, 1003) == 7876);
+  assert(*array_uint_cget(v2, 11002) == 4586);
+  assert(*array_uint_cget(v2, 11003) == 565487);
+
   array_uint_resize(v2, 1005);
-  
   array_uint_init(v);
   array_uint_swap(v,v2);
   assert(array_uint_size(v) == 1005);
