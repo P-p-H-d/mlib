@@ -841,9 +841,33 @@ static void test_int(void)
   }
   string_set_si(s, 2147483647);
   assert(string_equal_str_p(s, "2147483647"));
-  string_set_si(s, 0-2147483648);
+  string_set_si(s, 0-2147483647-1);
   assert(string_equal_str_p(s, "-2147483648"));
   
+  for(unsigned i = 0; i <= 10000; i++) {
+    snprintf(buffer, sizeof buffer, "%u", i);
+    string_set_uj(s, i);
+    assert(string_equal_str_p(s, buffer));
+  }
+  string_set_uj(s, 4294967295UL);
+  assert(string_equal_str_p(s, "4294967295"));
+  string_set_uj(s, 18446744073709551615ULL);
+  assert(string_equal_str_p(s, "18446744073709551615"));
+
+  for(int i = -10000; i <= 10000; i++) {
+    snprintf(buffer, sizeof buffer, "%d", i);
+    string_set_sj(s, i);
+    assert(string_equal_str_p(s, buffer));
+  }
+  string_set_sj(s, 2147483647);
+  assert(string_equal_str_p(s, "2147483647"));
+  string_set_sj(s, 0-2147483647-1);
+  assert(string_equal_str_p(s, "-2147483648"));
+  string_set_sj(s, 9223372036854775807LL);
+  assert(string_equal_str_p(s, "9223372036854775807"));
+  string_set_sj(s, 0-9223372036854775807LL-1);
+  assert(string_equal_str_p(s, "-9223372036854775808"));
+
   string_clear(s);
 }
 

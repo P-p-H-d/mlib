@@ -5789,6 +5789,8 @@ in the remaining array of characters of `ref`.
 
 ##### `void string_set_si (string_t v1, const int n)`
 ##### `void string_set_ui (string_t v1, const unsigned n)`
+##### `void string_set_sj (string_t v1, const long long n)`
+##### `void string_set_uj (string_t v1, const unsigned long long n)`
 
 Set the string `v1` to the character representation of the integer `n`.
 

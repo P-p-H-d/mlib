@@ -1054,12 +1054,18 @@ M_P(void, m_string, _replace_all, m_string_t v, const m_string_t str1, const m_s
 #if M_USE_FAST_STRING_CONV == 1 || M_USE_STDARG == 0
 
   // Compute the maximum number of characters needed for the buffer.
-#if UINT_MAX == 4294967295U
+#if UINT_MAX <= 4294967295U
 #define M_STR1NG_INT_MAX_SIZE (10+1)
 #elif UINT_MAX <= 18446744073709551615UL
 #define M_STR1NG_INT_MAX_SIZE (20+1)
 #else
 # error Unexpected UINT_MAX value (workaround: Define M_USE_FAST_STRING_CONV to 0).
+#endif
+
+#if ULLONG_MAX <= 18446744073709551615ULL
+#define M_STR1NG_LL_MAX_SIZE (20+1)
+#else
+# error Unexpected ULLONG_MAX value (workaround: Define M_USE_FAST_STRING_CONV to 0).
 #endif
 
 M_P(void, m_string, _set_ui, m_string_t v, unsigned int n)
@@ -1097,6 +1103,52 @@ M_P(void, m_string, _set_si, m_string_t v, int n)
     n0 /= 10U;
   } while (n0 != 0);
   M_ASSERT_INDEX(i, M_STR1NG_INT_MAX_SIZE);
+  if (neg) d[j++] = '-';
+  while (i > 0) {
+    d[j++] = buffer[--i];
+  }
+  d[j] = 0;
+  m_str1ng_set_size(v, j);
+  M_STR1NG_CONTRACT (v);
+}
+
+M_P(void, m_string, _set_uj, m_string_t v, unsigned long long n)
+{
+  M_STR1NG_CONTRACT (v);
+  char buffer[M_STR1NG_LL_MAX_SIZE];
+  size_t alloc = n <= UINT_MAX ? M_STR1NG_INT_MAX_SIZE + 1: M_STR1NG_LL_MAX_SIZE + 1;
+  char *d = m_str1ng_fit2size M_R(v, alloc);
+  unsigned i = 0, j = 0;
+  do {
+    // 0123456789 are mandatory in this order as characters, as per C standard.
+    buffer[i++] = (char) ('0' + (n % 10ULL));
+    n /= 10ULL;
+  } while (n != 0);
+  M_ASSERT_INDEX(i, M_STR1NG_LL_MAX_SIZE);
+  while (i > 0) {
+    d[j++] = buffer[--i];
+  }
+  d[j] = 0;
+  m_str1ng_set_size(v, j);
+  M_STR1NG_CONTRACT (v);
+}
+
+M_P(void, m_string, _set_sj, m_string_t v, long long n)
+{
+  M_STR1NG_CONTRACT (v);
+  // Compute the maximum number of characters needed for the buffer.
+  char buffer[M_STR1NG_LL_MAX_SIZE];
+  size_t alloc = INT_MIN <= n && n <= INT_MAX ? M_STR1NG_INT_MAX_SIZE + 1: M_STR1NG_LL_MAX_SIZE + 1;
+  char *d = m_str1ng_fit2size M_R(v, alloc);
+  unsigned i = 0, j = 0;
+  bool neg = n < 0;
+  unsigned long long n0 = neg ? 0ULL -(unsigned long long) n : (unsigned long long) n;
+  do {
+    // 0123456789 are mandatory in this order as characters, as per C standard.
+    buffer[i++] = (char) ('0' + (n0 % 10ULL));
+    n0 /= 10ULL;
+  } while (n0 != 0);
+  M_ASSERT_INDEX(i, M_STR1NG_LL_MAX_SIZE);
   if (neg) d[j++] = '-';
   while (i > 0) {
     d[j++] = buffer[--i];
@@ -1213,6 +1265,14 @@ M_P(void, m_string, _set_ui, m_string_t v, unsigned int n)
 M_P(void, m_string, _set_si, m_string_t v, int n)
 {
   m_string_printf M_R(v, "%d", n);
+}
+M_P(void, m_string, _set_uj, m_string_t v, unsigned long long n)
+{
+  m_string_printf M_R(v, "%llu", n);
+}
+M_P(void, m_string, _set_sj, m_string_t v, long long n)
+{
+  m_string_printf M_R(v, "%lld", n);
 }
 #endif
 
@@ -2869,6 +2929,8 @@ namespace m_lib {
 #define string_utf8_p m_string_utf8_p
 #define string_set_ui m_string_set_ui
 #define string_set_si m_string_set_si
+#define string_set_uj m_string_set_uj
+#define string_set_sj m_string_set_sj
 #define string_it_pos m_string_it_pos
 #define string_it_get_pos m_string_it_get_pos
 #define string_previous m_string_previous
