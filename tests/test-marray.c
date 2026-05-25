@@ -161,7 +161,7 @@ static void test_uint(void)
   assert(*array_uint_cget(v2, 501) == 18);
   assert(*array_uint_cget(v2, 502) == 19);
   assert(*array_uint_cget(v2, 1003) == 7876);
-  unsigned int *tab_heap = calloc(10000, sizeof(unsigned int));
+  unsigned int *tab_heap = (unsigned int *) calloc(10000, sizeof(unsigned int));
   if (!tab_heap) abort();
   tab_heap[9998] = 4586;
   tab_heap[9999] = 565487;
