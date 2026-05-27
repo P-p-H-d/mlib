@@ -400,10 +400,11 @@ This has the following advantages:
 
 All M\*LIB containers fully own their data.
 The user is only responsible for initialization and clearing the container (constructor/destructor).
+
 The container returns borrowed pointers to the data within the container,
 theses borrowed pointers remain valid until modification of the container.
 
-### Your first syntaxic sugar
+### Your first syntaxic sugar
 
 M\*LIB offers also the possibility to condense further your code, so that it is more high level:
 by using the `M_EACH` & `M_LET` macros (if you are not afraid of using syntactic macros):
