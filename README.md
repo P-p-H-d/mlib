@@ -277,6 +277,10 @@ Other targets exist for development purpose.
 
 ## How to use
 
+This is the Quickstart section of the documentation!
+
+### Your first container
+
 M\*LIB enables you to generate quickly custom type data structures and their methods.
 For this, it uses macro to generate content depending on the provided context.
 
@@ -310,6 +314,8 @@ int main(void) {
 
 > [!NOTE] Do not forget to add `-std=c99` (or higher) to your compile command to request a C99 compatible build
 >
+
+### How generic generation works
 
 This looks like a typical C program except the line with `LIST_DEF`
 that doesn't have any semi-colon at the end. And in fact, except
@@ -390,6 +396,15 @@ This has the following advantages:
 * you pass automatically the variable per reference for a function call,
 * you can not copy the variable by an affectation (you have to use the API instead).
 
+### How ownership works
+
+All M\*LIB containers fully own their data.
+The user is only responsible for initialization and clearing the container (constructor/destructor).
+The container returns borrowed pointers to the data within the container,
+theses borrowed pointers remain valid until modification of the container.
+
+### Your first syntaxic sugar
+
 M\*LIB offers also the possibility to condense further your code, so that it is more high level:
 by using the `M_EACH` & `M_LET` macros (if you are not afraid of using syntactic macros):
 
@@ -412,7 +427,12 @@ int main(void) {
 
 > Note: M*LIB macros are in upper cases and look like macros, normal functions are in lower cases.
 
-Here is another example with a complete type (with proper initialization & clear function) by using the [GMP](https://gmplib.org/) library:
+You have just seen a new word you don't know: `LIST_OPLIST`
+
+### Your first oplist
+
+What is an oplist? To understand what it is,
+let's another example with a more complete type (with proper initialization & clear function) by using the [GMP](https://gmplib.org/) library:
 
 ```C
 #include <stdio.h>
@@ -444,8 +464,6 @@ As the `mpz_t` type needs proper initialization, copy and destroy functions
 we need to tell to the container how to handle such a type.
 This is done by giving it the oplist associated to the type.
 An oplist is an associative array where an operator is associated to its associated method.
-This associative array only exists in the preprocessing step of the compilation,
-resulting in no runtime cost and strict aliasing check.
 
 In the example, we tell to the container to use:
 
@@ -455,7 +473,18 @@ In the example, we tell to the container to use:
 * the `mpz_init_set` function for the `INIT_SET` operator of the type (aka copy constructor).
 * The default macro `M_COPY_A1OBJ` is used for the `INIT_MOVE` operator (good for all objects using the `[1]` trick).
 
+The all pattern `(INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), INIT_MOVE(M_COPY_A1OBJ))`
+is the oplist of the `mpz_t type. It starts with a parenthesis and end with a parenthesis.
+Each association is done by giving the operator in upper case, and its method just after in parenthesis.
+This associative array only exists in the preprocessing step of the compilation,
+resulting in no runtime cost and strict aliasing check.
+
+The `LIST_OPLIST` seen in the previous chapter is just a macro that define the oplist
+for a list container giving its name.
+
 See [OPLIST](#oplist) chapter for more detailed information.
+
+### Your second oplist
 
 With oplists, behavior becomes modular, reusable and even inheritable: You define semantics once, reuse everywhere.
 
@@ -491,6 +520,11 @@ int main(void) {
   return 0;
 }
 ```
+
+To register an oplist, you need to define the macro `M_OPL_+type` that expands into its oplist.
+It shall a macro function that take no argument.
+
+### Your oplist overpowered
 
 Or even shorter when you're comfortable enough with the library by using its advanced constructor features:
 
@@ -575,6 +609,8 @@ Other examples are available in the example folder.
 Internal fields of the structure are subject to change even for small revision
 of the library.
 
+### Going fully generic
+
 The final goal of the library is to be able to write code like this in pure C while keeping type safety and compile time name resolution:
 
 ```C
@@ -590,6 +626,16 @@ let(list, list_uint_t) {
 And it works!
 See the [example](https://github.com/P-p-H-d/mlib/blob/master/example/ex11-generic01.c)
 and [m-generic](#m-generic) header for details.
+
+### Common pitfalls
+
+* lack of inclusion of an header,
+* wanting to define an oplist from scratch instead of inheriting from an existing library
+* for oplist written from scratch, lack of `( )` or double level of `( )` around the oplist,
+* an unknown or incorrectly spelled variable (example using `BASIC_OPLIST` instead of `M_BASIC_OPLIST`),
+* the `name` parameter given to the oplist is not the same as the one used to expand the methods,
+* non registering the type oplist and using only its type afterwards.
+
 
 ## Performance
 
@@ -6428,12 +6474,11 @@ how the macro preprocessing works.
 It also adds the needed macro for handling the oplist.
 As a consequence, it is needed by all other header files.
 
-A few macros are using recursion to work.
-This is not an easy feat to do as it needs some tricks to work (see
-reference).
-This still work well with only one major limitation: it can not be chained.
-For example, if `MACRO` is a macro implementing recursion, then
-`MACRO(MACRO())` won't work.
+It is quite complicated and it is mostly useful only for the internal developpers of M\*LIB
+and not its user.
+A notable exception is when other section of this documentation references
+some macro symbols, to configure a global behavior,
+in which case you can read only the documentation of this macro symbol.
 
 Example:
 
