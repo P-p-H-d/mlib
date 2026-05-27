@@ -1153,8 +1153,8 @@ so that only the container will use these memory allocation functions instead of
 
 ### Out-of-memory error
 
-When a memory exhaustion is reached, the global macro `M_MEMORY_FULL` is called
-and the function returns immediately after.
+When a memory exhaustion is reached, the global macro `M_MEMORY_FULL` is called.
+It is supposed to terminate the execution flow of the function.
 The object remains in a valid (if previously valid) and unchanged state in this case.
 
 By default, the macro prints an error message and aborts the program:
@@ -1163,14 +1163,13 @@ testing them is even harder but still mandatory to avoid security holes.
 So the default behavior is rather conservative.
 
 It can however be overloaded to handle other policy for error handling like:
+throwing an error (which is automatically done by including header [m-try](#m-try) ).
 
-* throwing an error (which is automatically done by including header [m-try](#m-try) ),
-* set a global error and handle it when the function returns [planned, not possible yet],
-* other policy.
-
-This function takes the size in bytes of the memory that has been tried to be allocated.
+This function takes the type and the number of elements of this type that has been tried to be allocated.
 
 If needed, this macro shall be defined ***prior*** to instantiate the structure.
+
+## Error Classification
 
 > [!NOTE] 
 > A good design should handle a process entire failure (using for examples multiple
@@ -1180,8 +1179,8 @@ If needed, this macro shall be defined ***prior*** to instantiate the structure.
 
 In M\*LIB, the kind of errors are classified according to this model:
 
-* *logical error*: the expectations of the function are not met (null pointer passed as argument, negative argument, invalid object state, ...). In which case, the sanction is abnormal halt of the program, if it is detected, regardless of the configuration of M\*LIB. Normally, debug build will detect such errors.
-* *abnormal error*:  errors that are unlikely to be expected during the execution of the program (like no more memory). In which case, the sanction is either abnormal halt of the program or throwing an exception.
+* *logical error*: the expectations of the function are not met (null pointer passed as argument, negative argument, invalid object state, ...). In which case, it is a contract violation and the sanction is an abnormal halt of the program, if it is detected, regardless of the configuration of M\*LIB. Normally, debug build will detect such errors.
+* *abnormal error*:  errors that are unlikely to be expected during the execution of the program (like no more memory). In which case, the sanction is either abnormal halt of the program or throwing an exception (Using `M_MEMORY_FULL` macro).
 * *normal error*: errors that can be expected in the execution of the program (all I/O errors like file not found or invalid file format, parsing of invalid user input, no solution found, etc). In which case, the error is reported by the return code of the function or by polling for error (See `ferror`) in the data structure.
 
 
@@ -1299,80 +1298,6 @@ For MS Visual C++ compiler , you need the following options:
 /Zc:__cplusplus /Zc:preprocessor /D__STDC_WANT_LIB_EXT1__ /EHsc
 ```
 
-## External Reference
-
-Many other implementation of generic container libraries in C exist.
-For example, a non exhaustive list is:
-
-* [BKTHOMPS/CONTAINERS](https://github.com/bkthomps/Containers)
-* [BSD tree.h](http://fxr.watson.org/fxr/source/sys/tree.h)
-* [CC](https://github.com/JacksonAllan/CC)
-* [CDSA](https://github.com/MichaelJWelsh/cdsa)
-* [CELLO](http://libcello.org/)
-* [C-Macro-Collections](https://github.com/LeoVen/C-Macro-Collections)
-* [COLLECTIONS-C](https://github.com/srdja/Collections-C)
-* [CONCURRENCY KIT](https://github.com/concurrencykit/ck)
-* CTL [by glouw](https://github.com/glouw/ctl) or [by rurban](https://github.com/rurban/ctl)
-* [GDB internal library](https://sourceware.org/git/gitweb.cgi?p=binutils-gdb.git;a=blob;f=gdb/common/vec.h;h=41e41b5b22c9f5ec14711aac35ce4ae6bceab1e7;hb=HEAD)
-* [GLIB](https://wiki.gnome.org/Projects/GLib)
-* [KLIB](https://github.com/attractivechaos/klib)
-* [LIBCHASTE](https://github.com/mgrosvenor/libchaste)
-* [LIBCOLLECTION](https://bitbucket.org/manvscode/libcollections)
-* [LIBDICT](https://github.com/fmela/libdict)
-* [LIBDYNAMIC](https://github.com/fredrikwidlund/libdynamic)
-* [LIBLFDS](https://www.liblfds.org/)
-* [LIBSRT:  Safe Real-Time library for the C programming language](https://github.com/faragon/libsrt)
-* [NEDTRIES](https://github.com/ned14/nedtries)
-* [POTTERY](https://github.com/ludocode/pottery)
-* [QLIBC](http://wolkykim.github.io/qlibc/)
-* [SC](https://github.com/tezc/sc)
-* [SGLIB](http://sglib.sourceforge.net/)
-* [Smart pointer for GNUC](https://github.com/Snaipe/libcsptr)
-* [STB stretchy_buffer](https://github.com/nothings/stb)
-* [STC - Smart Template Container for C](https://github.com/tylov/STC)
-* [TommyDS](https://github.com/amadvance/tommyds)
-* [UTHASH](http://troydhanson.github.io/uthash/index.html)
-
-Each can be classified into one of the following concept:
-
-* Each object is handled through a pointer to void (with potential registered callbacks to handle the contained objects for the specialized methods). From a user point of view, this makes the code harder to use (as you don't have any help from the compiler) and type unsafe with a lot of cast (so no formal proof of the code is possible). This also generally generate slower code (even if using link time optimization, this penalty can be reduced). Properly used, it can yet be the most space efficient for the code, but can consume a lot more for the data due to the obligation of using pointers. This is however the easiest to design & code.
-* Macros are used to access structures in a generic way (using known fields of a structure — typically size, number, etc.). From a user point of view, this can create subtitle bug in the use of the library (as everything is done through macro expansion in the user defined code) or hard to understand warnings. This can generates fully efficient code. From a library developer point of view, this can be quite limiting in what you can offer.
-* Macros detect the type of the argument passed as parameter using _Generics, and calls the associated methods of the switch. The difficulty is how to add pure user types in this generic switch.
-* A known structure is put in an intrusive way in the type of all the objects you wan to handle. From a user point of view, he needs to modify its structure and has to perform all the allocation & deallocation code itself (which is good or bad depending on the context). This can generate efficient code (both in speed and size). From a library developer point of view, this is easy to design & code. You need internally a cast to go from a pointer to the known structure to the pointed object (a reverse of offsetof) that is generally type unsafe (except if mixed with the macro generating concept). This is quite limitation in what you can do: you can't move your objects so any container that has to move some objects is out-of-question (which means that you cannot use the most efficient container).
-* Header files are included multiple times with different contexts (some different values given to defined macros) in order to generate different code for each type. From a user point of view, this creates a new step before using the container: an instantiating stage that has to be done once per type and per compilation unit (The user is responsible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). The debug of the library is generally easy and can generate fully specialized & efficient code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. The interface used to configure the library can be quite tiresome in case of a lot of specialized methods to configure: it doesn't enable to chain the configuration from a container to another one easily. It also cannot have heavy customization of the code.
-* Macros are used to generate context-dependent C code enabling to generate code for different type. This is pretty much like the headers solution but with added flexibility. From a user point of view, this creates a new step before using the container: an instantiating stage that has to be done once per type and per compilation unit (The user is responsible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). This can generate fully specialized & efficient code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. From a library developer point of view, the library is harder to design and to debug: everything being expanded in one line, you can't step in the library (there is however a solution to overcome this limitation by adding another stage to the compilation process). You can however see the generated code by looking at the preprocessed file. You can perform heavy context-dependent customization of the code (transforming the macro preprocessing step into its own language). Properly done, you can also chain the methods from a container to another one easily, enabling expansion of the library. Errors within the macro expansion are generally hard to decipher, but errors in code using containers are easy to read and natural.
-
-M\*LIB category is mainly the last one.
-Some macros are also defined to access structure in a generic way, but they are optional.
-There are also intrusive containers.
-
-M\*LIB main added value compared to other libraries is its oplist feature
-enabling it to chain the containers and/or use complex types in containers:
-list of array of dictionary of C++ objects are perfectly supported by M\*LIB.
-
-For the macro-preprocessing part, other libraries and reference also exist. For example:
-
-* [Boost preprocessor](http://www.boost.org/doc/libs/1_63_0/libs/preprocessor/doc/index.html)
-* [C99 Lambda](https://github.com/Leushenko/C99-Lambda)
-* [C Preprocessor Tricks, Tips and Idioms](https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms)
-* [CPP MAGIC](http://jhnet.co.uk/articles/cpp_magic)
-* [MAP MACRO](https://github.com/swansontec/map-macro)
-* [metalang99](https://github.com/Hirrolot/metalang99)
-* [OrderPP](https://github.com/rofl0r/order-pp)
-* [P99](http://p99.gforge.inria.fr/p99-html/)
-* [Zlang](https://github.com/pfultz2/ZLang)
-
-You can also consult [awesome-c-preprocessor](https://github.com/Hirrolot/awesome-c-preprocessor) for a more comprehensive list of libraries.
-
-For the string part, there is the following libraries for example:
-
-* [POTTERY STRING](https://github.com/ludocode/pottery/tree/develop/util/pottery/string)
-* [SDS](https://github.com/antirez/sds)
-* [STC - C99 Standard Container library](https://github.com/tylov/C99Containers)
-* [STR -yet another string library for C language](https://github.com/maxim2266/str)
-* [The Better String Library](http://bstring.sourceforge.net/) with a page that lists a lot of other string libraries.
-* [VSTR](http://www.and.org/vstr/) with a [page](http://www.and.org/vstr/comparison) that lists a lot of other string libraries.
-
 _________________
 
 ## API Documentation
@@ -1416,7 +1341,7 @@ and you shall use a typedef as an intermediary named type for such types.
 
 The output parameters are listed first, then the input/output parameters and finally the input parameters.
 
-The oplist shall also provide the `INIT_MOVE` operator if the default instance (aka '=' operator) is not working for this type (for example for array of size 1, in which case the method `M_COPY_A1OBJ` is likely to work), or disable the operator.
+The oplist shall also provide the `INIT_MOVE` operator if the default instance (aka '=' operator) is not working for this type (for example for array of size 1, in which case the method `M_COPY_A1OBJ` is likely to work), or you need to disable the operator.
 
 This common interface is specified as follow:
 
@@ -1489,11 +1414,11 @@ The `_front` suffixed method will push it in the front of the container.
 ##### `type_t *name_push_front_raw(name_t container)`
 
 Push a new element in the container `container`
-without initializing it and returns a pointer to the **non-initialized** data.
+without initializing it and returns a borrowed pointer to the **non-initialized** data.
 The first thing to do after calling this function shall be to initialize the data
 using the proper constructor of the object of type `type_t`.
 This enables using more specialized constructor than the generic copy one.
-The user should use other `_push` function if possible rather than this one
+The user should use other `_push` functions if possible rather than this one
 as it is low level and error prone.
 This pointer should not be stored in a global variable.
 
@@ -1506,7 +1431,7 @@ The `_front` suffixed method will push it in the front of the container.
 
 Push a new element in the container `container`
 and initialize it with the default constructor associated to the type `type_t`.
-Return a pointer to the initialized object.
+Return a borrowed pointer to the initialized object.
 This pointer should not be stored in a global variable.
 This method is only created if the `INIT` method is provided.
 
@@ -1616,7 +1541,7 @@ See [emplace](#Emplace-construction) chapter for more details.
 ##### `value_type_t *name_get(const name_t container, const key_type_t key)` [for associative array]
 ##### `const value_type_t *name_cget(const name_t container, const key_type_t key)` [for associative array]
 
-Return a modifiable (resp. constant) pointer to
+Return a modifiable (resp. constant) borrowed pointer to
 the element associated to `key` in the container.
 
 If the container is sequence-like, the key is an integer.
@@ -1639,7 +1564,7 @@ This pointer should not be stored in a global variable.
 ##### `type_t *name_get_emplace[suffix](const name_t container, args...)` [for set-like]
 ##### `value_type_t * name_get_emplace[suffix](name_t container, args...)` [for associative array]
 
-Return a modifiable (resp. constant) pointer to
+Return a modifiable (resp. constant) borrowed pointer to
 the element associated to the key constructed from `args` in the container.
 The selected element is the `value` object associated to the `key` object in the container
 for an associative array, or the element itself for a set.
@@ -1652,7 +1577,7 @@ This pointer should not be stored in a global variable.
 ##### `type_t *name_safe_get(name_t container, const type_t key)` [for set]
 ##### `value_type_t *name_safe_get(name_t container, const key_type_t key)` [for associative array]
 
-Return a modifiable pointer to
+Return a modifiable borrowed pointer to
 the element associated to `key` in the container,
 creating a new element if it doesn't exist (ensuring therefore a safe `get` operation).
 
@@ -1749,7 +1674,7 @@ Afterwards, the moved iterator may reference an invalid element.
 ##### `name_itref_t *name_ref(name_it_t it)`  [for associative array]
 ##### `const name_itref_t *name_cref(name_it_t it)`  [for associative array]
 
-Return a modifiable (resp. constant) pointer to the element pointed by the iterator.
+Return a modifiable (resp. constant) borrowed pointer to the element pointed by the iterator.
 For associative-array like container, this element is the pair composed of
 the key (`key` field) and the associated value (`value` field);
 otherwise this element is simply the basic type of the container (`type_t`).
@@ -2971,12 +2896,12 @@ Set the tuple `tuple` to the value of the tuple constructed with (`element1[, ..
 
 ##### `const type1 *name_cget_at_element1(const name_t tuple)`
 
-Return a constant pointer to the element `element1` of the tuple.
+Return a constant borrowed pointer to the element `element1` of the tuple.
 There is as many methods as there are elements.
 
 ##### `type1 *name_get_at_element1(const name_t tuple)`
 
-Return a pointer to the element `element1` of the tuple.
+Return a borrowed pointer to the element `element1` of the tuple.
 There is as many methods as there are elements.
 
 ##### `void name_set_element1(name_t tuple, type1 element1)`
@@ -3128,12 +3053,12 @@ Set the variant `variant` to the type and value of `elementN`.
 
 ##### `const typeN *name_cget_at_elementN(name_t variant)`
 
-Return a pointer to the `variant` viewed as of type `typeN`.
+Return a borrowed pointer to the `variant` viewed as of type `typeN`.
 If the variant isn't an object of such type, it returns NULL.
 
 ##### `typeN *name_get_at_elementN(name_t variant)`
 
-Return a pointer to the `variant` viewed as of type `typeN`.
+Return a borrowed pointer to the `variant` viewed as of type `typeN`.
 If the variant isn't an object of such type, it returns NULL.
 
 ##### `bool name_elementN_p(const name_t variant)`
@@ -3262,13 +3187,13 @@ Do nothing if `data` is no present in the Red Black Tree.
 ##### `type * name_min(const name_t rbtree)`
 ##### `const type * name_cmin(const name_t rbtree)`
 
-Return a pointer to the minimum element of the tree
+Return a borrowed pointer to the minimum element of the tree
 or NULL if there is no element.
 
 ##### `type * name_max(const name_t rbtree)`
 ##### `const type * name_cmax(const name_t rbtree)`
 
-Return a pointer to the maximum element of the tree
+Return a borrowed pointer to the maximum element of the tree
 or NULL if there is no element.
 
 ##### `void name_it_from(name_it_t it, const name_t rbtree, const type data)`
@@ -3483,7 +3408,7 @@ The following specialized methods are automatically created by the previous defi
 ##### `bool name_pop_at(value_type *dest, name_t tree, const key_type data)`
 
 Pop `data` from the B+Tree `tree`
-and save the popped value into `dest` if the pointer is not NULL
+and save the popped value into `*dest` if `dest` is not NULL
 while keeping the tree balanced.
 Do nothing if `data` is no present in the B+Tree.
 Return true if `data` has been erased, false otherwise.
@@ -3491,13 +3416,13 @@ Return true if `data` has been erased, false otherwise.
 ##### `value_type *name_min(const name_t tree)`
 ##### `const value_type *name_cmin(const name_t tree)`
 
-Return a pointer to the minimum element of the tree
+Return a borrowed pointer to the minimum element of the tree
 or NULL if there is no element in the B+Tree.
 
 ##### `value_type *name_max(const name_t tree)`
 ##### `const value_type *name_cmax(const name_t tree)`
 
-Return a pointer to the maximum element of the tree
+Return a borrowed pointer to the maximum element of the tree
 or NULL if there is no element in the B+Tree.
 
 ##### `void name_it_from(name_it_t it, const name_t tree, const type data)`
@@ -3627,7 +3552,7 @@ Disable the auto-resize feature of the tree (if lock is true), or enable it othe
 By default, the feature is enabled.
 Locking a tree shall be done after reserving the maximum
 number of nodes that can be added by your tree,
-so that the returned pointers to the internal types
+so that the returned borrowed pointers to the internal types
 won't move on inserting a new node.
 
 ##### `name_it_t name_set_root(name_t tree, const type value)`
@@ -3704,7 +3629,7 @@ whereas `name_emplace_child` will insert the node as the new first child of the 
 ##### `type *name_left_ref(name_it_t it)`
 ##### `type *name_right_ref(name_it_t it)`
 
-Return a pointer to the type of the node which is
+Return a borrowed pointer to the type of the node which is
 
 * up the given iterator,
 * down the given iterator (i.e. the first child of the node)
@@ -4534,7 +4459,7 @@ The following specialized methods are automatically created by the previous defi
 
 Publish the "in-progress" data of the snapshot `snap` so that the read
 thread can have access to the data.
-It returns the pointer to the new "in-progress" data buffer 
+It returns the borrowed pointer to the new "in-progress" data buffer 
 of the snapshot (which is not yet published but will be published 
 for the next call of name_write).
 This function is thread-safe and performs atomic operation on the snapshot.
@@ -4542,7 +4467,7 @@ This function is thread-safe and performs atomic operation on the snapshot.
 ##### `type *name_read(snapshot_t snap)`
 
 Get access to the last published data of the snapshot `snap`.
-It returns the pointer to the data.
+It returns the borrowed pointer to the data.
 If a publication has been performed since the last call to name_read
 a new pointer to the data is returned. 
 Otherwise the previous pointer is returned.
@@ -4555,13 +4480,13 @@ This function is thread-safe and performs atomic operation on the snapshot.
 
 ##### `type *name_get_write_buffer(snapshot_t snap)`
 
-Return a pointer to the active "in-progress" data of the snapshot `snap`.
+Return a borrowed pointer to the active "in-progress" data of the snapshot `snap`.
 It is the same as the last return from name_write.
 This function is thread-safe and performs atomic operation on the snapshot.
 
 ##### `type *name_get_read_buffer(snapshot_t snap)`
 
-Return a pointer to the last already read published data of the snapshot `snap`.
+Return a borrowed pointer to the last already read published data of the snapshot `snap`.
 It is the same as the last return from name_read.
 It doesn't perform any switch of the data that has to be read.
 This function is thread-safe and performs atomic operation on the snapshot.
@@ -4616,7 +4541,7 @@ This function is not thread safe.
 
 Publish the "in-progress" data of the snapshot `snap` so that the read
 threads can have access to the data.
-It returns the pointer to the new "in-progress" data buffer 
+It returns the borrowed pointer to the new "in-progress" data buffer 
 of the snapshot (which is not yet published but will be published 
 for the next call of name_write).
 This function is thread-safe and performs atomic operation on the snapshot.
@@ -4624,7 +4549,7 @@ This function is thread-safe and performs atomic operation on the snapshot.
 ##### `type *name_read_start(snapshot_t snap)`
 
 Get access to the last published data of the snapshot `snap`.
-It returns the pointer to the data.
+It returns the borrowed pointer to the data.
 If a publication has been performed since the last call to `name_read_start`
 a new pointer to the data is returned. 
 Otherwise the previous pointer is returned.
@@ -4644,7 +4569,7 @@ This function is thread-safe and performs atomic operation on the snapshot.
 
 ##### `type *name_get_write_buffer(snapshot_t snap)`
 
-Return a pointer to the active "in-progress" data of the snapshot `snap`.
+Return a borrowed pointer to the active "in-progress" data of the snapshot `snap`.
 It is the same as the last return from name_write.
 This function is thread-safe and performs atomic operation on the snapshot.
 
@@ -4696,11 +4621,11 @@ This function is not thread safe.
 
 ##### `type *name_write_start(snapshot_t snap)`
 
-Return the current "in-progress" data of the snapshot `snap`
+Return the borrowed pointer to the current "in-progress" data of the snapshot `snap`
 so that the writer thread can update this data.
 This function is thread-safe and performs atomic operation on the snapshot.
 
-##### `type *name_write_end(snapshot_t snap, type *data)`
+##### `void name_write_end(snapshot_t snap, type *data)`
 
 Mark the provided "in-progress" `data` of the snapshot `snap`
 as available for the reader threads: this will be the new seen data.
@@ -4709,7 +4634,7 @@ This function is thread-safe and performs atomic operation on the snapshot.
 ##### `type *name_read_start(snapshot_t snap)`
 
 Get access to the last published data of the snapshot `snap`.
-It returns the pointer to the data.
+It returns the borrowed pointer to the data.
 If a publication has been performed since the last call to `name_read_start`
 a new pointer to the data is returned. 
 Otherwise, the previous pointer is returned.
@@ -4722,7 +4647,7 @@ For each call to `name_read_start` a matching call to
 `name_read_end` shall be performed by the same thread before
 any new call to `name_read_start`.
 
-##### `type *name_read_end(snapshot_t snap, type *old)`
+##### `void name_read_end(snapshot_t snap, type *old)`
 
 End the reservation of the data `old`.
 This function is thread-safe and performs atomic operation on the snapshot.
@@ -4935,7 +4860,7 @@ This method is created only if the `SET` operator is defined.
 
 ##### `name_t *name_acquire(name_t *out)`
 
-Acquire a new ownership of the pointer, returning the same pointer but with one more registered owner.
+Acquire a new ownership of the pointer, returning an owned pointer to the same data (but with one more registered owner).
 
 ##### `void name_release(name_t *out)`
 
@@ -5212,11 +5137,11 @@ It shall be called after `name_write_lock`
 
 ##### `type *name_ref(name_t *out)`
 
-Return a pointer to the encapsulated object.
+Return a borrowed pointer to the encapsulated object.
 
 ##### `type const *name_cref(const name_t *out)`
 
-Return a constant pointer to the encapsulated object.
+Return a constant borrowed pointer to the encapsulated object.
 
 ##### `name_t *name_new_from(type const src)`
 
@@ -5370,14 +5295,14 @@ Push the object `*obj` itself (and not a copy) after the object `*position`.
 ##### `type *name_pop_back(name_t list)`
 
 Pop the object from the back of the list `list`
-and return a pointer to the popped object,
+and return an owned pointer to the popped object,
 given back the ownership of the object to the caller program
 (which becomes responsible to calling the destructor of this object).
 
 ##### `type *name_pop_front(name_t list)`
 
 Pop the object from the front of the list `list`
-and return a pointer to the popped object,
+and return an owned pointer to the popped object,
 given back the ownership of the object to the caller program
 (which becomes responsible to calling the destructor of this object).
 
@@ -5596,9 +5521,9 @@ Move the iterator `it` to the previous element of the array.
 
 ##### `const bool *bitset_cref(const bitset_it_t it)`
 
-Return a constant pointer to the element pointed by the iterator.
+Return a constant borrowed pointer to the element pointed by the iterator.
 This pointer remains valid until the array or the iterator
-is modified by another method.
+is modified by another method or until the iteration is moved.
 
 ##### `void bitset_get_str(string_t str, const bitset_t array, bool append)`
 
@@ -5715,10 +5640,10 @@ Clear the string `str` and frees any allocated memory.
 
 ##### `char *string_clear_get_str(string_t v)`
 
-Clear the string `str` and returns the allocated array of char,
+Clear the string `str` and returns an owned pointer to the allocated array of char,
 representing a C string, giving back ownership of this array to the caller.
-This array will have to be freed. It can return NULL if no array
-was allocated by the string.
+This array will have to be freed using the method associated to the global FREE operator. 
+It can return NULL if no array was allocated by the string.
 
 ##### `void string_reset(string_t str)`
 
@@ -5773,7 +5698,7 @@ char from the array.
 
 ##### `const char *string_get_cstr(const string_t v)`
 
-Return a constant pointer to the underlying array of char of the string.
+Return a constant borrowed pointer to the underlying array of char of the string.
 This array of char is terminated by `\0`, enabling the pointer to be passed
 to standard C function.
 The pointer remains valid until the string itself remains valid 
@@ -6454,7 +6379,7 @@ i.e. reducing the container usage to the minimum possible allocation.
 
 ##### `const uint8_t * m_bstring_view(const m_bstring_t v, size_t offset, size_t size_requested)`
 
-Return a constant byte pointer to the sub string at position 'offset' and of size '##### `const uint8_t * m_bstring_view(const m_bstring_t v, size_t offset, size_t size_requested)`
+Return a constant byte borrowed pointer to the sub string at position 'offset' and of size '##### `const uint8_t * m_bstring_view(const m_bstring_t v, size_t offset, size_t size_requested)`
 ' of the byte string 'v'
 The position 'offset' shall be within the boundary of the byte string (0 to the size of the byte string).
 The byte string shall have at least 'size_requested' bytes from position 'offset' in the byte string.
@@ -6463,8 +6388,7 @@ The returned pointer is valid until a modification is done on the byte string.
 ##### `uint8_t *m_bstring_acquire_access(m_bstring_t v, size_t offset, size_t size_requested)`
 
 Acquire direct access to the byte string, allowing to write directly in it.
-Return a modifiable byte pointer to the sub string at position 'offset' and of size '##### `const uint8_t * m_bstring_view(const m_bstring_t v, size_t offset, size_t size_requested)`
-' of the byte string 'v'
+Return a modifiable byte borrowed pointer to the sub string at position `offset` and of size `size_requested` of the byte string 'v'
 The position 'offset' shall be within the boundary of the byte string (0 to the size of the byte string).
 The byte string shall have at least 'size_requested' bytes from position 'offset' in the byte string.
 
@@ -7178,7 +7102,7 @@ Count the number of leading zero and return it.
 
 ##### `size_t m_core_hash (const void *str, size_t length)`
 
-Compute the hash of the binary representation of the data pointer by `str`
+Compute the hash of the binary representation of the data pointed by `str`
 of length `length`. `str` shall be aligned to `min(length, 8)`.
 
 #### OPERATORS Functions
@@ -7384,7 +7308,7 @@ This macro iterates over the given `container` of oplist `oplist`
 to reference one different element of the container for each iteration of
 the loop.
 
-`item` is a created pointer variable to the contained type
+`item` is a created borrowed pointer variable to the contained type
 of the container, only available within the `for` loop.
 There can only have one `M_EACH` per line.
 It shall be used after the `for` C keyword to perform a loop over the container.
@@ -7614,7 +7538,7 @@ All these macro can be overridden before including the header [m-core.h](#m-core
 
 ##### `type *M_MEMORY_ALLOC (context, type)`
 
-Return a pointer to a new allocated non-initialized object of type `type`.
+Return an owned pointer to a new allocated non-initialized object of type `type`.
 In case of allocation error, it returns NULL.
 
 `context` parameter is the memory context parameter as provided by the user.
@@ -7635,7 +7559,7 @@ The default used function is the `free` function of the LIBC.
 
 ##### `type *M_MEMORY_REALLOC (context, type, ptr, old_number, new_number)`
 
-Return a pointer to an array of `new_number` objects of type `type`
+Return an owned pointer to an array of `new_number` objects of type `type`
 `ptr` is either NULL (in which the array is allocated), 
 or a pointer returned from a previous call of `M_MEMORY_REALLOC` 
 (in which case the array is reallocated) with `old_number` objects.
@@ -8045,7 +7969,7 @@ Initial value to set an object of type `m_once_t` when declaring it.
 
 #### `void m_once_call(m_once_t obj, void (*func)(void))`
 
-Executes the function pointer func exactly once,
+Executes the function pointer `func` exactly once,
 even if called concurrently, from several threads,
 provided that they share the same object obj.
 
