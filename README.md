@@ -4890,6 +4890,11 @@ The public interface is declared and defined to be used by the user of the share
 Create a new shared object initialized with its `INIT` operator and return a shared pointer to it.
 This method is created only if the `INIT` operator is defined.
 
+##### `name_t *name_new_from(type const src)`
+
+Create a new shared object initialized with the content of `src` and return a shared pointer to it.
+This method is created only if the `INIT_SET` operator is defined.
+
 ##### `name_t *name_clone(const name_t *src)`
 
 Create a new shared object initialized with the content of `*src`, creating effectively a clone.
@@ -4905,6 +4910,16 @@ This method is created only if the `EMPLACE_TYPE` operator is defined.
 Copy into the shared object `*out` the content of `*src`, creating effectively a copy if the shared pointers are not the same.
 This method is created only if the `SET` operator is defined.
 
+##### `void name_remake[<emplace_suffix>](name_t * dst, <emplace_args>)`
+
+Discard current value of shared object and recreate the shared object initialized with the content of `<emplace_args>`.
+This method is created only if the `EMPLACE_TYPE` operator is defined.
+
+##### `void name_set(name_t **dst, name_t *out)`
+
+Release the current ownership of `*dst` and set `*dst` as a new owner of `*out`
+(Copy of pointer)
+
 ##### `name_t *name_acquire(name_t *out)`
 
 Acquire a new ownership of the pointer, returning an owned pointer to the same data (but with one more registered owner).
@@ -4917,11 +4932,6 @@ If there is no longer any owner of the shared data, it is destroyed using its `C
 ##### `void name_clear(name_t *out)`
 
 Alias of `name_release`
-
-##### `void name_set(name_t **dst, name_t *out)`
-
-Release the current ownership of `*dst` and set `*dst` as a new owner of `*out`
-(Copy of pointer)
 
 ##### `void name_swap(name_t *a, name_t *b)`
 
@@ -5189,11 +5199,6 @@ Return a borrowed pointer to the encapsulated object.
 ##### `type const *name_cref(const name_t *out)`
 
 Return a constant borrowed pointer to the encapsulated object.
-
-##### `name_t *name_new_from(type const src)`
-
-Create a new shared object initialized with its `INIT_SET` operator on the given `src` and return a shared pointer to it.
-This method is created only if the `INIT_SET` operator is defined.
 
 
 _________________
@@ -7433,7 +7438,8 @@ M_LET( (b, a), string_t){ string_fputs(stdout, b); }
 ```
 
 > [!NOTE]
-> The user code shall not perform a return or a goto (or `longjmp`) within the next block
+> The user code shall not perform a return from the function
+> or a goto (or `longjmp`) within the next block
 > with a target outside this block.
 > Otherwise the clear code of the object isn't called.
 > However, you can use the break instruction to quit the block 
@@ -8742,13 +8748,17 @@ in the program being executed (so called *abnormal error*).
 In order to support [Resource Acquisition Is Initialization](https://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization)
 technique which frees resources using [destructor](https://en.wikipedia.org/wiki/Destructor_(computer_programming)),
 M\*LIB ensures that the destructors of all variables created using the keyword `M_LET` are properly called on throwing exception.
+
 For this, different mechanisms are used to mark the objects and the `CLEAR` operator to be called on abnormal exceptions.
 This is done by injecting different information in the stack to be able to handle then.
 Therefore, contrary to C++, using exceptions in C will add a penalty performance to the program being executed in its nominal behavior.
 The exact cost depends on the mechanism used for RAII support.
 For GCC, it will use nested functions. For CLANG, it will use blocks (if compiled in blocks mode).
 Otherwise, it uses a standard compliant way, which is the slowest.
-The variable which are not initialized through the macro `M_LET` don't have their `CLEAR` method called on exceptions.
+
+M\*LIB ensures also that the deferred instructions registered in `M_DEFER` are properly executed on throwing exception.
+
+> Note: The variables which are not initialized through the macro `M_LET` or don't have their destructor called by the macro `M_DEFER` don't have their `CLEAR` operators called on exceptions.
 
 A typical program will look like:
 
