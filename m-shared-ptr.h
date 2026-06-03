@@ -278,6 +278,7 @@
 static inline void M_C3(m_shar3d_, name, _inc_owner)(shared_t *out)           \
 {                                                                             \
     out->cpt ++;                                                              \
+    M_ASSERT(out->cpt < UINT_MAX);                                            \
 }                                                                             \
 /* Decrement the number of owner (release the resource). Return true if it was the last owner */ \
 static inline bool M_C3(m_shar3d_, name, _dec_owner)(shared_t *out)           \
@@ -394,6 +395,7 @@ static inline void M_F(name, _write_read2_unlock)(shared_t *out, const shared_t 
 static inline void M_C3(m_shar3d_, name, _inc_owner)(shared_t *out)           \
 {                                                                             \
     atomic_fetch_add(&out->cpt, 1);                                           \
+    M_ASSERT(atomic_load(&out->cpt) < UINT_MAX);                              \
 }                                                                             \
                                                                               \
 static inline bool M_C3(m_shar3d_, name, _dec_owner)(shared_t *out)           \
@@ -604,10 +606,14 @@ extern shared_t *M_F(name, _acquire)(shared_t *);                             \
 extern void      M_F(name, _release)(shared_t *);                             \
 extern void      M_F(name, _set)(shared_t **, shared_t *);                    \
 extern void      M_F(name, _clear)(shared_t *);                               \
-M_EMPLACE_QUEUE_DEF(name, shared_t, M_F(name, _make), oplist, M_SHAR3D_PTR_DECL_BASIC_MAKE)
+M_EMPLACE_QUEUE_DEF(name, shared_t, M_F(name, _make), oplist, M_SHAR3D_PTR_DECL_BASIC_MAKE) \
+M_EMPLACE_QUEUE_DEF(name, shared_t, M_F(name, _remake), oplist, M_SHAR3D_PTR_DECL_BASIC_REMAKE)
 
 #define M_SHAR3D_PTR_DECL_BASIC_MAKE(name, shared_t, function_name, oplist, init_func, exp_emplace_type) \
 extern shared_t *function_name(M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_emplace_type));
+
+#define M_SHAR3D_PTR_DECL_BASIC_REMAKE(name, shared_t, function_name, oplist, init_func, exp_emplace_type) \
+extern void function_name(shared_t *, M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_emplace_type));
 
 #define M_SHAR3D_PTR_DEF_BASIC(name, shared_t, type, oplist, fattr)           \
 M_IF_METHOD(INIT, oplist)(                                                    \
@@ -701,7 +707,8 @@ fattr void M_F(name, _clear)(shared_t *out)                                   \
 {                                                                             \
     M_F(name, _release)(out);                                                 \
 }                                                                             \
-M_EMPLACE_QUEUE_DEF( (name, fattr), shared_t, M_F(name, _make), oplist, M_SHAR3D_PTR_DEF_BASIC_MAKE)
+M_EMPLACE_QUEUE_DEF( (name, fattr), shared_t, M_F(name, _make), oplist, M_SHAR3D_PTR_DEF_BASIC_MAKE) \
+M_EMPLACE_QUEUE_DEF( (name, fattr), shared_t, M_F(name, _remake), oplist, M_SHAR3D_PTR_DEF_BASIC_REMAKE)
 
 #define M_SHAR3D_PTR_DEF_BASIC_MAKE(name_attr, shared_t, function_name, oplist, init_func, exp_emplace_type) \
 M_PAIR_2 name_attr shared_t *function_name(M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_emplace_type)) \
@@ -717,6 +724,17 @@ M_PAIR_2 name_attr shared_t *function_name(M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_
         return out;                                                           \
 }                                                                             \
 
+#define M_SHAR3D_PTR_DEF_BASIC_REMAKE(name_attr, shared_t, function_name, oplist, init_func, exp_emplace_type) \
+M_PAIR_2 name_attr void function_name(shared_t *out, M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_emplace_type)) \
+{                                                                             \
+    M_GLOBAL_CONTEXT();                                                       \
+    M_F(M_PAIR_1 name_attr, _write_lock)(out);                                              \
+    M_CALL_CLEAR(oplist, out->data);                                          \
+    M_ON_EXCEPTION( M_CALL_INIT(oplist, out->data), M_F(M_PAIR_1 name_attr, _write_unlock)(out) ) \
+        M_EMPLACE_CALL_FUNC(a, init_func, oplist, out->data, exp_emplace_type); \
+    M_F(M_PAIR_1 name_attr, _write_signal)(out);                                            \
+    M_F(M_PAIR_1 name_attr, _write_unlock)(out);                                            \
+}                                                                             \
 
 /* Define the extra function of a shared pointer */
 #define M_SHAR3D_PTR_DECL_EXTRA(name, shared_t, oplist)                       \

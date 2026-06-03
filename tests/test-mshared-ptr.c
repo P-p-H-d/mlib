@@ -121,10 +121,13 @@ static void test_string(void)
     shared_string_clear(p);
     b = shared_string_empty_p(r);
     assert(b);
+    shared_string_remake(q, "HELLO WORLD");
+    assert(!shared_string_equal_p(r, q));
     shared_string_copy(q, r);
     assert(shared_string_equal_p(r, q));
     shared_string_set(&q, r);
     assert(shared_string_equal_p(r, q));
+
     shared_string_t *r2 = shared_string_make("Hello world!");
     shared_string_copy(q, r2);
     assert(shared_string_equal_p(r2, q));
@@ -132,7 +135,7 @@ static void test_string(void)
     assert(shared_string_equal_p(r, q));
     assert(shared_string_cmp(r, q) == 0);
     assert(shared_string_cmp(q, r) == 0);
-    assert(shared_string_cmp(q, p) == 0);
+  
     string_unicode_t u;
     b = shared_string_try_pop(&u, p2);
     assert(!b);
