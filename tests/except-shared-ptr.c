@@ -35,14 +35,11 @@ static void test1(unsigned n)
     FILE *f = m_core_fopen("a-eshared-ptr.dat", "wt");
     assert(f != NULL);
     M_TRY(test1) {
-        shared_estring_t *p = NULL, *q = NULL, *r = NULL, *s = NULL;
-        M_DEFER(shared_estring_release(p), shared_estring_release(q), shared_estring_release(r), shared_estring_release(s)) {
-            p = shared_estring_new();
-            q = shared_estring_make("Start");
-            r = shared_estring_clone(q);
-            s = shared_estring_acquire(q);
+        M_LET(p, q, shared_estring_ptr_t)
+        M_LET((r, q), (s, q), shared_estring_ptr_t) {
+            assert( p != NULL && q != NULL && r != NULL && s != NULL);
+            shared_estring_remake(q, "Start");
             shared_estring_remake(s, "Restart");
-
             shared_estring_copy(p, q);
             M_LET((init, ("Init value")), string_t) {
                 shared_estring_t *tmp = shared_estring_new_from(init);
@@ -73,9 +70,7 @@ static void test1(unsigned n)
     f = m_core_fopen("a-eshared-ptr.dat", "rt");
     assert(f != NULL);
     M_TRY(test1) {
-        shared_estring_t *p = NULL;
-        M_DEFER(shared_estring_release(p)) {
-            p = shared_estring_new();
+        M_LET(p, shared_estring_ptr_t) {
             bool b = shared_estring_in_str(p, f);
             (void) b;
         }
@@ -90,13 +85,17 @@ static void test1(unsigned n)
 ARRAY_DEF(int_array, int)
 #define M_OPL_int_array_t() ARRAY_OPLIST(int_array, M_DEFAULT_OPLIST)
 SHARED_PTR_DEF(shared_int_array, int_array_t, M_OPL_int_array_t())
-#define M_OPL_shared_int_array_ptr_t() SHARED_DATA_OPLIST(shared_int_array, M_OPL_int_array_t())
+// Note: shared_int_array_ptr_t doesn't really exist as a type.
+// We use it as a key for M_LET so that it still generates the proper type (shared_int_array_t*)
+// with a proper release handling.
+#define M_OPL_shared_int_array_ptr_t() SHARED_PTR_OPLIST(shared_int_array, M_OPL_int_array_t())
 
 static void test2(unsigned n)
 {
     M_TRY(test1) {
-        shared_int_array_t *p = NULL, *q = NULL, *r = NULL, *s = NULL;
-        M_DEFER(shared_int_array_release(p), shared_int_array_release(q), shared_int_array_release(r), shared_int_array_release(s)) {
+        M_LET( p, q, r, s, shared_int_array_ptr_t) {
+            // p, q, r, s are initialized to NULL since we use SHARED_PTR_OPLIST 
+            // instead of SHARED_DATA_OPLIST (to have a pointer semantic), so we can reinitialize them.
             p = shared_int_array_new();
             q = shared_int_array_new();
             r = shared_int_array_clone(q);
@@ -128,15 +127,16 @@ static void test2(unsigned n)
 ARRAY_DEF(string_array, string_t)
 #define M_OPL_string_array_t() ARRAY_OPLIST(string_array, M_STRING_OPLIST)
 SHARED_PTR_DEF(shared_string_array, string_array_t, M_OPL_string_array_t())
-#define M_OPL_shared_string_array_ptr_t() SHARED_DATA_OPLIST(shared_string_array, M_OPL_string_array_t())
+#define M_OPL_shared_string_array_ptr_t() SHARED_PTR_OPLIST(shared_string_array, M_OPL_string_array_t())
 
 static void test3(unsigned n)
 {
     FILE *f = m_core_fopen("a-eshared-ptr-string-array.dat", "wt");
     assert(f != NULL);
     M_TRY(test1) {
-        shared_string_array_t *p = NULL, *q = NULL, *r = NULL, *s = NULL;
-        M_DEFER(shared_string_array_release(p), shared_string_array_release(q), shared_string_array_release(r), shared_string_array_release(s)) {
+        M_LET( p, q, r, s, shared_string_array_ptr_t) {
+            // p, q, r, s are initialized to NULL since we use SHARED_PTR_OPLIST 
+            // instead of SHARED_DATA_OPLIST (to have a pointer semantic), so we can reinitialize them.
             p = shared_string_array_new();
             q = shared_string_array_new();
             r = shared_string_array_clone(q);
@@ -180,8 +180,7 @@ static void test3(unsigned n)
     f = m_core_fopen("a-eshared-ptr-string-array.dat", "rt");
     assert(f != NULL);
     M_TRY(test1) {
-        shared_string_array_t *p = NULL;
-        M_DEFER(shared_string_array_release(p)) {
+        M_LET(p, shared_string_array_ptr_t) {
             p = shared_string_array_new();
             bool b = shared_string_array_in_str(p, f);
             (void) b;
