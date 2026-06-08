@@ -543,7 +543,7 @@ _Pragma("GCC diagnostic pop")
 #define M_LET_TRY_INJECT_POST_B(cont, oplist, name)                           \
   for(m_try_cb_post(M_C(m_try_state_, name),                                  \
                       ^ void (void *_data) { M_GET_TYPE oplist *_t = _data; M_CALL_CLEAR(oplist, *_t); }, \
-                      (void*) &name); cont; cont = false, m_try_cb_final(M_C(m_try_state_, name)) )
+                      (void*)(uintptr_t) &name); cont; cont = false, m_try_cb_final(M_C(m_try_state_, name)) )
 
 #elif M_USE_TRY_MECHANISM == 3
 // Use of GCC nested functions, and register them as callback with a pointer to the variable
@@ -555,7 +555,7 @@ _Pragma("GCC diagnostic pop")
 #define M_LET_TRY_INJECT_POST_B(cont, oplist, name)                           \
   for(m_try_cb_post(M_C(m_try_state_, name),                                  \
                       __extension__ ({ __extension__ void _callback (void *_data) { M_GET_TYPE oplist *_t = _data; M_CALL_CLEAR(oplist, *_t); } _callback; }), \
-                      (void*) &name); cont; cont = false, m_try_cb_final(M_C(m_try_state_, name)) )
+                      (void*)(uintptr_t) &name); cont; cont = false, m_try_cb_final(M_C(m_try_state_, name)) )
 
 #elif M_USE_TRY_MECHANISM == 4
 // STD C compliant (without compiler extension): use of setjmp
