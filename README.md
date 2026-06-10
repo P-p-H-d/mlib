@@ -523,7 +523,7 @@ int main(void) {
 ```
 
 To register an oplist, you need to define the macro `M_OPL_+type` that expands into its oplist.
-It shall a macro function that take no argument.
+It shall be a macro function that take no argument.
 
 ### Your oplist overpowered
 
@@ -631,7 +631,7 @@ and [m-generic](#m-generic) header for details.
 ### Common pitfalls
 
 * lack of inclusion of an header,
-* wanting to define an oplist from scratch instead of inheriting from an existing library
+* wanting to define an oplist from scratch instead of inheriting from an existing one,
 * for oplist written from scratch, lack of `( )` or double level of `( )` around the oplist,
 * an unknown or incorrectly spelled variable (example using `BASIC_OPLIST` instead of `M_BASIC_OPLIST`),
 * the `name` parameter given to the oplist is not the same as the one used to expand the methods,
