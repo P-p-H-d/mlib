@@ -120,48 +120,34 @@
                                                                               \
   M_CHECK_COMPATIBLE_OPLIST(name, 10, container_t, cont_oplist)               \
   M_CHECK_COMPATIBLE_OPLIST(name, 11, type_t, type_oplist)                    \
-                                                                              \
   M_ALG0_DEF_CALLBACK(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
-  M_IF_FUNCOBJ(M_ALG0_DEF_FUNCOBJ(name, container_t, cont_oplist, type_t, type_oplist, it_t)) \
-                                                                              \
-  M_IF_METHOD(EQUAL, type_oplist)(                                            \
-  M_ALG0_DEF_FIND(name, container_t, cont_oplist, type_t, type_oplist, it_t)  \
-  , /* NO EQUAL */)                                                           \
-                                                                              \
-  M_ALG0_DEF_FIND_IF(name, container_t, cont_oplist, type_t, type_oplist, it_t, \
-                     if, M_F(name,_test_cb_ct), M_F(name,_eq_cb_ct), M_APPLY, M_APPLY) \
-  M_IF_FUNCOBJ(M_ALG0_DEF_FIND_IF(name, container_t, cont_oplist, type_t, type_oplist, it_t, \
-                                  fo, M_F(name,_test_obj_t), M_F(name,_eq_obj_t), M_F(name, _test_obj_call), M_F(name, _eq_obj_call))) \
-                                                                              \
+  M_IF_FUNCOBJ_EAT(M_ALG0_DEF_IF_FUNCOBJ)(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_IF_METHOD(EQUAL, type_oplist)(M_ALG0_DEF_IF_EQUAL, M_EAT)(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_ALG0_DEF_FIND_IF(name, container_t, cont_oplist, type_t, type_oplist, it_t, if, M_F(name,_test_cb_ct), M_F(name,_eq_cb_ct), M_APPLY, M_APPLY) \
   M_ALG0_DEF_MAP(name, container_t, cont_oplist, type_t, type_oplist, it_t)   \
-                                                                              \
-  M_ALG0_DEF_ALL_OF(name, container_t, cont_oplist, type_t, type_oplist, it_t, \
-                    _, M_F(name,_test_cb_ct), M_APPLY)                        \
-  M_IF_FUNCOBJ(M_ALG0_DEF_ALL_OF(name, container_t, cont_oplist, type_t, type_oplist, it_t, \
-                                 _fo_, M_F(name,_test_obj_t), M_F(name,_test_obj_call)) ) \
-                                                                              \
-  /* If there is a IT_REF method, we consider the container as modifiable through iterator */ \
-  M_IF_METHOD(IT_REF, cont_oplist)(                                           \
+  M_ALG0_DEF_ALL_OF(name, container_t, cont_oplist, type_t, type_oplist, it_t, _, M_F(name,_test_cb_ct), M_APPLY)                        \
+  M_IF_METHOD(IT_REF, cont_oplist)(M_ALG0_DEF_IF_IT_REF, M_EAT)(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_IF_METHOD(EXT_ALGO, type_oplist)(M_ALG0_DEF_IF_EXT_ALGO, M_EAT)(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+
+/* Define the algorithms depending on IT_REF operator */
+/* If there is a IT_REF method, we consider the container as modifiable through iterator */ \
+#define M_ALG0_DEF_IF_IT_REF(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   M_ALG0_DEF_FILL(name, container_t, cont_oplist, type_t, type_oplist, it_t)  \
   M_ALG0_DEF_VECTOR(name, container_t, cont_oplist, type_t, type_oplist, it_t)\
-                                                                              \
-  M_IF_METHOD(CMP, type_oplist)(                                              \
+  M_IF_METHOD(CMP, type_oplist)(M_ALG0_DEF_IF_CMP, M_EAT)(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_IF_FUNCOBJ(M_ALG0_DEF_SORT_AUX(name, container_t, cont_oplist, type_t, type_oplist, it_t, \
+                                  _sort_fo, M_ALG0_SORT_CALL_OBJ_P4, M_ALG0_SORT_PARAM_OBJ_P4, M_ALG0_SORT_ARG_OBJ_P4) ) \
+
+/* Define the algorithms depending on CMP and IT_REF operator */
+#define M_ALG0_DEF_IF_CMP(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   M_ALG0_DEF_MINMAX(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   M_ALG0_DEF_SORT(name, container_t, cont_oplist, type_t, type_oplist, it_t, +, _sort) \
   M_ALG0_DEF_SORT(name, container_t, cont_oplist, type_t, type_oplist, it_t, -, _sort_dsc) \
-  M_IF_METHOD(IT_REMOVE, cont_oplist)(                                        \
-  M_ALG0_DEF_REMOVE(name, container_t, cont_oplist, type_t, type_oplist, it_t)\
-  , /* No IT_REMOVE method */)                                                \
-  , /* No CMP method */)                                                      \
-                                                                              \
-  M_IF_FUNCOBJ(M_ALG0_DEF_SORT_AUX(name, container_t, cont_oplist, type_t, type_oplist, it_t, \
-                                  _sort_fo, M_ALG0_SORT_CALL_OBJ_P4, M_ALG0_SORT_PARAM_OBJ_P4, M_ALG0_SORT_ARG_OBJ_P4) ) \
-  , /* No IT_REF method */)                                                   \
-                                                                              \
-  M_IF_METHOD(EXT_ALGO, type_oplist)(                                         \
-  M_GET_EXT_ALGO type_oplist (name, cont_oplist, type_oplist)                 \
-  , /* No EXT_ALGO method */ )                                                \
+  M_IF_METHOD(IT_REMOVE, cont_oplist)(M_ALG0_DEF_IF_IT_REMOVE, M_EAT)(name, container_t, cont_oplist, type_t, type_oplist, it_t)
 
+/* Define the algorithms depending on EXT_ALGO operator */
+#define M_ALG0_DEF_IF_EXT_ALGO(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_GET_EXT_ALGO type_oplist (name, cont_oplist, type_oplist)                 \
 
 /* Define the types of the callbacks associated to the algorithms.
  * Types remain internal */
@@ -177,14 +163,17 @@
 
 /* Define the function objects associated to the algorithms.
  * Created Function objects are part of the public interface */
-#define M_ALG0_DEF_FUNCOBJ(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define M_ALG0_DEF_IF_FUNCOBJ(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   M_FUNC_OBJ_ITF_DEF(M_F(name, _test_obj), bool, type_t const)                \
   M_FUNC_OBJ_ITF_DEF(M_F(name, _eq_obj), bool, type_t const, type_t const )   \
   M_FUNC_OBJ_ITF_DEF(M_F(name, _cmp_obj), int, type_t const, type_t const )   \
   M_FUNC_OBJ_ITF_DEF(M_F(name, _transform_obj), bool, type_t *, type_t const )\
   M_FUNC_OBJ_ITF_DEF(M_F(name, _apply_obj), void, type_t * )                  \
-  
+  M_ALG0_DEF_FIND_IF(name, container_t, cont_oplist, type_t, type_oplist, it_t, \
+                    fo, M_F(name,_test_obj_t), M_F(name,_eq_obj_t), M_F(name, _test_obj_call), M_F(name, _eq_obj_call)) \
+  M_ALG0_DEF_ALL_OF(name, container_t, cont_oplist, type_t, type_oplist, it_t, \
+                                 _fo_, M_F(name,_test_obj_t), M_F(name,_test_obj_call))
 
 /* Define the sort functions with the CMP operator using the order selected */
 #define M_ALG0_DEF_SORT(name, container_t, cont_oplist, type_t, type_oplist, it_t, order, sort_name) \
@@ -515,11 +504,10 @@
   , /* NO IT_REMOVE */ )
 
 
-/* Define the find like algorithms of a given data
-  TODO: Define _find_sorted that find in a sorted random access container 
-  (binary search)
+/* Define the algorithms depending on EQUAL operator.
+  TODO: Define _find_sorted that find in a sorted random access container (binary search)
  */
-#define M_ALG0_DEF_FIND(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define M_ALG0_DEF_IF_EQUAL(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   /* It supposes that the container is not sorted */                          \
   /* Find the next occurrence from it (included) of data */                   \
   M_INLINE void                                                               \
@@ -757,45 +745,7 @@
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, type_oplist)(                                             \
-  M_IF_METHOD(PUSH, cont_oplist)(                                             \
-                                                                              \
-  /* Apply func for all elements of the container src and push the result in dst */ \
-  M_P(void, name, _transform, container_t dst, container_t src, M_F(name, _transform_cb_ct) func, void *data) \
-  {                                                                           \
-    M_ASSERT(dst != src);                                                     \
-    M_CALL_RESET(cont_oplist, dst);                                           \
-    type_t tmp;                                                               \
-    M_CALL_INIT(type_oplist, tmp);                                            \
-    for M_EACH(item, src, cont_oplist) {                                      \
-        if (func(&tmp, *item, data)) {                                        \
-          M_CALL_PUSH(cont_oplist, dst, tmp);                                 \
-        }                                                                     \
-    }                                                                         \
-    M_CALL_CLEAR(type_oplist, tmp);                                           \
-    M_IF_METHOD(REVERSE, cont_oplist)(M_CALL_REVERSE(cont_oplist, dst),);     \
-  }                                                                           \
-  , /* END PUSH_MOVE */), /* END INIT */ )                                    \
-                                                                              \
-  /* Reduce all elements of the container in dst in function of func */       \
-  M_IF_METHOD(SET, type_oplist)(                                              \
-  M_P(bool, name, _reduce, type_t *dest, container_t const l, M_F(name, _reduce_cb_ct) func) \
-  {                                                                           \
-    M_UNUSED_CONTEXT();                                                       \
-    bool initDone = false;                                                    \
-    for M_EACH(item, l, cont_oplist) {                                        \
-        if (initDone) {                                                       \
-          func(dest, *item);                                                  \
-        } else {                                                              \
-          M_CALL_SET(type_oplist, *dest, *item);                              \
-          initDone = true;                                                    \
-        }                                                                     \
-      }                                                                       \
-    return initDone;                                                          \
-  }                                                                           \
-  , /* END SET */)                                                            \
-                                                                              \
   /* Reduce all transformed elements of the container in dst in function of func */ \
-  M_IF_METHOD(INIT, type_oplist)(                                             \
   M_P(bool, name, _transform_reduce, type_t *dest, const container_t l,       \
                                M_F(name, _reduce_cb_ct) redFunc,              \
                                M_F(name, _transform_cb_ct) mapFunc, void *data) \
@@ -816,8 +766,43 @@
     M_CALL_CLEAR(type_oplist, tmp);                                           \
     return initDone;                                                          \
   }                                                                           \
-  , )                                                                         \
-
+                                                                              \
+  M_IF_METHOD(PUSH, cont_oplist)(                                             \
+                                                                              \
+  /* Apply func for all elements of the container src and push the result in dst */ \
+  M_P(void, name, _transform, container_t dst, container_t src, M_F(name, _transform_cb_ct) func, void *data) \
+  {                                                                           \
+    M_ASSERT(dst != src);                                                     \
+    M_CALL_RESET(cont_oplist, dst);                                           \
+    type_t tmp;                                                               \
+    M_CALL_INIT(type_oplist, tmp);                                            \
+    for M_EACH(item, src, cont_oplist) {                                      \
+        if (func(&tmp, *item, data)) {                                        \
+          M_CALL_PUSH(cont_oplist, dst, tmp);                                 \
+        }                                                                     \
+    }                                                                         \
+    M_CALL_CLEAR(type_oplist, tmp);                                           \
+    M_IF_METHOD(REVERSE, cont_oplist)(M_CALL_REVERSE, M_EAT)(cont_oplist, dst); \
+  }                                                                           \
+  , /* END PUSH */), /* END INIT */ )                                    \
+                                                                              \
+  /* Reduce all elements of the container in dst in function of func */       \
+  M_IF_METHOD(SET, type_oplist)(                                              \
+  M_P(bool, name, _reduce, type_t *dest, container_t const l, M_F(name, _reduce_cb_ct) func) \
+  {                                                                           \
+    M_UNUSED_CONTEXT();                                                       \
+    bool initDone = false;                                                    \
+    for M_EACH(item, l, cont_oplist) {                                        \
+        if (initDone) {                                                       \
+          func(dest, *item);                                                  \
+        } else {                                                              \
+          M_CALL_SET(type_oplist, *dest, *item);                              \
+          initDone = true;                                                    \
+        }                                                                     \
+      }                                                                       \
+    return initDone;                                                          \
+  }                                                                           \
+  , /* END SET */)                                                            \
 
 /* Define ALL_OF algorithms */
 #define M_ALG0_DEF_ALL_OF(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, func_t, call) \
@@ -905,8 +890,8 @@
     *max_p = max;                                                             \
   }                                                                           \
 
-/* Define functions based on remove method */
-#define M_ALG0_DEF_REMOVE(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+/* Define functions if IT_REMOVE operator is defined */
+#define M_ALG0_DEF_IF_IT_REMOVE(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   M_P(void, name, _uniq, container_t l)                                       \
   {                                                                           \
