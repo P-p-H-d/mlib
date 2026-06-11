@@ -2597,10 +2597,12 @@ done
 
 /* If the Function Object is included, expands the code,
    otherwise do nothing.
+   M_IF_FUNCOBJ_EAT expands to M_EAT if the function object is not included, otherwise expand to the given macro function.
    M_FUNC0BJ_IS_NOT_DEFINED is defined to 0.
    NOTE: M_IF is the variable is not defined assumes yes.
 */
 #define M_IF_FUNCOBJ(a)             M_IF(M_FUNC0BJ_IS_NOT_DEFINED)( ,a)
+#define M_IF_FUNCOBJ_EAT(a)         M_IF(M_FUNC0BJ_IS_NOT_DEFINED)(M_EAT, a)
 
 
 /* Helper macro to redefine a function with a default value:
