@@ -1320,6 +1320,10 @@ perl -i -e 's/;/;\n/g' test-file.i
 cc -std=c99 -c -Wall test-file.i
 ```
 
+Or you can use the `cc.sh` script in the doc folder instead of your Unix compiler
+(it will automate theses steps, allowing you to see exactly the preprocessed code and 
+why the compiler reports an error).
+
 If you get the error "assignment to expression with array type", it means that the library
 tries using the default '=' operator to set an object which is not compatible:
 give the right method to the needed operator (usually `INIT_MOVE` or `INIT_SET`) in its oplist
