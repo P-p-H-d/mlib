@@ -135,8 +135,7 @@
   M_ALG0_DEF_FILL(name, container_t, cont_oplist, type_t, type_oplist, it_t)  \
   M_ALG0_DEF_VECTOR(name, container_t, cont_oplist, type_t, type_oplist, it_t)\
   M_IF_METHOD(CMP, type_oplist)(M_ALG0_DEF_IF_CMP, M_EAT)(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
-  M_IF_FUNCOBJ(M_ALG0_DEF_SORT_AUX(name, container_t, cont_oplist, type_t, type_oplist, it_t, \
-                                  _sort_fo, M_ALG0_SORT_CALL_OBJ_P4, M_ALG0_SORT_PARAM_OBJ_P4, M_ALG0_SORT_ARG_OBJ_P4) ) \
+  M_IF_FUNCOBJ_EAT(M_ALG0_DEF_SORT_AUX)(name, container_t, cont_oplist, type_t, type_oplist, it_t, _sort_fo, M_ALG0_SORT_CALL_OBJ_P4, M_ALG0_SORT_PARAM_OBJ_P4, M_ALG0_SORT_ARG_OBJ_P4)
 
 /* Define the algorithms depending on CMP and IT_REF operator */
 #define M_ALG0_DEF_IF_CMP(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
