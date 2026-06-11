@@ -4823,11 +4823,19 @@ See `SHARED_PTR_DECL` for additional information.
 Define the oplist of the shared pointer `name` view as a pointer (i.e. share ownership).
 The parameter `oplist` can be a simplified oplist of the encapsulated type (See `_DECL` macros).
 
+The default `INIT` operator initializes the shared pointer to a null constant pointer,
+so it is safe to call another constructor **once** to reinitialize the shared pointer.
+
+The default `INIT_SET` operator acquire another ownership on the data.
 
 #### `SHARED_DATA_OPLIST(name, oplist)`
 
 Define the oplist of the shared pointer `name` view as an object (i.e. copy object).
 The parameter `oplist` can be a simplified oplist of the encapsulated type (See `_DECL` macros).
+
+The default `INIT` operator initializes a new shared object.
+
+The default `INIT_SET` operator creates another clone on the data.
 
 Example:
 
@@ -8763,6 +8771,8 @@ Otherwise, it uses a standard compliant way, which is the slowest.
 M\*LIB ensures also that the deferred instructions registered in `M_DEFER` are properly executed on throwing exception.
 
 > Note: The variables which are not initialized through the macro `M_LET` or don't have their destructor called by the macro `M_DEFER` don't have their `CLEAR` operators called on exceptions.
+
+> Note: When using `M_DEFER`, you should also declare your variables as 'volatile' to avoid compiler optimizations (See `setjmp` limitation).
 
 A typical program will look like:
 

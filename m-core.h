@@ -4246,7 +4246,7 @@ M_INLINE size_t m_core_cstr_hash(const char str[])
 #define M_NO_DEF_GENTYPE          M_NO_DEFAULT_TYPE(GENTYPE)
 #define M_NO_DEF_KEY_TYPE         M_NO_DEFAULT_TYPE(KEY_TYPE)
 #define M_NO_DEF_VALUE_TYPE       M_NO_DEFAULT_TYPE(VALUE_TYPE)
-#define M_NO_DEF_NAME             M_NO_DEFAULT_TYPE(NAME) m_no_name
+#define M_NO_DEF_NAME             M_STATIC_ASSERT(false, M_LIB_MISSING_METHOD, "The NAME operator is not registered in the given OPLIST.") no_name
 
 /* Test if the given variable is indeed a basic C variable:
    int, float, enum, bool or compatible.

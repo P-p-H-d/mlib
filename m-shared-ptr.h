@@ -143,14 +143,17 @@
 
 /* OPLIST definition of a shared pointer */
 #define M_SHAR3D_OPLIST_P3(name, oplist)                                      \
-  (NAME(name), TYPE(struct M_C(name,_s) *)                                    \
-   ,M_IF_METHOD(INIT, oplist)(INIT(API_1(M_SHAR3D_NEW_WRAPPER)),)             \
+  (NAME(name), TYPE(struct M_C(name,_s) *m_volatile)                          \
+   ,INIT(M_SHAR3D_INIT_BASIC)                                                 \
    ,INIT_SET(API_4(M_F(name, _acquire)))                                      \
    ,SET(API_2(M_F(name, _set)))                                               \
-   ,CLEAR(M_F(name, _release))                                                \
+   ,CLEAR(M_F(name, _clear))                                                  \
    ,INIT_MOVE(M_SET_DEFAULT)                                                  \
    ,MOVE(M_SET_DEFAULT)                                                       \
    )
+
+/* Init to null constant pointer (compatible C / C++) */
+#define M_SHAR3D_INIT_BASIC(x) ((x) = 0)
 
 /* Deferred evaluation for the oplist definition,
    so that all arguments are evaluated before further expansion */
@@ -166,18 +169,14 @@
 
 /* OPLIST definition of the shared data of a shared pointer */
 #define M_SHAR3D_DATA_OPLIST_P3(name, oplist)                                 \
-  (NAME(name), TYPE(struct M_C(name,_s) *)                                    \
-   ,M_IF_METHOD(INIT, oplist)(INIT(API_1(M_SHAR3D_NEW_WRAPPER)),)             \
+  (NAME(name), TYPE(struct M_C(name,_s) *m_volatile)                          \
+   ,M_IF_METHOD(INIT, oplist)(INIT(API(M_F(name, _new), ARG1, )),)            \
    ,M_IF_METHOD(INIT_SET, oplist)(INIT_SET(API_4(M_F(name, _clone))),)        \
    ,M_IF_METHOD(SET, oplist)(SET(API_4(M_F(name, _copy))),)                   \
    ,CLEAR(M_F(name, _clear))                                                  \
    ,INIT_MOVE(M_SET_DEFAULT)                                                  \
    ,MOVE(M_SET_DEFAULT)                                                       \
    )
-
-// Wrapper for _new
-// API_4 isn't fully working since there is only one output argument.
-#define M_SHAR3D_NEW_WRAPPER(oplist, x) ((x) = M_F(M_GET_NAME oplist, _new)())
 
 
 /* Validation of the given oplist */
@@ -604,7 +603,7 @@ M_IF_METHOD(SET, oplist)( extern void M_F(name, _copy)(shared_t *, const shared_
 M_IF_METHOD2(INIT_SET, TYPE, oplist)( extern shared_t *M_F(name, _new_from)(M_GET_TYPE oplist const); , ) \
 extern shared_t *M_F(name, _acquire)(shared_t *);                             \
 extern void      M_F(name, _release)(shared_t *);                             \
-extern void      M_F(name, _set)(shared_t **, shared_t *);                    \
+extern void      M_F(name, _set)(shared_t *m_volatile*, shared_t *);          \
 extern void      M_F(name, _clear)(shared_t *);                               \
 M_EMPLACE_QUEUE_DEF(name, shared_t, M_F(name, _make), oplist, M_SHAR3D_PTR_DECL_BASIC_MAKE) \
 M_EMPLACE_QUEUE_DEF(name, shared_t, M_F(name, _remake), oplist, M_SHAR3D_PTR_DECL_BASIC_REMAKE)
@@ -696,7 +695,7 @@ fattr void M_F(name, _release)(shared_t *out)                                 \
     }                                                                         \
 }                                                                             \
                                                                               \
-fattr void M_F(name, _set)(shared_t **dst, shared_t *out)                     \
+fattr void M_F(name, _set)(shared_t *m_volatile*dst, shared_t *out)           \
 {                                                                             \
     M_ASSERT(dst != NULL && out != NULL);                                     \
     M_F(name, _release)(*dst);                                                \
