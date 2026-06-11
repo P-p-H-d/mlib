@@ -728,12 +728,12 @@ M_PAIR_2 name_attr shared_t *function_name(M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_
 M_PAIR_2 name_attr void function_name(shared_t *out, M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_emplace_type)) \
 {                                                                             \
     M_GLOBAL_CONTEXT();                                                       \
-    M_F(M_PAIR_1 name_attr, _write_lock)(out);                                              \
+    M_F(M_PAIR_1 name_attr, _write_lock)(out);                                \
     M_CALL_CLEAR(oplist, out->data);                                          \
     M_ON_EXCEPTION( M_CALL_INIT(oplist, out->data), M_F(M_PAIR_1 name_attr, _write_unlock)(out) ) \
         M_EMPLACE_CALL_FUNC(a, init_func, oplist, out->data, exp_emplace_type); \
-    M_F(M_PAIR_1 name_attr, _write_signal)(out);                                            \
-    M_F(M_PAIR_1 name_attr, _write_unlock)(out);                                            \
+    M_F(M_PAIR_1 name_attr, _write_signal)(out);                              \
+    M_F(M_PAIR_1 name_attr, _write_unlock)(out);                              \
 }                                                                             \
 
 /* Define the extra function of a shared pointer */
