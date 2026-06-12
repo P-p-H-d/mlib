@@ -4958,6 +4958,8 @@ Release the ownership of the pointer.
 If there is no longer any owner of the shared data, it is destroyed using its `CLEAR` method and the allocated memory freed.
 If `out` is NULL, it does nothing.
 
+Afterwards, the shared pointer `out` shall not be used anymore.
+
 ##### `void name_clear(name_t *out)`
 
 Alias of `name_release`
