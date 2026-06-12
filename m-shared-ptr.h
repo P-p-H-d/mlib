@@ -339,11 +339,13 @@ static inline  void M_F(name, _write_unlock)(shared_t *out)                   \
 /* Return a pointer to the data */                                            \
 static inline  type *M_F(name, _ref)(shared_t *out)                           \
 {                                                                             \
+    if (M_UNLIKELY(out == NULL)) return NULL;                                 \
     return &out->data;                                                        \
 }                                                                             \
 /* Return a const pointer to the data */                                      \
 static inline  type const *M_F(name, _cref)(const shared_t *out)              \
 {                                                                             \
+    if (M_UNLIKELY(out == NULL)) return NULL;                                 \
     return &out->data;                                                        \
 }                                                                             \
 /* Perform a write lock on out and a read lock on src */                      \
@@ -466,11 +468,13 @@ static inline void M_F(name, _write_unlock)(shared_t *out)                    \
                                                                               \
 static inline type *M_F(name, _ref)(shared_t *out)                            \
 {                                                                             \
+    if (M_UNLIKELY(out == NULL)) return NULL;                                 \
     return &out->data;                                                        \
 }                                                                             \
                                                                               \
 static inline type const *M_F(name, _cref)(const shared_t *out)               \
 {                                                                             \
+    if (M_UNLIKELY(out == NULL)) return NULL;                                 \
     return &out->data;                                                        \
 }                                                                             \
                                                                               \
@@ -633,7 +637,9 @@ M_IF_METHOD(INIT, oplist)(                                                    \
 M_IF_METHOD(INIT_SET, oplist)(                                                \
     fattr shared_t *M_F(name, _clone)(const shared_t *src)                    \
     {                                                                         \
-        M_ASSERT(src != NULL);                                                \
+        if (M_UNLIKELY(src == NULL)) {                                        \
+            return NULL;                                                      \
+        }                                                                     \
         M_GLOBAL_CONTEXT();                                                   \
         shared_t *out = M_CALL_NEW(oplist, shared_t);                         \
         if (M_UNLIKELY_NOMEM( out == NULL)) {                                 \
@@ -680,7 +686,7 @@ M_IF_METHOD(SET, oplist)(                                                     \
                                                                               \
 fattr shared_t *M_F(name, _acquire)(shared_t *out)                            \
 {                                                                             \
-    M_ASSERT(out != NULL);                                                    \
+    if (out == NULL) return NULL;                                             \
     M_C3(m_shar3d_, name, _inc_owner)(out);                                   \
     return out;                                                               \
 }                                                                             \
@@ -697,7 +703,6 @@ fattr void M_F(name, _release)(shared_t *out)                                 \
                                                                               \
 fattr void M_F(name, _set)(shared_t *m_volatile*dst, shared_t *out)           \
 {                                                                             \
-    M_ASSERT(dst != NULL && out != NULL);                                     \
     M_F(name, _release)(*dst);                                                \
     *dst = M_F(name, _acquire)(out);                                          \
 }                                                                             \
@@ -726,6 +731,7 @@ M_PAIR_2 name_attr shared_t *function_name(M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_
 #define M_SHAR3D_PTR_DEF_BASIC_REMAKE(name_attr, shared_t, function_name, oplist, init_func, exp_emplace_type) \
 M_PAIR_2 name_attr void function_name(shared_t *out, M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_emplace_type)) \
 {                                                                             \
+    M_ASSERT(out != NULL);                                                    \
     M_GLOBAL_CONTEXT();                                                       \
     M_F(M_PAIR_1 name_attr, _write_lock)(out);                                \
     M_CALL_CLEAR(oplist, out->data);                                          \
@@ -769,7 +775,7 @@ M_IF_METHOD(SWAP, oplist)(                                                    \
 M_IF_METHOD(RESET, oplist)(                                                   \
     fattr void M_F(name, _reset)(shared_t *out)                               \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return;                                  \
         M_GLOBAL_CONTEXT();                                                   \
         M_F(name, _write_lock)(out);                                          \
         /* RESET cannot throw exception */                                    \
@@ -782,7 +788,7 @@ M_IF_METHOD(RESET, oplist)(                                                   \
 M_IF_METHOD(EMPTY_P, oplist)(                                                 \
     fattr bool M_F(name, _empty_p)(const shared_t *out)                       \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return true;                             \
         M_F(name, _read_lock)(out);                                           \
         /* EMPTY_P cannot throw exception */                                  \
         bool r = M_CALL_EMPTY_P(oplist, out->data);                           \
@@ -794,7 +800,7 @@ M_IF_METHOD(EMPTY_P, oplist)(                                                 \
 M_IF_METHOD(FULL_P, oplist)(                                                  \
     fattr bool M_F(name, _full_p)(const shared_t *out)                        \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return true;                             \
         M_F(name, _read_lock)(out);                                           \
         /* FULL_P cannot throw exception */                                   \
         bool r = M_CALL_FULL_P(oplist, out->data);                            \
@@ -806,7 +812,7 @@ M_IF_METHOD(FULL_P, oplist)(                                                  \
 M_IF_METHOD(GET_SIZE, oplist)(                                                \
     fattr size_t M_F(name, _size)(const shared_t *out)                        \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return 0;                                \
         M_F(name, _read_lock)(out);                                           \
         /* GET_SIZE cannot throw exception */                                 \
         size_t r = M_CALL_GET_SIZE(oplist, out->data);                        \
@@ -818,8 +824,8 @@ M_IF_METHOD(GET_SIZE, oplist)(                                                \
 M_IF_METHOD(EQUAL, oplist)(                                                   \
     fattr bool M_F(name, _equal_p)(const shared_t *o1, const shared_t *o2)    \
     {                                                                         \
-        M_ASSERT(o1 != NULL && o2 != NULL);                                   \
-        if (o1 == o2) return true;                                            \
+        if (M_UNLIKELY(o1 == o2)) return true;                                \
+        if (M_UNLIKELY(o1 == NULL || o2 == NULL)) return false;               \
         /* See comment above on _write_read_lock */                           \
         if (o1 > o2) {                                                        \
             M_SWAP(const shared_t *, o1, o2);                                 \
@@ -838,9 +844,10 @@ M_IF_METHOD(EQUAL, oplist)(                                                   \
 M_IF_METHOD(CMP, oplist)(                                                     \
     fattr int M_F(name, _cmp)(const shared_t *o1, const shared_t *o2)         \
     {                                                                         \
-        M_ASSERT(o1 != NULL && o2 != NULL);                                   \
+        if (M_UNLIKELY(o1 == o2)) return 0;                                   \
+        if (M_UNLIKELY(o1 == NULL)) return -1;                                \
+        if (M_UNLIKELY(o2 == NULL)) return 1;                                 \
         int neg = 1;                                                          \
-        if (o1 == o2) return 0;                                               \
         /* See comment above on _write_read_lock */                           \
         if (o1 > o2) {                                                        \
             M_SWAP(const shared_t *, o1, o2);                                 \
@@ -860,7 +867,7 @@ M_IF_METHOD(CMP, oplist)(                                                     \
 M_IF_METHOD(HASH, oplist)(                                                    \
     fattr size_t M_F(name, _hash)(const shared_t *out)                        \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return 0;                                \
         M_F(name, _read_lock)(out);                                           \
         /* HASH cannot throw exception */                                     \
         size_t r = M_CALL_HASH(oplist, out->data);                            \
@@ -930,7 +937,8 @@ M_IF_METHOD(DIV, oplist)(                                                     \
 M_IF_METHOD(SPLICE, oplist)(                                                  \
     fattr void M_F(name, _splice)(shared_t *out, shared_t *src)               \
     {                                                                         \
-        M_ASSERT(out != NULL && src != NULL);                                 \
+        if (M_UNLIKELY(src == NULL)) return;                                  \
+        M_ASSERT(out != NULL);                                                \
         M_GLOBAL_CONTEXT();                                                   \
         if (out < src) {                                                      \
             M_F(name, _write_lock)(out);                                      \
@@ -1006,7 +1014,7 @@ M_IF_METHOD(SET_KEY, oplist)(                                                 \
 M_IF_METHOD(ERASE_KEY, oplist)(                                               \
     fattr bool M_F(name, _erase)(shared_t *out, key_type const key)           \
     {                                                                         \
-        M_ASSERT (out != NULL);                                               \
+        if (M_UNLIKELY(out == NULL)) return false;                            \
         M_GLOBAL_CONTEXT();                                                   \
         M_F(name, _write_lock)(out);                                          \
         /* No exception */                                                    \
@@ -1057,7 +1065,7 @@ M_IF_METHOD(PUSH, oplist)(                                                    \
                                                                               \
     fattr bool M_F(name, _try_push)(shared_t *out, sub_type const value)      \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return false;                            \
         M_GLOBAL_CONTEXT();                                                   \
         bool ret = false;                                                     \
         M_F(name, _write_lock)(out);                                          \
@@ -1091,7 +1099,7 @@ M_IF_METHOD(PUSH_MOVE, oplist)(                                               \
                                                                               \
     fattr bool M_F(name, _try_push_move)(shared_t *out, sub_type *value)      \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return false;                            \
         M_GLOBAL_CONTEXT();                                                   \
         bool ret = false;                                                     \
         M_F(name, _write_lock)(out);                                          \
@@ -1136,7 +1144,7 @@ fattr void function_name(shared_t *out M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_ty
 #define M_SHAR3D_PTR_DEF_TRY_EMPLACE_P2(name, fattr, type, oplist, shared_t, function_name, sub_oplist, init_func, exp_emplace_type) \
 fattr bool function_name(shared_t *out M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type)) \
 {                                                                             \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return false;                            \
         M_GLOBAL_CONTEXT();                                                   \
         bool ret = false;                                                     \
         M_F(name, _write_lock)(out);                                          \
@@ -1182,7 +1190,7 @@ M_IF_METHOD(POP, oplist)(                                                     \
                                                                               \
     fattr bool M_F(name, _try_pop)(sub_type *value, shared_t *out)            \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return false;                            \
         M_GLOBAL_CONTEXT();                                                   \
         bool ret = false;                                                     \
         M_F(name, _write_lock)(out);                                          \
@@ -1216,7 +1224,7 @@ M_IF_METHOD(POP_MOVE, oplist)(                                                \
                                                                               \
     fattr bool M_F(name, _try_pop_move)(sub_type *value, shared_t *out)       \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return false;                            \
         M_GLOBAL_CONTEXT();                                                   \
         bool ret = false;                                                     \
         M_F(name, _write_lock)(out);                                          \
@@ -1245,7 +1253,7 @@ M_IF_METHOD2(IT_LAST, IT_CREF, oplist)( extern int M_F(name, _r_for_each)(const 
 M_IF_METHOD2(IT_FIRST, IT_REF, oplist)(                                       \
     fattr int M_F(name, _apply)(shared_t *out, int (*callback)(void *, sub_type*), void*data) \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return 0;                                \
         M_ASSERT(callback != NULL);                                           \
         int ret = 0;                                                          \
         M_F(name, _write_lock)(out);                                          \
@@ -1265,7 +1273,7 @@ M_IF_METHOD2(IT_FIRST, IT_REF, oplist)(                                       \
 M_IF_METHOD2(IT_FIRST, IT_CREF, oplist)(                                      \
     fattr int M_F(name, _for_each)(const shared_t *out, int (*callback)(void *, const sub_type*), void*data) \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return 0;                                \
         M_ASSERT(callback != NULL);                                           \
         int ret = 0;                                                          \
         M_F(name, _read_lock)(out);                                           \
@@ -1284,7 +1292,7 @@ M_IF_METHOD2(IT_FIRST, IT_CREF, oplist)(                                      \
 M_IF_METHOD2(IT_LAST, IT_REF, oplist)(                                        \
     fattr int M_F(name, _r_apply)(shared_t *out, int (*callback)(void *, sub_type*), void*data) \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return 0;                                \
         M_ASSERT(callback != NULL);                                           \
         int ret = 0;                                                          \
         M_F(name, _write_lock)(out);                                          \
@@ -1304,7 +1312,7 @@ M_IF_METHOD2(IT_LAST, IT_REF, oplist)(                                        \
 M_IF_METHOD2(IT_LAST, IT_CREF, oplist)(                                       \
     fattr int M_F(name, _r_for_each)(const shared_t *out, int (*callback)(void *, const sub_type*), void*data) \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return 0;                                \
         M_ASSERT(callback != NULL);                                           \
         int ret = 0;                                                          \
         M_F(name, _read_lock)(out);                                           \

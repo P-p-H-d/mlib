@@ -4752,6 +4752,9 @@ Two level of API are created:
 
 The only mandatory operator is `CLEAR`.
 
+A shared pointer can be initialized with a NULL pointer.
+It means it references nothing. Several methods support the NULL pointer (and do nothing in this case).
+
 #### `SHARED_PTR_DECL(name, oplist)`
 #### `SHARED_PTR_DECL_AS(name, name_type, oplist)`
 #### `SHARED_WEAK_PTR_DECL(name, oplist)`
@@ -4899,6 +4902,14 @@ Opaque structure of the shared object, for which `name_t *`is a shared pointer.
 
 The public interface is declared and defined to be used by the user of the shared object / shared pointer.
 
+You can initialize a shared pointer to NULL directly:
+
+```C
+  shared_data_t *p = NULL;
+```
+
+Only the methods that say what they did with a NULL pointer accept a NULL pointer.
+
 ##### `name_t *name_new(void)`
 
 Create a new shared object initialized with its `INIT` operator and return a shared pointer to it.
@@ -4913,6 +4924,7 @@ This method is created only if the `INIT_SET` operator is defined.
 
 Create a new shared object initialized with the content of `*src`, creating effectively a clone.
 This method is created only if the `INIT_SET` operator is defined.
+If `src` is NULL, it returns NULL.
 
 ##### `name_t *name_make[<emplace_suffix>](<emplace_args>)`
 
@@ -4924,24 +4936,27 @@ This method is created only if the `EMPLACE_TYPE` operator is defined.
 Copy into the shared object `*out` the content of `*src`, creating effectively a copy if the shared pointers are not the same.
 This method is created only if the `SET` operator is defined.
 
-##### `void name_remake[<emplace_suffix>](name_t * dst, <emplace_args>)`
+##### `void name_remake[<emplace_suffix>](name_t *dst, <emplace_args>)`
 
-Discard current value of shared object and recreate the shared object initialized with the content of `<emplace_args>`.
+Discard current value of shared object and recreate the shared object `*dst` initialized with the content of `<emplace_args>`.
 This method is created only if the `EMPLACE_TYPE` operator is defined.
 
 ##### `void name_set(name_t **dst, name_t *out)`
 
 Release the current ownership of `*dst` and set `*dst` as a new owner of `*out`
 (Copy of pointer)
+`*dst` and `out` can be NULL pointers.
 
 ##### `name_t *name_acquire(name_t *out)`
 
 Acquire a new ownership of the pointer, returning an owned pointer to the same data (but with one more registered owner).
+If `out` is NULL, it returns NULL.
 
 ##### `void name_release(name_t *out)`
 
 Release the ownership of the pointer.
 If there is no longer any owner of the shared data, it is destroyed using its `CLEAR` method and the allocated memory freed.
+If `out` is NULL, it does nothing.
 
 ##### `void name_clear(name_t *out)`
 
@@ -4956,36 +4971,44 @@ This method is created only if the `SWAP` operator is defined.
 
 Reset the content of the shared object `*a`.
 This method is created only if the `RESET` operator is defined.
+If `a` is a NULL pointer, it does nothing.
 
 ##### `bool name_empty_p(const name_t *a)`
 
 Test if the shared object `*a` is empty (return true) or not (return false).
 This method is created only if the `EMPTY_P` operator is defined.
+If `a` is a NULL pointer, it returns true.
 
 ##### `bool name_full_p(const name_t *a)`
 
 Test if the shared object `*a` is full (return true) or not (return false).
 This method is created only if the `FULL_P` operator is defined.
+If `a` is a NULL pointer, it returns true.
 
 ##### `size_t name_size(const name_t *a)`
 
 Return the number of elements of the shared object `*a`
 This method is created only if the `GET_SIZE` operator is defined.
+If `a` is a NULL pointer, it returns 0.
 
-##### `bool name_equal_p(const name_t *a, const name_t *a)`
+##### `bool name_equal_p(const name_t *a, const name_t *b)`
 
 Test if the shared objects `*a` and `*b` are equal (return true) or not (return false).
 This method is created only if the `EQUAL` operator is defined.
+If `a` or `b` are NULL pointers, it returns true only if both are NULL pointers, otherwise false.
 
 ##### `int name_cmp(const name_t *a, const name_t *b)`
 
 Compare the order of the shared objects `*a` and `*b`, returning their relative order.
 This method is created only if the `CMP` operator is defined.
+If `a` or `b` are NULL pointers, it returns 0 only if both are NULL pointers,
+otherwise it considers the NULL pointer to be below anything else.
 
-##### `size_t name_hash(const name_t *)`
+##### `size_t name_hash(const name_t *a)`
 
 Return the hash of the shared object `*a`.
 This method is created only if the `HASH` operator is defined.
+If `a` is a NULL pointer, it returns 0.
 
 ##### `void name_add(name_t *a, const name_t *b, const name_t *c)`
 
@@ -5012,6 +5035,7 @@ This method is created only if the `DIV` operator is defined.
 Append in `*a` all elements of `*b` and reset `*b`.
 This method is created only if the `SPLICE` operator is defined.
 `a` and `b` shall reference different objects.
+If `b` is a NULL pointer, it does nothing.
 
 ##### `bool name_get(value_type *val, const name_t *a, key_type const key)`
 
@@ -5036,6 +5060,7 @@ This method is created only if the `SET_KEY` operator is defined.
 Erase the association of `key` in `*a` if it exists (return true in this case).
 Otherwise return false.
 This method is created only if the `ERASE_KEY` operator is defined.
+If `a` is a NULL pointer, it returns false.
 
 ##### `void name_push(name_t *a, sub_type const el)`
 
@@ -5058,18 +5083,21 @@ This method is created only if the `PUSH_MOVE` operator and the `EMPLACE_TYPE` o
 Try to push in `*a` the element `el`,if it is not full (return true in this case).
 Return false otherwise (cannot push element)
 This method is created only if the `PUSH` operator is defined.
+If `a` is a NULL pointer, it returns false.
 
 ##### `bool name_try_push_move(name_t *a, sub_type *el)`
 
 Try to push in `*a` the element `*el`,if the container is not full and clear `*el` (return true in this case).
 Return false otherwise (cannot push element) and `*el` is still initialized.
 This method is created only if the `PUSH_MOVE` operator is defined.
+If `a` is a NULL pointer, it returns false.
 
 ##### `bool name_try_emplace<emplace_suffix>(name_t *a[, <emplace_args> args])`
 
 Try to push in `*a` the element constructed from the arguments `args`, if the container is not full (return true in this case).
 Return false otherwise (cannot push element).
 This method is created only if the `PUSH_MOVE` operator and the `EMPLACE_TYPE` of the sub_type (within the sub `OPLIST`) are defined.
+If `a` is a NULL pointer, it returns false.
 
 ##### `void name_pop(sub_type *const el, name_t *a)`
 
@@ -5086,12 +5114,14 @@ This method is created only if the `POP_MOVE` operator is defined.
 Pop the element from `*a` and set `*el` with it if an element to be available (return true in this case).
 Otherwise return false.
 This method is created only if the `POP` operator is defined.
+If `a` is a NULL pointer, it returns false.
 
 ##### `bool name_try_pop_move(sub_type *, name_t *)`
 
 Pop the element from `*a` and initialize `*el` with it, stealing as much resource as possible, if an element is available (return true in this case).
 Otherwise return false.
 This method is created only if the `POP_MOVE` operator is defined.
+If `a` is a NULL pointer, it returns false.
 
 ##### `int name_apply(name_t *a, int (*callback(void *data, sub_type*), void *data)`
 
@@ -5100,6 +5130,7 @@ The callback may modify the given element if possible.
 `data` is a user parameter given to the callback at user convenience.
 If the callback returns a non null argument, the function stops and returns immediately with this error code.
 This method is created only if the `IT_FIRST`, `IT_NEXT` and `IT_REF` operators are defined.
+If `a` is a NULL pointer, it does nothing and returns 0.
 
 ##### `int name_for_each(const name_t *a, int (*callback)(void *data, const sub_type*), void *data)`
 
@@ -5108,6 +5139,7 @@ The callback shall not modify the given element.
 `data` is a user parameter given to the callback at user convenience.
 If the callback returns a non null argument, the function stops and returns immediately with this error code.
 This method is created only if the `IT_FIRST`, `IT_NEXT` and `IT_CREF` operators are defined.
+If `a` is a NULL pointer, it does nothing and returns 0.
 
 ##### `int name_r_apply(name_t *, int (*callback(void *data, sub_type*), void*data)`
 
@@ -5116,6 +5148,7 @@ The callback may modify the given element if possible.
 `data` is a user parameter given to the callback at user convenience.
 If the callback returns a non null argument, the function stops and returns immediately with this error code.
 This method is created only if the `IT_LAST`, `IT_PREVIOUS` and `IT_REF` operators are defined.
+If `a` is a NULL pointer, it does nothing and returns 0.
 
 ##### `int name_r_for_each(const name_t *, int (*callback)(void *data, const sub_type*), void*data)`
 
@@ -5124,6 +5157,7 @@ The callback shall not modify the given element.
 `data` is a user parameter given to the callback at user convenience.
 If the callback returns a non null argument, the function stops and returns immediately with this error code.
 This method is created only if the `IT_LAST`, `IT_PREVIOUS` and `IT_CREF` operators are defined.
+If `a` is a NULL pointer, it does nothing and returns 0.
 
 ##### `void name_out_str(FILE *f, const name_t *a)`
 
