@@ -2,6 +2,9 @@
 name=/tmp/prepro-$USER/$$.c
 param1=""
 param2=""
+if test "$SUB_CC" = "" ; then
+    SUB_CC=cc
+fi
 while test $# -gt 0 ; do
     case $1 in
         -c) param2="$param2 -c" ;;
@@ -13,7 +16,7 @@ while test $# -gt 0 ; do
 done
 d=$(dirname $name)
 mkdir -p $d
-echo "Preprocessing to $name"
-cc $param1 -E |grep -v '^# ' > ${name}      \
+echo "Preprocessing to $name using CC=$SUB_CC"
+$SUB_CC $param1 -E |grep -v '^# ' > ${name}      \
     && clang-format -i ${name}              \
-    && cc $param2 ${name}
+    && $SUB_CC $param2 ${name}

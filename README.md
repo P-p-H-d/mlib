@@ -1323,6 +1323,8 @@ cc -std=c99 -c -Wall test-file.i
 Or you can use the `cc.sh` script in the doc folder instead of your Unix compiler
 (it will automate theses steps, allowing you to see exactly the preprocessed code and 
 why the compiler reports an error).
+You can define SUB_CC as an environement variable to define the sub compiler to
+use for this script.
 
 If you get the error "assignment to expression with array type", it means that the library
 tries using the default '=' operator to set an object which is not compatible:
