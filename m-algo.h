@@ -125,7 +125,7 @@
   M_IF_METHOD(EQUAL, type_oplist)(M_ALG0_DEF_IF_EQUAL, M_EAT)(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   M_ALG0_DEF_FIND_IF(name, container_t, cont_oplist, type_t, type_oplist, it_t, if, M_F(name,_test_cb_ct), M_F(name,_eq_cb_ct), M_APPLY, M_APPLY) \
   M_ALG0_DEF_MAP(name, container_t, cont_oplist, type_t, type_oplist, it_t)   \
-  M_ALG0_DEF_ALL_OF(name, container_t, cont_oplist, type_t, type_oplist, it_t, _, M_F(name,_test_cb_ct), M_APPLY)                        \
+  M_ALG0_DEF_ALL_OF(name, container_t, cont_oplist, type_t, type_oplist, it_t, _, M_F(name,_test_cb_ct), M_APPLY) \
   M_IF_METHOD(IT_REF, cont_oplist)(M_ALG0_DEF_IF_IT_REF, M_EAT)(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   M_IF_METHOD(EXT_ALGO, type_oplist)(M_ALG0_DEF_IF_EXT_ALGO, M_EAT)(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
 
@@ -783,7 +783,7 @@
     M_CALL_CLEAR(type_oplist, tmp);                                           \
     M_IF_METHOD(REVERSE, cont_oplist)(M_CALL_REVERSE, M_EAT)(cont_oplist, dst); \
   }                                                                           \
-  , /* END PUSH */), /* END INIT */ )                                    \
+  , /* END PUSH */), /* END INIT */ )                                         \
                                                                               \
   /* Reduce all elements of the container in dst in function of func */       \
   M_IF_METHOD(SET, type_oplist)(                                              \
