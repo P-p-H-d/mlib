@@ -282,6 +282,7 @@ static inline void M_C3(m_shar3d_, name, _inc_owner)(shared_t *out)           \
 /* Decrement the number of owner (release the resource). Return true if it was the last owner */ \
 static inline bool M_C3(m_shar3d_, name, _dec_owner)(shared_t *out)           \
 {                                                                             \
+    M_ASSERT(out->cpt >= 1);                                                  \
     out->cpt --;                                                              \
     return 0 == out->cpt;                                                     \
 }                                                                             \
@@ -299,6 +300,7 @@ static inline  void M_F(name, _clear_lock)(shared_t *out)                     \
 /* Enter the lock for reading the data */                                     \
 static inline  void M_F(name, _read_lock)(const shared_t *out)                \
 {                                                                             \
+    M_ASSERT(out->cpt >= 1);                                                  \
     (void) out;                                                               \
 }                                                                             \
 /* wait for some new data to be available (within read_lock) */               \
@@ -314,6 +316,7 @@ static inline  void M_F(name, _read_unlock)(const shared_t *out)              \
 /* Enter the lock for writing/updating the data */                            \
 static inline  void M_F(name, _write_lock)(shared_t *out)                     \
 {                                                                             \
+    M_ASSERT(out->cpt >= 1);                                                  \
     (void) out;                                                               \
 }                                                                             \
 /* wait to be able to write new data (within write_lock) */                   \
@@ -340,12 +343,14 @@ static inline  void M_F(name, _write_unlock)(shared_t *out)                   \
 static inline  type *M_F(name, _ref)(shared_t *out)                           \
 {                                                                             \
     if (M_UNLIKELY(out == NULL)) return NULL;                                 \
+    M_ASSERT(out->cpt >= 1);                                                  \
     return &out->data;                                                        \
 }                                                                             \
 /* Return a const pointer to the data */                                      \
 static inline  type const *M_F(name, _cref)(const shared_t *out)              \
 {                                                                             \
     if (M_UNLIKELY(out == NULL)) return NULL;                                 \
+    M_ASSERT(out->cpt >= 1);                                                  \
     return &out->data;                                                        \
 }                                                                             \
 /* Perform a write lock on out and a read lock on src */                      \
@@ -353,18 +358,25 @@ static inline  void M_F(name, _write_read_lock)(shared_t *out, const shared_t *s
 {                                                                             \
     (void) out;                                                               \
     (void) src;                                                               \
+    M_ASSERT(out->cpt >= 1);                                                  \
+    M_ASSERT(src->cpt >= 1);                                                  \
 }                                                                             \
 /* Leave the write lock on out and the read lock on src */                    \
 static inline  void M_F(name, _write_read_unlock)(shared_t *out, const shared_t *src) \
 {                                                                             \
     (void) out;                                                               \
     (void) src;                                                               \
+    M_ASSERT(out->cpt >= 1);                                                  \
+    M_ASSERT(src->cpt >= 1);                                                  \
 }                                                                             \
 static inline void M_F(name, _write_read2_lock)(shared_t *out, const shared_t *src1, const shared_t *src2) \
 {                                                                             \
     (void) out;                                                               \
     (void) src1;                                                              \
     (void) src2;                                                              \
+    M_ASSERT(out->cpt >= 1);                                                  \
+    M_ASSERT(src1->cpt >= 1);                                                 \
+    M_ASSERT(src2->cpt >= 1);                                                 \
 }                                                                             \
                                                                               \
 static inline void M_F(name, _write_read2_unlock)(shared_t *out, const shared_t *src1, const shared_t *src2) \
@@ -372,6 +384,9 @@ static inline void M_F(name, _write_read2_unlock)(shared_t *out, const shared_t 
     (void) out;                                                               \
     (void) src1;                                                              \
     (void) src2;                                                              \
+    M_ASSERT(out->cpt >= 1);                                                  \
+    M_ASSERT(src1->cpt >= 1);                                                 \
+    M_ASSERT(src2->cpt >= 1);                                                 \
 }                                                                             \
 
 
@@ -401,6 +416,7 @@ static inline void M_C3(m_shar3d_, name, _inc_owner)(shared_t *out)           \
                                                                               \
 static inline bool M_C3(m_shar3d_, name, _dec_owner)(shared_t *out)           \
 {                                                                             \
+    M_ASSERT(atomic_load(&out->cpt) >= 1);                                    \
     return 1 == atomic_fetch_sub(&out->cpt, 1);                               \
 }                                                                             \
                                                                               \
@@ -422,6 +438,7 @@ static inline void M_F(name, _clear_lock)(shared_t *out)                      \
 static inline void M_F(name, _read_lock)(const shared_t *out)                 \
 {                                                                             \
     shared_t *self = (shared_t *)(uintptr_t)out;                              \
+    M_ASSERT(atomic_load(&self->cpt) >= 1);                                    \
     m_mutex_lock (self->lock);                                                \
 }                                                                             \
                                                                               \
@@ -439,6 +456,7 @@ static inline void M_F(name, _read_unlock)(const shared_t *out)               \
                                                                               \
 static inline void M_F(name, _write_lock)(shared_t *out)                      \
 {                                                                             \
+    M_ASSERT(atomic_load(&out->cpt) >= 1);                                    \
     m_mutex_lock (out->lock);                                                 \
 }                                                                             \
                                                                               \
@@ -469,12 +487,16 @@ static inline void M_F(name, _write_unlock)(shared_t *out)                    \
 static inline type *M_F(name, _ref)(shared_t *out)                            \
 {                                                                             \
     if (M_UNLIKELY(out == NULL)) return NULL;                                 \
+    M_ASSERT(atomic_load(&out->cpt) >= 1);                                    \
     return &out->data;                                                        \
 }                                                                             \
                                                                               \
 static inline type const *M_F(name, _cref)(const shared_t *out)               \
 {                                                                             \
     if (M_UNLIKELY(out == NULL)) return NULL;                                 \
+    shared_t *self = (shared_t *)(uintptr_t)out;                              \
+    M_ASSERT(atomic_load(&self->cpt) >= 1);                                    \
+    (void) self;\
     return &out->data;                                                        \
 }                                                                             \
                                                                               \
