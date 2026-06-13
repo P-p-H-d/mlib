@@ -437,8 +437,11 @@ static inline void M_F(name, _clear_lock)(shared_t *out)                      \
                                                                               \
 static inline void M_F(name, _read_lock)(const shared_t *out)                 \
 {                                                                             \
+    /* unconst the pointer to allow locking. From a user point of view        \
+    it looks like a C++ const semantic. Moreover, a shared_t pointer can      \
+    only be allocated on the heap itself, so it is safe to cast away const.*/ \
     shared_t *self = (shared_t *)(uintptr_t)out;                              \
-    M_ASSERT(atomic_load(&self->cpt) >= 1);                                    \
+    M_ASSERT(atomic_load(&self->cpt) >= 1);                                   \
     m_mutex_lock (self->lock);                                                \
 }                                                                             \
                                                                               \
@@ -495,8 +498,8 @@ static inline type const *M_F(name, _cref)(const shared_t *out)               \
 {                                                                             \
     if (M_UNLIKELY(out == NULL)) return NULL;                                 \
     shared_t *self = (shared_t *)(uintptr_t)out;                              \
-    M_ASSERT(atomic_load(&self->cpt) >= 1);                                    \
-    (void) self;\
+    M_ASSERT(atomic_load(&self->cpt) >= 1);                                   \
+    (void) self;                                                              \
     return &out->data;                                                        \
 }                                                                             \
                                                                               \
