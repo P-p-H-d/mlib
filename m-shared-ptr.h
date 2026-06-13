@@ -908,7 +908,6 @@ M_IF_METHOD(ADD, oplist)( extern void M_F(name, _add)(shared_t *, const shared_t
 M_IF_METHOD(SUB, oplist)( extern void M_F(name, _sub)(shared_t *, const shared_t *, const shared_t *); , ) \
 M_IF_METHOD(MUL, oplist)( extern void M_F(name, _mul)(shared_t *, const shared_t *, const shared_t *); , ) \
 M_IF_METHOD(DIV, oplist)( extern void M_F(name, _div)(shared_t *, const shared_t *, const shared_t *); , ) \
-M_IF_METHOD(SPLICE, oplist)( extern void M_F(name, _splice)(shared_t *, shared_t *); , ) \
 
 #define M_SHAR3D_PTR_DEF_ARITH(name, shared_t, type, oplist, fattr)           \
 M_IF_METHOD(ADD, oplist)(                                                     \
@@ -958,28 +957,6 @@ M_IF_METHOD(DIV, oplist)(                                                     \
         M_F(name, _write_read2_unlock)(out, src1, src2);                      \
     }                                                                         \
 , )                                                                           \
-                                                                              \
-M_IF_METHOD(SPLICE, oplist)(                                                  \
-    fattr void M_F(name, _splice)(shared_t *out, shared_t *src)               \
-    {                                                                         \
-        if (M_UNLIKELY(src == NULL)) return;                                  \
-        M_ASSERT(out != NULL);                                                \
-        M_GLOBAL_CONTEXT();                                                   \
-        if (out < src) {                                                      \
-            M_F(name, _write_lock)(out);                                      \
-            M_F(name, _write_lock)(src);                                      \
-        } else {                                                              \
-            M_F(name, _write_lock)(src);                                      \
-            M_F(name, _write_lock)(out);                                      \
-        }                                                                     \
-        M_ON_EXCEPTION( M_F(name, _write_unlock)(out), M_F(name, _write_unlock)(src) ) \
-            M_CALL_SPLICE(oplist, out->data, src->data);                      \
-        M_F(name, _write_signal)(out);                                        \
-        M_F(name, _write_unlock)(out);                                        \
-        M_F(name, _write_unlock)(src);                                        \
-    }                                                                         \
-, )                                                                           \
-
 
 /* Define the key based operators */
 #define M_SHAR3D_PTR_DECL_KEY(name, shared_t, oplist, key_type, value_type)   \
