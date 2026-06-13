@@ -276,6 +276,22 @@ static int callback3(void *data, int *el)
     return 0;
 }
 
+static int callback4(void *data, int *el)
+{
+    int *cpt_ptr = (int *) data;
+    assert(*el == *cpt_ptr);
+    (*cpt_ptr)--;
+    return 0;
+}
+
+static int callback5(void *data, const int *el)
+{
+    int *cpt_ptr = (int *) data;
+    assert(*el == *cpt_ptr);
+    (*cpt_ptr)--;
+    return 0;
+}
+
 static void test_array(void)
 {
     shared_array_t *p = shared_array_new();
@@ -316,11 +332,20 @@ static void test_array(void)
     r = shared_array_apply(p, callback3, &s);
     assert(r == 0);
 
+    // Do nothing
+    r = shared_array_apply(NULL, callback3, &s);
+    assert(r == 0);
+
     s = 0;
     r = shared_array_for_each(p, callback1, &s);
     assert(r == 0);
     assert(s == 9*10);
 
+    // Do nothing
+    r = shared_array_for_each(NULL, callback1, &s);
+    assert(r == 0);
+    assert(s == 9*10);
+    
     for(int i = 9 ; i >= 0; i--) {
         b = shared_array_try_pop(&j, p);
         assert(b);
@@ -339,6 +364,34 @@ static void test_array(void)
     b = shared_array_get(&r, p, 22);
     assert(b);
     assert(r == 0);
+
+    // Do nothing
+    int cpt = 3;
+    r = shared_array_r_apply(NULL, callback3, &s);
+    assert(r == 0);
+    r = shared_array_r_apply(NULL, callback4, (void*)&cpt);
+    assert(r == 0);
+    assert(cpt == 3);
+
+    r = shared_array_r_for_each(NULL, callback1, &s);
+    assert(r == 0);
+    r = shared_array_r_for_each(NULL, callback5, (void*)&cpt);
+    assert(r == 0);
+    assert(cpt == 3);
+
+    // Test for _r_apply & _r_for_each are not tested with a valid array.
+    shared_array_reset(p);
+    for(int i = 0 ; i < 4; i++) {
+        shared_array_push(p, i);
+    }
+    r = shared_array_r_apply(p, callback4, (void*)&cpt);
+    assert(r == 0);
+    assert(cpt == -1);
+
+    cpt = 3;
+    r = shared_array_r_for_each(p, callback5, (void*)&cpt);
+    assert(r == 0);
+    assert(cpt == -1);
 
     shared_array_release(p);
 }
@@ -362,6 +415,16 @@ static void test_array_string(void)
 
     bool b = shared_array_str_try_emplace(p, " ");
     assert(b);
+
+    // Test with NULL
+    b = shared_array_str_try_emplace(NULL, " ");
+    assert(!b);
+    string_init_set_str(tmp, "!");
+    b = shared_array_str_try_push_move(NULL, &tmp); // tmp is still alive
+    assert(!b);
+    string_clear(tmp);
+    b = shared_array_str_try_pop_move(&tmp, NULL); // tmp is not initialized
+    assert(!b);
 
     string_init_set_str(tmp, "!");
     b = shared_array_str_try_push_move(p, &tmp); // No need to clear tmp
@@ -522,9 +585,48 @@ static void test_string_NULL(void)
 {
   // Test of NULL pointer handling.
   shared_string_t *p = NULL;
-  // TODO: Get the methods that accept NULL pointer as per the chapter ### M-SHARED-PTR of the doc
-  // and test them here with shared_string_t.
+  shared_string_t *q = shared_string_make("test");
 
+  assert(shared_string_acquire(p) == NULL);
+    
+  shared_string_reset(p);    // should not crash
+  
+  assert(shared_string_empty_p(p) == true);
+  
+  assert(shared_string_size(p) == 0);
+  
+  assert(shared_string_equal_p(p, q) == false);
+  assert(shared_string_equal_p(q, p) == false);
+  assert(shared_string_equal_p(p, p) == true);  // NULL == NULL is true
+  
+  assert(shared_string_cmp(p, q) < 0);   // NULL comes before non-NULL
+  assert(shared_string_cmp(q, p) > 0);   // non-NULL comes after NULL
+  assert(shared_string_cmp(p, p) == 0);  // NULL == NULL
+  
+  assert(shared_string_hash(p) == 0);
+  
+  assert(shared_string_erase(p, 0) == false);
+  
+  assert(shared_string_try_push(p, 'A') == false);
+
+  m_string_unicode_t u;
+  assert(shared_string_try_pop(&u, p) == false);
+
+  // _try_emplace with NULL is tested with another type
+
+  // shared_string_apply doesn't exist as IT_REF is not defined for string_t
+  // (Cannot modify UTF8 encoding while iterating over it)
+  int r = shared_string_for_each( p, str_callback, NULL);  // should not crash
+  assert(r == 0);
+
+  r = shared_string_r_for_each( p, str_callback, NULL);  // should not crash
+  assert(r == 0);
+
+  // _apply and _r_apply with NULL are tested with another type
+
+  shared_string_release(p);  // should not crash
+
+  shared_string_release(q);
 }
 
 /************************************************************************/
