@@ -1947,6 +1947,13 @@ m_string_previous(m_string_it_t it)
   M_STR1NG_IT_CONTRACT(it);
 }
 
+M_INLINE void
+m_string_it_last(m_string_it_t it, const m_string_t str)
+{
+  m_string_it_end(it, str);
+  m_string_previous(it);
+}
+
 /* Return the unicode code point associated to the iterator */
 M_INLINE m_string_unicode_t
 m_string_get_cref (const m_string_it_t it)
@@ -2226,6 +2233,8 @@ namespace m_lib {
    ,IT_END_P(m_string_end_p)                                                  \
    ,IT_EQUAL_P(m_string_it_equal_p)                                           \
    ,IT_NEXT(m_string_next)                                                    \
+   ,IT_PREVIOUS(m_string_previous)                                            \
+   ,IT_LAST(m_string_it_last)                                                 \
    ,IT_CREF(m_string_cref), PUSH(m_string_push_u)                             \
    ,EMPLACE_TYPE(const char*)                                                 \
    )
@@ -2251,6 +2260,8 @@ namespace m_lib {
     ,IT_END_P(m_string_end_p)                                                 \
     ,IT_EQUAL_P(m_string_it_equal_p)                                          \
     ,IT_NEXT(m_string_next)                                                   \
+    ,IT_PREVIOUS(m_string_previous)                                           \
+    ,IT_LAST(m_string_it_last)                                                \
     ,IT_CREF(m_string_cref), PUSH(API_0P(m_string_push_u))                    \
     ,EMPLACE_TYPE(const char*)                                                \
     )
@@ -2918,6 +2929,7 @@ namespace m_lib {
 #define string_it m_string_it
 #define string_it_end m_string_it_end
 #define string_it_set m_string_it_set
+#define string_it_last m_string_it_last
 #define string_end_p m_string_end_p
 #define string_it_equal_p m_string_it_equal_p
 #define string_next m_string_next

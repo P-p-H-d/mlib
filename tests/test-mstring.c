@@ -142,7 +142,7 @@ static void test_utf8_it(void)
   assert( string_it_get_pos(it) == 9);
   assert( string_end_p(it) );
 
-  for(string_it_end(it, s), string_previous(it); !string_end_p(it); string_previous(it)) {
+  for(string_it_last(it, s); !string_end_p(it); string_previous(it)) {
     assert(i > 0);
     i--;
     assert (string_get_cref(it) == tab[i]);

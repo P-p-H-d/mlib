@@ -6101,6 +6101,10 @@ Initialize the iterator `it` to the end iteration of the string `str`.
 
 Initialize the iterator `it1` to the same position than `it2`.
 
+##### `void string_it_last(string_it_t it, const string_t str)`
+
+Initialize the iterator `it` to the last valid character of the string `str`.
+
 ##### `void string_it_pos(string_it_t it, const string_t str, size_t pos)`
 
 Initialize the iterator `it` to iterate over the UTF-8 code points
