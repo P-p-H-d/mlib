@@ -4755,6 +4755,9 @@ The only mandatory operator is `CLEAR`.
 A shared pointer can be initialized with a NULL pointer.
 It means it references nothing. Several methods support the NULL pointer (and do nothing in this case).
 
+Once a shared pointer has been affected with a value by initializing / constructing it,
+it shall not be reaffected anymore, except if it was a NULL pointer.
+  
 #### `SHARED_PTR_DECL(name, oplist)`
 #### `SHARED_PTR_DECL_AS(name, name_type, oplist)`
 #### `SHARED_WEAK_PTR_DECL(name, oplist)`
