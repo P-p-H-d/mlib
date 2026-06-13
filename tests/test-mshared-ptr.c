@@ -88,7 +88,21 @@ static inline void string_div(string_t d, const string_t a, const string_t b)
   string_printf(d, "%d", ia/ib);
 }
 
-#define STR_OPL M_OPEXTEND(STRING_OPLIST, POP(string_pop_u), GET_SIZE(string_length_u), ADD(string_add), SUB(string_sub), MUL(string_mul), DIV(string_div))
+static inline bool string_erase(string_t s, size_t index)
+{
+  size_t n = string_size(s);
+  if (index >= n) {
+    return false;
+  }
+  M_LET(tmp, string_t) {
+    string_set_n(tmp, s, index + 1, n - index - 1);
+    string_left(s, index);
+    string_cat(s, tmp);
+  }
+  return true;
+}
+
+#define STR_OPL M_OPEXTEND(STRING_OPLIST, POP(string_pop_u), GET_SIZE(string_length_u), ERASE_KEY(string_erase), KEY_TYPE(size_t), ADD(string_add), SUB(string_sub), MUL(string_mul), DIV(string_div))
 SHARED_PTR_DECL(shared_string, STR_OPL)
 
 static int str_callback(void *data, const string_unicode_t *u)
@@ -103,6 +117,20 @@ static int str_callback2(void *data, const string_unicode_t *u)
   string_unicode_t *pu = (string_unicode_t *) data;
   *pu += *u;
   return 1;
+}
+
+static int str_callback_splice(void *data, const string_unicode_t *u)
+{
+  shared_string_t *dst = (shared_string_t *) data;
+  shared_string_push(dst, *u);
+  return 0;
+}
+
+static inline void shared_string_splice_by_for_each(shared_string_t *d, shared_string_t *s)
+{
+  int r = shared_string_for_each(s, str_callback_splice, d);
+  assert(r == 0);
+  shared_string_reset(s);
 }
 
 static void test_string(void)
@@ -166,8 +194,22 @@ static void test_string(void)
     shared_string_swap(q, r2);
     assert(!shared_string_empty_p(r2));
     assert(shared_string_empty_p(q));
-    // todo: shared_string_splice
-    // todo: shared_string_erase
+
+    shared_string_remake(q, "alpha");
+    shared_string_remake(r2, "beta");
+    shared_string_splice_by_for_each(q, r2);
+    shared_string_t *expected = shared_string_make("alphabeta");
+    assert(shared_string_equal_p(q, expected));
+    shared_string_release(expected);
+    assert(shared_string_empty_p(r2));
+
+    shared_string_remake(q, "abcd");
+    assert(shared_string_erase(q, 1));
+    expected = shared_string_make("acd");
+    assert(shared_string_equal_p(q, expected));
+    shared_string_release(expected);
+    assert(!shared_string_erase(q, 10));
+
     shared_string_release(r2);
     shared_string_clear(q);
     shared_string_release(r);
@@ -476,6 +518,15 @@ static void test_string2(void)
   shared_string_release(rr);
 }
 
+static void test_string_NULL(void)
+{
+  // Test of NULL pointer handling.
+  shared_string_t *p = NULL;
+  // TODO: Get the methods that accept NULL pointer as per the chapter ### M-SHARED-PTR of the doc
+  // and test them here with shared_string_t.
+
+}
+
 /************************************************************************/
 
 #define MAX_NUM 200
@@ -544,6 +595,7 @@ int main(void)
 {
     test_string();
     test_string2();
+    test_string_NULL();
     test_thread1_string();
     test_thread2_string();
     test_string_io();
