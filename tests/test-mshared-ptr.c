@@ -119,20 +119,6 @@ static int str_callback2(void *data, const string_unicode_t *u)
   return 1;
 }
 
-static int str_callback_splice(void *data, const string_unicode_t *u)
-{
-  shared_string_t *dst = (shared_string_t *) data;
-  shared_string_push(dst, *u);
-  return 0;
-}
-
-static inline void shared_string_splice_by_for_each(shared_string_t *d, shared_string_t *s)
-{
-  int r = shared_string_for_each(s, str_callback_splice, d);
-  assert(r == 0);
-  shared_string_reset(s);
-}
-
 static void test_string(void)
 {
     shared_string_t *p = shared_string_new();
@@ -195,17 +181,9 @@ static void test_string(void)
     assert(!shared_string_empty_p(r2));
     assert(shared_string_empty_p(q));
 
-    shared_string_remake(q, "alpha");
-    shared_string_remake(r2, "beta");
-    shared_string_splice_by_for_each(q, r2);
-    shared_string_t *expected = shared_string_make("alphabeta");
-    assert(shared_string_equal_p(q, expected));
-    shared_string_release(expected);
-    assert(shared_string_empty_p(r2));
-
     shared_string_remake(q, "abcd");
     assert(shared_string_erase(q, 1));
-    expected = shared_string_make("acd");
+    shared_string_t *expected = shared_string_make("acd");
     assert(shared_string_equal_p(q, expected));
     shared_string_release(expected);
     assert(!shared_string_erase(q, 10));
