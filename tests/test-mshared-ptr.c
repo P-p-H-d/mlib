@@ -226,6 +226,53 @@ static void test_string_io(void)
   shared_string_release(q);
 }
 
+static bool shared_string_equal_str_p(const shared_string_t *p, const char *s)
+{
+  if (p == NULL) {
+    return s == NULL || *s == 0;
+  }
+  if (s == NULL) {
+    return false;
+  }
+  shared_string_t *tmp = shared_string_make(s);
+  bool b = shared_string_equal_p(p, tmp);
+  shared_string_release(tmp);
+  return b;
+}
+
+ARRAY_DEF(array_shared_string, shared_string_t *, M_SHARED_PTR_OPLIST(shared_string, STR_OPL))
+
+static void test_array_shared_string(void)
+{
+  array_shared_string_t a;
+  array_shared_string_init(a);
+  for(size_t i = 0; i < 10; i++) {
+    shared_string_t *p = shared_string_make("Hello world");
+    array_shared_string_push_back(a, p); // a sets as a owner of *p
+    shared_string_release(p); // p is no longer an owner of what was *p, but a is.
+  }
+  assert(array_shared_string_size(a) == 10);
+  for(size_t i = 0; i < 10; i++) {
+    shared_string_t **p = array_shared_string_get(a, i);
+    assert(shared_string_equal_str_p(*p, "Hello world"));
+  }
+  array_shared_string_clear(a);
+
+  array_shared_string_init(a);
+  for(size_t i = 0; i < 18; i++) {
+    shared_string_t *p = shared_string_make("Hello, world");
+    array_shared_string_push_back(a, p); // a sets as a owner of *p
+    shared_string_release(p); // p is no longer an owner of what was *p, but a is.
+  }
+  assert(array_shared_string_size(a) == 18);
+  while (!array_shared_string_empty_p(a)) {
+    shared_string_t *p = NULL;
+    array_shared_string_pop_back(&p, a);
+    assert(shared_string_equal_str_p(p, "Hello, world"));
+    shared_string_release(p);
+  }
+  array_shared_string_clear(a);
+}
 
 // TEST WITH ARRAY
 ARRAY_DEF(array, int)
@@ -679,6 +726,7 @@ int main(void)
     test_thread1_string();
     test_thread2_string();
     test_string_io();
+    test_array_shared_string();
     test_double();
     test_array();
     test_array_string();
