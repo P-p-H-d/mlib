@@ -5128,37 +5128,69 @@ Otherwise return false.
 This method is created only if the `POP_MOVE` operator is defined.
 If `a` is a NULL pointer, it returns false.
 
-##### `int name_apply(name_t *a, int (*callback(void *data, sub_type*), void *data)`
+##### `int name_apply(name_t *a, int (*callback(void *data, sub_type*element), void *data)`
 
 Apply the callback `callback` to all elements of the container `*a` from front to back.
-The callback may modify the given element if possible.
+
+The callback may modify its given element if needed.
+The callback shall not modify the shared pointer itself.
+The callback shall take into account the fact that the mutex of `*a` is locked
+while it is executed.
+As such, the callback should not lock any mutex directly or indirectly
+(like calling another method of the shared pointer on another object)
+otherwise it may generate a dead lock.
+
 `data` is a user parameter given to the callback at user convenience.
 If the callback returns a non null argument, the function stops and returns immediately with this error code.
 This method is created only if the `IT_FIRST`, `IT_NEXT` and `IT_REF` operators are defined.
 If `a` is a NULL pointer, it does nothing and returns 0.
 
-##### `int name_for_each(const name_t *a, int (*callback)(void *data, const sub_type*), void *data)`
+##### `int name_for_each(const name_t *a, int (*callback)(void *data, const sub_type*element), void *data)`
 
 Apply the callback `callback` to all elements of the container `*a` from front to back.
-The callback shall not modify the given element.
+
+The callback shall not modify its given element.
+The callback shall not modify the shared pointer itself.
+The callback shall take into account the fact that the mutex of `*a` is locked
+while it is executed.
+As such, the callback should not lock any mutex directly or indirectly
+(like calling another method of the shared pointer on another object)
+otherwise it may generate a dead lock.
+
 `data` is a user parameter given to the callback at user convenience.
 If the callback returns a non null argument, the function stops and returns immediately with this error code.
 This method is created only if the `IT_FIRST`, `IT_NEXT` and `IT_CREF` operators are defined.
 If `a` is a NULL pointer, it does nothing and returns 0.
 
-##### `int name_r_apply(name_t *, int (*callback(void *data, sub_type*), void*data)`
+##### `int name_r_apply(name_t *, int (*callback(void *data, sub_type*element), void*data)`
 
 Apply the callback `callback` to all elements of the container `*a` from back to front.
-The callback may modify the given element if possible.
+
+The callback may modify its given element if needed.
+The callback shall not modify the shared pointer itself.
+The callback shall take into account the fact that the mutex of `*a` is locked
+while it is executed.
+As such, the callback should not lock any mutex directly or indirectly
+(like calling another method of the shared pointer on another object)
+otherwise it may generate a dead lock.
+
 `data` is a user parameter given to the callback at user convenience.
 If the callback returns a non null argument, the function stops and returns immediately with this error code.
 This method is created only if the `IT_LAST`, `IT_PREVIOUS` and `IT_REF` operators are defined.
 If `a` is a NULL pointer, it does nothing and returns 0.
 
-##### `int name_r_for_each(const name_t *, int (*callback)(void *data, const sub_type*), void*data)`
+##### `int name_r_for_each(const name_t *, int (*callback)(void *data, const sub_type*element), void*data)`
 
 Apply the callback `callback` to all elements of the container `*a` from back to front.
-The callback shall not modify the given element.
+
+The callback shall not modify its given element.
+The callback shall not modify the shared pointer itself.
+The callback shall take into account the fact that the mutex of `*a` is locked
+while it is executed.
+As such, the callback should not lock any mutex directly or indirectly
+(like calling another method of the shared pointer on another object)
+otherwise it may generate a dead lock.
+
 `data` is a user parameter given to the callback at user convenience.
 If the callback returns a non null argument, the function stops and returns immediately with this error code.
 This method is created only if the `IT_LAST`, `IT_PREVIOUS` and `IT_CREF` operators are defined.
