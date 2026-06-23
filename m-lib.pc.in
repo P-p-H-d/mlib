@@ -1,0 +1,8 @@
+prefix=@PREFIX@
+includedir=${prefix}/include/m-lib/
+
+Name: M*LIB
+URL: https://github.com/P-p-H-d/mlib
+Description: Library of generic and type safe containers / data structures in pure C language.
+Version: @VERSION@
+Cflags: -I${includedir}
