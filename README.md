@@ -272,6 +272,16 @@ make install PREFIX=/my/directory/where/to/install [DESTDIR=...]
 it assumes PREFIX is the target directory (default /usr/local/)
 and DESTDIR is the rootfs (default /).
 
+It installs headers in 'include/m-lib' directory and documentation in 'share/doc/m-lib'.
+Once it is installed, you can use [pkg-config](https://en.wikipedia.org/wiki/Pkg-config)
+to get the include directory using:
+
+```bash
+[PKG_CONFIG_PATH=...] pkg-config --cflags m-lib
+```
+
+> Note: It is called `m-lib` instead of `m*lib` to avoid some potential issues with a directory name with '*' on Unix.
+
 Other targets exist for development purpose.
 
 

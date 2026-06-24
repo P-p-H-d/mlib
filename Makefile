@@ -111,6 +111,8 @@ install:
 	sed -e 's|@PREFIX@|$(PREFIX)|g' -e 's|@VERSION@|$(VERSION)|g' m-lib.pc.in > m-lib.pc
 	$(MKDIR) $(DESTDIR)$(PREFIX)/lib/pkgconfig
 	$(INSTALL_DATA) m-lib.pc $(DESTDIR)$(PREFIX)/lib/pkgconfig
+	$(MKDIR) $(DESTDIR)$(PREFIX)/share/doc/m-lib
+	$(INSTALL_DATA) $(DOC1) $(DESTDIR)$(PREFIX)/share/doc/m-lib
 
 uninstall:
 	for i in $(HEADER) ; do $(RM) $(DESTDIR)$(PREFIX)/include/m-lib/$$i ; done
