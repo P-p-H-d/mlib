@@ -1,0 +1,48 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request: {} # any target
+
+jobs:
+  rpm-package:
+    name: Build RPM packages on RHEL-9
+    runs-on: ubuntu-latest
+    container: quay.io/centos/centos:stream9
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Set up OS
+        run: |
+          dnf config-manager --set-enabled crb
+          dnf install -y epel-release
+          dnf install -y \
+              git tito rpm-build rpmlint
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          submodules: recursive
+      - name: Set up environment
+        run: |
+          git config --global --add safe.directory ${PWD}
+          dnf builddep -y m-lib.spec
+      - name: Build
+        run: tito build --rpm --test --ignore-missing-config
+      - name: Check
+        working-directory: /tmp/tito
+        run: |
+          set -o pipefail
+          rpmlint *.rpm | tee rpmlint.txt
+      - name: Summarize Results
+        if: always()
+        run: |
+          echo "## rpmlint results:" >> $GITHUB_STEP_SUMMARY
+          echo >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat /tmp/tito/rpmlint.txt >> $GITHUB_STEP_SUMMARY || true
+          echo >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
