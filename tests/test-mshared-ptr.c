@@ -88,7 +88,21 @@ static inline void string_div(string_t d, const string_t a, const string_t b)
   string_printf(d, "%d", ia/ib);
 }
 
-#define STR_OPL M_OPEXTEND(STRING_OPLIST, POP(string_pop_u), GET_SIZE(string_length_u), ADD(string_add), SUB(string_sub), MUL(string_mul), DIV(string_div))
+static inline bool string_erase(string_t s, size_t index)
+{
+  size_t n = string_size(s);
+  if (index >= n) {
+    return false;
+  }
+  M_LET(tmp, string_t) {
+    string_set_n(tmp, s, index + 1, n - index - 1);
+    string_left(s, index);
+    string_cat(s, tmp);
+  }
+  return true;
+}
+
+#define STR_OPL M_OPEXTEND(STRING_OPLIST, POP(string_pop_u), GET_SIZE(string_length_u), ERASE_KEY(string_erase), KEY_TYPE(size_t), ADD(string_add), SUB(string_sub), MUL(string_mul), DIV(string_div))
 SHARED_PTR_DECL(shared_string, STR_OPL)
 
 static int str_callback(void *data, const string_unicode_t *u)
@@ -166,8 +180,14 @@ static void test_string(void)
     shared_string_swap(q, r2);
     assert(!shared_string_empty_p(r2));
     assert(shared_string_empty_p(q));
-    // todo: shared_string_splice
-    // todo: shared_string_erase
+
+    shared_string_remake(q, "abcd");
+    assert(shared_string_erase(q, 1));
+    shared_string_t *expected = shared_string_make("acd");
+    assert(shared_string_equal_p(q, expected));
+    shared_string_release(expected);
+    assert(!shared_string_erase(q, 10));
+
     shared_string_release(r2);
     shared_string_clear(q);
     shared_string_release(r);
@@ -206,6 +226,53 @@ static void test_string_io(void)
   shared_string_release(q);
 }
 
+static bool shared_string_equal_str_p(const shared_string_t *p, const char *s)
+{
+  if (p == NULL) {
+    return s == NULL || *s == 0;
+  }
+  if (s == NULL) {
+    return false;
+  }
+  shared_string_t *tmp = shared_string_make(s);
+  bool b = shared_string_equal_p(p, tmp);
+  shared_string_release(tmp);
+  return b;
+}
+
+ARRAY_DEF(array_shared_string, shared_string_t *, M_SHARED_PTR_OPLIST(shared_string, STR_OPL))
+
+static void test_array_shared_string(void)
+{
+  array_shared_string_t a;
+  array_shared_string_init(a);
+  for(size_t i = 0; i < 10; i++) {
+    shared_string_t *p = shared_string_make("Hello world");
+    array_shared_string_push_back(a, p); // a sets as a owner of *p
+    shared_string_release(p); // p is no longer an owner of what was *p, but a is.
+  }
+  assert(array_shared_string_size(a) == 10);
+  for(size_t i = 0; i < 10; i++) {
+    shared_string_t **p = array_shared_string_get(a, i);
+    assert(shared_string_equal_str_p(*p, "Hello world"));
+  }
+  array_shared_string_clear(a);
+
+  array_shared_string_init(a);
+  for(size_t i = 0; i < 18; i++) {
+    shared_string_t *p = shared_string_make("Hello, world");
+    array_shared_string_push_back(a, p); // a sets as a owner of *p
+    shared_string_release(p); // p is no longer an owner of what was *p, but a is.
+  }
+  assert(array_shared_string_size(a) == 18);
+  while (!array_shared_string_empty_p(a)) {
+    shared_string_t *p = NULL;
+    array_shared_string_pop_back(&p, a);
+    assert(shared_string_equal_str_p(p, "Hello, world"));
+    shared_string_release(p);
+  }
+  array_shared_string_clear(a);
+}
 
 // TEST WITH ARRAY
 ARRAY_DEF(array, int)
@@ -231,6 +298,22 @@ static int callback3(void *data, int *el)
 {
     int *s_ptr = (int *) data;
     *el *= *s_ptr;
+    return 0;
+}
+
+static int callback4(void *data, int *el)
+{
+    int *cpt_ptr = (int *) data;
+    assert(*el == *cpt_ptr);
+    (*cpt_ptr)--;
+    return 0;
+}
+
+static int callback5(void *data, const int *el)
+{
+    int *cpt_ptr = (int *) data;
+    assert(*el == *cpt_ptr);
+    (*cpt_ptr)--;
     return 0;
 }
 
@@ -274,11 +357,20 @@ static void test_array(void)
     r = shared_array_apply(p, callback3, &s);
     assert(r == 0);
 
+    // Do nothing
+    r = shared_array_apply(NULL, callback3, &s);
+    assert(r == 0);
+
     s = 0;
     r = shared_array_for_each(p, callback1, &s);
     assert(r == 0);
     assert(s == 9*10);
 
+    // Do nothing
+    r = shared_array_for_each(NULL, callback1, &s);
+    assert(r == 0);
+    assert(s == 9*10);
+    
     for(int i = 9 ; i >= 0; i--) {
         b = shared_array_try_pop(&j, p);
         assert(b);
@@ -297,6 +389,34 @@ static void test_array(void)
     b = shared_array_get(&r, p, 22);
     assert(b);
     assert(r == 0);
+
+    // Do nothing
+    int cpt = 3;
+    r = shared_array_r_apply(NULL, callback3, &s);
+    assert(r == 0);
+    r = shared_array_r_apply(NULL, callback4, (void*)&cpt);
+    assert(r == 0);
+    assert(cpt == 3);
+
+    r = shared_array_r_for_each(NULL, callback1, &s);
+    assert(r == 0);
+    r = shared_array_r_for_each(NULL, callback5, (void*)&cpt);
+    assert(r == 0);
+    assert(cpt == 3);
+
+    // Test for _r_apply & _r_for_each are not tested with a valid array.
+    shared_array_reset(p);
+    for(int i = 0 ; i < 4; i++) {
+        shared_array_push(p, i);
+    }
+    r = shared_array_r_apply(p, callback4, (void*)&cpt);
+    assert(r == 0);
+    assert(cpt == -1);
+
+    cpt = 3;
+    r = shared_array_r_for_each(p, callback5, (void*)&cpt);
+    assert(r == 0);
+    assert(cpt == -1);
 
     shared_array_release(p);
 }
@@ -320,6 +440,16 @@ static void test_array_string(void)
 
     bool b = shared_array_str_try_emplace(p, " ");
     assert(b);
+
+    // Test with NULL
+    b = shared_array_str_try_emplace(NULL, " ");
+    assert(!b);
+    string_init_set_str(tmp, "!");
+    b = shared_array_str_try_push_move(NULL, &tmp); // tmp is still alive
+    assert(!b);
+    string_clear(tmp);
+    b = shared_array_str_try_pop_move(&tmp, NULL); // tmp is not initialized
+    assert(!b);
 
     string_init_set_str(tmp, "!");
     b = shared_array_str_try_push_move(p, &tmp); // No need to clear tmp
@@ -476,6 +606,54 @@ static void test_string2(void)
   shared_string_release(rr);
 }
 
+static void test_string_NULL(void)
+{
+  // Test of NULL pointer handling.
+  shared_string_t *p = NULL;
+  shared_string_t *q = shared_string_make("test");
+
+  assert(shared_string_acquire(p) == NULL);
+    
+  shared_string_reset(p);    // should not crash
+  
+  assert(shared_string_empty_p(p) == true);
+  
+  assert(shared_string_size(p) == 0);
+  
+  assert(shared_string_equal_p(p, q) == false);
+  assert(shared_string_equal_p(q, p) == false);
+  assert(shared_string_equal_p(p, p) == true);  // NULL == NULL is true
+  
+  assert(shared_string_cmp(p, q) < 0);   // NULL comes before non-NULL
+  assert(shared_string_cmp(q, p) > 0);   // non-NULL comes after NULL
+  assert(shared_string_cmp(p, p) == 0);  // NULL == NULL
+  
+  assert(shared_string_hash(p) == 0);
+  
+  assert(shared_string_erase(p, 0) == false);
+  
+  assert(shared_string_try_push(p, 'A') == false);
+
+  m_string_unicode_t u;
+  assert(shared_string_try_pop(&u, p) == false);
+
+  // _try_emplace with NULL is tested with another type
+
+  // shared_string_apply doesn't exist as IT_REF is not defined for string_t
+  // (Cannot modify UTF8 encoding while iterating over it)
+  int r = shared_string_for_each( p, str_callback, NULL);  // should not crash
+  assert(r == 0);
+
+  r = shared_string_r_for_each( p, str_callback, NULL);  // should not crash
+  assert(r == 0);
+
+  // _apply and _r_apply with NULL are tested with another type
+
+  shared_string_release(p);  // should not crash
+
+  shared_string_release(q);
+}
+
 /************************************************************************/
 
 #define MAX_NUM 200
@@ -544,9 +722,11 @@ int main(void)
 {
     test_string();
     test_string2();
+    test_string_NULL();
     test_thread1_string();
     test_thread2_string();
     test_string_io();
+    test_array_shared_string();
     test_double();
     test_array();
     test_array_string();
