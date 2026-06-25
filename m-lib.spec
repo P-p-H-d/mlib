@@ -37,8 +37,7 @@ Development files needed to build and link to the M*LIB library.
 
 
 %install
-%make_install PREFIX=%{_prefix}
-rm -rf %{buildroot}%{_docdir}/m-lib
+%make_install PREFIX=%{_prefix} INSTALL_DOCS=no
 
 
 %check
