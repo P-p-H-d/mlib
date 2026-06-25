@@ -267,7 +267,7 @@ make doc
 Finally, to install the headers, run:
 
 ```bash
-make install PREFIX=/my/directory/where/to/install [DESTDIR=...]
+make install PREFIX=/my/directory/where/to/install [DESTDIR=...] [INSTALL_DOCS=yes|no]
 ```
 it assumes PREFIX is the target directory (default /usr/local/)
 and DESTDIR is the rootfs (default /).

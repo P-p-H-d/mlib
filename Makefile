@@ -31,6 +31,7 @@ INSTALL_DATA=${INSTALL} -m 644
 # Installation directory
 PREFIX=/usr/local
 DESTDIR=
+INSTALL_DOCS=yes
 
 # Package name & version.
 PACKAGE=m_lib-$(VERSION)
@@ -111,8 +112,10 @@ install:
 	sed -e 's|@PREFIX@|$(PREFIX)|g' -e 's|@VERSION@|$(VERSION)|g' m-lib.pc.in > m-lib.pc
 	$(MKDIR) $(DESTDIR)$(PREFIX)/lib/pkgconfig
 	$(INSTALL_DATA) m-lib.pc $(DESTDIR)$(PREFIX)/lib/pkgconfig
-	$(MKDIR) $(DESTDIR)$(PREFIX)/share/doc/m-lib
-	$(INSTALL_DATA) $(DOC1) $(DESTDIR)$(PREFIX)/share/doc/m-lib
+	if test "$(INSTALL_DOCS)" = "yes" ; then \
+		$(MKDIR) $(DESTDIR)$(PREFIX)/share/doc/m-lib ; \
+		$(INSTALL_DATA) $(DOC1) $(DESTDIR)$(PREFIX)/share/doc/m-lib ; \
+	fi
 
 uninstall:
 	for i in $(HEADER) ; do $(RM) $(DESTDIR)$(PREFIX)/include/m-lib/$$i ; done
