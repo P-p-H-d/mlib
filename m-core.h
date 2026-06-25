@@ -4583,7 +4583,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
  */
 #define M_PTR_OPLIST                                                          \
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT), \
-   EQUAL(M_EQUAL_DEFAULT), SWAP(M_SWAP_DEFAULT)                               \
+   EQUAL(M_EQUAL_DEFAULT), SWAP(M_SWAP_DEFAULT),                              \
    INIT_MOVE(M_SET_DEFAULT), MOVE(M_SET_DEFAULT) )
 
 
