@@ -2,7 +2,7 @@
 # https://docs.fedoraproject.org/en-US/packaging-guidelines/#_packaging_header_only_libraries
 %global debug_package %{nil}
 
-Name: mlib
+Name: m-lib
 Version: 0.8.0
 Release: 1%{?dist}
 Summary: Type-safe containers for C language
@@ -42,7 +42,7 @@ rm -rf %{buildroot}%{_docdir}/m-lib
 
 
 %check
-make check
+%make_build check
 
 
 %files
