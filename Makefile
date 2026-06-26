@@ -110,8 +110,8 @@ install:
 	$(MKDIR) $(DESTDIR)$(PREFIX)/include/m-lib
 	$(INSTALL_DATA) $(HEADER) $(DESTDIR)$(PREFIX)/include/m-lib
 	sed -e 's|@PREFIX@|$(PREFIX)|g' -e 's|@VERSION@|$(VERSION)|g' m-lib.pc.in > m-lib.pc
-	$(MKDIR) $(DESTDIR)$(PREFIX)/lib/pkgconfig
-	$(INSTALL_DATA) m-lib.pc $(DESTDIR)$(PREFIX)/lib/pkgconfig
+	$(MKDIR) $(DESTDIR)$(PREFIX)/share/pkgconfig
+	$(INSTALL_DATA) m-lib.pc $(DESTDIR)$(PREFIX)/share/pkgconfig
 	if test "$(INSTALL_DOCS)" = "yes" ; then \
 		$(MKDIR) $(DESTDIR)$(PREFIX)/share/doc/m-lib ; \
 		$(INSTALL_DATA) $(DOC1) $(DESTDIR)$(PREFIX)/share/doc/m-lib ; \
