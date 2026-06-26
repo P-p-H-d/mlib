@@ -29,7 +29,7 @@ Development files needed to build and link to the M*LIB library.
 
 
 %prep
-%setup -q -n MLIB-%{version}
+%setup -q -n mlib-%{version}
 
 
 %build
