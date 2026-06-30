@@ -263,14 +263,14 @@ static void test_string_io(void)
 
   const char *sp;
   p = NULL;
-  b = shared_string_parse_str(&p, "null", &sp);
+  b = shared_string_parse_str(&p, "[]", &sp);
   assert(b);
   assert(*sp == 0);
   assert(p == NULL);
 
   // From NON NULL pointer to NULL
   p = shared_string_make("Hello world");
-  b = shared_string_parse_str(&p, "null", &sp);
+  b = shared_string_parse_str(&p, "[]", &sp);
   assert(b);
   assert(*sp == 0);
   assert(p == NULL);

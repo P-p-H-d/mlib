@@ -1340,22 +1340,20 @@ M_IF_METHOD(IN_STR, oplist)( extern bool M_F(name, _in_str)(shared_t **, FILE *)
 M_IF_METHOD(GET_STR, oplist)( extern void M_F(name, _get_str)(m_string_t, const shared_t *, bool); , ) \
 M_IF_METHOD(PARSE_STR, oplist)( extern bool M_F(name, _parse_str)(shared_t **, const char *, const char **); , ) \
 M_IF_METHOD(OUT_SERIAL, oplist)( extern m_serial_return_code_t M_F(M_P_EXPAND name, _out_serial)(m_serial_write_t, const shared_t *); , ) \
-M_IF_METHOD(IN_SERIAL, oplist)( extern m_serial_return_code_t M_F(M_P_EXPAND name, _in_serial)(shared_t *, m_serial_read_t); , ) \
+M_IF_METHOD(IN_SERIAL, oplist)( extern m_serial_return_code_t M_F(M_P_EXPAND name, _in_serial)(shared_t **, m_serial_read_t); , ) \
 
 #define M_SHAR3D_PTR_DEF_IO(name, shared_t, type, oplist, fattr)              \
 M_IF_METHOD(OUT_STR, oplist)(                                                 \
     fattr void M_F(name, _out_str)(FILE *file, const shared_t *out)           \
     {                                                                         \
         M_ASSERT (file != NULL);                                              \
-        if (out == NULL) {                                                    \
-            fprintf(file, "null");                                            \
-            return;                                                           \
-        }                                                                     \
         fputc('[', file);                                                     \
-        M_F(name, _read_lock)(out);                                           \
-        /* No exception */                                                    \
-        M_CALL_OUT_STR(oplist, file, out->data);                              \
-        M_F(name, _read_unlock)(out);                                         \
+        if (out != NULL) {                                                    \
+            M_F(name, _read_lock)(out);                                       \
+            /* No exception */                                                \
+            M_CALL_OUT_STR(oplist, file, out->data);                          \
+            M_F(name, _read_unlock)(out);                                     \
+        }                                                                     \
         fputc(']', file);                                                     \
     }                                                                         \
 , )                                                                           \
@@ -1365,17 +1363,15 @@ M_IF_METHOD(IN_STR, oplist)(                                                  \
         M_ASSERT (out != NULL && file != NULL);                               \
         M_GLOBAL_CONTEXT();                                                   \
         int c = fgetc(file);                                                  \
-        if (c=='n') {                                                         \
-            /* Shall be keyword 'null' */                                     \
-            if (fgetc(file) != 'u') return false;                             \
-            if (fgetc(file) != 'l') return false;                             \
-            if (fgetc(file) != 'l') return false;                             \
+        if (c != '[') return false;                                           \
+        c = fgetc(file);                                                      \
+        if (c == ']') {                                                       \
             /* Return 'null' pointer */                                       \
             M_F(name, _release)(*out);                                        \
             *out = NULL;                                                      \
             return true;                                                      \
         }                                                                     \
-        if (c != '[') return false;                                           \
+        ungetc(c, file);                                                      \
         if (M_UNLIKELY(*out == NULL)) {                                       \
             *out = M_F(name, _new)();                                         \
         }                                                                     \
@@ -1392,50 +1388,45 @@ M_IF_METHOD(IN_STR, oplist)(                                                  \
 M_IF_METHOD(GET_STR, oplist)(                                                 \
     fattr void M_F(name, _get_str)(m_string_t str, const shared_t *out, bool append) \
     {                                                                         \
-        if (out == NULL) {                                                    \
-            (append ? m_string_cat_cstr : m_string_set_cstr) M_R(str, "null"); \
-            return;                                                           \
-        }                                                                     \
         M_GLOBAL_CONTEXT();                                                   \
-        M_F(name, _read_lock)(out);                                           \
-        M_ON_EXCEPTION( M_F(name, _read_unlock)(out) ) {                      \
-            (append ? m_string_cat_cstr : m_string_set_cstr) M_R (str, "[");  \
-            M_CALL_GET_STR(oplist, str, out->data, true);                     \
-            m_string_cat_cstr M_R(str, "]");                                  \
+        (append ? m_string_cat_cstr : m_string_set_cstr) M_R (str, "[");      \
+        if (out != NULL) {                                                    \
+            M_F(name, _read_lock)(out);                                       \
+            M_ON_EXCEPTION( M_F(name, _read_unlock)(out) ) {                  \
+                M_CALL_GET_STR(oplist, str, out->data, true);                 \
+            }                                                                 \
+            M_F(name, _read_unlock)(out);                                     \
         }                                                                     \
-        M_F(name, _read_unlock)(out);                                         \
+        m_string_cat_cstr M_R(str, "]");                                      \
     }                                                                         \
 , )                                                                           \
 M_IF_METHOD(PARSE_STR, oplist)(                                               \
     fattr bool M_F(name, _parse_str)(shared_t **out, const char str[], const char **endp) \
     {                                                                         \
-        M_ASSERT (out != NULL);                                               \
+        M_ASSERT (out != NULL && str != NULL);                                \
+        const char *m_end = str;                                              \
+        m_volatile bool r = false;                                            \
         M_GLOBAL_CONTEXT();                                                   \
-        if (endp) *endp = &str[0];                                            \
-        if (str[0] == 'n') {                                                  \
-            /* Shall be keyword 'null' */                                     \
-            if (str[1] != 'u') return false;                                  \
-            if (str[2] != 'l') return false;                                  \
-            if (str[3] != 'l') return false;                                  \
+        if (str[0] != '[') goto exit_func;                                    \
+        if (str[1] == ']') {                                                  \
             /* Return 'null' pointer */                                       \
             M_F(name, _release)(*out);                                        \
             *out = NULL;                                                      \
-            if (endp) *endp = &str[4];                                        \
-            return true;                                                      \
+            r = true;                                                         \
+            m_end = str + 2;                                                  \
+            goto exit_func;                                                   \
         }                                                                     \
-        if (*str != '[') return false;                                        \
         if (M_UNLIKELY(*out == NULL)) {                                       \
             *out = M_F(name, _new)();                                         \
         }                                                                     \
         M_F(name, _write_lock)(*out);                                         \
-        const char *m_end = NULL;                                             \
-        m_volatile bool r = false;                                            \
         M_ON_EXCEPTION( M_F(name, _write_unlock)(*out) )                      \
             r = M_CALL_PARSE_STR(oplist, (*out)->data, str+1, &m_end);        \
         /* even if r is false, we signal the data (no functional impact)*/    \
         M_F(name, _write_signal)(*out);                                       \
         M_F(name, _write_unlock)(*out);                                       \
-        if (*m_end != ']') { r = false; } else { m_end++; }                   \
+        if (r && *m_end != ']') { r = false; } else { m_end++; }              \
+        exit_func:                                                            \
         if (endp) *endp = m_end;                                              \
         return r;                                                             \
     }                                                                         \
@@ -1443,28 +1434,47 @@ M_IF_METHOD(PARSE_STR, oplist)(                                               \
 M_IF_METHOD(OUT_SERIAL, oplist)(                                              \
     fattr m_serial_return_code_t M_F(name, _out_serial)(M_P_EXPAND m_serial_write_t serial, const shared_t *out) \
     {                                                                         \
-        M_ASSERT (out != NULL);                                               \
-        M_F(name, _read_lock)(out);                                           \
-        m_volatile m_serial_return_code_t r = M_SERIAL_FAIL;                  \
-        M_ON_EXCEPTION( M_F(name, _read_unlock)(out) )                        \
-            r = M_CALL_OUT_SERIAL(oplist, serial, out->data);                 \
-        M_F(name, _read_unlock)(out);                                         \
-        return r;                                                             \
+        m_serial_local_t local;                                               \
+        m_volatile m_serial_return_code_t r;                                  \
+        r = serial->m_interface->write_array_start(local, serial, (size_t)(out != NULL)); \
+        if (out != NULL) {                                                    \
+            M_F(name, _read_lock)(out);                                       \
+            M_ON_EXCEPTION( M_F(name, _read_unlock)(out) )                    \
+                r |= M_CALL_OUT_SERIAL(oplist, serial, out->data);            \
+            M_F(name, _read_unlock)(out);                                     \
+        }                                                                     \
+        r |= serial->m_interface->write_array_end(local, serial);             \
+        return r & M_SERIAL_FAIL;                                             \
     }                                                                         \
 , )                                                                           \
 M_IF_METHOD(IN_SERIAL, oplist)(                                               \
-    fattr m_serial_return_code_t M_F(name, _in_serial)(shared_t *out, m_serial_read_t serial) \
+    fattr m_serial_return_code_t M_F(name, _in_serial)(shared_t **out, m_serial_read_t serial) \
     {                                                                         \
         M_ASSERT (out != NULL);                                               \
+        size_t size;                                                          \
+        m_serial_local_t local;                                               \
+        m_volatile m_serial_return_code_t r ;                                 \
         M_GLOBAL_CONTEXT();                                                   \
-        M_F(name, _write_lock)(out);                                          \
-        m_volatile m_serial_return_code_t r = M_SERIAL_FAIL;                  \
-        M_ON_EXCEPTION( M_F(name, _write_unlock)(out) )                       \
-            r = M_CALL_IN_SERIAL(oplist, out->data, serial);                  \
-        /* even if r is false, we signal the data (no functional impact)*/    \
-        M_F(name, _write_signal)(out);                                        \
-        M_F(name, _write_unlock)(out);                                        \
-        return r;                                                             \
+        r = serial->m_interface->read_array_start(local, serial, &size);      \
+        if (r == M_SERIAL_OK_CONTINUE) {                                      \
+            if (size == 0) {                                                  \
+                /* Return 'null' pointer */                                   \
+                M_F(name, _release)(*out);                                    \
+                *out = NULL;                                                  \
+            } else {                                                          \
+                if (M_UNLIKELY(*out == NULL)) {                               \
+                    *out = M_F(name, _new)();                                 \
+                }                                                             \
+                M_F(name, _write_lock)(*out);                                 \
+                M_ON_EXCEPTION( M_F(name, _write_unlock)(*out) )              \
+                    r |= M_CALL_IN_SERIAL(oplist, (*out)->data, serial);      \
+                /* even if r is false, we signal the data (no functional impact)*/ \
+                M_F(name, _write_signal)(*out);                               \
+                M_F(name, _write_unlock)(*out);                               \
+            }                                                                 \
+            r |= serial->m_interface->read_array_next(local, serial);         \
+        }                                                                     \
+        return r & M_SERIAL_FAIL;                                             \
     }                                                                         \
 , )                                                                           \
 
