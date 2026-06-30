@@ -206,7 +206,7 @@ static void test_string_io(void)
 
   f = m_core_fopen ("a-mshared-ptr.dat", "rt");
   if (!f) abort();
-  bool b = shared_string_in_str (p, f);
+  bool b = shared_string_in_str (&p, f);
   assert (b == true);
   assert (shared_string_equal_p (p, q));
   fclose(f);
@@ -214,9 +214,9 @@ static void test_string_io(void)
   shared_string_reset(p);
   M_LET(str, STRING_OPLIST) {
     shared_string_get_str(str, q, false);
-    assert (string_cmp_str (str, "\"Hello world\"") == 0);
+    assert (string_cmp_str (str, "[\"Hello world\"]") == 0);
     const char *sp;
-    b = shared_string_parse_str(p, string_get_cstr(str), &sp);
+    b = shared_string_parse_str(&p, string_get_cstr(str), &sp);
     assert(b);
     assert(*sp == 0);
     assert(shared_string_equal_p(p, q));
@@ -224,6 +224,71 @@ static void test_string_io(void)
 
   shared_string_clear(p);
   shared_string_release(q);
+
+  // Test with NULL pointers
+  p = NULL;
+  q = NULL;
+  f = m_core_fopen ("a-mshared-ptr-null.dat", "wt");
+  if (!f) abort();
+  shared_string_out_str(f, q);
+  fclose (f);
+
+  f = m_core_fopen ("a-mshared-ptr-null.dat", "rt");
+  if (!f) abort();
+  b = shared_string_in_str (&p, f);
+  assert (b == true);
+  assert (p == NULL);
+  assert (shared_string_equal_p (p, q));
+  fclose(f);
+
+  // From non null pointer to NULL
+  p = shared_string_make("Hello world");
+  f = m_core_fopen ("a-mshared-ptr-null.dat", "rt");
+  if (!f) abort();
+  b = shared_string_in_str (&p, f);
+  assert (b == true);
+  assert (p == NULL);
+  assert (shared_string_equal_p (p, q));
+  fclose(f);
+
+  // From NULL pointer to non null
+  p = NULL;
+  f = m_core_fopen ("a-mshared-ptr.dat", "rt");
+  if (!f) abort();
+  b = shared_string_in_str (&p, f);
+  assert (b == true);
+  assert (p != NULL);
+  fclose(f);
+  shared_string_release(p);
+
+  const char *sp;
+  p = NULL;
+  b = shared_string_parse_str(&p, "null", &sp);
+  assert(b);
+  assert(*sp == 0);
+  assert(p == NULL);
+
+  // From NON NULL pointer to NULL
+  p = shared_string_make("Hello world");
+  b = shared_string_parse_str(&p, "null", &sp);
+  assert(b);
+  assert(*sp == 0);
+  assert(p == NULL);
+
+  // Fail parsing null
+  p = NULL;
+  b = shared_string_parse_str(&p, "nul", &sp);
+  assert(!b);
+  assert(*sp == 'n');
+  assert(p == NULL);
+
+  // FROM NULL to non NULL
+  p = NULL;
+  b = shared_string_parse_str(&p, "[\"Hello world\"]", &sp);
+  assert(b);
+  assert(p != NULL);
+  shared_string_release(p);
+
 }
 
 static bool shared_string_equal_str_p(const shared_string_t *p, const char *s)

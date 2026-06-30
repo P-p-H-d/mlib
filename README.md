@@ -5198,33 +5198,33 @@ If `a` is a NULL pointer, it does nothing and returns 0.
 
 ##### `void name_out_str(FILE *f, const name_t *a)`
 
-Output `*a` into the FILE `*f`
+Output `*a` into the FILE `*f` (which can be NULL)
 This method is created only if the `OUT_STR` operator is defined.
 
-##### `bool name_in_str(name_t *a, FILE *f)`
+##### `bool name_in_str(name_t **a, FILE *f)`
 
-Read `*a` from the FILE `f`
+Read `*a` from the FILE `f` (which can be NULL)
 This method is created only if the `IN_STR` operator is defined.
 
 ##### `void name_get_str(string_t str, const name_t *a, bool append)`
 
-Output `*a` into the string `str`, appending it if `append` is true.
+Output `*a` into the string `str`, appending it if `append` is true (which can be NULL).
 This method is created only if the `GET_STR` operator is defined.
 
-##### `bool name_parse_str(name_t *a, const char *str, const char **endptr)`
+##### `bool name_parse_str(name_t **a, const char *str, const char **endptr)`
 
-Set `*a` to the value read from the string `str`.
+Set `*a` to the value read from the string `str` (which can be NULL).
 `*endptr` is set to the end of the parsing in the string if `endptr` is not null.
 This method is created only if the `PARSE_STR` operator is defined.
 
 ##### `m_serial_return_code_t name_out_serial(m_serial_write_t serial, const name_t *a)`
 
-Output `*a` into the serial object `serial`.
+Output `*a` into the serial object `serial` (which can be NULL).
 This method is created only if the `OUT_SERIAL` operator is defined.
 
 ##### `m_serial_return_code_t name_in_serial(name_t *a, m_serial_read_t serial)`
 
-Set `*a` to the value read from the serial object `serial`.
+Set `*a` to the value read from the serial object `serial` (which can be NULL).
 This method is created only if the `IN_SERIAL` operator is defined.
 
 #### Private interface
