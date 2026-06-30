@@ -728,6 +728,7 @@ fattr void M_F(name, _release)(shared_t *out)                                 \
                                                                               \
 fattr void M_F(name, _set)(shared_t *m_volatile*dst, shared_t *out)           \
 {                                                                             \
+    M_ASSERT(dst != NULL);                                                    \
     M_F(name, _release)(*dst);                                                \
     *dst = M_F(name, _acquire)(out);                                          \
 }                                                                             \
