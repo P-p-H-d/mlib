@@ -227,6 +227,7 @@ M_N(void, name, _init, buffer_t v, size_t size)                               \
   M_ASSERT(size <= UINT_MAX);                                                 \
   M_GLOBAL_CONTEXT();                                                         \
   M_BUFF3R_IF_CTE_SIZE(m_size)(M_ASSERT(size == m_size), v->capacity = size); \
+  (void) size;                                                                \
   v->idx_prod = v->idx_cons = v->overwrite = 0;                               \
   atomic_init (&v->number[0], 0U);                                            \
   if (M_BUFF3R_POLICY_P(policy, M_BUFFER_DEFERRED_POP))                       \
