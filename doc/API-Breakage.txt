@@ -119,4 +119,6 @@ V0.8.1 : * m-algo: Update interface of _transform to be more flexible: adding us
          which is more friendly to the user and less error prone (To port, just use _pop_move function instead of _pop + policy BUFFER_PUSH_INIT_POP_MOVE)
       	 * Rename M_COPY_A1_DEFAULT to M_COPY_A1OBJ as it isn't a default function.
          * M_OPCAT is marked as obsolete
+         * I/O of shared pointers are changed to support NULL pointers: item is displayed within [ ]
+         
          

@@ -150,6 +150,14 @@
    ,CLEAR(M_F(name, _clear))                                                  \
    ,INIT_MOVE(M_SET_DEFAULT)                                                  \
    ,MOVE(M_SET_DEFAULT)                                                       \
+   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, _get_str)),)               \
+   ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(API_2(M_F(name, _parse_str))),)  \
+   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, _out_str)),)               \
+   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(API_2(M_F(name, _in_str))),)           \
+   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, _out_serial)),)      \
+   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(API_2(M_F(name, _in_serial))),)  \
+   ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, _equal_p)),)                   \
+   ,M_IF_METHOD(HASH, oplist)(HASH(M_F(name, _hash)),)                        \
    )
 
 /* Init to null constant pointer (compatible C / C++) */
@@ -176,6 +184,14 @@
    ,CLEAR(M_F(name, _clear))                                                  \
    ,INIT_MOVE(M_SET_DEFAULT)                                                  \
    ,MOVE(M_SET_DEFAULT)                                                       \
+   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, _get_str)),)               \
+   ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(API_2(M_F(name, _parse_str))),)  \
+   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, _out_str)),)               \
+   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(API_2(M_F(name, _in_str))),)           \
+   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, _out_serial)),)      \
+   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(API_2(M_F(name, _in_serial))),)  \
+   ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, _equal_p)),)                   \
+   ,M_IF_METHOD(HASH, oplist)(HASH(M_F(name, _hash)),)                        \
    )
 
 
@@ -282,6 +298,7 @@ static inline void M_C3(m_shar3d_, name, _inc_owner)(shared_t *out)           \
 /* Decrement the number of owner (release the resource). Return true if it was the last owner */ \
 static inline bool M_C3(m_shar3d_, name, _dec_owner)(shared_t *out)           \
 {                                                                             \
+    M_ASSERT(out->cpt >= 1);                                                  \
     out->cpt --;                                                              \
     return 0 == out->cpt;                                                     \
 }                                                                             \
@@ -299,6 +316,7 @@ static inline  void M_F(name, _clear_lock)(shared_t *out)                     \
 /* Enter the lock for reading the data */                                     \
 static inline  void M_F(name, _read_lock)(const shared_t *out)                \
 {                                                                             \
+    M_ASSERT(out->cpt >= 1);                                                  \
     (void) out;                                                               \
 }                                                                             \
 /* wait for some new data to be available (within read_lock) */               \
@@ -314,6 +332,7 @@ static inline  void M_F(name, _read_unlock)(const shared_t *out)              \
 /* Enter the lock for writing/updating the data */                            \
 static inline  void M_F(name, _write_lock)(shared_t *out)                     \
 {                                                                             \
+    M_ASSERT(out->cpt >= 1);                                                  \
     (void) out;                                                               \
 }                                                                             \
 /* wait to be able to write new data (within write_lock) */                   \
@@ -339,11 +358,15 @@ static inline  void M_F(name, _write_unlock)(shared_t *out)                   \
 /* Return a pointer to the data */                                            \
 static inline  type *M_F(name, _ref)(shared_t *out)                           \
 {                                                                             \
+    if (M_UNLIKELY(out == NULL)) return NULL;                                 \
+    M_ASSERT(out->cpt >= 1);                                                  \
     return &out->data;                                                        \
 }                                                                             \
 /* Return a const pointer to the data */                                      \
 static inline  type const *M_F(name, _cref)(const shared_t *out)              \
 {                                                                             \
+    if (M_UNLIKELY(out == NULL)) return NULL;                                 \
+    M_ASSERT(out->cpt >= 1);                                                  \
     return &out->data;                                                        \
 }                                                                             \
 /* Perform a write lock on out and a read lock on src */                      \
@@ -351,18 +374,25 @@ static inline  void M_F(name, _write_read_lock)(shared_t *out, const shared_t *s
 {                                                                             \
     (void) out;                                                               \
     (void) src;                                                               \
+    M_ASSERT(out->cpt >= 1);                                                  \
+    M_ASSERT(src->cpt >= 1);                                                  \
 }                                                                             \
 /* Leave the write lock on out and the read lock on src */                    \
 static inline  void M_F(name, _write_read_unlock)(shared_t *out, const shared_t *src) \
 {                                                                             \
     (void) out;                                                               \
     (void) src;                                                               \
+    M_ASSERT(out->cpt >= 1);                                                  \
+    M_ASSERT(src->cpt >= 1);                                                  \
 }                                                                             \
 static inline void M_F(name, _write_read2_lock)(shared_t *out, const shared_t *src1, const shared_t *src2) \
 {                                                                             \
     (void) out;                                                               \
     (void) src1;                                                              \
     (void) src2;                                                              \
+    M_ASSERT(out->cpt >= 1);                                                  \
+    M_ASSERT(src1->cpt >= 1);                                                 \
+    M_ASSERT(src2->cpt >= 1);                                                 \
 }                                                                             \
                                                                               \
 static inline void M_F(name, _write_read2_unlock)(shared_t *out, const shared_t *src1, const shared_t *src2) \
@@ -370,6 +400,9 @@ static inline void M_F(name, _write_read2_unlock)(shared_t *out, const shared_t 
     (void) out;                                                               \
     (void) src1;                                                              \
     (void) src2;                                                              \
+    M_ASSERT(out->cpt >= 1);                                                  \
+    M_ASSERT(src1->cpt >= 1);                                                 \
+    M_ASSERT(src2->cpt >= 1);                                                 \
 }                                                                             \
 
 
@@ -399,6 +432,7 @@ static inline void M_C3(m_shar3d_, name, _inc_owner)(shared_t *out)           \
                                                                               \
 static inline bool M_C3(m_shar3d_, name, _dec_owner)(shared_t *out)           \
 {                                                                             \
+    M_ASSERT(atomic_load(&out->cpt) >= 1);                                    \
     return 1 == atomic_fetch_sub(&out->cpt, 1);                               \
 }                                                                             \
                                                                               \
@@ -419,7 +453,11 @@ static inline void M_F(name, _clear_lock)(shared_t *out)                      \
                                                                               \
 static inline void M_F(name, _read_lock)(const shared_t *out)                 \
 {                                                                             \
+    /* unconst the pointer to allow locking. From a user point of view        \
+    it looks like a C++ const semantic. Moreover, a shared_t pointer can      \
+    only be allocated on the heap itself, so it is safe to cast away const.*/ \
     shared_t *self = (shared_t *)(uintptr_t)out;                              \
+    M_ASSERT(atomic_load(&self->cpt) >= 1);                                   \
     m_mutex_lock (self->lock);                                                \
 }                                                                             \
                                                                               \
@@ -437,6 +475,7 @@ static inline void M_F(name, _read_unlock)(const shared_t *out)               \
                                                                               \
 static inline void M_F(name, _write_lock)(shared_t *out)                      \
 {                                                                             \
+    M_ASSERT(atomic_load(&out->cpt) >= 1);                                    \
     m_mutex_lock (out->lock);                                                 \
 }                                                                             \
                                                                               \
@@ -466,11 +505,17 @@ static inline void M_F(name, _write_unlock)(shared_t *out)                    \
                                                                               \
 static inline type *M_F(name, _ref)(shared_t *out)                            \
 {                                                                             \
+    if (M_UNLIKELY(out == NULL)) return NULL;                                 \
+    M_ASSERT(atomic_load(&out->cpt) >= 1);                                    \
     return &out->data;                                                        \
 }                                                                             \
                                                                               \
 static inline type const *M_F(name, _cref)(const shared_t *out)               \
 {                                                                             \
+    if (M_UNLIKELY(out == NULL)) return NULL;                                 \
+    shared_t *self = (shared_t *)(uintptr_t)out;                              \
+    M_ASSERT(atomic_load(&self->cpt) >= 1);                                   \
+    (void) self;                                                              \
     return &out->data;                                                        \
 }                                                                             \
                                                                               \
@@ -633,7 +678,9 @@ M_IF_METHOD(INIT, oplist)(                                                    \
 M_IF_METHOD(INIT_SET, oplist)(                                                \
     fattr shared_t *M_F(name, _clone)(const shared_t *src)                    \
     {                                                                         \
-        M_ASSERT(src != NULL);                                                \
+        if (M_UNLIKELY(src == NULL)) {                                        \
+            return NULL;                                                      \
+        }                                                                     \
         M_GLOBAL_CONTEXT();                                                   \
         shared_t *out = M_CALL_NEW(oplist, shared_t);                         \
         if (M_UNLIKELY_NOMEM( out == NULL)) {                                 \
@@ -680,7 +727,7 @@ M_IF_METHOD(SET, oplist)(                                                     \
                                                                               \
 fattr shared_t *M_F(name, _acquire)(shared_t *out)                            \
 {                                                                             \
-    M_ASSERT(out != NULL);                                                    \
+    if (out == NULL) return NULL;                                             \
     M_C3(m_shar3d_, name, _inc_owner)(out);                                   \
     return out;                                                               \
 }                                                                             \
@@ -697,7 +744,7 @@ fattr void M_F(name, _release)(shared_t *out)                                 \
                                                                               \
 fattr void M_F(name, _set)(shared_t *m_volatile*dst, shared_t *out)           \
 {                                                                             \
-    M_ASSERT(dst != NULL && out != NULL);                                     \
+    M_ASSERT(dst != NULL);                                                    \
     M_F(name, _release)(*dst);                                                \
     *dst = M_F(name, _acquire)(out);                                          \
 }                                                                             \
@@ -726,6 +773,7 @@ M_PAIR_2 name_attr shared_t *function_name(M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_
 #define M_SHAR3D_PTR_DEF_BASIC_REMAKE(name_attr, shared_t, function_name, oplist, init_func, exp_emplace_type) \
 M_PAIR_2 name_attr void function_name(shared_t *out, M_EMPLACE_LIST_TYPE_VAR_ALTER(a, exp_emplace_type)) \
 {                                                                             \
+    M_ASSERT(out != NULL);                                                    \
     M_GLOBAL_CONTEXT();                                                       \
     M_F(M_PAIR_1 name_attr, _write_lock)(out);                                \
     M_CALL_CLEAR(oplist, out->data);                                          \
@@ -769,7 +817,7 @@ M_IF_METHOD(SWAP, oplist)(                                                    \
 M_IF_METHOD(RESET, oplist)(                                                   \
     fattr void M_F(name, _reset)(shared_t *out)                               \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return;                                  \
         M_GLOBAL_CONTEXT();                                                   \
         M_F(name, _write_lock)(out);                                          \
         /* RESET cannot throw exception */                                    \
@@ -782,7 +830,7 @@ M_IF_METHOD(RESET, oplist)(                                                   \
 M_IF_METHOD(EMPTY_P, oplist)(                                                 \
     fattr bool M_F(name, _empty_p)(const shared_t *out)                       \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return true;                             \
         M_F(name, _read_lock)(out);                                           \
         /* EMPTY_P cannot throw exception */                                  \
         bool r = M_CALL_EMPTY_P(oplist, out->data);                           \
@@ -794,7 +842,7 @@ M_IF_METHOD(EMPTY_P, oplist)(                                                 \
 M_IF_METHOD(FULL_P, oplist)(                                                  \
     fattr bool M_F(name, _full_p)(const shared_t *out)                        \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return true;                             \
         M_F(name, _read_lock)(out);                                           \
         /* FULL_P cannot throw exception */                                   \
         bool r = M_CALL_FULL_P(oplist, out->data);                            \
@@ -806,7 +854,7 @@ M_IF_METHOD(FULL_P, oplist)(                                                  \
 M_IF_METHOD(GET_SIZE, oplist)(                                                \
     fattr size_t M_F(name, _size)(const shared_t *out)                        \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return 0;                                \
         M_F(name, _read_lock)(out);                                           \
         /* GET_SIZE cannot throw exception */                                 \
         size_t r = M_CALL_GET_SIZE(oplist, out->data);                        \
@@ -818,8 +866,8 @@ M_IF_METHOD(GET_SIZE, oplist)(                                                \
 M_IF_METHOD(EQUAL, oplist)(                                                   \
     fattr bool M_F(name, _equal_p)(const shared_t *o1, const shared_t *o2)    \
     {                                                                         \
-        M_ASSERT(o1 != NULL && o2 != NULL);                                   \
-        if (o1 == o2) return true;                                            \
+        if (M_UNLIKELY(o1 == o2)) return true;                                \
+        if (M_UNLIKELY(o1 == NULL || o2 == NULL)) return false;               \
         /* See comment above on _write_read_lock */                           \
         if (o1 > o2) {                                                        \
             M_SWAP(const shared_t *, o1, o2);                                 \
@@ -838,9 +886,10 @@ M_IF_METHOD(EQUAL, oplist)(                                                   \
 M_IF_METHOD(CMP, oplist)(                                                     \
     fattr int M_F(name, _cmp)(const shared_t *o1, const shared_t *o2)         \
     {                                                                         \
-        M_ASSERT(o1 != NULL && o2 != NULL);                                   \
+        if (M_UNLIKELY(o1 == o2)) return 0;                                   \
+        if (M_UNLIKELY(o1 == NULL)) return -1;                                \
+        if (M_UNLIKELY(o2 == NULL)) return 1;                                 \
         int neg = 1;                                                          \
-        if (o1 == o2) return 0;                                               \
         /* See comment above on _write_read_lock */                           \
         if (o1 > o2) {                                                        \
             M_SWAP(const shared_t *, o1, o2);                                 \
@@ -860,7 +909,7 @@ M_IF_METHOD(CMP, oplist)(                                                     \
 M_IF_METHOD(HASH, oplist)(                                                    \
     fattr size_t M_F(name, _hash)(const shared_t *out)                        \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return 0;                                \
         M_F(name, _read_lock)(out);                                           \
         /* HASH cannot throw exception */                                     \
         size_t r = M_CALL_HASH(oplist, out->data);                            \
@@ -876,7 +925,6 @@ M_IF_METHOD(ADD, oplist)( extern void M_F(name, _add)(shared_t *, const shared_t
 M_IF_METHOD(SUB, oplist)( extern void M_F(name, _sub)(shared_t *, const shared_t *, const shared_t *); , ) \
 M_IF_METHOD(MUL, oplist)( extern void M_F(name, _mul)(shared_t *, const shared_t *, const shared_t *); , ) \
 M_IF_METHOD(DIV, oplist)( extern void M_F(name, _div)(shared_t *, const shared_t *, const shared_t *); , ) \
-M_IF_METHOD(SPLICE, oplist)( extern void M_F(name, _splice)(shared_t *, shared_t *); , ) \
 
 #define M_SHAR3D_PTR_DEF_ARITH(name, shared_t, type, oplist, fattr)           \
 M_IF_METHOD(ADD, oplist)(                                                     \
@@ -926,27 +974,6 @@ M_IF_METHOD(DIV, oplist)(                                                     \
         M_F(name, _write_read2_unlock)(out, src1, src2);                      \
     }                                                                         \
 , )                                                                           \
-                                                                              \
-M_IF_METHOD(SPLICE, oplist)(                                                  \
-    fattr void M_F(name, _splice)(shared_t *out, shared_t *src)               \
-    {                                                                         \
-        M_ASSERT(out != NULL && src != NULL);                                 \
-        M_GLOBAL_CONTEXT();                                                   \
-        if (out < src) {                                                      \
-            M_F(name, _write_lock)(out);                                      \
-            M_F(name, _write_lock)(src);                                      \
-        } else {                                                              \
-            M_F(name, _write_lock)(src);                                      \
-            M_F(name, _write_lock)(out);                                      \
-        }                                                                     \
-        M_ON_EXCEPTION( M_F(name, _write_unlock)(out), M_F(name, _write_unlock)(src) ) \
-            M_CALL_SPLICE(oplist, out->data, src->data);                      \
-        M_F(name, _write_signal)(out);                                        \
-        M_F(name, _write_unlock)(out);                                        \
-        M_F(name, _write_unlock)(src);                                        \
-    }                                                                         \
-, )                                                                           \
-
 
 /* Define the key based operators */
 #define M_SHAR3D_PTR_DECL_KEY(name, shared_t, oplist, key_type, value_type)   \
@@ -1006,7 +1033,7 @@ M_IF_METHOD(SET_KEY, oplist)(                                                 \
 M_IF_METHOD(ERASE_KEY, oplist)(                                               \
     fattr bool M_F(name, _erase)(shared_t *out, key_type const key)           \
     {                                                                         \
-        M_ASSERT (out != NULL);                                               \
+        if (M_UNLIKELY(out == NULL)) return false;                            \
         M_GLOBAL_CONTEXT();                                                   \
         M_F(name, _write_lock)(out);                                          \
         /* No exception */                                                    \
@@ -1057,7 +1084,7 @@ M_IF_METHOD(PUSH, oplist)(                                                    \
                                                                               \
     fattr bool M_F(name, _try_push)(shared_t *out, sub_type const value)      \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return false;                            \
         M_GLOBAL_CONTEXT();                                                   \
         bool ret = false;                                                     \
         M_F(name, _write_lock)(out);                                          \
@@ -1091,7 +1118,7 @@ M_IF_METHOD(PUSH_MOVE, oplist)(                                               \
                                                                               \
     fattr bool M_F(name, _try_push_move)(shared_t *out, sub_type *value)      \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return false;                            \
         M_GLOBAL_CONTEXT();                                                   \
         bool ret = false;                                                     \
         M_F(name, _write_lock)(out);                                          \
@@ -1136,7 +1163,7 @@ fattr void function_name(shared_t *out M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_ty
 #define M_SHAR3D_PTR_DEF_TRY_EMPLACE_P2(name, fattr, type, oplist, shared_t, function_name, sub_oplist, init_func, exp_emplace_type) \
 fattr bool function_name(shared_t *out M_EMPLACE_LIST_TYPE_VAR(a, exp_emplace_type)) \
 {                                                                             \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return false;                            \
         M_GLOBAL_CONTEXT();                                                   \
         bool ret = false;                                                     \
         M_F(name, _write_lock)(out);                                          \
@@ -1182,7 +1209,7 @@ M_IF_METHOD(POP, oplist)(                                                     \
                                                                               \
     fattr bool M_F(name, _try_pop)(sub_type *value, shared_t *out)            \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return false;                            \
         M_GLOBAL_CONTEXT();                                                   \
         bool ret = false;                                                     \
         M_F(name, _write_lock)(out);                                          \
@@ -1216,7 +1243,7 @@ M_IF_METHOD(POP_MOVE, oplist)(                                                \
                                                                               \
     fattr bool M_F(name, _try_pop_move)(sub_type *value, shared_t *out)       \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return false;                            \
         M_GLOBAL_CONTEXT();                                                   \
         bool ret = false;                                                     \
         M_F(name, _write_lock)(out);                                          \
@@ -1245,7 +1272,7 @@ M_IF_METHOD2(IT_LAST, IT_CREF, oplist)( extern int M_F(name, _r_for_each)(const 
 M_IF_METHOD2(IT_FIRST, IT_REF, oplist)(                                       \
     fattr int M_F(name, _apply)(shared_t *out, int (*callback)(void *, sub_type*), void*data) \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return 0;                                \
         M_ASSERT(callback != NULL);                                           \
         int ret = 0;                                                          \
         M_F(name, _write_lock)(out);                                          \
@@ -1265,7 +1292,7 @@ M_IF_METHOD2(IT_FIRST, IT_REF, oplist)(                                       \
 M_IF_METHOD2(IT_FIRST, IT_CREF, oplist)(                                      \
     fattr int M_F(name, _for_each)(const shared_t *out, int (*callback)(void *, const sub_type*), void*data) \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return 0;                                \
         M_ASSERT(callback != NULL);                                           \
         int ret = 0;                                                          \
         M_F(name, _read_lock)(out);                                           \
@@ -1284,7 +1311,7 @@ M_IF_METHOD2(IT_FIRST, IT_CREF, oplist)(                                      \
 M_IF_METHOD2(IT_LAST, IT_REF, oplist)(                                        \
     fattr int M_F(name, _r_apply)(shared_t *out, int (*callback)(void *, sub_type*), void*data) \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return 0;                                \
         M_ASSERT(callback != NULL);                                           \
         int ret = 0;                                                          \
         M_F(name, _write_lock)(out);                                          \
@@ -1304,7 +1331,7 @@ M_IF_METHOD2(IT_LAST, IT_REF, oplist)(                                        \
 M_IF_METHOD2(IT_LAST, IT_CREF, oplist)(                                       \
     fattr int M_F(name, _r_for_each)(const shared_t *out, int (*callback)(void *, const sub_type*), void*data) \
     {                                                                         \
-        M_ASSERT(out != NULL);                                                \
+        if (M_UNLIKELY(out == NULL)) return 0;                                \
         M_ASSERT(callback != NULL);                                           \
         int ret = 0;                                                          \
         M_F(name, _read_lock)(out);                                           \
@@ -1325,89 +1352,143 @@ M_IF_METHOD2(IT_LAST, IT_CREF, oplist)(                                       \
 /* Define the I/O based operators */
 #define M_SHAR3D_PTR_DECL_IO(name, shared_t, oplist)                          \
 M_IF_METHOD(OUT_STR, oplist)( extern void M_F(name, _out_str)(FILE *, const shared_t *); , ) \
-M_IF_METHOD(IN_STR, oplist)( extern bool M_F(name, _in_str)(shared_t *, FILE *); , ) \
+M_IF_METHOD(IN_STR, oplist)( extern bool M_F(name, _in_str)(shared_t **, FILE *); , ) \
 M_IF_METHOD(GET_STR, oplist)( extern void M_F(name, _get_str)(m_string_t, const shared_t *, bool); , ) \
-M_IF_METHOD(PARSE_STR, oplist)( extern bool M_F(name, _parse_str)(shared_t *, const char *, const char **); , ) \
+M_IF_METHOD(PARSE_STR, oplist)( extern bool M_F(name, _parse_str)(shared_t **, const char *, const char **); , ) \
 M_IF_METHOD(OUT_SERIAL, oplist)( extern m_serial_return_code_t M_F(M_P_EXPAND name, _out_serial)(m_serial_write_t, const shared_t *); , ) \
-M_IF_METHOD(IN_SERIAL, oplist)( extern m_serial_return_code_t M_F(M_P_EXPAND name, _in_serial)(shared_t *, m_serial_read_t); , ) \
+M_IF_METHOD(IN_SERIAL, oplist)( extern m_serial_return_code_t M_F(M_P_EXPAND name, _in_serial)(shared_t **, m_serial_read_t); , ) \
 
 #define M_SHAR3D_PTR_DEF_IO(name, shared_t, type, oplist, fattr)              \
 M_IF_METHOD(OUT_STR, oplist)(                                                 \
     fattr void M_F(name, _out_str)(FILE *file, const shared_t *out)           \
     {                                                                         \
-        M_ASSERT (out != NULL && file != NULL);                               \
-        M_F(name, _read_lock)(out);                                           \
-        /* No exception */                                                    \
-        M_CALL_OUT_STR(oplist, file, out->data);                              \
-        M_F(name, _read_unlock)(out);                                         \
+        M_ASSERT (file != NULL);                                              \
+        fputc('[', file);                                                     \
+        if (out != NULL) {                                                    \
+            M_F(name, _read_lock)(out);                                       \
+            /* No exception */                                                \
+            M_CALL_OUT_STR(oplist, file, out->data);                          \
+            M_F(name, _read_unlock)(out);                                     \
+        }                                                                     \
+        fputc(']', file);                                                     \
     }                                                                         \
 , )                                                                           \
 M_IF_METHOD(IN_STR, oplist)(                                                  \
-    fattr bool M_F(name, _in_str)(shared_t *out, FILE *file)                  \
+    fattr bool M_F(name, _in_str)(shared_t *m_volatile*out, FILE *file)       \
     {                                                                         \
         M_ASSERT (out != NULL && file != NULL);                               \
         M_GLOBAL_CONTEXT();                                                   \
-        M_F(name, _write_lock)(out);                                          \
+        int c = fgetc(file);                                                  \
+        if (c != '[') return false;                                           \
+        c = fgetc(file);                                                      \
+        if (c == ']') {                                                       \
+            /* Return 'null' pointer */                                       \
+            M_F(name, _release)(*out);                                        \
+            *out = NULL;                                                      \
+            return true;                                                      \
+        }                                                                     \
+        ungetc(c, file);                                                      \
+        if (M_UNLIKELY(*out == NULL)) {                                       \
+            *out = M_F(name, _new)();                                         \
+        }                                                                     \
+        M_F(name, _write_lock)(*out);                                         \
         m_volatile bool r = false;                                            \
-        M_ON_EXCEPTION( M_F(name, _write_unlock)(out) )                       \
-            r = M_CALL_IN_STR(oplist, out->data, file);                       \
+        M_ON_EXCEPTION( M_F(name, _write_unlock)(*out) )                      \
+            r = M_CALL_IN_STR(oplist, (*out)->data, file);                    \
         /* even if r is false, we signal the data (no functional impact)*/    \
-        M_F(name, _write_signal)(out);                                        \
-        M_F(name, _write_unlock)(out);                                        \
-        return r;                                                             \
+        M_F(name, _write_signal)(*out);                                       \
+        M_F(name, _write_unlock)(*out);                                       \
+        return r && fgetc(file) == ']';                                       \
     }                                                                         \
 , )                                                                           \
 M_IF_METHOD(GET_STR, oplist)(                                                 \
     fattr void M_F(name, _get_str)(m_string_t str, const shared_t *out, bool append) \
     {                                                                         \
-        M_ASSERT (out != NULL);                                               \
         M_GLOBAL_CONTEXT();                                                   \
-        M_F(name, _read_lock)(out);                                           \
-        M_ON_EXCEPTION( M_F(name, _read_unlock)(out) )                        \
-            M_CALL_GET_STR(oplist, str, out->data, append);                   \
-        M_F(name, _read_unlock)(out);                                         \
+        (append ? m_string_cat_cstr : m_string_set_cstr) M_R (str, "[");      \
+        if (out != NULL) {                                                    \
+            M_F(name, _read_lock)(out);                                       \
+            M_ON_EXCEPTION( M_F(name, _read_unlock)(out) ) {                  \
+                M_CALL_GET_STR(oplist, str, out->data, true);                 \
+            }                                                                 \
+            M_F(name, _read_unlock)(out);                                     \
+        }                                                                     \
+        m_string_cat_cstr M_R(str, "]");                                      \
     }                                                                         \
 , )                                                                           \
 M_IF_METHOD(PARSE_STR, oplist)(                                               \
-    fattr bool M_F(name, _parse_str)(shared_t *out, const char str[], const char **endp) \
+    fattr bool M_F(name, _parse_str)(shared_t *m_volatile*out, const char str[], const char **endp) \
     {                                                                         \
-        M_ASSERT (out != NULL);                                               \
-        M_GLOBAL_CONTEXT();                                                   \
-        M_F(name, _write_lock)(out);                                          \
+        M_ASSERT (out != NULL && str != NULL);                                \
+        const char *m_end = str;                                              \
         m_volatile bool r = false;                                            \
-        M_ON_EXCEPTION( M_F(name, _write_unlock)(out) )                       \
-            r = M_CALL_PARSE_STR(oplist, out->data, str, endp);               \
+        M_GLOBAL_CONTEXT();                                                   \
+        if (str[0] != '[') goto exit_func;                                    \
+        if (str[1] == ']') {                                                  \
+            /* Return 'null' pointer */                                       \
+            M_F(name, _release)(*out);                                        \
+            *out = NULL;                                                      \
+            r = true;                                                         \
+            m_end = str + 2;                                                  \
+            goto exit_func;                                                   \
+        }                                                                     \
+        if (M_UNLIKELY(*out == NULL)) {                                       \
+            *out = M_F(name, _new)();                                         \
+        }                                                                     \
+        M_F(name, _write_lock)(*out);                                         \
+        M_ON_EXCEPTION( M_F(name, _write_unlock)(*out) )                      \
+            r = M_CALL_PARSE_STR(oplist, (*out)->data, str+1, &m_end);        \
         /* even if r is false, we signal the data (no functional impact)*/    \
-        M_F(name, _write_signal)(out);                                        \
-        M_F(name, _write_unlock)(out);                                        \
+        M_F(name, _write_signal)(*out);                                       \
+        M_F(name, _write_unlock)(*out);                                       \
+        if (r && *m_end != ']') { r = false; } else { m_end++; }              \
+        exit_func:                                                            \
+        if (endp) *endp = m_end;                                              \
         return r;                                                             \
     }                                                                         \
 , )                                                                           \
 M_IF_METHOD(OUT_SERIAL, oplist)(                                              \
     fattr m_serial_return_code_t M_F(name, _out_serial)(M_P_EXPAND m_serial_write_t serial, const shared_t *out) \
     {                                                                         \
-        M_ASSERT (out != NULL);                                               \
-        M_F(name, _read_lock)(out);                                           \
-        m_volatile m_serial_return_code_t r = M_SERIAL_FAIL;                  \
-        M_ON_EXCEPTION( M_F(name, _read_unlock)(out) )                        \
-            r = M_CALL_OUT_SERIAL(oplist, serial, out->data);                 \
-        M_F(name, _read_unlock)(out);                                         \
-        return r;                                                             \
+        m_serial_local_t local;                                               \
+        m_volatile m_serial_return_code_t r;                                  \
+        r = serial->m_interface->write_array_start(local, serial, (size_t)(out != NULL)); \
+        if (out != NULL) {                                                    \
+            M_F(name, _read_lock)(out);                                       \
+            M_ON_EXCEPTION( M_F(name, _read_unlock)(out) )                    \
+                r |= M_CALL_OUT_SERIAL(oplist, serial, out->data);            \
+            M_F(name, _read_unlock)(out);                                     \
+        }                                                                     \
+        r |= serial->m_interface->write_array_end(local, serial);             \
+        return r & M_SERIAL_FAIL;                                             \
     }                                                                         \
 , )                                                                           \
 M_IF_METHOD(IN_SERIAL, oplist)(                                               \
-    fattr m_serial_return_code_t M_F(name, _in_serial)(shared_t *out, m_serial_read_t serial) \
+    fattr m_serial_return_code_t M_F(name, _in_serial)(shared_t *m_volatile*out, m_serial_read_t serial) \
     {                                                                         \
         M_ASSERT (out != NULL);                                               \
+        size_t size;                                                          \
+        m_serial_local_t local;                                               \
+        m_volatile m_serial_return_code_t r ;                                 \
         M_GLOBAL_CONTEXT();                                                   \
-        M_F(name, _write_lock)(out);                                          \
-        m_volatile m_serial_return_code_t r = M_SERIAL_FAIL;                  \
-        M_ON_EXCEPTION( M_F(name, _write_unlock)(out) )                       \
-            r = M_CALL_IN_SERIAL(oplist, out->data, serial);                  \
-        /* even if r is false, we signal the data (no functional impact)*/    \
-        M_F(name, _write_signal)(out);                                        \
-        M_F(name, _write_unlock)(out);                                        \
-        return r;                                                             \
+        r = serial->m_interface->read_array_start(local, serial, &size);      \
+        if (r == M_SERIAL_OK_DONE) {                                          \
+            /* Return 'null' pointer */                                       \
+            M_F(name, _release)(*out);                                        \
+            *out = NULL;                                                      \
+        } else if (r == M_SERIAL_OK_CONTINUE) {                               \
+            if (M_UNLIKELY(*out == NULL)) {                                   \
+                *out = M_F(name, _new)();                                     \
+            }                                                                 \
+            M_F(name, _write_lock)(*out);                                     \
+            M_ON_EXCEPTION( M_F(name, _write_unlock)(*out) )                  \
+                r |= M_CALL_IN_SERIAL(oplist, (*out)->data, serial);          \
+            /* even if r is false, we signal the data (no functional impact)*/ \
+            M_F(name, _write_signal)(*out);                                   \
+            M_F(name, _write_unlock)(*out);                                   \
+            r |= serial->m_interface->read_array_next(local, serial);         \
+        }                                                                     \
+        return r & M_SERIAL_FAIL;                                             \
     }                                                                         \
 , )                                                                           \
 

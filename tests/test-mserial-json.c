@@ -26,6 +26,7 @@
 #include "m-variant.h"
 #include "m-list.h"
 #include "m-dict.h"
+#include "m-shared-ptr.h"
 #include "coverage.h"
 
 #include "m-serial-json.h"
@@ -52,6 +53,9 @@ typedef enum {
 } my_return_code_t;
 #define M_OPL_my_return_code_t() M_ENUM_OPLIST(my_return_code_t, SUCCESS)
 
+SHARED_PTR_DEF(shared_int, int)
+#define M_OPL_shared_int_t() SHARED_PTR_OPLIST(shared_int, M_BASIC_OPLIST)
+
 TUPLE_DEF2(my,
            (vala, int),
            (valb, float),
@@ -61,9 +65,10 @@ TUPLE_DEF2(my,
            (valf, v2_t),
            (valg, l2_t),
            (valh, d2_t),
-           (vali, my_return_code_t)
+           (vali, my_return_code_t),
+           (valj, shared_int_t *, M_OPL_shared_int_t())
            )
-#define M_OPL_my_t() TUPLE_OPLIST(my, M_BASIC_OPLIST, M_BASIC_OPLIST, M_BASIC_OPLIST, STRING_OPLIST, M_OPL_a2_t(), M_OPL_v2_t(), M_OPL_l2_t(), M_OPL_d2_t(), M_OPL_my_return_code_t() )
+#define M_OPL_my_t() TUPLE_OPLIST(my, M_BASIC_OPLIST, M_BASIC_OPLIST, M_BASIC_OPLIST, STRING_OPLIST, M_OPL_a2_t(), M_OPL_v2_t(), M_OPL_l2_t(), M_OPL_d2_t(), M_OPL_my_return_code_t(), M_OPL_shared_int_t() )
 
 TUPLE_DEF2(my2,
            (activated, bool),
@@ -88,7 +93,7 @@ static void test_out_empty(void)
 
   f = m_core_fopen ("a-mjson.dat", "rt");
   if (!f) abort();
-  static const char expected[] = "{ \"activated\":false,\"data\":{ \"vala\":0,\"valb\":0.000000,\"valc\":false,\"vald\":\"\",\"vale\":[],\"valf\":{},\"valg\":[],\"valh\":{},\"vali\":0}";
+  static const char expected[] = "{ \"activated\":false,\"data\":{ \"vala\":0,\"valb\":0.000000,\"valc\":false,\"vald\":\"\",\"vale\":[],\"valf\":{},\"valg\":[],\"valh\":{},\"vali\":0,\"valj\":[]}}";
   char get[sizeof expected];
   char *unused = fgets (get, sizeof expected , f);
   assert (unused != NULL && strcmp(get, expected) == 0);
@@ -131,7 +136,9 @@ static void test_out_fill(void)
           "              \"vala\":1742,\n"
           " \"vald\": \"This is a test\",\n"
           "\"vali\": 3,"
-          "    \"valc\": true   } }\n");
+          "    \"valc\": true,   \n"
+          " \"valj\": [2] } } \n"
+        );
   fclose(f);
 
   f = m_core_fopen ("a-mjson.dat", "rt");
@@ -152,8 +159,8 @@ static void test_out_fill(void)
 
   f = m_core_fopen ("a-mjson.dat", "rt");
   if (!f) abort();
-  static const char expected[] = "{ \"activated\":false,\"data\":{ \"vala\":1742,\"valb\":-2.300000,\"valc\":true,\"vald\":\"This is a test\",\"vale\":[1,2,3],\"valf\":{\"is_bool\":true},\"valg\":[1,2,3,4,5,6],\"valh\":{\"steeve\":-4,\"jane\":3},\"vali\":3}}";
-  static const char expected2[] = "{ \"activated\":false,\"data\":{ \"vala\":1742,\"valb\":-2.300000,\"valc\":true,\"vald\":\"This is a test\",\"vale\":[1,2,3],\"valf\":{\"is_bool\":true},\"valg\":[1,2,3,4,5,6],\"valh\":{\"jane\":3,\"steeve\":-4},\"vali\":3}}";
+  static const char expected[] = "{ \"activated\":false,\"data\":{ \"vala\":1742,\"valb\":-2.300000,\"valc\":true,\"vald\":\"This is a test\",\"vale\":[1,2,3],\"valf\":{\"is_bool\":true},\"valg\":[1,2,3,4,5,6],\"valh\":{\"steeve\":-4,\"jane\":3},\"vali\":3,\"valj\":[2]}}";
+  static const char expected2[] = "{ \"activated\":false,\"data\":{ \"vala\":1742,\"valb\":-2.300000,\"valc\":true,\"vald\":\"This is a test\",\"vale\":[1,2,3],\"valf\":{\"is_bool\":true},\"valg\":[1,2,3,4,5,6],\"valh\":{\"jane\":3,\"steeve\":-4},\"vali\":3,\"valj\":[2]}}";
   char get[sizeof expected];
   char *unused2 = fgets (get, sizeof expected , f);
   assert(unused2 != NULL);
@@ -231,7 +238,8 @@ static void test_out_str_fill(void)
                       "              \"vala\":1742,\n"
                       " \"vald\": \"This is a test\",\n"
                       "\"vali\": 3,"
-                      "    \"valc\": true   } }\n");
+                      "    \"valc\": true,"
+                      "\"valj\":[2]   } }\n");
 
   m_serial_str_json_read_init(in, string_get_cstr(f) );
   ret = my2_in_serial(el2, in);
@@ -246,8 +254,8 @@ static void test_out_str_fill(void)
   m_serial_str_json_write_clear(out);
 
   // In function of the precise hashing (different between 64 bits & 32 bits), both strings are possible: 
-  static const char expected[] = "{ \"activated\":false,\"data\":{ \"vala\":1742,\"valb\":-2.300000,\"valc\":true,\"vald\":\"This is a test\",\"vale\":[1,2,3],\"valf\":{\"is_bool\":true},\"valg\":[1,2,3,4,5,6],\"valh\":{\"steeve\":-4,\"jane\":3},\"vali\":3}}";
-  static const char expected2[] = "{ \"activated\":false,\"data\":{ \"vala\":1742,\"valb\":-2.300000,\"valc\":true,\"vald\":\"This is a test\",\"vale\":[1,2,3],\"valf\":{\"is_bool\":true},\"valg\":[1,2,3,4,5,6],\"valh\":{\"jane\":3,\"steeve\":-4},\"vali\":3}}";
+  static const char expected[] = "{ \"activated\":false,\"data\":{ \"vala\":1742,\"valb\":-2.300000,\"valc\":true,\"vald\":\"This is a test\",\"vale\":[1,2,3],\"valf\":{\"is_bool\":true},\"valg\":[1,2,3,4,5,6],\"valh\":{\"steeve\":-4,\"jane\":3},\"vali\":3,\"valj\":[2]}}";
+  static const char expected2[] = "{ \"activated\":false,\"data\":{ \"vala\":1742,\"valb\":-2.300000,\"valc\":true,\"vald\":\"This is a test\",\"vale\":[1,2,3],\"valf\":{\"is_bool\":true},\"valg\":[1,2,3,4,5,6],\"valh\":{\"jane\":3,\"steeve\":-4},\"vali\":3,\"valj\":[2]}}";
   assert(string_equal_str_p(f, expected) || string_equal_str_p(f, expected2) );
   
   m_serial_str_json_read_init(in, string_get_cstr(f) );
