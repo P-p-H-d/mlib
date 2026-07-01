@@ -56,7 +56,7 @@ static void test1(unsigned n)
 
             M_LET(str, string_t) {
                 shared_estring_get_str(str, r, false);
-                bool b = shared_estring_parse_str(p, string_get_cstr(str), NULL);
+                bool b = shared_estring_parse_str(&p, string_get_cstr(str), NULL);
                 assert(b);
             }
 
@@ -71,7 +71,7 @@ static void test1(unsigned n)
     assert(f != NULL);
     M_TRY(test1) {
         M_LET(p, shared_estring_ptr_t) {
-            bool b = shared_estring_in_str(p, f);
+            bool b = shared_estring_in_str(&p, f);
             (void) b;
         }
     } M_CATCH(test1, 0) {
@@ -164,7 +164,7 @@ static void test3(unsigned n)
             M_LET(str, string_t) {
                 shared_string_array_safe_get(&str, s, 2U * n + 3U);
                 shared_string_array_get_str(str, r, false);
-                b = shared_string_array_parse_str(p, string_get_cstr(str), NULL);
+                b = shared_string_array_parse_str(&p, string_get_cstr(str), NULL);
                 assert(b);
             }
 
@@ -182,7 +182,7 @@ static void test3(unsigned n)
     M_TRY(test1) {
         M_LET(p, shared_string_array_ptr_t) {
             p = shared_string_array_new();
-            bool b = shared_string_array_in_str(p, f);
+            bool b = shared_string_array_in_str(&p, f);
             (void) b;
         }
     } M_CATCH(test1, 0) {

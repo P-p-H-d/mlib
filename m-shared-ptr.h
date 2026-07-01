@@ -150,6 +150,14 @@
    ,CLEAR(M_F(name, _clear))                                                  \
    ,INIT_MOVE(M_SET_DEFAULT)                                                  \
    ,MOVE(M_SET_DEFAULT)                                                       \
+   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, _get_str)),)               \
+   ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(API_2(M_F(name, _parse_str))),)  \
+   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, _out_str)),)               \
+   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(API_2(M_F(name, _in_str))),)           \
+   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, _out_serial)),)      \
+   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(API_2(M_F(name, _in_serial))),)  \
+   ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, _equal_p)),)                   \
+   ,M_IF_METHOD(HASH, oplist)(HASH(M_F(name, _hash)),)                        \
    )
 
 /* Init to null constant pointer (compatible C / C++) */
@@ -176,6 +184,14 @@
    ,CLEAR(M_F(name, _clear))                                                  \
    ,INIT_MOVE(M_SET_DEFAULT)                                                  \
    ,MOVE(M_SET_DEFAULT)                                                       \
+   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, _get_str)),)               \
+   ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(API_2(M_F(name, _parse_str))),)  \
+   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, _out_str)),)               \
+   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(API_2(M_F(name, _in_str))),)           \
+   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, _out_serial)),)      \
+   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(API_2(M_F(name, _in_serial))),)  \
+   ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, _equal_p)),)                   \
+   ,M_IF_METHOD(HASH, oplist)(HASH(M_F(name, _hash)),)                        \
    )
 
 
@@ -1358,7 +1374,7 @@ M_IF_METHOD(OUT_STR, oplist)(                                                 \
     }                                                                         \
 , )                                                                           \
 M_IF_METHOD(IN_STR, oplist)(                                                  \
-    fattr bool M_F(name, _in_str)(shared_t **out, FILE *file)                 \
+    fattr bool M_F(name, _in_str)(shared_t *m_volatile*out, FILE *file)       \
     {                                                                         \
         M_ASSERT (out != NULL && file != NULL);                               \
         M_GLOBAL_CONTEXT();                                                   \
@@ -1401,7 +1417,7 @@ M_IF_METHOD(GET_STR, oplist)(                                                 \
     }                                                                         \
 , )                                                                           \
 M_IF_METHOD(PARSE_STR, oplist)(                                               \
-    fattr bool M_F(name, _parse_str)(shared_t **out, const char str[], const char **endp) \
+    fattr bool M_F(name, _parse_str)(shared_t *m_volatile*out, const char str[], const char **endp) \
     {                                                                         \
         M_ASSERT (out != NULL && str != NULL);                                \
         const char *m_end = str;                                              \
@@ -1448,7 +1464,7 @@ M_IF_METHOD(OUT_SERIAL, oplist)(                                              \
     }                                                                         \
 , )                                                                           \
 M_IF_METHOD(IN_SERIAL, oplist)(                                               \
-    fattr m_serial_return_code_t M_F(name, _in_serial)(shared_t **out, m_serial_read_t serial) \
+    fattr m_serial_return_code_t M_F(name, _in_serial)(shared_t *m_volatile*out, m_serial_read_t serial) \
     {                                                                         \
         M_ASSERT (out != NULL);                                               \
         size_t size;                                                          \
@@ -1456,22 +1472,20 @@ M_IF_METHOD(IN_SERIAL, oplist)(                                               \
         m_volatile m_serial_return_code_t r ;                                 \
         M_GLOBAL_CONTEXT();                                                   \
         r = serial->m_interface->read_array_start(local, serial, &size);      \
-        if (r == M_SERIAL_OK_CONTINUE) {                                      \
-            if (size == 0) {                                                  \
-                /* Return 'null' pointer */                                   \
-                M_F(name, _release)(*out);                                    \
-                *out = NULL;                                                  \
-            } else {                                                          \
-                if (M_UNLIKELY(*out == NULL)) {                               \
-                    *out = M_F(name, _new)();                                 \
-                }                                                             \
-                M_F(name, _write_lock)(*out);                                 \
-                M_ON_EXCEPTION( M_F(name, _write_unlock)(*out) )              \
-                    r |= M_CALL_IN_SERIAL(oplist, (*out)->data, serial);      \
-                /* even if r is false, we signal the data (no functional impact)*/ \
-                M_F(name, _write_signal)(*out);                               \
-                M_F(name, _write_unlock)(*out);                               \
+        if (r == M_SERIAL_OK_DONE) {                                          \
+            /* Return 'null' pointer */                                       \
+            M_F(name, _release)(*out);                                        \
+            *out = NULL;                                                      \
+        } else if (r == M_SERIAL_OK_CONTINUE) {                               \
+            if (M_UNLIKELY(*out == NULL)) {                                   \
+                *out = M_F(name, _new)();                                     \
             }                                                                 \
+            M_F(name, _write_lock)(*out);                                     \
+            M_ON_EXCEPTION( M_F(name, _write_unlock)(*out) )                  \
+                r |= M_CALL_IN_SERIAL(oplist, (*out)->data, serial);          \
+            /* even if r is false, we signal the data (no functional impact)*/ \
+            M_F(name, _write_signal)(*out);                                   \
+            M_F(name, _write_unlock)(*out);                                   \
             r |= serial->m_interface->read_array_next(local, serial);         \
         }                                                                     \
         return r & M_SERIAL_FAIL;                                             \
