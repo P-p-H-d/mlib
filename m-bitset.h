@@ -457,7 +457,7 @@ M_P(void, m_bitset, _push_at, m_bitset_t set, size_t key, bool value)
   m_b1tset_limb_ct v = set->ptr[offset];
   m_b1tset_limb_ct mask = (((m_b1tset_limb_ct)1)<<index)-1;
   m_b1tset_limb_ct carry = (v >> (M_B1TSET_LIMB_BIT-1) );
-  v = (v & mask) | ((unsigned int) value << index) | ((v & ~mask) << 1);
+  v = (v & mask) | (((m_b1tset_limb_ct) value) << index) | ((v & ~mask) << 1);
   set->ptr[offset] = v;
   size_t size = (set->size + M_B1TSET_LIMB_BIT - 1) / M_B1TSET_LIMB_BIT;
   M_ASSERT (size >= offset + 1);
