@@ -1249,7 +1249,7 @@ M_IF_METHOD(POP_MOVE, oplist)(                                                \
         M_F(name, _write_lock)(out);                                          \
         if (M_CALL_EMPTY_P(oplist, out->data) == false) {                     \
             M_ON_EXCEPTION( M_F(name, _write_unlock)(out) )                   \
-                M_CALL_PUSH_MOVE(oplist, out->data, value);                   \
+                M_CALL_POP_MOVE(oplist, value, out->data);                    \
             M_F(name, _free_signal)(out);                                     \
             ret = true;                                                       \
         }                                                                     \
