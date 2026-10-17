@@ -48,7 +48,7 @@ static void test_utf8_basic(void)
       m_str1ng_set_size(s, strlen(buf));
       assert (string_get_cref(it) == i);
       assert (m_str1ng_utf8_length(buf) == 1);
-      assert (m_str1ng_utf8_valid_str_p(buf) == true);
+      assert (m_str1ng_utf8_valid_str_p(buf));
       /* Higher level access */
       string_reset(s);
       string_push_u(s, i);
@@ -100,7 +100,14 @@ static void test_utf8_basic(void)
     string_push_u(s, i);
     assert(string_utf8_p(s) == false);
   }
-  /* NOTE: Non-canonical representation are not rejected */
+  /* Test of overlong encoding exploits */
+  const char tab[] = {(char) 0xC0, (char) 0xAF};
+  string_set_str(s, tab );
+  assert(!m_string_utf8_p(s));
+  const char tab2[] = {(char) 0xC1, (char) 0x80};
+  string_init_set_str(s, tab2 );
+  assert(!m_string_utf8_p(s));
+
   string_clear(s);
 }
 

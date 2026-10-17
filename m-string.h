@@ -1761,19 +1761,29 @@ m_str1ng_utf8_decode(char c, m_str1ng_utf8_state_e *state,
 }
 
 /* Check if the given array of characters is a valid UTF8 stream */
-/* NOTE: Non-canonical representation are not always rejected */
 M_INLINE bool
 m_str1ng_utf8_valid_str_p(const char str[])
 {
   m_str1ng_utf8_state_e s = M_STR1NG_UTF8_STARTING;
+  m_str1ng_utf8_state_e maxs = M_STR1NG_UTF8_STARTING;
+  const m_string_unicode_t limit[4] = {0x0u, 0x80u, 0x800u, 0x10000u};
   m_string_unicode_t u = 0;
   while (*str) {
     m_str1ng_utf8_decode(*str, &s, &u);
-    if ((s == M_STR1NG_UTF8_ERROR)
-        ||(s == M_STR1NG_UTF8_STARTING
-           &&(u > 0x10FFFF /* out of range */
-              ||(u >= 0xD800 && u <= 0xDFFF) /* surrogate halves */)))
+    if (s == M_STR1NG_UTF8_ERROR)
       return false;
+    maxs = (s > maxs) ? s : maxs;
+    if (s == M_STR1NG_UTF8_STARTING) {
+      /* overlong encoding */
+      M_ASSERT( (maxs>>3) < 5);
+      if ( u < limit[maxs>>3])
+        return false;
+      if (u > 0x10FFFF) /* out of range */
+        return false;
+      if (u >= 0xD800 && u <= 0xDFFF) /* surrogate halves */
+        return false;
+      maxs = M_STR1NG_UTF8_STARTING;
+    }
     str++;
   }
   return true;
