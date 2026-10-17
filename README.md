@@ -6247,7 +6247,6 @@ Return the number of UTF8 encoded code point in the string.
 ##### `bool string_utf8_p(string_t str)`
 
 Return true if the string is a valid UTF8, false otherwise.
-It doesn't check for unique canonical form for UTF8 string.
 
 ##### `STRING_CTE(cstring)`
 
