@@ -101,10 +101,10 @@ static void test_utf8_basic(void)
     assert(string_utf8_p(s) == false);
   }
   /* Test of overlong encoding exploits */
-  const char tab[] = {(char) 0xC0, (char) 0xAF};
+  const char tab[] = {(char) 0xC0, (char) 0xAF, 0};
   string_set_str(s, tab );
   assert(!m_string_utf8_p(s));
-  const char tab2[] = {(char) 0xC1, (char) 0x80};
+  const char tab2[] = {(char) 0xC1, (char) 0x80, 0};
   string_init_set_str(s, tab2 );
   assert(!m_string_utf8_p(s));
 
