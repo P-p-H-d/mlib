@@ -4804,7 +4804,8 @@ m_core_parse2_enum (const char str[], const char **endptr)
       for(M_GET_IT_FIRST oplist (iterator, container) ;                       \
           !M_GET_IT_END_P oplist (iterator)                                   \
             && (item = M_GET_IT_REF oplist (iterator), true) ;                \
-          M_GET_IT_NEXT oplist (iterator))
+          !M_GET_IT_END_P oplist (iterator)                                   \
+            && (M_GET_IT_NEXT oplist (iterator), true))
 
 /* Internal for M_EACH with M_GET_IT_CREF operator */
 #define M_EACHI_CONST(item,container,oplist, iterator, cont)                  \
@@ -4814,7 +4815,8 @@ m_core_parse2_enum (const char str[], const char **endptr)
       for(M_GET_IT_FIRST oplist (iterator, container) ;                       \
           !M_GET_IT_END_P oplist (iterator)                                   \
             && (item = M_GET_IT_CREF oplist (iterator), true) ;               \
-          M_GET_IT_NEXT oplist (iterator))
+          !M_GET_IT_END_P oplist (iterator)                                   \
+            && (M_GET_IT_NEXT oplist (iterator), true))
 
 
 /* M_LET defines, initializes & clears an object available within the next bracket.
